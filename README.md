@@ -1,7 +1,7 @@
-<div style="text-align:center">
-  <img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" style="margin-top: 1em; width:300px; height: auto">
-  <h4 style="margin: 0 0 2em 0">Building the fastest webmail app on the planet</h4>
-</div>
+<h4 align="center">
+  <br><img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" width="300">
+  <br>Building the fastest webmail app on the planet<br><br>
+</h4>
 
 Welcome to the Runbox 7 project!
 
