@@ -1,12 +1,39 @@
-# Runbox Angular
+<div style="text-align:center">
+  <img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" style="margin-top: 1em; width:300px; height: auto">
+  <h4 style="margin: 0 0 2em 0">Building the fastest webmail app on the planet</h4>
+</div>
+
+Welcome to the Runbox 7 project!
+
+Runbox 7 is a next generation webmail app that combines the instant experience of email clients with the versatility of web browsers.
+
+The app is written in Angular 2+ and HTML5 Canvas, using a Perl backend with MySQL storage.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.6.8.
 
-# Before you start
+## Getting Started
 
-Run `npm install` to install all dependencies
+These instructions will get the Runbox 7 App up and running on your local machine, using the Runbox production servers as backend. You can then develop and test changes to the app with a live Runbox account.
 
-## Development with your Runbox account (using prod servers as backend)
+### Prerequisites
+
+To run Runbox 7 you first need to install:
+* Node.js
+* npm
+* Git
+
+Installation instructions for Node and NPM:
+* Ubuntu 18.04: [https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-18-04](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-18-04)
+* OS X: [http://blog.teamtreehouse.com/install-node-js-npm-mac](http://blog.teamtreehouse.com/install-node-js-npm-mac)
+* Windows: [https://blog.teamtreehouse.com/install-node-js-npm-windows](https://blog.teamtreehouse.com/install-node-js-npm-windows)
+### Installation
+
+1. Clone the codebase onto your system: `git clone https://github.com/runbox/runbox7.git`
+1. Change directory into the repository directory: `cd runbox7`
+1. Install dependencies: =npm install=
+
+
+## Development with your Runbox account (using production servers as backend)
 
 To get started with frontend development without setting up any server.
 
@@ -18,16 +45,16 @@ Log in with your production runbox account.
 
 ## Development with your own Runbox server installation
 
-Run `npm run appdev` and you will be able to access Runbox7 at `https://yourvm/appdev`
+Run `npm run appdev` and you will be able to access Runbox 7 at `https://yourvm/appdev`
 
-## Development server with RMM proxy
+## Development server with Runbox proxy
 
 Run `npm start https://yourvm.runbox.com` to use the backend of your choice. No host file config needed.
     `npm start https://localhost:443` *** localhost might be necessary if your vm cannot resolve its external IP to localhost
 
-You may then access the angular app at http://localhost:4200
+You may then access the angular app at: [http://localhost:4200](http://localhost:4200)
 
-If you put the production url https://runbox.com as the argument to the command above, then you can test
+If you put the production url `https://runbox.com` as the argument to the command above, then you can test
 frontend development directly with your production account.
 
 ## Creating production bundles
@@ -37,7 +64,7 @@ to point to the new bundles.
 
 ## No-script
 
-If you use no-script, remember to whitelist localhost to execute localhost
+If you use no-script, remember to whitelist localhost to execute localhost.
 
 ## Code scaffolding
 
@@ -46,7 +73,6 @@ Example creating a new module and a component:
 `ng generate module --project runbox7 xapian/SearchExpressionBuilder`
 
 followed by
-
 `ng generate component --project runbox7 xapian/SearchExpressionBuilder`
 
 This resulted in the module `xapian/search-expression-builder/search-expression-builder.module.ts` which also imported the component.
@@ -71,3 +97,20 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
+## Development
+
+Depending on what type of development you wish to do, you may want to set up a Runbox trial account to avoid affecting data stored in your own Runbox account.
+
+We warmly welcome bug reports, feature requests, and contributions via pull requests.
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on the process for submitting pull requests to us.
+
+See also [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for our code of conduct.
+
+## License
+This project is licensed under GPLv3 - see [LICENSE.md](CODE_OF_CONDUCT.md) for details
+
+## Acknowledgments
+   * Thanks to the folks behind the Xapian project, an integral part of Runbox 7: [https://xapian.org](https://xapian.org)
