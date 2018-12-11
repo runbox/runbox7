@@ -20,6 +20,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SearchExpressionBuilderComponent } from './search-expression-builder.component';
+import { MatMenuModule, MatIconModule, MatInputModule, MatDatepickerModule, MatNativeDateModule } from '@angular/material';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('SearchExpressionBuilderComponent', () => {
   let component: SearchExpressionBuilderComponent;
@@ -27,6 +29,14 @@ describe('SearchExpressionBuilderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [
+        NoopAnimationsModule,
+        MatMenuModule,
+        MatIconModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule
+      ],
       declarations: [ SearchExpressionBuilderComponent ]
     })
     .compileComponents();

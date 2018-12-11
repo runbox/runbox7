@@ -77,7 +77,9 @@ describe('SingleMailViewerComponent', () => {
                 subject: 'Test subject'
               },
               text: {
-                text: 'blablabla'
+                text: 'blablabla',
+                html: null,
+                textAsHtml: null
               }
             });
           }

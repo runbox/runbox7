@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/runbox/runbox7.svg?branch=master)](https://travis-ci.org/runbox/runbox7)
+
 <h4 align="center">
   <br><img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" width="400">
   <br>Building the fastest webmail app on the planet<br><br>
