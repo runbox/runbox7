@@ -21,9 +21,17 @@ import {DraftFormModel} from './draftdesk.service';
 import { FromAddress } from '../rmmapi/rbwebmail';
 import { MailAddressInfo } from '../xapian/messageinfo';
 
+
 describe('DraftDesk', () => {
     it('Reply', (done) => {
         console.log('Reply test');
+        const mailDate = new Date(2017, 6, 1);
+
+        const timezoneOffset: number = mailDate.getTimezoneOffset();
+
+        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
+            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
+            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
 
         let draft = DraftFormModel.reply({
                 headers: {
@@ -36,7 +44,7 @@ describe('DraftDesk', () => {
                 to: [
                     {address: 'test2@runbox.com', name: 'Test2'}
                 ],
-                date: new Date(2017, 6, 1),
+                date: mailDate,
                 subject: 'Test subject',
                 text: 'blabla\nabcde',
                 rawtext: 'blabla\nabcde',
@@ -47,7 +55,7 @@ describe('DraftDesk', () => {
 
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.to).toBe('Test1<test1@runbox.com>');
-        expect(draft.msg_body).toBe('\n2017-07-01 00:00 GMT+02:00 Test1<test1@runbox.com>:\n> blabla\n> abcde');
+        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n> blabla\n> abcde`);
         draft = DraftFormModel.reply({
                 headers: {
                     'message-id': 'themessageid112414',
@@ -69,9 +77,9 @@ describe('DraftDesk', () => {
 
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.to).toBe('test2@runbox.com');
-        expect(draft.msg_body).toBe('\n2017-07-02 00:00 GMT+02:00 test2@runbox.com:\n' +
+        expect(draft.msg_body).toBe(`\n2017-07-02 00:00 ${timezoneOffsetString} test2@runbox.com:\n` +
                                     '> \n' +
-                                    '> 2017-07-01 00:00 GMT+02:00 Test1<test1@runbox.com>:\n' +
+                                    `> 2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n` +
                                     '>> blabla\n>> abcde');
         done();
     });

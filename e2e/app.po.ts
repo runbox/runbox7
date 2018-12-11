@@ -1,11 +1,15 @@
-import { browser, by, element } from 'protractor';
+import { browser, by, element, until } from 'protractor';
 
 export class AppPage {
   navigateTo() {
-    return browser.get('/');
+    return browser.get('/login');
   }
 
-  getParagraphText() {
-    return element(by.css('app-root h1')).getText();
+  waitForRedirect() {
+    return browser.wait(until.elementLocated(by.id('loginHeader')), 10000);
+  }
+
+  getLoginHeaderText() {
+    return element(by.css('#loginHeader h1')).getText();
   }
 }
