@@ -1,0 +1,128 @@
+<div class="loginSection" style="height: 20%; background-image: linear-gradient(145deg, #0068b7, #003156);">
+  <div id="loginHeader">
+    <h1 style="margin-bottom: 0; font-size: 6vh; color: white">Welcome to Runbox 7</h1>
+    <h4 style="margin: 0; font-size: 2.8vh; color: #29b6f6">The fastest webmail app on the planet</h4>
+    <p>Log in below or <a href="/signup?runbox7=1">create a new account</a></p>
+  </div>
+</div>
+<div class="loginSection" style="width: 100%; height: 60%;">
+  <div class="loginSide">
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 40vh; left: 7vw; height: 4vh; width: auto; transform: rotate(65deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 46vh; left: 12vw; height: 6vh; width: auto; transform: rotate(51deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 50vh; left: 18vw; height: 8vh; width: auto; transform: rotate(43deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 53vh; left: 27vw; height: 10vh; width: auto; transform: rotate(33deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 52vh; left: 63vw; height: 12vh; width: auto; transform: rotate(12deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 45vh; left: 73vw; height: 16vh; width: auto; transform: rotate(5deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 35vh; left: 85vw; height: 20vh; width: auto; filter: opacity(100%)" />
+  </div>
+  
+  <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginform.value)" #loginform="ngForm">
+    <div class="loginScreen">
+      <div id="loginArea">
+	<div>
+          <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
+	</div>            
+	<p *ngIf="loginerrormessage" style="color: #f00">{{loginerrormessage}}</p>
+	<mat-form-field>
+          <input matInput placeholder="Username" name="username" autofocus ngModel />
+	</mat-form-field>
+	<mat-form-field>
+          <input matInput placeholder="Password" type="password" name="password" ngModel />
+	</mat-form-field>
+	<button mat-raised-button color="primary" type="submit">Log in</button>
+	<div id="createAccount">
+	  <a href="/signup?runbox7=1">Create account</a>
+	</div>
+      </div>
+    </div>   
+  </form>
+  <form *ngIf="twofactor" (ngSubmit)="onTwoFactorSubmit(twofactorform.value)" #twofactorform="ngForm">
+    <div class="loginScreen">
+      <div id="tfaArea">
+	<mat-card style="max-width: 90vw">
+	  <div>
+	    <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
+	  </div>            
+	  <mat-card-title><h3>Two-Factor Authentication</h3></mat-card-title>
+	  <mat-card-content>
+            <ng-container *ngIf="!twofactormethodgroup.value">
+	      <p>This account has Two-Factor Authentication enabled.</p>
+              <p>Please select an option below to continue.</p>
+            </ng-container>
+            <ng-container *ngIf="twofactormethodgroup.value==='totp'">                            
+              <p>Please enter your TOTP code.</p>
+              <br />
+              <mat-form-field>
+		<input matInput type="number" placeholder="Timed one-time password" name="totp" ngModel />
+              </mat-form-field>
+	      <button mat-raised-button color="primary" type="submit">Log in</button>
+            </ng-container>
+            <ng-container *ngIf="twofactormethodgroup.value==='otp'">
+              <p>Please enter your OTP code.</p>
+              <br />
+              <mat-form-field>
+		<input matInput type="number" placeholder="One-time password" name="otp" ngModel />
+              </mat-form-field>
+	      <button mat-raised-button color="primary" type="submit">Log in</button>
+            </ng-container>                    
+            <ng-container *ngIf="twofactormethodgroup.value==='unlock_code'">
+              <p>Please enter your unlock code.</p>
+	      <p>If you chose a security question and answer when setting up 2FA, enter those as well.</p>
+              <br />
+              <mat-form-field style="width: 100%">
+		<input matInput type="password" placeholder="Unlock code" name="unlock_code" ngModel />
+              </mat-form-field>
+              <h4>Security question</h4>
+              <p>{{unlock_question}}</p>
+              <br />
+              <mat-form-field style="width: 100%">
+		<input matInput type="password" placeholder="Security answer" name="unlock_answer" ngModel />
+              </mat-form-field>
+              <button mat-raised-button color="primary" type="submit">Unlock</button>
+            </ng-container>
+            <p *ngIf="twofactorerror" style="color: #f00">{{twofactorerror}}</p>
+	  </mat-card-content>
+	  <mat-card-actions style="text-align: center; margin: 0;">
+	    <div>
+              <mat-button-toggle-group name="twofactormethod" #twofactormethodgroup="matButtonToggleGroup" ngModel>
+		<mat-button-toggle value="totp" title="Timed one-time password">
+		  <img style="margin: 5px" src="/_img/icon/totp.png" /> TOTP
+		</mat-button-toggle>
+		<mat-button-toggle value="otp" title="One-time password">
+		  <img style="margin: 5px" src="/_img/icon/otp.png" /> OTP
+		</mat-button-toggle>   
+		<mat-button-toggle value="unlock_code" title="Use unlock code">
+		  <img style="margin: 5px" src="/_img/icon/unlock_code.png"> Unlock
+		</mat-button-toggle>                         
+              </mat-button-toggle-group>
+	    </div>
+	    <br />
+	    <div>
+              <button mat-raised-button title="Go back" (click)="twofactor=false">
+		<img style="margin: 5px" src="/_img/icon/return.png" /> Go back                                                
+              </button>
+	    </div>
+	  </mat-card-actions>
+	</mat-card>
+      </div>
+    </div>
+  </form>
+  
+</div>
+<div class="loginSection" style="height: 20%; background-image: linear-gradient(170deg, #014f89, #001e35);">
+  <div id="loginFooter">
+    <h4 style="margin: 0.5em 0 0 0; text-align: center">More information:</h4>
+    <a href=" https://blog.runbox.com/2018/12/runbox-7-is-going-open-source/">Runbox 7 is going open source</a><br />
+    <a href=" https://blog.runbox.com/2018/12/the-secret-behind-runbox-7s-speed/">The secret behind Runbox 7's speed</a><br />
+    <a href="https://blog.runbox.com/2018/11/runbox-7-webmail-entering-open-beta-phase/">Runbox 7 Webmail entering open beta phase</a>
+    <div id="loginFooterMenuBottom">
+      <ul>
+	<li><a href="/about/">About Runbox</a></li>
+	<li><a href="/about/terms-service/">Terms of Service</a></li>
+	<li><a href="/about/privacy-policy/">Privacy Policy</a></li>
+	<li><a href="https://community.runbox.com/">Community</a></li>
+	<!--<li><a href="https://help.runbox.com/">Help & Documentation</a></li>-->
+      </ul> 
+    </div>
+  </div>
+</div>

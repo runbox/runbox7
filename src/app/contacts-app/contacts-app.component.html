@@ -1,0 +1,23 @@
+<rmm-headertoolbar></rmm-headertoolbar>
+
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu mode="side" opened>
+        <app-contactlist
+            [contacts]="contacts"
+            (contactSelected)="selectContact($event)"
+            (newContactClicked)="newContact()">
+        </app-contactlist>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar style="display: flex">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+        </mat-toolbar>
+        <app-contact-details
+            [contact]="selectedContact"
+            (contactSaved)="saveContact($event)"
+            (contactDiscarded)="rollbackContact($event)"
+        ></app-contact-details>
+    </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,78 @@
+// --------- BEGIN RUNBOX LICENSE ---------
+// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// 
+// This file is part of Runbox 7.
+// 
+// Runbox 7 is free software: You can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Runbox 7 is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
+// ---------- END RUNBOX LICENSE ----------
+
+import {DraftFormModel} from './draftdesk.service';
+import { FromAddress } from '../rmmapi/rbwebmail';
+import { MailAddressInfo } from '../xapian/messageinfo';
+
+describe('DraftDesk', () => {
+    it('Reply', (done) => {
+        console.log('Reply test');
+
+        let draft = DraftFormModel.reply({
+                headers: {
+                    'message-id': 'themessageid12123abcdef',
+                },
+                from: [
+                    {address: 'test1@runbox.com', name: 'Test1'}
+                ]
+                ,
+                to: [
+                    {address: 'test2@runbox.com', name: 'Test2'}
+                ],
+                date: new Date(2017, 6, 1),
+                subject: 'Test subject',
+                text: 'blabla\nabcde',
+                rawtext: 'blabla\nabcde',
+                html: '<p>blabla</p><p>abcde</p>'
+            }
+            , [ FromAddress.fromEmailAddress('test2@runbox.com')]
+        , true, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.to).toBe('Test1<test1@runbox.com>');
+        expect(draft.msg_body).toBe('\n2017-07-01 00:00 GMT+02:00 Test1<test1@runbox.com>:\n> blabla\n> abcde');
+        draft = DraftFormModel.reply({
+                headers: {
+                    'message-id': 'themessageid112414',
+                },
+                from:
+                    MailAddressInfo.parse(draft.from)
+
+                ,
+                to:
+                    MailAddressInfo.parse(draft.to)
+                ,
+                date: new Date(2017, 6, 2),
+                subject: draft.subject,
+                text: draft.msg_body,
+                rawtext: draft.msg_body
+            }
+            , [ FromAddress.fromEmailAddress('test1@runbox.com') ]
+        , true, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.to).toBe('test2@runbox.com');
+        expect(draft.msg_body).toBe('\n2017-07-02 00:00 GMT+02:00 test2@runbox.com:\n' +
+                                    '> \n' +
+                                    '> 2017-07-01 00:00 GMT+02:00 Test1<test1@runbox.com>:\n' +
+                                    '>> blabla\n>> abcde');
+        done();
+    });
+});

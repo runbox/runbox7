@@ -1,0 +1,102 @@
+.adjustableHeight {
+    position: absolute;
+    bottom: 0px; left: 0px;
+    right: 0px; z-index: 1000; background-color: white;    
+    transition: all 0.2s;
+    border-top: 1px solid darkgrey !important;
+}							       
+
+.messageHeightIcon {
+    font-size: 50px;
+    margin-left: -5px;
+    margin-right: 15px;
+}
+
+#messageHeader {
+    margin-bottom: 10px;
+    overflow: auto;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.messageHeaderDate {
+    font-size: 12px;
+}
+
+.messageHeaderFrom {
+    font-size: 15px;
+}
+
+#messageHeaderSubject {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 18px;
+}
+
+.messageHeaderTo, .messageHeaderCC, .messageHeaderBCC {
+    font-size: 12px;
+}
+
+.messageHeaderTo span, .messageHeaderCC span, .messageHeaderBCC span {
+    padding-right: 10px;
+}
+
+.messageHeaderRow {
+    clear: both;
+}
+
+.messageHeaderRow div {
+    float: left;
+    margin-right: 5px;
+}
+
+#messageContents {
+    overflow: auto;
+    position: absolute;
+    top: 65px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    width: 100%;
+}
+
+@media(max-width: 812px) {
+    #messageContents {
+	top: 40px !important;
+    }
+}
+
+#messageContent {
+    overflow: hidden;
+    margin: 0 2%;
+    width: 96%;
+    white-space: pre-wrap;
+}
+
+.attachmentlink {
+    padding: 10px;
+    cursor: pointer;     
+}
+.attachmentlink:hover {
+    background-color: #f0f0f0;
+}
+
+.inMessageNotification {
+    font-size: 12px;
+    font-style: italic;
+    color: #bbb;
+}
+
+.menuradiobutton {
+    margin: 5px;
+}  
+
+mat-grid-tile:hover {
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+@media(max-width: 812px) {
+    #buttonPrint {
+	display: none;
+    }
+}

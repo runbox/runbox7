@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>{{title}}</h1>
+<div mat-dialog-content>{{question}}</div>
+<div mat-dialog-actions style="display: flex">
+  <p style="flex-grow: 1">
+
+  </p>
+  <button mat-icon-button 
+    [matTooltip]="yesOptionTitle" (click)="dialogRef.close(true)">
+      <mat-icon>done</mat-icon>
+  </button>
+  <button mat-icon-button 
+    (click)="dialogRef.close(false)" [matTooltip]="noOptionTitle">
+    <mat-icon>cancel</mat-icon>
+  </button>
+</div>

@@ -1,0 +1,140 @@
+<style>
+    mat-form-field {
+        width: 100%;
+    }
+    .dropzonehighlight {
+        border: #155D97 dashed 5px;
+        border-radius: 20px;
+        height: 100px;
+        text-align: center;
+        padding-top: 30px;
+    }
+    .overdropzone {
+        border: #5D9715 solid 5px;        
+    }
+    #useHTML div.mat-checkbox-inner-container {
+        margin-right: 4px !important;
+    }
+    #sendMail .mat-icon {
+        font-size: 36px;
+    }
+    button {
+        float: right !important;
+    }
+    #dropZoneText {
+        margin: 10px 0;
+    }
+    #deleteAttachment {
+        height: 16px;
+        line-height: 16px;
+    }
+    #deleteAttachment mat-icon {
+        margin-top: -5px;
+        font-size: 20px;
+    }
+
+</style>
+<mat-card [ngClass]="{'draftPreview': !editing}" [formGroup]="formGroup">
+    <mat-card-actions style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; margin-right: 5px;">
+        <div style="flex-grow: 1; padding-left: 15px; font-size: 24px;">
+            {{model.subject ? model.subject : "New message"}}
+        </div>           
+        <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
+        <button *ngIf="editing" mat-icon-button matTooltip="Attach files" (click)="attachFilesClicked()">
+            <mat-icon>attachment</mat-icon>
+        </button>
+        <input #attachmentFileUploadInput type="file" [hidden]="true" multiple (change)="onFilesSelected($event)" />
+        
+        <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" (click)="submit()">
+            <mat-icon *ngIf="saved">cloud_done</mat-icon>
+            <mat-icon *ngIf="!saved">save</mat-icon>
+        </button>
+        <button *ngIf="editing && !isNew" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <button *ngIf="editing" mat-icon-button matTooltip="Close draft" (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+        <button *ngIf="editing && isNew" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
+            <mat-icon>edit</mat-icon>
+        </button>                 
+        <button *ngIf="editing" mat-icon-button matTooltip="Send mail" (click)="submit(true)" id="sendMail">
+            <mat-icon>send</mat-icon>
+        </button>
+    </mat-card-actions>        
+    <mat-card-subtitle>                
+        <mat-form-field floatPlaceholder="always" *ngIf="editing" style="width: 100%" id="fieldFrom">
+            <mat-select placeholder="From" formControlName="from">
+                <mat-option *ngFor="let from of draftDeskservice.froms" [value]="from.nameAndAddress">
+                    {{from.nameAndAddress}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <span *ngIf="!editing">
+            {{model.to}}
+        </span>        
+        <div style="display: flex;" class="fieldRecipient">
+            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (change)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
+            <button mat-button *ngIf="editing && formGroup.value.cc===null" (click)="formGroup.controls.cc.setValue('')" id="buttonCC">CC</button>
+            <button mat-button *ngIf="editing && formGroup.value.bcc===null" (click)="formGroup.controls.bcc.setValue('')" id="buttonBCC">BCC</button>
+        </div>
+        <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient">
+            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (change)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
+            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
+        </div>
+        <div style="display: flex;" *ngIf="editing && formGroup.value.bcc!==null" class="fieldRecipient">
+            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (change)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
+            <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon>close</mat-icon></button>
+        </div>
+    </mat-card-subtitle>    
+    <mat-card-content>       
+        <mat-form-field *ngIf="editing" floatPlaceholder="auto" id="fieldSubject">
+            <input matInput placeholder="Subject" name="subject" formControlName="subject" />
+        </mat-form-field>                     
+        <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}" (dragover)="draggingOverDropZone=true" (dragleave)="draggingOverDropZone=false" (drop)="dropFiles($event)" id="dropZone">
+            <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>            
+            <mat-progress-bar *ngIf="uploadprogress!=null"                               
+                mode="determinate"
+                [value]="uploadprogress"
+               >
+            </mat-progress-bar>              
+        </section>
+        <section *ngIf="editing && model.attachments && model.attachments.length>0" style="display: flex; flex-wrap: wrap; margin-top: 10px;">
+	  Attachments:&nbsp;
+          <div *ngFor="let attachment of model.attachments; let i=index">
+            <ng-container *ngIf="attachment.file_url!=='UTF-8Q'">
+              <a [href]="'/ajax/download_draft_attachment?filename='+attachment.file" target="_blank">{{displayWithoutRBWUL(attachment.file)}} ({{attachment.size}})</a>
+              <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon>delete</mat-icon></button>
+            </ng-container>
+          </div>      
+        </section>      
+        <span [hidden]="editing">
+            {{this.model.preview}}
+        </span>
+            
+        <div [hidden]="!editing">            
+          <textarea style="
+			   width: 100%;
+			   height: 300px;
+			   " 
+                    [id]="editorId" #editor 
+                    [hidden]="!formGroup.value.useHTML">
+          </textarea>
+          <mat-form-field style="width: 100%" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto" id="messageTextAreaField">
+            <textarea 
+               #messageTextArea
+               placeholder="Message text" 
+               matInput                                      
+               formControlName="msg_body"
+               rows="20"
+	       id="messageTextArea"
+               >
+            </textarea>
+          </mat-form-field>   
+        </div>          
+    </mat-card-content>
+
+</mat-card>

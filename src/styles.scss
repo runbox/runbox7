@@ -1,0 +1,679 @@
+@import '../node_modules/@angular/material/theming';
+@import '../iconfont/material-icons.css';
+
+// Include non-theme styles for core.
+@include mat-core();
+
+// GTA 13.05.2017: From https://material.angular.io/guide/theming:
+
+$rmm-default-primary:    mat-palette($mat-light-blue, 900, A400, A600);
+$rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
+$rmm-default-warn:       mat-palette($mat-orange, 500, A400, A600);
+$rmm-default-foreground: mat-palette($mat-light-blue, 400, 200, 600);
+$rmm-default-background: mat-palette($mat-light-blue, 900, A400, A600);
+
+$rmm-default-theme: mat-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
+
+@include angular-material-theme($rmm-default-theme);
+
+// GTA 13.06.2018: Load custom fonts
+
+@font-face {
+    font-family: "Avenir Next Pro Regular";
+    src: url("assets/AvenirNextLTPro-Regular.otf");
+    src: url("assets/Avenir-Next-LT-Pro.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Avenir Next Pro Medium";
+    src: url("assets/AvenirNextLTPro-Medium.otf");
+    src: url("assets/AvenirNextLTPro-Medium.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+// GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
+
+$custom-typography: mat-typography-config(
+    $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
+);
+
+@include angular-material-typography($custom-typography);
+@include mat-core($custom-typography);
+
+
+/* Generic styles */
+
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+    overscroll-behavior: contain;
+}
+
+h1 {
+    font-size: 36px;
+}
+
+h2 {
+    font-size: 30px;
+}
+
+h3 {
+    font-size: 24px;
+}
+
+h4 {
+    font-size: 20px;
+}
+
+h5 {
+    font-size: 16px;
+}
+
+
+/* Generic MD styles */
+
+.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>* {
+    padding: 0px 10px !important;
+    font-weight: 400;
+}
+
+.mat-toolbar, .mat-button {
+    font-size: 16px !important;
+    font-weight: 400;
+}
+
+.mat-line, .mat-tree-node {
+    font-size: 16px  !important;
+}
+
+.mat-select-value {
+    display: inline !important;
+}
+
+
+
+/* Palette colors */
+
+.themePalettePrimary {
+    color: mat-color($rmm-default-primary);
+}
+.themePaletteAccent {
+    color: mat-color($rmm-default-accent);
+}
+.themePaletteAccentLighter {
+    color: mat-color($rmm-default-accent, lighter);
+}
+.themePaletteWarn {
+    color: mat-color($rmm-default-warn);
+}
+.themePaletteForeground {
+    color: mat-color($rmm-default-foreground);
+}
+.themePaletteBackground {
+    color: mat-color($rmm-default-background);
+}
+.themePaletteLightGray {
+    color: #eee;
+}
+.themePaletteDarkGray {
+    color: #949494;
+}
+.themePaletteBlack {
+    color: #444;
+}
+
+/* Main */
+
+#main {
+    position: fixed; 
+    top: 0px; 
+    bottom: 0px; 
+    left: 0px; 
+    right: 0px; 
+    width: 100%; 
+    height: 100%;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+
+/* Login screen */
+
+.loginSection {
+    display: flex;
+    flex-flow: column;
+    // align-items: center;
+    justify-content: center;
+    width: 100%; 
+}
+
+.loginSection a {
+    color: #fff;
+}
+
+#loginHeader {
+    text-align: center;
+    color: #fff;
+}
+
+login {
+      width: 100%;
+      height: 100%;
+}
+
+@media(max-width: 812px) {
+    .side7 {
+	display: none;
+    }
+}
+
+#logoLogin {
+    margin-bottom: 20px;
+    width: 180px;
+    height: auto;
+}
+
+div.loginScreen {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    background-color: #fff;
+}
+
+#loginArea {
+    border: 1px solid mat-color($rmm-default-primary);
+    padding: 40px 40px 10px 40px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#tfaArea {
+    border: 1px solid mat-color($rmm-default-primary);
+}
+
+div.loginScreen mat-button-toggle button {
+    border-right: 1px solid #949494;
+}
+
+div.loginScreen #createAccount {
+    margin: 10px;
+    font-size: 14px;
+}
+
+div.loginScreen #createAccount a {
+    color: mat-color($rmm-default-primary);
+}
+
+
+/* Smaller 2FA buttons on small screens */
+@media(max-width: 375px) {
+    div.loginScreen button {
+	max-width: 110px;
+    }
+    div.loginScreen button, div.loginscreen button div {
+	padding: 0 5px !important;
+    }
+    div.loginScreen img {
+	width: 25px;
+	height: auto;
+    }
+}
+
+#loginFooter {
+    margin: 10px;
+    text-align: center;
+    color: #fff;
+}
+#loginFooter a {
+    text-decoration: underline;
+}
+#loginFooterMenuBottom {
+    width: 100%;
+    margin-top: 2vh;
+  }
+#loginFooterMenuBottom ul {
+    margin: 0;
+    text-align: center;
+}
+#loginFooterMenuBottom li {
+    display: inline;
+    margin: 0 5vw;
+}
+#loginFooterMenuBottom a {
+    color: mat-color($rmm-default-foreground);
+    text-decoration: none;
+}
+#loginFooterMenuBottom a:hover {
+    color: #fff;
+}
+
+
+/* Main menu */
+
+rmm-headertoolbar {
+    flex-grow: 1;
+    width: 100%;
+}
+
+
+/* Sidenav pane */
+
+mat-sidenav-container {
+    position: absolute !important; 
+    bottom: 0px !important; 
+    left: 0px !important;
+    right: 0px !important;
+    width: 100% !important;
+}
+
+@media(min-width: 1024px) {
+    mat-sidenav-container {
+	    top: 65px !important;
+    }
+}
+
+@media(max-width: 1023px) {
+    mat-sidenav-container {
+	    top: 0px !important;
+    }
+}
+
+#sideMenu {
+    flex-grow: 1;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+#toggleFolderPaneIcon {
+    overflow: visible;
+    height: 70px !important;
+}
+
+@media (min-width: 1024px) {
+    .sidenavMainMenu {
+	    display: none;
+    }
+}
+
+@media (max-width: 1023px) {
+    #mainMenu {
+	    display: none;
+    }
+    .sidenavMainMenu {
+	    display: inline;
+	    flex-grow: 1;
+    }
+}
+
+.sidenavMainMenu a {
+    width: 30%;
+}
+
+#sidenavLogoContainer {
+    background-color: mat-color($rmm-default-primary) !important;
+    padding: 10px none;
+}
+
+#sidenavLogoButton {
+    width: 100%;
+}
+
+#sidenavGreeting {
+    margin: 10px;
+    font-size: 14px;
+}
+
+#sidenavGreetingContent {
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+.mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
+    color: mat-color($rmm-default-primary) !important;
+}
+
+#mainMenu button {
+    margin-left: 0em;
+}
+
+a.mainMenu, mat-menu a, .mat-nav-list a {
+    text-decoration: none;
+    font-weight: 400;
+}
+
+#mainMenu mat-icon {
+    margin-right: 10px;
+    color: #fff;
+}
+
+.mainMenuSub .mat-button {
+    height: 48px !important;
+    width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 32px !important;
+    text-align: left !important;
+}
+
+.mainMenuSub .mat-menu-item .mat-icon, .mainMenuSub .mat-button, .mainMenuSub .mat-icon {
+    color: mat-color($rmm-default-primary) !important;
+}
+
+.mainMenuSub .mat-icon {
+    margin-right: 16px;
+}
+
+.mainMenuSub .mat-button-focus-overlay {
+    background-color: rgba(0,0,0,.03) !important;
+}
+
+#mainMenu button, #mainMenu a {
+    font-size: 16px;
+}
+
+#logo {
+    width: 125px;
+    height: auto;
+    margin-left: 30px;
+    margin-right: 10px;
+}
+
+#logoSidenav {
+    width: 125px;
+    height: auto;
+}
+
+@media(min-width: 1024px) {
+    #composeButton, #draftsButton {
+	    display: block;
+    }
+}
+
+@media(max-width: 1023px) {
+    #composeButton, #draftsButton {
+	    display: none;
+    }
+}
+
+.mat-nav-list a.textLink {
+    color: mat-color($rmm-default-primary);
+    text-decoration: underline;
+}
+
+/* Folders */
+
+.mailFolder {
+    height: 40px;
+}
+
+.folderIconStandard {
+    color: mat-color($rmm-default-primary);
+}
+
+.folderIconUser {
+    color: mat-color($rmm-default-foreground) !important;
+}
+
+.folderName {
+    color: #444;
+}
+
+.folderNameUnread {
+    font-family: "Avenir Next Pro Medium";
+    color: #444;
+    font-weight: bold !important;
+}
+
+.mat-badge-content {
+    height: 17px !important;
+    width: 17px !important;
+    color: white !important;
+    background-color: mat-color($rmm-default-foreground) !important;
+    font-size: 10px;
+    line-height: 20px !important;
+}
+
+.foldersidebarcount {
+    font-size: 10px; 
+}
+
+.draftsFolder {
+    display: none;
+}
+
+.selectedFolder {
+    background-color: mat-color($rmm-default-accent, 50) !important;
+}
+
+/* List screen */
+
+#searchField {
+    margin: 12px 20px 0 20px;
+}
+
+#searchField .mat-input-element {
+    line-height: 1.8em;
+}
+
+#searchField .mat-form-field-infix {
+    line-height: 1.8em;
+}
+
+#searchField .mat-form-field-underline {
+    bottom: 1.5em;
+}
+
+#searchField mat-icon {
+    font-size: 20px !important;
+    line-height: 20px !important;
+}
+
+#threadedCheckbox, #unreadCheckbox {
+    margin: 10px 20px 0 0;
+    height: 40px;
+}
+
+#threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
+    line-height: 0px;
+}
+
+.mat-icon, .mat-icon-button {
+    color: mat-color($rmm-default-primary);
+}
+    
+@media (max-width: 540px) {
+    #threadedCheckbox {
+	display: none;
+    }
+    #unreadCheckbox {
+	display: none;
+    }
+}
+
+#syncMessage {
+    margin-top: 20px;
+    flex-grow: 1;
+    text-align: center;
+    font-family: "Avenir Next Pro Regular ", "Helvetica Neue", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #949494;
+}
+
+#canvasTableContainerArea {
+    position: absolute;
+    top: 73px;
+    left: 0px;
+    right: 0px;
+}
+
+.mat-fab.mat-accent {
+    color: mat-color($rmm-default-primary);
+}
+
+
+/* Context tool buttons */
+
+@media(max-width: 812px) {
+    .contextToolButtons {
+	top: 90px !important;
+    }
+}
+
+@media(min-width: 813px) {
+    .contextToolButtons {
+	top: 150px !important;
+    }
+}
+
+@media(max-width: 812px) {
+    .contextToolButtons button {
+	width: 45px !important;
+	height: 45px !important;
+    }
+    .contextToolButtons .mat-button-wrapper {
+	padding-top: 11px !important;
+    }
+    .contextToolButtons button mat-icon {
+	font-size: 24px !important;
+    }
+}
+
+
+/* Read screen */
+.inMessageNotification {
+    font-size: 12px;
+    font-style: italic;
+    color: #bbb;
+}
+
+
+/* Message action button row */
+@media(max-width: 812px) {
+    single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
+	height: 40px !important;
+    }
+}
+
+mat-expansion-panel-header {
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 0 10px !important;
+}
+
+mat-expansion-panel {
+    box-shadow: none !important;
+}
+
+.mat-expansion-panel-body {
+    padding: 0 10px 30px 10px !important;
+}
+
+    
+/* Draft Desk */
+
+compose {
+    margin: 10px 0 0 10px;
+}
+
+compose .draftPreview {
+    height: 150px;
+}
+
+#editDraftIcon {
+    height: 20px;
+    line-height: 20px;
+    vertical-align: top;
+}
+
+
+/* Compose */
+
+@media(min-width: 1024px) {
+    compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
+    width: 45vw !important;
+    }
+}
+
+@media(max-width: 1023px) and (min-width: 376px) {
+    compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
+    width: 66vw !important;
+    }
+}
+
+#buttonCC, #buttonBCC {
+    min-width: 50px !important;
+}
+
+#messageTextAreaField {
+    margin-top: 20px;
+    width: 97% !important;
+}
+
+#messageTextArea {
+    border: 1px solid #949494;
+    padding: 10px;
+}
+
+
+/* Styles to decrease vertical spacing on Compose */
+
+compose .mat-card-actions {
+    padding: 0 !important;
+    margin-bottom: 8px !important;
+}
+
+compose .mat-form-field-wrapper {
+    padding-bottom: 8px !important;
+}
+
+compose .mat-form-field-underline, compose input.mat-chip-input {
+    bottom: 10px !important;
+}
+
+compose .mat-card-title {
+    margin-bottom: 0px !important;
+    font-size: 14px;
+}
+
+compose .mat-card-subtitle {
+    margin-bottom: 0px !important;
+}
+
+compose input.mat-chip-input {
+    margin-top: 0px !important;
+}
+
+compose .mat-standard-chip {
+    bottom: 6px !important;
+    padding: 5px 10px !important;
+}
+
+
+/* Dom reg */
+
+.domreg .mat-card-header-text {
+    width: 100%;
+}
+
+.domreg .long_placeholder label {
+    white-space: normal !important;
+}
+
+.domreg .default_margintop {
+    margin-top: 35px;
+}

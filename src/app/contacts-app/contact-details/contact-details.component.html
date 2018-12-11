@@ -1,0 +1,47 @@
+<div class="contact-details" *ngIf="!contact">
+    Select a contact to view or edit its details
+</div>
+
+<div class="contact-details" *ngIf="contact">
+    <h2> {{ contact.full_name() || "New contact" }}'s details </h2>
+    <p *ngIf="contact.email">
+        
+        <a mat-button routerLink="/compose" [queryParams]="{to: contact.email}"><mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}</a>
+    </p>
+    <form #form="ngForm">
+        <table>
+            <tr>
+                <td> Nickname: </td>
+                <td> <input name="nick"
+                            [(ngModel)]="contact.nick"
+                            placeholder="Nickname">
+                </td>
+            </tr>
+            <tr>
+                <td> First name: </td>
+                <td> <input name="first_name"
+                            [(ngModel)]="contact.first_name"
+                            placeholder="First name">
+                </td>
+            </tr>
+            <tr>
+                <td> Last name: </td>
+                <td> <input name="last_name"
+                            [(ngModel)]="contact.last_name"
+                            placeholder="Last Name">
+                </td>
+            </tr>
+            <tr>
+                <td> Email address: </td>
+                <td> <input name="email"
+                            [(ngModel)]="contact.email"
+                            placeholder="E-mail address">
+                </td>
+            </tr>
+        </table>
+        <div *ngIf="form.dirty">
+            <a mat-button (click)="save()">Save changes</a>
+            <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
+        </div>
+    </form>
+</div>

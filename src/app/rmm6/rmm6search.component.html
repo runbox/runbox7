@@ -1,0 +1,37 @@
+<div style="padding-left: 5px; display: flex; background-color: #e1eeff">
+    <mat-form-field style="flex-grow: 1">
+        <input matInput type="text" 
+            placeholder="Search"
+            (keyup)="searchFieldKeyUp($event.target.value)" />
+    </mat-form-field>
+    <button mat-icon-button (click)="close()">
+        <mat-icon>clear</mat-icon>
+    </button>    
+</div>          
+
+<div>        
+    <div class="mailrow" onselectstart="return false;" style="user-select: none;" 
+        *ngFor="let msg of searchresults">                
+        <div class="m1">
+            <INPUT type="checkbox" name="message" [value]="msg.id" 
+                class="message_check" 
+                [attr.id]="'check_'+msg.id"
+            />
+        </div>
+        <div class="m5">{{msg.dateTime}}</div>        
+        <div class="m3 mailfrom">                                            
+            {{msg.fromName}}            
+        </div>
+        <div class="m4">                        
+            <a (click)="openMailViewer(msg.id)" href="#" class="maillink subjectlink">        
+                <div class="mailsubject ui-draggable ui-draggable-handle" 
+                    >
+                    <span class="message_id" style="display: none;">{{msg.id}}</span><span class="new">
+                        {{msg.subject}}
+                    </span>                        
+                </div>
+            </a>
+        </div>                            
+        <br style="clear: both;">    
+    </div>                        
+</div>

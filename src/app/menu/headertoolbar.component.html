@@ -1,0 +1,60 @@
+<mat-toolbar color="primary" id="mainMenu">
+  <a mat-button routerLink="/" class="mainMenu"><mat-icon>email</mat-icon>Webmail</a><br />
+  <a mat-button routerLink="/contacts" class="mainMenu"><mat-icon>people</mat-icon>Contacts</a>
+  <a mat-button href="/files" class="mainMenu"><mat-icon>folder_open</mat-icon>Files</a>
+
+  <mat-menu #settingsMenu="matMenu">
+  
+    <mat-menu #managerMenu="matMenu" class="mainMenuSub">
+      <a mat-button href="/mail/manager"><mat-icon>group_work</mat-icon>Manager</a><br />
+      <a mat-button href="/mail/fetch"><mat-icon>cloud_download</mat-icon>Retrieve</a><br />
+      <a mat-button href="/mail/rules"><mat-icon>filter_list</mat-icon>Filter</a><br />
+      <a mat-button href="/mail/access"><mat-icon>get_app</mat-icon>Access</a>
+    </mat-menu>
+    <button mat-menu-item [matMenuTriggerFor]="managerMenu" class="mainMenuSub">
+      <mat-icon>group_work</mat-icon> Manager
+    </button>
+
+    <mat-menu #accountMenu="matMenu" class="mainMenuSub">
+      <a mat-button href="/mail/account"><mat-icon>people</mat-icon>Main Account</a><br />
+      <a mat-button href="/mail/account_security"><mat-icon>security</mat-icon>Account Security</a><br />
+      <a mat-button href="/mail/account_alias"><mat-icon>person_pin</mat-icon>Aliases</a><br />
+      <a mat-button href="/mail/account_account"><mat-icon>supervisor_account</mat-icon>Sub-Accounts</a>
+    </mat-menu>
+    <button mat-menu-item [matMenuTriggerFor]="accountMenu" class="mainMenuSub">
+      <mat-icon>people</mat-icon> Account
+    </button>
+
+    <mat-menu #hostingMenu="matMenu" class="mainMenuSub">
+	<a mat-button href="/mail/account_domain"><mat-icon>email</mat-icon>Email Hosting</a><br />
+	<a mat-button href="/mail/account_webhosting"><mat-icon>public</mat-icon>Web Hosting</a><br />
+	<a mat-button href="/mail/account_domain_hosting"><mat-icon>domain</mat-icon>Domain Hosting</a>
+    <a mat-button [routerLink]="['/domainregistration']"><mat-icon>border_inner</mat-icon>Domain Registration</a>
+    </mat-menu>
+    <button mat-menu-item [matMenuTriggerFor]="hostingMenu" class="mainMenuSub">
+      <mat-icon>cloud</mat-icon> Hosting
+    </button>
+  </mat-menu>
+  <button mat-button [matMenuTriggerFor]="settingsMenu">
+    <mat-icon>settings</mat-icon> Settings
+  </button>
+  
+  <span flex style="flex-grow: 1"></span>
+
+  <button mat-button [matMenuTriggerFor]="helpMenu">
+    <mat-icon>help</mat-icon> Help
+  </button>
+  <mat-menu #helpMenu="matMenu">
+    <a mat-button href="https://help.runbox.com/" class="mainMenu"><mat-icon>help</mat-icon>Help</a><br />
+    <a mat-button href="https://status.runbox.com/" class="mainMenu"><mat-icon>check_circle</mat-icon>Service Status</a><br />
+    <a mat-button href="https://help.runbox.com/how-tos/" class="mainMenu"><mat-icon>format_list_numbered</mat-icon>How-Tos</a><br />
+    <a mat-button href="https://help.runbox.com/faq/" class="mainMenu"><mat-icon>lightbulb_outline</mat-icon>FAQ</a><br />
+    <a mat-button href="https://help.runbox.com/documentation/" class="mainMenu"><mat-icon>list</mat-icon>Documentation</a><br />
+    <a mat-button href="https://forum.runbox.com/" class="mainMenu"><mat-icon>forum</mat-icon>Forum</a><br />
+    <a mat-button href="https://support.runbox.com/" class="mainMenu"><mat-icon>live_help</mat-icon>Support</a>
+  </mat-menu>
+
+  <a mat-button href="https://blog.runbox.com/" class="mainMenu"><mat-icon>comment</mat-icon>Blog</a>
+  <a mat-button class="mainMenu" (click)="rmmapi.logout();"><mat-icon>power_settings_new</mat-icon>Log out</a>
+  <img src="assets/runbox7.png" id="logo" alt="Runbox 7" />
+</mat-toolbar>

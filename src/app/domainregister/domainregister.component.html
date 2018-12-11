@@ -1,0 +1,808 @@
+<div class="domain-register">
+    <style>
+        mat-form-field.wide {
+	    width: 300px;
+	}
+        .domain-register {
+            background: #ffffff;
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: absolute;
+        }
+        .domain_table {
+            border-top: 3px solid #01579b;
+        }
+        .full-width {
+            width: 100%;
+        }
+        .agreement {
+            max-height: 500px;
+        }
+        .product_select {
+            margin-top: 15px;
+        }
+
+        .width30 {
+            width: 30%;
+        }
+        .width50 {
+            width: 50%;
+        }
+        .width100 {
+            width: 100%;
+        }
+        .enomlogo {
+            list-style: none;
+            display: inline-flex;
+            font-size: 10px;
+            margin: 0;
+            padding: 0;
+        }
+        .enomlogo li {
+            display: inline-flex;
+            align-self: center;
+        }
+        .description_msg {
+            background-color: #efefef;
+            padding: 5px 20px 10px 20px;
+        }
+        .default_margintop {
+            margin-top: 35px;
+        }
+        .default_paddingtop {
+            padding-top: 35px;
+        }
+        .agreement_content {
+            border-top: 0px;
+            background: #EEE;
+        }
+
+    </style>
+    <section class="mat-typography">
+
+        <mat-card class='domreg'>
+            <mat-card-header style="display: flex; width: 100%">
+                <mat-card-title style="flex-grow: 1">
+                    <h1 class="mat-h1">Domain Registration</h1>
+
+                </mat-card-title>
+                <ul class='enomlogo'>
+                    <li style='min-width: 130px;'>Runbox domain partner</li>
+                    <li>
+                        <svg viewBox="0 0 250 50" height="30" width="70" xmlns="http://www.w3.org/2000/svg"><path class="cls-1" d="M241.13,13.78a20.36,20.36,0,0,0-17.77,9.3,17.58,17.58,0,0,0-15.89-9.3A20.58,20.58,0,0,0,193,19.35l-0.29-3.51a0.69,0.69,0,0,0-.69-0.63H181.34a0.69,0.69,0,0,0-.69.69V64.27a0.69,0.69,0,0,0,.69.69h11a0.69,0.69,0,0,0,.69-0.69V41.43c0.3-10.07,5-15.55,11.34-15.55,7.14,0,10.32,5.81,10.32,13.49v24.9a0.69,0.69,0,0,0,.69.69h11a0.69,0.69,0,0,0,.69-0.69V42.48c0-10,4.65-16.6,11-16.6,6.92,0,10,5.81,10,13.49v24.9a0.69,0.69,0,0,0,.69.69h10.62a0.69,0.69,0,0,0,.69-0.69V39.37C260.12,23.4,252.56,13.78,241.13,13.78Z" transform="translate(-10.12 -13.78)" fill="#49484d"></path><path d="M147.61,13.78c-14.06,0-25.46,11.77-25.46,26.28s11.4,26.28,25.46,26.28,25.46-11.77,25.46-26.28S161.67,13.78,147.61,13.78Zm0,40.63c-7.13,0-13.07-6.42-13.07-14.35s5.95-14.35,13.07-14.35,13.07,6.42,13.07,14.35S154.74,54.41,147.61,54.41Z" transform="translate(-10.12 -13.78)" fill="#49484d"></path><path class="cls-1" d="M94.62,13.78a21.38,21.38,0,0,0-15.12,6l-0.3-3.93a0.69,0.69,0,0,0-.69-0.64H67.8a0.69,0.69,0,0,0-.69.69V64.27a0.69,0.69,0,0,0,.69.69h11a0.69,0.69,0,0,0,.69-0.69V41.48c0.33-10.1,5.63-15.6,12-15.6,7.14,0,10.67,5.81,10.67,13.49v24.9a0.69,0.69,0,0,0,.69.69h11a0.69,0.69,0,0,0,.69-0.69V39.37C114.58,23.4,106.43,13.78,94.62,13.78Z" transform="translate(-10.12 -13.78)" fill="#49484d"></path><path class="cls-2" d="M49.24,49.48a0.68,0.68,0,0,0-.93.05,16.89,16.89,0,0,1-12,5.05,13.2,13.2,0,0,1-7.89-2.33l30.7-22.43A0.69,0.69,0,0,0,59.3,29c-2.1-4.62-9.13-15.2-23-15.2a26.28,26.28,0,0,0,0,52.56c8.16,0,16.41-3.62,21.19-9.13a0.69,0.69,0,0,0-.09-1Zm-13-23.94A12,12,0,0,1,44,28L22.28,43.87C19.81,34.88,27.23,25.54,36.27,25.54Z" transform="translate(-10.12 -13.78)" fill="#ef6c45"></path>
+                        </svg>
+                    </li>
+                </ul>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <mat-tab-group [selectedIndex]="selectedTabNum">
+                <script type='text/javascript'>/*
+                <mat-tab label="Manage my domains">
+
+                    <div class="container-list-domains">
+                        <mat-table #table [dataSource]="dataSourceUserDomains">
+
+                            <ng-container matColumnDef="position">
+                                <mat-header-cell *matHeaderCellDef style="flex-grow: 3"> <strong>Domain</strong> </mat-header-cell>
+                                <mat-cell *matCellDef="let element" style="flex-grow: 3">
+                                  {{element.name}}
+                                </mat-cell>
+                            </ng-container>
+
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Registered date</strong> </mat-header-cell>
+                                <mat-cell *matCellDef="let element" style="flex-grow: 1"> {{element.created}} </mat-cell>
+                            </ng-container>
+
+                            <ng-container matColumnDef="weight">
+                                <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Expiration date</strong> </mat-header-cell>
+                                <mat-cell *matCellDef="let element" style="flex-grow: 1"> {{element.expires}} </mat-cell>
+                            </ng-container>
+<!--
+                            <ng-container matColumnDef="symbol">
+                                <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Domain privacy</strong> </mat-header-cell>
+                                <mat-cell *matCellDef="let element" style="flex-grow: 1"> {{element.domain_privacy == 1 ? 'Yes' : 'No'}} </mat-cell>
+                            </ng-container>
+-->
+
+                            <ng-container matColumnDef="actions">
+                                <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> </mat-header-cell>
+                                <mat-cell *matCellDef="let element" style="flex-grow: 1"> <a href="#">{{element.actions}}</a> </mat-cell>
+                            </ng-container>
+
+                            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="show_domain_details(row)" style='cursor:pointer;'></mat-row>
+                        </mat-table>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div class="container-domain-details" style='margin-top: 15px;' *ngIf="selected_domain">
+                        <!-- TO BE DISPLAYED WHEN USER CLICKS A DOMAIN (TO EDIT DOMAIN)-->
+                        <mat-card-header style="display: flex; width: 100%">
+                            <mat-card-title style="flex-grow: 1">
+                                <h1 class="mat-h1">{{selected_domain.name}}</h1>
+                            </mat-card-title>
+                        </mat-card-header>
+                        <mat-divider></mat-divider>
+                        <form class="example-form">
+                            <table>
+                              <tr>
+                                  <td colspan="3">
+                                    <mat-form-field style="width: 100%">
+                                        <input matInput disabled placeholder="Domain" [value]="selected_domain.name">
+                                    </mat-form-field>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td colspan="3">
+                                    <mat-form-field style="width: 100%">
+                                        <input matInput disabled placeholder="Registred date" [value]='selected_domain.created'>
+                                    </mat-form-field>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td>
+                                    <mat-form-field>
+                                        <input matInput placeholder="Expiration date" [value]='selected_domain.expires'>
+                                    </mat-form-field>
+                                  </td>
+                                  <td>
+                                    <button mat-raised-button color="primary"
+                                    >Renew now</button>
+                                  </td>
+                                  <td></td>
+                              </tr>
+                              <tr>
+                                  <td>
+                                      <mat-form-field>
+                                        <mat-select placeholder="Select Domain Privacy">
+                                          <mat-option value="Yes">Yes</mat-option>
+                                          <mat-option value="No">No</mat-option>
+                                        </mat-select>
+                                      </mat-form-field>
+                                  </td>
+                                  <td>
+                                    <button mat-raised-button color="primary"
+                                    >Enable</button>
+                                  </td>
+                                  <td>
+                                      Domain privacy hides the registrar email and contact information. <br>Some top level domains (TLD) do not allow WHOIS privacy.
+                                  </td>
+                              </tr>
+                            </table>
+                        </form>
+                        <mat-divider></mat-divider>
+                        <div class="container-domain-dns-details" style='margin-top: 15px;'>
+                            <mat-card-header style="display: flex; width: 100%">
+                                <mat-card-title style="flex-grow: 1">
+                                    <h1 class="mat-h1">DNS settings</h1>
+                                </mat-card-title>
+                            </mat-card-header>
+                            <mat-divider></mat-divider>
+                            <div class="loading-shade">
+                              <mat-spinner *ngIf="is_loading.dns_settings"></mat-spinner>
+                                <mat-progress-bar *ngIf="is_loading.dns_settings" mode="indeterminate"></mat-progress-bar>
+                              <div class='description_msg' *ngIf="!dataSourceDNS._data._value.length && !is_loading.dns_settings">
+                                  No zones added to this domain
+                              </div>
+                            </div>
+                            <mat-table #table [dataSource]="dataSourceDNS">
+
+                                <ng-container matColumnDef="name">
+                                    <mat-header-cell *matHeaderCellDef style="flex-grow: 3"> <strong>Hostname</strong> </mat-header-cell>
+                                    <mat-cell *matCellDef="let element" style="flex-grow: 3"> 
+                                      <mat-form-field>
+                                          <input matInput placeholder="" [(ngModel)]='element.name'>
+                                      </mat-form-field>
+                                    </mat-cell>
+                                </ng-container>
+
+                                <ng-container matColumnDef="type">
+                                    <mat-header-cell *matHeaderCellDef style="flex-grow: 3"> <strong>Record type</strong> </mat-header-cell>
+                                    <mat-cell *matCellDef="let element" style="flex-grow: 3"> 
+                                        <mat-form-field>
+                                          <mat-select placeholder="Select Record Type" [(ngModel)]="element.type">
+                                            <mat-option value="A">A (Address)</mat-option>
+                                            <mat-option value="AAAA">AAAA (IPv6 Address)</mat-option>
+                                            <mat-option value="CNAME">CNAME (Alias)</mat-option>
+                                            <mat-option value="NS">NS (Name Server)</mat-option>
+                                            <mat-option value="MX">MX (Mail exchange record)</mat-option>
+                                            <mat-option value="SRV">SRV (Service locator)</mat-option>
+                                            <mat-option value="TXT">TXT (Text record)</mat-option>
+                                          </mat-select>
+                                        </mat-form-field>
+                                    </mat-cell>
+                                </ng-container>
+
+                                <ng-container matColumnDef="address">
+                                    <mat-header-cell *matHeaderCellDef style="flex-grow: 3"> <strong>Address</strong> </mat-header-cell>
+                                    <mat-cell *matCellDef="let element" style="flex-grow: 3"> 
+                                      <table *ngIf="element.type == 'A' || element.type == 'AAAA'">
+                                          <tr>
+                                              <td>
+                                                  <mat-form-field>
+                                                      <input matInput placeholder="Address '{{element.type}}'" [(ngModel)]="element.address">
+                                                  </mat-form-field>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <table *ngIf="element.type == 'CNAME'">
+                                          <tr>
+                                              <td>
+                                                  <mat-form-field>
+                                                      <input matInput placeholder="Cname" [(ngModel)]='element.cname'>
+                                                  </mat-form-field>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <table *ngIf="element.type == 'NS'">
+                                          <tr>
+                                              <td>
+                                                  <mat-form-field>
+                                                      <input matInput placeholder="Nsdname" [(ngModel)]='element.nsdname'>
+                                                  </mat-form-field>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <table>
+                                          <tr>
+                                              <td>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <table *ngIf="element.type == 'MX'">
+                                          <tr>
+                                              <td>
+                                                  <mat-form-field style="">
+                                                      <input matInput placeholder="Exchange" [(ngModel)]='element.exchange'>
+                                                  </mat-form-field>
+                                              </td>
+                                              <td>
+                                                  <mat-form-field style="width: 40px">
+                                                      <input matInput placeholder="Preference" [(ngModel)]='element.preference'>
+                                                  </mat-form-field>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <table *ngIf="element.type == 'SRV'">
+                                          <tr>
+                                              <td>
+                                                  <mat-form-field style="width: 40px">
+                                                      <input matInput placeholder="Priority" [(ngModel)]='element.priority'>
+                                                  </mat-form-field>
+                                              </td>
+                                              <td>
+                                                  <mat-form-field style="width: 40px">
+                                                      <input matInput placeholder="Weight" [(ngModel)]='element.weight'>
+                                                  </mat-form-field>
+                                              </td>
+                                              <td>
+                                                  <mat-form-field style="width: 40px">
+                                                      <input matInput placeholder="Port" [(ngModel)]='element.port'>
+                                                  </mat-form-field>
+                                              </td>
+                                              <td>
+                                                  <mat-form-field style="">
+                                                      <input matInput placeholder="Target" [(ngModel)]='element.target'>
+                                                  </mat-form-field>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <table *ngIf="element.type == 'TXT'">
+                                          <tr>
+                                              <td>
+                                                  <mat-form-field>
+                                                      <input matInput placeholder="TXT" [(ngModel)]='element.txtdata'>
+                                                  </mat-form-field>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                    </mat-cell>
+                                </ng-container>
+
+                                <ng-container matColumnDef="ttl">
+                                    <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>TTL</strong> </mat-header-cell>
+                                    <mat-cell *matCellDef="let element" style="flex-grow: 1">
+                                        <mat-form-field>
+                                            <input matInput placeholder="" [(ngModel)]='element.ttl'>
+                                        </mat-form-field>
+                                    </mat-cell>
+                                </ng-container>
+
+                                <ng-container matColumnDef="action">
+                                    <mat-header-cell *matHeaderCellDef style="flex-grow: 1"></mat-header-cell>
+                                    <mat-cell *matCellDef="let element; let i = index; let isOdd = odd; let isEven = even; let isLast = last" style="flex-grow: 1">
+                                      <span *ngIf='element.type != "NS"' (click)="delete_dns_setting_row(i, element, row)">Delete</span>
+                                    </mat-cell>
+                                </ng-container>
+
+                                <mat-header-row *matHeaderRowDef="displayedColumnsDNS"></mat-header-row>
+                                <mat-row *matRowDef="let row; columns: displayedColumnsDNS"></mat-row>
+                            </mat-table>
+                            <mat-divider style=''></mat-divider>
+                            <button mat-raised-button color="primary" (click)="add_dns_setting_row()">Add row</button>
+                            <button mat-raised-button color="primary" (click)="save_dns_settings()">Save changes</button>
+
+                        </div>
+                    </div>
+                </mat-tab>
+                */
+                </script>
+                <mat-tab 
+                      *ngIf="is_renew_domain" 
+                      label="Renew domain"
+                >
+                  <div>
+                    <mat-card-header style="display: flex; width: 100%" class='default_margintop'>
+                        <mat-card-title style="flex-grow: 1">
+                            <h2 class="mat-h2">Renew domain {{renew_domain}}</h2>
+                        </mat-card-title>
+                    </mat-card-header>
+                    <p>
+                        The domain <strong>{{renew_domain}}</strong> is set to expire {{renew_domain_info.expires}}.
+                    </p>
+                    <p>
+                        Please select the period you wish to renew this domain name for:
+                    </p>
+                    <div>
+                        Renewal length: 
+                        <mat-form-field class="wide">
+                          <mat-select placeholder="Select Period" >
+                            <mat-option 
+                                *ngFor="let option of renew_domain_info.renewal_options" 
+                                [value]="option.period"
+                                (click)='update_renewal_price("domain", option)'
+                                >
+                                {{ option.period }} {{option.period_unit}}(s) - USD {{option.price}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <div *ngIf="renew_whois_privacy.length">
+                            Domain Privacy:
+                            <mat-form-field class="wide">
+                              <mat-select placeholder="Select WHOIS Privacy" >
+                                <mat-option 
+                                    *ngFor="let option of renew_whois_privacy" 
+                                    [value]="option.value"
+                                    (click)='update_renewal_price("whois_privacy", option)'
+                                    >
+                                    {{ option.text }}{{option.price ? ' - USD '+option.price:''}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <br />
+			<h2 *ngIf="renewal_total_price > 0">
+			  Total: USD {{renewal_total_price}}
+			</h2>
+                        <button mat-raised-button color="primary"
+                            (click)="btn_renew()"
+                            [disabled]="is_btn_renew_disabled"
+                        >Renew</button>
+                    </div>
+                  </div>
+                </mat-tab>
+                <mat-tab label="Register new domain">
+                  <div *ngIf="!domreg_hash">
+		    <br />
+		    <p>Here you can purchase and register new domain names.</p>
+
+                    <div style='background: #C7DFFF; padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length">
+                      <mat-card-header style="display: flex; width: 100%">
+                          <mat-card-title style="flex-grow: 1">
+                              <h2 class="mat-h2">Register a new domain name</h2>
+                          </mat-card-title>
+                      </mat-card-header>
+                      <table>
+                          <tr>
+                              <td colspan="3">
+                                    <mat-progress-bar *ngIf="is_checking_avaliability" mode="indeterminate"></mat-progress-bar>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  <mat-form-field style="width: 500px; font-size: 24px">
+                                      <input matInput placeholder="Enter a domain name" 
+                                          value=''
+                                          [(ngModel)]="domain_wanted"
+                                          (keyup.enter)="check_avail()"
+                                      >
+                                  </mat-form-field>
+                              </td>
+                              <td>
+                                  <button mat-raised-button color="primary"
+                                      (click)="check_avail()"
+                                      [disabled]="is_btn_search_domain_disabled"
+					  >Check availability</button>
+                              </td>
+                              <td>
+
+                              </td>
+                          </tr>
+                          <tr>
+                              <td colspan="3">
+                                  <div 
+                                      *ngIf="!is_checking_avaliability && is_available === false "
+                                      style="background: #e4545e; text-align: center; padding: 10px 10px;"
+                                  >
+                                      {{is_available_msg}}
+                                  </div>
+                                  <div 
+                                      *ngIf="!is_checking_avaliability && is_available === true"
+                                      style="background: #54e476; text-align: center; padding: 10px 10px;"
+                                  >
+                                      {{is_available_msg}}
+                                  </div>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td colspan="3">
+                                  <div 
+                                      *ngIf="is_available_error_msg"
+                                  >
+                                      {{is_available_error_msg}}
+                                  </div>
+                              </td>
+                          </tr>
+
+                      </table>
+                    </div>
+                  </div>
+
+                    <div *ngIf="( is_available === true || domreg_hash )" class='default_margintop'>
+                        <mat-card-header style="display: flex; width: 100%">
+                            <mat-card-title style="flex-grow: 1">
+                                <h1 class="mat-h1">Registrant Data</h1>
+                            </mat-card-title>
+                        </mat-card-header>
+                        <div class='description_msg'>
+                          <p>Please fill in your personal data for the domain's registrant record, and confirm that you wish to register the domain <strong>{{domain_wanted}}</strong>.</p>
+                          <p>Note that these data will be made publicly available by the domain registrar unless Domain Privacy has been applied, and that some TLDs don't have an option to activate domain privacy.</p>
+                          <p *ngIf="domreg_hash">Please correct your data and click [Update].</p>
+                        </div>
+			<br />
+                        <div class="specific_docs">
+                            <div
+                                *ngFor="let doc of generic_docs"
+                                >
+                                <h2 class="mat-h2 {{doc.css_class}}"
+                                    *ngIf="doc.type == 'h2'"
+                                    >{{doc.label}}
+                                </h2>
+                                <h3 class="mat-h3 {{doc.css_class}}"
+                                    *ngIf="doc.type == 'h3'"
+                                    >{{doc.label}}
+                                </h3>
+                                <mat-form-field
+                                    class=" {{doc.css_class}}"
+                                    *ngIf="doc.type == 'text'" 
+                                    >
+                                    <input
+                                        matInput
+                                        [placeholder]="doc.label + (doc.sublabel ? ' ' + doc.sublabel + '' : '' )"
+                                        [name]="doc.field"
+                                        [(ngModel)]="doc.value"
+                                        (ngModelChange)="update_specific_doc_value($event, doc)"
+                                        [required]=is_normal_doc_required(doc)
+                                        [pattern]="doc.pattern"
+                                        />
+                                </mat-form-field>
+                                <mat-select 
+                                    *ngIf="doc.type == 'select'" 
+                                    class=" {{doc.css_class}}"
+                                    [placeholder]="doc.label + (doc.sublabel ? ' ' + doc.sublabel + '' : '' )"
+                                    [(ngModel)]="doc.value"
+                                    [name]="doc.field"
+                                    (ngModelChange)="update_specific_doc_value($event, doc)"
+                                    [required]=is_normal_doc_required(doc)
+                                    >
+                                    <mat-option 
+                                        *ngFor="let o of doc.options" 
+                                        [value]="o.value"
+                                        >
+                                        {{ o.text }}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!domreg_hash && is_available === true && agreement_generic" class='default_margintop'>
+                        <mat-card-header style="display: flex; width: 100%">
+                            <mat-card-title style="flex-grow: 1">
+                                <h1 class="mat-h1">Agreement</h1>
+                            </mat-card-title>
+                        </mat-card-header>
+
+                        <div class='description_msg'>
+                          Please read the Agreement in its entirety and tick the 'I agree' checkbox before completing the domain registration process.
+                        </div>
+
+                        <div class="agreement_content">
+                          <div [innerHTML]="agreement_generic" style="
+                              height: 400px; 
+                              overflow-y:scroll;
+                              padding: 20px;
+                          "></div>
+                            <div class="default_paddingtop" style='padding: 20px; background: #c7c7c7;'>
+                              <mat-checkbox 
+                                  required 
+                                  class='default_paddingtop' 
+                                  [(ngModel)]="is_agreement_checked" 
+                              >
+                                  I have read and understand this agreement. 
+                                  I accept and agree to all of its terms and conditions.
+                              </mat-checkbox>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!domreg_hash && is_available === true && agreement_specific" class='default_margintop'>
+
+                        <mat-card-header style="display: flex; width: 100%">
+                            <mat-card-title style="flex-grow: 1">
+                                <h1 class="mat-h1">Agreement for {{parse_domain_wanted().tld}} domains</h1>
+                            </mat-card-title>
+                        </mat-card-header>
+
+                        <div class='description_msg'>
+                          Please make sure to read the Agreement completely before you are able to finish the domain registration process. After you read it, make sure to tick the 'I agree' checkbox.
+                        </div>
+
+                        <div class=" agreement_content">
+                          <div [innerHTML]="agreement_specific" style="
+                              height: 400px; 
+                              overflow-y:scroll;
+                              padding: 20px;
+                          "></div>
+                            <div class="default_paddingtop" style='padding: 20px; background: #c7c7c7;'>
+                              <mat-checkbox 
+                                  required 
+                                  class='default_paddingtop' 
+                                  [(ngModel)]="is_specific_agreement_checked" 
+                              >
+                                  I have read and understand this agreement. 
+                                  I accept and agree to all of its terms and conditions.
+                              </mat-checkbox>
+                          </div>
+                        </div>
+
+                    </div>
+
+                    <div *ngIf="( is_available === true || domreg_hash ) && specific_docs && specific_docs.length"  class='default_margintop'>
+                        <mat-card-header style="">
+                            <mat-card-title style="flex-grow: 1">
+                                <h1 class="mat-h1">Additional data required for {{parse_domain_wanted().tld}} TLDs</h1>
+                            </mat-card-title>
+                        </mat-card-header>
+
+                        <mat-form-field 
+                            class="full-width long_placeholder" 
+                            *ngFor="let doc of specific_docs"
+                            [style.display]="(doc.is_child == '0' || required_fields[doc.name] || doc.required === '1') ? '' : 'none'"
+                            >
+                            <br>
+                            <div>
+                                <input 
+                                    *ngIf="doc.type == 'text'" 
+                                    matInput 
+                                    placeholder="" 
+                                    [placeholder]="doc.description" 
+                                    [name]="doc.name"
+                                    [(ngModel)]="doc.value"
+                                    (ngModelChange)="update_specific_doc_value($event, doc)"
+                                    [required]="is_doc_required(doc)"
+                                    />
+
+                                <mat-select 
+                                    *ngIf="doc.type == 'select'" 
+                                    [placeholder]="doc.description" 
+                                    [(ngModel)]="doc.value"
+                                    [name]="doc.name"
+                                    (ngModelChange)="update_specific_doc_value($event, doc)"
+                                    [required]="is_doc_required(doc)"
+                                    >
+                                    <mat-option 
+                                        *ngFor="let o of doc.options" 
+                                        [value]="o.value"
+                                        >
+                                        {{ o.description }}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+                        </mat-form-field>
+                    </div>
+
+
+                    <div *ngIf="is_available === true && products_available && products_available.length && !domreg_hash" class='default_margintop'
+                        style='background: #C7DFFF; padding: 15px;'
+                    >
+
+                      <mat-card-header style="display: flex; width: 100%" >
+                          <mat-card-title style="flex-grow: 1">
+                              <h2 class="mat-h2">Select the period you would like to register {{domain_wanted}} for</h2>
+                          </mat-card-title>
+                      </mat-card-header>
+                      <table>
+                          <tr>
+                              <td>
+                                <mat-form-field class="wide">
+                                    <mat-select 
+                                        *ngIf="products_available && products_available.length"
+                                        name='selected_product' 
+                                        placeholder="Choose a registration period" 
+                                        [(ngModel)]="selected_product"
+                                        (selectionChange)="calculate_total()"
+                                        >
+                                        <mat-option 
+                                            *ngFor="let product of products_available" 
+                                            [value]="product"
+                                            >
+                                            {{create_product_label(product)}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                              </td>
+                              <td>
+                                <div *ngIf="products_available 
+                                      && products_available.length 
+                                      && selected_product
+                                      && selected_product.partner_product
+                                      && selected_product.partner_product.supports_whois_privacy">
+                                    <mat-form-field class="wide">
+                                      <mat-select placeholder="Select Domain Privacy (¹)"
+                                          value=""
+                                          [(ngModel)]='selected_privacy_product'
+                                          (selectionChange)="calculate_total()"
+                                      >
+                                        <mat-option value="1">Yes</mat-option>
+                                        <mat-option value="0">No</mat-option>
+                                      </mat-select>
+                                    </mat-form-field>
+                                </div>
+                              </td>
+                          </tr>
+                          <tr *ngIf="products_available 
+                                && products_available.length 
+                                && selected_product
+                                && selected_product.partner_product
+                                && selected_product.partner_product.supports_whois_privacy">
+                              <td colspan='2'>
+                                  (¹) It is recommended to enable WHOIS privacy to prevent unsolicited email about your new domain.
+                              </td>
+                          </tr>
+                          <tr>
+                              <td colspan='2'>
+                                  <h2 *ngIf="total_price">
+                                      USD {{total_price}}
+                                  </h2>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td colspan='2'>
+                                  <button mat-raised-button color="primary"
+                                    (click)="purchase()"
+                                    [disabled]="is_btn_purchase_disabled"
+                                  >Continue</button>
+                              </td>
+                          </tr>
+                      </table>
+                    </div>
+
+                    <div *ngIf="domreg_hash" class='default_margintop'
+                        style='background: #C7DFFF; padding: 15px;'
+                    >
+                        <button mat-raised-button color="primary"
+                          (click)="update()"
+                          [disabled]="is_btn_update_disabled"
+                        >Update</button>
+                    </div>
+                  <div *ngIf="!domreg_hash">
+                    <mat-card-header style="display: flex; width: 100%" class='default_margintop'>
+                        <mat-card-title style="flex-grow: 1">
+                            <h2 class="mat-h2">Top Level Domain (TLD) list and prices</h2>
+                        </mat-card-title>
+                    </mat-card-header>
+                    <div class='description_msg'>
+		      <p>Below you will find a list of the Top Level Domains (TLD) currently available via our partner Enom.</p>
+                    </div>
+                    <mat-progress-bar *ngIf="is_loading.tld_list" mode="indeterminate"></mat-progress-bar>
+                    <div class="example-header" style="display: none">
+                      <mat-form-field >
+                        <input matInput (keyup)="applyFilterTLD($event.target.value)" placeholder="Filter">
+                      </mat-form-field>
+                    </div>
+                    <mat-table #table [dataSource]="dataSourceTld" style='max-height: 500px; overflow-y: scroll;'>
+
+                        <ng-container matColumnDef="tld">
+                            <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Top Level Domain</strong> </mat-header-cell>
+                            <mat-cell *matCellDef="let element" style="flex-grow: 1"> 
+                              {{element.tld}}<!--<br>
+                              <mat-chip-list>
+                                <mat-chip *ngIf="element.partner_product_enom && element.partner_product_enom.is_premium_domain">
+                                  Premium
+                                </mat-chip>
+                                <mat-chip *ngIf="element.partner_product_enom && element.partner_product_enom.is_autorenew_only">
+                                  Auto-renew only
+                                </mat-chip>
+                              </mat-chip-list>
+                              -->
+                            </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="period">
+                            <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Period</strong> </mat-header-cell>
+                            <mat-cell *matCellDef="let element" style="flex-grow: 1"> 
+                                <mat-form-field style="width: 100px">
+                                  <mat-select placeholder="Select Period" [value]="element.period[0].period">
+                                    <mat-option 
+                                        *ngFor="let period of element.period" 
+                                        [value]="period.period"
+                                        (click)='tld_list_update_price(element, period)'
+                                        >
+                                        {{ period.period }} {{period.period_unit}}(s)
+                                    </mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                            </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="price">
+                            <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Price</strong> </mat-header-cell>
+                            <mat-cell *matCellDef="let element" style="flex-grow: 1"> {{element.currency}} {{element.price}} </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="requires_ext_attributes">
+                            <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Special Requirements (¹)</strong> </mat-header-cell>
+                            <mat-cell *matCellDef="let element" style="flex-grow: 1"> {{element.requires_ext_attributes ? 'Yes' : 'No'}} </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="supports_whois_privacy">
+                            <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Allows Privacy (²)</strong> </mat-header-cell>
+                            <mat-cell *matCellDef="let element" style="flex-grow: 1"> {{element.supports_whois_privacy ? 'Yes' : 'No'}} </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="privacy_price">
+                            <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Privacy Price</strong> </mat-header-cell>
+                            <mat-cell *matCellDef="let element" style="flex-grow: 1"> 
+                                {{
+                                element.supports_whois_privacy
+                                ? (
+                                      element.whois_privacy
+                                          ? 'USD ' + element.whois_privacy.price 
+                                          : 'USD ' + element.period[0].whois_privacy.price
+                                  ) 
+                                : '--'
+                                }} 
+                            </mat-cell>
+                        </ng-container>
+
+                        <mat-header-row *matHeaderRowDef="displayedColumnsTld"></mat-header-row>
+                        <mat-row *matRowDef="let row; columns: displayedColumnsTld;"></mat-row>
+                    </mat-table>
+
+                    <mat-paginator #paginator
+                                   [pageSize]="20"
+                                   [pageSizeOptions]="[5, 10, 20, 50, 100]"
+                                   >
+                    </mat-paginator>
+                    <table>
+                        <tr>
+                            <td>
+                                ¹) Some TLDs have special requirements. For example, .uk domains might require the company/person to be registered in the UK.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                ²) Some TLDs do not allow WHOIS privacy that hides the registrant's details from the public WHOIS registry.
+                            </td>
+                        </tr>
+                    </table>
+                  </div>
+
+                </mat-tab>
+            </mat-tab-group>
+
+        </mat-card>
+    </section>
+</div>
