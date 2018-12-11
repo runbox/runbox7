@@ -1,2 +1,4 @@
 language: perl
 script: prove -vr t/
+before_install:
+    - true
