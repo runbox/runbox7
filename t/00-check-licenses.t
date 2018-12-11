@@ -1,8 +1,8 @@
-use 5.022;
+use 5.014;
 use strict;
 use warnings;
 
-use File::Find::Rule;
+use File::Find;
 use List::MoreUtils 'any';
 use Path::Tiny;
 use Test::More;
@@ -19,10 +19,11 @@ my @excluded_files = qw(
     src/typings.d.ts
 );
 
-my @files = File::Find::Rule->file()->name('*.ts')->in('src');
-for my $file (@files) {
-    next if any { /$file/ } @excluded_files; 
+find({ no_chdir => 1, wanted => sub {
+    my $file = $File::Find::name;
+    return unless $file =~ /\.ts$/;
+    return if any { /$file/ } @excluded_files; 
     ok has_license(path($file)), "$file has the correct license";
-}
+} }, 'src');
 
 done_testing;
