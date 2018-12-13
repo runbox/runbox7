@@ -346,9 +346,17 @@ export class RunboxWebmailAPI {
 
     public trashMessages(messageIds: number[]): Observable<any> {
 
+        let counter = 1;
         return from(messageIds).pipe(
             mergeMap(messageId =>
                 this.http.delete(`/rest/v1/email/${messageId}`)
+                    .pipe(tap(() =>
+                        this.snackBar.open(
+                            `Deleted message ${counter++} of ${messageIds.length}`,
+                            null,
+                            {duration: 500})
+                        )
+                    )
                 , 10),
             bufferCount(messageIds.length)
         );
