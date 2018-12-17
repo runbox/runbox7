@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatDialog } from '@angular/material';
 import { UpdateAlertComponent } from './updatealert.component';
@@ -6,7 +6,8 @@ import { UpdateAlertComponent } from './updatealert.component';
 @Injectable()
 export class UpdateAlertService {
     constructor(
-        swupdate: SwUpdate,
+        private swupdate: SwUpdate,
+        private ngZone: NgZone,
         dialog: MatDialog
     ) {
         console.log('UpdateAlertService started');
@@ -14,10 +15,18 @@ export class UpdateAlertService {
             dialog.open(UpdateAlertComponent);
         });
 
+        this.checkForUpdates();
+    }
+
+    checkForUpdates() {
         // Check for updates every minute
-        const checkForUpdatesInterval = setInterval(() => {
-            console.log(' checking for updates');
-            swupdate.checkForUpdate().catch(() => 'Unable to check for updates');
-        }, 60 * 1000);
+        this.ngZone.runOutsideAngular(() =>
+            setTimeout(() => this.ngZone.run(() => {
+                console.log(' checking for updates');
+                this.swupdate.checkForUpdate()
+                    .then(() => this.checkForUpdates())
+                    .catch((err) => console.log('Unable to check for updates', err));
+            }), 60 * 1000)
+        );
     }
 }
