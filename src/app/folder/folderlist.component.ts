@@ -236,4 +236,21 @@ export class FolderListComponent {
             tap(() => this.messagelistservice.refreshFolderCount())
         ).toPromise();
     }
+
+    async emptySpam() {
+        this.folders.pipe(
+            map(folders => folders.find(f => f.folderType === 'spam').folderName),
+            tap(trashFolderName => this.selectFolder(trashFolderName)),
+            mergeMap((trashFolderName) =>
+                this.messagelistservice.messagesInViewSubject.pipe(
+                    take(2),
+                    last()
+                )
+            ),
+            mergeMap(messageLists =>
+                this.rmmapi.trashMessages(messageLists.map(msg => msg.id))
+            ),
+            tap(() => this.messagelistservice.refreshFolderCount())
+        ).toPromise();
+    }
 }
