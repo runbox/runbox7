@@ -7,7 +7,7 @@ const PROXY_CONFIG = [
     {
         context: ["/websocket"],
         "target": backendhostname.replace(/^http/,'ws'),
-        "secure": false,
+        "secure": true,
         "ws": true,
         "changeOrigin": true
     },
@@ -27,7 +27,7 @@ const PROXY_CONFIG = [
             }
         },
         "target": backendhostname,
-        "secure": false,
+        "secure": true,
         "cookieDomainRewrite": "localhost",
         "changeOrigin": true
         
