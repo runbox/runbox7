@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
@@ -152,12 +152,15 @@ export class RunboxWebmailAPI {
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
     public rblocale: any;
 
+    public last_on_interval;
+
     messageContentsCache: { [messageId: number]: Observable<MessageContents> } = {};
 
     constructor(
         public snackBar: MatSnackBar,
         private http: HttpClient,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private ngZone: NgZone
     ) {
         this.rblocale = new RunboxLocale();
         this.http.get('/rest/v1/me')
@@ -172,7 +175,12 @@ export class RunboxWebmailAPI {
                 this.me.next(me);
                 this.me.complete();
 
-                setInterval(() => this.updateLastOn().subscribe(), 5 * 60 * 1000);
+                this.ngZone.runOutsideAngular(() =>
+                    this.last_on_interval = setInterval(() => this.ngZone.run(() => {
+                        this.updateLastOn().subscribe();
+                    }), 5 * 60 * 1000)
+                );
+
                 this.updateLastOn().subscribe();
             });
     }
