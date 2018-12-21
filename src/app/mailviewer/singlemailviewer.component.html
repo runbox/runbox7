@@ -174,7 +174,7 @@
           <div class="messageHeaderDate">Time:</div>
           <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
         </div>
-        <div class="messageHeaderRow">
+        <div *ngIf="mailObj.to" class="messageHeaderRow">
           <div class="messageHeaderTo">To:</div>
           <div class="messageHeaderTo"><span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span></div>
         </div>
