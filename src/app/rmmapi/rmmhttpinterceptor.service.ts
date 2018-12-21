@@ -18,29 +18,48 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpErrorResponse, HttpClient } from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { catchError, filter, tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { ProgressService } from '../http/progress.service';
 
 @Injectable()
 export class RMMHttpInterceptorService implements HttpInterceptor {
 
+    httpRequestCount = 0;
+
     constructor(
         private httpClient: HttpClient,
-        private router: Router
+        private router: Router,
+        private progressService: ProgressService
     ) {
 
+    }
+
+    decrementHttpRequestCount() {
+        this.httpRequestCount--;
+        if (this.httpRequestCount === 0) {
+            this.progressService.httpRequestInProgress.next(false);
+        }
+        // console.log('decrement', this.httpRequestCount);
     }
 
     intercept(
         req: HttpRequest<any>,
         next: HttpHandler
     ): Observable<HttpEvent<any>> {
+
+        if (this.httpRequestCount === 0) {
+            this.progressService.httpRequestInProgress.next(true);
+        }
+        this.httpRequestCount ++;
+        // console.log('increment', this.httpRequestCount);
         return next.handle(req).pipe(
             map((evt: HttpEvent<any>) => {
                 if (evt instanceof HttpResponse) {
                     const r = evt as HttpResponse<any>;
+                    this.decrementHttpRequestCount();
                     if (r.body.status === 'error' && r.body.errors[0].indexOf('login') > 0) {
                         this.router.navigate(['/login'], {skipLocationChange: true});
                         throw(r.body);
@@ -49,6 +68,7 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                 return evt;
             }),
             catchError((e) => {
+                this.decrementHttpRequestCount();
                 if (e.status === 403) {
                     console.log('Forbidden');
                     this.httpClient.get('/rest/v1/me')

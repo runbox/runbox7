@@ -108,6 +108,7 @@
     </div>
   </form>
   
+  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 </div>
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(170deg, #014f89, #001e35);">
   <div id="loginFooter">
