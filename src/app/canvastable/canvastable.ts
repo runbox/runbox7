@@ -280,7 +280,21 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
     this.canv.onwheel = (event: MouseWheelEvent) => {
       event.preventDefault();
-      this.topindex += event.deltaY;
+      switch (event.deltaMode) {
+        case 0:
+          // pixels
+          this.topindex += (event.deltaY / this.rowheight);
+          break;
+        case 1:
+          // lines
+          this.topindex += event.deltaY;
+          break;
+        case 2:
+          // pages
+          this.topindex += (event.deltaY * (this.canv.scrollHeight / this.rowheight));
+          break;
+      }
+
       this.enforceScrollLimit();
     };
 
