@@ -215,7 +215,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = localStorage
-              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;        
+              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
     };
 
@@ -857,12 +857,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerOrientationChangeRequest(orientation: string) {
     const currentMessageId = this.singlemailviewer.messageId;
     if (orientation === 'vertical') {
-      
       this.mailViewerOnRightSide = true;
     } else {
       this.mailViewerOnRightSide = false;
     }
-    if(this.mobileQuery.matches) {
+    if (this.mobileQuery.matches) {
       localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
           `${this.mailViewerOnRightSide}`);
     }

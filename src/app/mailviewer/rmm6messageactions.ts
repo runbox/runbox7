@@ -30,37 +30,37 @@ export class RMM6MessageActions implements MessageActions {
     http: Http;
 
     moveToFolder() {
-        this.snackBar.open("Not supported in RMM6 yet", null, {duration: 1000});
+        this.snackBar.open('Not supported in RMM6 yet', null, {duration: 1000});
     }
 
     openCompose(url: string) {
         if (window['rmmangular_new_window_template']) {
             openCompose(url);
         } else {
-            location.href= url;
+            location.href = url;
         }
     }
 
     trashMessage() {
-        location.href="/mail/list?delete_msg=1&message=" + this.mailViewerComponent.messageId;
+        location.href = '/mail/list?delete_msg=1&message=' + this.mailViewerComponent.messageId;
     }
 
     reply() {
-        this.openCompose("/mail/reply?message=" + this.mailViewerComponent.messageId);
+        this.openCompose('/mail/reply?message=' + this.mailViewerComponent.messageId);
     }
 
     replyToAll() {
-        this.openCompose("/mail/replyall?message=" + this.mailViewerComponent.messageId);
+        this.openCompose('/mail/replyall?message=' + this.mailViewerComponent.messageId);
     }
 
     forward() {
-        this.openCompose("/mail/forward?message=" + this.mailViewerComponent.messageId);
+        this.openCompose('/mail/forward?message=' + this.mailViewerComponent.messageId);
     }
 
     markSeen(seen_flag_value = 1) {
-        this.http.put('/rest/v1/email/' + this.mailViewerComponent.messageId,JSON.stringify(
+        this.http.put('/rest/v1/email/' + this.mailViewerComponent.messageId, JSON.stringify(
             { seen_flag : seen_flag_value }))
-            .subscribe(() => console.log("marked "+this.mailViewerComponent.messageId + " as seen"));
+            .subscribe(() => console.log('marked ' + this.mailViewerComponent.messageId + ' as seen'));
     }
 
     reportSpam() {

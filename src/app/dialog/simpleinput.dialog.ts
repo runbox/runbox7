@@ -17,18 +17,18 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component,Inject } from '@angular/core';
-import { DomSanitizer,SafeHtml } from '@angular/platform-browser';
-import { MatDialogRef,MAT_DIALOG_DATA } from '@angular/material';
+import { Component, Inject } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 export class SimpleInputDialogParams {
     constructor(
         public title: string,
         public message: string,
-        public placeholder : string,
-        public isValidInput : (value : string) => boolean = (value) => true) {
+        public placeholder: string,
+        public isValidInput: (value: string) => boolean = (value) => true) {
 
-        }
+    }
 }
 
 @Component({
@@ -36,31 +36,32 @@ export class SimpleInputDialogParams {
         <h1 mat-dialog-title>
             {{data.title}}
         </h1>
-        <mat-dialog-content >   
+        <mat-dialog-content >
             <div [innerHtml]="trustedHtml">
             </div>
             <mat-form-field style="margin-top: 20px;">
                 <input matInput [placeholder]="data.placeholder" [(ngModel)]="inputText" />
             </mat-form-field>
         </mat-dialog-content>
-        
-        <mat-dialog-actions style="display: flex">           
-            <p style="flex-grow: 1"></p> 
+
+        <mat-dialog-actions style="display: flex">
+            <p style="flex-grow: 1"></p>
             <button mat-icon-button mat-dialog-close><mat-icon>cancel</mat-icon></button>
-            <button mat-icon-button mat-dialog-close (click)="yes()" 
+            <button mat-icon-button mat-dialog-close (click)="yes()"
                 [disabled]="!data.isValidInput(inputText)"><mat-icon>done</mat-icon></button>
         </mat-dialog-actions>`
 })
+// tslint:disable-next-line:component-class-suffix
 export class SimpleInputDialog {
-    trustedHtml : SafeHtml;
+    trustedHtml: SafeHtml;
 
-    inputText : string;
+    inputText: string;
 
     constructor(
         @Inject(
-            MAT_DIALOG_DATA) public data: SimpleInputDialogParams,        
-            public dialogRef : MatDialogRef<SimpleInputDialog>,
-            sanitizer : DomSanitizer) {
+            MAT_DIALOG_DATA) public data: SimpleInputDialogParams,
+        public dialogRef: MatDialogRef<SimpleInputDialog>,
+        sanitizer: DomSanitizer) {
         this.trustedHtml = sanitizer.bypassSecurityTrustHtml(data.message);
     }
 

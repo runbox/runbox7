@@ -22,12 +22,13 @@ import {SearchService} from '../xapian/searchservice';
 
 @Component({
     moduleId: 'angular2/app/messagepages/',
-    selector: "indexDeletedComponent",
-    templateUrl: "indexdeleted.component.html"
+    // tslint:disable-next-line:component-selector
+    selector: 'indexDeletedComponent',
+    templateUrl: 'indexdeleted.component.html'
 
 })
 export class IndexDeletedComponent {
-    constructor(public searchService : SearchService) {
+    constructor(public searchService: SearchService) {
 
     }
 }

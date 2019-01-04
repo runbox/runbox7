@@ -17,16 +17,16 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component,Inject } from '@angular/core';
-import { DomSanitizer,SafeHtml } from '@angular/platform-browser';
-import { MatDialogRef,MAT_DIALOG_DATA } from '@angular/material';
+import { Component, Inject } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 export class InfoParams {
     constructor(
         public title: string,
         public message: string) {
 
-        }
+    }
 }
 
 @Component({
@@ -34,21 +34,22 @@ export class InfoParams {
         <h1 mat-dialog-title>
             {{data.title}}
         </h1>
-        <mat-dialog-content [innerHtml]="trustedHtml">                    
+        <mat-dialog-content [innerHtml]="trustedHtml">
         </mat-dialog-content>
-        <mat-dialog-actions style="display: flex">           
-            <p style="flex-grow: 1"></p> 
-            <button mat-icon-button mat-dialog-close><mat-icon>done</mat-icon></button>            
+        <mat-dialog-actions style="display: flex">
+            <p style="flex-grow: 1"></p>
+            <button mat-icon-button mat-dialog-close><mat-icon>done</mat-icon></button>
         </mat-dialog-actions>`
 })
+// tslint:disable-next-line:component-class-suffix
 export class InfoDialog {
-    trustedHtml : SafeHtml;
+    trustedHtml: SafeHtml;
 
     constructor(
         @Inject(
-            MAT_DIALOG_DATA) public data: InfoParams,        
-            public dialogRef : MatDialogRef<InfoDialog>,
-            sanitizer : DomSanitizer) {
+            MAT_DIALOG_DATA) public data: InfoParams,
+        public dialogRef: MatDialogRef<InfoDialog>,
+        sanitizer: DomSanitizer) {
         this.trustedHtml = sanitizer.bypassSecurityTrustHtml(data.message);
     }
 
