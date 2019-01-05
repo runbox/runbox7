@@ -22,7 +22,7 @@ import { NgModule } from '@angular/core';
 import { MatInputModule, MatSnackBarModule } from '@angular/material';
 import { WebSocketSearchService } from './websocketsearch.service';
 
-@NgModule({    
+@NgModule({
     imports: [
         MatSnackBarModule
     ],

@@ -43,7 +43,7 @@ import { DialogModule } from '../dialog/dialog.module';
         MatTreeModule,
         DialogModule,
         MatTooltipModule,
-	MatBadgeModule
+        MatBadgeModule
     ],
     exports: [
         FolderListComponent

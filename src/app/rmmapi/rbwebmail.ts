@@ -279,7 +279,8 @@ export class RunboxWebmailAPI {
                     }
                     return ret;
                 })
-            ),);
+            )
+        );
     }
 
     subscribeShowBackendErrors(req: any) {
@@ -487,17 +488,18 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res['result']['addresses_contacts']),
             map((contacts: any[]) =>
                 contacts.map((contact) => new Contact(contact))
-            ),);
+            )
+        );
     }
 
     public addNewContact(c: Contact): Observable<Contact> {
         return this.http.put('/rest/v1/addresses_contact', c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])))
+            map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
 
     public modifyContact(c: Contact): Observable<Contact> {
         return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])))
+            map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
 
     public logout() {

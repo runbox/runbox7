@@ -24,62 +24,64 @@ import { Contact } from './contact';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
+    // tslint:disable-next-line:component-selector
     selector: 'contacts-app-root',
     templateUrl: './contacts-app.component.html',
 })
 export class ContactsAppComponent {
     title = 'Contacts';
-    contacts: Contact[]
+    contacts: Contact[];
     selectedContact: Contact;
 
     constructor(
-        public rmmapi : RunboxWebmailAPI,
-        private router : Router
+        public rmmapi: RunboxWebmailAPI,
+        private router: Router
     ) {
         this.rmmapi.getAllContacts().subscribe(contacts => {
-            console.log("Got all the contacts!");
-            console.log("Contacts: " + contacts);
-            this.contacts = contacts
-        })
+            console.log('Got all the contacts!');
+            console.log('Contacts: ' + contacts);
+            this.contacts = contacts;
+        });
     }
 
-    selectContact(contact: Contact) : void {
-        this.selectedContact = new Contact(contact)
+    selectContact(contact: Contact): void {
+        this.selectedContact = new Contact(contact);
     }
 
-    newContact() : void {
-        this.selectedContact = new Contact({})
+    newContact(): void {
+        this.selectedContact = new Contact({});
     }
 
-    saveContact(contact: Contact) : void {
+    saveContact(contact: Contact): void {
         if (contact.id) { // existing contact
-            for (var i = 0; i < this.contacts.length; i++) {
-                if (contact.id == this.contacts[i].id) {
-                    this.rmmapi.modifyContact(contact).subscribe(contact => {
-                        console.log("Contact modified")
-                    })
-                    this.contacts[i] = contact
-                    break
+            for (let i = 0; i < this.contacts.length; i++) {
+                if (contact.id === this.contacts[i].id) {
+                    this.rmmapi.modifyContact(contact).subscribe(() => {
+                        console.log('Contact modified');
+                    });
+                    this.contacts[i] = contact;
+                    break;
                 }
             }
-            this.selectContact(contact)
+            this.selectContact(contact);
         } else { // new contact
-            this.rmmapi.addNewContact(contact).subscribe(contact => {
-                console.log("ID assigned: " + contact.id)
-                this.contacts.push(contact)
-                this.selectContact(contact)
-            })
+            this.rmmapi.addNewContact(contact).subscribe(thecontact => {
+                console.log('ID assigned: ' + thecontact.id);
+                this.contacts.push(thecontact);
+                this.selectContact(thecontact);
+            });
         }
     }
 
-    rollbackContact(contact: Contact) : void {
-        this.selectContact(this.getContact(contact.id))
+    rollbackContact(contact: Contact): void {
+        this.selectContact(this.getContact(contact.id));
     }
 
-    getContact(id: number) : Contact {
-        for (var c of this.contacts) {
-            if (c.id == id)
-                return c
+    getContact(id: number): Contact {
+        for (const c of this.contacts) {
+            if (c.id === id) {
+                return c;
+            }
         }
     }
 

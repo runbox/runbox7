@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-const datelen: number = "yyyy-MM-dd".length;
+const datelen: number = 'yyyy-MM-dd'.length;
 
 export class MessageTableRowTool {
 
@@ -42,7 +42,7 @@ export class MessageTableRowTool {
     public static formatTimestampFromStringWithoutSeparators(dateString): string {
         const datearr = dateString.match(/([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])([0-9][0-9])([0-9][0-9])/);
 
-        if(datearr) {
+        if (datearr) {
             // Adjust for users timezone
             return MessageTableRowTool.formatTimestampFromDate(
                 new Date(Date.UTC(
@@ -77,7 +77,7 @@ export class MessageTableRowTool {
 
     public static formatBytes(a, b?): string {
         if (0 === a) {
-            return"0 B";
+            return'0 B';
         }
 
         const c = 1e3,

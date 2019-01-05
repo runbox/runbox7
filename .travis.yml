@@ -21,5 +21,6 @@ install:
   - npm run webdriver-update-ci
 
 script:
+  - npm run lint
   - npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI
   - npm run e2e -- --webdriver-update=false --protractor-config=./protractor-ci.conf.js

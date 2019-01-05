@@ -21,7 +21,9 @@ import { NgModule, ApplicationRef, ComponentFactoryResolver, Injector, NgZone } 
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule, MatButtonModule,
     MatIconModule,
-    MatTooltipModule, MatDialogModule, MatMenuModule, MatRadioModule, MatCheckboxModule, MatCardModule, MatGridListModule, MatDividerModule, MatExpansionModule } from '@angular/material';
+    MatTooltipModule, MatDialogModule, MatMenuModule,
+    MatRadioModule, MatCheckboxModule, MatCardModule, MatGridListModule,
+    MatDividerModule, MatExpansionModule } from '@angular/material';
 import { HttpModule } from '@angular/http';
 import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
@@ -44,8 +46,8 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         MatGridListModule,
         MatToolbarModule,
         MatTooltipModule,
-	MatDividerModule,
-	MatExpansionModule
+        MatDividerModule,
+        MatExpansionModule
     ],
     exports: [
         SingleMailViewerComponent

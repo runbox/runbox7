@@ -139,7 +139,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
   static incrementalId = 1;
   public elementId: string;
   private _topindex = 0.0;
-  public get topindex(): number { return this._topindex; };
+  public get topindex(): number { return this._topindex; }
   public set topindex(topindex: number) {
     if (this._topindex !== topindex) {
       this._topindex = topindex;
@@ -201,7 +201,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   public hasSortColumns = false;
   public _columns: CanvasTableColumn[] = [];
-  public get columns(): CanvasTableColumn[] { return this._columns; };
+  public get columns(): CanvasTableColumn[] { return this._columns; }
   public set columns(columns: CanvasTableColumn[]) {
     if (this._columns !== columns) {
       this._columns = columns;
@@ -829,7 +829,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this._showContentTextPreview = showContentTextPreview;
     this.hasChanges = true;
   }
-  
+
   public calculateColumnFooterSums(): void {
     this.columns.forEach((col) => {
       if (col.footerSumReduce) {
@@ -1254,8 +1254,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
             this.ctx.save();
             this.ctx.fillStyle = this.textColor;
             this.ctx.font = this.fontheightSmaller + 'px ' + this.fontFamily;
-	    const contentTextPreviewColumnPadding = this.rowWrapMode ? 2 : 10; // Increase left padding of content preview
-            this.ctx.fillText(contentPreviewText, this.columns[0]. width + contentTextPreviewColumnPadding, rowy + halfrowheight + (this.rowWrapMode ? 18 : 15));
+          const contentTextPreviewColumnPadding = this.rowWrapMode ? 2 : 10; // Increase left padding of content preview
+            this.ctx.fillText(contentPreviewText, this.columns[0]. width + contentTextPreviewColumnPadding,
+              rowy + halfrowheight + (this.rowWrapMode ? 18 : 15));
             this.ctx.restore();
           }
         }
