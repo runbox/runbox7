@@ -1,6 +1,9 @@
 <div *ngIf="messageId" [ngClass]="{'adjustableHeight': adjustableHeight}"
   appHorizResizable [resizableDisabled]="!adjustableHeight" (resized)="heightChanged($event)">
-  <iframe #printFrame style="width: 0px; height: 0px; border: none; position: absolute"></iframe>
+  <iframe #printFrame
+    sandbox="allow-same-origin allow-modals"
+    style="width: 0px; height: 0px; border: none; position: absolute" 
+  ></iframe>
   <mat-toolbar style="display: flex; overflow-x: auto;">
     <!-- Message preview toolbar -->
     <div style="flex-grow: 1; overflow: hidden" #toolbarButtonContainer>      
