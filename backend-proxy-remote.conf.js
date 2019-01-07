@@ -1,5 +1,5 @@
-let backendhostname = process.argv[process.argv.length-1];
-if(backendhostname.indexOf('http') !== 0) {
+let backendhostname = process.env.RUNBOX7_ANGULAR_BACKEND_HOST;
+if(!backendhostname) {
     backendhostname = 'https://runbox.com';
 }
 
