@@ -27,14 +27,18 @@
                             placeholder="Last Name">
                 </td>
             </tr>
-            <tr>
-                <td> Email address: </td>
-                <td> <input name="email"
-                            [(ngModel)]="contact.email"
+            <tr *ngFor="let email of contact.email_addresses">
+                <td> Email address ({{ email.types }}): </td>
+                <td>
+                    <!-- <input name="email"
+                            [(ngModel)]="email.value"
+                            placeholder="E-mail address"> -->
+                    <input name="email"
+                            value="{{ email.value }}"
                             placeholder="E-mail address">
                 </td>
                 <td>
-                    <a mat-button routerLink="/compose" [queryParams]="{to: contact.email}">
+                    <a mat-button routerLink="/compose" [queryParams]="{to: email.value}">
                         <mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}
                     </a>
                 </td>
