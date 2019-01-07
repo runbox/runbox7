@@ -51,18 +51,16 @@ Run `npm run appdev` and you will be able to access Runbox 7 at `https://yourvm/
 
 ## Development server with Runbox proxy
 
-Run `npm start https://yourvm.runbox.com` to use the backend of your choice. No host file config needed.
-    `npm start https://localhost:443` *** localhost might be necessary if your vm cannot resolve its external IP to localhost
+By default running `npm start` will use the production environment at https://runbox.com as backend. If you want to use another backend you may change the `RUNBOX7_ANGULAR_BACKEND_HOST` environment variable.
 
+Run `RUNBOX7_ANGULAR_BACKEND_HOST=https://yourvm.runbox.com npm start` to use the backend of your choice.
+    
 You may then access the angular app at: [http://localhost:4200](http://localhost:4200)
-
-If you put the production url `https://runbox.com` as the argument to the command above, then you can test
-frontend development directly with your production account.
 
 ## Creating production bundles
 
-Run `npm run build` - which will copy production bundle files to `vhosts/_default/app` - and also update index.html
-to point to the new bundles.
+Run `npm run build`. Production bundles will be created in the `dist` folder and is ready
+to be copied into the production web servers.
 
 ## No-script
 
