@@ -4,10 +4,6 @@
 
 <div class="contact-details" *ngIf="contact">
     <h2> {{ contact.full_name() || "New contact" }}'s details </h2>
-    <p *ngIf="contact.email">
-        
-        <a mat-button routerLink="/compose" [queryParams]="{to: contact.email}"><mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}</a>
-    </p>
     <form #form="ngForm">
         <table>
             <tr>
@@ -36,6 +32,47 @@
                 <td> <input name="email"
                             [(ngModel)]="contact.email"
                             placeholder="E-mail address">
+                </td>
+                <td>
+                    <a mat-button routerLink="/compose" [queryParams]="{to: contact.email}">
+                        <mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td> Birthday: </td>
+                <td> <input name="birthday"
+                            [(ngModel)]="contact.birthday"
+                            placeholder="Birthday">
+                </td>
+            </tr>
+            <tr>
+                <td> Website: </td>
+                <td> <input name="website"
+                            [(ngModel)]="contact.url"
+                            placeholder="Website">
+                </td>
+            </tr>
+            <tr>
+                <td> Company: </td>
+                <td> <input name="company"
+                            [(ngModel)]="contact.company"
+                            placeholder="Company">
+                </td>
+            </tr>
+            <tr>
+                <td> Department: </td>
+                <td> <input name="department"
+                            [(ngModel)]="contact.department"
+                            placeholder="Department">
+                </td>
+            </tr>
+            <tr>
+                <td> Notes: </td>
+                <td> <textarea name="notes"
+                            [(ngModel)]="contact.note"
+                            placeholder="Contact notes">
+                     </textarea>
                 </td>
             </tr>
         </table>
