@@ -1,13 +1,13 @@
 let backendhostname = process.argv[process.argv.length-1];
 if(backendhostname.indexOf('http') !== 0) {
-    backendhostname = 'https://runbox.com';
+    backendhostname = 'https://gw01test.runbox.com:4086';
 }
 
 const PROXY_CONFIG = [
     {
         context: ["/websocket"],
         "target": backendhostname.replace(/^http/,'ws'),
-        "secure": true,
+        "secure": false,
         "ws": true,
         "changeOrigin": true
     },
@@ -27,7 +27,7 @@ const PROXY_CONFIG = [
             }
         },
         "target": backendhostname,
-        "secure": true,
+        "secure": false,
         "cookieDomainRewrite": "localhost",
         "changeOrigin": true
         
