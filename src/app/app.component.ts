@@ -558,7 +558,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
           localStorage.setItem('messageSubjectDragTipShown', 'true');
         }
-        if (this.viewmode === 'conversations') {
+        if (this.viewmode === 'conversations' && rowContent[2] !== '1') {
           this.viewmode = 'singleconversation';
           this.resetColumns();
           this.clearSelection();
