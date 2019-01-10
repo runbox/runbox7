@@ -26,7 +26,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
-import { IndexDeletedComponent } from './messagepages/indexdeleted.component';
+
 import { MailViewerModule } from './mailviewer/mailviewer.module';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
@@ -80,7 +80,6 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'contacts', component: ContactsAppComponent },
-      { path: 'indexdeleted', component: IndexDeletedComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -132,8 +131,8 @@ const routes: Routes = [
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production })
   ],
   declarations: [MainContainerComponent, AppComponent, LoginComponent,
-    MoveMessageDialogComponent,
-    IndexDeletedComponent],
+    MoveMessageDialogComponent
+    ],
   providers: [ProgressService,
     { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
     MessageListService,

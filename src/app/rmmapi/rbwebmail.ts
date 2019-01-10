@@ -501,8 +501,4 @@ export class RunboxWebmailAPI {
         return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
             map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
-
-    public logout() {
-        location.href = '/LOGOUT';
-    }
 }
