@@ -32,7 +32,7 @@ Installation instructions for Node and NPM:
 
 1. Clone the codebase onto your system: `git clone https://github.com/runbox/runbox7.git`
 1. Change directory into the repository directory: `cd runbox7`
-1. Install dependencies: =npm install=
+1. Install dependencies: `npm install`
 
 
 ## Development with your Runbox account (using production servers as backend)
