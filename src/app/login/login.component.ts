@@ -25,6 +25,7 @@ import { Http, Response, URLSearchParams, Headers } from '@angular/http';
 import { Subject, Observable } from 'rxjs';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { map } from 'rxjs/operators';
+import { ProgressService } from '../http/progress.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -41,7 +42,8 @@ export class LoginComponent {
 
     constructor(private http: Http,
         private router: Router,
-        private authservice: RMMAuthGuardService
+        private authservice: RMMAuthGuardService,
+        public progressService: ProgressService
     ) {
 
     }

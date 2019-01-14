@@ -1,4 +1,33 @@
-language: perl
-script: prove -vr t/
-install:
-    - true
+dist: trusty
+sudo: false
+
+matrix:
+  include:
+    - language: perl
+      script: prove -vr t/
+      install:
+          - true
+
+    - language: node_js
+      node_js:
+        - "10"
+
+      addons:
+        apt:
+          sources:
+            - google-chrome
+          packages:
+            - google-chrome-stable
+
+      cache:
+        directories:
+           - ./node_modules
+
+      install:
+        - npm install
+        - npm run webdriver-update-ci
+
+      script:
+        - npm run lint
+        - npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI
+        - npm run e2e -- --webdriver-update=false --protractor-config=./protractor-ci.conf.js

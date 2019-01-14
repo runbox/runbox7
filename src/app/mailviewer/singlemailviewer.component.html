@@ -1,6 +1,9 @@
 <div *ngIf="messageId" [ngClass]="{'adjustableHeight': adjustableHeight}"
   appHorizResizable [resizableDisabled]="!adjustableHeight" (resized)="heightChanged($event)">
-  <iframe #printFrame style="width: 0px; height: 0px; border: none; position: absolute"></iframe>
+  <iframe #printFrame
+    sandbox="allow-same-origin allow-modals"
+    style="width: 0px; height: 0px; border: none; position: absolute" 
+  ></iframe>
   <mat-toolbar style="display: flex; overflow-x: auto;">
     <!-- Message preview toolbar -->
     <div style="flex-grow: 1; overflow: hidden" #toolbarButtonContainer>      
@@ -174,7 +177,7 @@
           <div class="messageHeaderDate">Time:</div>
           <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
         </div>
-        <div class="messageHeaderRow">
+        <div *ngIf="mailObj.to" class="messageHeaderRow">
           <div class="messageHeaderTo">To:</div>
           <div class="messageHeaderTo"><span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span></div>
         </div>

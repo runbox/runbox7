@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {filter, map} from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 // 
@@ -98,6 +98,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   _messageId; // Message id or filename
 
+  // tslint:disable-next-line:no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   @Output() afterViewInit: EventEmitter<any> = new EventEmitter();
   @Output() orientationChangeRequest: EventEmitter<string> = new EventEmitter();
@@ -128,7 +129,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public showHTMLDecision = 'dontask';
   public showHTML = false;
   public showAllHeaders = false;
-  
+
   height = 0;
   previousHeight: number;
 
@@ -150,10 +151,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     private router: Router,
     media: MediaMatcher
   ) {
-      // Mobile media query for screen width
+    // Mobile media query for screen width
 
     this.mobileQuery = media.matchMedia('(max-width: 1023px)');
-}
+  }
 
   public close(actionstring?: string) {
     const doClose = () => {
@@ -167,8 +168,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     if (actionstring === 'goToDraftDesk') {
       this.router.navigate(['/compose']).then(() => {
-          doClose();
-        }
+        doClose();
+      }
       );
     } else {
       doClose();
@@ -208,8 +209,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.toolbarButtonContainer) {
       const toolbarwidth = (this.toolbarButtonContainer.nativeElement as HTMLDivElement).clientWidth;
       this.morebuttonindex = Math.floor(
-          toolbarwidth / 40
-        ) - 2;
+        toolbarwidth / 40
+      ) - 2;
       this.attachmentAreaCols = Math.floor(toolbarwidth / 200) + 1;
     }
   }
@@ -228,7 +229,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       return 'attachment';
     }
   }
-  
+
   public toggleHtml(event) {
     event.preventDefault();
 
@@ -240,23 +241,23 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
         console.log(this.showHTMLDecision);
         const decisionObservable = this.showHTMLDecision ?
-              of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
+          of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
 
         decisionObservable.subscribe(result => {
-            switch (result) {
-              case 'dontask':
-              case 'alwaysshowhtml':
-                localStorage.setItem(showHtmlDecisionKey, result);
-                this.showHTMLDecision = result;
-              // tslint:disable-next-line:no-switch-case-fall-through
-              case 'once':
-                // ProgressDialog.open(this.dialog);
-                // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = true;
+          switch (result) {
+            case 'dontask':
+            case 'alwaysshowhtml':
+              localStorage.setItem(showHtmlDecisionKey, result);
+              this.showHTMLDecision = result;
+            // tslint:disable-next-line:no-switch-case-fall-through
+            case 'once':
+              // ProgressDialog.open(this.dialog);
+              // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = true;
               break;
-            }
-            this.showHTML = result ? true : false;
-          });
-        }
+          }
+          this.showHTML = result ? true : false;
+        });
+      }
     } else {
       // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = false;
       this.showHTML = false;
@@ -287,9 +288,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             )
         )
           (
-          new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
-            '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
-            .exec(res.headers.date)
+            new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
+              '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
+              .exec(res.headers.date)
           );
 
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
@@ -425,14 +426,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   print() {
-    const printablecontent = this.messageContents.nativeElement.innerHTML;
+    let printablecontent = this.messageContents.nativeElement.innerHTML;
+    if (this.htmliframe) {
+      printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
+        this.htmliframe.nativeElement.contentWindow.document.documentElement.innerHTML
+      );
+    }
     this.printFrame.nativeElement.onload = () => this.printFrame.nativeElement.contentWindow.print();
-    this.printFrame.nativeElement.src = URL.createObjectURL(new Blob([printablecontent], { type: 'text/html' }));
+    this.printFrame.nativeElement.src = URL.createObjectURL(new Blob([printablecontent],
+        { type: 'text/html' }
+      )
+    );
   }
 
   public openAttachment(attachmentIndex: number, download?: boolean) {
     const url_attachment = '/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex +
-      (download === true  ? '?download=true' : '');
+      (download === true ? '?download=true' : '');
     if (download) {
       location.href = url_attachment;
     } else {
@@ -445,7 +454,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     const progressSubscription = this.progressService.downloadProgress.pipe(
       filter((progress: any) => progress.lengthComputable),
-      map((progress: any) => progress.loaded * 100 / progress.total),)
+      map((progress: any) => progress.loaded * 100 / progress.total))
       .subscribe((val) => ProgressDialog.setValue(val === 100 ? null : val));
 
 
@@ -519,6 +528,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             localStorage.setItem(showHtmlDecisionKey, result);
             this.showHTMLDecision = result;
         }
-    });
+      });
   }
 }

@@ -52,6 +52,7 @@ import { from, of } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
+import { ProgressService } from './http/progress.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 
@@ -131,6 +132,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public snackBar: MatSnackBar,
     public dialog: MatDialog,
     private router: Router,
+    public progressService: ProgressService,
     private mdIconRegistry: MatIconRegistry,
     private http: Http,
     private sanitizer: DomSanitizer,
@@ -213,7 +215,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = localStorage
-              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;        
+              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
     };
 
@@ -556,7 +558,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
           localStorage.setItem('messageSubjectDragTipShown', 'true');
         }
-        if (this.viewmode === 'conversations') {
+        if (this.viewmode === 'conversations' && rowContent[2] !== '1') {
           this.viewmode = 'singleconversation';
           this.resetColumns();
           this.clearSelection();
@@ -855,12 +857,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerOrientationChangeRequest(orientation: string) {
     const currentMessageId = this.singlemailviewer.messageId;
     if (orientation === 'vertical') {
-      
       this.mailViewerOnRightSide = true;
     } else {
       this.mailViewerOnRightSide = false;
     }
-    if(this.mobileQuery.matches) {
+    if (this.mobileQuery.matches) {
       localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
           `${this.mailViewerOnRightSide}`);
     }

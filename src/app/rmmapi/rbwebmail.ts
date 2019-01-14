@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
@@ -152,12 +152,15 @@ export class RunboxWebmailAPI {
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
     public rblocale: any;
 
+    public last_on_interval;
+
     messageContentsCache: { [messageId: number]: Observable<MessageContents> } = {};
 
     constructor(
         public snackBar: MatSnackBar,
         private http: HttpClient,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private ngZone: NgZone
     ) {
         this.rblocale = new RunboxLocale();
         this.http.get('/rest/v1/me')
@@ -172,7 +175,12 @@ export class RunboxWebmailAPI {
                 this.me.next(me);
                 this.me.complete();
 
-                setInterval(() => this.updateLastOn().subscribe(), 5 * 60 * 1000);
+                this.ngZone.runOutsideAngular(() =>
+                    this.last_on_interval = setInterval(() => this.ngZone.run(() => {
+                        this.updateLastOn().subscribe();
+                    }), 5 * 60 * 1000)
+                );
+
                 this.updateLastOn().subscribe();
             });
     }
@@ -271,7 +279,8 @@ export class RunboxWebmailAPI {
                     }
                     return ret;
                 })
-            ),);
+            )
+        );
     }
 
     subscribeShowBackendErrors(req: any) {
@@ -346,9 +355,17 @@ export class RunboxWebmailAPI {
 
     public trashMessages(messageIds: number[]): Observable<any> {
 
+        let counter = 1;
         return from(messageIds).pipe(
             mergeMap(messageId =>
                 this.http.delete(`/rest/v1/email/${messageId}`)
+                    .pipe(tap(() =>
+                        this.snackBar.open(
+                            `Deleted message ${counter++} of ${messageIds.length}`,
+                            null,
+                            {duration: 500})
+                        )
+                    )
                 , 10),
             bufferCount(messageIds.length)
         );
@@ -471,20 +488,17 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res['result']['addresses_contacts']),
             map((contacts: any[]) =>
                 contacts.map((contact) => new Contact(contact))
-            ),);
+            )
+        );
     }
 
     public addNewContact(c: Contact): Observable<Contact> {
         return this.http.put('/rest/v1/addresses_contact', c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])))
+            map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
 
     public modifyContact(c: Contact): Observable<Contact> {
         return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])))
-    }
-
-    public logout() {
-        location.href = '/LOGOUT';
+            map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
 }

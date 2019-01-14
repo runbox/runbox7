@@ -20,12 +20,13 @@
 import {Injectable} from '@angular/core';
 import {BrowserXhr} from '@angular/http';
 
-import {Subject} from 'rxjs';
+import {Subject, BehaviorSubject} from 'rxjs';
 
 @Injectable()
 export class ProgressService {
   downloadProgress: Subject<ProgressEvent> = new Subject();
   uploadProgress: Subject<ProgressEvent> = new Subject();
+  httpRequestInProgress: Subject<Boolean> = new BehaviorSubject(false);
 }
 
 @Injectable()

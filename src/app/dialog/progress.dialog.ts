@@ -28,6 +28,7 @@ import { MatDialog, MatDialogRef } from '@angular/material';
     template: `<mat-spinner *ngIf="!value"></mat-spinner>
                 <mat-progress-spinner *ngIf="value" [value]="value"></mat-progress-spinner>`
 })
+// tslint:disable-next-line:component-class-suffix
 export class ProgressDialog {
     static progressDialogRef: MatDialogRef<ProgressDialog>;
     value: number;

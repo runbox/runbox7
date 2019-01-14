@@ -19,7 +19,6 @@
 
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { DomainRegisterModule } from './domainregister.module';
-import { enableProdMode } from '@angular/core'
 
 const platform = platformBrowserDynamic();
 platform.bootstrapModule(DomainRegisterModule);

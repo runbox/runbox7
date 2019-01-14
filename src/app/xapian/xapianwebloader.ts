@@ -89,6 +89,9 @@ function getFileDataAsTypedArray(node, callback) {
     setTimeout(() => copyChunk(), 0);
 }
 
+/**
+ * Patch emscripten filesystem so that it won't hang when persisting index files to IndexedDB
+ */
 function patchMEMFS() {
     MEMFS.expandFileStorage = (node, newCapacity) => {
         if (node.contents && newCapacity > node.contents.length) {
@@ -183,12 +186,13 @@ function patchIDBFS() {
 
         function isRealDir(p) {
             return p !== '.' && p !== '..';
-        };
+        }
+
         function toAbsolute(root) {
             return function(p) {
-            return PATH.join2(root, p);
-            }
-        };
+                return PATH.join2(root, p);
+            };
+        }
 
         var check = FS.readdir(mount.mountpoint).filter(isRealDir).map(toAbsolute(mount.mountpoint));
 

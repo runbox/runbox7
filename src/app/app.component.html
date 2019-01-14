@@ -29,7 +29,7 @@
           <mat-icon color="primary">edit</mat-icon></a>
         <a mat-button (click)="drafts();" matTooltip="Drafts">
           <mat-icon color="primary">drafts</mat-icon></a>
-        <a mat-button (click)="searchService.rmmapi.logout();" matTooltip="Log out">
+        <a mat-button href="/LOGOUT" matTooltip="Log out">
           <mat-icon>power_settings_new</mat-icon></a>
       </div>
 
@@ -213,3 +213,8 @@
   </button>    
 </div>
 
+<div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"
+    *ngIf="progressService.httpRequestInProgress | async"
+    >
+  <mat-spinner diameter="20" ></mat-spinner>
+</div>

@@ -26,7 +26,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
-import { IndexDeletedComponent } from './messagepages/indexdeleted.component';
+
 import { MailViewerModule } from './mailviewer/mailviewer.module';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
@@ -64,6 +64,7 @@ import { LocalSearchIndexModule } from './xapian/localsearchindex.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SearchExpressionBuilderModule } from './xapian/search-expression-builder/search-expression-builder.module';
+import { UpdateAlertModule } from './updatealert/updatealert.module';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -79,7 +80,6 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'contacts', component: ContactsAppComponent },
-      { path: 'indexdeleted', component: IndexDeletedComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -125,13 +125,14 @@ const routes: Routes = [
     ContactsAppModule,
     ResizerModule,
     DomainRegisterModule,
+    UpdateAlertModule,
     SearchExpressionBuilderModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production })
   ],
   declarations: [MainContainerComponent, AppComponent, LoginComponent,
-    MoveMessageDialogComponent,
-    IndexDeletedComponent],
+    MoveMessageDialogComponent
+    ],
   providers: [ProgressService,
     { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
     MessageListService,
