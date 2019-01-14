@@ -17,6 +17,7 @@ my @excluded_files = qw(
     src/test.ts
     src/polyfills.ts
     src/typings.d.ts
+    src/app/buildtimestamp.ts
 );
 
 find({ no_chdir => 1, wanted => sub {
