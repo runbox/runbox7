@@ -462,10 +462,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     if (send) {
                         this.draftDeleted.emit(this.model.mid);
                     }
-                }, () => this.snackBar.open(
-                    'Offline message posting not supported yet',
-                    'COMING SOON'
-                ));
+                }, (err) => {
+                    let msg = err.statusText;
+                    if (err.field_errors) {
+                        msg = Object.keys(err.field_errors)
+                                .map(fieldname =>
+                                    `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
+                    }
+                    this.snackBar.open(
+                        `Error saving draft: ${msg}`,
+                        'Dismiss'
+                    );
+                });
         } else {
             this.rmmapi.me.pipe(mergeMap((me) => {
                 return this.http.post('/rest/v1/draft', {
@@ -502,12 +510,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
                     }
-                }, (err) =>
+                }, (err) => {
+                    let msg = err.statusText;
+                    if (err.field_errors) {
+                        msg = Object.keys(err.field_errors)
+                                .map(fieldname =>
+                                    `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
+                    }
                     this.snackBar.open(
-                        'Offline message editing not supported yet',
-                        'COMING SOON'
-                    )
-                );
+                        `Error saving draft: ${msg}`,
+                        'Dismiss'
+                    );
+                });
         }
     }
 
