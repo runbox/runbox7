@@ -24,6 +24,7 @@ import { BehaviorSubject } from 'rxjs';
 import { MatChipInputEvent, MatAutocomplete } from '@angular/material';
 import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
+import { isValidEmail } from './emailvalidator';
 
 const COMMA = 188;
 
@@ -55,10 +56,17 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
     constructor(public searchService: SearchService) {
         this.searchService.initSubject.subscribe(() => {
+
+        // Get all recipient terms from search index
         window['termlistresult'] = [];
         searchService.api.termlist('XRECIPIENT:');
-        const recipients: string[] = window['termlistresult'];
 
+        // Filter valid emails and don't suggest more than one instance of an email address
+
+        const recipients: string[] = window['termlistresult']
+            .filter(recipient => isValidEmail(recipient));
+
+        // Listen to search text input and popup suggestions from recipient list
         this.searchTextFormControl.valueChanges
             .pipe(debounceTime(50))
             .subscribe((searchtext: string) => {

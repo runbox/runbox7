@@ -60,8 +60,12 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                 if (evt instanceof HttpResponse) {
                     const r = evt as HttpResponse<any>;
                     this.decrementHttpRequestCount();
-                    if (r.body.status === 'error' && r.body.errors[0].indexOf('login') > 0) {
+                    if (r.body.status === 'error' &&
+                        r.body.errors &&
+                        r.body.errors[0].indexOf('login') > 0) {
                         this.router.navigate(['/login'], {skipLocationChange: true});
+                        throw(r.body);
+                    } else if (r.body.status === 'error') {
                         throw(r.body);
                     }
                 }
