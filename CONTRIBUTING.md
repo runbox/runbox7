@@ -59,7 +59,7 @@ Before you submit your Pull Request (PR), consider the following guidelines:
  or documents the design for the feature you'd like to add. Discussing
  the design up front helps to ensure that we're ready to accept your
  work.
- 3. Fork the runbox/runbox7 repo.
+ 3. [Fork](https://help.github.com/articles/fork-a-repo/) the runbox/runbox7 repo.
  4. Make your changes in a new git branch:
 
 ```
@@ -84,8 +84,8 @@ git push origin my-fix-branch
 
 * If we suggest changes then:
   - Make the required updates.
-    - Re-run the Angular test suites to ensure tests are still passing.
-      - Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
+  - Re-run the Angular test suites to ensure tests are still passing.
+  - Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
 
 ```
 git rebase master -i git push -f
@@ -124,6 +124,7 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 
 * All features or bug fixes **must be tested** by one or more specs (unit-tests).
 * All public API methods **must be documented**.
+* You may use `@author name/pseudonym` (optionally email) inside comments for attribution.
 
 ## Commit Message Guidelines
 
