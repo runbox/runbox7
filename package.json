@@ -11,6 +11,7 @@
     "appdev": "ng serve --disable-host-check --base-href=/appdev/",
     "rmm6dev": "ng serve --disable-host-check --base-href=/appdev/ rmm6",
     "start": "ng serve --aot --proxy-config backend-proxy-remote.conf.js runbox7",
+    "start-mockbackend": "ng serve --aot --proxy-config backend-proxy-mock.conf.js runbox7",
     "buildrmm6": "ng build --prod --base-href=/app/ rmm6",
     "build": "node updatebuildtimestamp.js && ng build --prod --base-href=/app/",
     "test": "ng test",
