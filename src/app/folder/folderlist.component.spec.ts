@@ -27,6 +27,7 @@ import { last, take } from 'rxjs/operators';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule, MatDialogModule } from '@angular/material';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { DialogModule } from '../dialog/dialog.module';
 describe('FolderListComponent', () => {
     let injector: TestBed;
     let service: RunboxWebmailAPI;
@@ -38,6 +39,7 @@ describe('FolderListComponent', () => {
                 HttpClientTestingModule,
                 MatSnackBarModule,
                 MatDialogModule,
+                DialogModule,
                 NoopAnimationsModule
             ],
         providers: [RunboxWebmailAPI]

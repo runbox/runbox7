@@ -12,13 +12,19 @@ module.exports = PROXY_CONFIG;
 
 let server = http.createServer((request, response) => {
     console.log(request.method + ' ' + request.url);
-    if(request.url.indexOf('/rest/v1/list/deleted_messages') === 0) {
-        request.url = '/rest/v1/list/deleted_messages';
+    let requesturl = request.url;
+    if(requesturl.indexOf('/rest/v1/list/deleted_messages') === 0) {
+        requesturl = '/rest/v1/list/deleted_messages';
     }
-    if(request.url.indexOf('/mail/download_xapian_index') === 0) {
-        request.url = '/mail/download_xapian_index';
-    }
-    switch (request.url) {
+    if(requesturl.indexOf('/mail/download_xapian_index') === 0) {
+        if(requesturl.indexOf('folder=Trash') > -1) {
+            requesturl = '/mail/download_xapian_index?trash';
+        } else {
+            requesturl = '/mail/download_xapian_index';
+        }
+        
+    } 
+    switch (requesturl) {
         case '/rest/v1/me/defaultprofile':
             response.end(JSON.stringify(defaultprofile()));
             break;
@@ -28,8 +34,14 @@ let server = http.createServer((request, response) => {
         case '/ajax/aliases':
             response.end(JSON.stringify({'status':'success','aliases':[]}));
             break;
+        case '/ajax?action=ajax_getfoldercount':        
+            response.end(JSON.stringify(foldercount()));
+            break;
         case '/mail/download_xapian_index':
             response.end('');
+            break;
+        case '/mail/download_xapian_index?trash':
+            response.end(trashcontents());
             break;
         case '/rest/v1/me':
             response.end(JSON.stringify(me()));
@@ -49,6 +61,15 @@ let server = http.createServer((request, response) => {
     }
 });
 server.listen(15000);
+
+function trashcontents() {
+    const trashlines = [];
+    for(let msg_id=1;msg_id<100;msg_id++) {
+        trashlines.push(`${msg_id}	1548071422	1547830043	Trash	1	0	0	"Test" <test@runbox.com>	`+
+        `Test2<test2@lalala.no>	Re: nonsense	709	n	 `);
+    }
+    return trashlines.join('\n');
+}
 
 function defaultprofile() {
     return {
@@ -92,5 +113,14 @@ function from_address() {
             }],
         'status': 'success'
     };
+}
+
+function foldercount() {
+    return [
+        [3692896,0,413,"drafts","Drafts","Drafts",0],[3692892,2,29,"inbox","Inbox","Inbox",0],
+        [3692893,0,136,"sent","Sent","Sent",0],
+        [3692894,0,0,"spam","Spam","Spam",0],
+        [3692895,0,218,"trash","Trash","Trash",0]
+    ];
 }
 
