@@ -42,7 +42,8 @@ declare var MailParser;
     moduleId: 'angular2/app/compose/',
     // tslint:disable-next-line:component-selector
     selector: 'compose',
-    templateUrl: 'compose.component.html'
+    templateUrl: 'compose.component.html',
+    styleUrls: ['compose.component.scss']
 })
 export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     static tinymceinstancecount = 1;
@@ -61,6 +62,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public isNew = false;
     public uploadprogress: number = null;
     public saved: Date = null;
+
+    saveErrorMessage: string;
 
     @Input() shouldExitToTable = false;
 
@@ -506,6 +509,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                     this.isNew = false;
                     this.saved = new Date();
+                    this.saveErrorMessage = null;
+
                     if (send) {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
@@ -517,10 +522,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                                 .map(fieldname =>
                                     `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
                     }
-                    this.snackBar.open(
-                        `Error saving draft: ${msg}`,
-                        'Dismiss'
-                    );
+                    this.saveErrorMessage = `Error saving draft: ${msg}`;
                 });
         }
     }
