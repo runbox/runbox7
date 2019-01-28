@@ -459,9 +459,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 .subscribe((res) => {
                     this.model.mid = parseInt(res[2], 10);
                     this.snackBar.open(res[1], null, { duration: 3000 });
-                    if (send) {
-                        this.draftDeleted.emit(this.model.mid);
-                    }
+
+                    this.draftDeleted.emit(this.model.mid);
+                    this.exitToTable();
                 }, (err) => {
                     let msg = err.statusText;
                     if (err.field_errors) {
@@ -470,7 +470,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                                     `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
                     }
                     this.snackBar.open(
-                        `Error saving draft: ${msg}`,
+                        `Error sending: ${msg}`,
                         'Dismiss'
                     );
                 });
