@@ -27,6 +27,7 @@ import { RMMHttpInterceptorService } from '../rmmapi/rmmhttpinterceptor.service'
 import { ProgressService } from './progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { filter, take } from 'rxjs/operators';
+import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 
 describe('ProgressService', () => {
     let injector: TestBed;
@@ -45,6 +46,7 @@ describe('ProgressService', () => {
             ],
         providers: [
             RunboxWebmailAPI,
+            RMMAuthGuardService,
             ProgressService,
             { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
         ]

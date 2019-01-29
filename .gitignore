@@ -40,3 +40,5 @@ Thumbs.db
 
 .ngmakelibtmp
 runbox7lib*.tar.gz
+
+mockserver.log
