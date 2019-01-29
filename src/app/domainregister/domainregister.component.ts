@@ -151,9 +151,12 @@ export class DomainRegisterComponent implements AfterViewInit {
   public is_btn_search_domain_disabled = false;
   public required_fields = {};
   public domreg_hash;
+  public is_purchase_privacy = false
+  public purchase_privacy;
   public is_renew_domain = false;
   public renew_domain;
-  public renew_domain_info = {};
+  public privacy_domain;
+  public domain_info = {};
   public tlds_by_hash = {};
   public selectedTabNum = 1;
   public domreg_data = undefined;
@@ -665,6 +668,18 @@ export class DomainRegisterComponent implements AfterViewInit {
   //      }
   //  );
   // }
+  public activate_purchase_privacy () {
+      var is_purchase_privacy = window.location.href.match(/purchase_privacy=([^&]+)/)
+      if ( is_purchase_privacy && is_purchase_privacy[1] ) {
+        console.log('purchase privacy')
+        this.is_purchase_privacy = true
+        var domain = is_purchase_privacy[1]
+        console.log(domain)
+//      this.selectedTabNum=0;
+        this.get_domain_info(domain)
+        this.privacy_domain = is_purchase_privacy[1]
+      }
+  }
 
   public tld_list_update_price(tld, period) {
     tld.price = period.price;
@@ -699,22 +714,30 @@ export class DomainRegisterComponent implements AfterViewInit {
     if (is_renew_domain && is_renew_domain[1]) {
       this.is_renew_domain = true;
       this.renew_domain = is_renew_domain[1];
-      this.get_domain_info();
+      this.get_domain_info(this.renew_domain);
     }
   }
 
-  public get_domain_info() {
-    this.http.get('/rest/v1/domain_registration/enom/domain_info/' + this.renew_domain).pipe(
-      timeout(60000))
-      .subscribe(result => {
-        const r = result.json();
-        if (r.status === 'success') {
-          this.renew_domain_info = r.result;
-          this.selectedTabNum = 0;
-        } else {
-          this.show_error('Could not find domain', 'Dismiss');
+  public get_domain_info ( domain ) {
+      this.http.get("/rest/v1/domain_registration/enom/domain_info/"+domain)
+        .pipe(timeout(60000))
+        .subscribe( result => {
+            var r = result.json()
+            if ( r.status == 'success' ) {
+                this.domain_info = r.result
+                this.selectedTabNum=0;
+                console.log(this.domain_info)
+            } else {
+                this.show_error('Could not find domain', 'Dismiss')
+            }
+        })
+  }
+
+  public is_registration_status_rgp () {
+    if ( this.domain_info && this.domain_info['registration_status'] ) {
+        return  this.domain_info['registration_status'].match(/registered|expired/ig)
         }
-      });
+    return false;
   }
 
   public update_renewal_whois_privacy_options(option) {
@@ -749,7 +772,9 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.renewal_total_price += parseFloat(this.renewal_selected_product[prod_type].price);
     }
     this.renewal_total_price = parseFloat(this.renewal_total_price).toFixed(2);
-    if (this.renewal_selected_product['domain']) {
+    if ( this.renewal_selected_product['domain'] || 
+        (this.is_purchase_privacy && this.renewal_selected_product['whois_privacy'])
+    ) {
       this.is_btn_renew_disabled = false;
     }
   }
@@ -794,8 +819,51 @@ export class DomainRegisterComponent implements AfterViewInit {
       );
   }
 
+  public btn_renew_autorenew () {
+    this.btn_renew()
+  }
+
+  public btn_purchase_privacy () {
+    this.is_btn_renew_disabled=true
+    var self = this
+    var purchase = {
+        domain : this.privacy_domain,
+        products : [],
+    }
+    console.log('purchase', purchase)
+    console.log('renewal_selected_product', this.renewal_selected_product)
+    if ( this.renewal_selected_product['whois_privacy'] ) {
+        purchase.products.push(this.renewal_selected_product['whois_privacy'].id)
+    }
+    purchase['total_price'] = eval(this.renewal_total_price)
+    purchase['sld'] = purchase.domain.match(/^([^\.]+)\.(.+)$/)[1]
+    purchase['tld'] = purchase.domain.match(/^([^\.]+)\.(.+)$/)[2]
+    console.log('purchase',purchase)
+    var post_purchase_privacy = this.http.post("/rest/v1/domain_registration/enom/purchase_privacy", purchase);
+    post_purchase_privacy.pipe(
+    timeout(6000))
+    .subscribe(
+        data => {
+          this.is_btn_renew_disabled=false
+          var reply = data.json()
+          if ( reply.status == 'error' || ! reply.location ) {
+            if ( reply.errors ) {
+                return this.show_error(reply.errors.join('. '), 'Dismiss') 
+            } else {
+                return this.show_error("There was an error. Please try again.", 'Dismiss')
+            }
+          }
+          window.location.href = reply.location
+        },
+        error => {
+            this.is_btn_renew_disabled=false
+            return this.show_error("There was an error. Please try again.", 'Dismiss') 
+        }
+    );
+  }
+
   public is_tab_active(tabname) {
-    if (this.is_renew_domain && tabname === 'renew_domain') { return true; }
+    if ( this.is_purchase_privacy && tabname == 'purchase_privacy' ) { return true }
     return false;
   }
 
@@ -841,6 +909,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     req_tld_list.subscribe(result => {
       this.load_domreg_hash();
       this.activate_renew_domain();
+      this.activate_purchase_privacy();
     });
     //    this.list_hosted_domains();
   }
