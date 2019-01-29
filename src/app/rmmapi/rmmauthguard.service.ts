@@ -35,16 +35,21 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
-        this.urlBeforeLogin = state.url;
-
+    isLoggedIn(): Observable<boolean> {
         return this.http.get('/rest/v1/me')
             .pipe(
                 map((res: any) => res && res.status === 'success'),
+            );
+    }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
+        this.urlBeforeLogin = state.url;
+
+        return this.isLoggedIn()
+            .pipe(
                 tap((success) => {
                     if (!success) {
-                        this.router.navigate(['login'], { skipLocationChange: true });
-
+                        this.redirectToLogin();
                     }
                 })
         );
@@ -53,5 +58,13 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
         return this.canActivate(childRoute, state);
+    }
+
+    redirectToLogin() {
+        if (this.urlBeforeLogin === 'login') {
+            this.urlBeforeLogin = '/';
+        }
+        console.log('Will navigate back to ', this.urlBeforeLogin);
+        this.router.navigate(['login']);
     }
 }

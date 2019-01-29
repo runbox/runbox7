@@ -17,14 +17,14 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Http, Response, URLSearchParams, Headers } from '@angular/http';
 
 import { Subject, Observable } from 'rxjs';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 
 @Component({
@@ -33,7 +33,7 @@ import { ProgressService } from '../http/progress.service';
     templateUrl: 'login.component.html',
     moduleId: 'angular2/app/login/'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
     loginerrormessage: string;
     twofactor: any = false;
@@ -46,6 +46,12 @@ export class LoginComponent {
         public progressService: ProgressService
     ) {
 
+    }
+
+    ngOnInit() {
+        this.authservice.isLoggedIn()
+            .pipe(filter(res => res === true))
+            .subscribe(() => this.router.navigateByUrl('/'));
     }
 
     public onTwoFactorSubmit(theform) {

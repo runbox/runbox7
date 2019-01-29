@@ -36,14 +36,14 @@ export class HeaderToolbarComponent {
     }
 
     public mailtable() {
-        this.router.navigate([''], { skipLocationChange: true });
+        this.router.navigate(['']);
     }
 
     public compose() {
-        this.router.navigate(['compose'], { skipLocationChange: true });
+        this.router.navigate(['compose']);
     }
 
     public contacts() {
-        this.router.navigate(['contacts'], { skipLocationChange: true });
+        this.router.navigate(['contacts']);
     }
 }
