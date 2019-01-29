@@ -1,12 +1,17 @@
 import { ComposePage } from './compose.po';
 
 import { browser } from 'protractor';
+import { MockServer } from '../mockserver/mockserver';
 
 describe('Compose', () => {
   let page: ComposePage;
 
+  let server: MockServer;
+
   beforeEach(() => {
-      page = new ComposePage();
+    server = new MockServer();
+    server.start();
+    page = new ComposePage();
   });
 
   afterEach(() => {
@@ -16,6 +21,7 @@ describe('Compose', () => {
             console.log(log);
         });
      });
+     server.stop();
   });
 
   it('should display draft card', async () => {

@@ -1,11 +1,16 @@
 import { browser } from 'protractor';
 import { EmptyTrashPage } from './emptytrash.po';
+import { MockServer } from '../mockserver/mockserver';
 
 describe('Empty trash', () => {
   let page: EmptyTrashPage;
 
+  let server: MockServer;
   beforeEach(() => {
-      page = new EmptyTrashPage();
+    server = new MockServer();
+    page = new EmptyTrashPage();
+
+    server.start();
   });
 
   afterEach(() => {
@@ -15,6 +20,7 @@ describe('Empty trash', () => {
             console.log(log);
         });
      });
+     server.stop();
   });
 
   it('should empty trash', async () => {
