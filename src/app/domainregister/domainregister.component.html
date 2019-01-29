@@ -329,56 +329,172 @@
                 */
                 </script>
                 <mat-tab 
+                      *ngIf="is_purchase_privacy" 
+                      label="Purchase Privacy"
+                >
+                  <div>
+                    <mat-card-header style="display: flex; width: 100%" class='default_margintop'>
+                        <mat-card-title style="flex-grow: 1">
+                            <h2 class="mat-h2">Purchase privacy for {{domain_info.domain}}</h2>
+                        </mat-card-title>
+                    </mat-card-header>
+                    <p>
+                        The domain <strong>{{renew_domain}}</strong> is set to expire {{domain_info.expires}}.
+                    </p>
+                    <p>
+                        Please select the whois privacy product. Since this is not a new domain, the expiration date of whois privacy might have the same value as your domain expiration date.
+                    </p>
+                    <div>
+                        Whois privacy product: 
+                        <mat-form-field class="wide">
+                          <mat-select placeholder="Select WHOIS Privacy" >
+                            <mat-option 
+                                *ngFor="let option of domain_info.privacy_options_active_domain" 
+                                [value]="option.period"
+                                (click)='update_renewal_price("whois_privacy", option)'
+                                >
+                                {{ option.period }} {{option.period_unit}}(s) - USD {{option.price}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <br />
+			<h2 *ngIf="renewal_total_price > 0">
+			  Total: USD {{renewal_total_price}}
+			</h2>
+                        <button mat-raised-button color="primary"
+                            (click)="btn_purchase_privacy()"
+                            [disabled]="is_btn_renew_disabled"
+                        >Enable Privacy</button>
+                    </div>
+                  </div>
+                </mat-tab>
+                <mat-tab 
                       *ngIf="is_renew_domain" 
                       label="Renew domain"
                 >
-                  <div>
+                  <div *ngIf="domain_info">
                     <mat-card-header style="display: flex; width: 100%" class='default_margintop'>
                         <mat-card-title style="flex-grow: 1">
                             <h2 class="mat-h2">Renew domain {{renew_domain}}</h2>
                         </mat-card-title>
                     </mat-card-header>
                     <p>
-                        The domain <strong>{{renew_domain}}</strong> is set to expire {{renew_domain_info.expires}}.
+                        The domain <strong>{{renew_domain}}</strong> is set to expire {{domain_info.expires}}.
                     </p>
-                    <p>
-                        Please select the period you wish to renew this domain name for:
-                    </p>
-                    <div>
-                        Renewal length: 
-                        <mat-form-field class="wide">
-                          <mat-select placeholder="Select Period" >
-                            <mat-option 
-                                *ngFor="let option of renew_domain_info.renewal_options" 
-                                [value]="option.period"
-                                (click)='update_renewal_price("domain", option)'
-                                >
-                                {{ option.period }} {{option.period_unit}}(s) - USD {{option.price}}
-                            </mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                        <div *ngIf="renew_whois_privacy.length">
-                            Domain Privacy:
+                    <div *ngIf="domain_info.is_autorenew_only">
+                        <div *ngIf="domain_info.is_autorenew_enabled">
+                            Your domain has autorenew enabled.
+                            That means your domain will be autorenewed automatically before the expiration date.
+                            The autorenew is programmed to automatically disable itself usually some days after the current expiration date. In your case it will automatically disable on {{renew_domain.autorenew_enabled_date}}.
+                        </div>
+                        <div *ngIf="!domain_info.is_autorenew_enabled">
+                            <p>
+                            * This domain is autorenew only. Some Top Level Domains (TLD) do not allow domains to be updated immediatly. This TLD, <strong>.{{domain_info.tld}}</strong> has this caracteristic. 
+                            </p>
+                            <p>
+                            For this domain, this payment must be executed before the deletebydate: <strong>{{domain_info.deletebydate}}</strong>.
+                            </p>
+                            <p>
+                            The deletebydate sometimes is different from the expiration date. Currently the expiration date is <strong>{{domain_info.expires}}</strong>. The expiration date is the date before your domain goes into redemption.
+                            </p>
+                            <p>
+                            The current status of your domain is: <strong>{{domain_info.registration_status}}</strong>.
+                            
+                            </p>
+                            <div *ngIf="domain_info.can_be_renewed">
+                                <div>
+                                    <p>
+                                        Please select the period you wish to renew this domain name for:
+                                    </p>
+                                    <div>
+                                        Renewal length: 
+                                        <mat-form-field class="wide">
+                                          <mat-select placeholder="Select Period" >
+                                            <mat-option 
+                                                *ngFor="let option of domain_info.renewal_options" 
+                                                [value]="option.period"
+                                                (click)='update_renewal_price("domain", option)'
+                                                >
+                                                {{ option.period }} {{option.period_unit}}(s) - USD {{option.price}}
+                                            </mat-option>
+                                          </mat-select>
+                                        </mat-form-field>
+                                        <div *ngIf="renew_whois_privacy.length && domain_info.supports_whois_privacy">
+                                            Domain Privacy:
+                                            <mat-form-field class="wide">
+                                              <mat-select placeholder="Select WHOIS Privacy" >
+                                                <mat-option 
+                                                    *ngFor="let option of renew_whois_privacy" 
+                                                    [value]="option.value"
+                                                    (click)='update_renewal_price("whois_privacy", option)'
+                                                    >
+                                                    {{ option.text }}{{option.price ? ' - USD '+option.price:''}}
+                                                </mat-option>
+                                              </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <br />
+                                        <h2 *ngIf="renewal_total_price > 0">
+                                            Total: USD {{renewal_total_price}}
+                                        </h2>
+                                        <button mat-raised-button color="primary"
+                                            (click)="btn_renew_autorenew()"
+                                            [disabled]="is_btn_renew_disabled"
+                                        >Renew</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="!domain_info.can_be_renewed">
+                                <p>
+                                    Unfortunatelly your domain cannot be renewed.
+                                </p>
+                                <p *ngIf="is_registration_status_rgp()">
+                                    If your domain status is RGP or ERGP, it means the domain has expired and entered redemption. Please contact support for help.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div *ngIf="!domain_info.is_autorenew_only">
+                        <p>
+                            Please select the period you wish to renew this domain name for:
+                        </p>
+                        <div>
+                            Renewal length: 
                             <mat-form-field class="wide">
-                              <mat-select placeholder="Select WHOIS Privacy" >
+                              <mat-select placeholder="Select Period" >
                                 <mat-option 
-                                    *ngFor="let option of renew_whois_privacy" 
-                                    [value]="option.value"
-                                    (click)='update_renewal_price("whois_privacy", option)'
+                                    *ngFor="let option of domain_info.renewal_options" 
+                                    [value]="option.period"
+                                    (click)='update_renewal_price("domain", option)'
                                     >
-                                    {{ option.text }}{{option.price ? ' - USD '+option.price:''}}
+                                    {{ option.period }} {{option.period_unit}}(s) - USD {{option.price}}
                                 </mat-option>
                               </mat-select>
                             </mat-form-field>
+                            <div *ngIf="renew_whois_privacy.length">
+                                Domain Privacy:
+                                <mat-form-field class="wide">
+                                  <mat-select placeholder="Select WHOIS Privacy" >
+                                    <mat-option 
+                                        *ngFor="let option of renew_whois_privacy" 
+                                        [value]="option.value"
+                                        (click)='update_renewal_price("whois_privacy", option)'
+                                        >
+                                        {{ option.text }}{{option.price ? ' - USD '+option.price:''}}
+                                    </mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <br />
+                <h2 *ngIf="renewal_total_price > 0">
+                  Total: USD {{renewal_total_price}}
+                </h2>
+                            <button mat-raised-button color="primary"
+                                (click)="btn_renew()"
+                                [disabled]="is_btn_renew_disabled"
+                            >Renew</button>
                         </div>
-                        <br />
-			<h2 *ngIf="renewal_total_price > 0">
-			  Total: USD {{renewal_total_price}}
-			</h2>
-                        <button mat-raised-button color="primary"
-                            (click)="btn_renew()"
-                            [disabled]="is_btn_renew_disabled"
-                        >Renew</button>
                     </div>
                   </div>
                 </mat-tab>
