@@ -41,7 +41,7 @@
     "material-design-icons": "^3.0.1",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.2.2",
-    "tinymce": "4.9.2",
+    "tinymce": "4.7.4",
     "zone.js": "^0.8.28"
   },
   "devDependencies": {
