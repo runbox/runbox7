@@ -383,23 +383,22 @@
                     </p>
                     <div *ngIf="domain_info.is_autorenew_only">
                         <div *ngIf="domain_info.is_autorenew_enabled">
-                            Your domain has autorenew enabled.
-                            That means your domain will be autorenewed automatically before the expiration date.
-                            The autorenew is programmed to automatically disable itself usually some days after the current expiration date. In your case it will automatically disable on {{renew_domain.autorenew_enabled_date}}.
+                            Due to how some renewals are handled by our registrar (Enom) and the registry for your domain, it can only be renewed in a specific way. Your domain {{renew_domain}} can only be renewed a few days before it expires using a process called auto renew.
+                            You have already made the payment for the next renewal, and the domain has auto renew turned on at the registrar ready for when the domain can next be renewed. You don’t need to do anything further at this time.
+                            If you have any questions about this, please contact Runbox Support (which can be a link to https://help.runbox.com/runbox-support/)
                         </div>
                         <div *ngIf="!domain_info.is_autorenew_enabled">
                             <p>
-                            * This domain is autorenew only. Some Top Level Domains (TLD) do not allow domains to be updated immediatly. This TLD, <strong>.{{domain_info.tld}}</strong> has this caracteristic. 
+                            * Due to how some renewals are handled by our registrar (Enom) and the registry for your domain, it can only be renewed in a specific way. Your domain {{renew_domain}} can only be renewed a few days before it expires using a process called auto renew.
                             </p>
                             <p>
-                            For this domain, this payment must be executed before the deletebydate: <strong>{{domain_info.deletebydate}}</strong>.
+                            You can pay for your next renewal now, and we will make sure your domain is renewed for you when the renewal is next possible.
                             </p>
                             <p>
-                            The deletebydate sometimes is different from the expiration date. Currently the expiration date is <strong>{{domain_info.expires}}</strong>. The expiration date is the date before your domain goes into redemption.
+                            You need to make the payment for your next renewal before {{domain_info.deletebydate}} as this is the date on which your domain will be deleted. This date can be different to the expiry date {{domain_info.expires}} and is a result of the procedures that must be completed by us, Enom and the registry that manages you domain.
                             </p>
                             <p>
-                            The current status of your domain is: <strong>{{domain_info.registration_status}}</strong>.
-                            
+                            If your payment is not successfully completed and processed before this date ({{domain_info.deletebydate}}) then your domain will be deactivated by the registry and will stop working. If this happens it may not be possible to immediately recover the domain, and if it is possible there could be significant penalty fees imposed by the registrar and registry (these are not Runbox fees).
                             </p>
                             <div *ngIf="domain_info.can_be_renewed">
                                 <div>
