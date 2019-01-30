@@ -25,6 +25,7 @@ import { MatTableModule, MatSnackBarModule, MatPaginatorModule,
         MatCheckboxModule, MatDialogModule, MatProgressBarModule,
         MatProgressSpinnerModule, MatTabsModule, MatSelectModule, MatListModule,
         MatInputModule, MatCardModule, MatChipsModule, MatButtonModule } from '@angular/material';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -37,6 +38,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         FormsModule,
         HttpModule,
         MatSnackBarModule,
+        MatSidenavModule,
         MatTableModule,
         MatDialogModule,
         MatCheckboxModule,
