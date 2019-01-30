@@ -2,7 +2,9 @@ import { browser, by, element, until } from 'protractor';
 
 export class AppPage {
   navigateTo() {
-    return browser.get('/');
+    return browser.get('/')
+        .then(() => browser.executeScript(() => localStorage.setItem('localSearchPromptDisplayed221', 'true')))
+        .then(() => browser.get('/'));
   }
 
   getUrl() {
@@ -21,6 +23,10 @@ export class AppPage {
     await element(by.css('input[placeholder=Username]')).sendKeys('testuser');
     await element(by.css('input[placeholder=Password]')).sendKeys('testpassword');
     return element(by.cssContainingText('button', 'Log in')).click();
+  }
+
+  expectProgressBarWhileWaitingForLogin() {
+    return browser.wait(until.elementLocated(by.css('div.loginSection mat-progress-bar')));
   }
 
   waitForLoggedIn() {

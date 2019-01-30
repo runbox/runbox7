@@ -20,7 +20,7 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
-import { catchError, filter, tap, map } from 'rxjs/operators';
+import { catchError, filter, tap, map, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ProgressService } from '../http/progress.service';
 import { RMMAuthGuardService } from './rmmauthguard.service';
@@ -39,14 +39,6 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
 
     }
 
-    decrementHttpRequestCount() {
-        this.httpRequestCount--;
-        if (this.httpRequestCount === 0) {
-            this.progressService.httpRequestInProgress.next(false);
-        }
-        // console.log('decrement', this.httpRequestCount);
-    }
-
     intercept(
         req: HttpRequest<any>,
         next: HttpHandler
@@ -56,12 +48,11 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
             this.progressService.httpRequestInProgress.next(true);
         }
         this.httpRequestCount ++;
-        // console.log('increment', this.httpRequestCount);
+        // console.log('increment',  req.url, req.method, this.httpRequestCount);
         return next.handle(req).pipe(
             map((evt: HttpEvent<any>) => {
                 if (evt instanceof HttpResponse) {
                     const r = evt as HttpResponse<any>;
-                    this.decrementHttpRequestCount();
                     if (r.body && r.body.status === 'error' &&
                         r.body.errors &&
                         r.body.errors[0].indexOf('login') > 0) {
@@ -74,7 +65,6 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                 return evt;
             }),
             catchError((e) => {
-                this.decrementHttpRequestCount();
                 if (e.status === 403) {
                     console.log('Forbidden');
                     this.httpClient.get('/rest/v1/me')
@@ -88,6 +78,13 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                         });
                 }
                 return _throw(e);
+            }),
+            finalize(() => {
+                this.httpRequestCount--;
+                if (this.httpRequestCount === 0) {
+                    this.progressService.httpRequestInProgress.next(false);
+                }
+                // console.log('decrement', this.httpRequestCount);
             })
         );
     }
