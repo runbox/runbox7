@@ -34,14 +34,16 @@ export class MockServer {
             }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
-                    this.loggedIn = true;
-                    log('authenticate');
-                    response.end(JSON.stringify(
-                        {
-                            'message': 'Success',
-                            'code': 200
-                        }
-                    ));
+                    setTimeout(() => {
+                        this.loggedIn = true;
+                        log('authenticate');
+                        response.end(JSON.stringify(
+                            {
+                                'message': 'Success',
+                                'code': 200
+                            }
+                        ));
+                    }, 1000);
                     break;
                 case '/rest/v1/me/defaultprofile':
                     response.end(JSON.stringify(this.defaultprofile()));

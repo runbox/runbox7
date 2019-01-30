@@ -37,6 +37,7 @@ describe('login', () => {
     await page.waitForRedirect();
 
     await page.fillLoginInputsAndClickLoginButton();
+    await page.expectProgressBarWhileWaitingForLogin();
     await page.waitForLoggedIn();
     browser.waitForAngularEnabled(false);
     expect(await page.getSidenavGreetingText()).toContain('test@runbox.com');

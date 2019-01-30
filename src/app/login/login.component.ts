@@ -20,7 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Http, Response, URLSearchParams, Headers } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 import { Subject, Observable } from 'rxjs';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
     twofactorerror: string;
     unlock_question: string;
 
-    constructor(private http: Http,
+    constructor(private httpclient: HttpClient,
         private router: Router,
         private authservice: RMMAuthGuardService,
         public progressService: ProgressService
@@ -72,10 +72,7 @@ export class LoginComponent implements OnInit {
             this.twofactor.unlock_answer = theform.unlock_answer;
         }
 
-        this.http.post('/ajax_mfa_authenticate', this.twofactor).pipe(
-            map((response: Response) =>
-                response.json()
-            ),
+        this.httpclient.post('/ajax_mfa_authenticate', this.twofactor).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
                     this.loginerrormessage = null;
@@ -88,10 +85,7 @@ export class LoginComponent implements OnInit {
 
     public onSubmit(loginform) {
         const loginBodyObj = { user: loginform.username, password: loginform.password };
-        this.http.post('/ajax_mfa_authenticate', loginBodyObj).pipe(
-            map((response: Response) =>
-                response.json()
-            ),
+        this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
                     // Authenticated
