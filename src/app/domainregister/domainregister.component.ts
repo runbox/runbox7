@@ -266,7 +266,7 @@ export class DomainRegisterComponent implements AfterViewInit {
       sld: sld,
       tld: tld
     })
-      .timeout(60000)
+      .pipe(timeout(60000))
       .subscribe(
         data => {
           this.is_btn_search_domain_disabled = false;
@@ -331,7 +331,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     const d = this.parse_domain_wanted();
     this.http.post('/rest/v1/domain_registration/enom/tld_agreement', {
       tld: d.tld
-    }).timeout(60000)
+    }).pipe(timeout(60000))
       .subscribe(
         data => {
           const reply = data.json();
@@ -349,7 +349,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   public get_generic_docs = function () {
     this.generic_docs = null;
     const d = this.parse_domain_wanted();
-    this.http.post('/rest/v1/domain_registration/enom/tld_docs_generic', {}).timeout(60000)
+    this.http.post('/rest/v1/domain_registration/enom/tld_docs_generic', {}).pipe(timeout(60000))
       .subscribe(
         data => {
           const reply = data.json();
@@ -371,7 +371,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     const d = this.parse_domain_wanted();
     this.http.post('/rest/v1/domain_registration/enom/tld_docs', {
       tld: d.tld
-    }).timeout(60000)
+    }).pipe(timeout(60000))
       .subscribe(
         data => {
           const reply = data.json();
@@ -432,7 +432,7 @@ export class DomainRegisterComponent implements AfterViewInit {
         docs_specific: this.get_specific_docs_values(),
       };
       this.http.post('/rest/v1/domain_registration/enom/domreg_hash/' + this.domreg_hash, values)
-        .timeout(6000)
+        .pipe(timeout(6000))
         .subscribe(
           data => {
             this.is_btn_update_disabled = false;
@@ -474,7 +474,7 @@ export class DomainRegisterComponent implements AfterViewInit {
       }
 
       this.http.post('/rest/v1/domain_registration/enom/purchase', purchase)
-        .timeout(6000)
+        .pipe(timeout(6000))
         .subscribe(
           data => {
             this.is_btn_purchase_disabled = false;
