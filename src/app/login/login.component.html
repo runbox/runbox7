@@ -33,6 +33,7 @@
 	<div id="createAccount">
 	  <a href="/signup?runbox7=1">Create account</a>
 	</div>
+	<mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
       </div>
     </div>   
   </form>
@@ -56,6 +57,7 @@
 		<input matInput type="number" placeholder="Timed one-time password" name="totp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
+	      <input id='trust_this_browser_totp' name='trust_this_browser_totp' type='checkbox'>Trust this browser <a href="https://help.runbox.com/login">?</a>
             </ng-container>
             <ng-container *ngIf="twofactormethodgroup.value==='otp'">
               <p>Please enter your OTP code.</p>
@@ -64,6 +66,7 @@
 		<input matInput type="number" placeholder="One-time password" name="otp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
+              <input id='trust_this_browser_otp' name='trust_this_browser_otp' type='checkbox'>Trust this browser <a href="https://help.runbox.com/login">?</a>
             </ng-container>                    
             <ng-container *ngIf="twofactormethodgroup.value==='unlock_code'">
               <p>Please enter your unlock code.</p>
@@ -107,8 +110,6 @@
       </div>
     </div>
   </form>
-  
-  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 </div>
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(170deg, #014f89, #001e35);">
   <div id="loginFooter">
