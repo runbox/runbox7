@@ -22,12 +22,14 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { mergeMap, map } from 'rxjs/operators';
+import { RecipientsService } from './recipients.service';
 
 const MAX_DRAFTS_IN_VIEW = 10;
 
 @Component({
     moduleId: 'angular2/app/compose/',
-    templateUrl: 'draftdesk.component.html'
+    templateUrl: 'draftdesk.component.html',
+    providers: [RecipientsService]
 })
 export class DraftDeskComponent implements OnInit, AfterViewInit {
     public draftModelsInView: DraftFormModel[];

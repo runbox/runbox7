@@ -162,6 +162,8 @@ export class SearchService {
           this.updateIndexWithNewChanges();
           this.noLocalIndexFoundSubject.next(true);
           this.noLocalIndexFoundSubject.complete();
+          this.initSubject.next(false);
+          this.initSubject.complete();
         }
       });
   }
@@ -387,7 +389,7 @@ export class SearchService {
 
     return this.initSubject.pipe(
         mergeMap(() => this.checkIfDownloadableIndexExists()),
-        mergeMap((res) => new Observable( (observer) => {
+        mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
           this.api.initXapianIndex(XAPIAN_GLASS_WR);
           this.localSearchActivated = true;
