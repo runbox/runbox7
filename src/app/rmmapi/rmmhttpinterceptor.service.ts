@@ -53,13 +53,19 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
             map((evt: HttpEvent<any>) => {
                 if (evt instanceof HttpResponse) {
                     const r = evt as HttpResponse<any>;
-                    if (r.body && r.body.status === 'error' &&
-                        r.body.errors &&
-                        r.body.errors[0].indexOf('login') > 0) {
-                        this.authguardservice.redirectToLogin();
-                        throw(r.body);
-                    } else if (r.body.status === 'error') {
-                        throw(r.body);
+                    if (r.body && r.body.status === 'error') {
+                        if (
+                            r.body.errors &&
+                            r.body.errors[0].indexOf('login') > 0) {
+                            this.authguardservice.redirectToLogin();
+                            throw(r.body);
+                        } else if (
+                            req.url === '/ajax_mfa_authenticate' &&
+                            r.body.is_2fa_enabled === '1') {
+                                console.log('proceed with 2fa login');
+                        } else {
+                           throw(r.body);
+                        }
                     }
                 }
                 return evt;

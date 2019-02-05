@@ -11,6 +11,7 @@ export class MockServer {
     server: Server;
 
     loggedIn = true;
+    challenge2fa = false;
 
     public start() {
         log('Starting mock server');
@@ -35,15 +36,21 @@ export class MockServer {
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
-                        this.loggedIn = true;
-                        log('authenticate');
-                        response.end(JSON.stringify(
-                            {
-                                'message': 'Success',
-                                'code': 200
-                            }
-                        ));
-                    }, 1000);
+                        if (this.challenge2fa) {
+                            log('2fa challenge');
+                            response.end(JSON.stringify(this.auth_challenge_2fa()));
+                            this.challenge2fa = false;
+                        } else {
+                            this.loggedIn = true;
+                            log('authenticate');
+                            response.end(JSON.stringify(
+                                    {
+                                        'message': 'Success',
+                                        'code': 200
+                                    }
+                                ));
+                        }
+                        }, 1000);
                     break;
                 case '/rest/v1/me/defaultprofile':
                     response.end(JSON.stringify(this.defaultprofile()));
@@ -151,6 +158,14 @@ export class MockServer {
             [3692894, 0, 0, 'spam', 'Spam', 'Spam', 0],
             [3692895, 0, 218, 'trash', 'Trash', 'Trash', 0]
         ];
+    }
+
+    auth_challenge_2fa() {
+        return {
+            'user_status': '0', 'is_2fa_enabled': '1',
+            'status': 'error', 'code': 401,
+            'message': 'Unauthorized', 'js_action': 'show_options_screen'
+        };
     }
 
     stop() {
