@@ -42,4 +42,17 @@ describe('login', () => {
     browser.waitForAngularEnabled(false);
     expect(await page.getSidenavGreetingText()).toContain('test@runbox.com');
   });
+
+  it('should log in with 2fa', async () => {
+    server.challenge2fa = true;
+    page.navigateTo();
+    await page.waitForRedirect();
+    browser.waitForAngularEnabled(false);
+    await page.fillLoginInputsAndClickLoginButton();
+    await page.perform2FA();
+    await page.expectProgressBarWhileWaitingForLogin();
+    await page.waitForLoggedIn();
+
+    expect(await page.getSidenavGreetingText()).toContain('test@runbox.com');
+  });
 });

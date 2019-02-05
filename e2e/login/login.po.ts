@@ -36,4 +36,16 @@ export class AppPage {
   getSidenavGreetingText() {
     return element(by.id('sidenavGreeting')).getText();
   }
+
+  async perform2FA() {
+    const totpbuttonlocator = by.cssContainingText('mat-button-toggle', 'TOTP');
+    await browser.wait(() => element(totpbuttonlocator).isPresent(), 10000);
+    await element(totpbuttonlocator).click();
+    const totpfieldlocator = by.css('input[placeholder="Timed one-time password"]');
+    await browser.wait(until.elementsLocated(totpfieldlocator));
+    await element(totpfieldlocator).sendKeys('123456');
+    const loginbuttonlocator = by.cssContainingText('button', 'Log in');
+    await browser.wait(() => element(loginbuttonlocator).isPresent(), 10000);
+    await element(loginbuttonlocator).click();
+  }
 }
