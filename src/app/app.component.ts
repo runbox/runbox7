@@ -806,8 +806,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           default:
             if (this.searchText.length < 3) {
               // Expand to all folders if search text length is longer than 3 characters
-              querytext += (this.unreadMessagesOnlyCheckbox ? 'unread' : '')
-                + 'folder:"' + this.selectedFolder.replace(/\//g, '\.') + '" ';
+              const folderQuery = (folderName) => (this.unreadMessagesOnlyCheckbox ? 'unread' : '')
+                + 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
+
+              if (this.selectedFolder === 'Inbox') {
+                // Workaround for IMAP setting folder to "INBOX" when moving messages  there
+                querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
+              } else {
+                querytext += folderQuery(this.selectedFolder);
+              }
             }
         }
         const previousDisplayFolderColumn = this.displayFolderColumn;
