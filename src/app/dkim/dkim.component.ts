@@ -67,6 +67,7 @@ export class DkimComponent implements AfterViewInit {
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   domain;
   keys = [];
+
   ngAfterViewInit() {
   }
   constructor(
