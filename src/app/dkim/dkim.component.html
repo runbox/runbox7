@@ -1,3 +1,40 @@
-<div class="dkim">
-    DKIM
-</div>
+<mat-sidenav-container class="dkim">
+    <mat-sidenav mode="side" opened=false></mat-sidenav>
+    <mat-sidenav-content>
+            <section class="mat-typography">
+                <mat-card class='dkim'>
+                    <mat-card-header style="display: flex; width: 100%">
+                        <mat-card-title style="flex-grow: 1">
+                            <h1 class="mat-h1">DKIM <h2>{{domain}}</h2></h1>
+                        </mat-card-title>
+                    </mat-card-header>
+                    <mat-divider></mat-divider>
+                    <mat-accordion *ngIf="keys.length">
+                      <mat-expansion-panel *ngFor="let item of keys">
+                        <mat-expansion-panel-header>
+                          <mat-panel-title>{{item.selector}}._domainkey.{{item.domain}}</mat-panel-title>
+                          <mat-panel-description>{{item.updated}}</mat-panel-description>
+                        </mat-expansion-panel-header>
+
+                        <mat-form-field style='width: 100%'>
+                          <textarea matInput placeholder="Private key" [value]="item.private_key">
+                          </textarea>
+                        </mat-form-field>
+
+                        <mat-form-field style='width: 100%'>
+                          <textarea matInput placeholder="Public key" [value]="item.public_key">
+                          </textarea>
+                        </mat-form-field>
+                        <button mat-raised-button color="primary" (click)="generate_key(item)">Genereate new key</button>
+                      </mat-expansion-panel>
+
+                    </mat-accordion>
+                    <div *ngIf="!keys.length">
+                        No keys found for {{domain}}
+                        <button mat-raised-button color="primary" (click)="create_keys()">Create keys for {{domain}}</button>
+                    </div>
+				</mat-card>
+			</section>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
