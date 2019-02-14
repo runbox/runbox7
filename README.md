@@ -45,6 +45,18 @@ Simply run:
 
 Log in with your production runbox account.
 
+## Development with Mock server
+
+For the E2E tests there is a [Mock Server](e2e/mockserver) that you can also use in development.
+
+To start the server type:
+
+`npm run mockserver`
+
+And then from another terminal you can start the Angular app using the mockserver as backend by typing:
+
+`npm run start-use-mockserver`
+
 ## Development with your own Runbox server installation
 
 Run `npm run appdev` and you will be able to access Runbox 7 at `https://yourvm/appdev`
