@@ -91,6 +91,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   selectedRowId: number;
   searchtextfieldfocused = false;
 
+  showMultipleSearchFields = false;
   showingSearchResults = false; // Toggle if showing from message list or xapian search
   showingWebSocketSearchResults = false;
   displayFolderColumn = false;
