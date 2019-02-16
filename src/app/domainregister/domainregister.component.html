@@ -500,7 +500,7 @@
                             </div>
                           </div>
                         </mat-tab>
-                        <mat-tab label="Register new domain">
+                        <mat-tab label="Register new domain" *ngIf="!is_renew_domain && !is_purchase_privacy">
                           <div *ngIf="!domreg_hash">
                     <br />
                     <p>Here you can purchase and register new domain names.</p>
