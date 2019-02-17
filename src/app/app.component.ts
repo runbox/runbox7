@@ -365,14 +365,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds}).subscribe(
-      (data) => {
+    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds})
+      .subscribe(data => {
         if ( data.status === 'error' ) {
           snackBarRef.dismiss();
           this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
         }
         this.searchService.updateIndexWithNewChanges();
         snackBarRef.dismiss();
+      }, (err) => {
+        console.error('Error reporting spam', err);
+        this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
       },
       () => {
         this.selectedRowIds = {};
