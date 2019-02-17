@@ -88,21 +88,34 @@
       </button>
 
       <ng-container *ngIf="!hasChildRouterOutlet">
+        <app-multiple-search-fields-input
+          *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
+          [currentFolder]="selectedFolder" 
+          (close)="showMultipleSearchFields = false"
+          (searchexpression)="searchFieldKeyUp($event)">
+        </app-multiple-search-fields-input>
         <mat-form-field id="searchField" style="flex-grow: 1" floatLabel="auto" 
           *ngIf="searchService.downloadProgress===null">
           <input matInput #searchInputField type="text" 
             (focus)="searchTextFieldFocus()" 
             (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
             [value]="searchText" (keyup)="searchFieldKeyUp($event.target.value)" />          
-            <app-search-expression-builder 
+            <!-- <app-search-expression-builder 
               [searchInputField]="searchInputField"
               [currentFolder]="selectedFolder"
-              matSuffix matTooltip="Show search options"></app-search-expression-builder>
+              matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
+          <button *ngIf="!showMultipleSearchFields"
+            mat-icon-button 
+            matSuffix
+            (click)="showMultipleSearchFields = true"
+            matTooltip="Multiple search fields">
+            <mat-icon>build</mat-icon>
+          </button>
           <button *ngIf="searchText!==''"
             mat-icon-button 
             matSuffix
-	    (click)="searchFieldKeyUp('')"
-	    matTooltip="Clear search">
+	          (click)="searchFieldKeyUp('')"
+	          matTooltip="Clear search">
             <mat-icon>clear</mat-icon>
           </button>
         </mat-form-field>
