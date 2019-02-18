@@ -47,6 +47,6 @@ export class ContactDetailsComponent {
     }
 
     newEmail(): void {
-        this.contact.emails.push(new Email())
+        this.contact.emails.push(new Email());
     }
 }
