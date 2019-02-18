@@ -17,12 +17,17 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+export class Email {
+    types: string[];
+    value: string;
+}
+
 export class Contact {
     id: number;
     nick: string;
     first_name: string;
     last_name: string;
-    email: string;
+    emails: Email[] = [];
 
     constructor(properties: any) {
         // tslint:disable-next-line:forin

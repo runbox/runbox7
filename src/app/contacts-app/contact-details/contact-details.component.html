@@ -27,14 +27,11 @@
                             placeholder="Last Name">
                 </td>
             </tr>
-            <tr *ngFor="let email of contact.email_addresses">
+            <tr *ngFor="let email of contact.emails">
                 <td> Email address ({{ email.types }}): </td>
                 <td>
-                    <!-- <input name="email"
-                            [(ngModel)]="email.value"
-                            placeholder="E-mail address"> -->
                     <input name="email"
-                            value="{{ email.value }}"
+                            [(ngModel)]="email.value"
                             placeholder="E-mail address">
                 </td>
                 <td>
@@ -42,6 +39,9 @@
                         <mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}
                     </a>
                 </td>
+            </tr>
+            <tr>
+                <a mat-button (click)="newEmail()">Add a new email address</a>
             </tr>
             <tr>
                 <td> Birthday: </td>

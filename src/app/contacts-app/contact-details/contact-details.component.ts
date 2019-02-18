@@ -20,7 +20,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact } from '../contact';
+import { Contact, Email } from '../contact';
 
 @Component({
     selector: 'app-contact-details',
@@ -44,5 +44,9 @@ export class ContactDetailsComponent {
 
     rollback(): void {
         this.contactDiscarded.next(this.contact);
+    }
+
+    newEmail(): void {
+        this.contact.emails.push(new Email())
     }
 }
