@@ -37,6 +37,7 @@ export class ContactsAppComponent {
         public rmmapi: RunboxWebmailAPI,
         private router: Router
     ) {
+        console.log("Fetching contacts from the backend");
         this.rmmapi.getAllContacts().subscribe(contacts => {
             console.log('Got all the contacts!');
             console.log('Contacts: ' + contacts);

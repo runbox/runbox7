@@ -4,83 +4,59 @@
 
 <div class="contact-details" *ngIf="contact">
     <h2> {{ contact.full_name() || "New contact" }}'s details </h2>
-    <form #form="ngForm">
+    <form [formGroup]="contactForm">
         <table>
             <tr>
                 <td> Nickname: </td>
-                <td> <input name="nickname"
-                            [(ngModel)]="contact.nickname"
+                <td> <input formControlName="nick"
                             placeholder="Nickname">
                 </td>
             </tr>
             <tr>
                 <td> First name: </td>
-                <td> <input name="first_name"
-                            [(ngModel)]="contact.first_name"
+                <td> <input formControlName="first_name"
                             placeholder="First name">
                 </td>
             </tr>
             <tr>
                 <td> Last name: </td>
-                <td> <input name="last_name"
-                            [(ngModel)]="contact.last_name"
+                <td> <input formControlName="last_name"
                             placeholder="Last Name">
                 </td>
             </tr>
-            <tr *ngFor="let email of contact.emails">
-                <td> Email address ({{ email.types }}): </td>
+        </table>
+        <table formArrayName="emails" *ngFor="let email of contactForm.get('emails').controls; let i=index">
+            <tr [formGroupName]="i">
+                <td> Email address ({{ types }}): </td>
                 <td>
-                    <input name="email"
-                            [(ngModel)]="email.value"
-                            placeholder="E-mail address">
+                    <input formControlName="value"
+                           placeholder="E-mail address">
                 </td>
                 <td>
-                    <a mat-button routerLink="/compose" [queryParams]="{to: email.value}">
+                    <a mat-button routerLink="/compose" [queryParams]="{to: value}">
                         <mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}
                     </a>
                 </td>
-            </tr>
-            <tr>
-                <a mat-button (click)="newEmail()">Add a new email address</a>
-            </tr>
+        </table>
+        <div>
+            <a mat-button (click)="newEmail()">Add a new email address</a>
+        </div>
+        <table>
             <tr>
                 <td> Birthday: </td>
-                <td> <input name="birthday"
-                            [(ngModel)]="contact.birthday"
+                <td> <input formControlName="birthday"
                             placeholder="Birthday">
                 </td>
             </tr>
             <tr>
-                <td> Website: </td>
-                <td> <input name="website"
-                            [(ngModel)]="contact.website"
-                            placeholder="Website">
-                </td>
-            </tr>
-            <tr>
-                <td> Company: </td>
-                <td> <input name="company"
-                            [(ngModel)]="contact.company"
-                            placeholder="Company">
-                </td>
-            </tr>
-            <tr>
-                <td> Department: </td>
-                <td> <input name="department"
-                            [(ngModel)]="contact.department"
-                            placeholder="Department">
-                </td>
-            </tr>
-            <tr>
                 <td> Notes: </td>
-                <td> <textarea name="notes"
-                            [(ngModel)]="contact.note"
-                            placeholder="Contact notes">
+                <td> <textarea formControlName="note"
+                               placeholder="Contact notes">
                      </textarea>
                 </td>
             </tr>
         </table>
-        <div *ngIf="form.dirty">
+        <div>
             <a mat-button (click)="save()">Save changes</a>
             <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
         </div>
