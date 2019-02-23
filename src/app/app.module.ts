@@ -80,6 +80,11 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'contacts', component: ContactsAppComponent },
+      {
+        path: 'contacts/:id',
+        component: ContactsAppComponent,
+        runGuardsAndResolvers: 'always'
+      },
       { path: 'indexdeleted', component: IndexDeletedComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
@@ -128,7 +133,7 @@ const routes: Routes = [
     DomainRegisterModule,
     UpdateAlertModule,
     SearchExpressionBuilderModule,
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(routes, {onSameUrlNavigation: 'reload'}),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production })
   ],
   declarations: [MainContainerComponent, AppComponent, LoginComponent,

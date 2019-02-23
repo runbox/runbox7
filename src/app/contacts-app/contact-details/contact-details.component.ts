@@ -31,23 +31,26 @@ export class ContactDetailsComponent implements OnChanges {
     @Input() contact: Contact;
 
     ngOnChanges(changes: any) {
+        console.log("Input changed!");
         if (!this.contact) {
+            console.log("...to nothing");
             return;
         }
-        console.log("Input changed, contact is now:");
-        console.log(this.contact);
+        console.log("Contact is now:", this.contact);
 
-        var emails = this.contactForm.get('emails') as FormArray;
-        console.log("Deleting", emails.length, "existing email form controls");
-        for (var i = 0; i < emails.length; i++) {
-            emails.removeAt(0);
-        }
+        this.contactForm = this.createForm();
 
         // need to prevent ReactiveForms from shitting themvelses on null arrays
         if (this.contact.emails === null) {
             this.contact.emails = [];
         }
+
+        // prepare room in the form for all the emails,
         for (var i = 0; i < this.contact.emails.length; i++) {
+            var emailsFA = this.contactForm.get('emails') as FormArray;
+            emailsFA.push(this.createEmailFG());
+
+            // also fixup empty types for the same reason as above
             var e = this.contact.emails[i];
             if (e.types === null) {
                 e.types = [];
@@ -55,33 +58,12 @@ export class ContactDetailsComponent implements OnChanges {
         }
 
         this.contactForm.patchValue(this.contact);
-
-        // patchValue is incapable of patching arrays,
-        // so we gotta do that manually :/
-        console.log("Have to add", this.contact.emails.length, "email fields");
-        for (var i = 0; i < this.contact.emails.length; i++) {
-            console.log("Iteration", i);
-            var e = this.contact.emails[i];
-            var email = this.createEmailFG(e.types, e.value);
-            console.log("Adding email: ", e.value);
-            emails.push(email);
-        }
     }
 
     @Output() contactSaved = new EventEmitter<Contact>();
     @Output() contactDiscarded = new EventEmitter<Contact>();
 
-    contactForm = this.fb.group({
-        id:         [''],
-        nick:       [''],
-        first_name: [''],
-        last_name:  [''],
-        emails: this.fb.array([
-            this.createEmailFG()
-        ]),
-        birthday:   [''],
-        note:       [''],
-    });
+    contactForm = this.createForm();
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
@@ -90,8 +72,22 @@ export class ContactDetailsComponent implements OnChanges {
     ) {
     }
 
+    createForm(): FormGroup {
+        return this.fb.group({
+            id:         [''],
+            nick:       [''],
+            first_name: [''],
+            last_name:  [''],
+            emails: this.fb.array([
+            ]),
+            birthday:   [''],
+            note:       [''],
+        });
+    }
+
     save(): void {
         this.contact = new Contact(this.contactForm.value);
+        console.log("Saving contact:", this.contact);
         this.contactSaved.next(this.contact);
     }
 

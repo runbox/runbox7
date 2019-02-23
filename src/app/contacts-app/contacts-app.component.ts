@@ -19,7 +19,7 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Contact } from './contact';
 
 @Component({
@@ -32,25 +32,59 @@ export class ContactsAppComponent {
     title = 'Contacts';
     contacts: Contact[];
     selectedContact: Contact;
+    navigationSubscription;
+
+    MOCK_CONTACTS = [{"phones":[],"company":null,"emails":[],"urls":[],"birthday":"","last_name":"Testowy","department":null,"nick":"Test","first_name":"Jan","id":"1570E6D0-3363-11E9-A33A-51B2B65D14DE","note":"","addresses":[]},{"department":null,"nick":"test","birthday":"","urls":[],"last_name":"Test","company":null,"emails":[],"phones":[],"note":"","addresses":[],"first_name":"Jan","id":"CF49CBB2-3363-11E9-BC8E-37B3B65D14DE"},{"department":null,"nick":"Bzik","last_name":"Zbzikowana","birthday":"","urls":[],"emails":[{"types":null,"value":"bara@bara.com"}],"company":null,"phones":[],"addresses":[],"note":"","id":"3ABD9AC2-3364-11E9-BC8E-37B3B65D14DE","first_name":"Barbara"},{"department":null,"nick":null,"urls":[],"birthday":"","last_name":"Superbzik","company":null,"emails":[{"value":"bara2@bara.com","types":null},{"types":null,"value":"bara2@bara.com"},{"types":null,"value":"bara2@bara.com"},{"types":null,"value":"superbara@bara.com"},{"value":"praca@barabara.com","types":[]}],"phones":[],"note":"","addresses":[],"first_name":"Barabara","id":"50362E58-3609-11E9-87A6-847CB65D14DE"}];
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
+        private route: ActivatedRoute,
         private router: Router
     ) {
-        console.log("Fetching contacts from the backend");
-        this.rmmapi.getAllContacts().subscribe(contacts => {
-            console.log('Got all the contacts!');
-            console.log('Contacts: ' + contacts);
-            this.contacts = contacts;
+    }
+
+    ngOnInit(): void {
+        console.log("Setting navigation hook");
+        this.navigationSubscription = this.router.events.subscribe((e: any) => {
+            if (e instanceof NavigationEnd) {
+                console.log("NAVIGATION");
+                this.onContactsReady();
+            }
         });
+
+        if (false) {
+            this.contacts = [];
+            for (var c of this.MOCK_CONTACTS) {
+                this.contacts.push(new Contact(c));
+            }
+            console.log("\n\nCONTACTS MOCKED\n\n\n");
+        } else {
+            console.log("Fetching contacts from the backend");
+            this.rmmapi.getAllContacts().subscribe(contacts => {
+                console.log('Got all the contacts!');
+                console.log('Contacts: ' + contacts);
+                this.contacts = contacts;
+                this.onContactsReady();
+            });
+        }
     }
 
-    selectContact(contact: Contact): void {
-        this.selectedContact = new Contact(contact);
+    ngOnDestroy() {
+        if (this.navigationSubscription) {
+           this.navigationSubscription.unsubscribe();
+        }
     }
 
-    newContact(): void {
-        this.selectedContact = new Contact({});
+    onContactsReady() {
+        const id = this.route.snapshot.paramMap.get('id');
+        if (!id) {
+            this.selectedContact = null;
+        } else if (id === "new") {
+            this.selectedContact = new Contact({});
+        } else {
+            var contact = this.getContact(id);
+            this.selectedContact = new Contact(contact);
+        }
     }
 
     saveContact(contact: Contact): void {
@@ -64,21 +98,25 @@ export class ContactsAppComponent {
                     break;
                 }
             }
-            this.selectContact(contact);
+            this.navigateTo(contact);
         } else { // new contact
             this.rmmapi.addNewContact(contact).subscribe(thecontact => {
                 console.log('ID assigned: ' + thecontact.id);
                 this.contacts.push(thecontact);
-                this.selectContact(thecontact);
+                this.navigateTo(thecontact);
             });
         }
     }
 
-    rollbackContact(contact: Contact): void {
-        this.selectContact(this.getContact(contact.id));
+    navigateTo(contact: Contact): void {
+        this.router.navigateByUrl('/contact/' + contact.id);
     }
 
-    getContact(id: number): Contact {
+    rollbackContact(contact: Contact): void {
+        this.navigateTo(contact);
+    }
+
+    getContact(id: string): Contact {
         for (const c of this.contacts) {
             if (c.id === id) {
                 return c;

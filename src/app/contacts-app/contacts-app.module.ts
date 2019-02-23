@@ -22,7 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import {
   MatButtonModule,
@@ -34,13 +34,11 @@ import {
 } from '@angular/material';
 
 import { ContactsAppComponent } from './contacts-app.component';
-import { ContactListComponent } from './contactlist/contactlist.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
 
 @NgModule({
   declarations: [
     ContactsAppComponent,
-    ContactListComponent,
     ContactDetailsComponent
   ],
   imports: [

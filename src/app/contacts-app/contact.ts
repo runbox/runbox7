@@ -23,7 +23,7 @@ export class Email {
 }
 
 export class Contact {
-    id: number;
+    id: string;
     nick: string;
     first_name: string;
     last_name: string;
@@ -52,5 +52,12 @@ export class Contact {
         } else {
             return this.last_name;
         }
+    }
+
+    primary_email(): string {
+        if (this.emails.length > 0) {
+            return this.emails[0].value;
+        }
+        return null;
     }
 }
