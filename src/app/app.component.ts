@@ -777,8 +777,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       console.log('us', this.usewebsocketsearch);
       if (
         this.usewebsocketsearch ||
-        this.selectedFolder === 'Spam' ||
-        this.selectedFolder === 'Trash'
+        this.selectedFolder === this.messagelistservice.spamFolderName ||
+        this.selectedFolder === this.messagelistservice.trashFolderName
       ) {
         /*
          * Message table from database, shown if local search index is not present
