@@ -218,10 +218,10 @@
   <button mat-fab matTooltip="Toggle flag" (click)="toggleFlagged()">
     <mat-icon>flag</mat-icon>
   </button>    
-  <button *ngIf="selectedFolder!=='Spam'" mat-fab matTooltip="Report spam" (click)="trainSpam({is_spam:1})">
+  <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-fab matTooltip="Report spam" (click)="trainSpam({is_spam:1})">
     <mat-icon>report</mat-icon>
   </button>    
-  <button mat-fab *ngIf="selectedFolder==='Spam'" matTooltip="Not spam" (click)="trainSpam({is_spam:0})">
+  <button mat-fab *ngIf="selectedFolder===messagelistservice.spamFolderName" matTooltip="Not spam" (click)="trainSpam({is_spam:0})">
     <mat-icon>report_off</mat-icon>
   </button>    
 </div>
