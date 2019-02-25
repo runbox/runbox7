@@ -61,7 +61,6 @@ export class ContactDetailsComponent implements OnChanges {
     }
 
     @Output() contactSaved = new EventEmitter<Contact>();
-    @Output() contactDiscarded = new EventEmitter<Contact>();
 
     contactForm = this.createForm();
 
@@ -92,7 +91,8 @@ export class ContactDetailsComponent implements OnChanges {
     }
 
     rollback(): void {
-        this.contactDiscarded.next(this.contact);
+        // let's pretend we just got clicked with the same data as before
+        this.ngOnChanges({});
     }
 
     createEmailFG(types = [''], value = ''): FormGroup {

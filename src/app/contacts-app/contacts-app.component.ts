@@ -112,10 +112,6 @@ export class ContactsAppComponent {
         this.router.navigateByUrl('/contact/' + contact.id);
     }
 
-    rollbackContact(contact: Contact): void {
-        this.navigateTo(contact);
-    }
-
     getContact(id: string): Contact {
         for (const c of this.contacts) {
             if (c.id === id) {
