@@ -27,7 +27,18 @@
         </table>
         <table formArrayName="emails" *ngFor="let email of contactForm.get('emails').controls; let i=index">
             <tr [formGroupName]="i">
-                <td> Email address ({{ types }}): </td>
+                <td> Email address: </td>
+                <td *ngFor="let type of email.get('types').controls; let j=index">
+                    <select>
+                        <option><mat-icon>home</mat-icon> Home</option>
+                        <option><mat-icon>work</mat-icon> Work</option>
+                    </select>
+                </td>
+                <td>
+                    <a mat-button (click)="addTypeToEmail(i)">
+                        <mat-icon>add</mat-icon>Add a type
+                    </a>
+                </td>
                 <td>
                     <input formControlName="value"
                            placeholder="E-mail address">

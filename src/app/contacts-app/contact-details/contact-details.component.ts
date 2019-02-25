@@ -95,7 +95,7 @@ export class ContactDetailsComponent implements OnChanges {
         this.ngOnChanges({});
     }
 
-    createEmailFG(types = [''], value = ''): FormGroup {
+    createEmailFG(types = [], value = ''): FormGroup {
         return this.fb.group({
             types: this.fb.array(types),
             value: value,
@@ -110,5 +110,11 @@ export class ContactDetailsComponent implements OnChanges {
     removeEmailAt(i: number): void {
         var emails = this.contactForm.get('emails') as FormArray;
         emails.removeAt(i);
+    }
+
+    addTypeToEmail(i: number): void {
+        var emails = this.contactForm.get('emails') as FormArray;
+        var types  = emails.at(i).get('types') as FormArray;
+        types.push(new FormControl(''));
     }
 }
