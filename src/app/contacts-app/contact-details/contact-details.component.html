@@ -37,6 +37,11 @@
                         <mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}
                     </a>
                 </td>
+                <td>
+                    <a mat-button (click)="removeEmailAt(i)">
+                        <mat-icon>delete</mat-icon>Delete this address
+                    </a>
+                </td>
         </table>
         <div>
             <a mat-button (click)="newEmail()">Add a new email address</a>

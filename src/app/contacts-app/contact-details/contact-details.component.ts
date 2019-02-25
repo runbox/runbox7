@@ -106,4 +106,9 @@ export class ContactDetailsComponent implements OnChanges {
         var emails = this.contactForm.get('emails') as FormArray;
         emails.push(this.createEmailFG());
     }
+
+    removeEmailAt(i: number): void {
+        var emails = this.contactForm.get('emails') as FormArray;
+        emails.removeAt(i);
+    }
 }
