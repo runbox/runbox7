@@ -24,7 +24,7 @@ export class Email {
 
 export class Contact {
     id: string;
-    nick: string;
+    nickname: string;
     first_name: string;
     last_name: string;
     emails: Email[] = [];
@@ -37,8 +37,8 @@ export class Contact {
     }
 
     display_name(): string {
-        if (this.nick) {
-            return this.nick;
+        if (this.nickname) {
+            return this.nickname;
         } else if (this.full_name()) {
             return this.full_name();
         }

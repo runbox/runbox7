@@ -75,7 +75,7 @@ export class ContactDetailsComponent implements OnChanges {
     createForm(): FormGroup {
         return this.fb.group({
             id:         [''],
-            nick:       [''],
+            nickname:   [''],
             first_name: [''],
             last_name:  [''],
             emails: this.fb.array([
