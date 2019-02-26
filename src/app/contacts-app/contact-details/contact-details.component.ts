@@ -19,9 +19,13 @@
 
 import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, Email } from '../contact';
+import { ConfirmDialog } from '../../dialog/dialog.module';
+
+import { filter, mergeMap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-contact-details',
@@ -67,10 +71,12 @@ export class ContactDetailsComponent implements OnChanges {
     }
 
     @Output() contactSaved = new EventEmitter<Contact>();
+    @Output() contactDeleted = new EventEmitter<Contact>();
 
     contactForm = this.createForm();
 
     constructor(
+        public dialog: MatDialog,
         public rmmapi: RunboxWebmailAPI,
         private fb: FormBuilder,
         private router: Router
@@ -122,5 +128,21 @@ export class ContactDetailsComponent implements OnChanges {
         var emails = this.contactForm.get('emails') as FormArray;
         var types  = emails.at(i).get('types') as FormArray;
         types.push(new FormControl(''));
+    }
+
+    delete(): void {
+        var confirmDialog = this.dialog.open(ConfirmDialog);
+        confirmDialog.componentInstance.title = `Delete this contact?`;
+        confirmDialog.componentInstance.question =
+            `Are you sure that you want to delete this contact?`;
+        confirmDialog.componentInstance.noOptionTitle = 'no';
+        confirmDialog.componentInstance.yesOptionTitle = 'yes';
+        confirmDialog.afterClosed().pipe(
+            filter(res => res === true),
+            mergeMap(() => this.rmmapi.deleteContact(this.contact))
+        ).subscribe(() => {
+            this.contactDeleted.next(this.contact);
+            this.router.navigateByUrl('/contacts/');
+        });
     }
 }

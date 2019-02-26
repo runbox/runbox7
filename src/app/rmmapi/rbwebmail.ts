@@ -502,6 +502,12 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
 
+    public deleteContact(c: Contact): Observable<any> {
+        return this.http.delete('/rest/v1/addresses_contact/' + c.id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
     public logout() {
         location.href = '/LOGOUT';
     }

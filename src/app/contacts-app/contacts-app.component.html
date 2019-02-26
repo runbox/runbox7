@@ -30,6 +30,7 @@
         <app-contact-details
             [contact]="selectedContact"
             (contactSaved)="saveContact($event)"
+            (contactDeleted)="deleteContact($event)"
         ></app-contact-details>
     </mat-sidenav-content>
 </mat-sidenav-container>
