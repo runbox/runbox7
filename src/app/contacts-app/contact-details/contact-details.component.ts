@@ -48,12 +48,18 @@ export class ContactDetailsComponent implements OnChanges {
         // prepare room in the form for all the emails,
         for (var i = 0; i < this.contact.emails.length; i++) {
             var emailsFA = this.contactForm.get('emails') as FormArray;
-            emailsFA.push(this.createEmailFG());
+            var emailFG = this.createEmailFG();
+            emailsFA.push(emailFG);
 
             // also fixup empty types for the same reason as above
             var e = this.contact.emails[i];
             if (e.types === null) {
                 e.types = [];
+            }
+
+            for (var j = 0; j < e.types.length; j++) {
+                var typesFA = emailFG.get('types') as FormArray;
+                typesFA.push(new FormControl());
             }
         }
 

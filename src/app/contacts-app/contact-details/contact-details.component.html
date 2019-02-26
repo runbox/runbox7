@@ -29,10 +29,17 @@
             <tr [formGroupName]="i">
                 <td> Email address: </td>
                 <td *ngFor="let type of email.get('types').controls; let j=index">
-                    <select>
-                        <option><mat-icon>home</mat-icon> Home</option>
-                        <option><mat-icon>work</mat-icon> Work</option>
-                    </select>
+                    <mat-select placeholder="Type" [formControl]="type">
+                        <mat-option> None </mat-option>
+                        <mat-option value="home">
+                            <!--<mat-icon>home</mat-icon>-->
+                            Personal
+                        </mat-option>
+                        <mat-option value="work">
+                            <!--<mat-icon>work</mat-icon>-->
+                            Work
+                        </mat-option>
+                    </mat-select>
                 </td>
                 <td>
                     <a mat-button (click)="addTypeToEmail(i)">

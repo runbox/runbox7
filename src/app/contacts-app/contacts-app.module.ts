@@ -28,6 +28,7 @@ import {
   MatButtonModule,
   MatIconModule,
   MatListModule,
+  MatSelectModule,
   MatSidenavModule,
   MatToolbarModule,
   MatTooltipModule
@@ -48,6 +49,7 @@ import { ContactDetailsComponent } from './contact-details/contact-details.compo
     MatButtonModule,
     MatIconModule,
     MatListModule,
+    MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
     MatTooltipModule,
