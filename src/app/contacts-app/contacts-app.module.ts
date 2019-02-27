@@ -24,6 +24,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule, Routes, RouteReuseStrategy } from '@angular/router';
 
+import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
+
 import {
   MatButtonModule,
   MatIconModule,
@@ -58,6 +60,10 @@ import { RMMRouteReuseStrategy } from './routereusestrategy';
     MenuModule,
     ReactiveFormsModule,
     RouterModule.forChild([
+      {
+        path: '', outlet: 'headertoolbar',
+        component: HeaderToolbarComponent
+      },
       { path: 'contacts', component: ContactsAppComponent,
         children: [
          {
