@@ -49,57 +49,64 @@ export class ContactDetailsComponent {
         private contactsservice: ContactsService
     ) {
         console.log('Contact detail reconstructed');
+
         let contacts: Contact[];
         contactsservice.contactsSubject.pipe(
             tap(c => contacts = c),
             mergeMap(() => this.route.params)
-        )
-        .subscribe(params => {
+        ).subscribe(params => {
             const contactid = params.id;
-            this.contact = contacts.find(c => c.id === contactid);
-
-            console.log("Input changed!");
-            if (!this.contact) {
-                console.log("...to nothing");
-                return;
-            }
-            console.log("Contact is now:", this.contact);
-
-            this.contactForm = this.createForm();
-
-            // need to prevent ReactiveForms from shitting themvelses on null arrays
-            if (this.contact.emails === null) {
-                this.contact.emails = [];
-            }
-
-            // prepare room in the form for all the emails,
-            for (var i = 0; i < this.contact.emails.length; i++) {
-                var emailsFA = this.contactForm.get('emails') as FormArray;
-                var emailFG = this.createEmailFG();
-                emailsFA.push(emailFG);
-
-                // also fixup empty types for the same reason as above
-                var e = this.contact.emails[i];
-                if (e.types === null) {
-                    e.types = [];
-                }
-
-                for (var j = 0; j < e.types.length; j++) {
-                    var typesFA = emailFG.get('types') as FormArray;
-                    typesFA.push(this.fb.control(null));
-                }
-            }
-
-            if (this.contact.rmm_backed === true) {
-                console.log('Disabling edits for', this.contact.display_name());
-                this.contactForm.disable();
+            if (contactid === 'new') {
+                this.contact = new Contact({});
             } else {
-                console.log('Enabling edits for', this.contact.display_name());
-                this.contactForm.enable();
+                this.contact = contacts.find(c => c.id === contactid);
+
+                if (this.contact) {
+                    console.log("Contact is now:", this.contact);
+                } else {
+                    console.log("No matching contact found");
+                    return;
+                }
+            }
+            this.loadContact();
+        });
+    }
+
+    loadContact(): void {
+        this.contactForm = this.createForm();
+
+        // need to prevent ReactiveForms from shitting themvelses on null arrays
+        if (this.contact.emails === null) {
+            this.contact.emails = [];
+        }
+
+        // prepare room in the form for all the emails,
+        for (var i = 0; i < this.contact.emails.length; i++) {
+            var emailsFA = this.contactForm.get('emails') as FormArray;
+            var emailFG = this.createEmailFG();
+            emailsFA.push(emailFG);
+
+            // also fixup empty types for the same reason as above
+            var e = this.contact.emails[i];
+            if (e.types === null) {
+                e.types = [];
             }
 
-            this.contactForm.patchValue(this.contact);
-        });
+            for (var j = 0; j < e.types.length; j++) {
+                var typesFA = emailFG.get('types') as FormArray;
+                typesFA.push(this.fb.control(null));
+            }
+        }
+
+        if (this.contact.rmm_backed === true) {
+            console.log('Disabling edits for', this.contact.display_name());
+            this.contactForm.disable();
+        } else {
+            console.log('Enabling edits for', this.contact.display_name());
+            this.contactForm.enable();
+        }
+
+        this.contactForm.patchValue(this.contact);
     }
 
     createForm(): FormGroup {
