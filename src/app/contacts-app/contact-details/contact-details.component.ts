@@ -63,8 +63,12 @@ export class ContactDetailsComponent implements OnChanges {
 
             for (var j = 0; j < e.types.length; j++) {
                 var typesFA = emailFG.get('types') as FormArray;
-                typesFA.push(new FormControl());
+                typesFA.push(this.fb.control());
             }
+        }
+
+        if (this.contact.rmm_backed === true) {
+            this.contactForm.disable();
         }
 
         this.contactForm.patchValue(this.contact);
@@ -85,14 +89,14 @@ export class ContactDetailsComponent implements OnChanges {
 
     createForm(): FormGroup {
         return this.fb.group({
-            id:         [''],
-            nickname:   [''],
-            first_name: [''],
-            last_name:  [''],
+            id:         this.fb.control(''),
+            nickname:   this.fb.control(''),
+            first_name: this.fb.control(''),
+            last_name:  this.fb.control(''),
             emails: this.fb.array([
             ]),
-            birthday:   [''],
-            note:       [''],
+            birthday:   this.fb.control(''),
+            note:       this.fb.control(''),
         });
     }
 
@@ -110,7 +114,7 @@ export class ContactDetailsComponent implements OnChanges {
     createEmailFG(types = [], value = ''): FormGroup {
         return this.fb.group({
             types: this.fb.array(types),
-            value: value,
+            value: this.fb.control(value),
         })
     }
 
@@ -127,7 +131,7 @@ export class ContactDetailsComponent implements OnChanges {
     addTypeToEmail(i: number): void {
         var emails = this.contactForm.get('emails') as FormArray;
         var types  = emails.at(i).get('types') as FormArray;
-        types.push(new FormControl(''));
+        types.push(this.fb.control(''));
     }
 
     delete(): void {

@@ -29,10 +29,16 @@ export class Contact {
     last_name: string;
     emails: Email[] = [];
 
+    rmm_backed = false;
+
     constructor(properties: any) {
         // tslint:disable-next-line:forin
         for (const key in properties) {
             this[key] = properties[key];
+        }
+
+        if (this.id.substr(0, 4) === "RMM-") {
+            this.rmm_backed = true;
         }
     }
 
