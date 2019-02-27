@@ -22,7 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, RouteReuseStrategy } from '@angular/router';
 
 import {
   MatButtonModule,
@@ -36,6 +36,8 @@ import {
 
 import { ContactsAppComponent } from './contacts-app.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
+import { ContactsService } from './contacts.service';
+import { RMMRouteReuseStrategy } from './routereusestrategy';
 
 @NgModule({
   declarations: [
@@ -55,9 +57,24 @@ import { ContactDetailsComponent } from './contact-details/contact-details.compo
     MatTooltipModule,
     MenuModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule.forChild([
+      { path: 'contacts', component: ContactsAppComponent,
+        children: [
+         {
+            path: ':id',
+            component: ContactDetailsComponent,
+            runGuardsAndResolvers: 'always'
+          }
+        ]
+      },
+    ])
   ],
   providers: [
+    ContactsService,
+    {
+      provide: RouteReuseStrategy,
+      useClass: RMMRouteReuseStrategy
+    }
   ],
   bootstrap: [ContactsAppComponent]
 })

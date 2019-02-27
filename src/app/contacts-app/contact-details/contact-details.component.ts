@@ -20,59 +20,20 @@
 import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, Email } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
-import { filter, mergeMap } from 'rxjs/operators';
+import { filter, mergeMap, tap } from 'rxjs/operators';
+import { ContactsService } from '../contacts.service';
 
 @Component({
     selector: 'app-contact-details',
     templateUrl: './contact-details.component.html',
 })
-export class ContactDetailsComponent implements OnChanges {
-    @Input() contact: Contact;
-
-    ngOnChanges(changes: any) {
-        console.log("Input changed!");
-        if (!this.contact) {
-            console.log("...to nothing");
-            return;
-        }
-        console.log("Contact is now:", this.contact);
-
-        this.contactForm = this.createForm();
-
-        // need to prevent ReactiveForms from shitting themvelses on null arrays
-        if (this.contact.emails === null) {
-            this.contact.emails = [];
-        }
-
-        // prepare room in the form for all the emails,
-        for (var i = 0; i < this.contact.emails.length; i++) {
-            var emailsFA = this.contactForm.get('emails') as FormArray;
-            var emailFG = this.createEmailFG();
-            emailsFA.push(emailFG);
-
-            // also fixup empty types for the same reason as above
-            var e = this.contact.emails[i];
-            if (e.types === null) {
-                e.types = [];
-            }
-
-            for (var j = 0; j < e.types.length; j++) {
-                var typesFA = emailFG.get('types') as FormArray;
-                typesFA.push(this.fb.control());
-            }
-        }
-
-        if (this.contact.rmm_backed === true) {
-            this.contactForm.disable();
-        }
-
-        this.contactForm.patchValue(this.contact);
-    }
+export class ContactDetailsComponent {
+    contact: Contact;
 
     @Output() contactSaved = new EventEmitter<Contact>();
     @Output() contactDeleted = new EventEmitter<Contact>();
@@ -83,8 +44,62 @@ export class ContactDetailsComponent implements OnChanges {
         public dialog: MatDialog,
         public rmmapi: RunboxWebmailAPI,
         private fb: FormBuilder,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute,
+        private contactsservice: ContactsService
     ) {
+        console.log('Contact detail reconstructed');
+        let contacts: Contact[];
+        contactsservice.contactsSubject.pipe(
+            tap(c => contacts = c),
+            mergeMap(() => this.route.params)
+        )
+        .subscribe(params => {
+            const contactid = params.id;
+            this.contact = contacts.find(c => c.id === contactid);
+
+            console.log("Input changed!");
+            if (!this.contact) {
+                console.log("...to nothing");
+                return;
+            }
+            console.log("Contact is now:", this.contact);
+
+            this.contactForm = this.createForm();
+
+            // need to prevent ReactiveForms from shitting themvelses on null arrays
+            if (this.contact.emails === null) {
+                this.contact.emails = [];
+            }
+
+            // prepare room in the form for all the emails,
+            for (var i = 0; i < this.contact.emails.length; i++) {
+                var emailsFA = this.contactForm.get('emails') as FormArray;
+                var emailFG = this.createEmailFG();
+                emailsFA.push(emailFG);
+
+                // also fixup empty types for the same reason as above
+                var e = this.contact.emails[i];
+                if (e.types === null) {
+                    e.types = [];
+                }
+
+                for (var j = 0; j < e.types.length; j++) {
+                    var typesFA = emailFG.get('types') as FormArray;
+                    typesFA.push(this.fb.control(null));
+                }
+            }
+
+            if (this.contact.rmm_backed === true) {
+                console.log('Disabling edits for', this.contact.display_name());
+                this.contactForm.disable();
+            } else {
+                console.log('Enabling edits for', this.contact.display_name());
+                this.contactForm.enable();
+            }
+
+            this.contactForm.patchValue(this.contact);
+        });
     }
 
     createForm(): FormGroup {
@@ -108,7 +123,7 @@ export class ContactDetailsComponent implements OnChanges {
 
     rollback(): void {
         // let's pretend we just got clicked with the same data as before
-        this.ngOnChanges({});
+        // this.ngOnChanges({});
     }
 
     createEmailFG(types = [], value = ''): FormGroup {

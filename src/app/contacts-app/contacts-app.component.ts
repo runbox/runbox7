@@ -21,12 +21,13 @@ import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Contact } from './contact';
+import { ContactsService } from './contacts.service';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
     // tslint:disable-next-line:component-selector
     selector: 'contacts-app-root',
-    templateUrl: './contacts-app.component.html',
+    templateUrl: './contacts-app.component.html'
 })
 export class ContactsAppComponent {
     title = 'Contacts';

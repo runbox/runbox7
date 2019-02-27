@@ -27,10 +27,8 @@
                 <mat-icon>menu</mat-icon>
             </button>
         </mat-toolbar>
-        <app-contact-details
-            [contact]="selectedContact"
-            (contactSaved)="saveContact($event)"
-            (contactDeleted)="deleteContact($event)"
-        ></app-contact-details>
+        <router-outlet
+            
+        ></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>

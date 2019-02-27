@@ -79,12 +79,6 @@ const routes: Routes = [
         component: HeaderToolbarComponent
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
-      { path: 'contacts', component: ContactsAppComponent },
-      {
-        path: 'contacts/:id',
-        component: ContactsAppComponent,
-        runGuardsAndResolvers: 'always'
-      },
       { path: 'indexdeleted', component: IndexDeletedComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
