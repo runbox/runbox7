@@ -42,7 +42,7 @@
                     </mat-select>
                 </td>
                 <td>
-                    <a mat-button (click)="addTypeToEmail(i)">
+                    <a mat-button (click)="addTypeToEmail(i)" *ngIf="!contact.rmm_backed">
                         <mat-icon>add</mat-icon>Add a type
                     </a>
                 </td>
@@ -56,13 +56,13 @@
                     </a>
                 </td>
                 <td>
-                    <a mat-button (click)="removeEmailAt(i)">
+                    <a mat-button (click)="removeEmailAt(i)" *ngIf="!contact.rmm_backed">
                         <mat-icon>delete</mat-icon>Delete this address
                     </a>
                 </td>
         </table>
         <div>
-            <a mat-button (click)="newEmail()">Add a new email address</a>
+            <a mat-button (click)="newEmail()" *ngIf="!contact.rmm_backed">Add a new email address</a>
         </div>
         <table>
             <tr>
@@ -79,7 +79,10 @@
                 </td>
             </tr>
         </table>
-        <div>
+        <div *ngIf="contact.rmm_backed">
+            <a mat-button (click)="edit()">Edit this contact (in old webmail)</a>
+        </div>
+        <div *ngIf="!contact.rmm_backed">
             <a mat-button (click)="save()">Save changes</a>
             <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
             <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
