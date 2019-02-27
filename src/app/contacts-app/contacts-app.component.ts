@@ -33,7 +33,6 @@ export class ContactsAppComponent {
     title = 'Contacts';
     contacts: Contact[];
     selectedContact: Contact;
-    navigationSubscription;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
@@ -43,14 +42,6 @@ export class ContactsAppComponent {
     }
 
     ngOnInit(): void {
-        console.log("Setting navigation hook");
-        this.navigationSubscription = this.router.events.subscribe((e: any) => {
-            if (e instanceof NavigationEnd) {
-                console.log("NAVIGATION");
-                this.onContactsReady();
-            }
-        });
-
         console.log("Fetching contacts from the backend");
         this.rmmapi.getAllContacts().subscribe(contacts => {
             console.log('Got all the contacts!');
@@ -58,12 +49,6 @@ export class ContactsAppComponent {
             this.contacts = contacts;
             this.onContactsReady();
         });
-    }
-
-    ngOnDestroy() {
-        if (this.navigationSubscription) {
-           this.navigationSubscription.unsubscribe();
-        }
     }
 
     onContactsReady() {
