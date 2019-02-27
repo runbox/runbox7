@@ -35,32 +35,16 @@ export class ContactsAppComponent {
     selectedContact: Contact;
 
     constructor(
+        private contactsservice: ContactsService,
         public rmmapi: RunboxWebmailAPI,
         private route: ActivatedRoute,
         private router: Router
     ) {
-    }
-
-    ngOnInit(): void {
-        console.log("Fetching contacts from the backend");
-        this.rmmapi.getAllContacts().subscribe(contacts => {
-            console.log('Got all the contacts!');
-            console.log('Contacts: ' + contacts);
-            this.contacts = contacts;
-            this.onContactsReady();
+        console.log("Contacts.app: waiting for backend contacts...");
+        this.contactsservice.contactsSubject.subscribe(c => {
+            console.log("Contacts.app: got the contacts!");
+            this.contacts = c;
         });
-    }
-
-    onContactsReady() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (!id) {
-            this.selectedContact = null;
-        } else if (id === "new") {
-            this.selectedContact = new Contact({});
-        } else {
-            var contact = this.getContact(id);
-            this.selectedContact = new Contact(contact);
-        }
     }
 
     saveContact(contact: Contact): void {
@@ -96,13 +80,4 @@ export class ContactsAppComponent {
     navigateTo(contact: Contact): void {
         this.router.navigateByUrl('/contacts/' + contact.id);
     }
-
-    getContact(id: string): Contact {
-        for (const c of this.contacts) {
-            if (c.id === id) {
-                return c;
-            }
-        }
-    }
-
 }
