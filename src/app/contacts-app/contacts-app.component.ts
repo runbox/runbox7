@@ -42,9 +42,9 @@ export class ContactsAppComponent {
         private router:          Router,
         private snackBar:        MatSnackBar
     ) {
-        console.log("Contacts.app: waiting for backend contacts...");
+        console.log('Contacts.app: waiting for backend contacts...');
         this.contactsservice.contactsSubject.subscribe(c => {
-            console.log("Contacts.app: got the contacts!");
+            console.log('Contacts.app: got the contacts!');
             this.contacts = c;
         });
 
@@ -53,7 +53,7 @@ export class ContactsAppComponent {
         });
     }
 
-    showNotification(message: string, action = "Dismiss"): void {
+    showNotification(message: string, action = 'Dismiss'): void {
         this.snackBar.open(message, action, {
           duration: 2000,
         });

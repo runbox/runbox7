@@ -62,9 +62,9 @@ export class ContactDetailsComponent {
                 this.contact = contacts.find(c => c.id === contactid);
 
                 if (this.contact) {
-                    console.log("Contact is now:", this.contact);
+                    console.log('Contact is now:', this.contact);
                 } else {
-                    console.log("No matching contact found");
+                    console.log('No matching contact found');
                     return;
                 }
             }
@@ -81,37 +81,37 @@ export class ContactDetailsComponent {
         }
 
         // prepare room in the form for all the emails,
-        for (var i = 0; i < this.contact.emails.length; i++) {
-            var emailsFA = this.contactForm.get('emails') as FormArray;
-            var emailFG = this.createEmailFG();
+        for (let i = 0; i < this.contact.emails.length; i++) {
+            const emailsFA = this.contactForm.get('emails') as FormArray;
+            const emailFG = this.createEmailFG();
             emailsFA.push(emailFG);
 
             // also fixup empty types for the same reason as above
-            var e = this.contact.emails[i];
+            const e = this.contact.emails[i];
             if (e.types === null) {
                 e.types = [''];
             }
 
-            for (var j = 0; j < e.types.length; j++) {
-                var typesFA = emailFG.get('types') as FormArray;
+            for (let j = 0; j < e.types.length; j++) {
+                const typesFA = emailFG.get('types') as FormArray;
                 typesFA.push(this.fb.control(null));
             }
         }
 
         // same for all the addresses
-        for (var i = 0; i < this.contact.addresses.length; i++) {
-            var adrsFA = this.contactForm.get('addresses') as FormArray;
-            var adrFG  = this.createAdrFG();
+        for (let i = 0; i < this.contact.addresses.length; i++) {
+            const adrsFA = this.contactForm.get('addresses') as FormArray;
+            const adrFG  = this.createAdrFG();
             adrsFA.push(adrFG);
 
             // also fixup empty types for the same reason as above
-            var a = this.contact.addresses[i];
+            const a = this.contact.addresses[i];
             if (a.types === null) {
                 a.types = [];
             }
 
-            for (var j = 0; j < a.types.length; j++) {
-                var typesFA = adrFG.get('types') as FormArray;
+            for (let j = 0; j < a.types.length; j++) {
+                const typesFA = adrFG.get('types') as FormArray;
                 typesFA.push(this.fb.control(null));
             }
         }
@@ -148,7 +148,7 @@ export class ContactDetailsComponent {
         return this.fb.group({
             types: this.fb.array(types),
             value: this.fb.control(''),
-        })
+        });
     }
 
     createAdrFG(types = []): FormGroup {
@@ -161,40 +161,40 @@ export class ContactDetailsComponent {
                 post_code:   this.fb.control(''),
                 country:     this.fb.control(''),
             }),
-        })
+        });
     }
 
     newEmail(): void {
-        var emails = this.contactForm.get('emails') as FormArray;
+        const emails = this.contactForm.get('emails') as FormArray;
         emails.push(this.createEmailFG(['']));
     }
 
     newAdr(): void {
-        var adrs = this.contactForm.get('addresses') as FormArray;
+        const adrs = this.contactForm.get('addresses') as FormArray;
         adrs.push(this.createAdrFG(['']));
     }
 
     removeEmailAt(i: number): void {
-        var emails = this.contactForm.get('emails') as FormArray;
+        const emails = this.contactForm.get('emails') as FormArray;
         emails.removeAt(i);
     }
 
     removeAdrAt(i: number): void {
-        var adrs = this.contactForm.get('addresses') as FormArray;
+        const adrs = this.contactForm.get('addresses') as FormArray;
         adrs.removeAt(i);
     }
 
     /* unused as of now
     addTypeToEmail(i: number): void {
-        var emails = this.contactForm.get('emails') as FormArray;
-        var types  = emails.at(i).get('types') as FormArray;
+        const emails = this.contactForm.get('emails') as FormArray;
+        const types  = emails.at(i).get('types') as FormArray;
         types.push(this.fb.control(''));
     }
     */
 
     save(): void {
         this.contact = new Contact(this.contactForm.value);
-        console.log("Saving contact:", this.contact);
+        console.log('Saving contact:', this.contact);
         this.contactsservice.saveContact(this.contact);
     }
 
@@ -203,7 +203,7 @@ export class ContactDetailsComponent {
     }
 
     delete(): void {
-        var confirmDialog = this.dialog.open(ConfirmDialog);
+        const confirmDialog = this.dialog.open(ConfirmDialog);
         confirmDialog.componentInstance.title = `Delete this contact?`;
         confirmDialog.componentInstance.question =
             `Are you sure that you want to delete this contact?`;
@@ -213,14 +213,14 @@ export class ContactDetailsComponent {
             filter(res => res === true)
         ).subscribe(() => {
             this.contactsservice.deleteContact(this.contact, () => {
-                console.log("Contact deleted");
+                console.log('Contact deleted');
                 this.router.navigateByUrl('/contacts/');
             });
         });
     }
 
     edit_rmm6(): void {
-        let return_url = '/contacts/' + this.contact.id;
+        const return_url = '/contacts/' + this.contact.id;
         window.open(
             '/mail/addresses_contacts?edit=1' +
             '&cid=' + this.contact.id.substr(4) +

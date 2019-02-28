@@ -17,7 +17,7 @@ export class ContactsService {
     }
 
     reload(): void {
-        console.log("Reloading the contacts list");
+        console.log('Reloading the contacts list');
         this.rmmapi.getAllContacts().subscribe(contacts => {
             console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
@@ -28,15 +28,15 @@ export class ContactsService {
         if (contact.id) {
             console.log('Modifying contact', contact.id);
             this.rmmapi.modifyContact(contact).subscribe(() => {
-                this.informationLog.next("Contact modified successfuly");
+                this.informationLog.next('Contact modified successfuly');
                 console.log('Contact modified');
                 this.reload();
             });
-            console.log("Request sent");
+            console.log('Request sent');
         } else {
-            console.log("Creating new contact");
+            console.log('Creating new contact');
             this.rmmapi.addNewContact(contact).subscribe(thecontact => {
-                this.informationLog.next("New contact has been created");
+                this.informationLog.next('New contact has been created');
                 console.log('ID assigned: ' + thecontact.id);
                 this.reload();
             });
@@ -44,11 +44,11 @@ export class ContactsService {
     }
 
     deleteContact(contact: Contact, callback: any): Observable<any> {
-        console.log("Contact.service deleting", contact.id);
-        let deleteResult = this.rmmapi.deleteContact(contact);
+        console.log('Contact.service deleting', contact.id);
+        const deleteResult = this.rmmapi.deleteContact(contact);
         deleteResult.subscribe(() => {
-            this.informationLog.next("Contact has been deleted");
-            console.log("Contact deleted, reloading the list");
+            this.informationLog.next('Contact has been deleted');
+            console.log('Contact deleted, reloading the list');
             this.reload();
             callback();
         });
