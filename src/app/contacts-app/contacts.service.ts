@@ -19,7 +19,7 @@ export class ContactsService {
         console.log("Reloading the contacts list");
         this.rmmapi.getAllContacts().subscribe(contacts => {
             console.log('Got all the contacts!');
-            console.log('Contacts: ' + contacts);
+            console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
         });
     }
