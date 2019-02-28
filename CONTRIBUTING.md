@@ -26,7 +26,7 @@ Please do not open issues on Github for general support questions as we want to 
 
 ## Found a Bug?
 
-If you find a bug in the source code, you can help us by [submitting an issue](#submission-guidelines) to our GitHub Repository. Even better, you can [submit a Pull Request](#submitting-a-pull-request_pr) with a fix.
+If you find a bug in the source code, you can help us by [submitting an issue](#submission-guidelines) to our GitHub Repository. Even better, you can [submit a Pull Request](#submitting-a-pull-request-pr) with a fix.
 
 ## Missing a Feature?
 
@@ -37,7 +37,7 @@ submit an issue with a proposal for your work first, to be sure that we
 can use it. Please consider what kind of change it is:
 
 * For a **Major Feature**, first open an issue and outline your proposal so that it can be discussed. This will also allow us to better coordinate our efforts, prevent duplication of work, and help you to craft the change so that it is successfully accepted into the project.
-* **Small Features** can be crafted and directly [submitted as a Pull Request](#submitting-a-pull-request_pr).
+* **Small Features** can be crafted and directly [submitted as a Pull Request](#submitting-a-pull-request-pr).
 
 ## Submission Guidelines
 
