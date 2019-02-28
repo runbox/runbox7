@@ -121,6 +121,11 @@
                             </mat-select>
                         </mat-form-field>
                     </td>
+                    <td>
+                        <a mat-button (click)="removeAdrAt(i)" *ngIf="!contact.rmm_backed">
+                            <mat-icon>delete</mat-icon> Delete this address
+                        </a>
+                    </td>
                 </tr>
                 <div formGroupName="value">
                     <tr>
@@ -158,6 +163,13 @@
                 </div>
             </div>
         </table>
+
+        <div>
+            <a mat-button (click)="newAdr()" *ngIf="!contact.rmm_backed">
+                <mat-icon>add</mat-icon> Add a new address
+            </a>
+        </div>
+
         <div *ngIf="contact.rmm_backed">
             <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
         </div>

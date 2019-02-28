@@ -169,16 +169,28 @@ export class ContactDetailsComponent {
         emails.push(this.createEmailFG(['']));
     }
 
+    newAdr(): void {
+        var adrs = this.contactForm.get('addresses') as FormArray;
+        adrs.push(this.createAdrFG(['']));
+    }
+
     removeEmailAt(i: number): void {
         var emails = this.contactForm.get('emails') as FormArray;
         emails.removeAt(i);
     }
 
+    removeAdrAt(i: number): void {
+        var adrs = this.contactForm.get('addresses') as FormArray;
+        adrs.removeAt(i);
+    }
+
+    /* unused as of now
     addTypeToEmail(i: number): void {
         var emails = this.contactForm.get('emails') as FormArray;
         var types  = emails.at(i).get('types') as FormArray;
         types.push(this.fb.control(''));
     }
+    */
 
     save(): void {
         this.contact = new Contact(this.contactForm.value);
