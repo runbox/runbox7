@@ -23,11 +23,13 @@ export class Email {
 }
 
 export class Contact {
-    id: string;
-    nickname: string;
+    id:         string;
+    nickname:   string;
     first_name: string;
-    last_name: string;
-    emails: Email[] = [];
+    last_name:  string;
+    emails:     Email[] = [];
+    birthday:   string;
+    note:       string;
 
     rmm_backed = false;
 

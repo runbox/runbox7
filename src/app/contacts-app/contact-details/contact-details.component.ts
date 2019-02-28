@@ -122,17 +122,6 @@ export class ContactDetailsComponent {
         });
     }
 
-    save(): void {
-        this.contact = new Contact(this.contactForm.value);
-        console.log("Saving contact:", this.contact);
-        this.contactSaved.next(this.contact);
-    }
-
-    rollback(): void {
-        // let's pretend we just got clicked with the same data as before
-        // this.ngOnChanges({});
-    }
-
     createEmailFG(types = [], value = ''): FormGroup {
         return this.fb.group({
             types: this.fb.array(types),
@@ -156,6 +145,16 @@ export class ContactDetailsComponent {
         types.push(this.fb.control(''));
     }
 
+    save(): void {
+        this.contact = new Contact(this.contactForm.value);
+        console.log("Saving contact:", this.contact);
+        this.contactsservice.saveContact(this.contact);
+    }
+
+    rollback(): void {
+        this.router.navigateByUrl('/contacts/' + this.contact.id);
+    }
+
     delete(): void {
         var confirmDialog = this.dialog.open(ConfirmDialog);
         confirmDialog.componentInstance.title = `Delete this contact?`;
@@ -164,11 +163,12 @@ export class ContactDetailsComponent {
         confirmDialog.componentInstance.noOptionTitle = 'no';
         confirmDialog.componentInstance.yesOptionTitle = 'yes';
         confirmDialog.afterClosed().pipe(
-            filter(res => res === true),
-            mergeMap(() => this.rmmapi.deleteContact(this.contact))
+            filter(res => res === true)
         ).subscribe(() => {
-            this.contactDeleted.next(this.contact);
-            this.router.navigateByUrl('/contacts/');
+            this.contactsservice.deleteContact(this.contact, () => {
+                console.log("Contact deleted");
+                this.router.navigateByUrl('/contacts/');
+            });
         });
     }
 }

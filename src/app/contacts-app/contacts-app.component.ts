@@ -46,38 +46,4 @@ export class ContactsAppComponent {
             this.contacts = c;
         });
     }
-
-    saveContact(contact: Contact): void {
-        if (contact.id) { // existing contact
-            for (let i = 0; i < this.contacts.length; i++) {
-                if (contact.id === this.contacts[i].id) {
-                    this.rmmapi.modifyContact(contact).subscribe(() => {
-                        console.log('Contact modified');
-                    });
-                    this.contacts[i] = contact;
-                    break;
-                }
-            }
-            this.navigateTo(contact);
-        } else { // new contact
-            this.rmmapi.addNewContact(contact).subscribe(thecontact => {
-                console.log('ID assigned: ' + thecontact.id);
-                this.contacts.push(thecontact);
-                this.navigateTo(thecontact);
-            });
-        }
-    }
-
-    deleteContact(contact: Contact): void {
-        for (let i = 0; i < this.contacts.length; i++) {
-            if (contact.id === this.contacts[i].id) {
-                this.contacts.splice(i, 1);
-                break;
-            }
-        }
-    }
-
-    navigateTo(contact: Contact): void {
-        this.router.navigateByUrl('/contacts/' + contact.id);
-    }
 }
