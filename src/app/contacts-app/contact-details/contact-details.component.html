@@ -80,7 +80,7 @@
             </tr>
         </table>
         <div *ngIf="contact.rmm_backed">
-            <a mat-button (click)="edit()">Edit this contact (in old webmail)</a>
+            <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
         </div>
         <div *ngIf="!contact.rmm_backed">
             <a mat-button (click)="save()">Save changes</a>

@@ -171,4 +171,14 @@ export class ContactDetailsComponent {
             });
         });
     }
+
+    edit_rmm6(): void {
+        let return_url = '/contacts/' + this.contact.id;
+        window.open(
+            '/mail/addresses_contacts?edit=1' +
+            '&cid=' + this.contact.id.substr(4) +
+            '&return_url=' + return_url,
+            '_blank'
+        );
+    }
 }
