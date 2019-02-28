@@ -29,6 +29,7 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 import {
   MatButtonModule,
   MatIconModule,
+  MatInputModule,
   MatListModule,
   MatSelectModule,
   MatSidenavModule,
@@ -52,6 +53,7 @@ import { RMMRouteReuseStrategy } from './routereusestrategy';
     FormsModule,
     MatButtonModule,
     MatIconModule,
+    MatInputModule,
     MatListModule,
     MatSelectModule,
     MatSidenavModule,

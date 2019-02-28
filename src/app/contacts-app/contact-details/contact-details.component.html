@@ -5,137 +5,158 @@
 <div class="contact-details" *ngIf="contact">
     <h2> {{ contact.full_name() || "New contact" }}'s details </h2>
     <form [formGroup]="contactForm">
+        <h3> Basic information </h3>
         <table>
             <tr>
-                <td> Nickname: </td>
-                <td> <input formControlName="nickname"
-                            placeholder="Nickname">
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="nickname" placeholder="Nickname">
+                    </mat-form-field>
+                </td><td>
+                    <mat-form-field>
+                        <input matInput formControlName="first_name" placeholder="First name">
+                    </mat-form-field>
+                </td><td>
+                    <mat-form-field>
+                        <input matInput formControlName="last_name" placeholder="Last Name">
+                    </mat-form-field>
                 </td>
             </tr>
             <tr>
-                <td> First name: </td>
-                <td> <input formControlName="first_name"
-                            placeholder="First name">
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="company" placeholder="Company">
+                    </mat-form-field>
+                </td><td>
+                    <mat-form-field>
+                        <input matInput formControlName="department" placeholder="Department">
+                    </mat-form-field>
+                </td><td>
+                    <!-- empty -->
                 </td>
             </tr>
             <tr>
-                <td> Last name: </td>
-                <td> <input formControlName="last_name"
-                            placeholder="Last Name">
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="birthday" placeholder="Birthday">
+                    </mat-form-field>
+                </td><td>
+                    <!-- empty -->
+                </td><td>
+                    <!-- empty -->
+                </td>
+            </tr>
+            <tr>
+                <td colspan=3>
+                    <textarea matInput formControlName="note" placeholder="Notes"> </textarea>
                 </td>
             </tr>
         </table>
+
+        <h4> Email addresses </h4>
+
         <table formArrayName="emails" *ngFor="let email of contactForm.get('emails').controls; let i=index">
             <tr [formGroupName]="i">
-                <td> Email address: </td>
                 <td *ngFor="let type of email.get('types').controls; let j=index">
-                    <mat-select placeholder="Type" [formControl]="type">
-                        <mat-option> None </mat-option>
-                        <mat-option value="home">
-                            <!--<mat-icon>home</mat-icon>-->
-                            Personal
-                        </mat-option>
-                        <mat-option value="work">
-                            <!--<mat-icon>work</mat-icon>-->
-                            Work
-                        </mat-option>
-                    </mat-select>
+                    <mat-form-field>
+                        <mat-select placeholder="Type" [formControl]="type">
+                            <mat-option> None </mat-option>
+                            <mat-option value="home">
+                                <!--<mat-icon>home</mat-icon>-->
+                                Personal
+                            </mat-option>
+                            <mat-option value="work">
+                                <!--<mat-icon>work</mat-icon>-->
+                                Work
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </td>
-                <td>
+                <!--<td>
                     <a mat-button (click)="addTypeToEmail(i)" *ngIf="!contact.rmm_backed">
                         <mat-icon>add</mat-icon>Add a type
                     </a>
+                </td>-->
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="value" placeholder="E-mail address">
+                    </mat-form-field>
                 </td>
                 <td>
-                    <input formControlName="value"
-                           placeholder="E-mail address">
-                </td>
-                <td>
-                    <a mat-button routerLink="/compose" [queryParams]="{to: value}">
-                        <mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}
+                    <a mat-button routerLink="/compose" [queryParams]="{to: email.value.value }">
+                        <mat-icon>email</mat-icon> Send an email to {{ email.value.value }}
                     </a>
                 </td>
                 <td>
                     <a mat-button (click)="removeEmailAt(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>delete</mat-icon>Delete this address
+                        <mat-icon>delete</mat-icon> Delete this address
                     </a>
                 </td>
+            </tr>
         </table>
-        <table formArrayName="addresses" *ngFor="let adr of contactForm.get('addresses').controls; let i=index">
-            <tr [formGroupName]="i">
-                <td> Address: </td>
-                <td *ngFor="let type of adr.get('types').controls; let j=index">
-                    <mat-select placeholder="Type" [formControl]="type">
-                        <mat-option> None </mat-option>
-                        <mat-option value="home">
-                            <!--<mat-icon>home</mat-icon>-->
-                            Home
-                        </mat-option>
-                        <mat-option value="work">
-                            <!--<mat-icon>work</mat-icon>-->
-                            Work
-                        </mat-option>
-                    </mat-select>
-                </td>
-                <!--
-                <td>
-                    <a mat-button (click)="addTypeToEmail(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>add</mat-icon>Add a type
-                    </a>
-                </td>
-                -->
-                <div formGroupName="value">
-                    <td>
-                        <input formControlName="street" placeholder="Street">
-                    </td><td>
-                        <input formControlName="city" placeholder="City">
-                    </td><td>
-                        <input formControlName="region" placeholder="Region">
-                    </td><td>
-                        <input formControlName="post_code" placeholder="Post code">
-                    </td><td>
-                        <input formControlName="country" placeholder="Country">
-                    </td>
-                </div>
-                <!--
-                <td>
-                    <a mat-button (click)="removeEmailAt(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>delete</mat-icon>Delete this address
-                    </a>
-                </td>
-                -->
-        </table>
+
         <div>
-            <a mat-button (click)="newEmail()" *ngIf="!contact.rmm_backed">Add a new email address</a>
+            <a mat-button (click)="newEmail()" *ngIf="!contact.rmm_backed">
+                <mat-icon>add</mat-icon> Add a new email address
+            </a>
         </div>
-        <table>
-            <tr>
-                <td> Company: </td>
-                <td> <input formControlName="company"
-                            placeholder="Company">
-                </td>
-            </tr>
-            <tr>
-                <td> Department: </td>
-                <td> <input formControlName="department"
-                            placeholder="Department">
-                </td>
-            </tr>
-        </table>
-        <table>
-            <tr>
-                <td> Birthday: </td>
-                <td> <input formControlName="birthday"
-                            placeholder="Birthday">
-                </td>
-            </tr>
-            <tr>
-                <td> Notes: </td>
-                <td> <textarea formControlName="note"
-                               placeholder="Contact notes">
-                     </textarea>
-                </td>
-            </tr>
+
+        <h4> Addresses </h4>
+
+        <table formArrayName="addresses" *ngFor="let adr of contactForm.get('addresses').controls; let i=index">
+            <div [formGroupName]="i">
+                <tr>
+                    <td *ngFor="let type of adr.get('types').controls; let j=index">
+                        <mat-form-field>
+                            <mat-select placeholder="Type" [formControl]="type">
+                                <mat-option> None </mat-option>
+                                <mat-option value="home">
+                                    <!--<mat-icon>home</mat-icon>-->
+                                    Home
+                                </mat-option>
+                                <mat-option value="work">
+                                    <!--<mat-icon>work</mat-icon>-->
+                                    Work
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                </tr>
+                <div formGroupName="value">
+                    <tr>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="street" placeholder="Street">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <!-- placeholder for 'extended' -->
+                        </td>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="city" placeholder="City">
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="region" placeholder="Region">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="post_code" placeholder="Post code">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="country" placeholder="Country">
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                </div>
+            </div>
         </table>
         <div *ngIf="contact.rmm_backed">
             <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>

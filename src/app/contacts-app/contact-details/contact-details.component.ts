@@ -89,7 +89,7 @@ export class ContactDetailsComponent {
             // also fixup empty types for the same reason as above
             var e = this.contact.emails[i];
             if (e.types === null) {
-                e.types = [];
+                e.types = [''];
             }
 
             for (var j = 0; j < e.types.length; j++) {
@@ -144,10 +144,10 @@ export class ContactDetailsComponent {
         });
     }
 
-    createEmailFG(types = [], value = ''): FormGroup {
+    createEmailFG(types = []): FormGroup {
         return this.fb.group({
             types: this.fb.array(types),
-            value: this.fb.control(value),
+            value: this.fb.control(''),
         })
     }
 
@@ -166,7 +166,7 @@ export class ContactDetailsComponent {
 
     newEmail(): void {
         var emails = this.contactForm.get('emails') as FormArray;
-        emails.push(this.createEmailFG());
+        emails.push(this.createEmailFG(['']));
     }
 
     removeEmailAt(i: number): void {
