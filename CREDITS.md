@@ -1,5 +1,17 @@
 # Credits
 
+## Contributors
+
+The following people have [contributed](CONTRIBUTING.md) to this project. Thank you!
+
+Please let us know if you are a contributor and not yet listed here.
+
+* [petersalomonsen](https://github.com/petersalomonsen)
+* [tadzik](https://github.com/tadzik)
+* [hernan604](https://github.com/hernan604)
+* [gtandersen](https://github.com/gtandersen)
+* [ng-0](https://github.com/ng-0)
+
 ## Open source software
 
 This project makes use of the Open Source packages listed below. Their source code and detailed license information are available from [NPM](https://www.npmjs.com/) or [GitHub](https://github.com). 
@@ -41,14 +53,3 @@ A binary instruction format for a stack-based virtual machine.
 
 A toolchain for compiling to asm.js and WebAssembly.
 
-## Contributors
-
-The following people have contributed to this project. 
-
-Please let us know if you are a contributor and not yet listed here!
-
-* [petersalomonsen](https://github.com/petersalomonsen)
-* [tadzik](https://github.com/tadzik)
-* [hernan604](https://github.com/hernan604)
-* [gtandersen](https://github.com/gtandersen)
-* [ng-0](https://github.com/ng-0)
