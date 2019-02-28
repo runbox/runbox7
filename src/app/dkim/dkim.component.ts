@@ -102,7 +102,7 @@ export class DkimComponent implements AfterViewInit {
   }
 
   create_keys () {
-    let req = this.http.post('/rest/v1/dkim/'+this.domain+'/keys/create');
+    let req = this.http.post('/rest/v1/dkim/'+this.domain+'/keys/create',{});
     req.pipe(timeout(18000));
     req.subscribe(
       result => {
@@ -122,7 +122,7 @@ export class DkimComponent implements AfterViewInit {
   }
 
   generate_key (key) {
-    let req = this.http.put('/rest/v1/dkim/'+this.domain+'/key/update/'+key.selector);
+    let req = this.http.put('/rest/v1/dkim/'+this.domain+'/key/update/'+key.selector,{});
     req.pipe(timeout(10*1000));
     req.subscribe(
       result => {
