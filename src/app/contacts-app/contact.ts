@@ -22,6 +22,20 @@ export class Email {
     value: string;
 }
 
+export class AddressDetails {
+    street:      string;
+    city:        string;
+    region:      string;
+    post_code:   string;
+    country:     string;
+}
+
+export class Address {
+    types: string[];
+    value: AddressDetails;
+
+}
+
 export class Contact {
     id:         string;
     nickname:   string;
@@ -30,6 +44,11 @@ export class Contact {
     emails:     Email[] = [];
     birthday:   string;
     note:       string;
+
+    company:    string;
+    department: string;
+
+    addresses:  Address[] = [];
 
     rmm_backed = false;
 

@@ -98,6 +98,24 @@ export class ContactDetailsComponent {
             }
         }
 
+        // same for all the addresses
+        for (var i = 0; i < this.contact.addresses.length; i++) {
+            var adrsFA = this.contactForm.get('addresses') as FormArray;
+            var adrFG  = this.createAdrFG();
+            adrsFA.push(adrFG);
+
+            // also fixup empty types for the same reason as above
+            var a = this.contact.addresses[i];
+            if (a.types === null) {
+                a.types = [];
+            }
+
+            for (var j = 0; j < a.types.length; j++) {
+                var typesFA = adrFG.get('types') as FormArray;
+                typesFA.push(this.fb.control(null));
+            }
+        }
+
         if (this.contact.rmm_backed === true) {
             console.log('Disabling edits for', this.contact.display_name());
             this.contactForm.disable();
@@ -117,6 +135,10 @@ export class ContactDetailsComponent {
             last_name:  this.fb.control(''),
             emails: this.fb.array([
             ]),
+            addresses: this.fb.array([
+            ]),
+            company:    this.fb.control(''),
+            department: this.fb.control(''),
             birthday:   this.fb.control(''),
             note:       this.fb.control(''),
         });
@@ -126,6 +148,19 @@ export class ContactDetailsComponent {
         return this.fb.group({
             types: this.fb.array(types),
             value: this.fb.control(value),
+        })
+    }
+
+    createAdrFG(types = []): FormGroup {
+        return this.fb.group({
+            types: this.fb.array(types),
+            value: this.fb.group({
+                street:      this.fb.control(''),
+                city:        this.fb.control(''),
+                region:      this.fb.control(''),
+                post_code:   this.fb.control(''),
+                country:     this.fb.control(''),
+            }),
         })
     }
 
