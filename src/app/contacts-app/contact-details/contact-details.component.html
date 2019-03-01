@@ -53,6 +53,49 @@
             </tr>
         </table>
 
+        <h4> Websites </h4>
+
+        <table formArrayName="urls" *ngFor="let url of contactForm.get('urls').controls; let i=index">
+            <tr [formGroupName]="i">
+                <td *ngFor="let type of url.get('types').controls; let j=index">
+                    <mat-form-field>
+                        <mat-select placeholder="Type" [formControl]="type">
+                            <mat-option> None </mat-option>
+                            <mat-option value="home">
+                                <!--<mat-icon>home</mat-icon>-->
+                                Personal
+                            </mat-option>
+                            <mat-option value="work">
+                                <!--<mat-icon>work</mat-icon>-->
+                                Work
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="value" placeholder="Website address">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <a mat-button href="{{ url.value.value }}">
+                        <mat-icon>link</mat-icon> Visit {{ url.value.value }}
+                    </a>
+                </td>
+                <td>
+                    <a mat-button (click)="removeUrlAt(i)" *ngIf="!contact.rmm_backed">
+                        <mat-icon>delete</mat-icon> Delete this address
+                    </a>
+                </td>
+            </tr>
+        </table>
+
+        <div>
+            <a mat-button (click)="newUrl()" *ngIf="!contact.rmm_backed">
+                <mat-icon>add</mat-icon> Add a new address
+            </a>
+        </div>
+
         <h4> Email addresses </h4>
 
         <table formArrayName="emails" *ngFor="let email of contactForm.get('emails').controls; let i=index">

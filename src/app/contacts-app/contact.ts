@@ -22,6 +22,11 @@ export class Email {
     value: string;
 }
 
+export class URI {
+    types: string[];
+    value: string;
+}
+
 export class AddressDetails {
     street:      string;
     city:        string;
@@ -49,6 +54,8 @@ export class Contact {
     department: string;
 
     addresses:  Address[] = [];
+
+    urls:       URI[] = [];
 
     rmm_backed = false;
 

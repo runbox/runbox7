@@ -80,41 +80,11 @@ export class ContactDetailsComponent {
             this.contact.emails = [];
         }
 
-        // prepare room in the form for all the emails,
-        for (let i = 0; i < this.contact.emails.length; i++) {
-            const emailsFA = this.contactForm.get('emails') as FormArray;
-            const emailFG = this.createEmailFG();
-            emailsFA.push(emailFG);
-
-            // also fixup empty types for the same reason as above
-            const e = this.contact.emails[i];
-            if (e.types === null) {
-                e.types = [''];
-            }
-
-            for (let j = 0; j < e.types.length; j++) {
-                const typesFA = emailFG.get('types') as FormArray;
-                typesFA.push(this.fb.control(null));
-            }
-        }
-
-        // same for all the addresses
-        for (let i = 0; i < this.contact.addresses.length; i++) {
-            const adrsFA = this.contactForm.get('addresses') as FormArray;
-            const adrFG  = this.createAdrFG();
-            adrsFA.push(adrFG);
-
-            // also fixup empty types for the same reason as above
-            const a = this.contact.addresses[i];
-            if (a.types === null) {
-                a.types = [];
-            }
-
-            for (let j = 0; j < a.types.length; j++) {
-                const typesFA = adrFG.get('types') as FormArray;
-                typesFA.push(this.fb.control(null));
-            }
-        }
+        // prepare room in the form for all the emails, addresses etc
+        this.initializeFormArray('emails',    () => this.createEmailFG());
+        this.initializeFormArray('addresses', () => this.createAdrFG());
+        // no typo, they're just like emails: types and a string value
+        this.initializeFormArray('urls',      () => this.createEmailFG());
 
         if (this.contact.rmm_backed === true) {
             console.log('Disabling edits for', this.contact.display_name());
@@ -133,15 +103,34 @@ export class ContactDetailsComponent {
             nickname:   this.fb.control(''),
             first_name: this.fb.control(''),
             last_name:  this.fb.control(''),
-            emails: this.fb.array([
-            ]),
-            addresses: this.fb.array([
-            ]),
             company:    this.fb.control(''),
             department: this.fb.control(''),
             birthday:   this.fb.control(''),
             note:       this.fb.control(''),
+
+            emails:    this.fb.array([]),
+            addresses: this.fb.array([]),
+            urls:      this.fb.array([]),
         });
+    }
+
+    initializeFormArray(property, formGroupCreator): void {
+        for (let i = 0; i < this.contact[property].length; i++) {
+            const formArray = this.contactForm.get(property) as FormArray;
+            const formGroup = formGroupCreator();
+            formArray.push(formGroup);
+
+            // also fixup empty types for the same reason as above
+            const e = this.contact[property][i];
+            if (e.types === null) {
+                e.types = [''];
+            }
+
+            for (let j = 0; j < e.types.length; j++) {
+                const typesFA = formGroup.get('types') as FormArray;
+                typesFA.push(this.fb.control(null));
+            }
+        }
     }
 
     createEmailFG(types = []): FormGroup {
