@@ -27,6 +27,11 @@ export class URI {
     value: string;
 }
 
+export class Phone {
+    types: string[];
+    value: string;
+}
+
 export class AddressDetails {
     street:      string;
     city:        string;
@@ -43,19 +48,19 @@ export class Address {
 
 export class Contact {
     id:         string;
+
     nickname:   string;
     first_name: string;
     last_name:  string;
-    emails:     Email[] = [];
     birthday:   string;
     note:       string;
-
     company:    string;
     department: string;
 
+    emails:     Email[]   = [];
     addresses:  Address[] = [];
-
-    urls:       URI[] = [];
+    urls:       URI[]     = [];
+    phones:     Phone[]   = [];
 
     rmm_backed = false;
 

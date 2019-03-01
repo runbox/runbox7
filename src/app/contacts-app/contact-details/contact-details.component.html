@@ -53,6 +53,40 @@
             </tr>
         </table>
 
+        <h4> Phone numbers </h4>
+
+        <table formArrayName="phones" *ngFor="let phone of contactForm.get('phones').controls; let i=index">
+            <tr [formGroupName]="i">
+                <td *ngFor="let type of phone.get('types').controls; let j=index">
+                    <mat-form-field>
+                        <mat-select placeholder="Type" [formControl]="type">
+                            <mat-option>              None </mat-option>
+                            <mat-option value="home"> Home </mat-option>
+                            <mat-option value="work"> Work </mat-option>
+                            <mat-option value="cell"> Cell </mat-option>
+                            <mat-option value="fax">  Fax  </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="value" placeholder="Phone number">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <a mat-button (click)="removePhoneAt(i)" *ngIf="!contact.rmm_backed">
+                        <mat-icon>delete</mat-icon> Delete this phone number
+                    </a>
+                </td>
+            </tr>
+        </table>
+
+        <div>
+            <a mat-button (click)="newPhone()" *ngIf="!contact.rmm_backed">
+                <mat-icon>add</mat-icon> Add a new phone number
+            </a>
+        </div>
+
         <h4> Websites </h4>
 
         <table formArrayName="urls" *ngFor="let url of contactForm.get('urls').controls; let i=index">

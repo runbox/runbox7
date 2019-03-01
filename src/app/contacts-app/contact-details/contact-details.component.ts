@@ -83,8 +83,10 @@ export class ContactDetailsComponent {
         // prepare room in the form for all the emails, addresses etc
         this.initializeFormArray('emails',    () => this.createEmailFG());
         this.initializeFormArray('addresses', () => this.createAdrFG());
+
         // no typo, they're just like emails: types and a string value
         this.initializeFormArray('urls',      () => this.createEmailFG());
+        this.initializeFormArray('phones',    () => this.createEmailFG());
 
         if (this.contact.rmm_backed === true) {
             console.log('Disabling edits for', this.contact.display_name());
@@ -109,6 +111,7 @@ export class ContactDetailsComponent {
             note:       this.fb.control(''),
 
             emails:    this.fb.array([]),
+            phones:    this.fb.array([]),
             addresses: this.fb.array([]),
             urls:      this.fb.array([]),
         });
@@ -153,25 +156,25 @@ export class ContactDetailsComponent {
         });
     }
 
-    newEmail(): void {
-        const emails = this.contactForm.get('emails') as FormArray;
-        emails.push(this.createEmailFG(['']));
+    addFGtoFA(fg: FormGroup, fa: string): void {
+        const fa = this.contactForm.get(fa) as FormArray;
+        fa.push(fg);
     }
 
-    newAdr(): void {
-        const adrs = this.contactForm.get('addresses') as FormArray;
-        adrs.push(this.createAdrFG(['']));
+    removeFromFA(fa: string, i: number): void {
+        const fa = this.contactForm.get(fa) as FormArray;
+        fa.removeAt(i);
     }
 
-    removeEmailAt(i: number): void {
-        const emails = this.contactForm.get('emails') as FormArray;
-        emails.removeAt(i);
-    }
+    newEmail(): void { this.addFGtoFA(this.createEmailFG(['']), 'emails');    }
+    newAdr():   void { this.addFGtoFA(this.createAdrFG(['']),   'addresses'); }
+    newPhone(): void { this.addFGtoFA(this.createEmailFG(['']), 'phones');    }
+    newUrl():   void { this.addFGtoFA(this.createEmailFG(['']), 'urls');      }
 
-    removeAdrAt(i: number): void {
-        const adrs = this.contactForm.get('addresses') as FormArray;
-        adrs.removeAt(i);
-    }
+    removeEmailAt(i: number): void { this.removeFromFA('emails',    i); }
+    removeAdrAt(i: number):   void { this.removeFromFA('addresses', i); }
+    removePhoneAt(i: number): void { this.removeFromFA('phones',    i); }
+    removeUrlAt(i: number):   void { this.removeFromFA('urls',      i); }
 
     /* unused as of now
     addTypeToEmail(i: number): void {
