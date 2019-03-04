@@ -39,13 +39,15 @@ import {
 
 import { ContactsAppComponent } from './contacts-app.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
+import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { ContactsService } from './contacts.service';
 import { RMMRouteReuseStrategy } from './routereusestrategy';
 
 @NgModule({
   declarations: [
     ContactsAppComponent,
-    ContactDetailsComponent
+    ContactDetailsComponent,
+    FormArrayEditorComponent
   ],
   imports: [
     BrowserModule,

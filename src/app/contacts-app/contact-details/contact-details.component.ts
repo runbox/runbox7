@@ -156,33 +156,15 @@ export class ContactDetailsComponent {
         });
     }
 
-    addFGtoFA(fg: FormGroup, fa: string): void {
-        const fa = this.contactForm.get(fa) as FormArray;
+    addFGtoFA(fg: FormGroup, faName: string): void {
+        const fa = this.contactForm.get(faName) as FormArray;
         fa.push(fg);
-    }
-
-    removeFromFA(fa: string, i: number): void {
-        const fa = this.contactForm.get(fa) as FormArray;
-        fa.removeAt(i);
     }
 
     newEmail(): void { this.addFGtoFA(this.createEmailFG(['']), 'emails');    }
     newAdr():   void { this.addFGtoFA(this.createAdrFG(['']),   'addresses'); }
     newPhone(): void { this.addFGtoFA(this.createEmailFG(['']), 'phones');    }
     newUrl():   void { this.addFGtoFA(this.createEmailFG(['']), 'urls');      }
-
-    removeEmailAt(i: number): void { this.removeFromFA('emails',    i); }
-    removeAdrAt(i: number):   void { this.removeFromFA('addresses', i); }
-    removePhoneAt(i: number): void { this.removeFromFA('phones',    i); }
-    removeUrlAt(i: number):   void { this.removeFromFA('urls',      i); }
-
-    /* unused as of now
-    addTypeToEmail(i: number): void {
-        const emails = this.contactForm.get('emails') as FormArray;
-        const types  = emails.at(i).get('types') as FormArray;
-        types.push(this.fb.control(''));
-    }
-    */
 
     save(): void {
         this.contact = new Contact(this.contactForm.value);

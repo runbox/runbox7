@@ -32,7 +32,6 @@
                         <input matInput formControlName="department" placeholder="Department">
                     </mat-form-field>
                 </td><td>
-                    <!-- empty -->
                 </td>
             </tr>
             <tr>
@@ -41,9 +40,7 @@
                         <input matInput formControlName="birthday" placeholder="Birthday">
                     </mat-form-field>
                 </td><td>
-                    <!-- empty -->
                 </td><td>
-                    <!-- empty -->
                 </td>
             </tr>
             <tr>
@@ -54,198 +51,65 @@
         </table>
 
         <h4> Phone numbers </h4>
+        <app-contact-details-fa-viewer
+            [inputFG]="contactForm"
+            faName="phones"
+            (newElementClicked)="newPhone()"
+            layout="simple"
+            editable="!contact.rmm_backed"
 
-        <table formArrayName="phones" *ngFor="let phone of contactForm.get('phones').controls; let i=index">
-            <tr [formGroupName]="i">
-                <td *ngFor="let type of phone.get('types').controls; let j=index">
-                    <mat-form-field>
-                        <mat-select placeholder="Type" [formControl]="type">
-                            <mat-option>              None </mat-option>
-                            <mat-option value="home"> Home </mat-option>
-                            <mat-option value="work"> Work </mat-option>
-                            <mat-option value="cell"> Cell </mat-option>
-                            <mat-option value="fax">  Fax  </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </td>
-                <td>
-                    <mat-form-field>
-                        <input matInput formControlName="value" placeholder="Phone number">
-                    </mat-form-field>
-                </td>
-                <td>
-                    <a mat-button (click)="removePhoneAt(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>delete</mat-icon> Delete this phone number
-                    </a>
-                </td>
-            </tr>
-        </table>
-
-        <div>
-            <a mat-button (click)="newPhone()" *ngIf="!contact.rmm_backed">
-                <mat-icon>add</mat-icon> Add a new phone number
-            </a>
-        </div>
+            valuePlaceholder="Phone number"
+            deleteDescription="Delete this phone number"
+            addNewDescription="Add a new phone number"
+        >
+        </app-contact-details-fa-viewer>
 
         <h4> Websites </h4>
+        <app-contact-details-fa-viewer
+            [inputFG]="contactForm"
+            faName="urls"
+            (newElementClicked)="newUrl()"
+            layout="simple"
+            editable="!contact.rmm_backed"
 
-        <table formArrayName="urls" *ngFor="let url of contactForm.get('urls').controls; let i=index">
-            <tr [formGroupName]="i">
-                <td *ngFor="let type of url.get('types').controls; let j=index">
-                    <mat-form-field>
-                        <mat-select placeholder="Type" [formControl]="type">
-                            <mat-option> None </mat-option>
-                            <mat-option value="home">
-                                <!--<mat-icon>home</mat-icon>-->
-                                Personal
-                            </mat-option>
-                            <mat-option value="work">
-                                <!--<mat-icon>work</mat-icon>-->
-                                Work
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </td>
-                <td>
-                    <mat-form-field>
-                        <input matInput formControlName="value" placeholder="Website address">
-                    </mat-form-field>
-                </td>
-                <td>
-                    <a mat-button href="{{ url.value.value }}">
-                        <mat-icon>link</mat-icon> Visit {{ url.value.value }}
-                    </a>
-                </td>
-                <td>
-                    <a mat-button (click)="removeUrlAt(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>delete</mat-icon> Delete this address
-                    </a>
-                </td>
-            </tr>
-        </table>
+            valuePlaceholder="Website address"
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new address"
 
-        <div>
-            <a mat-button (click)="newUrl()" *ngIf="!contact.rmm_backed">
-                <mat-icon>add</mat-icon> Add a new address
-            </a>
-        </div>
+            actionIcon="link"
+            actionDescription="Visit this website"
+        >
+        </app-contact-details-fa-viewer>
 
         <h4> Email addresses </h4>
+        <app-contact-details-fa-viewer
+            [inputFG]="contactForm"
+            faName="emails"
+            (newElementClicked)="newEmail()"
+            layout="simple"
+            editable="!contact.rmm_backed"
 
-        <table formArrayName="emails" *ngFor="let email of contactForm.get('emails').controls; let i=index">
-            <tr [formGroupName]="i">
-                <td *ngFor="let type of email.get('types').controls; let j=index">
-                    <mat-form-field>
-                        <mat-select placeholder="Type" [formControl]="type">
-                            <mat-option> None </mat-option>
-                            <mat-option value="home">
-                                <!--<mat-icon>home</mat-icon>-->
-                                Personal
-                            </mat-option>
-                            <mat-option value="work">
-                                <!--<mat-icon>work</mat-icon>-->
-                                Work
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </td>
-                <!--<td>
-                    <a mat-button (click)="addTypeToEmail(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>add</mat-icon>Add a type
-                    </a>
-                </td>-->
-                <td>
-                    <mat-form-field>
-                        <input matInput formControlName="value" placeholder="E-mail address">
-                    </mat-form-field>
-                </td>
-                <td>
-                    <a mat-button routerLink="/compose" [queryParams]="{to: email.value.value }">
-                        <mat-icon>email</mat-icon> Send an email to {{ email.value.value }}
-                    </a>
-                </td>
-                <td>
-                    <a mat-button (click)="removeEmailAt(i)" *ngIf="!contact.rmm_backed">
-                        <mat-icon>delete</mat-icon> Delete this address
-                    </a>
-                </td>
-            </tr>
-        </table>
+            valuePlaceholder="E-mail address"
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new e-mail address"
 
-        <div>
-            <a mat-button (click)="newEmail()" *ngIf="!contact.rmm_backed">
-                <mat-icon>add</mat-icon> Add a new email address
-            </a>
-        </div>
+            actionIcon="email"
+            actionDescription="Send an email to this address"
+        >
+        </app-contact-details-fa-viewer>
 
         <h4> Addresses </h4>
+        <app-contact-details-fa-viewer
+            [inputFG]="contactForm"
+            faName="addresses"
+            (newElementClicked)="newAdr()"
+            layout="complex"
+            editable="!contact.rmm_backed"
 
-        <table formArrayName="addresses" *ngFor="let adr of contactForm.get('addresses').controls; let i=index">
-            <div [formGroupName]="i">
-                <tr>
-                    <td *ngFor="let type of adr.get('types').controls; let j=index">
-                        <mat-form-field>
-                            <mat-select placeholder="Type" [formControl]="type">
-                                <mat-option> None </mat-option>
-                                <mat-option value="home">
-                                    <!--<mat-icon>home</mat-icon>-->
-                                    Home
-                                </mat-option>
-                                <mat-option value="work">
-                                    <!--<mat-icon>work</mat-icon>-->
-                                    Work
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </td>
-                    <td>
-                        <a mat-button (click)="removeAdrAt(i)" *ngIf="!contact.rmm_backed">
-                            <mat-icon>delete</mat-icon> Delete this address
-                        </a>
-                    </td>
-                </tr>
-                <div formGroupName="value">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput formControlName="street" placeholder="Street">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <!-- placeholder for 'extended' -->
-                        </td>
-                        <td>
-                            <mat-form-field>
-                                <input matInput formControlName="city" placeholder="City">
-                            </mat-form-field>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput formControlName="region" placeholder="Region">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <mat-form-field>
-                                <input matInput formControlName="post_code" placeholder="Post code">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <mat-form-field>
-                                <input matInput formControlName="country" placeholder="Country">
-                            </mat-form-field>
-                        </td>
-                    </tr>
-                </div>
-            </div>
-        </table>
-
-        <div>
-            <a mat-button (click)="newAdr()" *ngIf="!contact.rmm_backed">
-                <mat-icon>add</mat-icon> Add a new address
-            </a>
-        </div>
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new address"
+        >
+        </app-contact-details-fa-viewer>
 
         <div *ngIf="contact.rmm_backed">
             <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
