@@ -32,6 +32,11 @@ export class Phone {
     value: string;
 }
 
+export class Relative {
+    types: string[];
+    value: string;
+}
+
 export class AddressDetails {
     street:      string;
     city:        string;
@@ -57,10 +62,11 @@ export class Contact {
     department: string;
     categories: string[];
 
-    emails:     Email[]   = [];
-    addresses:  Address[] = [];
-    urls:       URI[]     = [];
-    phones:     Phone[]   = [];
+    emails:     Email[]    = [];
+    addresses:  Address[]  = [];
+    urls:       URI[]      = [];
+    phones:     Phone[]    = [];
+    related:    Relative[] = [];
 
     rmm_backed = false;
 

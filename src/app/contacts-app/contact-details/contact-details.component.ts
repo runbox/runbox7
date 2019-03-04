@@ -87,6 +87,7 @@ export class ContactDetailsComponent {
         // no typo, they're just like emails: types and a string value
         this.initializeFormArray('urls',      () => this.createEmailFG());
         this.initializeFormArray('phones',    () => this.createEmailFG());
+        this.initializeFormArray('related',   () => this.createEmailFG());
 
         if (this.contact.rmm_backed === true) {
             console.log('Disabling edits for', this.contact.display_name());
@@ -116,6 +117,7 @@ export class ContactDetailsComponent {
             phones:    this.fb.array([]),
             addresses: this.fb.array([]),
             urls:      this.fb.array([]),
+            related:   this.fb.array([]),
         });
     }
 
@@ -163,10 +165,11 @@ export class ContactDetailsComponent {
         fa.push(fg);
     }
 
-    newEmail(): void { this.addFGtoFA(this.createEmailFG(['']), 'emails');    }
-    newAdr():   void { this.addFGtoFA(this.createAdrFG(['']),   'addresses'); }
-    newPhone(): void { this.addFGtoFA(this.createEmailFG(['']), 'phones');    }
-    newUrl():   void { this.addFGtoFA(this.createEmailFG(['']), 'urls');      }
+    newEmail():    void { this.addFGtoFA(this.createEmailFG(['']), 'emails');    }
+    newAdr():      void { this.addFGtoFA(this.createAdrFG(['']),   'addresses'); }
+    newPhone():    void { this.addFGtoFA(this.createEmailFG(['']), 'phones');    }
+    newUrl():      void { this.addFGtoFA(this.createEmailFG(['']), 'urls');      }
+    newRelative(): void { this.addFGtoFA(this.createEmailFG(['']), 'related');   }
 
     save(): void {
         this.contact = new Contact(this.contactForm.value);

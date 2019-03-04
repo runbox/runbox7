@@ -20,11 +20,32 @@
                                      they hang up the browser for some reason. Someone's SA:
                                      https://stackoverflow.com/questions/54954934/nested-forms-and-control-vs-value-help-needed
                                 -->
-                                <mat-option value="home"> Home </mat-option>
-                                <mat-option value="work"> Work </mat-option>
+                                <div *ngIf="faName === 'emails'">
+                                    <mat-option value="home"> Personal </mat-option>
+                                    <mat-option value="work"> Work     </mat-option>
+                                </div>
 
-                                <mat-option *ngIf="faName === 'phones'" value="cell"> Cell </mat-option>
-                                <mat-option *ngIf="faName === 'phones'" value="fax">  Fax  </mat-option>
+                                <div *ngIf="faName === 'related'">
+                                    <mat-option value="child">  Child  </mat-option>
+                                    <mat-option value="spouse"> Spouse </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'phones'">
+                                    <mat-option value="home"> Home </mat-option>
+                                    <mat-option value="work"> Work </mat-option>
+                                    <mat-option value="cell"> Cell </mat-option>
+                                    <mat-option value="fax">  Fax  </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'urls'">
+                                    <mat-option value="personal"> Personal </mat-option>
+                                    <mat-option value="work">     Work     </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'addresses'">
+                                    <mat-option value="home"> Home </mat-option>
+                                    <mat-option value="work"> Work </mat-option>
+                                </div>
                             </mat-select>
                         </mat-form-field>
                     </td>

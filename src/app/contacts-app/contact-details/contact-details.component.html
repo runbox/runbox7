@@ -120,6 +120,21 @@
         >
         </app-contact-details-fa-viewer>
 
+        <app-contact-details-fa-viewer
+            title="Relatives"
+
+            [inputFG]="contactForm"
+            faName="related"
+            (newElementClicked)="newRelative()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="Name"
+            deleteDescription="Delete this relative"
+            addNewDescription="Add a new relative"
+        >
+        </app-contact-details-fa-viewer>
+
         <div *ngIf="contact.rmm_backed">
             <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
         </div>
