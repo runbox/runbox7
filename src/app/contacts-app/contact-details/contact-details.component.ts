@@ -97,6 +97,7 @@ export class ContactDetailsComponent {
         }
 
         this.contactForm.patchValue(this.contact);
+        this.contactForm.get('categories').disable();
     }
 
     createForm(): FormGroup {
@@ -109,6 +110,7 @@ export class ContactDetailsComponent {
             department: this.fb.control(''),
             birthday:   this.fb.control(''),
             note:       this.fb.control(''),
+            categories: this.fb.control(''),
 
             emails:    this.fb.array([]),
             phones:    this.fb.array([]),

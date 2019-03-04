@@ -43,7 +43,6 @@ export class AddressDetails {
 export class Address {
     types: string[];
     value: AddressDetails;
-
 }
 
 export class Contact {
@@ -56,6 +55,7 @@ export class Contact {
     note:       string;
     company:    string;
     department: string;
+    categories: string[];
 
     emails:     Email[]   = [];
     addresses:  Address[] = [];
