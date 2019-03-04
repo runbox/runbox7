@@ -28,8 +28,11 @@ export class FormArrayEditorComponent implements OnInit {
     @Input() inputFG: FormGroup;
     @Input() faName:  string;
     @Input() layout:  string; // 'simple' or 'complex'
-    @Input() editable: boolean;
 
+    @Input() editable: boolean;
+    @Input() hidden  = true;
+
+    @Input() title:             string;
     @Input() valuePlaceholder:  string;
     @Input() deleteDescription: string;
     @Input() addNewDescription: string;

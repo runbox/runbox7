@@ -50,39 +50,10 @@
             </tr>
         </table>
 
-        <h4> Phone numbers </h4>
         <app-contact-details-fa-viewer
-            [inputFG]="contactForm"
-            faName="phones"
-            (newElementClicked)="newPhone()"
-            layout="simple"
-            editable="!contact.rmm_backed"
+            title="Email addresses"
+            [hidden]="false"
 
-            valuePlaceholder="Phone number"
-            deleteDescription="Delete this phone number"
-            addNewDescription="Add a new phone number"
-        >
-        </app-contact-details-fa-viewer>
-
-        <h4> Websites </h4>
-        <app-contact-details-fa-viewer
-            [inputFG]="contactForm"
-            faName="urls"
-            (newElementClicked)="newUrl()"
-            layout="simple"
-            editable="!contact.rmm_backed"
-
-            valuePlaceholder="Website address"
-            deleteDescription="Delete this address"
-            addNewDescription="Add a new address"
-
-            actionIcon="link"
-            actionDescription="Visit this website"
-        >
-        </app-contact-details-fa-viewer>
-
-        <h4> Email addresses </h4>
-        <app-contact-details-fa-viewer
             [inputFG]="contactForm"
             faName="emails"
             (newElementClicked)="newEmail()"
@@ -98,8 +69,42 @@
         >
         </app-contact-details-fa-viewer>
 
-        <h4> Addresses </h4>
         <app-contact-details-fa-viewer
+            title="Phone numbers"
+
+            [inputFG]="contactForm"
+            faName="phones"
+            (newElementClicked)="newPhone()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="Phone number"
+            deleteDescription="Delete this phone number"
+            addNewDescription="Add a new phone number"
+        >
+        </app-contact-details-fa-viewer>
+
+        <app-contact-details-fa-viewer
+            title="Websites"
+
+            [inputFG]="contactForm"
+            faName="urls"
+            (newElementClicked)="newUrl()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="Website address"
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new address"
+
+            actionIcon="link"
+            actionDescription="Visit this website"
+        >
+        </app-contact-details-fa-viewer>
+
+        <app-contact-details-fa-viewer
+            title="Addresses"
+
             [inputFG]="contactForm"
             faName="addresses"
             (newElementClicked)="newAdr()"
