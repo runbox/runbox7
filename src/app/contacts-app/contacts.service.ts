@@ -1,12 +1,13 @@
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Contact } from './contact';
 import { Injectable } from '@angular/core';
-import { Observable, Subject, ReplaySubject } from 'rxjs';
+import { AsyncSubject, Observable, Subject, ReplaySubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 @Injectable()
 export class ContactsService {
 
+    settingsSubject = new AsyncSubject<any>();
     contactsSubject = new ReplaySubject<Contact[]>();
     informationLog  = new Subject<string>();
 
@@ -14,6 +15,11 @@ export class ContactsService {
         private rmmapi: RunboxWebmailAPI
     ) {
         this.reload();
+        this.rmmapi.getContactsSettings().subscribe(settings => {
+            console.log('Settings:', settings);
+            this.settingsSubject.next(settings);
+            this.settingsSubject.complete();
+        });
     }
 
     reload(): void {
@@ -53,5 +59,14 @@ export class ContactsService {
             callback();
         });
         return deleteResult;
+    }
+
+    migrateContacts(): Observable<any> {
+        const res = this.rmmapi.migrateContacts();
+        res.subscribe(() => {
+            this.informationLog.next('Contacts have been migrated');
+            this.reload();
+        });
+        return res;
     }
 }

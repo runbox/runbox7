@@ -483,6 +483,12 @@ export class RunboxWebmailAPI {
         }));
     }
 
+    public getContactsSettings(): Observable<any> {
+        return this.http.get<any>('/rest/v1/addresses_contact/settings').pipe(
+            map((res: HttpResponse<any>) => res['result']),
+        );
+    }
+
     public getAllContacts(): Observable<Contact[]> {
         return this.http.get<any>('/rest/v1/addresses_contact').pipe(
             map((res: HttpResponse<any>) => res['result']['addresses_contacts']),
@@ -504,6 +510,12 @@ export class RunboxWebmailAPI {
 
     public deleteContact(c: Contact): Observable<any> {
         return this.http.delete('/rest/v1/addresses_contact/' + c.id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public migrateContacts(): Observable<any> {
+        return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
             map((res: HttpResponse<any>) => res)
         );
     }

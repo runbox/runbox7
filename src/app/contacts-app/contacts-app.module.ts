@@ -39,6 +39,7 @@ import {
 
 import { ContactsAppComponent } from './contacts-app.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
+import { ContactsSettingsComponent } from './contacts-settings.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { ContactsService } from './contacts.service';
 import { RMMRouteReuseStrategy } from './routereusestrategy';
@@ -47,6 +48,7 @@ import { RMMRouteReuseStrategy } from './routereusestrategy';
   declarations: [
     ContactsAppComponent,
     ContactDetailsComponent,
+    ContactsSettingsComponent,
     FormArrayEditorComponent
   ],
   imports: [
@@ -71,10 +73,14 @@ import { RMMRouteReuseStrategy } from './routereusestrategy';
       { path: 'contacts', component: ContactsAppComponent,
         children: [
          {
+            path: 'settings',
+            component: ContactsSettingsComponent,
+         },
+         {
             path: ':id',
             component: ContactDetailsComponent,
             runGuardsAndResolvers: 'always'
-          }
+         }
         ]
       },
     ])

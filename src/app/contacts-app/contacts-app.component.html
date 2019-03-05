@@ -4,8 +4,13 @@
     <mat-sidenav #sidemenu mode="side" opened>
         <mat-nav-list dense>
             <mat-list-item>
-                <a routerLink="/contacts/new">
-                    <h4 mat-line>New contact</h4>
+                <a mat-button routerLink="/contacts/settings">
+                    <mat-icon> settings </mat-icon> Settings
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/contacts/new">
+                    <mat-icon> add </mat-icon> New contact
                 </a>
             </mat-list-item>
 
