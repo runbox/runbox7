@@ -1,6 +1,6 @@
-let backendhostname = process.argv[process.argv.length-1];
-if(backendhostname.indexOf('http') !== 0) {
-    backendhostname = 'https://gw01test.runbox.com:4086';
+let backendhostname = process.env.RUNBOX7_ANGULAR_BACKEND_HOST;
+if(!backendhostname) {
+    backendhostname = 'https://runbox.com';
 }
 
 const PROXY_CONFIG = [

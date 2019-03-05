@@ -17,14 +17,14 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Http, Response, URLSearchParams, Headers } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 import { Subject, Observable } from 'rxjs';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 
 @Component({
@@ -33,19 +33,25 @@ import { ProgressService } from '../http/progress.service';
     templateUrl: 'login.component.html',
     moduleId: 'angular2/app/login/'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
     loginerrormessage: string;
     twofactor: any = false;
     twofactorerror: string;
     unlock_question: string;
 
-    constructor(private http: Http,
+    constructor(private httpclient: HttpClient,
         private router: Router,
         private authservice: RMMAuthGuardService,
         public progressService: ProgressService
     ) {
 
+    }
+
+    ngOnInit() {
+        this.authservice.isLoggedIn()
+            .pipe(filter(res => res === true))
+            .subscribe(() => this.router.navigateByUrl('/'));
     }
 
     public onTwoFactorSubmit(theform) {
@@ -66,10 +72,7 @@ export class LoginComponent {
             this.twofactor.unlock_answer = theform.unlock_answer;
         }
 
-        this.http.post('/ajax_mfa_authenticate', this.twofactor).pipe(
-            map((response: Response) =>
-                response.json()
-            ),
+        this.httpclient.post('/ajax_mfa_authenticate', this.twofactor).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
                     this.loginerrormessage = null;
@@ -82,10 +85,7 @@ export class LoginComponent {
 
     public onSubmit(loginform) {
         const loginBodyObj = { user: loginform.username, password: loginform.password };
-        this.http.post('/ajax_mfa_authenticate', loginBodyObj).pipe(
-            map((response: Response) =>
-                response.json()
-            ),
+        this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
                     // Authenticated

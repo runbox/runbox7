@@ -29,7 +29,7 @@
           <mat-icon color="primary">edit</mat-icon></a>
         <a mat-button (click)="drafts();" matTooltip="Drafts">
           <mat-icon color="primary">drafts</mat-icon></a>
-        <a mat-button (click)="searchService.rmmapi.logout();" matTooltip="Log out">
+        <a mat-button href="/LOGOUT" matTooltip="Log out">
           <mat-icon>power_settings_new</mat-icon></a>
       </div>
 
@@ -88,21 +88,34 @@
       </button>
 
       <ng-container *ngIf="!hasChildRouterOutlet">
+        <app-multiple-search-fields-input
+          *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
+          [currentFolder]="selectedFolder" 
+          (close)="showMultipleSearchFields = false"
+          (searchexpression)="searchFieldKeyUp($event)">
+        </app-multiple-search-fields-input>
         <mat-form-field id="searchField" style="flex-grow: 1" floatLabel="auto" 
           *ngIf="searchService.downloadProgress===null">
           <input matInput #searchInputField type="text" 
             (focus)="searchTextFieldFocus()" 
             (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
             [value]="searchText" (keyup)="searchFieldKeyUp($event.target.value)" />          
-            <app-search-expression-builder 
+            <!-- <app-search-expression-builder 
               [searchInputField]="searchInputField"
               [currentFolder]="selectedFolder"
-              matSuffix matTooltip="Show search options"></app-search-expression-builder>
+              matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
+          <button *ngIf="!showMultipleSearchFields"
+            mat-icon-button 
+            matSuffix
+            (click)="showMultipleSearchFields = true"
+            matTooltip="Multiple search fields">
+            <mat-icon>build</mat-icon>
+          </button>
           <button *ngIf="searchText!==''"
             mat-icon-button 
             matSuffix
-	    (click)="searchFieldKeyUp('')"
-	    matTooltip="Clear search">
+	          (click)="searchFieldKeyUp('')"
+	          matTooltip="Clear search">
             <mat-icon>clear</mat-icon>
           </button>
         </mat-form-field>
@@ -205,10 +218,10 @@
   <button mat-fab matTooltip="Toggle flag" (click)="toggleFlagged()">
     <mat-icon>flag</mat-icon>
   </button>    
-  <button *ngIf="selectedFolder!=='Spam'" mat-fab matTooltip="Report spam" (click)="trainSpam({is_spam:1})">
+  <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-fab matTooltip="Report spam" (click)="trainSpam({is_spam:1})">
     <mat-icon>report</mat-icon>
   </button>    
-  <button mat-fab *ngIf="selectedFolder==='Spam'" matTooltip="Not spam" (click)="trainSpam({is_spam:0})">
+  <button mat-fab *ngIf="selectedFolder===messagelistservice.spamFolderName" matTooltip="Not spam" (click)="trainSpam({is_spam:0})">
     <mat-icon>report_off</mat-icon>
   </button>    
 </div>

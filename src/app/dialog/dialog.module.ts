@@ -26,7 +26,8 @@ import { MatButtonModule,
         MatIconModule,
         MatInputModule,
         MatProgressSpinnerModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatSnackBarModule
      } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
@@ -35,6 +36,7 @@ import { InfoDialog, InfoParams } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
 import { SimpleInputDialog } from './simpleinput.dialog';
 import { ConfirmDialog } from './confirmdialog.component';
+import { ProgressSnackbarComponent } from './progresssnackbar.component';
 export { ConfirmDialog } from './confirmdialog.component';
 export { SimpleInputDialog, SimpleInputDialogParams } from './simpleinput.dialog';
 export { InfoDialog, InfoParams } from './info.dialog';
@@ -47,6 +49,7 @@ export { ProgressDialog } from './progress.dialog';
         HttpModule,
         MatInputModule,
         MatDialogModule,
+        MatSnackBarModule,
         MatButtonModule,
         MatTooltipModule,
         MatIconModule,
@@ -56,9 +59,9 @@ export { ProgressDialog } from './progress.dialog';
     ],
     declarations: [
         InfoDialog, ProgressDialog, ConfirmDialog,
-        SimpleInputDialog
+        SimpleInputDialog, ProgressSnackbarComponent
     ],
-    entryComponents: [InfoDialog, ProgressDialog, SimpleInputDialog, ConfirmDialog]
+    entryComponents: [InfoDialog, ProgressDialog, SimpleInputDialog, ConfirmDialog, ProgressSnackbarComponent]
 })
 export class DialogModule {
 

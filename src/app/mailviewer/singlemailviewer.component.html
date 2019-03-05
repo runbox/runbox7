@@ -1,6 +1,9 @@
 <div *ngIf="messageId" [ngClass]="{'adjustableHeight': adjustableHeight}"
   appHorizResizable [resizableDisabled]="!adjustableHeight" (resized)="heightChanged($event)">
-  <iframe #printFrame style="width: 0px; height: 0px; border: none; position: absolute"></iframe>
+  <iframe #printFrame
+    sandbox="allow-same-origin allow-modals"
+    style="width: 0px; height: 0px; border: none; position: absolute" 
+  ></iframe>
   <mat-toolbar style="display: flex; overflow-x: auto;">
     <!-- Message preview toolbar -->
     <div style="flex-grow: 1; overflow: hidden" #toolbarButtonContainer>      
@@ -34,10 +37,10 @@
         </button>
       </ng-container>
       <ng-container *ngIf="morebuttonindex>7">
-        <button mat-icon-button *ngIf="folder!=='Spam'" matTooltip="Report spam" (click)="messageActionsHandler.trainSpam({is_spam:1})">
+        <button mat-icon-button *ngIf="folder!==this.messagelistservice.spamFolderName" matTooltip="Report spam" (click)="messageActionsHandler.trainSpam({is_spam:1})">
           <mat-icon>report</mat-icon>
         </button>    
-        <button mat-icon-button *ngIf="folder==='Spam'" matTooltip="Not spam" (click)="messageActionsHandler.trainSpam({is_spam:0})">
+        <button mat-icon-button *ngIf="folder===this.messagelistservice.spamFolderName" matTooltip="Not spam" (click)="messageActionsHandler.trainSpam({is_spam:0})">
           <mat-icon>report_off</mat-icon>            
         </button>            
       </ng-container>      
@@ -110,7 +113,7 @@
           </button>    
           <button mat-menu-item *ngIf="folder==='Spam'" (click)="messageActionsHandler.trainSpam({is_spam:0})">
             <mat-icon>report_off</mat-icon>  
-            <span>Not spam</span>>
+            <span>Not spam</span>
           </button>            
         </ng-container>
         <a *ngIf="morebuttonindex<9" mat-menu-item

@@ -16,6 +16,7 @@
 *.launch
 .settings/
 *.sublime-workspace
+*.sw*
 
 # IDE - VSCode
 .vscode/*
@@ -40,3 +41,5 @@ Thumbs.db
 
 .ngmakelibtmp
 runbox7lib*.tar.gz
+
+mockserver.log

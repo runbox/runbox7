@@ -95,6 +95,8 @@ export class RMM7MessageActions implements MessageActions {
                     this.snackBar.open('There was an error with Spam functionality. Please try again.', 'Dismiss');
                 }
                 this.searchService.updateIndexWithNewChanges();
+            }, (err) => {
+                console.error('Error reporting spam', err);
             },
             () => {
                 snackBarRef.dismiss();

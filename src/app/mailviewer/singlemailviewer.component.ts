@@ -60,6 +60,7 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { MessageListService } from '../rmmapi/messagelist.service';
 
 const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
@@ -148,6 +149,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public dialog: MatDialog,
     private rbwebmailapi: RunboxWebmailAPI,
     private progressService: ProgressService,
+    public messagelistservice: MessageListService,
     private router: Router,
     media: MediaMatcher
   ) {
@@ -426,9 +428,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   print() {
-    const printablecontent = this.messageContents.nativeElement.innerHTML;
+    let printablecontent = this.messageContents.nativeElement.innerHTML;
+    if (this.htmliframe) {
+      printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
+        this.htmliframe.nativeElement.contentWindow.document.documentElement.innerHTML
+      );
+    }
     this.printFrame.nativeElement.onload = () => this.printFrame.nativeElement.contentWindow.print();
-    this.printFrame.nativeElement.src = URL.createObjectURL(new Blob([printablecontent], { type: 'text/html' }));
+    this.printFrame.nativeElement.src = URL.createObjectURL(new Blob([printablecontent],
+        { type: 'text/html' }
+      )
+    );
   }
 
   public openAttachment(attachmentIndex: number, download?: boolean) {

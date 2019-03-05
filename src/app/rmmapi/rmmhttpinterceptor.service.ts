@@ -20,9 +20,10 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
-import { catchError, filter, tap, map } from 'rxjs/operators';
+import { catchError, filter, tap, map, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ProgressService } from '../http/progress.service';
+import { RMMAuthGuardService } from './rmmauthguard.service';
 
 @Injectable()
 export class RMMHttpInterceptorService implements HttpInterceptor {
@@ -32,17 +33,10 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
     constructor(
         private httpClient: HttpClient,
         private router: Router,
-        private progressService: ProgressService
+        private progressService: ProgressService,
+        private authguardservice: RMMAuthGuardService
     ) {
 
-    }
-
-    decrementHttpRequestCount() {
-        this.httpRequestCount--;
-        if (this.httpRequestCount === 0) {
-            this.progressService.httpRequestInProgress.next(false);
-        }
-        // console.log('decrement', this.httpRequestCount);
     }
 
     intercept(
@@ -54,21 +48,29 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
             this.progressService.httpRequestInProgress.next(true);
         }
         this.httpRequestCount ++;
-        // console.log('increment', this.httpRequestCount);
+        // console.log('increment',  req.url, req.method, this.httpRequestCount);
         return next.handle(req).pipe(
             map((evt: HttpEvent<any>) => {
                 if (evt instanceof HttpResponse) {
                     const r = evt as HttpResponse<any>;
-                    this.decrementHttpRequestCount();
-                    if (r.body.status === 'error' && r.body.errors[0].indexOf('login') > 0) {
-                        this.router.navigate(['/login'], {skipLocationChange: true});
-                        throw(r.body);
+                    if (r.body && r.body.status === 'error') {
+                        if (
+                            r.body.errors &&
+                            r.body.errors[0].indexOf('login') > 0) {
+                            this.authguardservice.redirectToLogin();
+                            throw(r.body);
+                        } else if (
+                            req.url === '/ajax_mfa_authenticate' &&
+                            r.body.is_2fa_enabled === '1') {
+                                console.log('proceed with 2fa login');
+                        } else {
+                           throw(r.body);
+                        }
                     }
                 }
                 return evt;
             }),
             catchError((e) => {
-                this.decrementHttpRequestCount();
                 if (e.status === 403) {
                     console.log('Forbidden');
                     this.httpClient.get('/rest/v1/me')
@@ -77,12 +79,18 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                                 r.status === 'error' && r.errors[0].indexOf('login') > 0
                             )
                         )
-                        .subscribe((r) =>
-                            this.router.navigate(['/login'], {skipLocationChange: true}
-                        )
-                    );
+                        .subscribe((r) => {
+                            this.authguardservice.redirectToLogin();
+                        });
                 }
                 return _throw(e);
+            }),
+            finalize(() => {
+                this.httpRequestCount--;
+                if (this.httpRequestCount === 0) {
+                    this.progressService.httpRequestInProgress.next(false);
+                }
+                // console.log('decrement', this.httpRequestCount);
             })
         );
     }
