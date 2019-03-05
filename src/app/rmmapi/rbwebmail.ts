@@ -529,8 +529,4 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res)
         );
     }
-
-    public logout() {
-        location.href = '/LOGOUT';
-    }
 }
