@@ -26,7 +26,8 @@ import { ContactsService } from './contacts.service';
 })
 export class ContactsSettingsComponent {
 
-    settings: any = {};
+    settingsLoaded = false;
+    settings:  any = {};
 
     constructor(
         private contactsservice: ContactsService
@@ -36,6 +37,7 @@ export class ContactsSettingsComponent {
             for (const key in settings) {
                 this.settings[key] = settings[key];
             }
+            this.settingsLoaded = true;
         });
         this.contactsservice.contactsSubject.subscribe(c => {
             this.settings.old_contacts_count = 0;

@@ -1,5 +1,6 @@
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Contact } from './contact';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AsyncSubject, Observable, Subject, ReplaySubject } from 'rxjs';
 import { first } from 'rxjs/operators';
@@ -10,6 +11,7 @@ export class ContactsService {
     settingsSubject = new AsyncSubject<any>();
     contactsSubject = new ReplaySubject<Contact[]>();
     informationLog  = new Subject<string>();
+    errorLog        = new Subject<HttpErrorResponse>();
 
     constructor(
         private rmmapi: RunboxWebmailAPI
@@ -19,7 +21,11 @@ export class ContactsService {
             console.log('Settings:', settings);
             this.settingsSubject.next(settings);
             this.settingsSubject.complete();
-        });
+        }, e => this.apiErrorHandler(e));
+    }
+
+    apiErrorHandler(e: HttpErrorResponse): void {
+        this.errorLog.next(e);
     }
 
     reload(): void {
@@ -27,7 +33,7 @@ export class ContactsService {
         this.rmmapi.getAllContacts().subscribe(contacts => {
             console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
-        });
+        }, e => this.apiErrorHandler(e));
     }
 
     saveContact(contact: Contact): void {
@@ -37,15 +43,12 @@ export class ContactsService {
                 this.informationLog.next('Contact modified successfuly');
                 console.log('Contact modified');
                 this.reload();
-            });
-            console.log('Request sent');
+            }, e => this.apiErrorHandler(e));
         } else {
-            console.log('Creating new contact');
             this.rmmapi.addNewContact(contact).subscribe(thecontact => {
                 this.informationLog.next('New contact has been created');
-                console.log('ID assigned: ' + thecontact.id);
                 this.reload();
-            });
+            }, e => this.apiErrorHandler(e));
         }
     }
 
@@ -54,10 +57,9 @@ export class ContactsService {
         const deleteResult = this.rmmapi.deleteContact(contact);
         deleteResult.subscribe(() => {
             this.informationLog.next('Contact has been deleted');
-            console.log('Contact deleted, reloading the list');
             this.reload();
             callback();
-        });
+        }, e => this.apiErrorHandler(e));
         return deleteResult;
     }
 
@@ -66,7 +68,7 @@ export class ContactsService {
         res.subscribe(() => {
             this.informationLog.next('Contacts have been migrated');
             this.reload();
-        });
+        }, e => this.apiErrorHandler(e));
         return res;
     }
 }

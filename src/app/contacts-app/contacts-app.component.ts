@@ -18,9 +18,11 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
 
@@ -48,14 +50,34 @@ export class ContactsAppComponent {
             this.contacts = c;
         });
 
-        this.contactsservice.informationLog.subscribe(msg => {
-            this.showNotification(msg);
-        });
+        this.contactsservice.informationLog.subscribe(
+            msg => this.showNotification(msg)
+        );
+
+        this.contactsservice.errorLog.subscribe(
+            e => this.showError(e)
+        );
     }
 
     showNotification(message: string, action = 'Dismiss'): void {
         this.snackBar.open(message, action, {
-          duration: 2000,
+            duration: 2000,
         });
+    }
+
+    showError(e: HttpErrorResponse): void {
+        let message = '';
+
+        if (e.status == 500) {
+            message = "Internal server error";
+        } else {
+            console.log("Error " + e.status +  ": " + e.message);
+        }
+
+        if (message) {
+            this.snackBar.open(message, "Ok :(", {
+                duration: 5000,
+            });
+        }
     }
 }

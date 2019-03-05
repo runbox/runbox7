@@ -1,4 +1,8 @@
-<div class="contacts-settings">
+<div class="loading" *ngIf="!settingsLoaded">
+    Loading the settings...
+</div>
+
+<div class="contacts-settings" *ngIf="settingsLoaded">
     <h3> Your CardDAV URL </h3>
 
     <p>
