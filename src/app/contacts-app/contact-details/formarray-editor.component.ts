@@ -48,7 +48,6 @@ export class FormArrayEditorComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log("FA editor for", this.faName, "initialized with", this.inputFG);
         this.faObj = this.inputFG.get(this.faName) as FormArray;
     }
 
