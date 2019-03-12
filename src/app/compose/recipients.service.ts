@@ -53,10 +53,18 @@ export class RecipientsService {
 
             rmmapi.getAllContacts().subscribe(contacts => {
                 contacts.forEach(contact => {
-                    contact.emails.forEach(email => {
-                        const recipientString = `"${contact.full_name()}" <${email.value}>`;
-                        recipientsMap[email.value] = recipientString;
-                    });
+                    if (contact.emails) {
+                        // handle multiple email addresses per contact
+                        contact.emails.forEach(email => {
+                            const recipientString = `"${contact.full_name()}" <${email.value}>`;
+                            recipientsMap[email.value] = recipientString;
+                        });
+                    }
+                    if (contact.email) {
+                        // only one email address for contact (legacy)
+                        const recipientString = `"${contact.full_name()}" <${contact.email}>`;
+                        recipientsMap[contact.email] = recipientString;
+                    }
                 });
 
                 this.recipients.next(Object.keys(recipientsMap).map(mailaddr => recipientsMap[mailaddr]));

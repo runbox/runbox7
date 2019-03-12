@@ -22,9 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule, Routes, RouteReuseStrategy } from '@angular/router';
-
-import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
+import { RouterModule, RouteReuseStrategy } from '@angular/router';
 
 import {
   MatButtonModule,
@@ -43,6 +41,8 @@ import { ContactsSettingsComponent } from './contacts-settings.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { ContactsService } from './contacts.service';
 import { RMMRouteReuseStrategy } from './routereusestrategy';
+import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
+import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 @NgModule({
   declarations: [
@@ -67,22 +67,30 @@ import { RMMRouteReuseStrategy } from './routereusestrategy';
     ReactiveFormsModule,
     RouterModule.forChild([
       {
-        path: '', outlet: 'headertoolbar',
-        component: HeaderToolbarComponent
-      },
-      { path: 'contacts', component: ContactsAppComponent,
+        path: 'contacts',
+        canActivateChild: [RMMAuthGuardService],
         children: [
-         {
-            path: 'settings',
-            component: ContactsSettingsComponent,
-         },
-         {
-            path: ':id',
-            component: ContactDetailsComponent,
-            runGuardsAndResolvers: 'always'
-         }
+          {
+            path: '', outlet: 'headertoolbar',
+            component: HeaderToolbarComponent
+          },
+          {
+            path: '',
+            component: ContactsAppComponent,
+            children: [
+              {
+                  path: 'settings',
+                  component: ContactsSettingsComponent,
+              },
+              {
+                  path: ':id',
+                  component: ContactDetailsComponent,
+                  runGuardsAndResolvers: 'always'
+              }
+            ]
+          }
         ]
-      },
+      }
     ])
   ],
   providers: [

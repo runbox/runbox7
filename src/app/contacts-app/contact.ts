@@ -51,7 +51,7 @@ export class Address {
 }
 
 export class Contact {
-    id:         string;
+    id:         string | number;
 
     nickname:   string;
     first_name: string;
@@ -62,6 +62,7 @@ export class Contact {
     department: string;
     categories: string[];
 
+    email?: string; // Compatible with old api
     emails:     Email[]    = [];
     addresses:  Address[]  = [];
     urls:       URI[]      = [];
@@ -76,7 +77,7 @@ export class Contact {
             this[key] = properties[key];
         }
 
-        if (this.id && this.id.substr(0, 4) === 'RMM-') {
+        if (typeof this.id === 'string' && this.id.substr(0, 4) === 'RMM-') {
             this.rmm_backed = true;
         }
     }

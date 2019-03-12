@@ -101,7 +101,7 @@ export class RunboxWebMailAPIMock {
                 nick: 'test2',
                 first_name: 'firstname2',
                 last_name: 'lastname2',
-                email: 'test2@example.com'
+                emails: [{ value: 'test2@example.com'} , {value: 'test4@example.com'}]
             })
         ]);
     }
@@ -131,7 +131,7 @@ describe('RecipientsService', () => {
         expect(window['termlistresult'].length).toBe(5);
         expect(window['termlistresult'].find(r => r === '"TESTINGPERSON" <test@example.com>')).toBeTruthy();
 
-        expect(recipients.length).toBe(3);
+        expect(recipients.length).toBe(4);
         expect(recipients.find(r => r.indexOf('test@example.com') > -1)).toBe('"firstname lastname" <test@example.com>');
         expect(recipients.find(r => r.indexOf('test2@example.com') > -1)).toBe('"firstname2 lastname2" <test2@example.com>');
         expect(recipients.find(r => r.indexOf('test5@example.com') > -1)).toBe('"TEST5" <test5@example.com>');
