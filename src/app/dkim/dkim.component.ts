@@ -109,6 +109,7 @@ export class DkimComponent implements AfterViewInit {
         let r = result.json();
         if ( r.status == 'success' ) {
           this.keys = r.result.keys;
+          this.load_keys();
         } else if ( r.status == 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
@@ -119,26 +120,6 @@ export class DkimComponent implements AfterViewInit {
         return this.show_error('Could not create dkim keys', 'Dismiss');
       }
     );
-  }
-
-  generate_key (key) {
-    let req = this.http.put('/rest/v1/dkim/'+this.domain+'/key/update/'+key.selector,{});
-    req.pipe(timeout(10*1000));
-    req.subscribe(
-      result => {
-        let r = result.json();
-        if ( r.status == 'success' ) {
-          this.load_keys()
-        } else if ( r.staus == 'error' ) {
-          return this.show_error( r.errors.join('\n'), 'Dismiss' );
-        } else {
-          return this.show_error( 'Unknown error has happened', 'Dismiss' );
-        }
-      },
-      error => {
-        return this.show_error( 'Could not generate new key', 'Dismiss')
-      }
-    )
   }
 
   show_error (message, action) {
