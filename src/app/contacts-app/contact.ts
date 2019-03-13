@@ -60,7 +60,7 @@ export class Contact {
     note:       string;
     company:    string;
     department: string;
-    categories: string[];
+    categories: string[]   = [];
 
     emails:     Email[]    = [];
     addresses:  Address[]  = [];
@@ -87,7 +87,7 @@ export class Contact {
             this[key] = properties[key];
         }
 
-        if (this.id.substr(0, 4) === 'RMM-') {
+        if (this.id && this.id.substr(0, 4) === 'RMM-') {
             this.rmm_backed = true;
         }
     }
