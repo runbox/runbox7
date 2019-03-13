@@ -51,7 +51,7 @@ export class Address {
 }
 
 export class Contact {
-    id:         string | number;
+    id:         string;
 
     nickname:   string;
     first_name: string;
@@ -62,7 +62,6 @@ export class Contact {
     department: string;
     categories: string[];
 
-    email?: string; // Compatible with old api
     emails:     Email[]    = [];
     addresses:  Address[]  = [];
     urls:       URI[]      = [];
@@ -72,14 +71,29 @@ export class Contact {
     rmm_backed = false;
 
     constructor(properties: any) {
+        // backcompat with old RMM contacts API
+        if (typeof properties['id'] === 'number') {
+            properties['id'] = 'RMM-' + properties['id'];
+        }
+        if (properties['email']) {
+            properties['emails'] = [
+                { 'types': ['home'], 'value': properties['email'] }
+            ];
+            delete properties['email'];
+        }
+
         // tslint:disable-next-line:forin
         for (const key in properties) {
             this[key] = properties[key];
         }
 
-        if (typeof this.id === 'string' && this.id.substr(0, 4) === 'RMM-') {
+        if (this.id.substr(0, 4) === 'RMM-') {
             this.rmm_backed = true;
         }
+    }
+
+    get_rmm_id(): number {
+        return Number(this.id.substr(4));
     }
 
     display_name(): string {

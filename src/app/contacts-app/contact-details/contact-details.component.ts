@@ -202,7 +202,7 @@ export class ContactDetailsComponent {
         const return_url = '/contacts/' + this.contact.id;
         window.open(
             '/mail/addresses_contacts?edit=1' +
-            '&cid=' + (typeof this.contact.id === 'string' ? this.contact.id.substr(4) : this.contact.id) +
+            '&cid=' + this.contact.get_rmm_id() +
             '&return_url=' + return_url,
             '_blank'
         );
