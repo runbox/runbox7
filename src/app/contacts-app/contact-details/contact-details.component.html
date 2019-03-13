@@ -135,13 +135,15 @@
         >
         </app-contact-details-fa-viewer>
 
-        <div *ngIf="contact.rmm_backed">
-            <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
-        </div>
-        <div *ngIf="!contact.rmm_backed">
-            <a mat-button (click)="save()">Save changes</a>
-            <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
-            <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
-        </div>
+        <mat-toolbar style="position: fixed; bottom: 0;">
+            <div *ngIf="contact.rmm_backed">
+                <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
+            </div>
+            <div *ngIf="!contact.rmm_backed">
+                <a mat-button (click)="save()">Save changes</a>
+                <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
+                <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
+            </div>
+        </mat-toolbar>
     </form>
 </div>
