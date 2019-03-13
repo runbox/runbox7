@@ -6,6 +6,10 @@
                     <mat-card-header style="display: flex; width: 100%">
                         <mat-card-title style="flex-grow: 1">
                             <h1 class="mat-h1">DKIM <h2>{{domain}}</h2></h1>
+                            This is the DKIM configuration for domain {{domain}}.
+                            There are 2 selectors with difrent private & public keys that are required for proper key rotation. Only 1 selector is active.
+                            The first time key is enabled, it can take up to 48hrs to propagate in dns world wide.
+
                         </mat-card-title>
                     </mat-card-header>
                     <mat-divider></mat-divider>
@@ -13,7 +17,7 @@
                       <mat-expansion-panel *ngFor="let item of keys">
                         <mat-expansion-panel-header>
                           <mat-panel-title>{{item.selector_recordset_name}}</mat-panel-title>
-                          <mat-panel-description>{{item.updated}}</mat-panel-description>
+                          <mat-panel-description>updated at {{item.updated}}</mat-panel-description>
                         </mat-expansion-panel-header>
 
                         <mat-form-field style='width: 100%'>
@@ -25,7 +29,6 @@
                           <textarea matInput placeholder="Public key" [value]="item.public_key">
                           </textarea>
                         </mat-form-field>
-                        <button mat-raised-button color="primary" (click)="generate_key(item)">Genereate new key</button>
                       </mat-expansion-panel>
 
                     </mat-accordion>
