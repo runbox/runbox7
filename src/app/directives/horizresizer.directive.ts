@@ -111,14 +111,8 @@ export class HorizResizerDirective implements OnInit {
 
 
     getParentOffsetTop(): number {
-        let elm = this.el.nativeElement.offsetParent;
-        let offsetTop = elm.offsetTop;
-
-        while (elm.offsetParent && elm.offsetParent.offsetTop) {
-            elm = elm.offsetParent;
-            offsetTop += elm.offsetTop;
-        }
-        return offsetTop;
+        const toolbarelement = document.querySelector('rmm-headertoolbar mat-toolbar');
+        return toolbarelement ? toolbarelement.clientHeight : 0;
     }
 
     resizePercentage(percentage: number): void {
