@@ -55,6 +55,7 @@ import { exportKeysFromJWK } from './webpush/vapid.tools';
 import { ProgressService } from './http/progress.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
+const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 
 @Component({
   moduleId: 'angular2/app/',
@@ -205,7 +206,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       changeDetectorRef.detectChanges();
       if (!this.mobileQuery.matches && !this.sidemenu.opened) {
         this.sidemenu.open();
-        this.mailViewerOnRightSide = true;
+        const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+        this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '40%';
       } else if (this.mobileQuery.matches && this.sidemenu.opened) {
@@ -876,6 +878,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
           `${this.mailViewerOnRightSide}`);
     }
+    localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE, this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
   }
