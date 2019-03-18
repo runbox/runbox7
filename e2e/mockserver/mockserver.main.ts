@@ -17,17 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {Component} from '@angular/core';
-import {SearchService} from '../xapian/searchservice';
+import { MockServer } from './mockserver';
 
-@Component({
-    moduleId: 'angular2/app/messagepages/',
-    selector: "indexDeletedComponent",
-    templateUrl: "indexdeleted.component.html"
+const server = new MockServer();
 
-})
-export class IndexDeletedComponent {
-    constructor(public searchService : SearchService) {
+// Change to false if you want to simulate login
+server.loggedIn = true;
+// Change to true if you want to simulate login with 2FA
+server.challenge2fa = false;
 
-    }
-}
+server.start();
+
+console.log(`Mockserver started at http://localhost:${server.port}`);

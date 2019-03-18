@@ -19,11 +19,11 @@
 
 import { Component, Input, EventEmitter, Output, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { SearchService } from '../xapian/searchservice';
 import { BehaviorSubject } from 'rxjs';
 import { MatChipInputEvent, MatAutocomplete } from '@angular/material';
 import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
+import { RecipientsService } from './recipients.service';
 
 const COMMA = 188;
 
@@ -53,12 +53,10 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     @ViewChild('searchTextInput') searchTextInput: ElementRef;
     @ViewChild('auto') auto: MatAutocomplete;
 
-    constructor(public searchService: SearchService) {
-        this.searchService.initSubject.subscribe(() => {
-        window['termlistresult'] = [];
-        searchService.api.termlist('XRECIPIENT:');
-        const recipients: string[] = window['termlistresult'];
+    constructor(recipientservice: RecipientsService) {
+        recipientservice.recipients.subscribe((recipients) => {
 
+        // Listen to search text input and popup suggestions from recipient list
         this.searchTextFormControl.valueChanges
             .pipe(debounceTime(50))
             .subscribe((searchtext: string) => {

@@ -210,7 +210,8 @@ export class DraftDeskService {
                             msgInfo.subject, msgInfo.plaintext)
                     );
             }),
-            map(() => this.draftModels),);
+            map(() => this.draftModels)
+        );
     }
 
     public deleteDraft(messageId: number) {

@@ -26,9 +26,11 @@ import { MatDialogRef } from '@angular/material';
 
 @Component({
     moduleId: 'angular2/app/dialog/',
+    // tslint:disable-next-line:component-selector
     selector: 'confirm-dialog',
     templateUrl: 'confirmdialog.component.html'
 })
+// tslint:disable-next-line:component-class-suffix
 export class ConfirmDialog {
     yesOptionTitle = 'ok';
     noOptionTitle = 'cancel';

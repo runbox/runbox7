@@ -27,20 +27,20 @@ import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailro
 export class RMM6SearchComponent {
 
     @Output() onclose = new EventEmitter<any>();
-    
+
     websocket: WebSocket;
     searchresults: WebSocketSearchMailRow[];
 
     constructor() {
         const ws = new WebSocket(
-                location.protocol.replace('http','ws')
-                +'//'+
-                location.host+'/websocket'
-            );
-    
+            location.protocol.replace('http', 'ws')
+            + '//' +
+            location.host + '/websocket'
+        );
+
         ws.onopen = () => {
             console.log('connected');
-            
+
         };
 
         ws.onclose = () => {
@@ -49,29 +49,29 @@ export class RMM6SearchComponent {
 
         ws.onmessage = (data) => {
             this.searchresults = JSON.parse(data.data)
-                .filter((data) => 
-                    Array.isArray(data)
+                .filter((dataarr) =>
+                    Array.isArray(dataarr)
                 )
-                .map((row: string[]) => {                    
+                .map((row: string[]) => {
                     return {
-                        id: parseInt(row[0].substr(1)),
+                        id: parseInt(row[0].substr(1), 10),
                         dateTime: row[1],
                         subject: row[3],
                         fromName: row[2],
                         fromAddr: row[4],
-                        seen: row[5]==='1'
+                        seen: row[5] === '1'
                     };
                 });
             setTimeout(() => {
                 window['doMessageBinds']();
-            },100);
+            }, 100);
         };
-        
+
         this.websocket = ws;
 
-    }    
+    }
 
-    searchFieldKeyUp(searchText: string) {        
+    searchFieldKeyUp(searchText: string) {
         this.websocket.send(JSON.stringify({
             querystring: searchText,
             sortcol: 0,

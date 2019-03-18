@@ -1,8 +1,8 @@
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(145deg, #0068b7, #003156);">
   <div id="loginHeader">
-    <h1 style="margin-bottom: 0; font-size: 6vh; color: white">Welcome to Runbox 7</h1>
-    <h4 style="margin: 0; font-size: 2.8vh; color: #29b6f6">The fastest webmail app on the planet</h4>
-    <p>Log in below or <a href="/signup?runbox7=1">create a new account</a></p>
+    <h1 id="loginHeaderTitle">Welcome to Runbox 7</h1>
+    <h4 id="loginHeaderSubTitle">The fastest webmail app on the planet</h4>
+    <p id="loginHeaderLoginText">Log in below or <a href="/signup?runbox7=1">create a new account</a></p>
   </div>
 </div>
 <div class="loginSection" style="width: 100%; height: 60%;">
@@ -33,6 +33,7 @@
 	<div id="createAccount">
 	  <a href="/signup?runbox7=1">Create account</a>
 	</div>
+	<mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
       </div>
     </div>   
   </form>
@@ -56,6 +57,8 @@
 		<input matInput type="number" placeholder="Timed one-time password" name="totp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
+	      <br />
+	      <input id='trust_this_browser_totp' name='trust_this_browser_totp' type='checkbox' ngModel>Trust this browser <a href="https://help.runbox.com/login">?</a>
             </ng-container>
             <ng-container *ngIf="twofactormethodgroup.value==='otp'">
               <p>Please enter your OTP code.</p>
@@ -64,6 +67,8 @@
 		<input matInput type="number" placeholder="One-time password" name="otp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
+	      <br />
+              <input id='trust_this_browser_otp' name='trust_this_browser_otp' type='checkbox' ngModel>Trust this browser <a href="https://help.runbox.com/login">?</a>
             </ng-container>                    
             <ng-container *ngIf="twofactormethodgroup.value==='unlock_code'">
               <p>Please enter your unlock code.</p>
@@ -81,6 +86,7 @@
               <button mat-raised-button color="primary" type="submit">Unlock</button>
             </ng-container>
             <p *ngIf="twofactorerror" style="color: #f00">{{twofactorerror}}</p>
+            <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 	  </mat-card-content>
 	  <mat-card-actions style="text-align: center; margin: 0;">
 	    <div>
@@ -103,15 +109,14 @@
               </button>
 	    </div>
 	  </mat-card-actions>
-	</mat-card>
+  </mat-card>
       </div>
     </div>
   </form>
-  
 </div>
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(170deg, #014f89, #001e35);">
   <div id="loginFooter">
-    <h4 style="margin: 0.5em 0 0 0; text-align: center">More information:</h4>
+    <p style="margin: 1vh 0 0 0; text-align: center">More information:</p>
     <a href=" https://blog.runbox.com/2018/12/runbox-7-is-going-open-source/">Runbox 7 is going open source</a><br />
     <a href=" https://blog.runbox.com/2018/12/the-secret-behind-runbox-7s-speed/">The secret behind Runbox 7's speed</a><br />
     <a href="https://blog.runbox.com/2018/11/runbox-7-webmail-entering-open-beta-phase/">Runbox 7 Webmail entering open beta phase</a>

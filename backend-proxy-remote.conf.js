@@ -1,5 +1,5 @@
-let backendhostname = process.argv[process.argv.length-1];
-if(backendhostname.indexOf('http') !== 0) {
+let backendhostname = process.env.RUNBOX7_ANGULAR_BACKEND_HOST;
+if(!backendhostname) {
     backendhostname = 'https://runbox.com';
 }
 
@@ -7,7 +7,7 @@ const PROXY_CONFIG = [
     {
         context: ["/websocket"],
         "target": backendhostname.replace(/^http/,'ws'),
-        "secure": false,
+        "secure": true,
         "ws": true,
         "changeOrigin": true
     },
@@ -27,7 +27,7 @@ const PROXY_CONFIG = [
             }
         },
         "target": backendhostname,
-        "secure": false,
+        "secure": true,
         "cookieDomainRewrite": "localhost",
         "changeOrigin": true
         

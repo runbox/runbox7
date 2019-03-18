@@ -33,7 +33,9 @@ import {
     MatInputModule,
     MatIconModule, MatButtonModule
 } from '@angular/material';
-import { MatTableModule, MatPaginatorModule, MatCheckboxModule, MatDialogModule, MatProgressBarModule, MatProgressSpinnerModule, MatTabsModule, MatSelectModule, MatListModule, MatCardModule, MatChipsModule } from '@angular/material';
+import { MatTableModule, MatPaginatorModule, MatCheckboxModule, MatDialogModule,
+    MatProgressBarModule, MatProgressSpinnerModule, MatTabsModule, MatSelectModule,
+    MatListModule, MatCardModule, MatChipsModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { SearchExpressionBuilderComponent } from '../xapian/search-expression-builder/search-expression-builder.component';
 import { SearchExpressionBuilderModule } from '../xapian/search-expression-builder/search-expression-builder.module';
@@ -99,7 +101,7 @@ export class RMM6Module {
 
         console.log('bootstrapping');
         if (document.getElementsByTagName('app-search-expression-builder').length > 0) {
-            const searchExpressionBuilderComponentInstance = 
+            const searchExpressionBuilderComponentInstance =
                 this.appref.bootstrap(SearchExpressionBuilderComponent).instance;
             searchExpressionBuilderComponentInstance.searchInputField = document.getElementById('websocketsearchfield') as HTMLInputElement;
         }

@@ -42,7 +42,8 @@ declare var MailParser;
     moduleId: 'angular2/app/compose/',
     // tslint:disable-next-line:component-selector
     selector: 'compose',
-    templateUrl: 'compose.component.html'
+    templateUrl: 'compose.component.html',
+    styleUrls: ['compose.component.scss']
 })
 export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     static tinymceinstancecount = 1;
@@ -61,6 +62,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public isNew = false;
     public uploadprogress: number = null;
     public saved: Date = null;
+
+    saveErrorMessage: string;
 
     @Input() shouldExitToTable = false;
 
@@ -459,13 +462,21 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 .subscribe((res) => {
                     this.model.mid = parseInt(res[2], 10);
                     this.snackBar.open(res[1], null, { duration: 3000 });
-                    if (send) {
-                        this.draftDeleted.emit(this.model.mid);
+
+                    this.draftDeleted.emit(this.model.mid);
+                    this.exitToTable();
+                }, (err) => {
+                    let msg = err.statusText;
+                    if (err.field_errors) {
+                        msg = Object.keys(err.field_errors)
+                                .map(fieldname =>
+                                    `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
                     }
-                }, () => this.snackBar.open(
-                    'Offline message posting not supported yet',
-                    'COMING SOON'
-                ));
+                    this.snackBar.open(
+                        `Error sending: ${msg}`,
+                        'Dismiss'
+                    );
+                });
         } else {
             this.rmmapi.me.pipe(mergeMap((me) => {
                 return this.http.post('/rest/v1/draft', {
@@ -498,16 +509,21 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                     this.isNew = false;
                     this.saved = new Date();
+                    this.saveErrorMessage = null;
+
                     if (send) {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
                     }
-                }, (err) =>
-                    this.snackBar.open(
-                        'Offline message editing not supported yet',
-                        'COMING SOON'
-                    )
-                );
+                }, (err) => {
+                    let msg = err.statusText;
+                    if (err.field_errors) {
+                        msg = Object.keys(err.field_errors)
+                                .map(fieldname =>
+                                    `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
+                    }
+                    this.saveErrorMessage = `Error saving draft: ${msg}`;
+                });
         }
     }
 

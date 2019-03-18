@@ -24,8 +24,8 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { FolderCountEntry, RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
-import { Observable } from 'rxjs';
-import { first, map, filter, mergeMap } from 'rxjs/operators';
+import { Observable, of, from } from 'rxjs';
+import { first, map, filter, mergeMap, tap, take, last, bufferCount } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
 
 class FolderNode {
@@ -218,5 +218,39 @@ export class FolderListComponent {
             filter(res => res === true),
             mergeMap(() => this.rmmapi.deleteFolder(folder.folderId))
         ).subscribe(() => this.messagelistservice.refreshFolderCount());
+    }
+
+    async emptyTrash() {
+        this.folders.pipe(
+            map(folders => folders.find(f => f.folderType === 'trash').folderName),
+            tap(trashFolderName => this.selectFolder(trashFolderName)),
+            mergeMap((trashFolderName) =>
+                this.messagelistservice.messagesInViewSubject.pipe(
+                    take(2),
+                    last()
+                )
+            ),
+            mergeMap(messageLists =>
+                this.rmmapi.trashMessages(messageLists.map(msg => msg.id))
+            ),
+            tap(() => this.messagelistservice.refreshFolderCount())
+        ).toPromise();
+    }
+
+    async emptySpam() {
+        this.folders.pipe(
+            map(folders => folders.find(f => f.folderType === 'spam').folderName),
+            tap(trashFolderName => this.selectFolder(trashFolderName)),
+            mergeMap((trashFolderName) =>
+                this.messagelistservice.messagesInViewSubject.pipe(
+                    take(2),
+                    last()
+                )
+            ),
+            mergeMap(messageLists =>
+                this.rmmapi.trashMessages(messageLists.map(msg => msg.id))
+            ),
+            tap(() => this.messagelistservice.refreshFolderCount())
+        ).toPromise();
     }
 }

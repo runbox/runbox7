@@ -4,17 +4,18 @@ We would love for you to contribute to Runbox 7 and help make it even better tha
 
 As a contributor, here are the guidelines we would like you to follow:
 
-* [Code of Conduct](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#coc)
-* [Question or Problem?](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#question)
-* [Issues and Bugs](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#issue)
-* [Feature Requests](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#feature)
-* [Submission Guidelines](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#submit)
-* [Coding Rules](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#rules)
-* [Commit Message Guidelines](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#commit)
+* [Code of Conduct](#code-of-conduct)
+* [Question or Problem?](#got-a-question-or-problem)
+* [Issues and Bugs](#found-a-bug)
+* [Feature Requests](#missing-a-feature)
+* [Submission Guidelines](#submission-guidelines)
+* [Coding Rules](#coding-rules)
+* [Commit Message Guidelines](#commit-message-guidelines)
+* [License](#license)
 
 ## Code of Conduct
 
-Help us keep Runbox 7 open and inclusive. Please read and follow our [Code of Conduct](https://github.com/runbox/runbox7/blob/master/CODE_OF_CONDUCT.md).
+Help us keep Runbox 7 open and inclusive. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Got a Question or Problem?
 
@@ -25,18 +26,18 @@ Please do not open issues on Github for general support questions as we want to 
 
 ## Found a Bug?
 
-If you find a bug in the source code, you can help us by [submitting an issue](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#submit-issue) to our GitHub Repository. Even better, you can [submit a Pull Request](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#submit-pr) with a fix.
+If you find a bug in the source code, you can help us by [submitting an issue](#submission-guidelines) to our GitHub Repository. Even better, you can [submit a Pull Request](#submitting-a-pull-request-pr) with a fix.
 
 ## Missing a Feature?
 
-You can **request** a new feature by [submitting an issue](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#submit-issue) to our GitHub Repository.
+You can **request** a new feature by [submitting an issue](#submission-guidelines) to our GitHub Repository.
 
 If you would like to **implement** a new feature, please
 submit an issue with a proposal for your work first, to be sure that we
 can use it. Please consider what kind of change it is:
 
 * For a **Major Feature**, first open an issue and outline your proposal so that it can be discussed. This will also allow us to better coordinate our efforts, prevent duplication of work, and help you to craft the change so that it is successfully accepted into the project.
-* **Small Features** can be crafted and directly [submitted as a Pull Request](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#submit-pr).
+* **Small Features** can be crafted and directly [submitted as a Pull Request](#submitting-a-pull-request-pr).
 
 ## Submission Guidelines
 
@@ -59,16 +60,16 @@ Before you submit your Pull Request (PR), consider the following guidelines:
  or documents the design for the feature you'd like to add. Discussing
  the design up front helps to ensure that we're ready to accept your
  work.
- 3. Fork the runbox/runbox7 repo.
+ 3. [Fork](https://help.github.com/articles/fork-a-repo/) the runbox/runbox7 repo.
  4. Make your changes in a new git branch:
 
 ```
 git checkout -b my-fix-branch master
 ```
 5. Create your patch, **including appropriate test cases**.
-6. Follow our [Coding Rules](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#rules).
+6. Follow our [Coding Rules](#coding-rules).
 7. Run the full Angular test suite, and ensure that all tests pass.
-8. Commit your changes using a descriptive commit message that follows our [commit message conventions](https://github.com/runbox/runbox7/blob/master/CONTRIBUTING.md#commit). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
+8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-guidelines). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
 ```
 git commit -a
@@ -84,8 +85,8 @@ git push origin my-fix-branch
 
 * If we suggest changes then:
   - Make the required updates.
-    - Re-run the Angular test suites to ensure tests are still passing.
-      - Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
+  - Re-run the Angular test suites to ensure tests are still passing.
+  - Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
 
 ```
 git rebase master -i git push -f
@@ -124,6 +125,7 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 
 * All features or bug fixes **must be tested** by one or more specs (unit-tests).
 * All public API methods **must be documented**.
+* You may use `@author name/pseudonym` (optionally email) inside comments for attribution.
 
 ## Commit Message Guidelines
 
@@ -196,3 +198,5 @@ The footer should contain any information about **Breaking Changes** and is also
 
 **Breaking Changes** should start with the word `BREAKING CHANGE:` with a space or two newlines. The rest of the commit message is then used for this.
 
+## License
+Contributions to this project indicate the contributors' assent for inclusion of that software in the canonical version under the project's [license](LICENSE).

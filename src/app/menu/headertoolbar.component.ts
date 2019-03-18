@@ -17,32 +17,33 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Router } from '@angular/router';
 
 @Component({
     moduleId: 'angular2/app/menu/',
-    selector: "rmm-headertoolbar",
-    templateUrl: "headertoolbar.component.html"
+    // tslint:disable-next-line:component-selector
+    selector: 'rmm-headertoolbar',
+    templateUrl: 'headertoolbar.component.html'
 })
 export class HeaderToolbarComponent {
     constructor(
-        public rmmapi : RunboxWebmailAPI,
-        private router : Router
+        public rmmapi: RunboxWebmailAPI,
+        private router: Router
     ) {
 
     }
 
     public mailtable() {
-        this.router.navigate([""],{ skipLocationChange: true } );
+        this.router.navigate(['']);
     }
-    
+
     public compose() {
-        this.router.navigate(["compose"],{ skipLocationChange: true } );
+        this.router.navigate(['compose']);
     }
 
     public contacts() {
-        this.router.navigate(["contacts"],{ skipLocationChange: true } );
+        this.router.navigate(['contacts']);
     }
 }

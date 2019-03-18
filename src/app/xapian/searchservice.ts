@@ -162,6 +162,8 @@ export class SearchService {
           this.updateIndexWithNewChanges();
           this.noLocalIndexFoundSubject.next(true);
           this.noLocalIndexFoundSubject.complete();
+          this.initSubject.next(false);
+          this.initSubject.complete();
         }
       });
   }
@@ -387,21 +389,14 @@ export class SearchService {
 
     return this.initSubject.pipe(
         mergeMap(() => this.checkIfDownloadableIndexExists()),
-        mergeMap((res) => new Observable( (observer) => {
+        mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.dialog.open(InfoDialog, {data: new InfoParams('No search index available',
-            `Couldn't find an index for your account on the server.
-              Will create an index locally for your last 10 000 messages.
-              `)})
-              .afterClosed()
-              .subscribe(() => {
-                this.api.initXapianIndex(XAPIAN_GLASS_WR);
-                this.localSearchActivated = true;
-                this.pollCache = {};
-                this.indexLastUpdateTime = 0;
-                this.updateIndexWithNewChanges();
-                observer.next(true);
-              });
+          this.api.initXapianIndex(XAPIAN_GLASS_WR);
+          this.localSearchActivated = true;
+          this.pollCache = {};
+          this.indexLastUpdateTime = 0;
+          this.updateIndexWithNewChanges();
+          observer.next(true);
           return;
         }
 

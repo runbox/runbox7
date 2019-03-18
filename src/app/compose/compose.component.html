@@ -47,9 +47,10 @@
         
         <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" (click)="submit()">
             <mat-icon *ngIf="saved">cloud_done</mat-icon>
-            <mat-icon *ngIf="!saved">save</mat-icon>
+            <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
+            <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
         </button>
-        <button *ngIf="editing && !isNew" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
+        <button *ngIf="!isNew" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
             <mat-icon>delete</mat-icon>
         </button>
         <button *ngIf="editing" mat-icon-button matTooltip="Close draft" (click)="close()">
@@ -123,14 +124,13 @@
                     [id]="editorId" #editor 
                     [hidden]="!formGroup.value.useHTML">
           </textarea>
-          <mat-form-field style="width: 100%" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto" id="messageTextAreaField">
+          <mat-form-field class="messageTextArea" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto">
             <textarea 
                #messageTextArea
                placeholder="Message text" 
                matInput                                      
                formControlName="msg_body"
                rows="20"
-	       id="messageTextArea"
                >
             </textarea>
           </mat-form-field>   

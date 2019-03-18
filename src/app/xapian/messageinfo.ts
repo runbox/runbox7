@@ -23,7 +23,7 @@ export class MailAddressInfo {
     public nameAndAddress;
 
     constructor(public name: string, public address: string) {
-        this.nameAndAddress = name ? name + ' <' + address + '>' : address;
+        this.nameAndAddress = name ? `"${name}" <${address}>` : address;
     }
 
     public static parse(mailaddr: string): MailAddressInfo[] {

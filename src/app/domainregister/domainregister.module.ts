@@ -21,7 +21,11 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { DomainRegisterComponent } from './domainregister.component';
 import { CommonModule } from '@angular/common';
-import { MatTableModule, MatSnackBarModule, MatPaginatorModule, MatCheckboxModule, MatDialogModule, MatProgressBarModule, MatProgressSpinnerModule, MatTabsModule, MatSelectModule, MatListModule, MatInputModule, MatCardModule, MatChipsModule, MatButtonModule } from '@angular/material';
+import { MatTableModule, MatSnackBarModule, MatPaginatorModule,
+        MatCheckboxModule, MatDialogModule, MatProgressBarModule,
+        MatProgressSpinnerModule, MatTabsModule, MatSelectModule, MatListModule,
+        MatInputModule, MatCardModule, MatChipsModule, MatButtonModule } from '@angular/material';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -34,6 +38,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         FormsModule,
         HttpModule,
         MatSnackBarModule,
+        MatSidenavModule,
         MatTableModule,
         MatDialogModule,
         MatCheckboxModule,
@@ -46,11 +51,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         MatInputModule,
         MatChipsModule,
         MatSelectModule,
-	MatButtonModule,
+        MatButtonModule,
     ],
     exports: [ DomainRegisterComponent ],
     declarations: [ DomainRegisterComponent ],
-    bootstrap: [ DomainRegisterComponent ]    
+    bootstrap: [ DomainRegisterComponent ]
 })
 export class DomainRegisterModule {
 }

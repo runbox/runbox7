@@ -35,6 +35,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MessageActions } from './messageactions';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MessageListService } from '../rmmapi/messagelist.service';
 
 describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
@@ -63,6 +64,7 @@ describe('SingleMailViewerComponent', () => {
       ],
       declarations: [SingleMailViewerComponent],
       providers: [
+        { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: Http, useValue: {} },
         { provide: RunboxWebmailAPI, useValue: {
           getMessageContents(messageId: number): Observable<MessageContents> {
@@ -77,7 +79,9 @@ describe('SingleMailViewerComponent', () => {
                 subject: 'Test subject'
               },
               text: {
-                text: 'blablabla'
+                text: 'blablabla',
+                html: null,
+                textAsHtml: null
               }
             });
           }

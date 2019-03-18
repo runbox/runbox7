@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatMenuModule,MatToolbarModule,MatButtonModule,MatIconModule } from '@angular/material'
+import { MatMenuModule, MatToolbarModule, MatButtonModule, MatIconModule } from '@angular/material';
 import { HeaderToolbarComponent} from './headertoolbar.component';
 import { RouterModule } from '@angular/router';
 
@@ -32,10 +32,9 @@ import { RouterModule } from '@angular/router';
       RouterModule.forChild([]),
       MatMenuModule,
       RouterModule
-  ],  
+  ],
   declarations: [HeaderToolbarComponent],
   exports: [HeaderToolbarComponent]
-  
 })
 export class MenuModule {
 

@@ -18,32 +18,34 @@
 // ---------- END RUNBOX LICENSE ----------
 
 export class Contact {
-    id:         number
-    nick:       string
-    first_name: string
-    last_name:  string
-    email:      string
+    id: number;
+    nick: string;
+    first_name: string;
+    last_name: string;
+    email: string;
 
     constructor(properties: any) {
-        for (var key in properties) {
-            this[key] = properties[key]
+        // tslint:disable-next-line:forin
+        for (const key in properties) {
+            this[key] = properties[key];
         }
     }
 
-    display_name() : string {
+    display_name(): string {
         if (this.nick) {
-            return this.nick
+            return this.nick;
         } else if (this.full_name()) {
-            return this.full_name()
+            return this.full_name();
         }
     }
 
-    full_name() : string {
-        if (this.first_name && this.last_name)
-            return this.first_name + " " + this.last_name
-        else if (this.first_name)
-            return this.first_name
-        else
-            return this.last_name
+    full_name(): string {
+        if (this.first_name && this.last_name) {
+            return this.first_name + ' ' + this.last_name;
+        } else if (this.first_name) {
+            return this.first_name;
+        } else {
+            return this.last_name;
+        }
     }
 }

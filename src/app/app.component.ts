@@ -52,8 +52,10 @@ import { from, of } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
+import { ProgressService } from './http/progress.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
+const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 
 @Component({
   moduleId: 'angular2/app/',
@@ -90,6 +92,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   selectedRowId: number;
   searchtextfieldfocused = false;
 
+  showMultipleSearchFields = false;
   showingSearchResults = false; // Toggle if showing from message list or xapian search
   showingWebSocketSearchResults = false;
   displayFolderColumn = false;
@@ -131,6 +134,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public snackBar: MatSnackBar,
     public dialog: MatDialog,
     private router: Router,
+    public progressService: ProgressService,
     private mdIconRegistry: MatIconRegistry,
     private http: Http,
     private sanitizer: DomSanitizer,
@@ -202,7 +206,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       changeDetectorRef.detectChanges();
       if (!this.mobileQuery.matches && !this.sidemenu.opened) {
         this.sidemenu.open();
-        this.mailViewerOnRightSide = true;
+        const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+        this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '40%';
       } else if (this.mobileQuery.matches && this.sidemenu.opened) {
@@ -213,7 +218,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = localStorage
-              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;        
+              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
     };
 
@@ -362,14 +367,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds}).subscribe(
-      (data) => {
+    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds})
+      .subscribe(data => {
         if ( data.status === 'error' ) {
           snackBarRef.dismiss();
           this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
         }
         this.searchService.updateIndexWithNewChanges();
         snackBarRef.dismiss();
+      }, (err) => {
+        console.error('Error reporting spam', err);
+        this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
       },
       () => {
         this.selectedRowIds = {};
@@ -556,7 +564,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
           localStorage.setItem('messageSubjectDragTipShown', 'true');
         }
-        if (this.viewmode === 'conversations') {
+        if (this.viewmode === 'conversations' && rowContent[2] !== '1') {
           this.viewmode = 'singleconversation';
           this.resetColumns();
           this.clearSelection();
@@ -771,8 +779,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       console.log('us', this.usewebsocketsearch);
       if (
         this.usewebsocketsearch ||
-        this.selectedFolder === 'Spam' ||
-        this.selectedFolder === 'Trash'
+        this.selectedFolder === this.messagelistservice.spamFolderName ||
+        this.selectedFolder === this.messagelistservice.trashFolderName
       ) {
         /*
          * Message table from database, shown if local search index is not present
@@ -804,8 +812,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           default:
             if (this.searchText.length < 3) {
               // Expand to all folders if search text length is longer than 3 characters
-              querytext += (this.unreadMessagesOnlyCheckbox ? 'unread' : '')
-                + 'folder:"' + this.selectedFolder.replace(/\//g, '\.') + '" ';
+              const folderQuery = (folderName) => (this.unreadMessagesOnlyCheckbox ? 'unread' : '')
+                + 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
+
+              if (this.selectedFolder === 'Inbox') {
+                // Workaround for IMAP setting folder to "INBOX" when moving messages  there
+                querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
+              } else {
+                querytext += folderQuery(this.selectedFolder);
+              }
             }
         }
         const previousDisplayFolderColumn = this.displayFolderColumn;
@@ -855,15 +870,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerOrientationChangeRequest(orientation: string) {
     const currentMessageId = this.singlemailviewer.messageId;
     if (orientation === 'vertical') {
-      
       this.mailViewerOnRightSide = true;
     } else {
       this.mailViewerOnRightSide = false;
     }
-    if(this.mobileQuery.matches) {
+    if (this.mobileQuery.matches) {
       localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
           `${this.mailViewerOnRightSide}`);
     }
+    localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE, this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
   }
