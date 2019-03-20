@@ -13,7 +13,7 @@
             </mat-list-item>
 
             <mat-list-item *ngFor="let contact of contacts">
-                <a routerLink="/contacts/{{ contact.id }}">
+                <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
                     <h4 mat-line>{{ contact.full_name() }}</h4>
                 </a>
                 <a mat-icon-button matTooltip="Email {{ contact.full_name() }}" 
