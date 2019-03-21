@@ -18,15 +18,19 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { Router } from '@angular/router';
 import { Contact } from './contact';
+import { ContactsService } from './contacts.service';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
     // tslint:disable-next-line:component-selector
     selector: 'contacts-app-root',
-    templateUrl: './contacts-app.component.html',
+    templateUrl: './contacts-app.component.html'
 })
 export class ContactsAppComponent {
     title = 'Contacts';
@@ -34,55 +38,46 @@ export class ContactsAppComponent {
     selectedContact: Contact;
 
     constructor(
-        public rmmapi: RunboxWebmailAPI,
-        private router: Router
+        private contactsservice: ContactsService,
+        private rmmapi:          RunboxWebmailAPI,
+        private route:           ActivatedRoute,
+        private router:          Router,
+        private snackBar:        MatSnackBar
     ) {
-        this.rmmapi.getAllContacts().subscribe(contacts => {
-            console.log('Got all the contacts!');
-            console.log('Contacts: ' + contacts);
-            this.contacts = contacts;
+        console.log('Contacts.app: waiting for backend contacts...');
+        this.contactsservice.contactsSubject.subscribe(c => {
+            console.log('Contacts.app: got the contacts!');
+            this.contacts = c;
+        });
+
+        this.contactsservice.informationLog.subscribe(
+            msg => this.showNotification(msg)
+        );
+
+        this.contactsservice.errorLog.subscribe(
+            e => this.showError(e)
+        );
+    }
+
+    showNotification(message: string, action = 'Dismiss'): void {
+        this.snackBar.open(message, action, {
+            duration: 2000,
         });
     }
 
-    selectContact(contact: Contact): void {
-        this.selectedContact = new Contact(contact);
-    }
+    showError(e: HttpErrorResponse): void {
+        let message = '';
 
-    newContact(): void {
-        this.selectedContact = new Contact({});
-    }
+        if (e.status === 500) {
+            message = 'Internal server error';
+        } else {
+            console.log('Error ' + e.status +  ': ' + e.message);
+        }
 
-    saveContact(contact: Contact): void {
-        if (contact.id) { // existing contact
-            for (let i = 0; i < this.contacts.length; i++) {
-                if (contact.id === this.contacts[i].id) {
-                    this.rmmapi.modifyContact(contact).subscribe(() => {
-                        console.log('Contact modified');
-                    });
-                    this.contacts[i] = contact;
-                    break;
-                }
-            }
-            this.selectContact(contact);
-        } else { // new contact
-            this.rmmapi.addNewContact(contact).subscribe(thecontact => {
-                console.log('ID assigned: ' + thecontact.id);
-                this.contacts.push(thecontact);
-                this.selectContact(thecontact);
+        if (message) {
+            this.snackBar.open(message, 'Ok :(', {
+                duration: 5000,
             });
         }
     }
-
-    rollbackContact(contact: Contact): void {
-        this.selectContact(this.getContact(contact.id));
-    }
-
-    getContact(id: number): Contact {
-        for (const c of this.contacts) {
-            if (c.id === id) {
-                return c;
-            }
-        }
-    }
-
 }

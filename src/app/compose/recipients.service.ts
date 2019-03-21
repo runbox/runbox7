@@ -53,8 +53,10 @@ export class RecipientsService {
 
             rmmapi.getAllContacts().subscribe(contacts => {
                 contacts.forEach(contact => {
-                    const recipientString = `"${contact.full_name()}" <${contact.email}>`;
-                    recipientsMap[contact.email] = recipientString;
+                    contact.emails.forEach(email => {
+                        const recipientString = `"${contact.full_name()}" <${email.value}>`;
+                        recipientsMap[email.value] = recipientString;
+                    });
                 });
 
                 this.recipients.next(Object.keys(recipientsMap).map(mailaddr => recipientsMap[mailaddr]));
