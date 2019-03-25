@@ -10,7 +10,7 @@
     "ng": "ng",
     "appdev": "ng serve --disable-host-check --base-href=/appdev/",
     "rmm6dev": "ng serve --disable-host-check --base-href=/appdev/ rmm6",
-    "start": "ng serve --aot --proxy-config backend-proxy-remote.conf.js runbox7",
+    "start": "ng serve --proxy-config backend-proxy-remote.conf.js runbox7",
     "start-use-mockserver": "ng serve --aot --proxy-config backend-proxy-mock.conf.js runbox7",
     "mockserver": "tsc -p e2e/tsconfig.e2e.json && node out-tsc/e2e/mockserver/mockserver.main.js",
     "buildrmm6": "ng build --prod --base-href=/app/ rmm6",

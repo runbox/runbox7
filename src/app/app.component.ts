@@ -53,6 +53,7 @@ import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
 import { ProgressService } from './http/progress.service';
+import { environment } from '../environments/environment';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -330,6 +331,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   subscribeToNotifications() {
+    if (environment.production) {
       this.http.get('/rest/v1/webpush/vapidkeys').pipe(
         map(res => res.json()),
         map(jwk => exportKeysFromJWK(jwk).public),
@@ -341,6 +343,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         )),
         mergeMap(sub => this.http.post('/rest/v1/webpush/subscribe', sub))
       ).subscribe();
+    }
   }
 
   public drafts() {

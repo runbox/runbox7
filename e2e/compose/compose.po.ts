@@ -2,7 +2,9 @@ import { browser, by, element, until, Key } from 'protractor';
 
 export class ComposePage {
   navigateTo() {
-    return browser.get('/compose?new=true');
+    return browser.get('/')
+        .then(() => browser.executeScript(() => localStorage.setItem('localSearchPromptDisplayed221', 'true'))
+        .then(() => browser.get('/compose?new=true')));
   }
 
   waitForRedirect() {
@@ -17,6 +19,19 @@ export class ComposePage {
     const elm = element(by.css('mailrecipient-input input'));
     await elm.sendKeys(value);
     await elm.sendKeys(Key.TAB);
+  }
+
+  async checkToRecipientInputFocus() {
+    const elm = element(by.css('mailrecipient-input input[placeholder="To"]'));
+    const elmPlaceHolder = await elm.getAttribute('placeholder');
+    console.log('Mail recipient input placeholder', elmPlaceHolder);
+    browser.wait(async () => {
+      return (await browser.driver.switchTo().activeElement().getAttribute('placeholder')) === 'To';
+    });
+    const activeElement = await browser.driver.switchTo().activeElement();
+    const activeElementPlaceHolder = await activeElement.getAttribute('placeholder');
+    console.log('Active element placeholder', activeElementPlaceHolder);
+    return elmPlaceHolder === 'To' && elmPlaceHolder === activeElementPlaceHolder;
   }
 
   waitForMailRecipientErrorInputToBePresent() {
