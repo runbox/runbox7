@@ -51,7 +51,11 @@
       <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>9" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
         <mat-icon>settings</mat-icon>
       </button>      
-      <button mat-icon-button *ngIf="morebuttonindex < 10" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More">
+      <a *ngIf="mailContentHTML && morebuttonindex>10" mat-icon-button
+        matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
+        <mat-icon>warning</mat-icon>
+      </a>
+      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More">
         <mat-icon>more_vert</mat-icon>
       </button>
       
@@ -125,6 +129,11 @@
           <mat-icon>settings</mat-icon>
           <span>HTML settings</span>
         </button>        
+	<a *ngIf="mailContentHTML && morebuttonindex<11" mat-menu-item
+          [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
+          <mat-icon>warning</mat-icon>
+	  <span>Original HTML</span> 
+	</a>
       </mat-menu>
     </div>
 
