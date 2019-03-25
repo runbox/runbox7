@@ -328,10 +328,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 );
             }
 
-            setTimeout(() => {
-                this.moveTextAreaCaretPositionToStart();
-                this.messageTextArea.nativeElement.focus();
-            }, 0);
+            if (this.formGroup.controls['msg_body'].value) {
+                setTimeout(() => {
+                    this.moveTextAreaCaretPositionToStart();
+                }, 0);
+            }
         }
     }
 
@@ -543,7 +544,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             range.moveStart('character', 0);
             range.select();
         }
-        window.scrollTo(0, txtElement.scrollTop - 20);
+        txtElement.scrollTo(0, 0);
     }
 }
 

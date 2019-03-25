@@ -25,14 +25,15 @@ describe('Compose', () => {
   });
 
   it('should display draft card', async () => {
-    page.navigateTo();
+    await page.navigateTo();
     await page.waitForRedirect();
     browser.waitForAngularEnabled(false);
     expect(page.getDraftActionBarText()).toEqual('New message');
+    expect(await page.checkToRecipientInputFocus()).toBeTruthy();
   });
 
   it('should complain on invalid email address', async () => {
-    page.navigateTo();
+    await page.navigateTo();
     await page.waitForRedirect();
     browser.waitForAngularEnabled(false);
     await page.setRecipientInputField('invalidaddress');
