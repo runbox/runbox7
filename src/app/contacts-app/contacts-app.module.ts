@@ -38,6 +38,7 @@ import {
 import { ContactsAppComponent } from './contacts-app.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
 import { ContactsSettingsComponent } from './contacts-settings.component';
+import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { ContactsService } from './contacts.service';
 import { RMMRouteReuseStrategy } from './routereusestrategy';
@@ -49,6 +50,7 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
     ContactsAppComponent,
     ContactDetailsComponent,
     ContactsSettingsComponent,
+    ContactsWelcomeComponent,
     FormArrayEditorComponent
   ],
   imports: [
@@ -78,6 +80,10 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
             path: '',
             component: ContactsAppComponent,
             children: [
+              {
+                  path: '',
+                  component: ContactsWelcomeComponent,
+              },
               {
                   path: 'settings',
                   component: ContactsSettingsComponent,
