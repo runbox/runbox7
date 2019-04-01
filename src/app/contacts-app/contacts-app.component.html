@@ -1,12 +1,28 @@
-<rmm-headertoolbar></rmm-headertoolbar>
-
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu mode="side" opened>
-        <app-contactlist
-            [contacts]="contacts"
-            (contactSelected)="selectContact($event)"
-            (newContactClicked)="newContact()">
-        </app-contactlist>
+        <mat-nav-list dense>
+            <mat-list-item>
+                <a mat-button routerLink="/contacts/settings">
+                    <mat-icon> settings </mat-icon> Settings
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/contacts/new">
+                    <mat-icon> add </mat-icon> New contact
+                </a>
+            </mat-list-item>
+
+            <mat-list-item *ngFor="let contact of contacts">
+                <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
+                    <h4 mat-line>{{ contact.full_name() }}</h4>
+                </a>
+                <a mat-icon-button matTooltip="Email {{ contact.full_name() }}" 
+                    *ngIf="contact.primary_email()"
+                    routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
+                  <mat-icon color="primary">email</mat-icon>
+                </a>
+            </mat-list-item>
+        </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
         <mat-toolbar style="display: flex">
@@ -14,10 +30,8 @@
                 <mat-icon>menu</mat-icon>
             </button>
         </mat-toolbar>
-        <app-contact-details
-            [contact]="selectedContact"
-            (contactSaved)="saveContact($event)"
-            (contactDiscarded)="rollbackContact($event)"
-        ></app-contact-details>
+        <router-outlet
+            
+        ></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>

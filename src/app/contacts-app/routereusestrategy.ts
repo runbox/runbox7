@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -17,29 +17,25 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { Contact } from '../contact';
+import { RouteReuseStrategy, ActivatedRouteSnapshot } from '@angular/router';
 
-@Component({
-    selector: 'app-contactlist',
-    templateUrl: './contactlist.component.html'
-})
-export class ContactListComponent {
-    @Input() contacts: Contact[];
-
-    @Output() contactSelected = new EventEmitter<Contact>();
-    @Output() newContactClicked = new EventEmitter();
-
-    constructor(
-    ) {
+export class RMMRouteReuseStrategy extends RouteReuseStrategy {
+    shouldDetach(route: ActivatedRouteSnapshot): boolean {
+        return false;
     }
 
-    selectContact(contact: Contact): void {
-        this.contactSelected.next(contact);
+    store(route: ActivatedRouteSnapshot, handle: {}): void {
     }
 
-    newContact(): void {
-        this.newContactClicked.next(null);
+    shouldAttach(route: ActivatedRouteSnapshot): boolean {
+        return false;
+    }
+
+    retrieve(route: ActivatedRouteSnapshot): {} {
+        return null;
+    }
+
+    shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+        return false;
     }
 }

@@ -1,0 +1,32 @@
+<div class="loading" *ngIf="!settingsLoaded">
+    Loading the settings...
+</div>
+
+<div class="contacts-settings" *ngIf="settingsLoaded">
+    <h3> Your CardDAV URL </h3>
+
+    <p>
+        Use this URL in a CardDAV client on your device to synchronize your contacts:
+    </p>
+
+    <code> {{ settings.carddav_url }} </code>
+
+    <p>
+        Remember to use your <strong>full username</strong> as your login
+        – <code>{{ settings.carddav_username }}</code>.
+    </p>
+    <p>
+        The password is just your regular account password.
+    </p>
+
+    <div *ngIf="settings.old_contacts_count">
+        <h3> Contact migration </h3>
+        
+        <p>
+            You have <strong>{{ settings.old_contacts_count }}</strong> old-style contacts that haven't been migrated yet.
+        </p>
+        <p>
+            <a mat-button (click)="migrateContacts()">Click here to migrate them</a>
+        </p>
+    </div>
+</div>

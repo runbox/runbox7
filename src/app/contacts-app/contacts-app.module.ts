@@ -20,28 +20,38 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouteReuseStrategy } from '@angular/router';
 
 import {
   MatButtonModule,
   MatIconModule,
+  MatInputModule,
   MatListModule,
+  MatSelectModule,
   MatSidenavModule,
   MatToolbarModule,
   MatTooltipModule
 } from '@angular/material';
 
 import { ContactsAppComponent } from './contacts-app.component';
-import { ContactListComponent } from './contactlist/contactlist.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
+import { ContactsSettingsComponent } from './contacts-settings.component';
+import { ContactsWelcomeComponent } from './contacts-welcome.component';
+import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
+import { ContactsService } from './contacts.service';
+import { RMMRouteReuseStrategy } from './routereusestrategy';
+import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
+import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 @NgModule({
   declarations: [
     ContactsAppComponent,
-    ContactListComponent,
-    ContactDetailsComponent
+    ContactDetailsComponent,
+    ContactsSettingsComponent,
+    ContactsWelcomeComponent,
+    FormArrayEditorComponent
   ],
   imports: [
     BrowserModule,
@@ -49,14 +59,52 @@ import { ContactDetailsComponent } from './contact-details/contact-details.compo
     FormsModule,
     MatButtonModule,
     MatIconModule,
+    MatInputModule,
     MatListModule,
+    MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
     MatTooltipModule,
     MenuModule,
-    RouterModule
+    ReactiveFormsModule,
+    RouterModule.forChild([
+      {
+        path: 'contacts',
+        canActivateChild: [RMMAuthGuardService],
+        children: [
+          {
+            path: '', outlet: 'headertoolbar',
+            component: HeaderToolbarComponent
+          },
+          {
+            path: '',
+            component: ContactsAppComponent,
+            children: [
+              {
+                  path: '',
+                  component: ContactsWelcomeComponent,
+              },
+              {
+                  path: 'settings',
+                  component: ContactsSettingsComponent,
+              },
+              {
+                  path: ':id',
+                  component: ContactDetailsComponent,
+                  runGuardsAndResolvers: 'always'
+              }
+            ]
+          }
+        ]
+      }
+    ])
   ],
   providers: [
+    ContactsService,
+    {
+      provide: RouteReuseStrategy,
+      useClass: RMMRouteReuseStrategy
+    }
   ],
   bootstrap: [ContactsAppComponent]
 })
