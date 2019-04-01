@@ -34,7 +34,8 @@ import { Component } from '@angular/core';
     </p>
     <p>
         The <a mat-button routerLink="/contacts/new"> <mat-icon> add </mat-icon> New contact </a>
-        button will allow you to add new contacts to your addressbook: note that they will already be added         to CardDAV and will <b>not</b> be visible in the old webmail! <br>
+        button will allow you to add new contacts to your addressbook: note that they will already be added
+        to CardDAV and will <b>not</b> be visible in the old webmail! <br>
         The support for those “old” contacts will be removed in the future.
     </p>
     <p>
@@ -43,7 +44,9 @@ import { Component } from '@angular/core';
         Clicking that icon will allow you to instantly write an email to the given contact.
     </p>
     <p>
-        We hope you'll enjoy using the new contacts interface. Be sure to visit <a href="https://community.runbox.com/c/runbox-7"> our community forum </a> if you have any questions or encounter any problems.
+        We hope you'll enjoy using the new contacts interface. Be sure to visit
+        <a href="https://community.runbox.com/c/runbox-7"> our community forum </a>
+        if you have any questions or encounter any problems.
     </p>
 </div>
     `
