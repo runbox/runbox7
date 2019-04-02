@@ -46,6 +46,18 @@
         "maxAge": "30d",
         "timeout": "5s"
       }
+    },
+    {
+      "name": "folders",
+      "urls": [
+        "/ajax?action=ajax_getfoldercount"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1,
+        "maxAge": "30d",
+        "timeout": "5s"
+      }
     }
   ]
 }
