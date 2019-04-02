@@ -21,19 +21,18 @@ import 'tinymce';
 import 'tinymce/themes/modern/theme';
 
 import {
-    Input, DoCheck, Output, EventEmitter, SecurityContext,
-    Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit
+    Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { RunboxWebmailAPI, RunboxMe, FromAddress } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
-import { HttpClient } from '@angular/common/http';
-import { ProgressService } from '../http/progress.service';
+import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
+
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { catchError, debounceTime, filter, map, mergeMap } from 'rxjs/operators';
+import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
 
 declare var tinymce: any;
 declare var MailParser;
@@ -72,13 +71,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     @Input() model: DraftFormModel = new DraftFormModel();
     @Output() draftDeleted: EventEmitter<number> = new EventEmitter();
 
-    constructor(private sanitizer: DomSanitizer,
-        private router: Router,
+    constructor(private router: Router,
         public snackBar: MatSnackBar,
         private rmmapi: RunboxWebmailAPI,
         public draftDeskservice: DraftDeskService,
         private http: HttpClient,
-        private progressService: ProgressService,
         private formBuilder: FormBuilder
     ) {
 
@@ -117,7 +114,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     ngAfterViewInit() {
         let dragLeaveTimeout = null;
-        window.addEventListener('dragleave', (event) => {
+        window.addEventListener('dragleave', () => {
             if (!dragLeaveTimeout) {
                 // Drag leave events are fired all the time - so add some throttling on them
                 dragLeaveTimeout = setTimeout(() => this.hideDropZone(), 100);
@@ -206,25 +203,27 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         formdata.append('attach', 'Attach');
         formdata.append('ajaxAttach', 'Attach');
 
-        this.progressService.uploadProgress.pipe(
-                filter((progress) => progress.lengthComputable),
-                map((progress) => progress.loaded * 100 / progress.total)
-            )
-            .subscribe((val) => this.uploadprogress = val === 100 ? null : val);
+        this.http.request(
+            new HttpRequest<any>('POST', '/ajax/upload_attachment', formdata, {
+                    reportProgress: true})
+           )
+            .subscribe((event) => {
+                if (event.type === HttpEventType.UploadProgress) {
+                    const progress = event.loaded * 100 / event.total;
+                    this.uploadprogress = progress === 100 ? null : progress;
+                } else if (event.type === HttpEventType.Response) {
+                    if (!this.model.attachments) {
+                        this.model.attachments = [];
+                    }
+                    (event.body as any).result.attachments
+                        .forEach((att) => {
+                            att.file = att.filename;
+                            this.model.attachments.push(att);
+                        });
 
-        this.http.post('/ajax/upload_attachment', formdata)
-            .subscribe((res: any) => {
-                if (!this.model.attachments) {
-                    this.model.attachments = [];
+                    this.uploadprogress = null;
+                    this.submit();
                 }
-                res.result.attachments
-                    .forEach((att) => {
-                        att.file = att.filename;
-                        this.model.attachments.push(att);
-                    });
-
-                this.uploadprogress = null;
-                this.submit();
             });
     }
 
@@ -303,7 +302,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 skin_url: '../_css/tinymceskin',
                 setup: editor => {
                     this.editor = editor;
-                    editor.on('Change', (e) => {
+                    editor.on('Change', () => {
                         this.formGroup.controls['msg_body'].setValue(editor.getContent());
                     });
                 },
@@ -373,7 +372,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }
             };*/
 
-            oReq.onreadystatechange = (oEvent) => {
+            oReq.onreadystatechange = () => {
                 if (oReq.readyState === XMLHttpRequest.DONE && oReq.status !== 200) {
 
                     if (oReq.status === 403) {
@@ -442,7 +441,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             (f) => this.model.from === f.nameAndAddress);
 
         if (send) {
-            const snackBarRef = this.snackBar.open('Sending');
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
                 this.model.msg_body = this.model.msg_body
