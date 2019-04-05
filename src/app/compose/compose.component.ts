@@ -291,29 +291,31 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public htmlToggled() {
         if (this.formGroup.value.useHTML) {
             tinymce.baseURL = '/_js/tinymce_rmm7';
-            tinymce.init({
-                selector: '#' + this.editorRef.nativeElement.id,
-                plugins: ['image'],
-                image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
-                    title: this.displayWithoutRBWUL(att.file),
-                    value: '/ajax/download_draft_attachment?filename=' + att.file
-                })) : []),
-                menubar: false,
-                skin_url: '../_css/tinymceskin',
-                setup: editor => {
-                    this.editor = editor;
-                    editor.on('Change', () => {
-                        this.formGroup.controls['msg_body'].setValue(editor.getContent());
-                    });
-                },
-                init_instance_callback: (editor) => {
-                    editor.setContent(
-                        this.formGroup.value.msg_body ?
-                            this.formGroup.value.msg_body.replace(/\n/g, '<br />\n') :
-                            ''
-                    );
-                }
-            });
+            setTimeout(() =>
+                // Need to initialize in a timeout for the editor element to be available
+                tinymce.init({
+                    selector: '#' + this.editorRef.nativeElement.id,
+                    plugins: ['image'],
+                    image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
+                        title: this.displayWithoutRBWUL(att.file),
+                        value: '/ajax/download_draft_attachment?filename=' + att.file
+                    })) : []),
+                    menubar: false,
+                    skin_url: '../_css/tinymceskin',
+                    setup: editor => {
+                        this.editor = editor;
+                        editor.on('Change', () => {
+                            this.formGroup.controls['msg_body'].setValue(editor.getContent());
+                        });
+                    },
+                    init_instance_callback: (editor) => {
+                        editor.setContent(
+                            this.formGroup.value.msg_body ?
+                                this.formGroup.value.msg_body.replace(/\n/g, '<br />\n') :
+                                ''
+                        );
+                    }
+                }), 0 );
         } else {
             if (this.editor) {
                 const textContent = this.editor.getContent({ format: 'text' });
