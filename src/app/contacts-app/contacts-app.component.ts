@@ -36,6 +36,7 @@ export class ContactsAppComponent {
     title = 'Contacts';
     contacts: Contact[];
     selectedContact: Contact;
+    sortMethod = 'lastname+';
 
     constructor(
         private contactsservice: ContactsService,
@@ -48,6 +49,7 @@ export class ContactsAppComponent {
         this.contactsservice.contactsSubject.subscribe(c => {
             console.log('Contacts.app: got the contacts!');
             this.contacts = c;
+            this.sortContacts();
         });
 
         this.contactsservice.informationLog.subscribe(
@@ -79,5 +81,28 @@ export class ContactsAppComponent {
                 duration: 5000,
             });
         }
+    }
+
+    sortContacts(): void {
+        this.contacts.sort((a, b) => {
+            const lastname  = a.last_name.localeCompare(b.last_name);
+            const firstname = a.first_name.localeCompare(b.first_name);
+
+            if (this.sortMethod === 'lastname+') {
+                return lastname || firstname;
+            }
+
+            if (this.sortMethod === 'lastname-') {
+                return (1 - lastname) || (1 - firstname);
+            }
+
+            if (this.sortMethod === 'firstname+') {
+                return firstname || lastname;
+            }
+
+            if (this.sortMethod === 'firstname-') {
+                return (1 - firstname) || (1 - lastname);
+            }
+        });
     }
 }
