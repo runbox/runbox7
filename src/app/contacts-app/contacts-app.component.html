@@ -14,9 +14,9 @@
 
             <mat-list-item *ngFor="let contact of contacts">
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
-                    <h4 mat-line>{{ contact.full_name() }}</h4>
+                    <h4 mat-line>{{ contact.display_name() }}</h4>
                 </a>
-                <a mat-icon-button matTooltip="Email {{ contact.full_name() }}" 
+                <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
                     *ngIf="contact.primary_email()"
                     routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
                   <mat-icon color="primary">email</mat-icon>

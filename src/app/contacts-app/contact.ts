@@ -98,10 +98,11 @@ export class Contact {
 
     display_name(): string {
         if (this.nickname) {
-            return this.nickname;
-        } else if (this.full_name()) {
-            return this.full_name();
+            const fn = this.full_name();
+            const postfix = fn ?  (' (' + fn + ')') : '';
+            return this.nickname + postfix;
         }
+        return this.full_name();
     }
 
     full_name(): string {
