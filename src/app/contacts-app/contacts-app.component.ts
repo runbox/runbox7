@@ -85,23 +85,45 @@ export class ContactsAppComponent {
 
     sortContacts(): void {
         this.contacts.sort((a, b) => {
-            const lastname  = a.last_name.localeCompare(b.last_name);
-            const firstname = a.first_name.localeCompare(b.first_name);
+            let firstname_order: number;
+            let lastname_order: number;
+
+            // all this complexity is so that the null values are always treated
+            // as last if they were alphabetically last
+            if (a.first_name === b.first_name) {
+                firstname_order = 0;
+            } else if (a.first_name === null) {
+                firstname_order = 1;
+            } else if (b.first_name === null) {
+                firstname_order = -1;
+            } else {
+                firstname_order = a.first_name.localeCompare(b.first_name);
+            }
+
+            if (a.last_name === b.last_name) {
+                lastname_order = 0;
+            } else if (a.last_name === null) {
+                lastname_order = 1;
+            } else if (b.last_name === null) {
+                lastname_order = -1;
+            } else {
+                lastname_order = a.last_name.localeCompare(b.last_name);
+            }
 
             if (this.sortMethod === 'lastname+') {
-                return lastname || firstname;
+                return lastname_order || firstname_order;
             }
 
             if (this.sortMethod === 'lastname-') {
-                return (1 - lastname) || (1 - firstname);
+                return (1 - lastname_order) || (1 - firstname_order);
             }
 
             if (this.sortMethod === 'firstname+') {
-                return firstname || lastname;
+                return firstname_order || lastname_order;
             }
 
             if (this.sortMethod === 'firstname-') {
-                return (1 - firstname) || (1 - lastname);
+                return (1 - firstname_order) || (1 - lastname_order);
             }
         });
     }
