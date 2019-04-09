@@ -19,6 +19,7 @@
 
 import { createServer, Server } from 'http';
 import { createWriteStream } from 'fs';
+import { mail_message_obj } from './emailresponse';
 
 const logger = createWriteStream('mockserver.log');
 function log(line) {
@@ -48,10 +49,22 @@ export class MockServer {
             if (requesturl.indexOf('/mail/download_xapian_index') === 0) {
                 if (requesturl.indexOf('folder=Trash') > -1) {
                     requesturl = '/mail/download_xapian_index?trash';
+                } else if (requesturl.indexOf('folder=Inbox') > -1) {
+                    requesturl = '/mail/download_xapian_index?inbox';
                 } else {
                     requesturl = '/mail/download_xapian_index';
                 }
 
+            }
+            const emailendpoint = requesturl.match(/\/rest\/v1\/email\/([0-9]+)/);
+            if (emailendpoint) {
+                const mailid = emailendpoint[1];
+                if (requesturl.endsWith('/html')) {
+                    response.end(mail_message_obj.result.text.html);
+                } else {
+                    response.end(JSON.stringify(mail_message_obj));
+                }
+                return;
             }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
@@ -72,6 +85,9 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
+                case '/rest/v1/addresses_contact':
+                    response.end(JSON.stringify({status: 'success', result: {addresses_contacts: []}}));
+                    break;
                 case '/rest/v1/me/defaultprofile':
                     response.end(JSON.stringify(this.defaultprofile()));
                     break;
@@ -86,6 +102,9 @@ export class MockServer {
                     break;
                 case '/mail/download_xapian_index':
                     response.end('');
+                    break;
+                case '/mail/download_xapian_index?inbox':
+                    response.end(this.inboxcontents());
                     break;
                 case '/mail/download_xapian_index?trash':
                     response.end(this.trashcontents());
@@ -123,6 +142,15 @@ export class MockServer {
                 `Test2<test2@lalala.no>	Re: nonsense	709	n	 `);
         }
         return trashlines.join('\n');
+    }
+
+    inboxcontents() {
+        const inboxlines = [];
+        for (let msg_id = 1; msg_id < 10; msg_id++) {
+            inboxlines.push(`${msg_id}	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>	Re: hello	709	n	 `);
+        }
+        return inboxlines.join('\n');
     }
 
     defaultprofile() {
