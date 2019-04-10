@@ -7,6 +7,59 @@ export class ComposePage {
         .then(() => browser.get('/compose?new=true')));
   }
 
+  async replyToMessage() {
+    await browser.get('/');
+
+    let shouldclosesyncdialog = true;
+    await browser.wait(until.elementLocated(
+            by.tagName('confirm-dialog')), 5000
+          ).catch(() => {
+            shouldclosesyncdialog = false;
+          })
+          .then(async () => {
+            if (shouldclosesyncdialog) {
+              const buttonLocator = by.css('.mat-dialog-actions button:nth-child(3)');
+              await browser.wait(until.elementLocated(buttonLocator), 10000);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              await element(buttonLocator).click();
+              console.log(await element(buttonLocator).getWebElement().getText());
+            }
+          });
+
+    browser.wait(async () => !(await element(
+        by.tagName('confirm-dialog')).isPresent()), 10000
+    );
+
+    const canvaselement = element(by.tagName('canvastable'));
+    await browser.wait(until.elementLocated(by.tagName('canvastable')), 10000);
+
+    await browser.actions()
+      .mouseMove(canvaselement, {x: 300, y: 10})
+      .click()
+      .perform();
+
+    await browser.wait(until.elementLocated(
+        by.tagName('single-mail-viewer')), 10000
+      );
+
+    const toggleHtmlCheckboxLocator = by.css('mat-checkbox[mattooltip="Toggle HTML view"]');
+    await browser.wait(until.elementLocated(toggleHtmlCheckboxLocator));
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await element(toggleHtmlCheckboxLocator).click();
+
+    const htmlDialogDontAskButtonLocator = by.cssContainingText('button', 'Manually toggle HTML');
+    browser.wait(() => element(htmlDialogDontAskButtonLocator).isPresent(), 10000);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    if (await element(htmlDialogDontAskButtonLocator).isPresent()) {
+      element(htmlDialogDontAskButtonLocator).click();
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const replyButtonLocator = by.css('button[mattooltip="Reply"]');
+    await browser.wait(until.elementLocated(replyButtonLocator));
+    await element(replyButtonLocator).click();
+  }
+
   waitForRedirect() {
     return browser.wait(until.elementLocated(by.tagName('mat-card-actions')), 10000);
   }

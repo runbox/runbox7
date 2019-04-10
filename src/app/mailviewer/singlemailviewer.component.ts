@@ -346,7 +346,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           html.push(raw.substr(0, i));
           ((u, t) => {
             html.push('<a ');
-            html.push('target="_blank" ');
+            html.push('target="_blank" rel="noopener"');
             html.push('href="',
               u.replace(/"/g, '&quot;'),
               '">');
