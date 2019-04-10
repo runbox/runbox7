@@ -29,11 +29,13 @@
                 </mat-form-field>
             </mat-list-item>
 
+            <!--
             <mat-list-item *ngIf="groupFilter.substr(0, 4) === 'USER'">
                 <a mat-button>
                   <mat-icon color="primary">email</mat-icon> Email this group
                 </a>
             </mat-list-item>
+            -->
 
             <mat-list-item *ngFor="let contact of shownContacts">
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
