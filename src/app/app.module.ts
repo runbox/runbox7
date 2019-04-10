@@ -49,6 +49,8 @@ import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { ComposeModule } from './compose/compose.module';
 import { ContactsAppModule } from './contacts-app/contacts-app.module';
 import { ContactsAppComponent } from './contacts-app/contacts-app.component';
+import { CalendarAppModule } from './calendar-app/calendar-app.module';
+import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { ProgressBrowserXhr, ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
@@ -80,6 +82,7 @@ const routes: Routes = [
         component: HeaderToolbarComponent
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
+      { path: 'calendar', component: CalendarAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -122,6 +125,7 @@ const routes: Routes = [
     DialogModule,
     WebSocketSearchModule,
     MailViewerModule,
+    CalendarAppModule,
     ContactsAppModule,
     ResizerModule,
     DomainRegisterModule,
