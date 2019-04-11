@@ -25,8 +25,11 @@
         <p>
             You have <strong>{{ settings.old_contacts_count }}</strong> old-style contacts that haven't been migrated yet.
         </p>
-        <p>
-            <a mat-button (click)="migrateContacts()">Click here to migrate them</a>
+        <p *ngIf="migrationPending; else migrateButton">
+            Your contact migration has been scheduled. It may take some time before it finishes.
         </p>
+        <ng-template #migrateButton>
+            <a mat-button (click)="migrateContacts()">Click here to migrate them</a>
+        </ng-template>
     </div>
 </div>

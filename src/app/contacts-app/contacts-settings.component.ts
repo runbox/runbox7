@@ -26,12 +26,22 @@ import { ContactsService } from './contacts.service';
 })
 export class ContactsSettingsComponent {
 
-    settingsLoaded = false;
-    settings:  any = {};
+    migrationPending = false;
+    settingsLoaded   = false;
+    settings:  any   = {};
 
     constructor(
         private contactsservice: ContactsService
     ) {
+        this.contactsservice.isMigrationPending().subscribe(
+            status => {
+                console.log('Migration pendingness:', status);
+                this.migrationPending = !!status;
+                if (this.migrationPending) {
+                    this.watchMigrationResult();
+                }
+            }
+        );
         this.contactsservice.settingsSubject.subscribe(settings => {
             // tslint:disable-next-line:forin
             for (const key in settings) {
@@ -39,6 +49,7 @@ export class ContactsSettingsComponent {
             }
             this.settingsLoaded = true;
         });
+
         this.contactsservice.contactsSubject.subscribe(c => {
             this.settings.old_contacts_count = 0;
             for (const contact of c) {
@@ -49,7 +60,25 @@ export class ContactsSettingsComponent {
         });
     }
 
+    watchMigrationResult(): void {
+        this.contactsservice.migrationResult.subscribe(
+            status => {
+                if (status === 0) {
+                    this.contactsservice.reload().subscribe(() => {
+                        this.migrationPending = false;
+                    });
+                }
+            }
+        );
+    }
+
     migrateContacts(): void {
-        this.contactsservice.migrateContacts();
+        this.migrationPending = true;
+        this.contactsservice.migrateContacts().subscribe(
+            status => {
+                this.migrationPending = true;
+                this.watchMigrationResult();
+            }
+        );
     }
 }

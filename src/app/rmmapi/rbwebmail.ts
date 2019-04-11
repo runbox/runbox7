@@ -524,9 +524,15 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public isMigrationPending(): Observable<any> {
+        return this.http.get('/rest/v1/addresses_contact/migrate', {}).pipe(
+            map((res: HttpResponse<any>) => res['status'])
+        );
+    }
+
     public migrateContacts(): Observable<any> {
         return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((res: HttpResponse<any>) => res)
+            map((res: HttpResponse<any>) => res['status'])
         );
     }
 }
