@@ -54,9 +54,9 @@ export class ContactsService {
             console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
 
-            let groups = {};
-            for (let c of contacts) {
-                for (let cat of c.categories) {
+            const groups = {};
+            for (const c of contacts) {
+                for (const cat of c.categories) {
                     groups[cat] = true;
                 }
             }

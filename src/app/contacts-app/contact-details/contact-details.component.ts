@@ -43,7 +43,7 @@ export class ContactDetailsComponent {
     groups = [];
 
     newGroupPromptShown = false;
-    newGroupValue = "";
+    newGroupValue = '';
     @ViewChild('newGroupInput') newGroupElement: ElementRef;
 
     constructor(
@@ -228,7 +228,7 @@ export class ContactDetailsComponent {
     confirmNewGroup(): void {
         this.groups.push(this.newGroupValue);
 
-        let categories = this.contactForm.get('categories').value;
+        const categories = this.contactForm.get('categories').value;
         categories.push(this.newGroupValue);
         this.contactForm.get('categories').setValue(categories);
 

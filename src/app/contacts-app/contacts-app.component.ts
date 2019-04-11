@@ -40,7 +40,7 @@ export class ContactsAppComponent {
     sortMethod = 'lastname+';
 
     groups      = [];
-    groupFilter = "RUNBOX:ALL";
+    groupFilter = 'RUNBOX:ALL';
 
     constructor(
         private contactsservice: ContactsService,
