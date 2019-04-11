@@ -32,6 +32,9 @@ export class ContactsService {
     contactGroups   = new ReplaySubject<string[]>();
     informationLog  = new Subject<string>();
     errorLog        = new Subject<HttpErrorResponse>();
+    migrationResult = new Subject<number>();
+
+    migrationWatcher: any;
 
     constructor(
         private rmmapi: RunboxWebmailAPI
@@ -48,9 +51,10 @@ export class ContactsService {
         this.errorLog.next(e);
     }
 
-    reload(): void {
+    reload(): Observable<any> {
         console.log('Reloading the contacts list');
-        this.rmmapi.getAllContacts().subscribe(contacts => {
+        const res = this.rmmapi.getAllContacts();
+        res.subscribe(contacts => {
             console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
 
@@ -62,6 +66,7 @@ export class ContactsService {
             }
             this.contactGroups.next(Object.keys(groups));
         }, e => this.apiErrorHandler(e));
+        return res;
     }
 
     saveContact(contact: Contact): void {
@@ -91,11 +96,46 @@ export class ContactsService {
         return deleteResult;
     }
 
+    isMigrationPending(): Observable<any> {
+        const res = this.rmmapi.isMigrationPending();
+        res.subscribe(status => {
+            console.log(status);
+            if (status === 1) {
+                console.log('Migration is pending, installing migration watcher');
+                this.installMigrationWatcher();
+            }
+        });
+        return res;
+    }
+
+    installMigrationWatcher(): void {
+        if (this.migrationWatcher) {
+            return;
+        }
+        this.migrationWatcher = setInterval(() => {
+            this.rmmapi.isMigrationPending().subscribe(
+                status => {
+                    this.migrationResult.next(status);
+                    if (status !== 1) {
+                        clearInterval(this.migrationWatcher);
+                        this.migrationWatcher = null;
+                        if (status === 0) {
+                            this.informationLog.next('Contact migration has finished');
+                        } else if (status === 2) {
+                            this.informationLog.next('Contact migration has failed. Try again later or contact us at community.runbox.com');
+                        }
+                    }
+                }
+            );
+        }, 5000);
+    }
+
     migrateContacts(): Observable<any> {
         const res = this.rmmapi.migrateContacts();
-        res.subscribe(() => {
-            this.informationLog.next('Contacts have been migrated');
-            this.reload();
+        res.subscribe(status => {
+            console.log('Contact migration status:', status);
+            this.informationLog.next('Contact migration has been scheduled. This may take some time');
+            this.installMigrationWatcher();
         }, e => this.apiErrorHandler(e));
         return res;
     }
