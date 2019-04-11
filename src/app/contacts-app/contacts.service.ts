@@ -29,6 +29,7 @@ export class ContactsService {
 
     settingsSubject = new AsyncSubject<any>();
     contactsSubject = new ReplaySubject<Contact[]>();
+    contactGroups   = new ReplaySubject<string[]>();
     informationLog  = new Subject<string>();
     errorLog        = new Subject<HttpErrorResponse>();
 
@@ -52,6 +53,14 @@ export class ContactsService {
         this.rmmapi.getAllContacts().subscribe(contacts => {
             console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
+
+            const groups = {};
+            for (const c of contacts) {
+                for (const cat of c.categories) {
+                    groups[cat] = true;
+                }
+            }
+            this.contactGroups.next(Object.keys(groups));
         }, e => this.apiErrorHandler(e));
     }
 

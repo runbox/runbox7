@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, OnChanges, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -39,6 +39,12 @@ export class ContactDetailsComponent {
     @Output() contactDeleted = new EventEmitter<Contact>();
 
     contactForm = this.createForm();
+
+    groups = [];
+
+    newGroupPromptShown = false;
+    newGroupValue = '';
+    @ViewChild('newGroupInput') newGroupElement: ElementRef;
 
     constructor(
         public dialog: MatDialog,
@@ -70,6 +76,8 @@ export class ContactDetailsComponent {
             }
             this.loadContact();
         });
+
+        contactsservice.contactGroups.subscribe(groups => this.groups = groups);
     }
 
     loadContact(): void {
@@ -98,7 +106,6 @@ export class ContactDetailsComponent {
         }
 
         this.contactForm.patchValue(this.contact);
-        this.contactForm.get('categories').disable();
     }
 
     createForm(): FormGroup {
@@ -206,5 +213,26 @@ export class ContactDetailsComponent {
             '&return_url=' + return_url,
             '_blank'
         );
+    }
+
+    showNewGroupPrompt(): void {
+        // clear the newly added 'undefined' from categories input
+        let categories = this.contactForm.get('categories').value;
+        categories = categories.filter(c => c);
+        this.contactForm.get('categories').setValue(categories);
+
+        this.newGroupPromptShown = true;
+        setTimeout(() => this.newGroupElement.nativeElement.focus());
+    }
+
+    confirmNewGroup(): void {
+        this.groups.push(this.newGroupValue);
+
+        const categories = this.contactForm.get('categories').value;
+        categories.push(this.newGroupValue);
+        this.contactForm.get('categories').setValue(categories);
+
+        this.newGroupValue = '';
+        this.newGroupPromptShown = false;
     }
 }

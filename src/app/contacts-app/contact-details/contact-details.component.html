@@ -20,9 +20,35 @@
                     <mat-form-field>
                         <input matInput formControlName="last_name" placeholder="Last Name">
                     </mat-form-field>
-                </td><td>
+                </td>
+                <td *ngIf="newGroupPromptShown">
                     <mat-form-field>
-                        <input matInput formControlName="categories" placeholder="Groups">
+                        <input matInput #newGroupInput placeholder="New group"
+                              [(ngModel)]="newGroupValue" [ngModelOptions]="{standalone: true}">
+                        <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
+                        <button matSuffix mat-icon-button (click)="newGroupPromptShown = false">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                        <button matSuffix mat-icon-button (click)="confirmNewGroup()">
+                            <mat-icon>check</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </td>
+                <td *ngIf="!newGroupPromptShown">
+                    <mat-form-field>
+                        <mat-label> Groups </mat-label>
+                        <mat-select formControlName="categories" placeholder="No groups" multiple>
+                            <mat-select-trigger>
+                                <span *ngIf="contactForm.get('categories').value; else no_groups">
+                                    {{ contactForm.get('categories').value }}
+                                </span>
+                                <ng-template #no_groups>
+                                    No groups
+                                </ng-template>
+                            </mat-select-trigger>
+                            <mat-option *ngFor="let group of groups" [value]="group"> {{ group }} </mat-option>
+                            <mat-option (click)="showNewGroupPrompt()"> Add a new group... </mat-option>
+                        </mat-select>
                     </mat-form-field>
                 </td>
             </tr>

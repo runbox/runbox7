@@ -34,9 +34,13 @@ import { ContactsService } from './contacts.service';
 })
 export class ContactsAppComponent {
     title = 'Contacts';
-    contacts: Contact[];
+    contacts: Contact[] = [];
+    shownContacts: Contact[] = [];
     selectedContact: Contact;
     sortMethod = 'lastname+';
+
+    groups      = [];
+    groupFilter = 'RUNBOX:ALL';
 
     constructor(
         private contactsservice: ContactsService,
@@ -49,7 +53,12 @@ export class ContactsAppComponent {
         this.contactsservice.contactsSubject.subscribe(c => {
             console.log('Contacts.app: got the contacts!');
             this.contacts = c;
-            this.sortContacts();
+            this.filterContacts();
+        });
+
+        contactsservice.contactGroups.subscribe(groups => {
+            this.groups = groups;
+            this.filterContacts();
         });
 
         this.contactsservice.informationLog.subscribe(
@@ -59,6 +68,22 @@ export class ContactsAppComponent {
         this.contactsservice.errorLog.subscribe(
             e => this.showError(e)
         );
+    }
+
+    filterContacts(): void {
+        this.shownContacts = this.contacts.filter(c => {
+            if (this.groupFilter === 'RUNBOX:ALL') {
+                return true;
+            }
+            if (this.groupFilter === 'RUNBOX:NONE' && c.categories.length === 0) {
+                return true;
+            }
+
+            const target = this.groupFilter.substr(5); // strip 'USER:'
+
+            return c.categories.find(g => g === target);
+        });
+        this.sortContacts();
     }
 
     showNotification(message: string, action = 'Dismiss'): void {
@@ -84,7 +109,7 @@ export class ContactsAppComponent {
     }
 
     sortContacts(): void {
-        this.contacts.sort((a, b) => {
+        this.shownContacts.sort((a, b) => {
             let firstname_order: number;
             let lastname_order: number;
 
