@@ -423,13 +423,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   public openAttachment(attachmentIndex: number, download?: boolean) {
+    download = true; // as long as we don't have a separate domain for attachments, we cannot show them in a new tab/window
     const url_attachment = '/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex +
       (download === true ? '?download=true' : '');
-    if (download) {
+    // if (download) {
       location.href = url_attachment;
-    } else {
-      window.open(url_attachment);
-    }
+    // } else {
+      // We need a separate domain if it should be safe to introduce opening attachment in a new tab/window
+      // window.open(url_attachment);
+    // }
   }
 
   public downloadAttachmentFromServer(attachmentIndex: number) {
