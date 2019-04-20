@@ -913,7 +913,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.usewebsocketsearch = true;
         } else {
           const dialogRef = this.dialog.open(ConfirmDialog);
-          dialogRef.componentInstance.title = 'Welcome to Runbox 7 Webmail!';
+          dialogRef.componentInstance.title = 'Welcome to Runbox 7!';
           dialogRef.componentInstance.question =
             `Runbox 7 will now synchronize  with your device to give you an optimal webmail experience.
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;
