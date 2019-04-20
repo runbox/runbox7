@@ -52,7 +52,7 @@
 
     <mat-nav-list *ngIf="dataReady">
       <mat-list-item 
-        (click)="deleteLocalIndex();sidemenu.close()"
+        (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">	      
           <mat-icon mat-list-icon>sync_disabled</mat-icon> 
           <p mat-line>Stop index synchronization</p>
@@ -60,7 +60,7 @@
     </mat-nav-list>
 
     <mat-nav-list *ngIf="(xapianLoaded | async) && !dataReady && searchService.downloadProgress===null">
-      <mat-list-item (click)="downloadIndexFromServer();sidemenu.close()" matTooltip="Synchronize index with your device">	
+      <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">	
         <mat-icon mat-list-icon>sync</mat-icon>
         <p mat-line>Synchronize index</p>
       </mat-list-item>
