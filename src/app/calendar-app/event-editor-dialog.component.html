@@ -1,0 +1,45 @@
+<h1 mat-dialog-title>{{ event.title || "New event" }}</h1>
+<div mat-dialog-content>
+    <p>
+        <mat-form-field>
+            <input matInput type="text" placeholder="Title" [(ngModel)]="event.title">
+        </mat-form-field>
+    </p><p>
+        <mat-form-field>
+            <mat-label> Calendar </mat-label>
+            <mat-select placeholder="Calendar" [(ngModel)]="event.calendar">
+                <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
+                    {{ calendar.toString() }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </p><p>
+        <label>Start</label>
+        <input [(ngModel)]="event.start"
+               [owlDateTimeTrigger]="start_dt" [owlDateTime]="start_dt">
+        <owl-date-time #start_dt></owl-date-time>
+    </p><p>
+        <label>End</label>
+        <input [(ngModel)]="event.end"
+               [owlDateTimeTrigger]="end_dt" [owlDateTime]="end_dt">
+        <owl-date-time #end_dt></owl-date-time>
+    </p><p>
+        <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
+    </p>
+
+</div>
+<div mat-dialog-actions style="justify-content: flex-end;">
+    <button *ngIf="event.id"
+            mat-raised-button color="warn"
+            (click)="onDeleteClick()">Delete this event</button>
+
+    <button mat-button
+            (click)="onCancelClick()">Cancel</button>
+
+    <button mat-raised-button color="primary"
+            (click)="onSubmitClick()">
+        <span *ngIf="event.id">  Update </span>
+        <span *ngIf="!event.id"> Create </span>
+    </button>
+
+</div>

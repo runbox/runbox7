@@ -23,6 +23,8 @@ import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 
 import { Contact } from '../contacts-app/contact';
+import { RunboxCalendar } from '../calendar-app/runbox-calendar';
+import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
@@ -533,6 +535,57 @@ export class RunboxWebmailAPI {
     public migrateContacts(): Observable<any> {
         return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
             map((res: HttpResponse<any>) => res['status'])
+        );
+    }
+
+    public getCalendars(): Observable<RunboxCalendar[]> {
+        return this.http.get('/rest/v1/calendar/calendars').pipe(
+            map((res: HttpResponse<any>) => res['result']['calendars']),
+            map((calendars: any[]) =>
+                calendars.map((c) => new RunboxCalendar(c))
+            )
+        );
+    }
+
+    public addCalendar(e: RunboxCalendar): Observable<any> {
+        return this.http.put('/rest/v1/calendar/calendars', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public modifyCalendar(e: RunboxCalendar): Observable<any> {
+        return this.http.post('/rest/v1/calendar/calendars', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public deleteCalendar(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/calendar/calendars/' + id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public getCalendarEvents(): Observable<any> {
+        return this.http.get('/rest/v1/calendar/events').pipe(
+            map((res: HttpResponse<any>) => res['result']['events'])
+        );
+    }
+
+    public addCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
+        return this.http.put('/rest/v1/calendar/events', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public modifyCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
+        return this.http.post('/rest/v1/calendar/events/' + e.id, e).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public deleteCalendarEvent(id: string|number): Observable<any> {
+        return this.http.delete('/rest/v1/calendar/events/' + id).pipe(
+            map((res: HttpResponse<any>) => res)
         );
     }
 }

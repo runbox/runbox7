@@ -1,0 +1,30 @@
+<h1 mat-dialog-title>Select colour</h1>
+
+<div mat-dialog-content>
+    <p>
+        <button mat-icon-button *ngFor="let color of colors" (click)="this.selected = color">
+            <mat-icon [ngStyle]="{ 'color': color }">
+                brightness_1
+            </mat-icon>
+        </button>
+    </p>
+
+    <p *ngIf="selected">
+        Selected colour:
+        <mat-icon [ngStyle]="{ 'color': selected }"> brightness_1 </mat-icon>
+        {{ selected }}
+    </p>
+</div>
+
+<div mat-dialog-actions style="justify-content: flex-end;">
+    <button mat-button
+            (click)="this.dialogRef.close()">Cancel</button>
+
+    <button mat-button
+            (click)="onSurpriseMeClick()">Surprise me!</button>
+
+    <button mat-raised-button color="primary"
+            (click)="this.dialogRef.close(this.selected)">
+        Select
+    </button>
+</div>
