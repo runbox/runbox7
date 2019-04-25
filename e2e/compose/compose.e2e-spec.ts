@@ -54,7 +54,7 @@ describe('Compose', () => {
     await browser.switchTo().frame(element(iframelocator).getWebElement());
 
     console.log('switched to tinymce iframe');
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     console.log(await element(by.tagName('body')).getText());
     expect(await element(by.tagName('body')).getText()).toContain('Testing session timeout');
     console.log('reply text located');
