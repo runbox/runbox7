@@ -221,36 +221,40 @@ export class FolderListComponent {
     }
 
     async emptyTrash() {
-        this.folders.pipe(
+        const trashFolderName = await this.folders.pipe(
             map(folders => folders.find(f => f.folderType === 'trash').folderName),
-            tap(trashFolderName => this.selectFolder(trashFolderName)),
-            mergeMap((trashFolderName) =>
-                this.messagelistservice.messagesInViewSubject.pipe(
-                    take(2),
-                    last()
-                )
-            ),
-            mergeMap(messageLists =>
-                this.rmmapi.trashMessages(messageLists.map(msg => msg.id))
-            ),
-            tap(() => this.messagelistservice.refreshFolderCount())
+            take(1)
         ).toPromise();
+
+        if (trashFolderName) {
+            console.log('found trash folder with name', trashFolderName);
+            const messageLists = await this.rmmapi.listAllMessages(0, 0, 0,
+                    RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE
+                    , true, trashFolderName).toPromise();
+            await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+            this.messagelistservice.refreshFolderCount();
+            console.log('Deleted from', trashFolderName);
+        } else {
+            console.error('no trash folder found', trashFolderName);
+        }
     }
 
     async emptySpam() {
-        this.folders.pipe(
+        const spamFolderName = await this.folders.pipe(
             map(folders => folders.find(f => f.folderType === 'spam').folderName),
-            tap(trashFolderName => this.selectFolder(trashFolderName)),
-            mergeMap((trashFolderName) =>
-                this.messagelistservice.messagesInViewSubject.pipe(
-                    take(2),
-                    last()
-                )
-            ),
-            mergeMap(messageLists =>
-                this.rmmapi.trashMessages(messageLists.map(msg => msg.id))
-            ),
-            tap(() => this.messagelistservice.refreshFolderCount())
+            take(1)
         ).toPromise();
+
+        if (spamFolderName) {
+            console.log('found spam folder with name', spamFolderName);
+            const messageLists = await this.rmmapi.listAllMessages(0, 0, 0,
+                    RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE
+                    , true, spamFolderName).toPromise();
+            await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+            this.messagelistservice.refreshFolderCount();
+            console.log('Deleted from', spamFolderName);
+        } else {
+            console.error('no spam folder found', spamFolderName);
+        }
     }
 }
