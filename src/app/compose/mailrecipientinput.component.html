@@ -23,6 +23,6 @@
 </mat-form-field>
 <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addRecipientFromAutoComplete($event.option.value)">
     <mat-option *ngFor="let recipient of filteredRecipients | async" [value]="recipient">
-        {{ recipient }}
+        {{ recipient.name }}
     </mat-option>
 </mat-autocomplete>
