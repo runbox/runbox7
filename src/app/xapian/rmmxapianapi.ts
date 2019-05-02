@@ -50,6 +50,7 @@ export class XapianAPI {
   public getNumericValue: (docid: number, slot: number) => number = Module.cwrap('getNumericValue', 'number', ['number', 'number']);
   public termlist: (prefix: string) => number = Module.cwrap('termlist', 'number', ['string']);
   public documentTermList: (docid: number) => number = Module.cwrap('documentTermList', 'number', ['number']);
+  public documentXTermList: (docid: number) => number = Module.cwrap('documentXTermList', 'number', ['number']);
   public deleteDocumentByUniqueTerm: (id: string) => void = Module.cwrap('deleteDocumentByUniqueTerm', null, ['string']);
   public deleteDocumentFromAddedWritablesByUniqueTerm: (id: string) => number =
     Module.cwrap('deleteDocumentFromAddedWritablesByUniqueTerm', 'number', ['string']);
