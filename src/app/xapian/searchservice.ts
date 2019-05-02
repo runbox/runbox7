@@ -861,7 +861,7 @@ export class SearchService {
                 currentDocData.textcontent = contentobj.text.text;
               });
 
-            this.api.documentTermList(docid);
+            this.api.documentXTermList(docid);
               (Module.documenttermlistresult as string[])
                 .forEach(s => {
                   if (s.indexOf('XFOLDER:') === 0) {
