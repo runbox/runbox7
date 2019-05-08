@@ -30,6 +30,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { CalendarService } from './calendar.service';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
+import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
@@ -55,6 +56,7 @@ import {
   declarations: [
     CalendarAppComponent,
     CalendarEditorDialogComponent,
+    CalendarSettingsDialogComponent,
     ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
     EventEditorDialogComponent,
@@ -88,6 +90,7 @@ import {
   ],
   entryComponents: [
     CalendarEditorDialogComponent,
+    CalendarSettingsDialogComponent,
     ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
     EventEditorDialogComponent,

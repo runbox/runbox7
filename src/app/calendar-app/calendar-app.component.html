@@ -18,6 +18,11 @@
                 </button>
             </mat-list-item>
             <mat-list-item>
+                <button mat-button (click)="openSettings()">
+                    <mat-icon>settings</mat-icon> Settings
+                </button>
+            </mat-list-item>
+            <mat-list-item>
                 <h4> Calendars </h4>
                 <button mat-icon-button (click)="showAddCalendarDialog()">
                     <mat-icon> add </mat-icon>
@@ -71,8 +76,7 @@
             >
                 Next
             </button>
-
-            <strong>
+            <strong *ngIf="view">
                 {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
             </strong>
 
@@ -152,6 +156,7 @@
             [events]="shown_events"
             [refresh]="refresh"
             [activeDayIsOpen]="activeDayIsOpen"
+            [weekStartsOn]="settings.weekStartsOnSunday ? 0 : 1"
             (dayClicked)="dayClicked($event.day)"
             (eventClicked)="openEvent($event.event)"
             (eventTimesChanged)="eventTimesChanged($event)"
@@ -163,6 +168,7 @@
             [viewDate]="viewDate"
             [events]="shown_events"
             [refresh]="refresh"
+            [weekStartsOn]="settings.weekStartsOnSunday ? 0 : 1"
             (eventClicked)="openEvent($event.event)"
             (eventTimesChanged)="eventTimesChanged($event)"
             (beforeViewRender)="beforeViewRender($event)"
