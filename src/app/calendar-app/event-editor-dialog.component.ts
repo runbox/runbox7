@@ -26,6 +26,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 import * as moment from 'moment';
+import { RRule } from 'rrule';
 
 @Component({
     selector: 'app-calendar-event-editor-dialog',
@@ -41,6 +42,16 @@ export class EventEditorDialogComponent {
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
 
+    recurring_frequency: number;
+    recurrence_frequencies = [
+        { name: 'No',      val: -1            },
+        { name: 'Hourly',  val: RRule.HOURLY  },
+        { name: 'Daily',   val: RRule.DAILY   },
+        { name: 'Weekly',  val: RRule.WEEKLY  },
+        { name: 'Monthly', val: RRule.MONTHLY },
+        { name: 'Yearly',  val: RRule.YEARLY  },
+    ];
+
     constructor(
         private dialog: MatDialog,
         public dialogRef: MatDialogRef<EventEditorDialogComponent>,
@@ -52,6 +63,7 @@ export class EventEditorDialogComponent {
         }
         this.event.refreshDates();
         this.calendars = data['calendars'];
+        this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;
     }
 
     onDeleteClick(): void {
@@ -79,6 +91,16 @@ export class EventEditorDialogComponent {
         }
         this.event.dtstart = moment(this.event.start);
         this.event.dtend = moment(this.event.end);
+
+        if (this.recurring_frequency === -1) {
+            if (this.event.rrule) {
+                this.event.rrule = undefined;
+            }
+        } else {
+            // FIXME preserve possible existing other settings!
+            this.event.rrule = new RRule({ dtstart: this.event.start, freq: this.recurring_frequency });
+        }
+
         this.dialogRef.close(this.event);
     }
 }

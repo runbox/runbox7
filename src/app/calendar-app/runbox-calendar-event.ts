@@ -125,6 +125,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     toJSON(): any {
+        let rruleLine: string;
+        if (this.rrule) {
+            rruleLine = this.rrule.toString().split('\n').find(l => l.indexOf('RRULE') == 0);
+            if (rruleLine) {
+                rruleLine = rruleLine.slice(6);
+            }
+        }
         return {
             id: this.id,
             calendar: this.calendar,
@@ -132,6 +139,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 dtstart: this.dateToJSON(this.dtstart.toDate()),
                 dtend: this.dtend ? this.dateToJSON(this.dtend.toDate()) : undefined,
                 summary: this.title,
+                rrule: rruleLine,
                 _all_day: this.allDay
             }
         };
