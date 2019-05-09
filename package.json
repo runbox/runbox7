@@ -44,6 +44,7 @@
     "material-design-icons": "^3.0.1",
     "moment": "^2.24.0",
     "ng-pick-datetime": "^7.0.0",
+    "rrule": "^2.6.0",
     "rxjs": "^6.5.2",
     "rxjs-compat": "^6.2.2",
     "tinymce": "4.7.4",

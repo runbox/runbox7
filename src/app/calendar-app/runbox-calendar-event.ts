@@ -19,6 +19,7 @@
 
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
+import { RRule, RRuleSet, rrulestr } from 'rrule';
 
 import {
     addDays,
@@ -35,6 +36,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     title:     string;
     allDay?:   boolean;
     calendar:  string;
+    rrule?:    RRule;
 
     color     = {} as EventColor;
     draggable = true;
@@ -53,11 +55,17 @@ export class RunboxCalendarEvent implements CalendarEvent {
             }
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
+            if (vevent.rrule) {
+                this.rrule = rrulestr(vevent.rrule, { dtstart: this.start });
+            }
         } else {
+            // "copy constructor" :)
             this.start  = event.start;
             this.end    = event.end;
             this.title  = event.title;
             this.allDay = event.allDay;
+            this.rrule  = event.rrule;
+            this.color  = event.color;
         }
 
         /*
