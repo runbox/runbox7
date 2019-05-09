@@ -33,6 +33,12 @@ export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
     start:     Date;
     end?:      Date;
+    // we need those separately from start/end
+    // start and end are for display pursposes only,
+    // and will be different from dtstart/dtend in
+    // recurring events
+    dtstart:   moment.Moment;
+    dtend?:    moment.Moment;
     title:     string;
     allDay?:   boolean;
     calendar:  string;
@@ -49,24 +55,28 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
         if (event['VEVENT']) {
             const vevent = event['VEVENT'];
-            this.start   = moment(vevent.dtstart, moment.ISO_8601).toDate();
+            this.dtstart = moment(vevent.dtstart, moment.ISO_8601);
             if (vevent.dtend) {
-                this.end = moment(vevent.dtend, moment.ISO_8601).toDate();
+                this.dtend = moment(vevent.dtend, moment.ISO_8601);
             }
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
             if (vevent.rrule) {
-                this.rrule = rrulestr(vevent.rrule, { dtstart: this.start });
+                this.rrule = rrulestr(vevent.rrule, { dtstart: this.dtstart.toDate() });
+                this.draggable = false;
             }
         } else {
             // "copy constructor" :)
-            this.start  = event.start;
-            this.end    = event.end;
-            this.title  = event.title;
-            this.allDay = event.allDay;
-            this.rrule  = event.rrule;
-            this.color  = event.color;
+            this.dtstart   = event.dtstart;
+            this.dtend     = event.dtend;
+            this.title     = event.title;
+            this.allDay    = event.allDay;
+            this.rrule     = event.rrule;
+            this.color     = event.color;
+            this.draggable = event.draggable;
         }
+
+        this.refreshDates();
 
         /*
         if (event.duration) {
@@ -88,6 +98,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
             }
         }
         */
+    }
+
+    refreshDates(): void {
+        this.start = this.dtstart.toDate();
+        if (this.dtend) {
+            this.end = this.dtend.toDate();
+        }
     }
 
     // borrowed from https://stackoverflow.com/a/36643588
@@ -112,8 +129,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
             id: this.id,
             calendar: this.calendar,
             VEVENT: {
-                dtstart: this.dateToJSON(this.start),
-                dtend: this.end ? this.dateToJSON(this.end) : undefined,
+                dtstart: this.dateToJSON(this.dtstart.toDate()),
+                dtend: this.dtend ? this.dateToJSON(this.dtend.toDate()) : undefined,
                 summary: this.title,
                 _all_day: this.allDay
             }

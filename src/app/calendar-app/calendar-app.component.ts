@@ -121,8 +121,8 @@ export class CalendarAppComponent {
             }
 
             let duration: moment.Duration;
-            if (e.end) {
-                duration = moment.duration(moment(e.end).diff(moment(e.start)));
+            if (e.dtend) {
+                duration = moment.duration(e.dtend.diff(e.dtstart));
             }
 
             for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
@@ -239,10 +239,12 @@ export class CalendarAppComponent {
     }
 
     eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-        event.start = newStart;
-        event.end = newEnd;
-        console.log('Event changed', event);
-        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
+        const rbevent = event as RunboxCalendarEvent;
+        rbevent.dtstart = moment(newStart);
+        rbevent.dtend = moment(newEnd);
+        rbevent.refreshDates();
+        console.log('Event changed', rbevent);
+        this.rmmapi.modifyCalendarEvent(rbevent).subscribe(
             res => {
                 console.log('Event updated:', res);
                 this.filterEvents();
