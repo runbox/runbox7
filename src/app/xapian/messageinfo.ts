@@ -113,7 +113,7 @@ export class MessageInfo {
             'VS:',
             'VB:'
         ];
-        const subjectparts = subject.split(' ');
+        const subjectparts = subject ? subject.split(' ') : [];
         let subjectTextStart = 0;
         while (emailsubjectabbreviations.find(abbr => abbr === subjectparts[subjectTextStart])) {
             subjectTextStart ++;
