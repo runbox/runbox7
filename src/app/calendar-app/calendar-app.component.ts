@@ -24,7 +24,12 @@ import {
     TemplateRef
 } from '@angular/core';
 
-import { MatDialog } from '@angular/material';
+import { HttpErrorResponse } from '@angular/common/http';
+
+import {
+    MatDialog,
+    MatSnackBar
+} from '@angular/material';
 
 import {
     isSameDay,
@@ -68,8 +73,9 @@ export class CalendarAppComponent {
     shown_events: RunboxCalendarEvent[] = [];
 
     constructor(
-        private dialog: MatDialog,
-        private rmmapi: RunboxWebmailAPI
+        private dialog:   MatDialog,
+        private rmmapi:   RunboxWebmailAPI,
+        private snackBar: MatSnackBar,
     ) {
         console.log('Fetching calendars and events');
         this.rmmapi.getCalendars().subscribe(calendars => {
@@ -78,7 +84,7 @@ export class CalendarAppComponent {
                 this.calendars.push(c);
             }
             this.updateEventColors();
-        });
+        }, e => this.showError(e));
         this.rmmapi.getCalendarEvents().subscribe(events => {
             console.log('Calendar events:', events);
             this.events = [];
@@ -88,7 +94,7 @@ export class CalendarAppComponent {
             console.log('Processed events:', this.events);
             this.updateEventColors();
             this.filterEvents();
-        });
+        }, e => this.showError(e));
     }
 
     showAddCalendarDialog(): void {
@@ -102,7 +108,7 @@ export class CalendarAppComponent {
             this.rmmapi.addCalendar(result).subscribe(() => {
                 console.log('Calendar created!');
                 this.calendars.push(result);
-            });
+            }, e => this.showError(e));
         });
     }
 
@@ -122,13 +128,13 @@ export class CalendarAppComponent {
                     console.log('Calendar deleted:', cal.id);
                     const idx = this.calendars.findIndex(c => c.id === cal.id);
                     this.calendars.splice(idx, 1);
-                });
+                }, e => this.showError(e));
             } else {
                 this.rmmapi.modifyCalendar(result).subscribe(() => {
                     console.log('Calendar edited:', result['id']);
                     const idx = this.calendars.findIndex(c => c.id === result['id']);
                     this.calendars.splice(idx, 1, result);
-                });
+                }, e => this.showError(e));
                 this.updateEventColors();
             }
         });
@@ -180,7 +186,7 @@ export class CalendarAppComponent {
             res => {
                 console.log('Event updated:', res);
                 this.filterEvents();
-            }
+            }, e => this.showError(e)
         );
     }
 
@@ -195,7 +201,7 @@ export class CalendarAppComponent {
                         const idx = this.events.findIndex(e => e.id === event.id);
                         this.events.splice(idx, 1);
                         this.filterEvents();
-                    }
+                    }, e => this.showError(e)
                 );
             } else if (result) {
                 console.log('Updating event:', result);
@@ -205,7 +211,7 @@ export class CalendarAppComponent {
                         const idx = this.events.findIndex(e => e.id === result.id);
                         this.events.splice(idx, 1, result);
                         this.filterEvents();
-                    }
+                    }, e => this.showError(e)
                 );
             }
         });
@@ -224,6 +230,22 @@ export class CalendarAppComponent {
                 });
             }
         });
+    }
+
+    showError(e: HttpErrorResponse): void {
+        let message = '';
+
+        if (e.status === 500) {
+            message = 'Internal server error';
+        } else {
+            console.log('Error ' + e.status +  ': ' + e.message);
+        }
+
+        if (message) {
+            this.snackBar.open(message, 'Ok :(', {
+                duration: 5000,
+            });
+        }
     }
 
     updateEventColors(): void {
