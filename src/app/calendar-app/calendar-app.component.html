@@ -91,7 +91,7 @@
         </mat-toolbar>
 
         <ng-template #dayViewTemplate let-day="day" let-locale="locale">
-            <div style="height: 15vmin;">
+            <div style="height: 15vh; width: 12vw;">
                 <div class="cal-cell-top">
                     <span class="cal-day-number">
                         {{ day.date | calendarDate:'monthViewDayNumber':locale }}
@@ -100,7 +100,7 @@
                         <button mat-button
                             *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
                             (click)="openEvent(event); $event.stopPropagation()"
-                            [ngStyle]="{ margin: '0px', 'text-align': 'left' }"
+                            [ngStyle]="{ margin: '0px', 'text-align': 'left', 'text-overflow': 'ellipsis', 'white-space': 'nowrap', overflow: 'hidden' }"
                         >
                             <strong *ngIf="!event.allDay && event.start.getDay() == day.date.getDay()">
                                 {{ event.start.getHours() }}:{{ ('0' + event.start.getMinutes()).slice(-2) }}
