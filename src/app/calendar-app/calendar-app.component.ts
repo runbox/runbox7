@@ -107,6 +107,36 @@ export class CalendarAppComponent {
         }, e => this.showError(e));
     }
 
+    addEvent(): void {
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars } });
+        dialogRef.afterClosed().subscribe(event => {
+            console.log('Dialog result:', event);
+            if (event) {
+                this.rmmapi.addCalendarEvent(event).subscribe(res => {
+                    console.log('Event created:', res);
+                    event.id = res.id;
+                    this.events.push(event);
+                    this.filterEvents();
+                }, e => this.showError(e));
+            }
+        });
+    }
+    beforeViewRender(viewRender:
+        | CalendarMonthViewBeforeRenderEvent
+        | CalendarWeekViewBeforeRenderEvent
+        | CalendarDayViewBeforeRenderEvent,
+    ): void {
+        if (
+          this.viewPeriod &&
+          this.viewPeriod.start.valueOf() === viewRender.period.start.valueOf() &&
+          this.viewPeriod.end.valueOf() === viewRender.period.end.valueOf()
+        ) {
+            return;
+        }
+        this.viewPeriod = viewRender.period;
+        this.filterEvents();
+    }
+
     calculateRecurringEvents(): void {
         if (!this.viewPeriod) {
             return;
@@ -148,35 +178,15 @@ export class CalendarAppComponent {
         this.cdr.detectChanges();
     }
 
-    beforeViewRender(viewRender:
-        | CalendarMonthViewBeforeRenderEvent
-        | CalendarWeekViewBeforeRenderEvent
-        | CalendarDayViewBeforeRenderEvent,
-    ): void {
-        if (
-          this.viewPeriod &&
-          this.viewPeriod.start.valueOf() === viewRender.period.start.valueOf() &&
-          this.viewPeriod.end.valueOf() === viewRender.period.end.valueOf()
-        ) {
-            return;
+    dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+        if (isSameMonth(date, this.viewDate)) {
+            this.viewDate = date;
+            if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen ) || events.length === 0) {
+                this.activeDayIsOpen = false;
+            } else {
+                this.activeDayIsOpen = true;
+            }
         }
-        this.viewPeriod = viewRender.period;
-        this.filterEvents();
-    }
-
-    showAddCalendarDialog(): void {
-        const dialogRef = this.dialog.open(CalendarEditorDialogComponent);
-        dialogRef.afterClosed().subscribe(result => {
-            console.log('Dialog result:', result);
-            if (!result) { return; }
-
-            result.generateID();
-
-            this.rmmapi.addCalendar(result).subscribe(() => {
-                console.log('Calendar created!');
-                this.calendars.push(result);
-            }, e => this.showError(e));
-        });
     }
 
     editCalendar(calendar_id: string): void {
@@ -207,10 +217,16 @@ export class CalendarAppComponent {
         });
     }
 
-    toggleCalendar(calendar_id: string): void {
-        const cal = this.calendars.find(c => c.id === calendar_id);
-        cal.shown = !cal.shown;
-        this.filterEvents();
+    eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
+        event.start = newStart;
+        event.end = newEnd;
+        console.log('Event changed', event);
+        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
+            res => {
+                console.log('Event updated:', res);
+                this.filterEvents();
+            }, e => this.showError(e)
+        );
     }
 
     filterEvents(): void {
@@ -233,31 +249,6 @@ export class CalendarAppComponent {
 
         this.calculateRecurringEvents();
         this.refresh.next();
-    }
-
-    dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-        if (isSameMonth(date, this.viewDate)) {
-            this.viewDate = date;
-            if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen ) || events.length === 0) {
-                this.activeDayIsOpen = false;
-            } else {
-                this.activeDayIsOpen = true;
-            }
-        }
-    }
-
-    eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-        const rbevent = event as RunboxCalendarEvent;
-        rbevent.dtstart = moment(newStart);
-        rbevent.dtend = moment(newEnd);
-        rbevent.refreshDates();
-        console.log('Event changed', rbevent);
-        this.rmmapi.modifyCalendarEvent(rbevent).subscribe(
-            res => {
-                console.log('Event updated:', res);
-                this.filterEvents();
-            }, e => this.showError(e)
-        );
     }
 
     openEvent(event: CalendarEvent): void {
@@ -289,18 +280,18 @@ export class CalendarAppComponent {
         });
     }
 
-    addEvent(): void {
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars } });
-        dialogRef.afterClosed().subscribe(event => {
-            console.log('Dialog result:', event);
-            if (event) {
-                this.rmmapi.addCalendarEvent(event).subscribe(res => {
-                    console.log('Event created:', res);
-                    event.id = res.id;
-                    this.events.push(event);
-                    this.filterEvents();
-                }, e => this.showError(e));
-            }
+    showAddCalendarDialog(): void {
+        const dialogRef = this.dialog.open(CalendarEditorDialogComponent);
+        dialogRef.afterClosed().subscribe(result => {
+            console.log('Dialog result:', result);
+            if (!result) { return; }
+
+            result.generateID();
+
+            this.rmmapi.addCalendar(result).subscribe(() => {
+                console.log('Calendar created!');
+                this.calendars.push(result);
+            }, e => this.showError(e));
         });
     }
 
@@ -318,6 +309,12 @@ export class CalendarAppComponent {
                 duration: 5000,
             });
         }
+    }
+
+    toggleCalendar(calendar_id: string): void {
+        const cal = this.calendars.find(c => c.id === calendar_id);
+        cal.shown = !cal.shown;
+        this.filterEvents();
     }
 
     updateEventColors(): void {
