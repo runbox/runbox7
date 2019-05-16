@@ -63,11 +63,8 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
         // Listen to search text input and popup suggestions from recipient list
         this.searchTextFormControl.valueChanges
             .pipe(debounceTime(50))
-            .subscribe((searchtext: string) => {
+            .subscribe((searchtext: string | Recipient) => {
                 if (searchtext) {
-                    // I know that searchtext is supposed to be a string,
-                    // but somehow it ends up being the recipient object
-                    // just as you click the autocomplete suggestion. Thus, .toString()
                     const lowercaseSearchText = searchtext.toString().toLowerCase();
                     this.filteredRecipients.next(
                         recipients.filter(recipient =>
