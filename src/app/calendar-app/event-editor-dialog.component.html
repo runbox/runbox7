@@ -26,9 +26,7 @@
         <owl-date-time #end_dt></owl-date-time>
     </p><p>
         <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
-    </p>
-
-    <p>
+    </p><p>
         <mat-form-field>
             <mat-label> Recurring </mat-label>
             <mat-select placeholder="Recurring" [(ngModel)]="recurring_frequency">
@@ -37,8 +35,13 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
+    </p><p>
+        <a *ngIf="export_url"
+            [href]="export_url"
+            mat-button>
+            <mat-icon> import_export </mat-icon> Export this event
+        </a>
     </p>
-
 </div>
 <div mat-dialog-actions style="justify-content: flex-end;">
     <button *ngIf="event.id"

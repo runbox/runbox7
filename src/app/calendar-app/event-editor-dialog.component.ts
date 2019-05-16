@@ -52,6 +52,8 @@ export class EventEditorDialogComponent {
         { name: 'Yearly',  val: RRule.YEARLY  },
     ];
 
+    export_url: string;
+
     constructor(
         private dialog: MatDialog,
         public dialogRef: MatDialogRef<EventEditorDialogComponent>,
@@ -60,6 +62,7 @@ export class EventEditorDialogComponent {
         if (data['event']) {
             this.event = data['event'];
             this.calendarFC.setValue(this.event.calendar);
+            this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
         }
         this.event.refreshDates();
         this.calendars = data['calendars'];
