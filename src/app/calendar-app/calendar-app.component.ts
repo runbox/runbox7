@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -57,6 +57,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
+import { ImportDialogComponent } from './import-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
 
@@ -75,6 +76,8 @@ export class CalendarAppComponent {
     activeDayIsOpen = false;
 
     refresh: Subject<any> = new Subject();
+
+    @ViewChild('icsUploadInput') icsUploadInput: any;
 
     calendars: RunboxCalendar[] = [];
 
@@ -95,16 +98,7 @@ export class CalendarAppComponent {
             }
             this.updateEventColors();
         }, e => this.showError(e));
-        this.rmmapi.getCalendarEvents().subscribe(events => {
-            console.log('Calendar events:', events);
-            this.events = [];
-            for (const e of events) {
-                this.events.push(new RunboxCalendarEvent(e));
-            }
-            console.log('Processed events:', this.events);
-            this.updateEventColors();
-            this.filterEvents();
-        }, e => this.showError(e));
+        this.reloadEvents();
     }
 
     addEvent(): void {
@@ -251,6 +245,29 @@ export class CalendarAppComponent {
         this.refresh.next();
     }
 
+    importEvent(): void {
+        this.icsUploadInput.nativeElement.click();
+    }
+
+    onIcsUploaded(uploadEvent: any) {
+        const file = uploadEvent.target.files[0];
+        const fr   = new FileReader();
+
+        fr.onload = (ev: any) => {
+            const ics = ev.target.result;
+            console.log(ics);
+            const dialogRef = this.dialog.open(ImportDialogComponent, { data: { ical: ics, calendars: this.calendars } });
+            dialogRef.afterClosed().subscribe(result => {
+                this.rmmapi.importCalendar(result, ics).subscribe(res => {
+                    this.reloadEvents();
+                    this.showInfo(res['events_imported'] + ' events imported');
+                });
+            });
+        };
+
+        fr.readAsText(file);
+    }
+
     openEvent(event: CalendarEvent): void {
         console.log('Opening event', event);
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
@@ -278,6 +295,19 @@ export class CalendarAppComponent {
                 );
             }
         });
+    }
+
+    reloadEvents(): void {
+        this.rmmapi.getCalendarEvents().subscribe(events => {
+            console.log('Calendar events:', events);
+            this.events = [];
+            for (const e of events) {
+                this.events.push(new RunboxCalendarEvent(e));
+            }
+            console.log('Processed events:', this.events);
+            this.updateEventColors();
+            this.filterEvents();
+        }, e => this.showError(e));
     }
 
     showAddCalendarDialog(): void {
@@ -309,6 +339,12 @@ export class CalendarAppComponent {
                 duration: 5000,
             });
         }
+    }
+
+    showInfo(message: string): void {
+        this.snackBar.open(message, 'Ok', {
+            duration: 3000,
+        });
     }
 
     toggleCalendar(calendar_id: string): void {

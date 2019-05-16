@@ -12,7 +12,10 @@
                 </button>
             </mat-list-item>
             <mat-list-item>
-                <button mat-button> <mat-icon>import_export</mat-icon> Import event  </button>
+                <input #icsUploadInput type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
+                <button mat-button (click)="importEvent()">
+                    <mat-icon>import_export</mat-icon> Import event
+                </button>
             </mat-list-item>
             <mat-list-item>
                 <h4> Calendars </h4>
