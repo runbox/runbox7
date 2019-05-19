@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { RecipientsService } from './recipients.service';
+import { ContactsService } from '../contacts-app/contacts.service';
 import { Injector } from '@angular/core';
 import { SearchService } from '../xapian/searchservice';
 import { AsyncSubject, Observable, of } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { XapianAPI } from '../xapian/rmmxapianapi';
 import { xapianLoadedSubject } from '../xapian/xapianwebloader';
 import { Contact } from '../contacts-app/contact';
@@ -105,6 +107,10 @@ export class RunboxWebMailAPIMock {
             })
         ]);
     }
+
+    public getContactsSettings(): Observable<any> {
+        return of({});
+    }
 }
 
 describe('RecipientsService', () => {
@@ -114,7 +120,7 @@ describe('RecipientsService', () => {
         const testingmodule = TestBed.configureTestingModule({
             imports: [],
             declarations: [ ], // declare the test component
-            providers: [RecipientsService,
+            providers: [RecipientsService, ContactsService,
                 {provide: SearchService, useClass: MockSearchService },
                 {provide: RunboxWebmailAPI, useClass: RunboxWebMailAPIMock }
             ]
@@ -125,16 +131,19 @@ describe('RecipientsService', () => {
     it('Should get recipients from contacts', async () => {
         const recipientsService = injector.get(RecipientsService);
 
-        const recipients = await recipientsService.recipients.toPromise();
+        const recipients = await recipientsService.recipients.pipe(take(1)).toPromise();
         console.log(recipients);
 
         expect(window['termlistresult'].length).toBe(5);
         expect(window['termlistresult'].find(r => r === '"TESTINGPERSON" <test@example.com>')).toBeTruthy();
 
         expect(recipients.length).toBe(4);
-        expect(recipients.find(r => r.indexOf('test@example.com') > -1)).toBe('"firstname lastname" <test@example.com>');
-        expect(recipients.find(r => r.indexOf('test2@example.com') > -1)).toBe('"firstname2 lastname2" <test2@example.com>');
-        expect(recipients.find(r => r.indexOf('test5@example.com') > -1)).toBe('"TEST5" <test5@example.com>');
+        expect(recipients.find(r => r.toString().indexOf('test@example.com') > -1).toString())
+            .toBe('"firstname lastname" <test@example.com>');
+        expect(recipients.find(r => r.toString().indexOf('test2@example.com') > -1).toString())
+            .toBe('"firstname2 lastname2" <test2@example.com>');
+        expect(recipients.find(r => r.toString().indexOf('test5@example.com') > -1).toString())
+            .toBe('"TEST5" <test5@example.com>');
         console.log('All expectations met');
     });
 });
