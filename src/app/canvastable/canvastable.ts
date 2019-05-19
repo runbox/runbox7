@@ -234,6 +234,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     }
   }
 
+  private dragSelectionDirectionIsDown: Boolean = null;
+
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
 
@@ -352,6 +354,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       if (this.visibleColumnSeparatorIndex > 0) {
         this.columnresizestart.emit({ colindex: this.visibleColumnSeparatorIndex, clientx: event.clientX });
       }
+
+      // Reset drag select direction
+      this.dragSelectionDirectionIsDown = null;
     };
 
     let previousTouchY: number;
@@ -435,32 +440,56 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       const canvrect = this.canv.getBoundingClientRect();
       const clientX = event.clientX - canvrect.left;
 
-      if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
-        this.columnresize.emit(this.visibleColumnSeparatorIndex);
-      } else {
-        this.updateVisibleColumnSeparatorIndex(clientX);
-      }
-
-      if (this.visibleColumnSeparatorIndex > 0) {
-        this.lastClientY = event.clientY - canvrect.top;
-        this.hasChanges = true;
-        return;
-      }
-
       let newHoverRowIndex = Math.floor(this.topindex + (event.clientY - canvrect.top) / this.rowheight);
       if (this.scrollbardrag || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
         newHoverRowIndex = null;
       }
 
       if (this.hoverRowIndex !== newHoverRowIndex) {
-        this.hoverRowIndex = newHoverRowIndex;
+        // check if mouse is down
         if (this.lastMouseDownEvent) {
+          // set drag select direction to true if down, or false if up
+          const newDragSelectionDirectionIsDown = newHoverRowIndex > this.hoverRowIndex ? true : false;
 
-          this.selectRow(this.lastMouseDownEvent.clientX, event.clientY);
+          if (this.dragSelectionDirectionIsDown !== newDragSelectionDirectionIsDown) {
+            // select previous row on drag select direction change
+            this.selectRowByIndex(this.lastMouseDownEvent.clientX, this.hoverRowIndex);
+            this.dragSelectionDirectionIsDown = newDragSelectionDirectionIsDown;
+          }
+          let rowIndex = this.hoverRowIndex;
+          // Select all rows between the previous and current hover row index
+          while (
+            (newDragSelectionDirectionIsDown === true && rowIndex < newHoverRowIndex) ||
+            (newDragSelectionDirectionIsDown === false && rowIndex > newHoverRowIndex)
+            ) {
+            if (newDragSelectionDirectionIsDown === true) {
+              rowIndex ++;
+            } else {
+              rowIndex --;
+            }
+            this.selectRowByIndex(this.lastMouseDownEvent.clientX, rowIndex);
+          }
         }
+        this.hoverRowIndex = newHoverRowIndex;
         this.updateDragImage(newHoverRowIndex);
       }
-      if (this.hoverRowIndex !== null) {
+
+      if (this.dragSelectionDirectionIsDown === null) {
+        // Check for column resize
+        if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
+          this.columnresize.emit(this.visibleColumnSeparatorIndex);
+        } else {
+          this.updateVisibleColumnSeparatorIndex(clientX);
+        }
+
+        if (this.visibleColumnSeparatorIndex > 0) {
+          this.lastClientY = event.clientY - canvrect.top;
+          this.hasChanges = true;
+          return;
+        }
+      }
+
+      if (this.dragSelectionDirectionIsDown === null && this.hoverRowIndex !== null) {
         const colIndex = this.getColIndexByClientX(clientX);
         let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
@@ -499,6 +528,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         this.floatingTooltip = null;
       }
     };
+
     this.canv.onmouseout = (event: MouseEvent) => {
       const newHoverRowIndex = null;
       if (this.hoverRowIndex !== newHoverRowIndex) {
@@ -526,6 +556,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       }
 
       this.lastMouseDownEvent = null;
+      this.dragSelectionDirectionIsDown = null;
     };
 
 
@@ -710,9 +741,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   public selectRow(clientX: number, clientY: number, multiSelect?: boolean) {
     const canvrect = this.canv.getBoundingClientRect();
-    clientX -= canvrect.left;
-
     const selectedRowIndex = Math.floor(this.topindex + (clientY - canvrect.top) / this.rowheight);
+    this.selectRowByIndex(clientX, selectedRowIndex, multiSelect);
+  }
+
+  public selectRowByIndex(clientX: number, selectedRowIndex: number, multiSelect?: boolean) {
+    const canvrect = this.canv.getBoundingClientRect();
+    clientX -= canvrect.left;
 
     this.selectListener.rowSelected(selectedRowIndex,
       this.getColIndexByClientX(clientX),
