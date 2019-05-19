@@ -179,6 +179,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   private scrollBarRect: any;
 
+  private isTouchZoom = false;
   private touchdownxy: any;
   private scrollbardrag: Boolean = false;
   private scrollbarArea = false;
@@ -358,6 +359,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     let touchMoved = false;
 
     this.canv.addEventListener('touchstart', (event: TouchEvent) => {
+      this.isTouchZoom = false;
 
       this.canv.focus(); // Take away focus from search field
       previousTouchX = event.targetTouches[0].clientX;
@@ -372,6 +374,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
 
     this.canv.addEventListener('touchmove', (event: TouchEvent) => {
+      if (event.targetTouches.length > 1) {
+        this.isTouchZoom = true;
+        return;
+      }
       event.preventDefault();
       touchMoved = true;
 
@@ -401,6 +407,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     }, false);
 
     this.canv.addEventListener('touchend', (event: TouchEvent) => {
+      if (this.isTouchZoom) {
+        return;
+      }
       event.preventDefault();
       if (!this.scrollbarArea && !touchMoved) {
         this.selectRow(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
