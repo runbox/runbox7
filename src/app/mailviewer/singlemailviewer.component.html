@@ -306,6 +306,10 @@
               </ng-template>              
               <mat-grid-tile-footer style="display: flex; text-align: center">
                   <span>{{att.fileName}}</span>                      
+                  <button mat-icon-button *ngIf="att.fileName==='encrypted.asc'"
+                    matTooltip="Decrypt message"
+                    (click)="decryptAttachment(i);$event.stopPropagation()"
+                  ><mat-icon>lock_open</mat-icon></button>
                   <button mat-icon-button
                     (click)="openAttachment(i,true);$event.stopPropagation()"
                   ><mat-icon>cloud_download</mat-icon></button>
