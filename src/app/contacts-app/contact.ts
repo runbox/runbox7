@@ -97,11 +97,16 @@ export class Contact {
     }
 
     display_name(): string|null {
+        if (this.show_as_company()) {
+            return this.company;
+        }
+
         if (this.nickname) {
             const fn = this.full_name();
             const postfix = fn ?  (' (' + fn + ')') : '';
             return this.nickname + postfix;
         }
+
         return this.full_name();
     }
 
@@ -120,5 +125,9 @@ export class Contact {
             return this.emails[0].value;
         }
         return null;
+    }
+
+    show_as_company(): boolean {
+        return this['show_as'] === 'COMPANY';
     }
 }
