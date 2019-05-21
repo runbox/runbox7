@@ -28,6 +28,11 @@ import {
 
 import * as moment from 'moment';
 
+export class Vevent {
+    location?:    string;
+    description?: string;
+}
+
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
     start:     Date;
@@ -35,6 +40,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
     title:     string;
     allDay?:   boolean;
     calendar:  string;
+
+    vevent: Vevent = {};
 
     color     = {} as EventColor;
     draggable = true;
@@ -53,11 +60,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
             }
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
+            this.vevent  = vevent;
         } else {
             this.start  = event.start;
             this.end    = event.end;
             this.title  = event.title;
             this.allDay = event.allDay;
+            this.vevent = event.vevent;
         }
 
         /*
@@ -107,6 +116,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 dtstart: this.dateToJSON(this.start),
                 dtend: this.end ? this.dateToJSON(this.end) : undefined,
                 summary: this.title,
+                location: this.vevent.location,
+                description: this.vevent.description,
                 _all_day: this.allDay
             }
         };
