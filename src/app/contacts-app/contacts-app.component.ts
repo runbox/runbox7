@@ -41,6 +41,7 @@ export class ContactsAppComponent {
 
     groups      = [];
     groupFilter = 'RUNBOX:ALL';
+    searchTerm  = '';
 
     constructor(
         private contactsservice: ContactsService,
@@ -82,6 +83,8 @@ export class ContactsAppComponent {
             const target = this.groupFilter.substr(5); // strip 'USER:'
 
             return c.categories.find(g => g === target);
+        }).filter(c => {
+            return c.display_name().toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1;
         });
         this.sortContacts();
     }
