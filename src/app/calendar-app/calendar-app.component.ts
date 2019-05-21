@@ -227,7 +227,7 @@ export class CalendarAppComponent {
                     event.id = res.id;
                     this.events.push(event);
                     this.filterEvents();
-                });
+                }, e => this.showError(e));
             }
         });
     }
