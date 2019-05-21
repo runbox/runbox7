@@ -254,7 +254,9 @@ export class CalendarAppComponent {
 
     openEvent(event: CalendarEvent): void {
         console.log('Opening event', event);
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { event: event, calendars: this.calendars } });
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            data: { event: new RunboxCalendarEvent(event), calendars: this.calendars }
+        });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
                 this.rmmapi.deleteCalendarEvent(event.id).subscribe(

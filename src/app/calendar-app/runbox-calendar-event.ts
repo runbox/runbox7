@@ -127,7 +127,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     toJSON(): any {
         let rruleLine: string;
         if (this.rrule) {
-            rruleLine = this.rrule.toString().split('\n').find(l => l.indexOf('RRULE') == 0);
+            rruleLine = this.rrule.toString().split('\n').find(l => l.indexOf('RRULE') === 0);
             if (rruleLine) {
                 rruleLine = rruleLine.slice(6);
             }
