@@ -261,7 +261,7 @@ export class CalendarAppComponent {
                 this.rmmapi.importCalendar(result, ics).subscribe(res => {
                     this.reloadEvents();
                     this.showInfo(res['events_imported'] + ' events imported');
-                });
+                }, e => this.showError(e));
             });
         };
 

@@ -4,11 +4,12 @@
     <p>
         <mat-form-field>
             <mat-label> Calendar to import into: </mat-label>
-            <mat-select placeholder="Calendar" [(ngModel)]="target">
+            <mat-select placeholder="Calendar" [formControl]="target" required>
                 <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
                     {{ calendar.toString() }}
                 </mat-option>
             </mat-select>
+            <mat-error *ngIf="target.hasError('required')">You must pick a calendar</mat-error>
         </mat-form-field>
     </p>
 </div>

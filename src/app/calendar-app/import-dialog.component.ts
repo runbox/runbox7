@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendar } from './runbox-calendar';
@@ -29,7 +30,8 @@ import { RunboxCalendar } from './runbox-calendar';
 export class ImportDialogComponent {
     ical:      string;
     calendars: RunboxCalendar[];
-    target:    string;
+
+    target = new FormControl('', Validators.required);
 
     constructor(
         private dialog: MatDialog,
@@ -45,6 +47,13 @@ export class ImportDialogComponent {
     }
 
     onSubmitClick(): void {
-        this.dialogRef.close(this.target);
+        if (this.target.invalid) {
+            // an error notification doesn't pop up by itself
+            // if the user never clicked the control before,
+            // so let's help it a little
+            this.target.markAsTouched();
+        } else {
+            this.dialogRef.close(this.target.value);
+        }
     }
 }
