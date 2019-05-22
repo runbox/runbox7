@@ -19,6 +19,7 @@
 
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
+import { RRule, RRuleSet, rrulestr } from 'rrule';
 
 import {
     addDays,
@@ -37,9 +38,16 @@ export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
     start:     Date;
     end?:      Date;
+    // we need those separately from start/end
+    // start and end are for display pursposes only,
+    // and will be different from dtstart/dtend in
+    // recurring events
+    dtstart:   moment.Moment;
+    dtend?:    moment.Moment;
     title:     string;
     allDay?:   boolean;
     calendar:  string;
+    rrule?:    RRule;
 
     vevent: Vevent = {};
 
@@ -54,20 +62,30 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
         if (event['VEVENT']) {
             const vevent = event['VEVENT'];
-            this.start   = moment(vevent.dtstart, moment.ISO_8601).toDate();
+            this.dtstart = moment(vevent.dtstart, moment.ISO_8601);
             if (vevent.dtend) {
-                this.end = moment(vevent.dtend, moment.ISO_8601).toDate();
+                this.dtend = moment(vevent.dtend, moment.ISO_8601);
             }
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
             this.vevent  = vevent;
+            if (vevent.rrule) {
+                this.rrule = rrulestr(vevent.rrule);
+                this.draggable = false;
+            }
         } else {
-            this.start  = event.start;
-            this.end    = event.end;
-            this.title  = event.title;
-            this.allDay = event.allDay;
-            this.vevent = event.vevent;
+            // "copy constructor" :)
+            this.dtstart   = event.dtstart;
+            this.dtend     = event.dtend;
+            this.title     = event.title;
+            this.allDay    = event.allDay;
+            this.vevent    = event.vevent;
+            this.rrule     = event.rrule;
+            this.color     = event.color;
+            this.draggable = event.draggable;
         }
+
+        this.refreshDates();
 
         /*
         if (event.duration) {
@@ -91,6 +109,31 @@ export class RunboxCalendarEvent implements CalendarEvent {
         */
     }
 
+    refreshDates(): void {
+        // this method (re)sets the attributes required for displaying the event
+        // based on the dates actually stored in it.
+        //
+        // They won't always be the same: each instance of a recurring event
+        // will have a different start/end, but the same dtstart/dtend.
+
+        this.start = this.dtstart.toDate();
+        if (this.dtend) {
+            this.end = this.dtend.toDate();
+        }
+    }
+
+    setRecurringFrequency(frequency: number): void {
+        if (frequency === -1) {
+            if (this.rrule) {
+                this.rrule = undefined;
+            }
+        } else {
+            const ruleOpts = this.rrule ? this.rrule.origOptions : {};
+            ruleOpts.freq  = frequency;
+            this.rrule     = new RRule(ruleOpts);
+        }
+    }
+
     // borrowed from https://stackoverflow.com/a/36643588
     dateToJSON(date: Date): string {
         const timezoneOffsetInHours = -(date.getTimezoneOffset() / 60); // UTC minus local time
@@ -109,18 +152,25 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     toJSON(): any {
+        let rruleLine: string;
+        if (this.rrule) {
+            rruleLine = this.rrule.toString().split('\n').find(l => l.indexOf('RRULE') === 0);
+            if (rruleLine) {
+                rruleLine = rruleLine.slice(6);
+            }
+        }
         return {
             id: this.id,
             calendar: this.calendar,
             VEVENT: {
-                dtstart: this.dateToJSON(this.start),
-                dtend: this.end ? this.dateToJSON(this.end) : undefined,
+                dtstart: this.dateToJSON(this.dtstart.toDate()),
+                dtend: this.dtend ? this.dateToJSON(this.dtend.toDate()) : undefined,
                 summary: this.title,
                 location: this.vevent.location,
                 description: this.vevent.description,
+                rrule: rruleLine,
                 _all_day: this.allDay
             }
         };
     }
 }
-

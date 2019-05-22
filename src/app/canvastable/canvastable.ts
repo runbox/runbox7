@@ -652,12 +652,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       event.dataTransfer.dropEffect = 'move';
       event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
+      this.selectListener.rowSelected(selectedRowIndex, -1, this.rows[selectedRowIndex]);
     } else {
       event.preventDefault();
       this.lastMouseDownEvent = event;
     }
 
-    this.selectListener.rowSelected(selectedRowIndex, -1, this.rows[selectedRowIndex]);
     this.hasChanges = true;
   }
 

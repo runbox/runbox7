@@ -18,11 +18,15 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
+
+import * as moment from 'moment';
+import { RRule } from 'rrule';
 
 @Component({
     selector: 'app-calendar-event-editor-dialog',
@@ -31,11 +35,22 @@ import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.
 export class EventEditorDialogComponent {
     event = new RunboxCalendarEvent({
         title: '',
-        start: new Date(),
-        end: new Date(),
+        dtstart: moment(),
+        dtend: moment(),
         allDay: false,
     });
     calendars: RunboxCalendar[];
+    calendarFC = new FormControl('', Validators.required);
+
+    recurring_frequency: number;
+    recurrence_frequencies = [
+        { name: 'No',      val: -1            },
+        { name: 'Hourly',  val: RRule.HOURLY  },
+        { name: 'Daily',   val: RRule.DAILY   },
+        { name: 'Weekly',  val: RRule.WEEKLY  },
+        { name: 'Monthly', val: RRule.MONTHLY },
+        { name: 'Yearly',  val: RRule.YEARLY  },
+    ];
 
     constructor(
         private dialog: MatDialog,
@@ -44,8 +59,11 @@ export class EventEditorDialogComponent {
     ) {
         if (data['event']) {
             this.event = data['event'];
+            this.calendarFC.setValue(this.event.calendar);
         }
+        this.event.refreshDates();
         this.calendars = data['calendars'];
+        this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;
     }
 
     onDeleteClick(): void {
@@ -62,6 +80,19 @@ export class EventEditorDialogComponent {
     }
 
     onSubmitClick(): void {
+        if (this.calendarFC.invalid) {
+            // an error notification doesn't pop up by itself
+            // if the user never clicked the control before,
+            // so let's help it a little
+            this.calendarFC.markAsTouched();
+            return;
+        } else {
+            this.event.calendar = this.calendarFC.value;
+        }
+        this.event.dtstart = moment(this.event.start);
+        this.event.dtend = moment(this.event.end);
+        this.event.setRecurringFrequency(this.recurring_frequency);
+
         this.dialogRef.close(this.event);
     }
 }

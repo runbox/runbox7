@@ -20,11 +20,12 @@
     </p><p>
         <mat-form-field>
             <mat-label> Calendar </mat-label>
-            <mat-select placeholder="Calendar" [(ngModel)]="event.calendar">
+            <mat-select placeholder="Calendar" [formControl]="calendarFC" required>
                 <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
                     {{ calendar.toString() }}
                 </mat-option>
             </mat-select>
+            <mat-error *ngIf="calendarFC.hasError('required')">You must pick a calendar</mat-error>
         </mat-form-field>
     </p><p>
         <label>Start</label>
@@ -38,6 +39,17 @@
         <owl-date-time #end_dt></owl-date-time>
     </p><p>
         <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
+    </p>
+
+    <p>
+        <mat-form-field>
+            <mat-label> Recurring </mat-label>
+            <mat-select placeholder="Recurring" [(ngModel)]="recurring_frequency">
+                <mat-option *ngFor="let freq of recurrence_frequencies" [value]="freq.val">
+                    {{ freq.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
     </p>
 
 </div>

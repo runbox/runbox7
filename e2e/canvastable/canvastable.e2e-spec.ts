@@ -31,5 +31,14 @@ describe('canvastable', () => {
     await page.selectRows();
   });
 
+  it('should select one row', async () => {
+    browser.waitForAngularEnabled(false);
+    await browser.get('/');
+    await closesyncdialog();
+
+    const page = new CanvasTablePage();
+    await page.selectOneRow();
+  });
+
 });
 
