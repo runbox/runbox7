@@ -84,7 +84,7 @@ export class ContactsAppComponent {
 
             return c.categories.find(g => g === target);
         }).filter(c => {
-            return c.display_name().toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1;
+            return c.display_name() && (c.display_name().toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1);
         });
         this.sortContacts();
     }
