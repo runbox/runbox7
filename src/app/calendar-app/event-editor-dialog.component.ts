@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { RunboxCalendar } from './runbox-calendar';
@@ -36,6 +37,7 @@ export class EventEditorDialogComponent {
         allDay: false,
     });
     calendars: RunboxCalendar[];
+    calendarFC = new FormControl('', Validators.required);
 
     constructor(
         private dialog: MatDialog,
@@ -44,6 +46,7 @@ export class EventEditorDialogComponent {
     ) {
         if (data['event']) {
             this.event = data['event'];
+            this.calendarFC.setValue(this.event.calendar);
         }
         this.calendars = data['calendars'];
     }
@@ -62,6 +65,15 @@ export class EventEditorDialogComponent {
     }
 
     onSubmitClick(): void {
+        if (this.calendarFC.invalid) {
+            // an error notification doesn't pop up by itself
+            // if the user never clicked the control before,
+            // so let's help it a little
+            this.calendarFC.markAsTouched();
+            return;
+        } else {
+            this.event.calendar = this.calendarFC.value;
+        }
         this.dialogRef.close(this.event);
     }
 }

@@ -33,7 +33,7 @@ import { ColorSelectorDialogComponent } from './color-selector-dialog.component'
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {
   MatButtonModule,
@@ -73,6 +73,7 @@ import {
     MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
+    ReactiveFormsModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
     // angular-calendar stuff
