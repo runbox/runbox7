@@ -29,6 +29,11 @@ import {
 
 import * as moment from 'moment';
 
+export class Vevent {
+    location?:    string;
+    description?: string;
+}
+
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
     start:     Date;
@@ -43,6 +48,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
     allDay?:   boolean;
     calendar:  string;
     rrule?:    RRule;
+
+    vevent: Vevent = {};
 
     color     = {} as EventColor;
     draggable = true;
@@ -61,6 +68,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             }
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
+            this.vevent  = vevent;
             if (vevent.rrule) {
                 this.rrule = rrulestr(vevent.rrule);
                 this.draggable = false;
@@ -71,6 +79,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.dtend     = event.dtend;
             this.title     = event.title;
             this.allDay    = event.allDay;
+            this.vevent    = event.vevent;
             this.rrule     = event.rrule;
             this.color     = event.color;
             this.draggable = event.draggable;
@@ -157,6 +166,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 dtstart: this.dateToJSON(this.dtstart.toDate()),
                 dtend: this.dtend ? this.dateToJSON(this.dtend.toDate()) : undefined,
                 summary: this.title,
+                location: this.vevent.location,
+                description: this.vevent.description,
                 rrule: rruleLine,
                 _all_day: this.allDay
             }
