@@ -245,8 +245,15 @@ export class CalendarAppComponent {
         this.refresh.next();
     }
 
-    importEvent(): void {
+    importEventClicked(): void {
         this.icsUploadInput.nativeElement.click();
+    }
+
+    importEvents(calendarId: string, ics: string): void {
+        this.rmmapi.importCalendar(calendarId, ics).subscribe(res => {
+            this.reloadEvents();
+            this.showInfo(res['events_imported'] + ' events imported');
+        }, e => this.showError(e));
     }
 
     onIcsUploaded(uploadEvent: any) {
@@ -256,12 +263,20 @@ export class CalendarAppComponent {
         fr.onload = (ev: any) => {
             const ics = ev.target.result;
             console.log(ics);
-            const dialogRef = this.dialog.open(ImportDialogComponent, { data: { ical: ics, calendars: this.calendars } });
+            const dialogRef = this.dialog.open(ImportDialogComponent, {
+                data: { ical: ics, calendars: this.calendars.slice() }
+            });
             dialogRef.afterClosed().subscribe(result => {
-                this.rmmapi.importCalendar(result, ics).subscribe(res => {
-                    this.reloadEvents();
-                    this.showInfo(res['events_imported'] + ' events imported');
-                }, e => this.showError(e));
+                if (result instanceof RunboxCalendar) {
+                    // create the new calendar first
+                    this.rmmapi.addCalendar(result).subscribe(() => {
+                        console.log('Calendar created!');
+                        this.calendars.push(result);
+                        this.importEvents(result.id, ics);
+                    }, e => this.showError(e));
+                } else {
+                    this.importEvents(result, ics);
+                }
             });
         };
 

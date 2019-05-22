@@ -12,7 +12,7 @@
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -21,6 +21,7 @@ import { Component, Inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
+import * as moment from 'moment';
 import { RunboxCalendar } from './runbox-calendar';
 
 @Component({
@@ -33,6 +34,8 @@ export class ImportDialogComponent {
 
     target = new FormControl('', Validators.required);
 
+    extractedCalendar: RunboxCalendar;
+
     constructor(
         private dialog: MatDialog,
         public dialogRef: MatDialogRef<ImportDialogComponent>,
@@ -40,6 +43,23 @@ export class ImportDialogComponent {
     ) {
         this.calendars = data['calendars'];
         this.ical      = data['ical'];
+
+        // Some .ics represent entire calendars,
+        // let's try to see if that's one of them
+        // and offer that (new) calendar as an import target
+        const calNameMatch = this.ical.match(/^X-WR-CALNAME:(.+)$/mi);
+        const calColorMatch = this.ical.match(/^X-APPLE-CALENDAR-COLOR:(.+)$/mi);
+        if (calNameMatch) {
+            this.extractedCalendar = new RunboxCalendar({
+                displayname: calNameMatch[1],
+                color: calColorMatch ? calColorMatch[1] : undefined,
+            });
+            this.extractedCalendar.generateID();
+            if (this.calendars.find(c => c.id === this.extractedCalendar.id)) {
+                this.extractedCalendar.id += moment().format('_X');
+            }
+            this.calendars.push(this.extractedCalendar);
+        }
     }
 
     onCancelClick(): void {
@@ -52,6 +72,11 @@ export class ImportDialogComponent {
             // if the user never clicked the control before,
             // so let's help it a little
             this.target.markAsTouched();
+            return;
+        }
+
+        if (this.extractedCalendar && this.target.value === this.extractedCalendar.id) {
+            this.dialogRef.close(this.extractedCalendar);
         } else {
             this.dialogRef.close(this.target.value);
         }
