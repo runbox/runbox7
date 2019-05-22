@@ -28,6 +28,17 @@
         <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
     </p>
 
+    <p>
+        <mat-form-field>
+            <mat-label> Recurring </mat-label>
+            <mat-select placeholder="Recurring" [(ngModel)]="recurring_frequency">
+                <mat-option *ngFor="let freq of recurrence_frequencies" [value]="freq.val">
+                    {{ freq.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </p>
+
 </div>
 <div mat-dialog-actions style="justify-content: flex-end;">
     <button *ngIf="event.id"

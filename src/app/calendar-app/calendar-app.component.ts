@@ -20,6 +20,7 @@
 import {
     Component,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     ViewChild,
     TemplateRef
 } from '@angular/core';
@@ -36,14 +37,21 @@ import {
     isSameMonth,
 } from 'date-fns';
 
+import * as moment from 'moment';
+
 import { Subject } from 'rxjs';
 
 import {
+    CalendarDayViewBeforeRenderEvent,
     CalendarEvent,
     CalendarEventTimesChangedEvent,
     CalendarEventTitleFormatter,
-    CalendarView
+    CalendarMonthViewBeforeRenderEvent,
+    CalendarView,
+    CalendarWeekViewBeforeRenderEvent,
 } from 'angular-calendar';
+import { ViewPeriod } from 'calendar-utils';
+import RRule from 'rrule';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RunboxCalendar } from './runbox-calendar';
@@ -63,6 +71,7 @@ export class CalendarAppComponent {
     view: CalendarView = CalendarView.Month;
     CalendarView = CalendarView;
     viewDate: Date = new Date();
+    viewPeriod: ViewPeriod;
     activeDayIsOpen = false;
 
     refresh: Subject<any> = new Subject();
@@ -73,6 +82,7 @@ export class CalendarAppComponent {
     shown_events: RunboxCalendarEvent[] = [];
 
     constructor(
+        private cdr:      ChangeDetectorRef,
         private dialog:   MatDialog,
         private rmmapi:   RunboxWebmailAPI,
         private snackBar: MatSnackBar,
@@ -95,6 +105,63 @@ export class CalendarAppComponent {
             this.updateEventColors();
             this.filterEvents();
         }, e => this.showError(e));
+    }
+
+    calculateRecurringEvents(): void {
+        if (!this.viewPeriod) {
+            return;
+        }
+
+        const events = [];
+
+        for (const e of this.shown_events) {
+            if (!e.rrule) {
+                events.push(e);
+                continue;
+            }
+
+            let duration: moment.Duration;
+            if (e.dtend) {
+                duration = moment.duration(e.dtend.diff(e.dtstart));
+            }
+
+            let rrule = e.rrule;
+            // some rrules will not have a dtstart set, but this library requires them to be there
+            if (!rrule.origOptions.dtstart) {
+                const ruleOpts = rrule.origOptions;
+                ruleOpts.dtstart = e.dtstart.toDate();
+                rrule = new RRule(ruleOpts);
+            }
+
+            for (const dt of rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
+                const copy = new RunboxCalendarEvent(e);
+                copy.start = dt;
+                if (duration) {
+                    copy.end = moment(copy.start).add(duration).toDate();
+                }
+                events.push(copy);
+            }
+        }
+
+        this.shown_events = events;
+        // needed so that beforeViewRender handler knows that something happened
+        this.cdr.detectChanges();
+    }
+
+    beforeViewRender(viewRender:
+        | CalendarMonthViewBeforeRenderEvent
+        | CalendarWeekViewBeforeRenderEvent
+        | CalendarDayViewBeforeRenderEvent,
+    ): void {
+        if (
+          this.viewPeriod &&
+          this.viewPeriod.start.valueOf() === viewRender.period.start.valueOf() &&
+          this.viewPeriod.end.valueOf() === viewRender.period.end.valueOf()
+        ) {
+            return;
+        }
+        this.viewPeriod = viewRender.period;
+        this.filterEvents();
     }
 
     showAddCalendarDialog(): void {
@@ -164,6 +231,7 @@ export class CalendarAppComponent {
             }
         }
 
+        this.calculateRecurringEvents();
         this.refresh.next();
     }
 
@@ -179,10 +247,12 @@ export class CalendarAppComponent {
     }
 
     eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-        event.start = newStart;
-        event.end = newEnd;
-        console.log('Event changed', event);
-        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
+        const rbevent = event as RunboxCalendarEvent;
+        rbevent.dtstart = moment(newStart);
+        rbevent.dtend = moment(newEnd);
+        rbevent.refreshDates();
+        console.log('Event changed', rbevent);
+        this.rmmapi.modifyCalendarEvent(rbevent).subscribe(
             res => {
                 console.log('Event updated:', res);
                 this.filterEvents();
@@ -192,7 +262,9 @@ export class CalendarAppComponent {
 
     openEvent(event: CalendarEvent): void {
         console.log('Opening event', event);
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { event: event, calendars: this.calendars } });
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            data: { event: new RunboxCalendarEvent(event), calendars: this.calendars }
+        });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
                 this.rmmapi.deleteCalendarEvent(event.id).subscribe(
