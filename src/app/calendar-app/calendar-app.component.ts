@@ -125,7 +125,15 @@ export class CalendarAppComponent {
                 duration = moment.duration(e.dtend.diff(e.dtstart));
             }
 
-            for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
+            let rrule = e.rrule;
+            // some rrules will not have a dtstart set, but this library requires them to be there
+            if (!rrule.origOptions.dtstart) {
+                const ruleOpts = rrule.origOptions;
+                ruleOpts.dtstart = e.dtstart.toDate();
+                rrule = new RRule(ruleOpts);
+            }
+
+            for (const dt of rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
                 const copy = new RunboxCalendarEvent(e);
                 copy.start = dt;
                 if (duration) {

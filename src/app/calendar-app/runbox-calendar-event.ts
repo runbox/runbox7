@@ -62,7 +62,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.title   = vevent.summary;
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
             if (vevent.rrule) {
-                this.rrule = rrulestr(vevent.rrule, { dtstart: this.dtstart.toDate() });
+                this.rrule = rrulestr(vevent.rrule);
                 this.draggable = false;
             }
         } else {
@@ -101,9 +101,27 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     refreshDates(): void {
+        // this method (re)sets the attributes required for displaying the event
+        // based on the dates actually stored in it.
+        //
+        // They won't always be the same: each instance of a recurring event
+        // will have a different start/end, but the same dtstart/dtend.
+
         this.start = this.dtstart.toDate();
         if (this.dtend) {
             this.end = this.dtend.toDate();
+        }
+    }
+
+    setRecurringFrequency(frequency: number): void {
+        if (frequency === -1) {
+            if (this.rrule) {
+                this.rrule = undefined;
+            }
+        } else {
+            const ruleOpts = this.rrule ? this.rrule.origOptions : {};
+            ruleOpts.freq  = frequency;
+            this.rrule     = new RRule(ruleOpts);
         }
     }
 
@@ -145,4 +163,3 @@ export class RunboxCalendarEvent implements CalendarEvent {
         };
     }
 }
-

@@ -91,15 +91,7 @@ export class EventEditorDialogComponent {
         }
         this.event.dtstart = moment(this.event.start);
         this.event.dtend = moment(this.event.end);
-
-        if (this.recurring_frequency === -1) {
-            if (this.event.rrule) {
-                this.event.rrule = undefined;
-            }
-        } else {
-            // FIXME preserve possible existing other settings!
-            this.event.rrule = new RRule({ dtstart: this.event.start, freq: this.recurring_frequency });
-        }
+        this.event.setRecurringFrequency(this.recurring_frequency);
 
         this.dialogRef.close(this.event);
     }
