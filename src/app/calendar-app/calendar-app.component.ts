@@ -195,6 +195,10 @@ export class CalendarAppComponent {
                     console.log('Calendar deleted:', cal.id);
                     const idx = this.calendars.findIndex(c => c.id === cal.id);
                     this.calendars.splice(idx, 1);
+                    // also delete all events that came from that calendar
+                    // (just from the view; DAV will delete them along with the calendar)
+                    this.events = this.events.filter(e => e.calendar !== cal.id);
+                    this.shown_events = this.shown_events.filter(e => e.calendar !== cal.id);
                 }, e => this.showError(e));
             } else {
                 this.rmmapi.modifyCalendar(result).subscribe(() => {
