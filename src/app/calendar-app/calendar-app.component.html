@@ -94,12 +94,32 @@
         </mat-toolbar>
 
         <ng-template #dayViewTemplate let-day="day" let-locale="locale">
-            <div style="height: 15vh; width: 12vw;">
+            <style>
+                .day .add-new-event {
+                    visibility: hidden;
+                }
+                .day:hover .add-new-event {
+                    visibility: visible;
+                }
+                .day {
+                    position: relative;
+                }
+                .add-new-event {
+                    position: absolute;
+                    bottom: 0.1em;
+                    right: 0.1em;
+                }
+            </style>
+
+            <div class="day" style="height: 15vh; width: 12vw;">
                 <div class="cal-cell-top">
                     <span class="cal-day-number">
                         {{ day.date | calendarDate:'monthViewDayNumber':locale }}
                     </span>
                     <div style="display: flex; flex-direction: column;">
+                        <div class="add-new-event">
+                            <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
+                        </div>
                         <button mat-button
                             *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
                             (click)="openEvent(event); $event.stopPropagation()"

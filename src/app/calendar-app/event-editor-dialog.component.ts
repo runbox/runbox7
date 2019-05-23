@@ -66,6 +66,10 @@ export class EventEditorDialogComponent {
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
         }
         this.event.refreshDates();
+        if (data['start']) {
+            this.event.start = data['start'];
+            this.event.end   = data['start'];
+        }
         this.calendars = data['calendars'];
         this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;
     }

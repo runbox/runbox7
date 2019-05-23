@@ -101,8 +101,8 @@ export class CalendarAppComponent {
         this.reloadEvents();
     }
 
-    addEvent(): void {
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars } });
+    addEvent(on?: Date): void {
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars, start: on } });
         dialogRef.afterClosed().subscribe(event => {
             console.log('Dialog result:', event);
             if (event) {
