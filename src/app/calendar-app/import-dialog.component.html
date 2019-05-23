@@ -1,0 +1,32 @@
+<h1 mat-dialog-title>Import</h1>
+
+<div mat-dialog-content>
+    <p>
+        <mat-form-field>
+            <mat-label> Calendar to import into: </mat-label>
+            <mat-select placeholder="Calendar" [formControl]="target" required>
+                <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
+                    {{ calendar.toString() }}
+                    <em *ngIf="extractedCalendar.id === calendar.id">
+                        (new)
+                    </em>
+                </mat-option>
+            </mat-select>
+            <mat-error *ngIf="target.hasError('required')">You must pick a calendar</mat-error>
+        </mat-form-field>
+    </p>
+    <p *ngIf="extractedCalendar">
+        Calendar “{{ extractedCalendar.displayname }}” was found in the provided file.<br>
+        It will be created automatically if you choose it.
+    </p>
+</div>
+
+<div mat-dialog-actions style="justify-content: flex-end;">
+    <button mat-button (click)="onCancelClick()">
+        Cancel
+    </button>
+
+    <button mat-raised-button color="primary" (click)="onSubmitClick()">
+        Import events
+    </button>
+</div>

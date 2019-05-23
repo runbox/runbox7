@@ -1,8 +1,8 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
@@ -12,7 +12,7 @@
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -32,6 +32,7 @@ import { CalendarEditorDialogComponent } from './calendar-editor-dialog.componen
 import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
+import { ImportDialogComponent } from './import-dialog.component';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -55,7 +56,8 @@ import {
     CalendarEditorDialogComponent,
     ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
-    EventEditorDialogComponent
+    EventEditorDialogComponent,
+    ImportDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -87,7 +89,8 @@ import {
     CalendarEditorDialogComponent,
     ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
-    EventEditorDialogComponent
+    EventEditorDialogComponent,
+    ImportDialogComponent,
   ],
   providers: [
   ],

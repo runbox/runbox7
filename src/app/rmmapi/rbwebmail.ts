@@ -588,4 +588,10 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res)
         );
     }
+
+    public importCalendar(calendar_id: string, ical: string): Observable<any> {
+        return this.http.put('/rest/v1/calendar/ics/' + calendar_id, { ical: ical }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
 }

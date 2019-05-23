@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -57,6 +57,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
+import { ImportDialogComponent } from './import-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
 
@@ -75,6 +76,8 @@ export class CalendarAppComponent {
     activeDayIsOpen = false;
 
     refresh: Subject<any> = new Subject();
+
+    @ViewChild('icsUploadInput') icsUploadInput: any;
 
     calendars: RunboxCalendar[] = [];
 
@@ -95,16 +98,37 @@ export class CalendarAppComponent {
             }
             this.updateEventColors();
         }, e => this.showError(e));
-        this.rmmapi.getCalendarEvents().subscribe(events => {
-            console.log('Calendar events:', events);
-            this.events = [];
-            for (const e of events) {
-                this.events.push(new RunboxCalendarEvent(e));
+        this.reloadEvents();
+    }
+
+    addEvent(): void {
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars } });
+        dialogRef.afterClosed().subscribe(event => {
+            console.log('Dialog result:', event);
+            if (event) {
+                this.rmmapi.addCalendarEvent(event).subscribe(res => {
+                    console.log('Event created:', res);
+                    event.id = res.id;
+                    this.events.push(event);
+                    this.filterEvents();
+                }, e => this.showError(e));
             }
-            console.log('Processed events:', this.events);
-            this.updateEventColors();
-            this.filterEvents();
-        }, e => this.showError(e));
+        });
+    }
+    beforeViewRender(viewRender:
+        | CalendarMonthViewBeforeRenderEvent
+        | CalendarWeekViewBeforeRenderEvent
+        | CalendarDayViewBeforeRenderEvent,
+    ): void {
+        if (
+          this.viewPeriod &&
+          this.viewPeriod.start.valueOf() === viewRender.period.start.valueOf() &&
+          this.viewPeriod.end.valueOf() === viewRender.period.end.valueOf()
+        ) {
+            return;
+        }
+        this.viewPeriod = viewRender.period;
+        this.filterEvents();
     }
 
     calculateRecurringEvents(): void {
@@ -148,35 +172,15 @@ export class CalendarAppComponent {
         this.cdr.detectChanges();
     }
 
-    beforeViewRender(viewRender:
-        | CalendarMonthViewBeforeRenderEvent
-        | CalendarWeekViewBeforeRenderEvent
-        | CalendarDayViewBeforeRenderEvent,
-    ): void {
-        if (
-          this.viewPeriod &&
-          this.viewPeriod.start.valueOf() === viewRender.period.start.valueOf() &&
-          this.viewPeriod.end.valueOf() === viewRender.period.end.valueOf()
-        ) {
-            return;
+    dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+        if (isSameMonth(date, this.viewDate)) {
+            this.viewDate = date;
+            if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen ) || events.length === 0) {
+                this.activeDayIsOpen = false;
+            } else {
+                this.activeDayIsOpen = true;
+            }
         }
-        this.viewPeriod = viewRender.period;
-        this.filterEvents();
-    }
-
-    showAddCalendarDialog(): void {
-        const dialogRef = this.dialog.open(CalendarEditorDialogComponent);
-        dialogRef.afterClosed().subscribe(result => {
-            console.log('Dialog result:', result);
-            if (!result) { return; }
-
-            result.generateID();
-
-            this.rmmapi.addCalendar(result).subscribe(() => {
-                console.log('Calendar created!');
-                this.calendars.push(result);
-            }, e => this.showError(e));
-        });
     }
 
     editCalendar(calendar_id: string): void {
@@ -211,10 +215,16 @@ export class CalendarAppComponent {
         });
     }
 
-    toggleCalendar(calendar_id: string): void {
-        const cal = this.calendars.find(c => c.id === calendar_id);
-        cal.shown = !cal.shown;
-        this.filterEvents();
+    eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
+        event.start = newStart;
+        event.end = newEnd;
+        console.log('Event changed', event);
+        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
+            res => {
+                console.log('Event updated:', res);
+                this.filterEvents();
+            }, e => this.showError(e)
+        );
     }
 
     filterEvents(): void {
@@ -239,29 +249,42 @@ export class CalendarAppComponent {
         this.refresh.next();
     }
 
-    dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-        if (isSameMonth(date, this.viewDate)) {
-            this.viewDate = date;
-            if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen ) || events.length === 0) {
-                this.activeDayIsOpen = false;
-            } else {
-                this.activeDayIsOpen = true;
-            }
-        }
+    importEventClicked(): void {
+        this.icsUploadInput.nativeElement.click();
     }
 
-    eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-        const rbevent = event as RunboxCalendarEvent;
-        rbevent.dtstart = moment(newStart);
-        rbevent.dtend = moment(newEnd);
-        rbevent.refreshDates();
-        console.log('Event changed', rbevent);
-        this.rmmapi.modifyCalendarEvent(rbevent).subscribe(
-            res => {
-                console.log('Event updated:', res);
-                this.filterEvents();
-            }, e => this.showError(e)
-        );
+    importEvents(calendarId: string, ics: string): void {
+        this.rmmapi.importCalendar(calendarId, ics).subscribe(res => {
+            this.reloadEvents();
+            this.showInfo(res['events_imported'] + ' events imported');
+        }, e => this.showError(e));
+    }
+
+    onIcsUploaded(uploadEvent: any) {
+        const file = uploadEvent.target.files[0];
+        const fr   = new FileReader();
+
+        fr.onload = (ev: any) => {
+            const ics = ev.target.result;
+            console.log(ics);
+            const dialogRef = this.dialog.open(ImportDialogComponent, {
+                data: { ical: ics, calendars: this.calendars.slice() }
+            });
+            dialogRef.afterClosed().subscribe(result => {
+                if (result instanceof RunboxCalendar) {
+                    // create the new calendar first
+                    this.rmmapi.addCalendar(result).subscribe(() => {
+                        console.log('Calendar created!');
+                        this.calendars.push(result);
+                        this.importEvents(result.id, ics);
+                    }, e => this.showError(e));
+                } else {
+                    this.importEvents(result, ics);
+                }
+            });
+        };
+
+        fr.readAsText(file);
     }
 
     openEvent(event: CalendarEvent): void {
@@ -293,18 +316,31 @@ export class CalendarAppComponent {
         });
     }
 
-    addEvent(): void {
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars } });
-        dialogRef.afterClosed().subscribe(event => {
-            console.log('Dialog result:', event);
-            if (event) {
-                this.rmmapi.addCalendarEvent(event).subscribe(res => {
-                    console.log('Event created:', res);
-                    event.id = res.id;
-                    this.events.push(event);
-                    this.filterEvents();
-                }, e => this.showError(e));
+    reloadEvents(): void {
+        this.rmmapi.getCalendarEvents().subscribe(events => {
+            console.log('Calendar events:', events);
+            this.events = [];
+            for (const e of events) {
+                this.events.push(new RunboxCalendarEvent(e));
             }
+            console.log('Processed events:', this.events);
+            this.updateEventColors();
+            this.filterEvents();
+        }, e => this.showError(e));
+    }
+
+    showAddCalendarDialog(): void {
+        const dialogRef = this.dialog.open(CalendarEditorDialogComponent);
+        dialogRef.afterClosed().subscribe(result => {
+            console.log('Dialog result:', result);
+            if (!result) { return; }
+
+            result.generateID();
+
+            this.rmmapi.addCalendar(result).subscribe(() => {
+                console.log('Calendar created!');
+                this.calendars.push(result);
+            }, e => this.showError(e));
         });
     }
 
@@ -322,6 +358,18 @@ export class CalendarAppComponent {
                 duration: 5000,
             });
         }
+    }
+
+    showInfo(message: string): void {
+        this.snackBar.open(message, 'Ok', {
+            duration: 3000,
+        });
+    }
+
+    toggleCalendar(calendar_id: string): void {
+        const cal = this.calendars.find(c => c.id === calendar_id);
+        cal.shown = !cal.shown;
+        this.filterEvents();
     }
 
     updateEventColors(): void {
