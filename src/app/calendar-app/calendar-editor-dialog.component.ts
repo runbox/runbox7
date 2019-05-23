@@ -55,7 +55,7 @@ export class CalendarEditorDialogComponent {
     }
 
     onDeleteClick(): void {
-        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: 'calendar' });
+        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: { name: 'calendar' } });
         confirmRef.afterClosed().subscribe(result => {
             if (result) {
                 this.dialogRef.close('DELETE');
