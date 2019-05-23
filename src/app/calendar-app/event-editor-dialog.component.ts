@@ -38,6 +38,7 @@ export class EventEditorDialogComponent {
         dtstart: moment(),
         dtend: moment(),
         allDay: false,
+        vevent: {},
     });
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
