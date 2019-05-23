@@ -117,9 +117,21 @@ export class RunboxCalendarEvent implements CalendarEvent {
         // will have a different start/end, but the same dtstart/dtend.
 
         this.start = this.dtstart.toDate();
+
         if (this.dtend) {
             this.end = this.dtend.toDate();
         }
+
+        // iCalendar uses non-inclusive end dates, while angular-calendar uses
+        // inclusive ones. To counteract this, roll the end times back a little
+        // so that they show properly
+        const shownEnd = moment(this.dtend);
+        if (this.allDay) {
+            shownEnd.subtract(1, 'days');
+        } else {
+            shownEnd.subtract(1, 'seconds');
+        }
+        this.end = shownEnd.toDate();
     }
 
     setRecurringFrequency(frequency: number): void {
@@ -140,7 +152,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         const sign = timezoneOffsetInHours >= 0 ? '+' : '-';
         const leadingZero = (Math.abs(timezoneOffsetInHours) < 10) ? '0' : '';
 
-        // It's a bit unfortunate that we need to construct a new Date instance 
+        // It's a bit unfortunate that we need to construct a new Date instance
         // (we don't want _date_ Date instance to be modified)
         const correctedDate = new Date(date.getFullYear(), date.getMonth(),
             date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(),
