@@ -70,7 +70,11 @@ export class EventEditorDialogComponent {
     }
 
     onDeleteClick(): void {
-        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: 'event' });
+        const dialogData = { name: 'event' };
+        if (this.event.rrule) {
+            dialogData['details'] = 'Note that this is a reccuring event – deleting it will delete ALL instances';
+        }
+        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: dialogData });
         confirmRef.afterClosed().subscribe(result => {
             if (result) {
                 this.dialogRef.close('DELETE');
