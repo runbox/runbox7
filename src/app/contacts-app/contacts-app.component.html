@@ -60,7 +60,12 @@
 
             <mat-list-item *ngFor="let contact of shownContacts">
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
-                    <h4 mat-line>{{ contact.display_name() }}</h4>
+                    <h4 mat-line>
+                        <span *ngIf="contact.show_as_company()">
+                            <mat-icon> business </mat-icon>
+                        </span>
+                        {{ contact.display_name() || "Unnamed contact"  }}
+                    </h4>
                 </a>
                 <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
                     *ngIf="contact.primary_email()"

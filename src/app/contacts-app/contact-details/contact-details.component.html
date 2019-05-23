@@ -3,7 +3,12 @@
 </div>
 
 <div class="contact-details" *ngIf="contact">
-    <h2> {{ contact.display_name() || "New contact" }}'s details </h2>
+    <h2>
+        <span *ngIf="contact.show_as_company()">
+            <mat-icon> business </mat-icon>
+        </span>
+        {{ contact.display_name() || "New contact" }}'s details
+    </h2>
     <form [formGroup]="contactForm">
         <h3> Basic information </h3>
         <table>
