@@ -52,6 +52,15 @@ describe('CalendarAppComponent', () => {
         }}),
     ];
 
+    const GH_179_recurring_yearly = [
+        new RunboxCalendarEvent({ id: 'test-calendar/recurring-yearly', VEVENT: {
+            dtstart: moment().date(5).toISOString().split('T')[0], // no time, so an all-day
+            dtend: moment().date(6).toISOString().split('T')[0],
+            summary: 'Yearly event',
+            rrule: 'FREQ=YEARLY',
+        }}),
+    ];
+
     const mockData = {
         calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink' }) ],
         events:    [] // set in test cases
@@ -121,5 +130,14 @@ describe('CalendarAppComponent', () => {
         fixture.debugElement.nativeElement.querySelector('button#previousPeriodButton').click();
         fixture.detectChanges();
         expect(component.shown_events.length).toBe(shownEventsCount, 'same number of events shown after cycling through months');
+    });
+
+    it('should not display yearly events as longer than they are (GH-179)', () => {
+        mockData['events'] = GH_179_recurring_yearly;
+        component.reloadEvents();
+        fixture.detectChanges();
+
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        expect(events.length).toBe(1, 'only one event should be displayed');
     });
 });

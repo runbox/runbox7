@@ -145,8 +145,8 @@ export class CalendarAppComponent {
             }
 
             let duration: moment.Duration;
-            if (e.dtend) {
-                duration = moment.duration(e.dtend.diff(e.dtstart));
+            if (e.end) {
+                duration = moment.duration(moment(e.end).diff(e.dtstart));
             }
 
             for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
