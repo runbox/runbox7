@@ -70,7 +70,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
             this.vevent  = vevent;
             if (vevent.rrule) {
-                this.rrule = rrulestr(vevent.rrule);
+                this.rrule = rrulestr(vevent.rrule, { dtstart: this.dtstart.toDate() });
                 this.draggable = false;
             }
         } else {
