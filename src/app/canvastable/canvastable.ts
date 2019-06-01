@@ -181,7 +181,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   private isTouchZoom = false;
   private touchdownxy: any;
-  private scrollbardrag: Boolean = false;
+  private scrollbarDragInProgress = false;
   private scrollbarArea = false;
 
   visibleColumnSeparatorAlpha = 0;
@@ -327,7 +327,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       const canvrect = this.canv.getBoundingClientRect();
       this.touchdownxy = { x: clientX - canvrect.left, y: clientY - canvrect.top };
       if (checkIfScrollbarArea(clientX, clientY)) {
-        this.scrollbardrag = true;
+        this.scrollbarDragInProgress = true;
         this.scrollbarArea = true;
       } else if (checkIfScrollbarArea(clientX, clientY, true)) {
         // Check if click is above or below scrollbar slider
@@ -370,7 +370,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       previousTouchX = event.targetTouches[0].clientX;
       previousTouchY = event.targetTouches[0].clientY;
       checkScrollbarDrag(event.targetTouches[0].clientX, event.targetTouches[0].clientY);
-      if (this.scrollbardrag) {
+      if (this.scrollbarDragInProgress) {
         event.preventDefault();
       }
 
@@ -389,7 +389,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       if (event.targetTouches.length === 1) {
         const newTouchY = event.targetTouches[0].clientY;
         const newTouchX = event.targetTouches[0].clientX;
-        if (this.scrollbardrag === true) {
+        if (this.scrollbarDragInProgress === true) {
           this.doScrollBarDrag(newTouchY);
         } else {
 
@@ -419,20 +419,21 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       if (!this.scrollbarArea && !touchMoved) {
         this.selectRow(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
       }
-      if (this.scrollbardrag) {
-        this.scrollbardrag = false;
+      if (this.scrollbarDragInProgress) {
+        this.scrollbarDragInProgress = false;
+        this.hasChanges = true;
       }
     });
 
     this.renderer.listenGlobal('window', 'mousemove', (event: MouseEvent) => {
-      if (this.scrollbardrag === true) {
+      if (this.scrollbarDragInProgress === true) {
         event.preventDefault();
         this.doScrollBarDrag(event.clientY);
       }
     });
 
     this.canv.onmousemove = (event: MouseEvent) => {
-      if (this.scrollbardrag === true) {
+      if (this.scrollbarDragInProgress === true) {
         event.preventDefault();
         return;
       }
@@ -441,7 +442,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       const clientX = event.clientX - canvrect.left;
 
       let newHoverRowIndex = Math.floor(this.topindex + (event.clientY - canvrect.top) / this.rowheight);
-      if (this.scrollbardrag || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
+      if (this.scrollbarDragInProgress || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
         newHoverRowIndex = null;
       }
 
@@ -539,8 +540,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this.renderer.listenGlobal('window', 'mouseup', (event: MouseEvent) => {
       this.touchdownxy = undefined;
       this.lastMouseDownEvent = undefined;
-      if (this.scrollbardrag) {
-        this.scrollbardrag = false;
+      if (this.scrollbarDragInProgress) {
+        this.scrollbarDragInProgress = false;
+        this.hasChanges = true;
       }
     });
 
@@ -714,6 +716,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       this.visibleColumnSeparatorIndex = selectedColIndex;
       this.hasChanges = true;
     }
+  }
+
+  public isScrollInProgress(): boolean {
+    return this.scrollbarDragInProgress || Math.abs(this.touchScrollSpeedY) > 0;
   }
 
   public getVisibleRowIndexes(): number[] {
@@ -1362,7 +1368,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         height: scrollbarheight - scrollbarverticalpadding
       };
 
-      if (this.scrollbardrag) {
+      if (this.scrollbarDragInProgress) {
         this.ctx.fillStyle = 'rgba(200,200,255,0.5)';
         this.roundRect(this.ctx,
           this.scrollBarRect.x - 4,

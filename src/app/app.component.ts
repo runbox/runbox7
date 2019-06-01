@@ -294,7 +294,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
-        throttleTime(500),
+        filter(() => !this.canvastable.isScrollInProgress()),
+        throttleTime(1000),
         map(() => this.canvastable.getVisibleRowIndexes()),
         mergeMap((rowIndexes) =>
           from(
