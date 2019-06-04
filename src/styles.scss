@@ -104,7 +104,27 @@ h5 {
     display: inline !important;
 }
 
+mat-icon {
+    margin-bottom: 3px;
+    vertical-align: middle !important;
+}
 
+/* Generic custom styles */
+
+.contentButton {
+    margin: 0 5px !important;
+    border: 1px solid mat-color($rmm-default-primary) !important;
+    padding: 7px 5px 5px 5px !important;
+    line-height: 1.5em !important;
+    text-decoration: none !important;
+}
+
+.mainTextContent {
+    padding: 3em;
+}
+
+.contentButton mat-icon {
+}
 
 /* Palette colors */
 
@@ -472,7 +492,16 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
 /* Folders */
 
 .mailFolder {
-    height: 40px;
+    vertical-align: middle;
+}
+
+.mailFolder mat-icon {
+    margin-bottom: 1px !important;
+}
+
+.mailFolder span {
+    height: 1em;
+    vertical-align: middle;
 }
 
 .folderIconStandard {

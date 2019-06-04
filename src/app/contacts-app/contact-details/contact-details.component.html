@@ -1,8 +1,8 @@
-<div class="contact-details" *ngIf="!contact">
+<div class="mainTextContent" *ngIf="!contact">
     Select a contact to view or edit its details
 </div>
 
-<div class="contact-details" *ngIf="contact">
+<div class="mainTextContent" *ngIf="contact">
     <h2>
         <span *ngIf="contact.show_as_company()">
             <mat-icon> business </mat-icon>
