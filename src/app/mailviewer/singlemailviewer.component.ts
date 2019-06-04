@@ -39,9 +39,9 @@ import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
-import { MatDividerModule } from '@angular/material/divider';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { MessageListService } from '../rmmapi/messagelist.service';
+import { loadLocalMailParser } from './mailparser';
 
 const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
@@ -420,6 +420,36 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         { type: 'text/html' }
       )
     );
+  }
+
+  /**
+   * EXPERIMENTAL, decrypt attachment (encrypted.asc) by sending it to pgpapp.no
+   * @param attachmentIndex 
+   */
+  public decryptAttachment(attachmentIndex: number) {
+    this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
+      { responseType: ResponseContentType.Blob })
+      .subscribe((res) => {
+        const pgpapp = window.open('https://pgpapp.no/app/messagehandler.html', '_blank');
+
+        const pgpapplistener = async (msg) => {
+          if (msg.origin === 'https://pgpapp.no') {
+            if (msg.data.decryptedContent) {
+              const parseMail = await loadLocalMailParser().toPromise();
+              const parsed = await parseMail(msg.data.decryptedContent);
+              this.mailObj.text = parsed.text;
+              this.mailObj.subject = parsed.subject;
+
+              window.removeEventListener('message', pgpapplistener);
+              pgpapp.close();
+
+            } else if (msg.data.ready) {
+              pgpapp.postMessage(res.blob(), 'https://pgpapp.no');
+            }
+          }
+        };
+        window.addEventListener('message', pgpapplistener);
+      });
   }
 
   public openAttachment(attachmentIndex: number, download?: boolean) {
