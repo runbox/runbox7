@@ -82,7 +82,18 @@ describe('SingleMailViewerComponent', () => {
                 text: 'blablabla',
                 html: null,
                 textAsHtml: null
-              }
+              },
+              attachments: [
+                {
+                  filename: 'test.jpg',
+                  contentType: 'image/jpeg'
+                },
+                {
+                  filename: 'test2.png',
+                  contentType: 'image/png',
+                  content: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+                }
+              ]
             });
           }
         } },
@@ -142,5 +153,10 @@ describe('SingleMailViewerComponent', () => {
       fixture.detectChanges();
 
       expect(component.messageHeaderHTML.nativeElement.innerText).toContain('Test subject');
+
+      expect(component.mailObj.attachments[0].downloadURL.indexOf('attachment/0')).toBeGreaterThan(-1);
+      expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
+
+      expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 });

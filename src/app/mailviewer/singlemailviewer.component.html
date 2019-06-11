@@ -294,24 +294,23 @@
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile 
             *ngFor="let att of mailObj.attachments; let i=index" 
-            (click)="openAttachment(i)">
-              <img *ngIf="att.contentType.indexOf('image')===0; else attachment_icon" matListAvatar 
-                [src]="                
-                  '/rest/v1/email/' + messageId + '/attachmentimagethumbnail/' + i
-                " />
+            (click)="openAttachment(att)">
+              <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
+                <img  matListAvatar                 
+                  [src]="att.thumbnailURL" />                
+              </ng-container>
               <ng-template #attachment_icon>
                 <mat-icon matListAvatar 
-                  >{{attachmentIconFromContentType(att.contentType)}}</mat-icon>                
-                
+                  >{{attachmentIconFromContentType(att.contentType)}}</mat-icon>                                
               </ng-template>              
               <mat-grid-tile-footer style="display: flex; text-align: center">
-                  <span>{{att.fileName}}</span>                      
-                  <button mat-icon-button *ngIf="att.fileName==='encrypted.asc'"
+                  <span>{{att.filename}}</span>                      
+                  <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
                     matTooltip="Decrypt message"
                     (click)="decryptAttachment(i);$event.stopPropagation()"
                   ><mat-icon>lock_open</mat-icon></button>
                   <button mat-icon-button
-                    (click)="openAttachment(i,true);$event.stopPropagation()"
+                    (click)="openAttachment(att);$event.stopPropagation()"
                   ><mat-icon>cloud_download</mat-icon></button>
               </mat-grid-tile-footer>
           </mat-grid-tile>            

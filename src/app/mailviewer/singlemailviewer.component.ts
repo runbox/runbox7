@@ -278,9 +278,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
-        if (res.attachments) {
-          res.attachments.forEach((att) => att.fileName = att.filename);
-        }
+        this.generateAttachmentURLs(res.attachments);
 
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
@@ -391,6 +389,31 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
   }
 
+  generateAttachmentURLs(attachments: any[]) {
+    if (attachments) {
+      attachments.forEach((att, ndx) => {
+        let isImage = false;
+        if (att.contentType && att.contentType.indexOf('image/') === 0) {
+          isImage = true;
+        }
+        if (att.content) {
+          att.downloadURL = URL.createObjectURL(new Blob([att.content], {
+            type: att.contentType
+          }));
+          if (isImage) {
+            att.thumbnailURL = this.domSanitizer.bypassSecurityTrustResourceUrl(att.downloadURL);
+          }
+        } else {
+          att.downloadURL = '/rest/v1/email/' + this.messageId + '/attachment/' + ndx +
+                            '?download=true';
+          if (isImage) {
+            att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
+          }
+        }
+      });
+    }
+  }
+
   saveShowHTMLDecision() {
     if (this.showHTMLDecision) {
       localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
@@ -435,13 +458,19 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         const pgpapplistener = async (msg) => {
           if (msg.origin === 'https://pgpapp.no') {
             if (msg.data.decryptedContent) {
+              window.removeEventListener('message', pgpapplistener);
+              pgpapp.close();
+
               const parseMail = await loadLocalMailParser().toPromise();
               const parsed = await parseMail(msg.data.decryptedContent);
               this.mailObj.text = parsed.text;
               this.mailObj.subject = parsed.subject;
+              this.mailContentHTML = parsed.html;
+              this.generateAttachmentURLs(parsed.attachments);
+              this.mailObj.attachments = parsed.attachments;
 
-              window.removeEventListener('message', pgpapplistener);
-              pgpapp.close();
+              console.log(parsed);
+
 
             } else if (msg.data.ready) {
               pgpapp.postMessage(res.blob(), 'https://pgpapp.no');
@@ -452,16 +481,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
   }
 
-  public openAttachment(attachmentIndex: number, download?: boolean) {
-    download = true; // as long as we don't have a separate domain for attachments, we cannot show them in a new tab/window
-    const url_attachment = '/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex +
-      (download === true ? '?download=true' : '');
-    // if (download) {
-      location.href = url_attachment;
-    // } else {
-      // We need a separate domain if it should be safe to introduce opening attachment in a new tab/window
-      // window.open(url_attachment);
-    // }
+  public openAttachment(attachment: any) {
+    // as long as we don't have a separate domain for attachments, we cannot show them in a new tab/window
+    const alink = document.createElement('a');
+    alink.download = attachment.filename;
+    alink.href = attachment.downloadURL;
+    alink.target = '_blank';
+    document.documentElement.appendChild(alink);
+    alink.click();
+    document.documentElement.removeChild(alink);
   }
 
   public downloadAttachmentFromServer(attachmentIndex: number) {
