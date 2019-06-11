@@ -733,3 +733,36 @@ compose .mat-standard-chip {
 .domreg .default_margintop {
     margin-top: 35px;
 }
+
+/* Calendar */
+
+app-calendar-app-component mat-nav-list button {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.calendarTitle {
+    margin: 0 1em;
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+button.calendarMonthDay {
+    margin: 10px 0 !important;
+    text-align: left;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    font-size: 12px !important;
+    line-height: 1.2em;
+}
+
+app-calendar-event-editor-dialog p {
+    margin: 5px 0 !important;
+    padding: 0 !important;
+}
+
+.calendarEventPeriodLabel {
+    display: inline-block;
+    width: 50px;
+}
