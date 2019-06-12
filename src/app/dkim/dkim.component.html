@@ -16,20 +16,25 @@
                     <mat-accordion *ngIf="keys.length">
                       <mat-expansion-panel *ngFor="let item of keys">
                         <mat-expansion-panel-header>
-                          <mat-panel-title>{{item.selector_recordset_name}}</mat-panel-title>
+                            <mat-panel-title>
+                                {{item.selector_recordset_name}}
+                                <span *ngIf="item.is_active">active</span>
+                            </mat-panel-title>
                           <mat-panel-description>updated at {{item.updated}}</mat-panel-description>
                         </mat-expansion-panel-header>
-
-                        <mat-form-field style='width: 100%'>
-                          <textarea matInput placeholder="Private key" [value]="item.private_key">
-                          </textarea>
-                        </mat-form-field>
 
                         <mat-form-field style='width: 100%'>
                           <textarea matInput placeholder="Public key" [value]="item.public_key">
                           </textarea>
                         </mat-form-field>
-                      </mat-expansion-panel>
+
+                        <p *ngIf="item.is_active">
+                            <span>Date published to DNS: {{item.date_saved_to_pdns}}</span>
+                            <span>Activation date: {{item.date_rotation_finalized}}</span>
+                        </p>
+                        <p *ngIf="!item.is_active">
+                            <span>Dectivation date: {{item.date_deactivated}}</span>
+                        </p>                                                                                                           </mat-expansion-panel>
 
                     </mat-accordion>
                     <div *ngIf="!keys.length">
