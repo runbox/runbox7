@@ -747,14 +747,25 @@ app-calendar-app-component mat-nav-list button {
     font-weight: bold;
 }
 
-button.calendarMonthDay {
-    margin: 10px 0 !important;
-    text-align: left;
+div.calendarMonthWeek {
+    height: 15vh;
+    overflow: hidden;
     text-overflow: ellipsis !important;
-    white-space: normal !important;
-    overflow: hidden !important;
+}
+
+button.calendarMonthDay {
+    width: 100%;
+    margin: 5px !important;
+    padding: 0 !important;
+    text-align: left;
+    white-space: pre-line !important;
+    overflow: hidden;
     font-size: 12px !important;
     line-height: 1.2em;
+}
+
+app-calendar-app-component .mat-button .mat-button-wrapper>* {
+    vertical-align: top !important;
 }
 
 app-calendar-event-editor-dialog p {

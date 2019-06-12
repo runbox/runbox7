@@ -94,7 +94,7 @@
         </mat-toolbar>
 
         <ng-template #dayViewTemplate let-day="day" let-locale="locale">
-            <div>
+            <div class="calendarMonthWeek">
                 <div class="cal-cell-top">
                     <span class="cal-day-number">
                         {{ day.date | calendarDate:'monthViewDayNumber':locale }}
@@ -110,7 +110,7 @@
                             {{ event.title }}
                         </button>
                         <button mat-button *ngIf="day.events.length > 4"
-                            [ngStyle]="{ margin: '0px', 'text-align': 'left' }"
+				class="calendarMonthDay"
                             >
                             ...and {{ day.events.length - 3 }} other events
                         </button>
