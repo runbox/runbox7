@@ -67,8 +67,8 @@ export class EventEditorDialogComponent {
         }
         this.event.refreshDates();
         if (data['start']) {
-            this.event.start = data['start'];
-            this.event.end   = data['start'];
+            this.event.start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
+            this.event.end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
         }
         this.calendars = data['calendars'];
         this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;

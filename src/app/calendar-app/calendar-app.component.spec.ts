@@ -1,0 +1,143 @@
+// --------- BEGIN RUNBOX LICENSE ---------
+// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+//
+// This file is part of Runbox 7.
+//
+// Runbox 7 is free software: You can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// Runbox 7 is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
+// ---------- END RUNBOX LICENSE ----------
+
+import { ComponentFixture, TestBed, async, fakeAsync, tick } from '@angular/core/testing';
+import { CalendarAppComponent } from './calendar-app.component';
+import { CalendarAppModule } from './calendar-app.module';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RouterTestingModule } from '@angular/router/testing';
+import { of, Observable } from 'rxjs';
+import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
+import { MatSnackBar } from '@angular/material';
+import { RunboxCalendar } from './runbox-calendar';
+import { RunboxCalendarEvent } from './runbox-calendar-event';
+import * as moment from 'moment';
+
+describe('CalendarAppComponent', () => {
+    let component: CalendarAppComponent;
+    let fixture: ComponentFixture<CalendarAppComponent>;
+
+    const simpleEvents = [
+        new RunboxCalendarEvent({ id: 'test-calendar/event0', VEVENT: {
+            dtstart: moment().toISOString(),
+            summary: 'Test Event #0',
+        }}),
+        new RunboxCalendarEvent({ id: 'test-calendar/event1', VEVENT: {
+            dtstart: moment().add(1, 'month').toISOString(),
+            summary: 'Event #1, next month',
+        }}),
+    ];
+
+    const recurringEvents = [
+        new RunboxCalendarEvent({ id: 'test-calendar/recurring', VEVENT: {
+            dtstart: moment().date(1).toISOString(),
+            summary: 'Weekly event #0',
+            rrule: 'FREQ=WEEKLY',
+        }}),
+    ];
+
+    const GH_179_recurring_yearly = [
+        new RunboxCalendarEvent({ id: 'test-calendar/recurring-yearly', VEVENT: {
+            dtstart: moment().date(5).toISOString().split('T')[0], // no time, so an all-day
+            dtend: moment().date(6).toISOString().split('T')[0],
+            summary: 'Yearly event',
+            rrule: 'FREQ=YEARLY',
+        }}),
+    ];
+
+    const mockData = {
+        calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink' }) ],
+        events:    [] // set in test cases
+    };
+
+    beforeEach(async(() => {
+    TestBed.configureTestingModule({
+            imports: [
+                CalendarAppModule,
+                RouterTestingModule.withRoutes([])
+              ],
+            providers: [
+                { provide: RunboxWebmailAPI, useValue: {
+                    getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
+                    getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
+                } },
+                { provide: MatSnackBar, useValue: {
+                } },
+            ],
+        }).compileComponents();
+    }));
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(CalendarAppComponent);
+        component = fixture.componentInstance;
+    });
+
+    it('should display calendars', () => {
+        expect(component).toBeTruthy();
+        expect(component.calendars[0]).toBeDefined();
+
+        fixture.detectChanges();
+
+        const calendar = fixture.debugElement.nativeElement.querySelector('.calendarListItem');
+        expect(calendar).toBeDefined();
+        expect(calendar.innerText).toContain('Test Calendar', 'test calendar is displayed on the list');
+
+        const icon = calendar.querySelector('span mat-icon', 'test calendar has a correct icon colour');
+        expect(icon.style.color).toBe('pink');
+    });
+
+    it('should display events', () => {
+        mockData['events'] = simpleEvents;
+        component.reloadEvents();
+
+        expect(component.events.length).toBe(2);
+
+        fixture.detectChanges();
+
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        expect(events.length).toBe(1, 'only events from this month should be displayed');
+
+        const event = events[0];
+        expect(event.innerText).toContain('Test Event #0', 'test event is displayed in the month view');
+    });
+
+    it('should display recurring events', () => {
+        mockData['events'] = recurringEvents;
+        component.reloadEvents();
+        fixture.detectChanges();
+
+        const shownEventsCount = component.shown_events.length;
+        expect(shownEventsCount).toBeGreaterThan(3, 'at least 4 events should appear');
+
+        fixture.debugElement.nativeElement.querySelector('button#nextPeriodButton').click();
+        fixture.detectChanges();
+        fixture.debugElement.nativeElement.querySelector('button#previousPeriodButton').click();
+        fixture.detectChanges();
+        expect(component.shown_events.length).toBe(shownEventsCount, 'same number of events shown after cycling through months');
+    });
+
+    it('should not display yearly events as longer than they are (GH-179)', () => {
+        mockData['events'] = GH_179_recurring_yearly;
+        component.reloadEvents();
+        fixture.detectChanges();
+
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        expect(events.length).toBe(1, 'only one event should be displayed');
+    });
+});

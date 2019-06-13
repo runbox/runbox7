@@ -70,7 +70,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.allDay  = vevent.dtstart.indexOf('T') === -1;
             this.vevent  = vevent;
             if (vevent.rrule) {
-                this.rrule = rrulestr(vevent.rrule);
+                this.rrule = rrulestr(vevent.rrule, { dtstart: this.dtstart.toDate() });
                 this.draggable = false;
             }
         } else {
@@ -119,19 +119,17 @@ export class RunboxCalendarEvent implements CalendarEvent {
         this.start = this.dtstart.toDate();
 
         if (this.dtend) {
-            this.end = this.dtend.toDate();
+            // iCalendar uses non-inclusive end dates, while angular-calendar uses
+            // inclusive ones. To counteract this, roll the end times back a little
+            // so that they show properly
+            const shownEnd = moment(this.dtend);
+            if (this.allDay) {
+                shownEnd.subtract(1, 'days');
+            } else {
+                shownEnd.subtract(1, 'seconds');
+            }
+            this.end = shownEnd.toDate();
         }
-
-        // iCalendar uses non-inclusive end dates, while angular-calendar uses
-        // inclusive ones. To counteract this, roll the end times back a little
-        // so that they show properly
-        const shownEnd = moment(this.dtend);
-        if (this.allDay) {
-            shownEnd.subtract(1, 'days');
-        } else {
-            shownEnd.subtract(1, 'seconds');
-        }
-        this.end = shownEnd.toDate();
     }
 
     setRecurringFrequency(frequency: number): void {

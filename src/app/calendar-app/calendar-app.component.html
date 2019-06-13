@@ -26,7 +26,7 @@
             <mat-list-item *ngIf="calendars.length === 0">
                 Loading calendars...
             </mat-list-item>
-            <mat-list-item *ngFor="let calendar of calendars">
+            <mat-list-item class="calendarListItem" *ngFor="let calendar of calendars">
                 <button mat-icon-button (click)="toggleCalendar(calendar.id)">
                     <mat-icon *ngIf="calendar.shown"
                         [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
@@ -48,6 +48,7 @@
                 <mat-icon>menu</mat-icon>
             </button>
             <button mat-raised-button mwlCalendarPreviousView
+                id="previousPeriodButton"
                 [view]="view"
                 [(viewDate)]="viewDate"
                 (viewDateChange)="activeDayIsOpen = false"
@@ -55,12 +56,14 @@
                 Previous
             </button>
             <button mat-raised-button
+                id="todayButton"
                 mwlCalendarToday
                 [(viewDate)]="viewDate"
             >
                 Today
             </button>
             <button mat-raised-button
+                id="nextPeriodButton"
                 mwlCalendarNextView
                 [view]="view"
                 [(viewDate)]="viewDate"
@@ -121,6 +124,7 @@
                             <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
                         </div>
                         <button mat-button
+                            class="eventIndicator"
                             *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
                             (click)="openEvent(event); $event.stopPropagation()"
                             [ngStyle]="{ margin: '0px', 'text-align': 'left', 'text-overflow': 'ellipsis', 'white-space': 'nowrap', overflow: 'hidden' }"
