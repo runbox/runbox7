@@ -270,7 +270,7 @@ export class CalendarAppComponent {
                         this.calendars.push(result);
                         this.importEvents(result.id, ics);
                     }, e => this.showError(e));
-                } else {
+                } else if (result) {
                     this.importEvents(result, ics);
                 }
             });
