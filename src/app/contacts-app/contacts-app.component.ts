@@ -30,6 +30,7 @@ import { ContactsService } from './contacts.service';
     moduleId: 'angular2/app/contacts-app/',
     // tslint:disable-next-line:component-selector
     selector: 'contacts-app-root',
+    styleUrls: ['./contacts-app.component.css'],
     templateUrl: './contacts-app.component.html'
 })
 export class ContactsAppComponent {

@@ -12,7 +12,7 @@
                 </a>
             </mat-list-item>
 
-            <mat-list-item>
+            <mat-list-item  class="contactListControls">
                 <mat-form-field>
                     <mat-label> Show groups </mat-label>
                     <mat-select [(value)]="groupFilter" (selectionChange)="filterContacts()">
@@ -29,7 +29,7 @@
                 </mat-form-field>
             </mat-list-item>
 
-            <mat-list-item>
+            <mat-list-item class="contactListControls">
                 <mat-form-field>
                     <mat-label> Sort by </mat-label>
                     <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
@@ -41,7 +41,7 @@
                 </mat-form-field>
             </mat-list-item>
 
-            <mat-list-item>
+            <mat-list-item class="contactListControls">
                 <mat-form-field>
                     <mat-label> Search </mat-label>
                     <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
