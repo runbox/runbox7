@@ -138,7 +138,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 this.rrule = undefined;
             }
         } else {
-            const ruleOpts = this.rrule ? this.rrule.origOptions : {};
+            const ruleOpts = this.rrule ? this.rrule.origOptions
+                                        : { dtstart: this.dtstart.toDate() };
             ruleOpts.freq  = frequency;
             this.rrule     = new RRule(ruleOpts);
         }
