@@ -7,7 +7,7 @@
             <mat-select placeholder="Calendar" [formControl]="target" required>
                 <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
                     {{ calendar.toString() }}
-                    <em *ngIf="extractedCalendar.id === calendar.id">
+                    <em *ngIf="extractedCalendar && extractedCalendar.id === calendar.id">
                         (new)
                     </em>
                 </mat-option>
