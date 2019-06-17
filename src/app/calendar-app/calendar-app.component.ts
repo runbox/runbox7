@@ -53,7 +53,8 @@ import {
 import { ViewPeriod } from 'calendar-utils';
 import RRule from 'rrule';
 
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { CalendarService } from './calendar.service';
+
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
@@ -85,20 +86,22 @@ export class CalendarAppComponent {
     shown_events: RunboxCalendarEvent[] = [];
 
     constructor(
+        public  calendarservice: CalendarService,
         private cdr:      ChangeDetectorRef,
         private dialog:   MatDialog,
-        private rmmapi:   RunboxWebmailAPI,
         private snackBar: MatSnackBar,
     ) {
-        console.log('Fetching calendars and events');
-        this.rmmapi.getCalendars().subscribe(calendars => {
-            console.log('Calendars loaded:', calendars);
-            for (const c of calendars) {
-                this.calendars.push(c);
-            }
+        this.calendarservice.errorLog.subscribe(e => this.showError(e));
+        this.calendarservice.calendarSubject.subscribe((calendars) => {
+            this.calendars = calendars;
             this.updateEventColors();
-        }, e => this.showError(e));
-        this.reloadEvents();
+        });
+        this.calendarservice.eventSubject.subscribe(events => {
+            this.events = events;
+            console.log('Processed events:', this.events);
+            this.updateEventColors();
+            this.filterEvents();
+        });
     }
 
     addEvent(on?: Date): void {
@@ -106,12 +109,7 @@ export class CalendarAppComponent {
         dialogRef.afterClosed().subscribe(event => {
             console.log('Dialog result:', event);
             if (event) {
-                this.rmmapi.addCalendarEvent(event).subscribe(res => {
-                    console.log('Event created:', res);
-                    event.id = res.id;
-                    this.events.push(event);
-                    this.filterEvents();
-                }, e => this.showError(e));
+                this.calendarservice.addEvent(event);
             }
         });
     }
@@ -187,22 +185,9 @@ export class CalendarAppComponent {
             }
             console.log('Dialog result:', result);
             if (result === 'DELETE') {
-                this.rmmapi.deleteCalendar(cal.id).subscribe(() => {
-                    console.log('Calendar deleted:', cal.id);
-                    const idx = this.calendars.findIndex(c => c.id === cal.id);
-                    this.calendars.splice(idx, 1);
-                    // also delete all events that came from that calendar
-                    // (just from the view; DAV will delete them along with the calendar)
-                    this.events = this.events.filter(e => e.calendar !== cal.id);
-                    this.shown_events = this.shown_events.filter(e => e.calendar !== cal.id);
-                }, e => this.showError(e));
+                this.calendarservice.deleteCalendar(cal.id);
             } else {
-                this.rmmapi.modifyCalendar(result).subscribe(() => {
-                    console.log('Calendar edited:', result['id']);
-                    const idx = this.calendars.findIndex(c => c.id === result['id']);
-                    this.calendars.splice(idx, 1, result);
-                }, e => this.showError(e));
-                this.updateEventColors();
+                this.calendarservice.modifyCalendar(result);
             }
         });
     }
@@ -211,12 +196,7 @@ export class CalendarAppComponent {
         event.start = newStart;
         event.end = newEnd;
         console.log('Event changed', event);
-        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(
-            res => {
-                console.log('Event updated:', res);
-                this.filterEvents();
-            }, e => this.showError(e)
-        );
+        this.calendarservice.modifyEvent(event as RunboxCalendarEvent);
     }
 
     filterEvents(): void {
@@ -246,10 +226,9 @@ export class CalendarAppComponent {
     }
 
     importEvents(calendarId: string, ics: string): void {
-        this.rmmapi.importCalendar(calendarId, ics).subscribe(res => {
-            this.reloadEvents();
+        this.calendarservice.importCalendar(calendarId, ics).subscribe(res => {
             this.showInfo(res['events_imported'] + ' events imported');
-        }, e => this.showError(e));
+        });
     }
 
     onIcsUploaded(uploadEvent: any) {
@@ -259,21 +238,7 @@ export class CalendarAppComponent {
         fr.onload = (ev: any) => {
             const ics = ev.target.result;
             console.log(ics);
-            const dialogRef = this.dialog.open(ImportDialogComponent, {
-                data: { ical: ics, calendars: this.calendars.slice() }
-            });
-            dialogRef.afterClosed().subscribe(result => {
-                if (result instanceof RunboxCalendar) {
-                    // create the new calendar first
-                    this.rmmapi.addCalendar(result).subscribe(() => {
-                        console.log('Calendar created!');
-                        this.calendars.push(result);
-                        this.importEvents(result.id, ics);
-                    }, e => this.showError(e));
-                } else if (result) {
-                    this.importEvents(result, ics);
-                }
-            });
+            this.processIcsImport(ics);
         };
 
         fr.readAsText(file);
@@ -286,39 +251,27 @@ export class CalendarAppComponent {
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
-                this.rmmapi.deleteCalendarEvent(event.id).subscribe(
-                    res => {
-                        console.log('Event deleted:', res);
-                        const idx = this.events.findIndex(e => e.id === event.id);
-                        this.events.splice(idx, 1);
-                        this.filterEvents();
-                    }, e => this.showError(e)
-                );
+                this.calendarservice.deleteEvent(event.id as string);
             } else if (result) {
-                console.log('Updating event:', result);
-                this.rmmapi.modifyCalendarEvent(result).subscribe(
-                    res => {
-                        console.log('Event updated:', res);
-                        const idx = this.events.findIndex(e => e.id === result.id);
-                        this.events.splice(idx, 1, result);
-                        this.filterEvents();
-                    }, e => this.showError(e)
-                );
+                this.calendarservice.modifyEvent(result);
             }
         });
     }
 
-    reloadEvents(): void {
-        this.rmmapi.getCalendarEvents().subscribe(events => {
-            console.log('Calendar events:', events);
-            this.events = [];
-            for (const e of events) {
-                this.events.push(new RunboxCalendarEvent(e));
+    processIcsImport(ics: string) {
+        const dialogRef = this.dialog.open(ImportDialogComponent, {
+            data: { ical: ics, calendars: this.calendars.slice() }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+            if (result instanceof RunboxCalendar) {
+                // create the new calendar first
+                this.calendarservice.addCalendar(result).then(
+                    () => this.importEvents(result.id, ics)
+                );
+            } else {
+                this.importEvents(result, ics);
             }
-            console.log('Processed events:', this.events);
-            this.updateEventColors();
-            this.filterEvents();
-        }, e => this.showError(e));
+        });
     }
 
     showAddCalendarDialog(): void {
@@ -328,11 +281,7 @@ export class CalendarAppComponent {
             if (!result) { return; }
 
             result.generateID();
-
-            this.rmmapi.addCalendar(result).subscribe(() => {
-                console.log('Calendar created!');
-                this.calendars.push(result);
-            }, e => this.showError(e));
+            this.calendarservice.addCalendar(result);
         });
     }
 

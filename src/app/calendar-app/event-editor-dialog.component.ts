@@ -38,6 +38,7 @@ export class EventEditorDialogComponent {
         dtstart: moment(),
         dtend: moment(),
         allDay: false,
+        color: {},
         vevent: {},
     });
     calendars: RunboxCalendar[];

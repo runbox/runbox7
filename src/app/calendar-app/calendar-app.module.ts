@@ -27,6 +27,7 @@ import { MenuModule } from '../menu/menu.module';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
+import { CalendarService } from './calendar.service';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
@@ -93,6 +94,7 @@ import {
     ImportDialogComponent,
   ],
   providers: [
+    CalendarService,
   ],
   bootstrap: [CalendarAppComponent]
 })

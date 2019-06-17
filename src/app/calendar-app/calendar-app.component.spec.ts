@@ -104,7 +104,7 @@ describe('CalendarAppComponent', () => {
 
     it('should display events', () => {
         mockData['events'] = simpleEvents;
-        component.reloadEvents();
+        component.calendarservice.reloadEvents();
 
         expect(component.events.length).toBe(2);
 
@@ -119,7 +119,7 @@ describe('CalendarAppComponent', () => {
 
     it('should display recurring events', () => {
         mockData['events'] = recurringEvents;
-        component.reloadEvents();
+        component.calendarservice.reloadEvents();
         fixture.detectChanges();
 
         const shownEventsCount = component.shown_events.length;
@@ -134,7 +134,7 @@ describe('CalendarAppComponent', () => {
 
     it('should not display yearly events as longer than they are (GH-179)', () => {
         mockData['events'] = GH_179_recurring_yearly;
-        component.reloadEvents();
+        component.calendarservice.reloadEvents();
         fixture.detectChanges();
 
         const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
