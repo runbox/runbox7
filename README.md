@@ -122,7 +122,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on the process for sub
 See also [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for our code of conduct.
 
 ## License
-This project is licensed under GPLv3 - see [LICENSE.md](CODE_OF_CONDUCT.md) for details
+This project is licensed under GPLv3 - see [LICENSE](LICENSE) for details
 
 ## Acknowledgments
    * Thanks to the folks behind the Xapian project, an integral part of Runbox 7: [https://xapian.org](https://xapian.org)
