@@ -4,14 +4,24 @@ We would love for you to contribute to Runbox 7 and help make it even better tha
 
 As a contributor, here are the guidelines we would like you to follow:
 
-* [Code of Conduct](#code-of-conduct)
-* [Question or Problem?](#got-a-question-or-problem)
-* [Issues and Bugs](#found-a-bug)
-* [Feature Requests](#missing-a-feature)
-* [Submission Guidelines](#submission-guidelines)
-* [Coding Rules](#coding-rules)
-* [Commit Message Guidelines](#commit-message-guidelines)
-* [License](#license)
+- [Contributing to Runbox 7](#Contributing-to-Runbox-7)
+  - [Code of Conduct](#Code-of-Conduct)
+  - [Got a Question or Problem?](#Got-a-Question-or-Problem)
+  - [Found a Bug?](#Found-a-Bug)
+  - [Missing a Feature?](#Missing-a-Feature)
+  - [Submission Guidelines](#Submission-Guidelines)
+    - [Submitting an Issue](#Submitting-an-Issue)
+    - [Submitting a Pull Request (PR)](#Submitting-a-Pull-Request-PR)
+      - [After your pull request is merged](#After-your-pull-request-is-merged)
+  - [Coding Rules](#Coding-Rules)
+  - [Commit Message Guidelines](#Commit-Message-Guidelines)
+    - [Commit Message Format](#Commit-Message-Format)
+    - [Revert](#Revert)
+    - [Type](#Type)
+    - [Subject](#Subject)
+    - [Body](#Body)
+    - [Footer](#Footer)
+  - [License](#License)
 
 ## Code of Conduct
 
@@ -68,7 +78,10 @@ git checkout -b my-fix-branch master
 ```
 5. Create your patch, **including appropriate test cases**.
 6. Follow our [Coding Rules](#coding-rules).
-7. Run the full Angular test suite, and ensure that all tests pass.
+7. Run the lint, unit tests and e2e tests, and ensure that all tests pass:
+    - `npm run lint`
+    - `npm run test`
+    - `npm run e2e`
 8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-guidelines). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
 ```
