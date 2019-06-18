@@ -179,24 +179,28 @@
       </div>
       <ng-container *ngIf="!showAllHeaders">
         <div class="messageHeaderRow">
-          <div class="messageHeaderFrom">From:</div>
-          <div class="messageHeaderFrom">{{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt;</div>        
+          <div class="messageHeaderFrom">
+            From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+          </div>
         </div>
         <div class="messageHeaderRow">                                                                                                                                       
           <div class="messageHeaderDate">Time:</div>
           <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
         </div>
         <div *ngIf="mailObj.to" class="messageHeaderRow">
-          <div class="messageHeaderTo">To:</div>
-          <div class="messageHeaderTo"><span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span></div>
+          <div class="messageHeaderTo">
+            To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+          </div>
         </div>
         <div *ngIf="mailObj.cc" class="messageHeaderRow">
-          <div class="messageHeaderCC">CC:</div>
-          <div class="messageHeaderCC"><span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span></div>
+          <div class="messageHeaderCC">
+            CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+          </div>
         </div>
         <div *ngIf="mailObj.bcc"class="messageHeaderRow">
-          <div class="messageHeaderBCC">BCC:</div>
-          <div class="messageHeaderBCC"><span *ngFor="let to of mailObj.bcc">{{to.name}} &lt;{{to.address}}&gt;</span></div>
+          <div class="messageHeaderBCC">
+            BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+          </div>
         </div>
       </ng-container>      
       <table *ngIf="showAllHeaders">

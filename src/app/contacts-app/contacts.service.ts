@@ -29,6 +29,7 @@ export class ContactsService {
 
     settingsSubject = new AsyncSubject<any>();
     contactsSubject = new ReplaySubject<Contact[]>();
+    contactsByEmail = new ReplaySubject<any>(1);
     contactGroups   = new ReplaySubject<string[]>();
     informationLog  = new Subject<string>();
     errorLog        = new Subject<HttpErrorResponse>();
@@ -54,6 +55,7 @@ export class ContactsService {
     reload(): Observable<any> {
         console.log('Reloading the contacts list');
         const res = this.rmmapi.getAllContacts();
+        const byEmail = {};
         res.subscribe(contacts => {
             console.log('Contacts:', contacts);
             this.contactsSubject.next(contacts);
@@ -63,8 +65,12 @@ export class ContactsService {
                 for (const cat of c.categories) {
                     groups[cat] = true;
                 }
+                for (const e of c.emails) {
+                    byEmail[e.value] = c;
+                }
             }
             this.contactGroups.next(Object.keys(groups));
+            this.contactsByEmail.next(byEmail);
         }, e => this.apiErrorHandler(e));
         return res;
     }
@@ -94,6 +100,14 @@ export class ContactsService {
             callback();
         }, e => this.apiErrorHandler(e));
         return deleteResult;
+    }
+
+    lookupContact(email: string): Promise<Contact> {
+        return new Promise((resolve, reject) => {
+            this.contactsByEmail.subscribe(cby => {
+                resolve(cby[email]);
+            }, e => { this.apiErrorHandler(e); reject(); });
+        });
     }
 
     isMigrationPending(): Observable<any> {

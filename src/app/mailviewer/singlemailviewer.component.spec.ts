@@ -30,8 +30,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Http } from '@angular/http';
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
+import { ContactsService } from '../contacts-app/contacts.service';
 import { ProgressService } from '../http/progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ContactCardComponent } from './contactcard.component';
 import { MessageActions } from './messageactions';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -62,7 +64,7 @@ describe('SingleMailViewerComponent', () => {
         MatExpansionModule,
         RouterTestingModule
       ],
-      declarations: [SingleMailViewerComponent],
+      declarations: [ContactCardComponent, SingleMailViewerComponent],
       providers: [
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: Http, useValue: {} },
@@ -96,6 +98,11 @@ describe('SingleMailViewerComponent', () => {
               ]
             });
           }
+        } },
+        { provide: ContactsService, useValue: {
+            lookupContact(email: string) {
+              return new Promise((resolve, reject) => resolve(null));
+            }
         } },
         { provide: ProgressService, useValue: {} }
       ]
