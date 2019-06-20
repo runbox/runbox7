@@ -16,6 +16,7 @@
     "mockserver": "tsc -p e2e/tsconfig.e2e.json && node out-tsc/e2e/mockserver/mockserver.main.js",
     "buildrmm6": "ng build --prod --base-href=/app/ rmm6",
     "build": "node check-prod-bundle-dependencies.js && node updatebuildtimestamp.js && ng build --prod --base-href=/app/ && cp ngsw-worker-patched.js dist/ngsw-worker.js && git checkout src/app/buildtimestamp.ts",
+    "check-licenses": "node check-licenses.js",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
