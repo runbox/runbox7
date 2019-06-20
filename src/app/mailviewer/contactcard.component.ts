@@ -30,6 +30,8 @@ import { ContactsService } from '../contacts-app/contacts.service';
         <a [ngStyle]="style" (click)="clicked()"
            [matTooltip]="contactsEntry ? 'Show contact' : 'Add to contacts'">
             {{contact.name}} &lt;{{contact.address}}&gt;
+            <mat-icon *ngIf="contactsEntry">  person     </mat-icon>
+            <mat-icon *ngIf="!contactsEntry"> person_add </mat-icon>
         </a>
     `,
 })
