@@ -760,3 +760,62 @@ compose .mat-standard-chip {
 .domreg .default_margintop {
     margin-top: 35px;
 }
+
+/* Calendar */
+
+app-calendar-app-component mat-nav-list button {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.calendarTitle {
+    margin: 0 1em;
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+div.calendarMonthDayView {
+    height: 15vh;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+}
+
+div.calendarMonthDayView .add-new-event {
+    visibility: hidden;
+}
+
+div.calendarMonthDayView:hover .add-new-event {
+    visibility: visible;
+}
+
+.add-new-event {
+    position: absolute;
+    bottom: 0.1em;
+    right: 0.1em;
+}
+
+button.calendarMonthDayEvent {
+    width: 100%;
+    margin: 5px !important;
+    padding: 0 !important;
+    text-align: left;
+    white-space: pre-line !important;
+    overflow: hidden;
+    font-size: 12px !important;
+    line-height: 1.2em;
+}
+
+app-calendar-app-component .mat-button .mat-button-wrapper>* {
+    vertical-align: top !important;
+}
+
+app-calendar-event-editor-dialog p {
+    margin: 5px 0 !important;
+    padding: 0 !important;
+}
+
+.calendarEventPeriodLabel {
+    display: inline-block;
+    width: 50px;
+}

@@ -121,7 +121,7 @@ describe('CalendarAppComponent', () => {
 
         fixture.detectChanges();
 
-        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only events from this month should be displayed');
 
         const event = events[0];
@@ -148,7 +148,7 @@ describe('CalendarAppComponent', () => {
         component.calendarservice.reloadEvents();
         fixture.detectChanges();
 
-        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
     });
 
@@ -157,13 +157,13 @@ describe('CalendarAppComponent', () => {
         component.calendarservice.reloadEvents();
         fixture.detectChanges();
 
-        let events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
 
         mockData['events'][0].setRecurringFrequency(RRule.WEEKLY);
         component.calendarservice.reloadEvents();
         fixture.detectChanges();
-        events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
         const first_occurence = component.shown_events[0].start;
         expect(first_occurence.getDate()).toBe(not_today, 'day matches');
