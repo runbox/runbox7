@@ -72,9 +72,9 @@
                 Next
             </button>
 
-            <strong>
+            <span class="calendarTitle">
                 {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
-            </strong>
+            </span>
 
             <button mat-raised-button
                 (click)="view = CalendarView.Month"
@@ -97,24 +97,7 @@
         </mat-toolbar>
 
         <ng-template #dayViewTemplate let-day="day" let-locale="locale">
-            <style>
-                .day .add-new-event {
-                    visibility: hidden;
-                }
-                .day:hover .add-new-event {
-                    visibility: visible;
-                }
-                .day {
-                    position: relative;
-                }
-                .add-new-event {
-                    position: absolute;
-                    bottom: 0.1em;
-                    right: 0.1em;
-                }
-            </style>
-
-            <div class="day" style="height: 15vh; width: 12vw;">
+            <div class="calendarMonthDayView">
                 <div class="cal-cell-top">
                     <span class="cal-day-number">
                         {{ day.date | calendarDate:'monthViewDayNumber':locale }}
@@ -123,20 +106,16 @@
                         <div class="add-new-event">
                             <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
                         </div>
-                        <button mat-button
-                            class="eventIndicator"
+                        <button mat-button class="calendarMonthDayEvent"
                             *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
                             (click)="openEvent(event); $event.stopPropagation()"
-                            [ngStyle]="{ margin: '0px', 'text-align': 'left', 'text-overflow': 'ellipsis', 'white-space': 'nowrap', overflow: 'hidden' }"
                         >
                             <strong *ngIf="!event.allDay && event.start.getDay() == day.date.getDay()">
                                 {{ event.start.getHours() }}:{{ ('0' + event.start.getMinutes()).slice(-2) }}
                             </strong>
                             {{ event.title }}
                         </button>
-                        <button mat-button *ngIf="day.events.length > 4"
-                            [ngStyle]="{ margin: '0px', 'text-align': 'left' }"
-                            >
+                        <button mat-button *ngIf="day.events.length > 4" class="calendarMonthDayEvent">
                             ...and {{ day.events.length - 3 }} other events
                         </button>
                     </div>
