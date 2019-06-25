@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 declare var Module;
-declare var termlistresult;
 
 const emAllocateString = function (str) {
   if (!str) {
@@ -58,6 +57,13 @@ export class XapianAPI {
     Module.cwrap('setStringValue', null, ['number', 'number', 'string']);
   public changeDocumentsFolder: (unique_term: string, folder: string) =>
     void = Module.cwrap('changeDocumentsFolder', null, ['string', 'string']);
+  public addTermToDocument: (idterm: string, termname: string) => void = Module.cwrap('addTermToDocument', null, ['string', 'string']);
+  public removeTermFromDocument: (idterm: string, termname: string) => void =
+        Module.cwrap('removeTermFromDocument', null, ['string', 'string']);
+  public addTextToDocument: (idterm: string, withoutpositions: boolean, text: string) => void =
+        Module.cwrap('addTextToDocument', null, ['string', 'boolean', 'string']);
+  public getDocIdFromUniqueIdTerm: (idterm: string) => number =
+        Module.cwrap('getDocIdFromUniqueIdTerm', 'number', ['string']);
 
   public getStringValue(docid, slot): string {
     const $ret = Module._malloc(1024);
@@ -247,9 +253,9 @@ export class XapianAPI {
   }
 
   hasMessageId(id: number): boolean {
-    termlistresult = [];
+    window['termlistresult'] = [];
     this.termlist('Q' + id);
-    return termlistresult.findIndex(t => t === '') > -1;
+    return window['termlistresult'].findIndex(t => t === '') > -1;
   }
 }
 

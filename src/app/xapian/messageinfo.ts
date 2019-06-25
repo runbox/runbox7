@@ -144,6 +144,30 @@ export class IndexingTools {
         return hash;
     }
 
+    public markMessageSeen(messageId: number, seenFlag: boolean) {
+        try {
+            if (seenFlag === true) {
+                this.indexAPI.addTermToDocument(`Q${messageId}`, 'XFseen');
+            } else if (seenFlag === false) {
+                this.indexAPI.removeTermFromDocument(`Q${messageId}`, 'XFseen');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public flagMessage(messageId: number, flag: boolean) {
+        try {
+            if (flag === true) {
+                this.indexAPI.addTermToDocument(`Q${messageId}`, 'XFflagged');
+            } else if (flag === false) {
+                this.indexAPI.removeTermFromDocument(`Q${messageId}`, 'XFflagged');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     public addMessageToIndex(msginfo: MessageInfo,
             foldersNotToIndex?: string[]
         ) {
