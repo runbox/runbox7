@@ -54,12 +54,14 @@ import { ViewPeriod } from 'calendar-utils';
 import RRule from 'rrule';
 
 import { CalendarService } from './calendar.service';
+import { CalendarSettings } from './calendar-settings';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { ImportDialogComponent } from './import-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
+import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
 
 @Component({
@@ -75,6 +77,7 @@ export class CalendarAppComponent {
     viewDate: Date = new Date();
     viewPeriod: ViewPeriod;
     activeDayIsOpen = false;
+    settings = new CalendarSettings();
 
     refresh: Subject<any> = new Subject();
 
@@ -91,6 +94,10 @@ export class CalendarAppComponent {
         private dialog:   MatDialog,
         private snackBar: MatSnackBar,
     ) {
+        const storedSettings = localStorage.getItem('calendarSettings');
+        if (storedSettings) {
+            this.settings = JSON.parse(storedSettings) as CalendarSettings;
+        }
         this.calendarservice.errorLog.subscribe(e => this.showError(e));
         this.calendarservice.calendarSubject.subscribe((calendars) => {
             this.calendars = calendars;
@@ -255,6 +262,18 @@ export class CalendarAppComponent {
             } else if (result) {
                 this.calendarservice.modifyEvent(result);
             }
+        });
+    }
+
+    openSettings(): void {
+        const dialogRef = this.dialog.open(CalendarSettingsDialogComponent, { data: this.settings });
+        dialogRef.afterClosed().subscribe(result => {
+            localStorage.setItem('calendarSettings', JSON.stringify(this.settings));
+            // we need to do this weird dance to make the calendar pick up
+            // potential changes to settings.weekStartsOnSunday
+            const desiredView = this.view;
+            this.view = null;
+            setTimeout(() => this.view = desiredView);
         });
     }
 
