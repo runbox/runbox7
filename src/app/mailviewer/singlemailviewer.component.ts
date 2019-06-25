@@ -525,7 +525,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     const a = document.createElement('a');
     const theurl = URL.createObjectURL(new Blob([attachment.content], { type: attachment.contentType }));
     a.href = theurl;
-    a.download = attachment.fileName;
+    a.download = attachment.filename;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
