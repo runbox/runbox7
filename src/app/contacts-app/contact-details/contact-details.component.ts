@@ -64,6 +64,21 @@ export class ContactDetailsComponent {
             const contactid = params.id;
             if (contactid === 'new') {
                 this.contact = new Contact({});
+                this.route.queryParams.subscribe(queryParams => {
+                    this.contact.emails = [
+                        { types: ['home'], value: queryParams.email }
+                    ];
+                    const nameParts = queryParams.name.split(' ');
+                    if (nameParts.length === 2) {
+                        // probably "firstName lastName"
+                        this.contact.first_name = nameParts[0];
+                        this.contact.last_name = nameParts[1];
+                    } else {
+                        // no clue
+                        this.contact.nickname = queryParams.name;
+                    }
+                    this.loadContact();
+                });
             } else {
                 this.contact = contacts.find(c => c.id === contactid);
 
