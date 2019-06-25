@@ -5,6 +5,7 @@ var ngMakeLib = new NGMakeLib('src/app/lib.module.ts', 'runbox7lib');
 ngMakeLib.setREADME('README-library.md');
 
 console.log('Exports for Runbox7 library has no dependencies - removing them from the exported package.json');
+ngMakeLib.packageJSONConfig.version = '0.2.0';
 ngMakeLib.packageJSONConfig.dependencies = {};
 ngMakeLib.packageJSONConfig.devDependencies = {};
 ngMakeLib.rollupOutputOptions.format = 'cjs';

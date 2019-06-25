@@ -28,6 +28,7 @@ import { MatSnackBar } from '@angular/material';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import * as moment from 'moment';
+import { RRule } from 'rrule';
 
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
@@ -58,6 +59,16 @@ describe('CalendarAppComponent', () => {
             dtend: moment().date(6).toISOString().split('T')[0],
             summary: 'Yearly event',
             rrule: 'FREQ=YEARLY',
+        }}),
+    ];
+
+    // the test below only makes sense when the event start date is not now()
+    const not_today = moment().date() === 2 ? 3 : 2;
+
+    const GH_181_setting_recurrence = [
+        new RunboxCalendarEvent({ id: 'test-calendar/not-recurring-yet', VEVENT: {
+            dtstart: moment().date(not_today).hour(12).minute(34).toISOString(),
+            summary: 'One-shot event',
         }}),
     ];
 
@@ -110,7 +121,7 @@ describe('CalendarAppComponent', () => {
 
         fixture.detectChanges();
 
-        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only events from this month should be displayed');
 
         const event = events[0];
@@ -137,7 +148,26 @@ describe('CalendarAppComponent', () => {
         component.calendarservice.reloadEvents();
         fixture.detectChanges();
 
-        const events = fixture.debugElement.nativeElement.querySelectorAll('button.eventIndicator');
+        const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
+    });
+
+    it('should not break event start date when setting recurrence (GH-181)', () => {
+        mockData['events'] = GH_181_setting_recurrence;
+        component.calendarservice.reloadEvents();
+        fixture.detectChanges();
+
+        let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
+        expect(events.length).toBe(1, 'only one event should be displayed');
+
+        mockData['events'][0].setRecurringFrequency(RRule.WEEKLY);
+        component.calendarservice.reloadEvents();
+        fixture.detectChanges();
+        events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
+        expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
+        const first_occurence = component.shown_events[0].start;
+        expect(first_occurence.getDate()).toBe(not_today, 'day matches');
+        expect(first_occurence.getHours()).toBe(12, 'hour matches');
+        expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
     });
 });
