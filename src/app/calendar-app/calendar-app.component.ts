@@ -25,6 +25,9 @@ import {
     TemplateRef
 } from '@angular/core';
 
+import { ActivatedRoute } from '@angular/router';
+
+import { Http, ResponseContentType } from '@angular/http';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import {
@@ -92,6 +95,8 @@ export class CalendarAppComponent {
         public  calendarservice: CalendarService,
         private cdr:      ChangeDetectorRef,
         private dialog:   MatDialog,
+        private http:     Http,
+        private route:    ActivatedRoute,
         private snackBar: MatSnackBar,
     ) {
         const storedSettings = localStorage.getItem('calendarSettings');
@@ -102,6 +107,16 @@ export class CalendarAppComponent {
         this.calendarservice.calendarSubject.subscribe((calendars) => {
             this.calendars = calendars;
             this.updateEventColors();
+            // see if we're told to import some email-ICS
+            this.route.queryParams.subscribe(params => {
+                const icsUrl = params.import_from;
+                if (!icsUrl)  { return; }
+                this.http.get(icsUrl, { responseType: ResponseContentType.Blob }).subscribe((res) => {
+                    (new Response(res.blob())).text().then(text => {
+                        this.processIcsImport(text);
+                    });
+                });
+            });
         });
         this.calendarservice.eventSubject.subscribe(events => {
             this.events = events;

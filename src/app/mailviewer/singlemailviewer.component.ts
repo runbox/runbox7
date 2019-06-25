@@ -206,6 +206,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       return 'picture_as_pdf';
     } else if (contentType.indexOf('audio') > -1) {
       return 'audiotrack';
+    } else if (contentType.indexOf('text/calendar') > -1) {
+      return 'event';
+    } else if (contentType.indexOf('text/vcard') > -1) {
+      return 'contacts';
     } else if (contentType.indexOf('text') > -1) {
       return 'text_format';
     } else {
@@ -482,6 +486,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   public openAttachment(attachment: any) {
+    if (attachment.contentType.indexOf('text/calendar') > -1) {
+      this.router.navigate(['/calendar'], { queryParams: { import_from: attachment.downloadURL }});
+      return;
+    }
+
     // as long as we don't have a separate domain for attachments, we cannot show them in a new tab/window
     const alink = document.createElement('a');
     alink.download = attachment.filename;
