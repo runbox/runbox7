@@ -20,7 +20,7 @@
               "src/assets",
               {
                 "glob": "xapianasm*",
-                "input": "",
+                "input": "node_modules/runbox-searchindex/",
                 "output": "/"
               },
               "src/manifest.json"
@@ -95,7 +95,7 @@
               "src/assets",
               {
                 "glob": "xapianasm*",
-                "input": "",
+                "input": "node_modules/runbox-searchindex/",
                 "output": "/"
               },
               "src/manifest.json"

@@ -59,10 +59,15 @@ export class MessageListService {
                 ))
         );
 
-        rmmapi.markSeenSubject.pipe(
-                filter((msgInfo) => this.messagesById[msgInfo.id] ? true : false)
-            ).subscribe((msgInfo) => {
-                this.messagesById[msgInfo.id].seenFlag = msgInfo.seenFlag;
+        rmmapi.messageFlagChangeSubject.pipe(
+                filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
+            ).subscribe((msgFlagChange) => {
+                if (msgFlagChange.seenFlag === true || msgFlagChange.seenFlag === false) {
+                    this.messagesById[msgFlagChange.id].seenFlag = msgFlagChange.seenFlag;
+                }
+                if (msgFlagChange.flaggedFlag === true || msgFlagChange.flaggedFlag === false) {
+                    this.messagesById[msgFlagChange.id].flaggedFlag = msgFlagChange.flaggedFlag;
+                }
                 this.refreshFolderCount();
             });
     }

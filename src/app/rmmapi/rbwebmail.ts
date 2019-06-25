@@ -146,12 +146,27 @@ export class MessageContents {
     text: MessageTextContents;
 }
 
+export class MessageFlagChange {
+    /**
+     * @param id message id
+     * @param seenFlag seen flag - set to null if N/A
+     * @param flaggedFlag flagged flag - set to null if N/A
+     */
+    constructor(
+        public id: number,
+        public seenFlag: boolean,
+        public flaggedFlag: boolean
+    ) {
+
+    }
+}
+
 @Injectable()
 export class RunboxWebmailAPI {
 
     public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 1000;
 
-    public markSeenSubject: Subject<MessageInfo> = new Subject();
+    public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
     public rblocale: any;
 
@@ -199,10 +214,12 @@ export class RunboxWebmailAPI {
             this.http.get('/rest/v1/email/' + messageId)
             .pipe(
                 map((r: any) => r.result),
-
             ).subscribe((r) => {
                 messageContentsObservable.next(r);
                 messageContentsObservable.complete();
+            }, err => {
+                delete this.messageContentsCache[messageId];
+                messageContentsObservable.error(err);
             });
 
             return messageContentsObservable;
@@ -217,18 +234,13 @@ export class RunboxWebmailAPI {
         delete this.messageContentsCache[messageId];
     }
 
-    public listDeletedMessagesSince(sincechangeddate: Date): Observable<MessageInfo[]> {
+    public listDeletedMessagesSince(sincechangeddate: Date): Observable<number[]> {
         const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
-        const now = new Date();
-        return this.http.get(`/rest/v1/list/deleted_messages/${datestring}`).pipe(
-            map((r: any) => (r.message_ids as number[]).map(
-                id => {
-                    const msg = new MessageInfo(id,
-                        now, now, '', false, false, false,
-                        [], [], [], [], '', '', 0, false);
-                    msg.deletedFlag = true;
-                    return msg;
-                })));
+        const url = `/rest/v1/list/deleted_messages/${datestring}`;
+
+        return this.http.get(url).pipe(
+            map((r: any) => (r.message_ids as number[]))
+        );
     }
 
     public listAllMessages(page: number,
@@ -238,12 +250,14 @@ export class RunboxWebmailAPI {
         skipContent: boolean = false,
         folder?: string)
         : Observable<MessageInfo[]> {
-        return this.http.get('/mail/download_xapian_index?listallmessages=1' +
-            '&page=' + page +
-            '&sinceid=' + sinceid +
-            '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
-            '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-            (folder ? '&folder=' + folder.replace(/\//g, '.') : ''), { responseType: 'text' }).pipe(
+        const url = '/mail/download_xapian_index?listallmessages=1' +
+                    '&page=' + page +
+                    '&sinceid=' + sinceid +
+                    '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
+                    '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
+                    (folder ? '&folder=' + folder.replace(/\//g, '.') : '');
+
+        return this.http.get(url, { responseType: 'text' }).pipe(
             map((txt: string) => txt.length > 0 ? txt.split('\n') : []),
             map((lines: string[]) =>
                 lines.map((line) => {
@@ -384,23 +398,21 @@ export class RunboxWebmailAPI {
     }
 
     public markSeen(messageId: any, seen_flag_value = 1): Observable<any> {
-        return this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ seen_flag: seen_flag_value }))
-            .pipe(
-                mergeMap(() => this.listAllMessages(0, parseInt('' + messageId, 10) + 1, 0, 1, false)),
-                map((msgInfos) => msgInfos[0]),
-                tap((msgInfo) => this.markSeenSubject.next(msgInfo))
-            );
+        return of(null).pipe(
+            tap(() => this.messageFlagChangeSubject.next(
+                new MessageFlagChange(messageId, seen_flag_value === 1 ? true : false, null)
+            )),
+            mergeMap(() => this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ seen_flag: seen_flag_value }))
+        ));
     }
 
     public markFlagged(messageId: any, flagged_flag_value = 1): Observable<any> {
-        return this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ flagged_flag: flagged_flag_value }))
+        return of(null)
             .pipe(
-                mergeMap(() => this.listAllMessages(0,
-                    parseInt('' + messageId, 10) + 1,
-                    0, 1, false)
-                ),
-                map((msgInfos) => msgInfos[0]),
-                tap((msgInfo) => this.markSeenSubject.next(msgInfo))
+                tap((msgInfo) => this.messageFlagChangeSubject.next(
+                    new MessageFlagChange(messageId, null, flagged_flag_value === 1 ? true : false)
+                )),
+                mergeMap(() => this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ flagged_flag: flagged_flag_value })))
             );
     }
 

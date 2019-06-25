@@ -145,5 +145,7 @@ describe('RecipientsService', () => {
         expect(recipients.find(r => r.toString().indexOf('test5@example.com') > -1).toString())
             .toBe('"TEST5" <test5@example.com>');
         console.log('All expectations met');
+        FS.chdir('/');
+
     });
 });
