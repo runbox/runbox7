@@ -297,7 +297,7 @@
       <mat-card-content>        
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile 
-            *ngFor="let att of mailObj.attachments; let i=index" 
+            *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)">
               <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
                 <img  matListAvatar                 
@@ -314,7 +314,7 @@
                     (click)="decryptAttachment(i);$event.stopPropagation()"
                   ><mat-icon>lock_open</mat-icon></button>
                   <button mat-icon-button
-                    (click)="openAttachment(att);$event.stopPropagation()"
+                    (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
                   ><mat-icon>cloud_download</mat-icon></button>
               </mat-grid-tile-footer>
           </mat-grid-tile>            
