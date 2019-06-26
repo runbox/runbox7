@@ -156,7 +156,7 @@ describe('SearchService', () => {
         req = httpMock.expectOne('/mail/download_xapian_index?' +
             'listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(indexLastUpdateTime / 1000) +
             '&pagesize=1000&skipcontent=1');
-        const testMessageTime = 1561442028;
+        const testMessageTime = indexLastUpdateTime + 1; // message time must be later so that indexLastUpdateTime is updated
         req.flush(testMessageId + '\t' + testMessageTime + '\t1561389614\tInbox\t1\t0\t0\t' +
             'Cloud Web Services <cloud-marketing-email-replies@cloudsuperhosting.com>\ttest@example.com	Analyse Data at Scale\ty');
 

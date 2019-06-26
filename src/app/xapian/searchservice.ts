@@ -671,181 +671,195 @@ export class SearchService {
 
     console.log('Getting latest messages from server after', new Date(this.indexLastUpdateTime));
 
-    const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
-                  .map(idstring => {
-                    const msgobj = this.pendingIndexVerifications[idstring];
-                    return {
-                      id: parseInt(msgobj.id.substring(1), 10),
-                      flagged: msgobj.flagged ? 1 : 0,
-                      seen: msgobj.seen ? 1 : 0,
-                      answered: msgobj.answered ? 1 : 0,
-                      folder: msgobj.folder
-                    };
-                  }
-      );
+    try {
+      const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
+                    .map(idstring => {
+                      const msgobj = this.pendingIndexVerifications[idstring];
+                      return {
+                        id: parseInt(msgobj.id.substring(1), 10),
+                        flagged: msgobj.flagged ? 1 : 0,
+                        seen: msgobj.seen ? 1 : 0,
+                        answered: msgobj.answered ? 1 : 0,
+                        folder: msgobj.folder
+                      };
+                    }
+        );
 
-    this.pendingIndexVerifications = {};
+      this.pendingIndexVerifications = {};
 
-    if (pendingIndexVerificationsArray.length > 0) {
-      await this.httpclient.post('/rest/v1/searchindex/verifymessages',
-          {
-            indexEntriesToVerify: pendingIndexVerificationsArray
-          }
-      ).toPromise();
-    }
+      if (pendingIndexVerificationsArray.length > 0) {
+        await this.httpclient.post('/rest/v1/searchindex/verifymessages',
+            {
+              indexEntriesToVerify: pendingIndexVerificationsArray
+            }
+        ).toPromise();
+      }
 
-    const msginfos = await this.rmmapi.listAllMessages(0, 0, this.indexLastUpdateTime,
-          RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-          true).toPromise();
+      const msginfos = await this.rmmapi.listAllMessages(0, 0, this.indexLastUpdateTime,
+            RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+            true).toPromise();
 
-    if (this.localSearchActivated) {
-      const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
+      if (this.localSearchActivated) {
+        const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
 
-      const deletedMessages = await this.rmmapi.listDeletedMessagesSince(new Date(
-            // Subtract timezone offset to get UTC
-            this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
-          ).toPromise();
+        const deletedMessages = await this.rmmapi.listDeletedMessagesSince(new Date(
+              // Subtract timezone offset to get UTC
+              this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
+            ).toPromise();
 
-      deletedMessages.forEach(msgid => {
-        const uniqueIdTerm = `Q${msgid}`;
-        const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
-        if (docid !== 0) {
-          searchIndexDocumentUpdates.push(
-            new SearchIndexDocumentUpdate(msgid, async () => {
-              try {
-                this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
-              } catch (e) {
-                console.error('Unable to delete message from index', msgid);
-              }
-            })
-          );
-        }
-      });
-
-      const folders = await this.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
-
-      msginfos.forEach(msginfo => {
-          const uniqueIdTerm = `Q${msginfo.id}`;
+        deletedMessages.forEach(msgid => {
+          const uniqueIdTerm = `Q${msgid}`;
           const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
-          if (
-            docid === 0 && // document not found in the index
-            msginfo.folder !== this.messagelistservice.spamFolderName &&
-            msginfo.folder !== this.messagelistservice.trashFolderName
-          ) {
+          if (docid !== 0) {
             searchIndexDocumentUpdates.push(
-              new SearchIndexDocumentUpdate(msginfo.id, async () => {
+              new SearchIndexDocumentUpdate(msgid, async () => {
                 try {
-                  const messageContents = await this.rmmapi.getMessageContents(msginfo.id).toPromise();
-                  msginfo.plaintext = messageContents.text.text;
-                  this.indexingTools.addMessageToIndex(msginfo, [
-                    this.messagelistservice.spamFolderName,
-                    this.messagelistservice.trashFolderName
-                  ]);
+                  this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
                 } catch (e) {
-                  console.error('failed to add message to index', msginfo, e);
+                  console.error('Unable to delete message from index', msgid);
                 }
               })
             );
-          } else if (docid !== 0) {
-            this.api.documentXTermList(docid);
-            const messageStatusInIndex = {
-              flagged: false,
-              seen: false,
-              answered: false
-            };
-            const documentTermList = (Module.documenttermlistresult as string[]);
-            const addSearchIndexDocumentUpdate = (func: () => void) =>
-              searchIndexDocumentUpdates.push(
-                new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                  try {
-                    func();
-                  } catch (err) {
-                    console.error('Error updating doc in searchindex', msginfo, documentTermList, err);
-                  }
-                }
-                )
-              );
-            documentTermList.forEach(term => {
-              if (term.indexOf(XAPIAN_TERM_FOLDER) === 0 &&
-                term.substr(XAPIAN_TERM_FOLDER.length) !== msginfo.folder) {
-                  // Folder changed
-                  const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
-                  if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash')) {
-                    addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
-                  } else {
-                    addSearchIndexDocumentUpdate(() => this.api.changeDocumentsFolder(uniqueIdTerm, msginfo.folder));
-                  }
-              } else if (term === XAPIAN_TERM_FLAGGED) {
-                messageStatusInIndex.flagged = true;
-              } else if (term === XAPIAN_TERM_SEEN) {
-                messageStatusInIndex.seen = true;
-              } else if (term === XAPIAN_TERM_ANSWERED) {
-                messageStatusInIndex.answered = true;
-              }
-            });
-
-            if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
-              addSearchIndexDocumentUpdate(() =>
-                this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-            } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
-              addSearchIndexDocumentUpdate(() =>
-                this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-            }
-
-            if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
-              addSearchIndexDocumentUpdate(() =>
-                this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-            } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
-              addSearchIndexDocumentUpdate(() =>
-                this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-            }
-
-            if (msginfo.seenFlag && !messageStatusInIndex.seen) {
-              addSearchIndexDocumentUpdate(() =>
-                this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-            } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
-              addSearchIndexDocumentUpdate(() =>
-                this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-            }
           }
         });
 
-        if (searchIndexDocumentUpdates.length > 0) {
-          await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
-        }
-      }
+        const folders = await this.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
 
-      if (msginfos && msginfos.length > 0) {
-        this.indexLastUpdateTime = msginfos[msginfos.length - 1].changedDate ?
-        msginfos[msginfos.length - 1].changedDate.getTime() :
-        msginfos[msginfos.length - 1].messageDate.getTime();
+        msginfos.forEach(msginfo => {
+            const uniqueIdTerm = `Q${msginfo.id}`;
+            const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
+            if (
+              docid === 0 && // document not found in the index
+              msginfo.folder !== this.messagelistservice.spamFolderName &&
+              msginfo.folder !== this.messagelistservice.trashFolderName
+            ) {
+              searchIndexDocumentUpdates.push(
+                new SearchIndexDocumentUpdate(msginfo.id, async () => {
+                  try {
+                    const messageContents = await this.rmmapi.getMessageContents(msginfo.id).toPromise();
+                    msginfo.plaintext = messageContents.text.text;
+                    this.indexingTools.addMessageToIndex(msginfo, [
+                      this.messagelistservice.spamFolderName,
+                      this.messagelistservice.trashFolderName
+                    ]);
+                  } catch (e) {
+                    console.error('failed to add message to index', msginfo, e);
+                  }
+                })
+              );
+            } else if (docid !== 0) {
+              this.api.documentXTermList(docid);
+              const messageStatusInIndex = {
+                flagged: false,
+                seen: false,
+                answered: false
+              };
+              const documentTermList = (Module.documenttermlistresult as string[]);
+              const addSearchIndexDocumentUpdate = (func: () => void) =>
+                searchIndexDocumentUpdates.push(
+                  new SearchIndexDocumentUpdate(msginfo.id, async () => {
+                    try {
+                      func();
+                    } catch (err) {
+                      console.error('Error updating doc in searchindex', msginfo, documentTermList, err);
+                    }
+                  }
+                  )
+                );
+              documentTermList.forEach(term => {
+                if (term.indexOf(XAPIAN_TERM_FOLDER) === 0 &&
+                  term.substr(XAPIAN_TERM_FOLDER.length) !== msginfo.folder) {
+                    // Folder changed
+                    const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
+                    if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash')) {
+                      addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
+                    } else {
+                      addSearchIndexDocumentUpdate(() => this.api.changeDocumentsFolder(uniqueIdTerm, msginfo.folder));
+                    }
+                } else if (term === XAPIAN_TERM_FLAGGED) {
+                  messageStatusInIndex.flagged = true;
+                } else if (term === XAPIAN_TERM_SEEN) {
+                  messageStatusInIndex.seen = true;
+                } else if (term === XAPIAN_TERM_ANSWERED) {
+                  messageStatusInIndex.answered = true;
+                }
+              });
 
-        this.messagelistservice.applyChanges(msginfos);
+              if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
+              } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
+              }
 
-        if (this.notifyOnNewMessages && 'Notification' in window &&
-            window['Notification']['permission'] === 'granted') {
-          const newmessages = msginfos.filter(m =>
-              !m.seenFlag &&
-              m.folder === 'Inbox' &&
-              m.messageDate.getTime() > this.indexLastUpdateTime);
-          if (newmessages.length > 0) {
-            const newMessagesTitle = newmessages.length > 1 ?
-                `${newmessages.length} new email messages` :
-                `New email message`;
-            try {
-              // tslint:disable-next-line:no-unused-expression
-                const notification = new Notification(newMessagesTitle, {
-                  body: newmessages[0].from[0].name,
-                  icon: 'assets/icons/icon-192x192.png',
-                  tag: 'newmessages'
-                });
-            } catch (e) {
-              console.log('Should have displayed notification about new messages:', newMessagesTitle);
+              if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
+              } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
+              }
+
+              if (msginfo.seenFlag && !messageStatusInIndex.seen) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
+              } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
+              }
             }
+          });
+
+          if (searchIndexDocumentUpdates.length > 0) {
+            await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
           }
         }
-      }
 
+        if (msginfos && msginfos.length > 0) {
+          // Notify on new messages
+          this.messagelistservice.applyChanges(msginfos);
+
+          if (this.notifyOnNewMessages && 'Notification' in window &&
+              window['Notification']['permission'] === 'granted') {
+            const newmessages = msginfos.filter(m =>
+                !m.seenFlag &&
+                m.folder === 'Inbox' &&
+                m.messageDate.getTime() > this.indexLastUpdateTime);
+            if (newmessages.length > 0) {
+              const newMessagesTitle = newmessages.length > 1 ?
+                  `${newmessages.length} new email messages` :
+                  `New email message`;
+              try {
+                // tslint:disable-next-line:no-unused-expression
+                  const notification = new Notification(newMessagesTitle, {
+                    body: newmessages[0].from[0].name,
+                    icon: 'assets/icons/icon-192x192.png',
+                    tag: 'newmessages'
+                  });
+              } catch (e) {
+                console.log('Should have displayed notification about new messages:', newMessagesTitle);
+              }
+            }
+          }
+          // Find latest date in result set and use as since parameter for getting new changes from server
+
+          let newLastUpdateTime = 0;
+          msginfos.forEach(msginfo => {
+            if (msginfo.changedDate && msginfo.changedDate.getTime() > newLastUpdateTime) {
+              newLastUpdateTime = msginfo.changedDate.getTime();
+            }
+            if (msginfo.messageDate && msginfo.messageDate.getTime() > newLastUpdateTime) {
+              newLastUpdateTime = msginfo.messageDate.getTime();
+            }
+          });
+          if (newLastUpdateTime > this.indexLastUpdateTime) {
+            this.indexLastUpdateTime = newLastUpdateTime;
+          }
+        }
+      } catch (err) {
+        console.error('Failed updating with new changes (will retry in 10 secs)', err);
+      }
       this.notifyOnNewMessages = true;
       this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
     }
