@@ -54,6 +54,7 @@ import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
 import { ProgressService } from './http/progress.service';
 import { environment } from '../environments/environment';
+import { LogoutService } from './login/logout.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -141,6 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private sanitizer: DomSanitizer,
     private renderer: Renderer2,
     private ngZone: NgZone,
+    public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
     private draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
