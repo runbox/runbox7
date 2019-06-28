@@ -20,6 +20,7 @@
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Router } from '@angular/router';
+import { LogoutService } from '../login/logout.service';
 
 @Component({
     moduleId: 'angular2/app/menu/',
@@ -30,7 +31,8 @@ import { Router } from '@angular/router';
 export class HeaderToolbarComponent {
     constructor(
         public rmmapi: RunboxWebmailAPI,
-        private router: Router
+        private router: Router,
+        public logoutservice: LogoutService
     ) {
 
     }

@@ -68,6 +68,7 @@ import { environment } from '../environments/environment';
 import { SearchExpressionBuilderModule } from './xapian/search-expression-builder/search-expression-builder.module';
 import { UpdateAlertModule } from './updatealert/updatealert.module';
 import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields-input/multiple-search-fields-input.module';
+import { LoginLogoutModule } from './login/loginlogout.module';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -130,12 +131,13 @@ const routes: Routes = [
     ResizerModule,
     DomainRegisterModule,
     UpdateAlertModule,
+    LoginLogoutModule,
     SearchExpressionBuilderModule,
     MultipleSearchFieldsInputModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production })
   ],
-  declarations: [MainContainerComponent, AppComponent, LoginComponent,
+  declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent
     ],
   providers: [ProgressService,

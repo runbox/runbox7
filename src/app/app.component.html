@@ -29,7 +29,7 @@
           <mat-icon color="primary">edit</mat-icon></a>
         <a mat-button (click)="drafts();" matTooltip="Drafts">
           <mat-icon color="primary">drafts</mat-icon></a>
-        <a mat-button href="/LOGOUT" matTooltip="Log out">
+        <a mat-button (click)="logoutservice.logout()" matTooltip="Log out">
           <mat-icon>power_settings_new</mat-icon></a>
       </div>
 
