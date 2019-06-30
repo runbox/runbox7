@@ -250,12 +250,14 @@ export class RunboxWebmailAPI {
         skipContent: boolean = false,
         folder?: string)
         : Observable<MessageInfo[]> {
+        // TODO: Need a JSON based REST api endpoint for this
         const url = '/mail/download_xapian_index?listallmessages=1' +
                     '&page=' + page +
                     '&sinceid=' + sinceid +
                     '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
                     '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-                    (folder ? '&folder=' + folder.replace(/\//g, '.') : '');
+                    (folder ? '&folder=' + folder.replace(/\//g, '.') : '') +
+                    '&avoidcacheuniqueparam=' + new Date().getTime();
 
         return this.http.get(url, { responseType: 'text' }).pipe(
             map((txt: string) => txt.length > 0 ? txt.split('\n') : []),
