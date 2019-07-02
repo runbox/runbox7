@@ -90,6 +90,12 @@ export class Contact {
         if (this.id && this.id.substr(0, 4) === 'RMM-') {
             this.rmm_backed = true;
         }
+
+        // if the contact contains fullname (FN) but not any other names,
+        // rewrite the FN into the nickname
+        if (!this.nickname && !this.first_name && !this.last_name) {
+            this.nickname = properties['fullname'];
+        }
     }
 
     get_rmm_id(): number {

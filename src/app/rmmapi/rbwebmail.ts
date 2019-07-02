@@ -29,10 +29,6 @@ import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
 
-
-
-
-
 import { ProgressDialog } from '../dialog/dialog.module';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
@@ -548,7 +544,16 @@ export class RunboxWebmailAPI {
 
     public migrateContacts(): Observable<any> {
         return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((res: HttpResponse<any>) => res['status'])
+            map((contacts: any[]) =>
+                contacts.map((contact) => new Contact(contact))
+            )
+        );
+    }
+
+    public importContacts(vcf: string): Observable<Contact[]> {
+        return this.http.put('/rest/v1/addresses_contact/vcf', { vcf: vcf }).pipe(
+            map((res: HttpResponse<any>) => res['result']['contacts']),
+            map((contacts: any[]) => contacts.map((contact) => new Contact(contact)))
         );
     }
 

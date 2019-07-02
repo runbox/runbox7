@@ -110,6 +110,10 @@ export class ContactsService {
         });
     }
 
+    importContacts(vcf: string): Observable<Contact[]> {
+        return this.rmmapi.importContacts(vcf);
+    }
+
     isMigrationPending(): Observable<any> {
         const res = this.rmmapi.isMigrationPending();
         res.subscribe(status => {

@@ -2,13 +2,19 @@
     <mat-sidenav #sidemenu mode="side" opened>
         <mat-nav-list dense>
             <mat-list-item>
-                <a mat-button routerLink="/contacts/settings">
-                    <mat-icon> settings </mat-icon> Settings
+                <a mat-button routerLink="/contacts/new">
+                    <mat-icon> add </mat-icon> New contact
                 </a>
             </mat-list-item>
             <mat-list-item>
-                <a mat-button routerLink="/contacts/new">
-                    <mat-icon> add </mat-icon> New contact
+                <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
+                <button mat-button (click)="importVcfClicked()">
+                    <mat-icon>import_export</mat-icon> Import contacts
+                </button>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/contacts/settings">
+                    <mat-icon> settings </mat-icon> Settings
                 </a>
             </mat-list-item>
 
