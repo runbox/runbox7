@@ -19,6 +19,7 @@
 
 import { Component, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Http, ResponseContentType } from '@angular/http';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
@@ -50,6 +51,7 @@ export class ContactsAppComponent {
     constructor(
         private contactsservice: ContactsService,
         private dialog:          MatDialog,
+        private http:            Http,
         private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
         private router:          Router,
@@ -65,6 +67,16 @@ export class ContactsAppComponent {
         contactsservice.contactGroups.subscribe(groups => {
             this.groups = groups;
             this.filterContacts();
+        });
+
+        this.route.queryParams.subscribe(params => {
+            const vcfUrl = params.import_from;
+            if (!vcfUrl) { return; }
+            this.http.get(vcfUrl, { responseType: ResponseContentType.Blob }).subscribe(
+                res => (new Response(res.blob())).text().then(
+                    text => this.processVcfImport(text)
+                )
+            );
         });
 
         this.contactsservice.informationLog.subscribe(
@@ -104,25 +116,29 @@ export class ContactsAppComponent {
 
         fr.onload = (ev: any) => {
             const vcf = ev.target.result;
-            this.contactsservice.importContacts(vcf).subscribe(contacts => {
-                const dialogRef = this.dialog.open(VcfImportDialogComponent, {
-                    data: { contacts: contacts, groups: this.groups }
-                });
-                dialogRef.afterClosed().subscribe(result => {
-                    if (!result) {
-                        return;
-                    }
-                    for (const c of contacts) {
-                        if (result['group']) {
-                            c.categories.push(result['group']);
-                        }
-                        this.contactsservice.saveContact(c);
-                    }
-                });
-            });
+            this.processVcfImport(vcf);
         };
 
         fr.readAsText(file);
+    }
+
+    processVcfImport(vcf: string) {
+        this.contactsservice.importContacts(vcf).subscribe(contacts => {
+            const dialogRef = this.dialog.open(VcfImportDialogComponent, {
+                data: { contacts: contacts, groups: this.groups }
+            });
+            dialogRef.afterClosed().subscribe(result => {
+                if (!result) {
+                    return;
+                }
+                for (const c of contacts) {
+                    if (result['group']) {
+                        c.categories.push(result['group']);
+                    }
+                    this.contactsservice.saveContact(c);
+                }
+            });
+        });
     }
 
     showNotification(message: string, action = 'Dismiss'): void {

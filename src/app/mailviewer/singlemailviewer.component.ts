@@ -490,6 +490,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.router.navigate(['/calendar'], { queryParams: { import_from: attachment.downloadURL }});
       return;
     }
+    if (attachment.contentType.indexOf('text/vcard') > -1) {
+      this.router.navigate(['/contacts'], { queryParams: { import_from: attachment.downloadURL }});
+      return;
+    }
 
     // as long as we don't have a separate domain for attachments, we cannot show them in a new tab/window
     const alink = document.createElement('a');
