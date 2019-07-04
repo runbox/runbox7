@@ -1,0 +1,24 @@
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu mode="side"></mat-sidenav>
+    <mat-sidenav-content style="padding-left: 25px; padding-right: 25px;">
+        <style>
+        #shoppingCartButton {
+            position: fixed;
+            top: 75px;
+            right: 50px;
+            z-index: 10;
+        }
+        </style>
+
+        <button mat-fab id="shoppingCartButton"
+            *ngIf="paymentsservice.cart.items.length > 0"
+            matTooltip="Go to your shopping cart"
+            routerLink="/account/cart"
+        >
+            <mat-icon>shopping_cart</mat-icon>
+        </button>
+
+        <router-outlet>
+        </router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,58 @@
+<style>
+#accountComponentsGrid {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.componentCard {
+    margin: 10px;
+    flex: 450px 1 0;
+}
+
+</style>
+
+<h1> Your account </h1>
+
+<p>
+    Here you can find out any information you need about the status of your account.
+</p>
+
+<p>
+    You can upgrade it, renew it, or extend it with different components like subaccounts or custom domains.
+</p>
+
+
+<div id="accountComponentsGrid">
+    <app-account-component-card ngClass="componentCard"
+        title="Account upgrades"
+        subtitle="Make your subscription more powerful"
+        icon="hot_tub"
+        routerLink="/account/upgrades"
+    >
+    </app-account-component-card>
+
+    <app-account-component-card ngClass="componentCard"
+        title="Add-ons"
+        subtitle="Extend your account with new features"
+        icon="extension"
+        routerLink="/account/addons"
+    >
+    </app-account-component-card>
+
+    <app-account-component-card ngClass="componentCard"
+        title="Renewals"
+        subtitle="Extend the lifetime of your Runbox subscription and addons"
+        icon="autorenew"
+        routerLink="/account/renewals"
+    >
+    </app-account-component-card>
+
+    <app-account-component-card ngClass="componentCard"
+        title="Transactions"
+        subtitle="History of your transactions, receipts and invoices"
+        icon="assessment"
+        routerLink="/account/transactions"
+    >
+    </app-account-component-card>
+</div>

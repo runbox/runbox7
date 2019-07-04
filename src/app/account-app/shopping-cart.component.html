@@ -1,0 +1,136 @@
+<h2 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h2>
+<ng-template #urlPurchase> <h2> Your purchase </h2> </ng-template>
+
+<div *ngIf="items.length === 0">
+    <p>
+        Your shopping cart is empty
+    </p>
+
+    <p>
+        How about you treat yourself with
+        <button mat-button routerLink="/account/upgrades">
+            <mat-icon> hot_tub </mat-icon> an account upgrade
+        </button>
+        or
+        <button mat-button routerLink="/account/renewals">
+            <mat-icon> autorenew </mat-icon> renew some of your existing features
+        </button>
+        ?
+    </p>
+</div>
+
+
+<table mat-table [dataSource]="items" [ngStyle]="{ width: '100%' }" *ngIf="items.length > 0 && itemsReady">
+    <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Product </th>
+        <td mat-cell *matCellDef="let p">
+            {{ products[p.pid].name }}
+            <span *ngIf="p.apid"> (renewal) </span>
+        </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> Total </strong> </td>
+    </ng-container>
+
+    <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef> Quantity </th>
+        <td mat-cell *matCellDef="let p"> {{ p.quantity }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef> Price </th>
+        <td mat-cell *matCellDef="let p"> {{ products[p.pid].price | number:'1.2-2' }} {{ currency }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="total-price">
+        <th mat-header-cell *matHeaderCellDef> Total </th>
+        <td mat-cell *matCellDef="let p"> {{ products[p.pid].price * p.quantity | number:'1.2-2' }} {{ currency }} </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong> </td>
+    </ng-container>
+
+    <ng-container matColumnDef="remove">
+        <th mat-header-cell *matHeaderCellDef> Remove </th>
+        <td mat-cell *matCellDef="let p">
+            <button mat-icon-button (click)="remove(p)">
+                <mat-icon> remove_circle_outline </mat-icon>
+            </button>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="empty">
+        <td mat-footer-cell *matFooterCellDef> </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="tableColumns">
+    <tr mat-row        *matRowDef="let row; columns: tableColumns;"></tr>
+    <tr mat-footer-row *matFooterRowDef="['name', 'empty', 'empty', 'total-price', 'empty']">
+</table>
+
+<div *ngIf="items.length > 0">
+    <h2> Payment method </h2>
+
+    <style>
+    .paymentMethods {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    }
+    </style>
+
+    <div class="paymentMethods">
+        <app-payment-method
+            logo="/_img/pay/stripe-logo.png"
+            logo_alt="Stripe logo"
+            style="width: 30%;"
+            (clicked)="initiatePayment('stripe')"
+        >
+            <p>
+                Pay with your credit/debit card using Stripe
+            </p>
+            <p>
+                All card details are processed securely.
+            </p>
+        </app-payment-method>
+
+        <app-payment-method
+            logo="/_img/pay/bitpay-logo.png"
+            logo_alt="Bitpay logo"
+            style="width: 30%;"
+            (clicked)="initiatePayment('bitpay')"
+        >
+            <p>
+                Pay with cryptocurrencies like Bitcoin using Bitpay
+            </p>
+            <p>
+                <a href="https://help.runbox.com/bitcoin-payments/">
+                    Note about BitPay contact email addresses
+                </a>
+            </p>
+        </app-payment-method>
+
+        <mat-expansion-panel style="margin: 10px;">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Other payment methods </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <p>
+                    <button mat-raised-button (click)="initiatePayment('paypal')">
+                        Pay with Paypal
+                    </button>
+                </p>
+                <p>
+                    This will be a one-time payment – your products will not be renewed automatically.
+                </p>
+                <p>
+                    <button mat-raised-button (click)="initiatePayment('giro')">
+                        Send us money directly
+                    </button>
+                </p>
+                <p>
+                    You can send us an International Money Order, a SWIFT/IBAN bank transfer
+                    or even email us an envelope with cash.
+                    Your products won't activate until the money is received by Runbox.
+                </p>
+            </div>
+        </mat-expansion-panel>
+    </div>
+</div>

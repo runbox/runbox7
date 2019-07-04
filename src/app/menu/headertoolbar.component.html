@@ -19,8 +19,7 @@
     <mat-menu #accountMenu="matMenu" class="mainMenuSub">
       <a mat-button href="/mail/account"><mat-icon>people</mat-icon>Main Account</a><br />
       <a mat-button href="/mail/account_security"><mat-icon>security</mat-icon>Account Security</a><br />
-      <a mat-button href="/mail/account_alias"><mat-icon>person_pin</mat-icon>Aliases</a><br />
-      <a mat-button href="/mail/account_account"><mat-icon>supervisor_account</mat-icon>Sub-Accounts</a>
+      <a mat-button routerLink="/account/components"><mat-icon>widgets</mat-icon>Account components</a><br />
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="accountMenu" class="mainMenuSub">
       <mat-icon>people</mat-icon> Account

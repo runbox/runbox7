@@ -1,0 +1,31 @@
+<h1> Transactions </h1>
+<table mat-table [dataSource]="transactions" [ngStyle]="{ width: '100%' }">
+    <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef> Amount </th>
+        <td mat-cell *matCellDef="let t"> {{ t.amount }} {{ t.currency }} </td>
+    </ng-container>
+    <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let t"> {{ statuses[t.status] }} </td>
+    </ng-container>
+    <ng-container matColumnDef="method">
+        <th mat-header-cell *matHeaderCellDef> Method </th>
+        <td mat-cell *matCellDef="let t"> {{ methods[t.method] }} </td>
+    </ng-container>
+    <ng-container matColumnDef="time">
+        <th mat-header-cell *matHeaderCellDef> Time </th>
+        <td mat-cell *matCellDef="let t"> {{ t.time.format('YYYY-MM-DD') }} </td>
+    </ng-container>
+    <ng-container matColumnDef="time-desc">
+        <th mat-header-cell *matHeaderCellDef> </th>
+        <td mat-cell *matCellDef="let t"> {{ t.time.fromNow() }} </td>
+    </ng-container>
+    <ng-container matColumnDef="receipt">
+        <th mat-header-cell *matHeaderCellDef> Receipt </th>
+        <td mat-cell *matCellDef="let t">
+            <button mat-button routerLink="/account/receipt/{{ t.tid }}"> Show receipt </button>
+        </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="['amount', 'status', 'method', 'time', 'time-desc', 'receipt']">
+    <tr mat-row        *matRowDef="let row; columns: ['amount', 'status', 'method', 'time', 'time-desc', 'receipt'];"></tr>
+</table>

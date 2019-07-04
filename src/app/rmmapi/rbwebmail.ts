@@ -25,6 +25,7 @@ import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
+import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
@@ -124,6 +125,7 @@ export class RunboxMe {
     public localpart: string;
 
     public timezone: string;
+    public currency: string;
 }
 
 export class MessageTextpart {
@@ -281,18 +283,18 @@ export class RunboxWebmailAPI {
                         parseInt(parts[0], 10), // id
                         new Date(parseInt(parts[1], 10) * 1000), // changed date
                         new Date(parseInt(parts[2], 10) * 1000), // message date
-                        parts[3],                              // folder
-                        seenFlag,                              // seen flag
-                        answeredFlag,                          // answered flag
-                        flaggedFlag,                           // flagged flag
-                        fromInfo,                              // from
-                        toInfo,                     	   // to
-                        [],                               	   // cc
-                        [],                                	   // bcc
-                        parts[9],                          	   // subject
-                        parts[12],     		       	   // plaintext body
-                        size,              		       	   // size
-                        attachment				   // attachment
+                        parts[3],                                // folder
+                        seenFlag,                                // seen flag
+                        answeredFlag,                            // answered flag
+                        flaggedFlag,                             // flagged flag
+                        fromInfo,                                // from
+                        toInfo,                                  // to
+                        [],                                      // cc
+                        [],                                      // bcc
+                        parts[9],                                // subject
+                        parts[12],                               // plaintext body
+                        size,                                    // size
+                        attachment                               // attachment
                     );
                     if (size === -1) {
                         // Size = -1 means deleted flag is set - ref hack in Webmail.pm
@@ -625,6 +627,95 @@ export class RunboxWebmailAPI {
 
     public importCalendar(calendar_id: string, ical: string): Observable<any> {
         return this.http.put('/rest/v1/calendar/ics/' + calendar_id, { ical: ical }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getAvailableProducts(): Observable<Product[]> {
+        return this.http.get('/rest/v1/account_product/available').pipe(
+            map((res: HttpResponse<any>) => res['result']['products']),
+            map((products: any[]) => products.map((c) => c as Product)
+            )
+        );
+    }
+
+    public orderProducts(products: any[], method: string, currency: string, domregHash?: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/order', {
+            products:    products,
+            method:      method,
+            currency:    currency,
+            domreg_hash: domregHash,
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getStripePubkey(): Observable<string> {
+        return this.http.get('/rest/v1/account_product/stripe/pubkey').pipe(
+            map((res: HttpResponse<any>) => res['result']['key'] as string)
+        );
+    }
+
+    public payWithBitpay(tid: number, receipt_url: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/bitpay/pay', {
+            tid: tid, receipt_url: receipt_url
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public payWithPaypal(tid: number, return_url: string, cancel_url: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/paypal/pay', {
+            tid: tid, return_url: return_url, cancel_url: cancel_url
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public payWithStripe(tid: number, paymentMethod: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/stripe/pay', {
+            tid: tid, payment_method: paymentMethod
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public confirmPaypalPayment(paymentId: string, payerId: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/paypal/confirm', {
+            payment_id: paymentId, payer_id: payerId
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public confirmStripePayment(paymentId: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/stripe/confirm', {
+            payment_intent_id: paymentId
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getActiveProducts(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/active').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getProducts(pids: number[], currency: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/cart', { pids: pids, currency: currency }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getReceipt(tid: number): Observable<any> {
+        return this.http.get('/rest/v1/account_product/receipt/' + tid).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getTransactions(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/transactions').pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

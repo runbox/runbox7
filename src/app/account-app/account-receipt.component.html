@@ -1,0 +1,86 @@
+<p>
+    The details for your purchase are shown below.
+    You may save or print this receipt, which you will also receive by email in your Runbox account.
+</p>
+
+<h1>
+    Transaction summary
+</h1>
+
+<ul>
+    <li> <strong> Time of purchase: </strong> {{ receipt.time }}
+    <li> <strong> Method:           </strong> {{ receipt.method }}
+    <li *ngIf="receipt.status !== 0">
+        <strong> Status: {{ statuses[receipt.status] }} </strong>
+    </li>
+    <li> <strong> Account username: </strong> {{ me.username }}
+    <li> <strong> Charge:           </strong> {{ receipt.amount }} {{ receipt.currency }}
+    <li> <strong> Subscription ID:  </strong> {{ me.uid }}
+    <li> <strong> Transaction ID:   </strong> {{ receipt.tid }}
+    <li> <strong> Product{{ receipt.products.length > 1 ? 's' : '' }}: </strong>
+         <span *ngIf="receipt.products.length === 1">
+            {{ receipt.products[0][1] }}x {{ receipt.products[0][0] }}
+         </span>
+    <ul *ngIf="receipt.products.length > 1">
+        <li *ngFor="let p of receipt.products">
+            {{ p[1] }}x {{ p[0] }}
+        </li>
+    </ul>
+</ul>
+
+<div *ngIf="receipt.status == 1 && receipt.method === 'offline'">
+    <p>
+        Please follow the instructions for your selected payment method below.
+    </p>
+
+    <h4> International Money Order </h4>
+
+    <p>
+        Send a signed International Money Order (available at your bank) for the appropriate amount issued to Runbox Solutions AS.
+    </p><p>
+        Send the money order to: Runbox Solutions AS, Oscars gate 52, 0258 Oslo, Norway.
+    </p><p>
+        Be advised that payments sent by regular mail may be delayed or lost, and that they require manual processing. Therefore you should send such payments well ahead (at least 3 weeks) of your trial or subscription period's expiration. You may avoid delays and service disruptions by scanning (or taking a picture of) the payment prior to sending it in the mail, and emailing it to billing@runbox.com.
+    </p>
+
+    <h4> SWIFT </h4>
+
+    <p>
+        Runbox Solutions accepts SWIFT and SEPA payments, but please be aware that this is an expensive payment alternative as the sender must pay the transaction cost. It may take a while for us to receive and register your payment as it cannot be automatically applied to your account. Payment should be made from a bank account in your name, otherwise delays may occur in payments being applied to your Runbox account. Please contact us upon paying to make sure your payment is registered as efficiently as possible.
+    </p>
+
+    <table>
+        <tr>
+            <td> IBAN:         </td> <td> NO29 1503 2111 731 </td>
+        </tr><tr>
+            <td> SWIFT:        </td> <td> DNBANOKKXXX </td>
+        </tr><tr>
+            <td> Address:      </td> <td> Runbox Solutions AS, Oscars gate 52, 0258 Oslo, Norway </td>
+        </tr><tr>
+            <td> Bank address: </td> <td> DNB Bank ASA, 0021 Oslo, Norway </td>
+        </tr>
+    </table>
+
+    <h4> Cash </h4>
+
+    <p>
+        Send the cash via registered or regular mail (not recommended) to: Runbox Solutions AS, Oscars gate 52, 0258 Oslo, Norway.
+    </p>
+
+    <p>
+Be advised that payments sent by regular mail may be delayed or lost, and that they require manual processing. Therefore you should send such payments well ahead (at least 3 weeks) of your trial or subscription period's expiration. You may avoid delays and service disruptions by scanning (or taking a picture of) the payment prior to sending it in the mail, and emailing it to billing@runbox.com.
+    </p>
+
+    <p>
+        Note: Please mark the payment with your Runbox username and the Transaction ID below so we can apply the payment to your account.
+    </p>
+
+    <p>
+        <strong> Your Transaction ID (TID) is: {{ receipt.tid }} </strong>
+    </p>
+</div>
+
+<p>
+    If you need an invoice for this purchase, you can view it here:
+    <a href="/payment/payinvoice?invoice={{ receipt.tid }}">Invoice {{ receipt.tid }}</a>
+</p>

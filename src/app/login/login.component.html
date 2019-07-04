@@ -23,6 +23,10 @@
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
 	</div>            
 	<p *ngIf="loginerrormessage" style="color: #f00">{{loginerrormessage}}</p>
+	<p *ngIf="accountexpired" style="color: #f00">
+        Your account has expired. <br>
+        Go to <a style="color: #f00" routerLink="/account/components"> your account page </a> to renew it now.
+    </p>
 	<mat-form-field>
           <input matInput placeholder="Username" name="username" autofocus ngModel />
 	</mat-form-field>
