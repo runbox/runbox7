@@ -1,0 +1,67 @@
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu mode="side"></mat-sidenav>
+    <mat-sidenav-content>
+        <form [formGroup]="selection">
+            <h2> Account upgrades </h2>
+
+            <p>
+                <strong> Acccount: «ACCOUNT NAME» («ACCOUNT EMAIL») </strong>
+            </p>
+
+            <p>
+                Please select your plan below, along with any sub-accounts or other add-ons.
+                All Runbox subscriptions come with a 60-day full money back guarantee.
+            </p>
+
+            <p>
+                We offer the following payment methods: Credit/debit cards, Bitcoin, PayPal, Money Orders, SWIFT/SEPA payments, and cash.
+            </p>
+
+            <h2>
+                Runbox Subscriptions 
+            </h2>
+
+            <p>
+                All subscriptions renew annually and include the powerful Runbox features, mail management tools, ad-free Webmail,
+                spam and virus filtering, email consolidation and filtering, access from any client via POP, IMAP, SMTP, and more.
+            </p>
+
+            <h3>
+                Main account («ACCOUNT EMAIL»)
+            </h3>
+
+            <p>
+                Note: When selecting a subscription plan for renewal, please note that your current email disk usage is «CURRENT DISK USAGE»
+            </p>
+
+            <mat-radio-group formControlName="subscription">
+                <app-payments-product *ngFor="let sub of subscriptions"
+                    type="subscription"
+                    [id]="sub.id"
+                    [name]="sub.name"
+                    [description]="sub.summary"
+                    [price]="sub.price"
+                >
+                    <ul>
+                        <li *ngFor="let detail of sub.details"> {{ detail }}
+                    </ul>
+                </app-payments-product>
+            </mat-radio-group>
+
+            <h3> Sub-accounts </h3>
+
+            <p>
+                For additional accounts tied to your main subscription, please select a number of sub-accounts below
+            </p>
+
+            <app-payments-product *ngFor="let sub of subaccounts"
+                type="addon"
+                [name]="sub.name"
+                [description]="sub.description"
+                [price]="sub.price"
+                [fc]="selection.get(sub.id)"
+            >
+            </app-payments-product>
+        </form>
+    </mat-sidenav-content>
+</mat-sidenav-container>

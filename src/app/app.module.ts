@@ -52,6 +52,8 @@ import { ContactsAppComponent } from './contacts-app/contacts-app.component';
 import { CalendarAppModule } from './calendar-app/calendar-app.module';
 import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
+import { PaymentsAppModule } from './payments-app/payments-app.module';
+import { PaymentsAppComponent } from './payments-app/payments-app.component';
 import { ProgressBrowserXhr, ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { DialogModule } from './dialog/dialog.module';
@@ -84,6 +86,7 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'calendar', component: CalendarAppComponent },
+      { path: 'payments', component: PaymentsAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -127,6 +130,7 @@ const routes: Routes = [
     WebSocketSearchModule,
     MailViewerModule,
     CalendarAppModule,
+    PaymentsAppModule,
     ContactsAppModule,
     ResizerModule,
     DomainRegisterModule,
