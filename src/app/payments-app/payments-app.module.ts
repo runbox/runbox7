@@ -42,6 +42,7 @@ import {
   MatRadioModule,
   MatSelectModule,
   MatSidenavModule,
+  MatTableModule,
   MatToolbarModule,
 } from '@angular/material';
 
@@ -67,6 +68,7 @@ import {
     MatRadioModule,
     MatSelectModule,
     MatSidenavModule,
+    MatTableModule,
     MatToolbarModule,
     ReactiveFormsModule,
   ],
