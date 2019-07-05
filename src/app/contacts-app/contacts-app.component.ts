@@ -17,14 +17,16 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material';
+import { Http, ResponseContentType } from '@angular/http';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
+import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
@@ -44,8 +46,12 @@ export class ContactsAppComponent {
     groupFilter = 'RUNBOX:ALL';
     searchTerm  = '';
 
+    @ViewChild('vcfUploadInput') vcfUploadInput: any;
+
     constructor(
         private contactsservice: ContactsService,
+        private dialog:          MatDialog,
+        private http:            Http,
         private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
         private router:          Router,
@@ -61,6 +67,16 @@ export class ContactsAppComponent {
         contactsservice.contactGroups.subscribe(groups => {
             this.groups = groups;
             this.filterContacts();
+        });
+
+        this.route.queryParams.subscribe(params => {
+            const vcfUrl = params.import_from;
+            if (!vcfUrl) { return; }
+            this.http.get(vcfUrl, { responseType: ResponseContentType.Blob }).subscribe(
+                res => (new Response(res.blob())).text().then(
+                    text => this.processVcfImport(text)
+                )
+            );
         });
 
         this.contactsservice.informationLog.subscribe(
@@ -88,6 +104,41 @@ export class ContactsAppComponent {
             return c.display_name() && (c.display_name().toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1);
         });
         this.sortContacts();
+    }
+
+    importVcfClicked(): void {
+        this.vcfUploadInput.nativeElement.click();
+    }
+
+    onVcfUploaded(uploadEvent: any) {
+        const file = uploadEvent.target.files[0];
+        const fr   = new FileReader();
+
+        fr.onload = (ev: any) => {
+            const vcf = ev.target.result;
+            this.processVcfImport(vcf);
+        };
+
+        fr.readAsText(file);
+    }
+
+    processVcfImport(vcf: string) {
+        this.contactsservice.importContacts(vcf).subscribe(contacts => {
+            const dialogRef = this.dialog.open(VcfImportDialogComponent, {
+                data: { contacts: contacts, groups: this.groups }
+            });
+            dialogRef.afterClosed().subscribe(result => {
+                if (!result) {
+                    return;
+                }
+                for (const c of contacts) {
+                    if (result['group']) {
+                        c.categories.push(result['group']);
+                    }
+                    this.contactsservice.saveContact(c);
+                }
+            });
+        });
     }
 
     showNotification(message: string, action = 'Dismiss'): void {

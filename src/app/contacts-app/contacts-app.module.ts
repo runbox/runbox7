@@ -29,6 +29,7 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
+  MatRadioModule,
   MatSelectModule,
   MatSidenavModule,
   MatToolbarModule,
@@ -44,6 +45,7 @@ import { ContactsService } from './contacts.service';
 import { RMMRouteReuseStrategy } from './routereusestrategy';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
+import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,8 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
     ContactDetailsComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
-    FormArrayEditorComponent
+    FormArrayEditorComponent,
+    VcfImportDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,6 +64,7 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatRadioModule,
     MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
@@ -98,6 +102,9 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
         ]
       }
     ])
+  ],
+  entryComponents: [
+    VcfImportDialogComponent,
   ],
   providers: [
     ContactsService,
