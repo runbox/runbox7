@@ -231,4 +231,8 @@ export class PaymentsAppComponent {
         });
         return form;
     }
+
+    initiatePayment(method: string) {
+        console.log(`Performing a ${method} payment`);
+    }
 }

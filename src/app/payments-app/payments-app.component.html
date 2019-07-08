@@ -105,5 +105,48 @@
             <tr mat-row        *matRowDef="let row; columns: ['name', 'quantity', 'price', 'total-price'];"></tr>
             <tr mat-footer-row *matFooterRowDef="['name', 'empty', 'empty', 'total-price']">
         </table>
+
+        <h2> Payment method </h2>
+
+        <style>
+.paymentMethods {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+        </style>
+
+        <div class="paymentMethods">
+            <app-payments-method
+                logo="/_img/pay/stripe-logo.png"
+                logo_alt="Stripe logo"
+                style="width: 30%;"
+                (clicked)="initiatePayment('stripe')"
+            >
+                <p>
+                    Pay with your credit/debit card using Stripe
+                </p>
+                <p>
+                    All card details are processed securely.
+                </p>
+            </app-payments-method>
+
+            <app-payments-method
+                logo="/_img/pay/bitpay-logo.png"
+                logo_alt="Bitpay logo"
+                style="width: 30%;"
+                (clicked)="initiatePayment('bitpay')"
+            >
+                <p>
+                    Pay with cryptocurrencies like Bitcoin using Bitpay
+                </p>
+                <p>
+                    <a href="https://help.runbox.com/bitcoin-payments/">
+                        Note about BitPay contact email addresses
+                    </a>
+                </p>
+            </app-payments-method>
+        </div>
+
     </mat-sidenav-content>
 </mat-sidenav-container>

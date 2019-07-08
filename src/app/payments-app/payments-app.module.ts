@@ -27,6 +27,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { PaymentsService } from './payments.service';
 import { PaymentsAppComponent } from './payments-app.component';
+import { PaymentMethodComponent } from './payments-method.component';
 import { ProductComponent } from './payments-product.component';
 
 import {
@@ -49,6 +50,7 @@ import {
 @NgModule({
   declarations: [
     PaymentsAppComponent,
+    PaymentMethodComponent,
     ProductComponent,
   ],
   imports: [
