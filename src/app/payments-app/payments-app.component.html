@@ -35,23 +35,16 @@
             </p>
 
             <mat-radio-group formControlName="subscription">
-                <app-payments-product *ngFor="let sub of subscriptions"
-                    type="subscription"
-                    [id]="sub.id"
-                    [name]="sub.name"
-                    [description]="sub.summary"
-                    [price]="sub.price"
+                <app-payments-product *ngFor="let p of subscriptions"
+					[p]="p"
                     [currency]="currency"
                 >
                     <ul>
-                        <li *ngFor="let detail of sub.details"> {{ detail }}
+                        <li *ngFor="let detail of p.details"> {{ detail }}
                     </ul>
                 </app-payments-product>
                 <app-payments-product
-                    type="subscription"
-                    id="NONE"
-                    name="No subscription"
-                    description="Renew my account later"
+					[p]="{ type: 'subscription', id: 'NONE', name: 'No subscription', description: 'Renew my account later' }"
                 >
                 </app-payments-product>
             </mat-radio-group>
@@ -62,13 +55,28 @@
                 For additional accounts tied to your main subscription, please select a number of sub-accounts below
             </p>
 
-            <app-payments-product *ngFor="let sub of subaccounts"
-                type="addon"
-                [name]="sub.name"
-                [description]="sub.description"
-                [price]="sub.price"
+            <app-payments-product *ngFor="let p of subaccounts"
+				[p]="p"
                 [currency]="currency"
-                [fc]="selection.get(sub.id)"
+                [fc]="selection.get(p.id)"
+            >
+            </app-payments-product>
+
+            <h3> Email add-ons </h3>
+
+            <app-payments-product *ngFor="let p of emailaddons"
+				[p]="p"
+                [currency]="currency"
+                [fc]="selection.get(p.id)"
+            >
+            </app-payments-product>
+
+            <h3> Web & Domain Hosting add-ons </h3>
+
+            <app-payments-product *ngFor="let p of hostingaddons"
+				[p]="p"
+                [currency]="currency"
+                [fc]="selection.get(p.id)"
             >
             </app-payments-product>
         </form>

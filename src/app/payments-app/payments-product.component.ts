@@ -19,44 +19,40 @@
 
 import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Product } from './product';
 
 @Component({
     selector: 'app-payments-product',
     template: `
 <mat-card>
     <mat-card-title>
-        <mat-radio-button *ngIf="type === 'subscription'" [value]="id">
-            {{ name }}
+        <mat-radio-button *ngIf="p.type === 'subscription'" [value]="p.id">
+            {{ p.name }}
             <!-- specialcase for the "no subscription" option -->
-            <span *ngIf="price"> – {{ price }} {{ currency }} </span>
+            <span *ngIf="p.price"> – {{ p.price }} {{ currency }} </span>
         </mat-radio-button>
-        <span *ngIf="type === 'addon'">
-            {{ name }} – {{ price }} {{ currency }}
+        <span *ngIf="p.type === 'addon'">
+            {{ p.name }} – {{ p.price }} {{ currency }}
         </span>
     </mat-card-title>
     <mat-card-subtitle>
-        {{ description }}
+        {{ p.description }}
     </mat-card-subtitle>
-    <mat-card-content *ngIf="type === 'subscription'">
+    <mat-card-content *ngIf="p.type === 'subscription'">
         <ng-content></ng-content>
     </mat-card-content>
-    <mat-card-content *ngIf="type === 'addon'">
+    <mat-card-content *ngIf="p.type === 'addon'">
         Amount:
         <input matInput type="number" min="0" [formControl]="fc">
         <span *ngIf="fc.value > 0">
-            Total: {{ fc.value * price | number:'1.2-2' }} {{ currency }}
+            Total: {{ fc.value * p.price | number:'1.2-2' }} {{ currency }}
         </span>
     </mat-card-content>
 </mat-card>
     `,
 })
 export class ProductComponent {
-    @Input() id: string;
-    @Input() name: string;
-    @Input() price: number;
+    @Input() p: Product;
     @Input() currency: string;
-    @Input() description: number;
-
-    @Input() type: string;
     @Input() fc: FormControl;
 }
