@@ -39,6 +39,8 @@ import {
 
 import { Subject } from 'rxjs';
 
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 
@@ -47,6 +49,7 @@ import { Product } from './product';
     templateUrl: './payments-app.component.html',
 })
 export class PaymentsAppComponent {
+    me: RunboxMe = new RunboxMe();
     products: Product[];
 
     subscriptions: Product[];
@@ -63,6 +66,7 @@ export class PaymentsAppComponent {
     constructor(
         public  paymentsservice: PaymentsService,
         private fb:       FormBuilder,
+        private rmmapi:   RunboxWebmailAPI,
         private snackBar: MatSnackBar,
     ) {
         this.paymentsservice.products.subscribe(products => {
@@ -74,6 +78,8 @@ export class PaymentsAppComponent {
             this.hostingaddons = this.products.filter(p => p.subtype === 'hosting');
             this.selection     = this.createForm()
         });
+
+        this.rmmapi.me.subscribe(me => this.me = me);
     }
 
     createForm(): FormGroup {

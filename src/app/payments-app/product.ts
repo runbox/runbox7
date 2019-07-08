@@ -19,6 +19,7 @@
 
 export class Product {
     id:          string;
+    pid:         number;
     type:        string;
     subtype?:    string;
     name:        string;

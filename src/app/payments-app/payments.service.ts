@@ -32,6 +32,7 @@ export class PaymentsService {
     MOCK_PRODUCTS = [
         {
             id: 'micro',
+            pid: 1001,
             type: 'subscription',
             name: 'Runbox Micro',
             description: 'Our most affordable package for individual users who just need the basics',
@@ -40,6 +41,7 @@ export class PaymentsService {
         },
         {
             id: 'mini',
+            pid: 1002,
             type: 'subscription',
             name: 'Runbox Mini',
             description: 'For regular users who need decent capacity and email hosting capabilities',
@@ -48,6 +50,7 @@ export class PaymentsService {
         },
         {
             id: 'medium',
+            pid: 1003,
             type: 'subscription',
             name: 'Runbox Medium',
             description: 'Perfect for professional users and companies. Spacious and flexible with email hosting capabilities',
@@ -56,46 +59,52 @@ export class PaymentsService {
         },
         {
             id: 'max',
+            pid: 1004,
             type: 'subscription',
             name: 'Runbox Max',
             description: 'For professionals and companies who need high capacity, multiple domains, and email hosting capabilities',
             details: ['Both you@runbox.com and you@domainyouown.com email addresses', '15 GB for email, 2 GB for files, and 25 email domains'],
             price: 69.95,
         },
-		{
-			id: 'microsubaccount',
+        {
+            id: 'microsubaccount',
+            pid: 110,
             type: 'addon',
             subtype: 'subaccount',
-			name: 'Runbox Micro Sub-account',
-			description: '1 GB email storage, 100 MB files storage, 100 aliases',
-			price: 6.95,
-		},
-		{
-			id: 'minisubaccount',
+            name: 'Runbox Micro Sub-account',
+            description: '1 GB email storage, 100 MB files storage, 100 aliases',
+            price: 6.95,
+        },
+        {
+            id: 'minisubaccount',
+            pid: 105,
             type: 'addon',
             subtype: 'subaccount',
-			name: 'Runbox Mini Sub-account',
-			description: '5 GB for email, 500 MB for files, 100 aliases',
-			price: 12.95,
-		},
-		{
-			id: 'mediumsubaccount',
+            name: 'Runbox Mini Sub-account',
+            description: '5 GB for email, 500 MB for files, 100 aliases',
+            price: 12.95,
+        },
+        {
+            id: 'mediumsubaccount',
+            pid: 101,
             type: 'addon',
             subtype: 'subaccount',
-			name: 'Runbox Medium Sub-account',
-			description: '10 GB for email, 1 GB for files, 1 domain, 100 aliases',
-			price: 19.95,
-		},
-		{
-			id: 'maxsubaccount',
+            name: 'Runbox Medium Sub-account',
+            description: '10 GB for email, 1 GB for files, 1 domain, 100 aliases',
+            price: 19.95,
+        },
+        {
+            id: 'maxsubaccount',
+            pid: 115,
             type: 'addon',
             subtype: 'subaccount',
-			name: 'Runbox Max Sub-account',
-			description: '15 GB for email, 2 GB for files, 100 aliases',
-			price: 34.95,
-		},
+            name: 'Runbox Max Sub-account',
+            description: '15 GB for email, 2 GB for files, 100 aliases',
+            price: 34.95,
+        },
         {
             id: 'emaildomain',
+            pid: 57,
             type: 'addon',
             subtype: 'emailaddon',
             name: 'Email Domains',
@@ -104,6 +113,7 @@ export class PaymentsService {
         },
         {
             id: 'emailalias',
+            pid: 56,
             type: 'addon',
             subtype: 'emailaddon',
             name: 'Email Aliases',
@@ -112,6 +122,7 @@ export class PaymentsService {
         },
         {
             id: 'emailstorage',
+            pid: 1,
             type: 'addon',
             subtype: 'emailaddon',
             name: 'Email storage space',
@@ -120,6 +131,7 @@ export class PaymentsService {
         },
         {
             id: 'filestorage',
+            pid: 2,
             type: 'addon',
             subtype: 'emailaddon',
             name: 'File storage space',
@@ -128,6 +140,7 @@ export class PaymentsService {
         },
         {
             id: 'webhosting',
+            pid: 200,
             type: 'addon',
             subtype: 'hosting',
             name: 'Web Hosting',
@@ -136,6 +149,7 @@ export class PaymentsService {
         },
         {
             id: 'extendedwebhosting',
+            pid: 210,
             type: 'addon',
             subtype: 'hosting',
             name: 'Extended Web Hosting',
@@ -144,6 +158,7 @@ export class PaymentsService {
         },
         {
             id: 'webhostingbandwidth',
+            pid: 202,
             type: 'addon',
             subtype: 'hosting',
             name: 'Extra Web Hosting bandwidth',

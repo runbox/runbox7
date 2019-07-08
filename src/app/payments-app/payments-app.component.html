@@ -1,11 +1,11 @@
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu mode="side"></mat-sidenav>
-    <mat-sidenav-content>
+    <mat-sidenav-content style="padding-left: 25px; padding-right: 25px;">
         <form [formGroup]="selection">
             <h2> Account upgrades </h2>
 
             <p>
-                <strong> Acccount: «ACCOUNT NAME» («ACCOUNT EMAIL») </strong>
+                <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
             </p>
 
             <p>
@@ -27,11 +27,12 @@
             </p>
 
             <h3>
-                Main account («ACCOUNT EMAIL»)
+                Main account ({{ me.user_address }})
             </h3>
 
             <p>
-                Note: When selecting a subscription plan for renewal, please note that your current email disk usage is «CURRENT DISK USAGE»
+                Note: When selecting a subscription plan for renewal,
+				please note that your current email disk usage is {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
             </p>
 
             <mat-radio-group formControlName="subscription">
