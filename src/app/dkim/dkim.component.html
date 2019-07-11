@@ -18,23 +18,29 @@
                         <mat-expansion-panel-header>
                             <mat-panel-title>
                                 {{item.selector_recordset_name}}
-                                <span *ngIf="item.is_active">active</span>
                             </mat-panel-title>
-                          <mat-panel-description>updated at {{item.updated}}</mat-panel-description>
+                          <mat-panel-description>
+                            updated at {{item.updated}}
+                            <span>{{get_status(item)}}</span>
+                          </mat-panel-description>
                         </mat-expansion-panel-header>
 
-                        <mat-form-field style='width: 100%'>
-                          <textarea matInput placeholder="Public key" [value]="item.public_key">
-                          </textarea>
-                        </mat-form-field>
-
-                        <p *ngIf="item.is_active">
-                            <span>Date published to DNS: {{item.date_saved_to_pdns}}</span>
-                            <span>Activation date: {{item.date_rotation_finalized}}</span>
+                        <p *ngIf="item.is_active && item.date_saved_to_pdns && item.date_rotation_finalized">
+                            This key was published on {{item.date_saved_to_pdns}} and is active since {{item.date_rotation_finalized}}.
                         </p>
-                        <p *ngIf="!item.is_active">
-                            <span>Dectivation date: {{item.date_deactivated}}</span>
-                        </p>                                                                                                           </mat-expansion-panel>
+                        <p *ngIf="!is_rotating && !item.is_active && !item.date_saved_to_pdns && !item.date_rotation_finalized">
+                            This key was published for the first time on {{item.created}}. It takes 7 days to be effectively published.
+                        </p>
+                        <p *ngIf="!item.is_active && item.date_deactivated">
+                            Deactivated on: {{item.date_deactivated}}
+                        </p>
+                        <p *ngIf="is_rotating && !item.active">
+                            This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{item.date_rotation_initiated}} and is expected to take 7 days to become active.
+                        </p>
+                        <p>
+                            <mat-checkbox *ngIf="item.is_cname_hosted_by_runbox && item.is_cname_correct" [disabled]="disabled" [(ngModel)]="item.is_cname_correct">Cname correct</mat-checkbox>
+                        </p>
+                      </mat-expansion-panel>
 
                     </mat-accordion>
                     <div *ngIf="!keys.length">
