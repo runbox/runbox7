@@ -41,6 +41,7 @@ import { Subject } from 'rxjs';
 
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
+import { PaymentDialogComponent } from './payment-dialog.component';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 
@@ -57,7 +58,9 @@ export class PaymentsAppComponent {
     emailaddons:   Product[];
     hostingaddons: Product[]
 
-    selection: FormGroup;
+    selection: FormGroup = new FormGroup({
+        subscription: this.fb.control('')
+    });
 
     selected_products = [];
     selected_total = 0;
@@ -65,6 +68,7 @@ export class PaymentsAppComponent {
 
     constructor(
         public  paymentsservice: PaymentsService,
+        private dialog:   MatDialog,
         private fb:       FormBuilder,
         private rmmapi:   RunboxWebmailAPI,
         private snackBar: MatSnackBar,
@@ -98,6 +102,7 @@ export class PaymentsAppComponent {
             if (subid && subid != 'NONE') {
                 const product = this.products.find(p => p.id === subid);
                 this.selected_products.push({
+                    pid:      product.pid,
                     name:     product.name,
                     quantity: 1,
                     price:    product.price,
@@ -108,6 +113,7 @@ export class PaymentsAppComponent {
                 const quantity = form.get(product.id).value;
                 if (quantity > 0) {
                     this.selected_products.push({
+                        pid:      product.pid,
                         name:     product.name,
                         quantity: quantity,
                         price:    product.price,
@@ -124,6 +130,15 @@ export class PaymentsAppComponent {
     }
 
     initiatePayment(method: string) {
-        console.log(`Performing a ${method} payment`);
+        const order = this.selected_products.map(p => {
+            return { pid: p.pid, quantity: p.quantity };
+        });
+        this.paymentsservice.orderProducts(order, method, this.currency).subscribe(tx => {
+            // TODO assert that selected_total == tx.total
+            console.log("Transaction:", tx);
+            this.dialog.open(PaymentDialogComponent, {
+				data: { tx: tx, currency: this.currency, method: method }
+			});
+        });
     }
 }

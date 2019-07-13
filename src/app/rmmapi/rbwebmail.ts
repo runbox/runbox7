@@ -25,6 +25,7 @@ import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
+import { Product } from '../payments-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
@@ -606,6 +607,38 @@ export class RunboxWebmailAPI {
     public importCalendar(calendar_id: string, ical: string): Observable<any> {
         return this.http.put('/rest/v1/calendar/ics/' + calendar_id, { ical: ical }).pipe(
             map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getAvailableProducts(): Observable<Product[]> {
+        return this.http.get('/rest/v1/account_product/available').pipe(
+            map((res: HttpResponse<any>) => res['result']['products']),
+            map((products: any[]) => products.map((c) => c as Product)
+            )
+        );
+    }
+
+    public orderProducts(products: any[], method: string, currency: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/order', {
+            products: products,
+            method: method,
+            currency: currency
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getStripePubkey(): Observable<string> {
+        return this.http.get('/rest/v1/account_product/stripe_pubkey').pipe(
+            map((res: HttpResponse<any>) => res['result']['key'] as string)
+        );
+    }
+
+    public payWithStripe(tid: number, token: string): Observable<any> {
+        return this.http.post('/rest/v1/payments/stripe', {
+            tid: tid, stripeToken: token
+        }).pipe(
+            map((res: HttpResponse<any>) => res)
         );
     }
 }

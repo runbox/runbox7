@@ -27,8 +27,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { PaymentsService } from './payments.service';
 import { PaymentsAppComponent } from './payments-app.component';
+import { PaymentDialogComponent } from './payment-dialog.component';
 import { PaymentMethodComponent } from './payments-method.component';
 import { ProductComponent } from './payments-product.component';
+import { ScriptLoaderService } from './scriptloader.service';
 
 import {
   MatButtonModule,
@@ -50,6 +52,7 @@ import {
 @NgModule({
   declarations: [
     PaymentsAppComponent,
+    PaymentDialogComponent,
     PaymentMethodComponent,
     ProductComponent,
   ],
@@ -75,9 +78,11 @@ import {
     ReactiveFormsModule,
   ],
   entryComponents: [
+    PaymentDialogComponent,
   ],
   providers: [
     PaymentsService,
+    ScriptLoaderService,
   ],
   bootstrap: [PaymentsAppComponent]
 })
