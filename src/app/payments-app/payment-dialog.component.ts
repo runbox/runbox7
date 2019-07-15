@@ -56,7 +56,7 @@ export class PaymentDialogComponent implements AfterViewInit {
         public dialogRef: MatDialogRef<PaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        this.method = data.tx.method;
+        this.method = data.method;
         this.tid    = data.tx.tid;
         this.total  = data.tx.total;
         this.currency = data.currency;
@@ -124,15 +124,15 @@ export class PaymentDialogComponent implements AfterViewInit {
         console.log("Paying...");
         this.processing = true;
 
-        const additionals = { address_zip: this.zipCode };
+        const additionals = { billing_details: { address: { postal_code: this.zipCode } } };
 
-        this.stripe.createToken(this.card, additionals).then(result => {
+        this.stripe.createPaymentMethod('card', this.card, additionals).then(result => {
             if (result.error) {
                 this.stripeError = result.error.message;
                 this.processing = false;
             } else {
-                console.log(result.token);
-                this.paymentsservice.submitStripePayment(this.tid, result.token.id).subscribe(res => {
+                console.log(result);
+                this.paymentsservice.submitStripePayment(this.tid, result.paymentMethod.id).subscribe(res => {
                     console.log("Got payment result:", res);
                 });
             }

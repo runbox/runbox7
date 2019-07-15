@@ -629,16 +629,16 @@ export class RunboxWebmailAPI {
     }
 
     public getStripePubkey(): Observable<string> {
-        return this.http.get('/rest/v1/account_product/stripe_pubkey').pipe(
+        return this.http.get('/rest/v1/account_product/stripe/pubkey').pipe(
             map((res: HttpResponse<any>) => res['result']['key'] as string)
         );
     }
 
-    public payWithStripe(tid: number, token: string): Observable<any> {
-        return this.http.post('/rest/v1/payments/stripe', {
-            tid: tid, stripeToken: token
+    public payWithStripe(tid: number, paymentMethod: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/stripe/pay', {
+            tid: tid, payment_method: paymentMethod
         }).pipe(
-            map((res: HttpResponse<any>) => res)
+            map((res: HttpResponse<any>) => res['result'])
         );
     }
 }
