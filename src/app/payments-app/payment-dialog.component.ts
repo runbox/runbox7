@@ -1,24 +1,25 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { PaymentsService } from './payments.service';
 import { ScriptLoaderService } from './scriptloader.service';
@@ -36,18 +37,19 @@ export class PaymentDialogComponent implements AfterViewInit {
     currency: string;
 
     paymentRequestsSupported = false;
-    processing = false;
-    
+    state = 'loading';
+
     stripe: any;
     card: any;
 
     stripeError: string;
     zipCode: string;
+    failure: string;
 
     @ViewChild('paymentRequestButton') paymentRequestButton: ElementRef;
-    @ViewChild('cardNumber') 		   cardNumber:  		 ElementRef;
-    @ViewChild('cardExpiry') 		   cardExpiry:  		 ElementRef;
-    @ViewChild('cardCvc')    		   cardCvc:     		 ElementRef;
+    @ViewChild('cardNumber')           cardNumber:           ElementRef;
+    @ViewChild('cardExpiry')           cardExpiry:           ElementRef;
+    @ViewChild('cardCvc')              cardCvc:              ElementRef;
 
     constructor(
         private dialog: MatDialog,
@@ -60,11 +62,11 @@ export class PaymentDialogComponent implements AfterViewInit {
         this.tid    = data.tx.tid;
         this.total  = data.tx.total;
         this.currency = data.currency;
-	}
+    }
 
-	async ngAfterViewInit() {
+    async ngAfterViewInit() {
         console.log("I'm AfterViewInit");
-        await this.scriptLoader.loadScript('stripe') 
+        await this.scriptLoader.loadScript('stripe');
         console.log("stripe loaded");
 
         this.paymentsservice.stripePubkey.subscribe(stripePubkey => {
@@ -83,8 +85,8 @@ export class PaymentDialogComponent implements AfterViewInit {
                 country: 'NO',
                 currency: this.currency.toLowerCase(),
                 total: {
-                    label: 'angular payment',
-                    amount: this.total * 100,
+                    label: 'Runbox purchase #' + this.tid,
+                    amount: Math.trunc(this.total * 100),
                 },
             });
 
@@ -109,33 +111,91 @@ export class PaymentDialogComponent implements AfterViewInit {
             var cvc = elements.create('cardCvc', {style: stripeStyle});
             cvc.mount(this.cardCvc.nativeElement);
             cvc.addEventListener('change', e => this.errorHandler(e));
+
+            this.state = 'initial';
         });
     }
 
     errorHandler(event: any) {
-		if (event.error) {
-			this.stripeError = event.error.message;
-		} else {
-			this.stripeError = '';
-		}
+        if (event.error) {
+            this.stripeError = event.error.message;
+        } else {
+            this.stripeError = '';
+        }
     }
 
     submitPayment() {
         console.log("Paying...");
-        this.processing = true;
+        this.state = 'processing';
 
         const additionals = { billing_details: { address: { postal_code: this.zipCode } } };
 
         this.stripe.createPaymentMethod('card', this.card, additionals).then(result => {
             if (result.error) {
                 this.stripeError = result.error.message;
-                this.processing = false;
+                this.state = 'initial';
             } else {
                 console.log(result);
                 this.paymentsservice.submitStripePayment(this.tid, result.paymentMethod.id).subscribe(res => {
                     console.log("Got payment result:", res);
-                });
+                    if (res.status === 'requires_source_action') {
+                        console.log("Handling card action...");
+                        const client_secret = res.client_secret;
+                        this.stripe.handleCardAction(client_secret).then(res => {
+                            console.log("Action result:", res);
+                            if (res.error) {
+                                this.state = 'failure';
+                                this.stripeError = res.error.message;
+                            } else {
+                                this.confirmPayment(res.paymentIntent.id);
+                            }
+                        });
+                    } else if (res.status === 'succeeded') {
+                        this.state = 'finished';
+                    } else {
+                        this.unhandled_status(res.status);
+                    }
+                }, error => this.fail(error)
+                );
             }
         });
+    }
+
+    confirmPayment(paymentIntentId: string) {
+        this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
+            pi => {
+                console.log("Payment hopefully confirmed:", pi);
+                if (pi.status === 'succeeded') {
+                    this.state = 'finished';
+                } else {
+                    this.unhandled_status(pi.status);
+                }
+            }, error => this.fail(error)
+        );
+    }
+
+    fail(error: any) {
+        console.log("FAIL!", error);
+        this.state = 'failure';
+
+        if (typeof error === 'string') {
+            this.stripeError = error;
+        } else if (error instanceof HttpErrorResponse) {
+            this.stripeError = `Runbox could not process your payment (status: ${error.status}). `
+                             + 'Please try a different payment method or contact Runbox Support';
+        } else {
+            if (error.status === 'error') {
+                // backend error
+                this.stripeError = error.result.error.message;
+            }
+        }
+    }
+
+    unhandled_status(status: string) {
+        this.fail(`Payment did not succeed (status: ${status}). Please try a different payment method or contact Runbox Support`);
+    }
+
+    close() {
+        this.dialogRef.close();
     }
 }

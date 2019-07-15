@@ -28,41 +28,72 @@
 }
 </style>
 
-<div mat-dialog-content>
-    <div id="payment-button-row" class="payment-row" *ngIf="paymentRequestsSupported">
-        <div class="payment-field payment-field-big">
-            <div #paymentRequestButton></div>
+<div mat-dialog-content style="width: 500px; height: 200px;">
+    <div [style.display]="state === 'initial' ? 'block' : 'none'">
+        <div id="payment-button-row" class="payment-row" *ngIf="paymentRequestsSupported">
+            <div class="payment-field payment-field-big">
+                <div #paymentRequestButton></div>
+            </div>
         </div>
-    </div>
-    <div class="payment-row">
-        <div class="payment-field payment-field-big">
-            <div #cardNumber></div>
-            <label for="cardNumber">Card number</label>
+        <div class="payment-row">
+            <div class="payment-field payment-field-big">
+                <div #cardNumber></div>
+                <label for="cardNumber">Card number</label>
+            </div>
         </div>
-    </div>
-    <div class="payment-row">
-        <div class="payment-field payment-field-small">
-            <div #cardExpiry></div>
-            <label for="cardExpiry">Expiration date</label>
+        <div class="payment-row">
+            <div class="payment-field payment-field-small">
+                <div #cardExpiry></div>
+                <label for="cardExpiry">Expiration date</label>
+            </div>
+            <div class="payment-field payment-field-small">
+                <div #cardCvc></div>
+                <label for="cardCvc">CVC code</label>
+            </div>
+            <div class="payment-field payment-field-small StripeElement">
+                <mat-form-field>
+                    <input matInput [(ngModel)]="zipCode" placeholder="ZIP code">
+                </mat-form-field>
+            </div>
         </div>
-        <div class="payment-field payment-field-small">
-            <div #cardCvc></div>
-            <label for="cardCvc">CVC code</label>
-        </div>
-        <div class="payment-field payment-field-small StripeElement">
-            <mat-form-field>
-                <input matInput [(ngModel)]="zipCode" placeholder="ZIP code">
-            </mat-form-field>
+
+        <div id="card-errors" role="alert" style="display: flex; justify-content: center;">
+            <strong> {{ stripeError }} </strong>
         </div>
     </div>
 
-    <div id="card-errors" role="alert">{{ stripeError }}</div>
+    <div [style.display]="state === 'loading' ? 'block' : 'none'">
+        <div> Loading Stripe payment form... </div>
+        <mat-spinner style="margin:0 auto;"></mat-spinner>
+    </div>
+
+    <div [style.display]="state === 'processing' ? 'block' : 'none'">
+        <div> Processing your payment... </div>
+        <mat-spinner style="margin:0 auto;"></mat-spinner>
+    </div>
+
+    <div [style.display]="state === 'failure' ? 'block' : 'none'">
+        <div> {{ stripeError }} </div>
+    </div>
+
+    <div [style.display]="state === 'finished' ? 'block' : 'none'">
+        <div> Your payment was successful and your products have been activated. </div>
+    </div>
 </div>
 
-<div mat-dialog-actions style="justify-content: space-between;">
-    <button mat-button (click)="dialogRef.close()">Cancel</button>
-    <button mat-flat-button color="primary" [disabled]="processing" (click)="submitPayment()">
-        <span *ngIf="!processing"> Submit payment</span>
-        <span *ngIf="processing"> Processing... </span>
+<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
+    <button mat-button (click)="close()"> Cancel </button>
+</div>
+<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'initial'">
+    <button mat-button (click)="close()"> Cancel </button>
+    <button mat-flat-button color="primary" (click)="submitPayment()">
+        <span *ngIf="state === 'initial'"> Submit payment </span>
     </button>
+</div>
+<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'failure'">
+    <button mat-button (click)="close()"> Close </button>
+</div>
+<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'finished'">
+    <button mat-button (click)="close()"> Close </button>
+    <button mat-flat-button color="primary" (click)="showReceipt()"> Show receipt </button>
 </div>

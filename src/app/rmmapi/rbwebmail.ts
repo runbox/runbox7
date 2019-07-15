@@ -641,4 +641,12 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res['result'])
         );
     }
+
+    public confirmStripePayment(paymentId: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/stripe/confirm', {
+            payment_intent_id: paymentId
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
 }

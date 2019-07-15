@@ -50,6 +50,10 @@ export class PaymentsService {
         return this.rmmapi.payWithStripe(tid, token);
     }
 
+    confirmStripePayment(paymentId: string): Observable<any> {
+        return this.rmmapi.confirmStripePayment(paymentId);
+    }
+
     apiErrorHandler(e: HttpErrorResponse): void {
         this.errorLog.next(e);
     }
