@@ -18,16 +18,18 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-    selector: 'app-payments-app-component',
-    templateUrl: './payments-app.component.html',
+    selector: 'app-account-components-component',
+    templateUrl: './account-components.component.html',
 })
-export class PaymentsAppComponent {
+export class AccountComponentsComponent {
+    me: RunboxMe = new RunboxMe();
     constructor(
-        private route:           ActivatedRoute,
-        private router:          Router,
+        private rmmapi: RunboxWebmailAPI,
     ) {
+        this.rmmapi.me.subscribe(me => this.me = me);
     }
 }

@@ -24,8 +24,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
+import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { PaymentsService } from './payments.service';
+import { AccountComponentsComponent } from './account-components.component';
+import { AccountTransactionsComponent } from './account-transactions.component';
+import { AccountReceiptComponent } from './account-receipt.component';
+import { AccountUpgradeComponent } from './payments-account-upgrade.component';
+import { ComponentCardComponent } from './component-card.component';
 import { PaymentsAppComponent } from './payments-app.component';
 import { PaymentDialogComponent } from './payment-dialog.component';
 import { PaymentMethodComponent } from './payments-method.component';
@@ -52,6 +60,11 @@ import {
 
 @NgModule({
   declarations: [
+    AccountComponentsComponent,
+	AccountTransactionsComponent,
+    AccountReceiptComponent,
+    AccountUpgradeComponent,
+	ComponentCardComponent,
     PaymentsAppComponent,
     PaymentDialogComponent,
     PaymentMethodComponent,
@@ -78,6 +91,40 @@ import {
     MatTableModule,
     MatToolbarModule,
     ReactiveFormsModule,
+    RouterModule.forChild([
+      {
+        path: 'account',
+        canActivateChild: [RMMAuthGuardService],
+        children: [
+          {
+            path: '', outlet: 'headertoolbar',
+            component: HeaderToolbarComponent
+          },
+          {
+            path: '',
+            component: PaymentsAppComponent,
+            children: [
+              {
+                  path: 'components',
+                  component: AccountComponentsComponent,
+              },
+              {
+                  path: 'upgrades',
+                  component: AccountUpgradeComponent,
+              },
+              {
+                  path: 'transactions',
+                  component: AccountTransactionsComponent,
+              },
+              {
+                  path: 'receipt/:id',
+                  component: AccountReceiptComponent,
+              },
+            ]
+          }
+        ]
+      }
+    ]),
   ],
   entryComponents: [
     PaymentDialogComponent,

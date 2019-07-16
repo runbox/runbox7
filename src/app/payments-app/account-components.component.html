@@ -1,0 +1,73 @@
+<style>
+#accountComponentsGrid {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+}
+
+.componentCard {
+	margin: 10px;
+	flex: 450px 1 0;
+}
+
+</style>
+
+<mat-card>
+	<mat-card-header>
+		<mat-card-title> {{ me.user_address }} </mat-card-title>
+		<mat-card-subtitle> Your account </mat-card-subtitle>
+	</mat-card-header>
+	
+	<mat-card-content>
+		<p> Here you can find out any information you need about the status of your account. </p>
+		<p> You can upgrade it, renew it, or extend it with different components like subaccounts or custom domains </p>
+	</mat-card-content>
+</mat-card>
+
+<div id="accountComponentsGrid">
+	<component-card ngClass="componentCard"
+		title="Account upgrades"
+		subtitle="Make your account more powerful"
+		icon="hot_tub"
+		routerLink="/account/upgrades"
+	>
+	</component-card>
+
+	<component-card ngClass="componentCard"
+		title="Aliases"
+		subtitle="Customize your email address"
+		icon="person_pin"
+		routerLink="/account/upgrades"
+	>
+	</component-card>
+
+	<component-card ngClass="componentCard"
+		title="Sub-accounts"
+		subtitle="Manage your sub-personalities"
+		icon="supervisor_account"
+		routerLink="/account/upgrades"
+	>
+	</component-card>
+
+	<component-card ngClass="componentCard"
+		title="Renewals"
+		subtitle="Extend the lifetime of your Runbox subscription and addons"
+		icon="autorenew"
+		routerLink="/account/upgrades"
+	>
+	</component-card>
+	<component-card ngClass="componentCard"
+		title="Payment methods"
+		subtitle="Manage your credit card information"
+		icon="payment"
+		routerLink="/account/upgrades"
+	>
+	</component-card>
+	<component-card ngClass="componentCard"
+		title="Transactions"
+		subtitle="History of your transactions, receipts and invoices"
+		icon="assessment"
+		routerLink="/account/transactions"
+	>
+	</component-card>
+</div>

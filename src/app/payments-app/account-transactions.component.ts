@@ -18,16 +18,16 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { PaymentsService } from './payments.service';
 
 @Component({
-    selector: 'app-payments-app-component',
-    templateUrl: './payments-app.component.html',
+    selector: 'app-account-transactions-component',
+    templateUrl: './account-transactions.component.html',
 })
-export class PaymentsAppComponent {
+export class AccountTransactionsComponent {
+    transactions: any = [];
     constructor(
-        private route:           ActivatedRoute,
-        private router:          Router,
+        private paymentsservice: PaymentsService,
     ) {
     }
 }

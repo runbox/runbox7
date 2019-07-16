@@ -280,18 +280,18 @@ export class RunboxWebmailAPI {
                         parseInt(parts[0], 10), // id
                         new Date(parseInt(parts[1], 10) * 1000), // changed date
                         new Date(parseInt(parts[2], 10) * 1000), // message date
-                        parts[3],                              // folder
-                        seenFlag,                              // seen flag
-                        answeredFlag,                          // answered flag
-                        flaggedFlag,                           // flagged flag
-                        fromInfo,                              // from
-                        toInfo,                     	   // to
-                        [],                               	   // cc
-                        [],                                	   // bcc
-                        parts[9],                          	   // subject
-                        parts[12],     		       	   // plaintext body
-                        size,              		       	   // size
-                        attachment				   // attachment
+                        parts[3],                                // folder
+                        seenFlag,                                // seen flag
+                        answeredFlag,                            // answered flag
+                        flaggedFlag,                             // flagged flag
+                        fromInfo,                                // from
+                        toInfo,                                  // to
+                        [],                                      // cc
+                        [],                                      // bcc
+                        parts[9],                                // subject
+                        parts[12],                               // plaintext body
+                        size,                                    // size
+                        attachment                               // attachment
                     );
                     if (size === -1) {
                         // Size = -1 means deleted flag is set - ref hack in Webmail.pm
@@ -646,6 +646,12 @@ export class RunboxWebmailAPI {
         return this.http.post('/rest/v1/account_product/stripe/confirm', {
             payment_intent_id: paymentId
         }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getReceipt(tid: number): Observable<any> {
+        return this.http.get('/rest/v1/account_product/receipt/' + tid).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

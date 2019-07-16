@@ -17,17 +17,28 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Component, Input } from '@angular/core';
 
 @Component({
-    selector: 'app-payments-app-component',
-    templateUrl: './payments-app.component.html',
+    selector: 'component-card',
+        template: `
+<mat-card>
+	<mat-card-header>
+		<mat-card-title>    {{ title }}    </mat-card-title>
+		<mat-card-subtitle> {{ subtitle }} </mat-card-subtitle>
+	</mat-card-header>
+
+	<mat-card-content style="display: flex; justify-content: center;">
+			<a mat-stroked-button [routerLink]="routerLink" style="padding: 10px;">
+				<mat-icon style="transform: scale(2);"> {{ icon }} </mat-icon>
+			</a>
+	</mat-card-content>
+</mat-card>
+`
 })
-export class PaymentsAppComponent {
-    constructor(
-        private route:           ActivatedRoute,
-        private router:          Router,
-    ) {
-    }
+export class ComponentCardComponent {
+	@Input() title:      string;
+	@Input() subtitle:   string;
+	@Input() icon:       string;
+	@Input() routerLink: string;
 }

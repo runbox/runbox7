@@ -1,0 +1,30 @@
+<p>
+	The details for your purchase are shown below.
+	You may save or print this receipt, which you will also receive by email in your Runbox account.
+</p>
+
+<h1>
+	Transaction summary
+</h1>
+
+<ul>
+	<li> <strong> Time of purchase: </strong> {{ receipt.time }}
+	<li> <strong> Account username: </strong> {{ me.username }}
+	<li> <strong> Charge: 			</strong> {{ receipt.amount }} {{ receipt.currency }}
+	<li> <strong> Subscription ID:  </strong> {{ me.uid }}
+	<li> <strong> Transaction ID:   </strong> {{ receipt.tid }}
+	<li> <strong> Product{{ receipt.products.length > 1 ? 's' : '' }}: </strong>
+		 <span *ngIf="receipt.products.length === 1"> 
+			{{ receipt.products[0][1] }}x {{ receipt.products[0][0] }}
+		 </span>
+	<ul *ngIf="receipt.products.length > 1">
+		<li *ngFor="let p of receipt.products">
+			{{ p[1] }}x {{ p[0] }}
+		</li>
+	</ul>
+</ul>
+
+<p>
+	If you need an invoice for this purchase, you can view it here:
+	<a href="/payment/payinvoice?invoice={{ receipt.tid }}">Invoice {{ receipt.tid }}</a>
+</p>

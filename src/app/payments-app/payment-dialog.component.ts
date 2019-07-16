@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -54,6 +55,7 @@ export class PaymentDialogComponent implements AfterViewInit {
     constructor(
         private dialog: MatDialog,
         private paymentsservice: PaymentsService,
+        private router: Router,
         private scriptLoader: ScriptLoaderService,
         public dialogRef: MatDialogRef<PaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -193,6 +195,11 @@ export class PaymentDialogComponent implements AfterViewInit {
 
     unhandled_status(status: string) {
         this.fail(`Payment did not succeed (status: ${status}). Please try a different payment method or contact Runbox Support`);
+    }
+
+    showReceipt() {
+        this.router.navigateByUrl('/account/receipt/' + this.tid);
+        this.dialogRef.close();
     }
 
     close() {
