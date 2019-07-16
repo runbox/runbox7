@@ -655,4 +655,10 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res['result'])
         );
     }
+
+    public getTransactions(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/transactions').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
 }

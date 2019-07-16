@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { PaymentsService } from './payments.service';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-account-transactions-component',
@@ -27,7 +27,13 @@ import { PaymentsService } from './payments.service';
 export class AccountTransactionsComponent {
     transactions: any = [];
     constructor(
-        private paymentsservice: PaymentsService,
+        private rmmapi: RunboxWebmailAPI,
     ) {
+        this.rmmapi.getTransactions().subscribe(transactions => {
+            this.transactions = transactions.map(t => {
+                t.time = t.time.replace('T', ' ');
+                return t;
+            });
+        });
     }
 }

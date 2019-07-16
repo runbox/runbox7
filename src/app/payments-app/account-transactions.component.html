@@ -1,1 +1,20 @@
-Transactions go here
+<h1> Transactions </h1>
+<table>
+    <tr>
+        <th> Amount </th> <th> Method </th> <th> Time </th> <th> Receipt </th>
+    </tr>
+    <tr *ngFor="let t of transactions">
+        <td>
+            {{ t.amount }} {{ t.currency }}
+        </td>
+        <td>
+            {{ t.method }}
+        </td>
+        <td>
+            {{ t.time }}
+        </td>
+        <td>
+            <button mat-button routerLink="/account/receipt/{{ t.tid }}"> Show receipt </button>
+        </td>
+    </tr>
+</table>

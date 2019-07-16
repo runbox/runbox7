@@ -26,19 +26,19 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     templateUrl: './account-receipt.component.html',
 })
 export class AccountReceiptComponent {
-    receipt: any = {};
-	me: RunboxMe = new RunboxMe();
+    receipt: any = { products: [] };
+    me: RunboxMe = new RunboxMe();
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
         private route:  ActivatedRoute,
     ) {
-		route.params.subscribe(params => {
-			this.rmmapi.getReceipt(params.id).subscribe(receipt => {
-				console.log(receipt);
-				this.receipt = receipt;
-			});
-		});
-		this.rmmapi.me.subscribe(me => this.me = me);
+        route.params.subscribe(params => {
+            this.rmmapi.getReceipt(params.id).subscribe(receipt => {
+                receipt.time = receipt.time.replace('T', ' ');
+                this.receipt = receipt;
+            });
+        });
+        this.rmmapi.me.subscribe(me => this.me = me);
     }
 }
