@@ -650,6 +650,12 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getActiveProducts(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/active').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
     public getReceipt(tid: number): Observable<any> {
         return this.http.get('/rest/v1/account_product/receipt/' + tid).pipe(
             map((res: HttpResponse<any>) => res['result'])

@@ -20,17 +20,43 @@
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
+import * as moment from 'moment';
+
 @Component({
-    selector: 'app-account-transactions-component',
-    templateUrl: './account-transactions.component.html',
+    selector: 'app-account-renewals-component',
+    templateUrl: './account-renewals.component.html',
 })
-export class AccountTransactionsComponent {
-    transactions: any = [];
+export class AccountRenewalsComponent {
+    active_products: any = [];
+    selected = 0;
+
     constructor(
         private rmmapi: RunboxWebmailAPI,
     ) {
-        this.rmmapi.getTransactions().subscribe(transactions => {
-            this.transactions = transactions;
+        this.rmmapi.getActiveProducts().subscribe(products => {
+            this.active_products = products.map(p => {
+                p.active_until = moment(p.active_until, moment.ISO_8601);
+                const day_diff = p.active_until.diff(moment(), 'days');
+                if (day_diff < 0) {
+                    p.expired = true;
+                } else if (day_diff < 90) {
+                    p.expires_soon = true;
+                }
+                return p;
+            });
         });
+    }
+
+    checkboxChanged(event: any) {
+        if (event.checked) {
+            this.selected++;
+        } else {
+            this.selected--;
+        }
+    }
+
+    renewSelected() {
+        const renewals = this.active_products.filter(p => p.renew);
+        console.log("Products to renew:", renewals);
     }
 }

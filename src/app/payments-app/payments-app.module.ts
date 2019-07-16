@@ -7,7 +7,7 @@
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
@@ -30,8 +30,9 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { PaymentsService } from './payments.service';
 import { AccountComponentsComponent } from './account-components.component';
-import { AccountTransactionsComponent } from './account-transactions.component';
+import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
+import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradeComponent } from './payments-account-upgrade.component';
 import { ComponentCardComponent } from './component-card.component';
 import { PaymentsAppComponent } from './payments-app.component';
@@ -61,10 +62,11 @@ import {
 @NgModule({
   declarations: [
     AccountComponentsComponent,
-	AccountTransactionsComponent,
     AccountReceiptComponent,
+    AccountRenewalsComponent,
+    AccountTransactionsComponent,
     AccountUpgradeComponent,
-	ComponentCardComponent,
+    ComponentCardComponent,
     PaymentsAppComponent,
     PaymentDialogComponent,
     PaymentMethodComponent,
@@ -111,6 +113,10 @@ import {
               {
                   path: 'upgrades',
                   component: AccountUpgradeComponent,
+              },
+              {
+                  path: 'renewals',
+                  component: AccountRenewalsComponent,
               },
               {
                   path: 'transactions',
