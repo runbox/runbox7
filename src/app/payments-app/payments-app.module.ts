@@ -29,6 +29,7 @@ import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { PaymentsService } from './payments.service';
+import { PaymentSummaryComponent } from './payment-summary.component';
 import { AccountComponentsComponent } from './account-components.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
@@ -70,6 +71,7 @@ import {
     PaymentsAppComponent,
     PaymentDialogComponent,
     PaymentMethodComponent,
+    PaymentSummaryComponent,
     ProductComponent,
   ],
   imports: [

@@ -13,6 +13,12 @@
     <mat-icon>autorenew</mat-icon>
 </button>
 
+<app-payment-summary
+    *ngIf="selected_products.length > 0"
+    [products]="selected_products"
+>
+</app-payment-summary>
+
 <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Name </th>

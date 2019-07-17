@@ -63,8 +63,6 @@ export class AccountUpgradeComponent {
     });
 
     selected_products = [];
-    selected_total = 0;
-    currency = 'EUR';
 
     constructor(
         public  paymentsservice: PaymentsService,
@@ -120,24 +118,7 @@ export class AccountUpgradeComponent {
                     });
                 }
             }
-
-            this.selected_total = 0;
-            for (const product of this.selected_products) {
-                this.selected_total += product.price * product.quantity;
-            }
         });
         return form;
-    }
-
-    initiatePayment(method: string) {
-        const order = this.selected_products.map(p => {
-            return { pid: p.pid, quantity: p.quantity };
-        });
-        this.paymentsservice.orderProducts(order, method, this.currency).subscribe(tx => {
-            console.log("Transaction:", tx);
-            this.dialog.open(PaymentDialogComponent, {
-				data: { tx: tx, currency: this.currency, method: method }
-			});
-        });
     }
 }

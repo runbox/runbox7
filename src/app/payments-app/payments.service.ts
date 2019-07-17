@@ -29,6 +29,7 @@ export class PaymentsService {
     errorLog = new Subject<HttpErrorResponse>();
     products = new ReplaySubject<Product[]>();
     stripePubkey = new ReplaySubject<string>(1);
+    currency = new ReplaySubject<string>(1);
 
     constructor(
         private rmmapi:   RunboxWebmailAPI,
@@ -40,6 +41,7 @@ export class PaymentsService {
             console.log("Paymentservice found stripe key:", key);
             this.stripePubkey.next(key);
         });
+        this.rmmapi.me.subscribe(me => this.currency.next(me.currency));
     }
 
     orderProducts(products: any[], method: string, currency: string): Observable<any> {

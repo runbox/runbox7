@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { PaymentsService } from './payments.service';
 
 import * as moment from 'moment';
 
@@ -27,11 +28,14 @@ import * as moment from 'moment';
     templateUrl: './account-renewals.component.html',
 })
 export class AccountRenewalsComponent {
-    active_products: any = [];
+    product_prices = {};
+    active_products = [];
     selected = 0;
+    selected_products = [];
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
+        private paymentsservice: PaymentsService,
     ) {
         this.rmmapi.getActiveProducts().subscribe(products => {
             this.active_products = products.map(p => {
@@ -44,7 +48,14 @@ export class AccountRenewalsComponent {
                 }
                 return p;
             });
+            this.paymentsservice.products.subscribe(products => {
+                for (const p of products) {
+                    this.product_prices[p.pid] = p.price;
+                }
+            });
         });
+
+
     }
 
     checkboxChanged(event: any) {
@@ -58,5 +69,14 @@ export class AccountRenewalsComponent {
     renewSelected() {
         const renewals = this.active_products.filter(p => p.renew);
         console.log("Products to renew:", renewals);
+        this.selected_products = renewals.map(p => {
+            return {
+                pid: p.pid,
+                apid: p.apid,
+                name: p.name,
+                quantity: p.quantity,
+                price: this.product_prices[p.pid],
+            };
+        });
     }
 }

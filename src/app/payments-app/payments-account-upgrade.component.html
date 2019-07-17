@@ -15,7 +15,7 @@
     </p>
 
     <h2>
-        Runbox Subscriptions 
+        Runbox Subscriptions
     </h2>
 
     <p>
@@ -35,7 +35,7 @@
     <mat-radio-group formControlName="subscription">
         <app-payments-product *ngFor="let p of subscriptions"
             [p]="p"
-            [currency]="currency"
+            [currency]="me.currency"
         >
             <ul>
                 <li *ngFor="let detail of p.details"> {{ detail }}
@@ -55,7 +55,7 @@
 
     <app-payments-product *ngFor="let p of subaccounts"
         [p]="p"
-        [currency]="currency"
+        [currency]="me.currency"
         [fc]="selection.get(p.id)"
     >
     </app-payments-product>
@@ -64,7 +64,7 @@
 
     <app-payments-product *ngFor="let p of emailaddons"
         [p]="p"
-        [currency]="currency"
+        [currency]="me.currency"
         [fc]="selection.get(p.id)"
     >
     </app-payments-product>
@@ -73,83 +73,14 @@
 
     <app-payments-product *ngFor="let p of hostingaddons"
         [p]="p"
-        [currency]="currency"
+        [currency]="me.currency"
         [fc]="selection.get(p.id)"
     >
     </app-payments-product>
 </form>
 
-<h2> Selected products </h2>
-<table mat-table [dataSource]="selected_products" [ngStyle]="{ width: '100%' }">
-    <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Product </th>
-        <td mat-cell *matCellDef="let product"> {{ product.name }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> Total </strong> </td>
-    </ng-container>
-
-    <ng-container matColumnDef="quantity">
-        <th mat-header-cell *matHeaderCellDef> Quantity </th>
-        <td mat-cell *matCellDef="let product"> {{ product.quantity }} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef> Price </th>
-        <td mat-cell *matCellDef="let product"> {{ product.price | number:'1.2-2' }} {{ currency }} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="total-price">
-        <th mat-header-cell *matHeaderCellDef> Total </th>
-        <td mat-cell *matCellDef="let product"> {{ product.price * product.quantity | number:'1.2-2' }} {{ currency }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> {{ selected_total | number:'1.2-2' }} {{ currency }} </strong> </td>
-    </ng-container>
-
-    <ng-container matColumnDef="empty">
-        <td mat-footer-cell *matFooterCellDef> </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="['name', 'quantity', 'price', 'total-price']">
-    <tr mat-row        *matRowDef="let row; columns: ['name', 'quantity', 'price', 'total-price'];"></tr>
-    <tr mat-footer-row *matFooterRowDef="['name', 'empty', 'empty', 'total-price']">
-</table>
-
-<h2> Payment method </h2>
-
-<style>
-.paymentMethods {
-display: flex;
-flex-flow: row wrap;
-justify-content: space-around;
-}
-</style>
-
-<div class="paymentMethods">
-    <app-payments-method
-        logo="/_img/pay/stripe-logo.png"
-        logo_alt="Stripe logo"
-        style="width: 30%;"
-        (clicked)="initiatePayment('stripe')"
-    >
-        <p>
-            Pay with your credit/debit card using Stripe
-        </p>
-        <p>
-            All card details are processed securely.
-        </p>
-    </app-payments-method>
-
-    <app-payments-method
-        logo="/_img/pay/bitpay-logo.png"
-        logo_alt="Bitpay logo"
-        style="width: 30%;"
-        (clicked)="initiatePayment('bitpay')"
-    >
-        <p>
-            Pay with cryptocurrencies like Bitcoin using Bitpay
-        </p>
-        <p>
-            <a href="https://help.runbox.com/bitcoin-payments/">
-                Note about BitPay contact email addresses
-            </a>
-        </p>
-    </app-payments-method>
-</div>
+<app-payment-summary
+    *ngIf="selected_products.length > 0"
+    [products]="selected_products"
+>
+</app-payment-summary>

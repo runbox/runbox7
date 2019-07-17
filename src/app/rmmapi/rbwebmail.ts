@@ -129,6 +129,7 @@ export class RunboxMe {
     public localpart: string;
 
     public timezone: string;
+    public currency: string;
 }
 
 export class MessageTextpart {
