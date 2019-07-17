@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { CommonModule } from '@angular/common';
-
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
@@ -34,7 +33,7 @@ import { AccountComponentsComponent } from './account-components.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
-import { AccountUpgradeComponent } from './payments-account-upgrade.component';
+import { AccountUpgradesComponent } from './account-upgrades.component';
 import { ComponentCardComponent } from './component-card.component';
 import { PaymentsAppComponent } from './payments-app.component';
 import { PaymentDialogComponent } from './payment-dialog.component';
@@ -66,7 +65,7 @@ import {
     AccountReceiptComponent,
     AccountRenewalsComponent,
     AccountTransactionsComponent,
-    AccountUpgradeComponent,
+    AccountUpgradesComponent,
     ComponentCardComponent,
     PaymentsAppComponent,
     PaymentDialogComponent,
@@ -114,7 +113,7 @@ import {
               },
               {
                   path: 'upgrades',
-                  component: AccountUpgradeComponent,
+                  component: AccountUpgradesComponent,
               },
               {
                   path: 'renewals',

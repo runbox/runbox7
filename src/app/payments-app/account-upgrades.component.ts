@@ -46,10 +46,10 @@ import { PaymentsService } from './payments.service';
 import { Product } from './product';
 
 @Component({
-    selector: 'app-payments-account-upgrade-component',
-    templateUrl: './payments-account-upgrade.component.html',
+    selector: 'app-account-upgrades-component',
+    templateUrl: './account-upgrades.component.html',
 })
-export class AccountUpgradeComponent {
+export class AccountUpgradesComponent {
     me: RunboxMe = new RunboxMe();
     products: Product[];
 
