@@ -199,10 +199,10 @@ export class PaymentDialogComponent implements AfterViewInit {
 
     showReceipt() {
         this.router.navigateByUrl('/account/receipt/' + this.tid);
-        this.dialogRef.close();
+        this.close();
     }
 
     close() {
-        this.dialogRef.close();
+        this.dialogRef.close(this.state === 'finished');
     }
 }

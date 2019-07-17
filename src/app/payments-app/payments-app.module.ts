@@ -28,7 +28,7 @@ import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { PaymentsService } from './payments.service';
-import { PaymentSummaryComponent } from './payment-summary.component';
+import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
@@ -40,6 +40,7 @@ import { PaymentDialogComponent } from './payment-dialog.component';
 import { PaymentMethodComponent } from './payments-method.component';
 import { ProductComponent } from './payments-product.component';
 import { ScriptLoaderService } from './scriptloader.service';
+import { ShoppingCartComponent } from './shopping-cart.component';
 
 import {
   MatButtonModule,
@@ -57,10 +58,12 @@ import {
   MatSidenavModule,
   MatTableModule,
   MatToolbarModule,
+  MatTooltipModule,
 } from '@angular/material';
 
 @NgModule({
   declarations: [
+    AccountAddonsComponent,
     AccountComponentsComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
@@ -70,8 +73,8 @@ import {
     PaymentsAppComponent,
     PaymentDialogComponent,
     PaymentMethodComponent,
-    PaymentSummaryComponent,
     ProductComponent,
+    ShoppingCartComponent,
   ],
   imports: [
     BrowserModule,
@@ -93,6 +96,7 @@ import {
     MatSidenavModule,
     MatTableModule,
     MatToolbarModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     RouterModule.forChild([
       {
@@ -116,6 +120,10 @@ import {
                   component: AccountUpgradesComponent,
               },
               {
+                  path: 'addons',
+                  component: AccountAddonsComponent,
+              },
+              {
                   path: 'renewals',
                   component: AccountRenewalsComponent,
               },
@@ -126,6 +134,10 @@ import {
               {
                   path: 'receipt/:id',
                   component: AccountReceiptComponent,
+              },
+              {
+                  path: 'cart',
+                  component: ShoppingCartComponent,
               },
             ]
           }

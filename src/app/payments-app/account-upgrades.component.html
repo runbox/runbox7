@@ -1,86 +1,44 @@
-<form [formGroup]="selection">
-    <h2> Account upgrades </h2>
+<style>
+#productGrid {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+}
 
-    <p>
-        <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
-    </p>
+.productCard {
+	margin: 10px;
+	flex: 600px 1 0;
+}
+</style>
 
-    <p>
-        Please select your plan below, along with any sub-accounts or other add-ons.
-        All Runbox subscriptions come with a 60-day full money back guarantee.
-    </p>
+<h2> Account upgrades </h2>
 
-    <p>
-        We offer the following payment methods: Credit/debit cards, Bitcoin, PayPal, Money Orders, SWIFT/SEPA payments, and cash.
-    </p>
+<p>
+    <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
+</p>
 
-    <h2>
-        Runbox Subscriptions
-    </h2>
+<p>
+    Note: When selecting a subscription plan please note that your current email disk usage is
+    {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
+</p>
 
-    <p>
-        All subscriptions renew annually and include the powerful Runbox features, mail management tools, ad-free Webmail,
-        spam and virus filtering, email consolidation and filtering, access from any client via POP, IMAP, SMTP, and more.
-    </p>
+<p>
+    Don't forget to check out
+    <button mat-button routerLink="/account/addons">
+        <mat-icon> extension </mat-icon> account addons
+    </button>
+    !
+</p>
 
-    <h3>
-        Main account ({{ me.user_address }})
-    </h3>
-
-    <p>
-        Note: When selecting a subscription plan for renewal,
-        please note that your current email disk usage is {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
-    </p>
-
-    <mat-radio-group formControlName="subscription">
-        <app-payments-product *ngFor="let p of subscriptions"
-            [p]="p"
-            [currency]="me.currency"
-        >
-            <ul>
-                <li *ngFor="let detail of p.details"> {{ detail }}
-            </ul>
-        </app-payments-product>
-        <app-payments-product
-            [p]="{ type: 'subscription', id: 'NONE', name: 'No subscription', description: 'Renew my account later' }"
-        >
-        </app-payments-product>
-    </mat-radio-group>
-
-    <h3> Sub-accounts </h3>
-
-    <p>
-        For additional accounts tied to your main subscription, please select a number of sub-accounts below
-    </p>
-
-    <app-payments-product *ngFor="let p of subaccounts"
+<div id="productGrid">
+    <app-payments-product
+        *ngFor="let p of subscriptions"
+        class="productCard"
         [p]="p"
         [currency]="me.currency"
-        [fc]="selection.get(p.id)"
     >
+        <ul>
+            <li *ngFor="let detail of p.details"> {{ detail }}
+        </ul>
     </app-payments-product>
-
-    <h3> Email add-ons </h3>
-
-    <app-payments-product *ngFor="let p of emailaddons"
-        [p]="p"
-        [currency]="me.currency"
-        [fc]="selection.get(p.id)"
-    >
-    </app-payments-product>
-
-    <h3> Web & Domain Hosting add-ons </h3>
-
-    <app-payments-product *ngFor="let p of hostingaddons"
-        [p]="p"
-        [currency]="me.currency"
-        [fc]="selection.get(p.id)"
-    >
-    </app-payments-product>
-</form>
-
-<app-payment-summary
-    *ngIf="selected_products.length > 0"
-    [products]="selected_products"
->
-</app-payment-summary>
+</div>

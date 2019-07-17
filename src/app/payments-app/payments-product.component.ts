@@ -18,41 +18,69 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { PaymentsService } from './payments.service';
 import { Product } from './product';
+import { ProductOrder } from './product-order';
 
 @Component({
     selector: 'app-payments-product',
     template: `
 <mat-card>
     <mat-card-title>
-        <mat-radio-button *ngIf="p.type === 'subscription'" [value]="p.id">
-            {{ p.name }}
-            <!-- specialcase for the "no subscription" option -->
-            <span *ngIf="p.price"> – {{ p.price }} {{ currency }} </span>
-        </mat-radio-button>
-        <span *ngIf="p.type === 'addon'">
-            {{ p.name }} – {{ p.price }} {{ currency }}
-        </span>
+        {{ p.name }}
     </mat-card-title>
     <mat-card-subtitle>
         {{ p.description }}
     </mat-card-subtitle>
-    <mat-card-content *ngIf="p.type === 'subscription'">
+    <mat-card-content>
         <ng-content></ng-content>
     </mat-card-content>
-    <mat-card-content *ngIf="p.type === 'addon'">
-        Amount:
-        <input matInput type="number" min="0" [formControl]="fc">
-        <span *ngIf="fc.value > 0">
-            Total: {{ fc.value * p.price | number:'1.2-2' }} {{ currency }}
-        </span>
-    </mat-card-content>
+    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
+        <button mat-button (click)="order()">
+            Upgrade for {{ p.price }} {{ currency }}
+        </button>
+    </mat-card-actions>
+    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type === 'addon'">
+        <button mat-icon-button (click)="less()">
+            <mat-icon> remove_circle_outline </mat-icon>
+        </button>
+        <button mat-button>
+            {{ quantity }}
+        </button>
+        <button mat-icon-button (click)="more()">
+            <mat-icon> add_circle_outline </mat-icon>
+        </button>
+        <button mat-button (click)="order()">
+            Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
+        </button>
+    </mat-card-actions>
 </mat-card>
     `,
 })
 export class ProductComponent {
     @Input() p: Product;
     @Input() currency: string;
-    @Input() fc: FormControl;
+
+    quantity = 1;
+
+    constructor(
+        private paymentsservice: PaymentsService,
+    ) {
+    }
+
+    less() {
+        if (this.quantity > 1) {
+            this.quantity--;
+        }
+    }
+
+    more() {
+        this.quantity++;
+    }
+
+    order() {
+        this.paymentsservice.cart.add(
+            new ProductOrder(this.p.pid, this.quantity)
+        );
+    }
 }

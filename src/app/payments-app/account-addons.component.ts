@@ -19,44 +19,32 @@
 
 import { Component } from '@angular/core';
 
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
-import { ProductOrder } from './product-order';
-
-import * as moment from 'moment';
+import { Product } from './product';
 
 @Component({
-    selector: 'app-account-renewals-component',
-    templateUrl: './account-renewals.component.html',
+    selector: 'app-account-addons-component',
+    templateUrl: './account-addons.component.html',
 })
-export class AccountRenewalsComponent {
-    active_products = [];
+export class AccountAddonsComponent {
+    me: RunboxMe = new RunboxMe();
+
+    subaccounts:   Product[];
+    emailaddons:   Product[];
+    hostingaddons: Product[];
 
     constructor(
         private paymentsservice: PaymentsService,
+        private rmmapi:          RunboxWebmailAPI,
     ) {
-        this.paymentsservice.activeProducts.subscribe(products => {
-            this.active_products = products.map(p => {
-                p.active_until = moment(p.active_until, moment.ISO_8601);
-                const day_diff = p.active_until.diff(moment(), 'days');
-                if (day_diff < 0) {
-                    p.expired = true;
-                } else if (day_diff < 90) {
-                    p.expires_soon = true;
-                }
-
-                if (paymentsservice.cart.contains(p.pid, p.apid)) {
-                    p.ordered = true;
-                }
-
-                return p;
-            });
+        this.paymentsservice.products.subscribe(products => {
+            this.subaccounts   = products.filter(p => p.subtype === 'subaccount');
+            this.emailaddons   = products.filter(p => p.subtype === 'emailaddon');
+            this.hostingaddons = products.filter(p => p.subtype === 'hosting');
         });
-    }
 
-    renew(p: any) {
-        this.paymentsservice.cart.add(
-            new ProductOrder(p.pid, p.quantity, p.apid)
-        );
-        p.ordered = true;
+        this.rmmapi.me.subscribe(me => this.me = me);
     }
 }
+

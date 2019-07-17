@@ -17,18 +17,14 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { PaymentsService } from './payments.service';
+export class ProductOrder {
+    pid:      number;
+    apid?:    number;
+    quantity: number;
 
-@Component({
-    selector: 'app-payments-app-component',
-    templateUrl: './payments-app.component.html',
-})
-export class PaymentsAppComponent {
-    constructor(
-        private router:          Router,
-        private paymentsservice: PaymentsService,
-    ) {
+    constructor(pid: number, quantity: number, apid?: number) {
+        this.pid      = pid;
+        this.quantity = quantity;
+        this.apid     = apid;
     }
 }

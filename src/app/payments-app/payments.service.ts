@@ -23,22 +23,29 @@ import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Observable, Subject, ReplaySubject } from 'rxjs';
 import { Product } from './product';
+import { Cart } from './cart';
 
 @Injectable()
 export class PaymentsService {
     errorLog = new Subject<HttpErrorResponse>();
-    products = new ReplaySubject<Product[]>();
-    stripePubkey = new ReplaySubject<string>(1);
-    currency = new ReplaySubject<string>(1);
+
+    products       = new ReplaySubject<Product[]>(1);
+    activeProducts = new ReplaySubject<any>(1);
+    stripePubkey   = new ReplaySubject<string>(1);
+    currency       = new ReplaySubject<string>(1);
+
+    cart: Cart = new Cart();
 
     constructor(
-        private rmmapi:   RunboxWebmailAPI,
+        private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getAvailableProducts().subscribe(products => {
             this.products.next(products);
         });
+        this.rmmapi.getActiveProducts().subscribe(products => {
+            this.activeProducts.next(products);
+        });
         this.rmmapi.getStripePubkey().subscribe(key => {
-            console.log("Paymentservice found stripe key:", key);
             this.stripePubkey.next(key);
         });
         this.rmmapi.me.subscribe(me => this.currency.next(me.currency));

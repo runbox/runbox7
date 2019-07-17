@@ -17,19 +17,22 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, OnInit } from '@angular/core';
-import { PaymentDialogComponent } from './payment-dialog.component';
-import { PaymentsService } from './payments.service';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material';
 
-@Component({
-    selector: 'app-payment-summary',
-    templateUrl: './payment-summary.component.html',
-})
-export class PaymentSummaryComponent {
-    @Input() products: any[] = [];
-    total: number;
+import { Cart } from './cart';
+import { PaymentDialogComponent } from './payment-dialog.component';
+import { PaymentsService } from './payments.service';
+import { ProductOrder } from './product-order';
 
+@Component({
+    selector: 'app-shopping-cart',
+    templateUrl: './shopping-cart.component.html',
+})
+export class ShoppingCartComponent {
+    products = {}; // pid => Product
+
+    cart: Cart;
     currency: string;
 
     constructor(
@@ -37,24 +40,30 @@ export class PaymentSummaryComponent {
         private dialog:          MatDialog,
     ) {
         this.paymentsservice.currency.subscribe(c => this.currency = c);
+        this.paymentsservice.products.subscribe(products => {
+            for (const p of products) {
+                this.products[p.pid] = p;
+            }
+        });
+        this.cart = this.paymentsservice.cart;
     }
 
-    ngOnInit() {
-        this.total = 0;
-        for (const p of this.products) {
-            this.total += p.price * p.quantity;
-        }
+    remove(p: ProductOrder) {
+        this.cart.remove(p);
     }
 
     initiatePayment(method: string) {
-        const order = this.products.map(p => {
-            return { pid: p.pid, quantity: p.quantity, apid: p.apid };
-        });
-        this.paymentsservice.orderProducts(order, method, this.currency).subscribe(tx => {
+        this.paymentsservice.orderProducts(this.cart.items, method, this.currency).subscribe(tx => {
             console.log("Transaction:", tx);
-            this.dialog.open(PaymentDialogComponent, {
+            const dialogRef = this.dialog.open(PaymentDialogComponent, {
 				data: { tx: tx, currency: this.currency, method: method }
-			});
+            });
+            
+            dialogRef.afterClosed().subscribe(paid => {
+                if (paid) {
+                    this.cart.clear();
+                }
+            });
         });
     }
 }

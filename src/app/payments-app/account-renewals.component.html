@@ -1,24 +1,5 @@
 <h1> Active products </h1>
 
-<style>
-#renewalButton {
-    position: fixed;
-    bottom: 50px;
-    right: 50px;
-    z-index: 10;
-}
-</style>
-
-<button mat-fab id="renewalButton" matTooltip="Renew selected products" *ngIf="selected > 0" (click)="renewSelected()">
-    <mat-icon>autorenew</mat-icon>
-</button>
-
-<app-payment-summary
-    *ngIf="selected_products.length > 0"
-    [products]="selected_products"
->
-</app-payment-summary>
-
 <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Name </th>
@@ -48,9 +29,12 @@
     <ng-container matColumnDef="renew">
         <th mat-header-cell *matHeaderCellDef> Renew </th>
         <td mat-cell *matCellDef="let p">
-            <mat-checkbox [(ngModel)]="p.renew" (change)="checkboxChanged($event)">
-                Renew
-            </mat-checkbox>
+            <button mat-button (click)="renew(p)" *ngIf="!p.ordered">
+                Renew <mat-icon> shopping_cart </mat-icon>
+            </button>
+            <span *ngIf="p.ordered">
+                Added to shopping cart
+            </span>
         </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="['name', 'quantity', 'active_until', 'hints', 'renew']">
