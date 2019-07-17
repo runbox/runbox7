@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { PaymentsService } from './payments.service';
 
 @Component({
@@ -27,8 +26,7 @@ import { PaymentsService } from './payments.service';
 })
 export class PaymentsAppComponent {
     constructor(
-        private router:          Router,
-        private paymentsservice: PaymentsService,
+        public  paymentsservice: PaymentsService,
     ) {
     }
 }
