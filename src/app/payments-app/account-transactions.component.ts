@@ -20,17 +20,39 @@
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
+import * as moment from 'moment';
+
 @Component({
     selector: 'app-account-transactions-component',
     templateUrl: './account-transactions.component.html',
 })
 export class AccountTransactionsComponent {
     transactions: any = [];
+
+    methods = {
+        bitpay:     'Bitpay',
+        creditcard: 'Netaxept',
+        giro:       'Offline',
+        paypal:     'PayPal',
+        stripe:     'Stripe',
+    };
+
+    statuses = {
+        0: 'Successful',
+        1: 'Pending',
+        2: 'Refunded',
+    };
+
     constructor(
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getTransactions().subscribe(transactions => {
-            this.transactions = transactions;
+            this.transactions = transactions.map(t => {
+                t.time = moment(t.time, moment.ISO_8601);
+                return t;
+            });
+
+            this.transactions.reverse();
         });
     }
 }
