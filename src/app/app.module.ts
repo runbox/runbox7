@@ -58,6 +58,8 @@ import { DialogModule } from './dialog/dialog.module';
 import { FolderModule } from './folder/folder.module';
 import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
 import { ResizerModule } from './directives/resizer.module';
+import { DkimModule } from './dkim/dkim.module';
+import { DkimComponent } from './dkim/dkim.component';
 import { DomainRegisterModule } from './domainregister/domainregister.module';
 import { DomainRegisterComponent } from './domainregister/domainregister.component';
 import { MainContainerComponent } from './maincontainer.component';
@@ -83,6 +85,7 @@ const routes: Routes = [
         component: HeaderToolbarComponent
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
+      { path: 'dkim', component: DkimComponent},
       { path: 'calendar', component: CalendarAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
