@@ -30,10 +30,6 @@ import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
 
-
-
-
-
 import { ProgressDialog } from '../dialog/dialog.module';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
@@ -635,9 +631,33 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public payWithBitpay(tid: number, receipt_url: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/bitpay/pay', {
+            tid: tid, receipt_url: receipt_url
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public payWithPaypal(tid: number, return_url: string, cancel_url: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/paypal/pay', {
+            tid: tid, return_url: return_url, cancel_url: cancel_url
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
     public payWithStripe(tid: number, paymentMethod: string): Observable<any> {
         return this.http.post('/rest/v1/account_product/stripe/pay', {
             tid: tid, payment_method: paymentMethod
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public confirmPaypalPayment(paymentId: string, payerId: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/paypal/confirm', {
+            payment_id: paymentId, payer_id: payerId
         }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );

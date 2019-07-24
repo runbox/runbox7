@@ -27,20 +27,23 @@ import { RouterModule } from '@angular/router';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
-import { PaymentsService } from './payments.service';
 import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
+import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
 import { ComponentCardComponent } from './component-card.component';
-import { PaymentsAppComponent } from './payments-app.component';
-import { PaymentDialogComponent } from './payment-dialog.component';
-import { PaymentMethodComponent } from './payments-method.component';
 import { ProductComponent } from './payments-product.component';
 import { ScriptLoaderService } from './scriptloader.service';
 import { ShoppingCartComponent } from './shopping-cart.component';
+import { PaymentMethodComponent } from './payments-method.component';
+import { PaymentsAppComponent } from './payments-app.component';
+import { PaymentsService } from './payments.service';
+import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
+import { PaypalHandlerComponent } from './paypal-handler.component';
+import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
 
 import {
   MatButtonModule,
@@ -48,6 +51,7 @@ import {
   MatCheckboxModule,
   MatDatepickerModule,
   MatDialogModule,
+  MatExpansionModule,
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
@@ -69,12 +73,15 @@ import {
     AccountRenewalsComponent,
     AccountTransactionsComponent,
     AccountUpgradesComponent,
+    BitpayPaymentDialogComponent,
     ComponentCardComponent,
     PaymentsAppComponent,
-    PaymentDialogComponent,
     PaymentMethodComponent,
+    PaypalHandlerComponent,
+    PaypalPaymentDialogComponent,
     ProductComponent,
     ShoppingCartComponent,
+    StripePaymentDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -86,6 +93,7 @@ import {
     MatDatepickerModule,
     MatCheckboxModule,
     MatDialogModule,
+    MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -139,6 +147,10 @@ import {
                   path: 'cart',
                   component: ShoppingCartComponent,
               },
+              {
+                  path: 'paypal/:action',
+                  component: PaypalHandlerComponent,
+              },
             ]
           }
         ]
@@ -146,7 +158,9 @@ import {
     ]),
   ],
   entryComponents: [
-    PaymentDialogComponent,
+    BitpayPaymentDialogComponent,
+    PaypalPaymentDialogComponent,
+    StripePaymentDialogComponent,
   ],
   providers: [
     PaymentsService,

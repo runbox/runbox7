@@ -18,10 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
+import { Router } from '@angular/router';
 
 import { Cart } from './cart';
-import { PaymentDialogComponent } from './payment-dialog.component';
+import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
+import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
+import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
 import { PaymentsService } from './payments.service';
 import { ProductOrder } from './product-order';
 
@@ -36,8 +39,9 @@ export class ShoppingCartComponent {
     currency: string;
 
     constructor(
-        public  paymentsservice: PaymentsService,
         private dialog:          MatDialog,
+        public  paymentsservice: PaymentsService,
+        private router:          Router,
     ) {
         this.paymentsservice.currency.subscribe(c => this.currency = c);
         this.paymentsservice.products.subscribe(products => {
@@ -55,10 +59,25 @@ export class ShoppingCartComponent {
     initiatePayment(method: string) {
         this.paymentsservice.orderProducts(this.cart.items, method, this.currency).subscribe(tx => {
             console.log("Transaction:", tx);
-            const dialogRef = this.dialog.open(PaymentDialogComponent, {
-				data: { tx: tx, currency: this.currency, method: method }
-            });
-            
+            let dialogRef: MatDialogRef<any>;
+            if (method === 'stripe') {
+                dialogRef = this.dialog.open(StripePaymentDialogComponent, {
+                    data: { tx: tx, currency: this.currency, method: method }
+                });
+            } else if (method === 'bitpay') {
+                dialogRef = this.dialog.open(BitpayPaymentDialogComponent, {
+                    data: { tx: tx }
+                });
+            } else if (method === 'paypal') {
+                dialogRef = this.dialog.open(PaypalPaymentDialogComponent, {
+                    data: { tx: tx }
+                });
+            } else if (method === 'giro') {
+                this.router.navigateByUrl('/account/receipt/' + tx.tid);
+                this.cart.clear();
+                return;
+            }
+
             dialogRef.afterClosed().subscribe(paid => {
                 if (paid) {
                     this.cart.clear();

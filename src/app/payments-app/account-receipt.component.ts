@@ -29,6 +29,11 @@ export class AccountReceiptComponent {
     receipt: any = { products: [] };
     me: RunboxMe = new RunboxMe();
 
+    statuses = {
+        0: 'successful',
+        1: 'pending',
+    };
+
     constructor(
         private rmmapi: RunboxWebmailAPI,
         private route:  ActivatedRoute,
@@ -36,6 +41,10 @@ export class AccountReceiptComponent {
         route.params.subscribe(params => {
             this.rmmapi.getReceipt(params.id).subscribe(receipt => {
                 receipt.time = receipt.time.replace('T', ' ');
+                if (receipt.method === 'giro') {
+                    receipt.method = 'offline';
+                }
+
                 this.receipt = receipt;
             });
         });

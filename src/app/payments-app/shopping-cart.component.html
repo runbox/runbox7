@@ -104,5 +104,32 @@
                 </a>
             </p>
         </app-payments-method>
+
+        <mat-expansion-panel style="margin: 10px;">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Other payment methods </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <p>
+                    <button mat-raised-button (click)="initiatePayment('paypal')">
+                        Pay with Paypal
+                    </button>
+                </p>
+                <p>
+                    This will be a one-time payment – your products will not be renewed automatically.
+                </p>
+                <p>
+                    <button mat-raised-button (click)="initiatePayment('giro')">
+                        Send us money directly
+                    </button>
+                </p>
+                <p>
+                    You can send us an International Money Order, a SWIFT/IBAN bank transfer
+                    or even email us an envelope with cash.
+                    Your products won't activate until the money is received by Runbox.
+                </p>
+            </div>
+        </mat-expansion-panel>
     </div>
 </div>

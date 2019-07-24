@@ -28,10 +28,10 @@ import { ScriptLoaderService } from './scriptloader.service';
 declare var Stripe: any;
 
 @Component({
-    selector: 'app-payments-payment-dialog-component',
-    templateUrl: 'payment-dialog.component.html',
+    selector: 'app-stripe-payments-payment-dialog-component',
+    templateUrl: 'stripe-payment-dialog.component.html',
 })
-export class PaymentDialogComponent implements AfterViewInit {
+export class StripePaymentDialogComponent implements AfterViewInit {
     method: string;
     tid:    number;
     total:  number;
@@ -57,7 +57,7 @@ export class PaymentDialogComponent implements AfterViewInit {
         private paymentsservice: PaymentsService,
         private router: Router,
         private scriptLoader: ScriptLoaderService,
-        public dialogRef: MatDialogRef<PaymentDialogComponent>,
+        public dialogRef: MatDialogRef<StripePaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
         this.method = data.method;
