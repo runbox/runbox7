@@ -22,12 +22,25 @@ import { ProductOrder } from './product-order';
 export class Cart {
     items: ProductOrder[] = [];
 
+    constructor() {
+        const storedCart = localStorage.getItem('shoppingCart');
+        if (storedCart) {
+            this.items = JSON.parse(storedCart);
+        }
+    }
+
+    storeCart() {
+        localStorage.setItem('shoppingCart', JSON.stringify(this.items));
+    }
+
     add(p: ProductOrder) {
         this.items.push(p);
+        this.storeCart();
     }
 
     clear() {
         this.items = [];
+        this.storeCart();
     }
 
     contains(pid: number, apid?: number): boolean {
@@ -41,5 +54,6 @@ export class Cart {
 
     remove(order: ProductOrder) {
         this.items = this.items.filter(p => p !== order);
+        this.storeCart();
     }
 }
