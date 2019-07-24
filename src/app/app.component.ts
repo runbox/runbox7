@@ -53,8 +53,11 @@ import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
 import { ProgressService } from './http/progress.service';
+import { environment } from '../environments/environment';
+import { LogoutService } from './login/logout.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
+const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 
 @Component({
   moduleId: 'angular2/app/',
@@ -91,6 +94,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   selectedRowId: number;
   searchtextfieldfocused = false;
 
+  showMultipleSearchFields = false;
   showingSearchResults = false; // Toggle if showing from message list or xapian search
   showingWebSocketSearchResults = false;
   displayFolderColumn = false;
@@ -138,6 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private sanitizer: DomSanitizer,
     private renderer: Renderer2,
     private ngZone: NgZone,
+    public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
     private draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
@@ -157,8 +162,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.rmmapi = rmmapi;
     this.messageActionsHandler.searchService = searchService;
     this.messageActionsHandler.snackBar = snackBar;
-
-    this.rmmapi.markSeenSubject.subscribe(() => this.canvastable.hasChanges = true);
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (Object.keys(this.selectedRowIds).length === 1 && this.singlemailviewer.messageId) {
@@ -204,7 +207,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       changeDetectorRef.detectChanges();
       if (!this.mobileQuery.matches && !this.sidemenu.opened) {
         this.sidemenu.open();
-        this.mailViewerOnRightSide = true;
+        const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+        this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '40%';
       } else if (this.mobileQuery.matches && this.sidemenu.opened) {
@@ -290,7 +294,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
-        throttleTime(500),
+        filter(() => !this.canvastable.isScrollInProgress()),
+        throttleTime(1000),
         map(() => this.canvastable.getVisibleRowIndexes()),
         mergeMap((rowIndexes) =>
           from(
@@ -309,7 +314,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             mergeMap(o =>
               o.pipe(
                 mergeMap(messageId => this.rmmapi.getMessageContents(messageId)),
-                take(1)
+                take(1),
+                tap(() => this.canvastable.hasChanges = true)
               ), 1),
             bufferCount(rowIndexes.length)
           )
@@ -327,6 +333,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   subscribeToNotifications() {
+    if (environment.production) {
       this.http.get('/rest/v1/webpush/vapidkeys').pipe(
         map(res => res.json()),
         map(jwk => exportKeysFromJWK(jwk).public),
@@ -338,6 +345,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         )),
         mergeMap(sub => this.http.post('/rest/v1/webpush/subscribe', sub))
       ).subscribe();
+    }
   }
 
   public drafts() {
@@ -364,14 +372,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds}).subscribe(
-      (data) => {
+    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds})
+      .subscribe(data => {
         if ( data.status === 'error' ) {
           snackBarRef.dismiss();
           this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
         }
         this.searchService.updateIndexWithNewChanges();
         snackBarRef.dismiss();
+      }, (err) => {
+        console.error('Error reporting spam', err);
+        this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
       },
       () => {
         this.selectedRowIds = {};
@@ -479,7 +490,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public isBoldRow(rowObj: any) {
     if (this.showingSearchResults) {
-      return this.searchService.api.getNumericValue(rowObj[0], 4) === 0;
+      return this.searchService.getDocData(rowObj[0]).seen ? false : true;
     } else if (this.showingWebSocketSearchResults) {
       return !(rowObj as WebSocketSearchMailRow).seen;
     } else {
@@ -773,8 +784,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       console.log('us', this.usewebsocketsearch);
       if (
         this.usewebsocketsearch ||
-        this.selectedFolder === 'Spam' ||
-        this.selectedFolder === 'Trash'
+        this.selectedFolder === this.messagelistservice.spamFolderName ||
+        this.selectedFolder === this.messagelistservice.trashFolderName
       ) {
         /*
          * Message table from database, shown if local search index is not present
@@ -872,6 +883,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
           `${this.mailViewerOnRightSide}`);
     }
+    localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE, this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
   }
@@ -903,7 +915,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.usewebsocketsearch = true;
         } else {
           const dialogRef = this.dialog.open(ConfirmDialog);
-          dialogRef.componentInstance.title = 'Welcome to Runbox 7 Webmail!';
+          dialogRef.componentInstance.title = 'Welcome to Runbox 7!';
           dialogRef.componentInstance.question =
             `Runbox 7 will now synchronize  with your device to give you an optimal webmail experience.
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;

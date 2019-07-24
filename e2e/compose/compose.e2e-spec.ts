@@ -1,6 +1,6 @@
 import { ComposePage } from './compose.po';
 
-import { browser } from 'protractor';
+import { browser, element, by, until } from 'protractor';
 import { MockServer } from '../mockserver/mockserver';
 
 describe('Compose', () => {
@@ -25,14 +25,15 @@ describe('Compose', () => {
   });
 
   it('should display draft card', async () => {
-    page.navigateTo();
+    await page.navigateTo();
     await page.waitForRedirect();
     browser.waitForAngularEnabled(false);
     expect(page.getDraftActionBarText()).toEqual('New message');
+    expect(await page.checkToRecipientInputFocus()).toBeTruthy();
   });
 
   it('should complain on invalid email address', async () => {
-    page.navigateTo();
+    await page.navigateTo();
     await page.waitForRedirect();
     browser.waitForAngularEnabled(false);
     await page.setRecipientInputField('invalidaddress');
@@ -40,6 +41,23 @@ describe('Compose', () => {
     expect(page.getRecipientErrorText()).toEqual('Please enter a valid email address');
     await page.setRecipientInputField('test@example.com');
     await page.waitForMailRecipientErrorInputToBeAbsent();
+  });
+
+  it('should open reply draft with HTML editor', async () => {
+    browser.waitForAngularEnabled(false);
+    await page.replyToMessage();
+
+    const iframelocator = by.tagName('iframe');
+    await browser.wait(until.elementLocated(iframelocator), 10000);
+
+    console.log('tinymce iframe located');
+    await browser.switchTo().frame(element(iframelocator).getWebElement());
+
+    console.log('switched to tinymce iframe');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(await element(by.tagName('body')).getText());
+    expect(await element(by.tagName('body')).getText()).toContain('Testing session timeout');
+    console.log('reply text located');
   });
 });
 

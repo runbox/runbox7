@@ -124,7 +124,7 @@
                     [id]="editorId" #editor 
                     [hidden]="!formGroup.value.useHTML">
           </textarea>
-          <mat-form-field class="messageTextArea" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto">
+          <mat-form-field id="messageTextArea" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto">
             <textarea 
                #messageTextArea
                placeholder="Message text" 

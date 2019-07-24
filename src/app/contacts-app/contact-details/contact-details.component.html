@@ -1,47 +1,180 @@
-<div class="contact-details" *ngIf="!contact">
+<div class="mainTextContent" *ngIf="!contact">
     Select a contact to view or edit its details
 </div>
 
-<div class="contact-details" *ngIf="contact">
-    <h2> {{ contact.full_name() || "New contact" }}'s details </h2>
-    <p *ngIf="contact.email">
-        
-        <a mat-button routerLink="/compose" [queryParams]="{to: contact.email}"><mat-icon>email</mat-icon> Write an email to {{ contact.full_name() }}</a>
-    </p>
-    <form #form="ngForm">
+<div class="mainTextContent" *ngIf="contact">
+    <h2>
+        <span *ngIf="contact.show_as_company()">
+            <mat-icon> business </mat-icon>
+        </span>
+        {{ contact.display_name() || "New contact" }}'s details
+    </h2>
+    <form [formGroup]="contactForm">
+        <h3> Basic information </h3>
         <table>
             <tr>
-                <td> Nickname: </td>
-                <td> <input name="nick"
-                            [(ngModel)]="contact.nick"
-                            placeholder="Nickname">
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="nickname" placeholder="Nickname">
+                    </mat-form-field>
+                </td><td>
+                    <mat-form-field>
+                        <input matInput formControlName="first_name" placeholder="First name">
+                    </mat-form-field>
+                </td><td>
+                    <mat-form-field>
+                        <input matInput formControlName="last_name" placeholder="Last Name">
+                    </mat-form-field>
+                </td>
+                <td *ngIf="newGroupPromptShown">
+                    <mat-form-field>
+                        <input matInput #newGroupInput placeholder="New group"
+                              [(ngModel)]="newGroupValue" [ngModelOptions]="{standalone: true}">
+                        <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
+                        <button matSuffix mat-icon-button (click)="newGroupPromptShown = false">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                        <button matSuffix mat-icon-button (click)="confirmNewGroup()">
+                            <mat-icon>check</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </td>
+                <td *ngIf="!newGroupPromptShown">
+                    <mat-form-field>
+                        <mat-label> Groups </mat-label>
+                        <mat-select formControlName="categories" placeholder="No groups" multiple>
+                            <mat-select-trigger>
+                                <span *ngIf="contactForm.get('categories').value; else no_groups">
+                                    {{ contactForm.get('categories').value }}
+                                </span>
+                                <ng-template #no_groups>
+                                    No groups
+                                </ng-template>
+                            </mat-select-trigger>
+                            <mat-option *ngFor="let group of groups" [value]="group"> {{ group }} </mat-option>
+                            <mat-option (click)="showNewGroupPrompt()"> Add a new group... </mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </td>
             </tr>
             <tr>
-                <td> First name: </td>
-                <td> <input name="first_name"
-                            [(ngModel)]="contact.first_name"
-                            placeholder="First name">
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="company" placeholder="Company">
+                    </mat-form-field>
+                </td><td>
+                    <mat-form-field>
+                        <input matInput formControlName="department" placeholder="Department">
+                    </mat-form-field>
+                </td><td>
                 </td>
             </tr>
             <tr>
-                <td> Last name: </td>
-                <td> <input name="last_name"
-                            [(ngModel)]="contact.last_name"
-                            placeholder="Last Name">
+                <td>
+                    <mat-form-field>
+                        <input matInput formControlName="birthday" placeholder="Birthday">
+                    </mat-form-field>
+                </td><td>
+                </td><td>
                 </td>
             </tr>
             <tr>
-                <td> Email address: </td>
-                <td> <input name="email"
-                            [(ngModel)]="contact.email"
-                            placeholder="E-mail address">
+                <td colspan=3>
+                    <textarea matInput formControlName="note" placeholder="Notes"> </textarea>
                 </td>
             </tr>
         </table>
-        <div *ngIf="form.dirty">
-            <a mat-button (click)="save()">Save changes</a>
-            <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
-        </div>
+
+        <app-contact-details-fa-viewer
+            title="Email addresses"
+            [hidden]="false"
+
+            [inputFG]="contactForm"
+            faName="emails"
+            (newElementClicked)="newEmail()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="E-mail address"
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new e-mail address"
+
+            actionIcon="email"
+            actionDescription="Send an email to this address"
+        >
+        </app-contact-details-fa-viewer>
+
+        <app-contact-details-fa-viewer
+            title="Phone numbers"
+
+            [inputFG]="contactForm"
+            faName="phones"
+            (newElementClicked)="newPhone()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="Phone number"
+            deleteDescription="Delete this phone number"
+            addNewDescription="Add a new phone number"
+        >
+        </app-contact-details-fa-viewer>
+
+        <app-contact-details-fa-viewer
+            title="Websites"
+
+            [inputFG]="contactForm"
+            faName="urls"
+            (newElementClicked)="newUrl()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="Website address"
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new address"
+
+            actionIcon="link"
+            actionDescription="Visit this website"
+        >
+        </app-contact-details-fa-viewer>
+
+        <app-contact-details-fa-viewer
+            title="Addresses"
+
+            [inputFG]="contactForm"
+            faName="addresses"
+            (newElementClicked)="newAdr()"
+            layout="complex"
+            editable="!contact.rmm_backed"
+
+            deleteDescription="Delete this address"
+            addNewDescription="Add a new address"
+        >
+        </app-contact-details-fa-viewer>
+
+        <app-contact-details-fa-viewer
+            title="Relatives"
+
+            [inputFG]="contactForm"
+            faName="related"
+            (newElementClicked)="newRelative()"
+            layout="simple"
+            editable="!contact.rmm_backed"
+
+            valuePlaceholder="Name"
+            deleteDescription="Delete this relative"
+            addNewDescription="Add a new relative"
+        >
+        </app-contact-details-fa-viewer>
+
+        <mat-toolbar style="position: fixed; bottom: 0;">
+            <div *ngIf="contact.rmm_backed">
+                <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
+            </div>
+            <div *ngIf="!contact.rmm_backed">
+                <a mat-button (click)="save()">Save changes</a>
+                <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
+                <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
+            </div>
+        </mat-toolbar>
     </form>
 </div>

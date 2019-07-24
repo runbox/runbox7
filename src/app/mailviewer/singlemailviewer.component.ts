@@ -18,25 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { filter, map } from 'rxjs/operators';
-// --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
-// This file is part of Runbox 7 App.
-// 
-// Runbox 7 App is free software: You can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Runbox 7 App is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Runbox 7 App. If not, see <https://www.gnu.org/licenses/>.
-// ---------- END RUNBOX LICENSE ----------
-
 import {
   SecurityContext, Component, Input, OnInit, Output, EventEmitter, NgZone, ViewChild,
   ElementRef,
@@ -58,8 +39,9 @@ import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
-import { MatDividerModule } from '@angular/material/divider';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { MessageListService } from '../rmmapi/messagelist.service';
+import { loadLocalMailParser } from './mailparser';
 
 const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
@@ -148,6 +130,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public dialog: MatDialog,
     private rbwebmailapi: RunboxWebmailAPI,
     private progressService: ProgressService,
+    public messagelistservice: MessageListService,
     private router: Router,
     media: MediaMatcher
   ) {
@@ -223,6 +206,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       return 'picture_as_pdf';
     } else if (contentType.indexOf('audio') > -1) {
       return 'audiotrack';
+    } else if (contentType.indexOf('text/calendar') > -1) {
+      return 'event';
+    } else if (contentType.indexOf('text/vcard') > -1) {
+      return 'contacts';
     } else if (contentType.indexOf('text') > -1) {
       return 'text_format';
     } else {
@@ -295,9 +282,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
-        if (res.attachments) {
-          res.attachments.forEach((att) => att.fileName = att.filename);
-        }
+        this.generateAttachmentURLs(res.attachments);
 
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
@@ -363,7 +348,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           html.push(raw.substr(0, i));
           ((u, t) => {
             html.push('<a ');
-            html.push('target="_blank" ');
+            html.push('target="_blank" rel="noopener"');
             html.push('href="',
               u.replace(/"/g, '&quot;'),
               '">');
@@ -408,6 +393,31 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
   }
 
+  generateAttachmentURLs(attachments: any[]) {
+    if (attachments) {
+      attachments.forEach((att, ndx) => {
+        let isImage = false;
+        if (att.contentType && att.contentType.indexOf('image/') === 0) {
+          isImage = true;
+        }
+        if (att.content) {
+          att.downloadURL = URL.createObjectURL(new Blob([att.content], {
+            type: att.contentType
+          }));
+          if (isImage) {
+            att.thumbnailURL = this.domSanitizer.bypassSecurityTrustResourceUrl(att.downloadURL);
+          }
+        } else {
+          att.downloadURL = '/rest/v1/email/' + this.messageId + '/attachment/' + ndx +
+                            '?download=true';
+          if (isImage) {
+            att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
+          }
+        }
+      });
+    }
+  }
+
   saveShowHTMLDecision() {
     if (this.showHTMLDecision) {
       localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
@@ -439,14 +449,60 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     );
   }
 
-  public openAttachment(attachmentIndex: number, download?: boolean) {
-    const url_attachment = '/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex +
-      (download === true ? '?download=true' : '');
-    if (download) {
-      location.href = url_attachment;
-    } else {
-      window.open(url_attachment);
+  /**
+   * EXPERIMENTAL, decrypt attachment (encrypted.asc) by sending it to pgpapp.no
+   * @param attachmentIndex 
+   */
+  public decryptAttachment(attachmentIndex: number) {
+    this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
+      { responseType: ResponseContentType.Blob })
+      .subscribe((res) => {
+        const pgpapp = window.open('https://pgpapp.no/app/messagehandler.html', '_blank');
+
+        const pgpapplistener = async (msg) => {
+          if (msg.origin === 'https://pgpapp.no') {
+            if (msg.data.decryptedContent) {
+              window.removeEventListener('message', pgpapplistener);
+              pgpapp.close();
+
+              const parseMail = await loadLocalMailParser().toPromise();
+              const parsed = await parseMail(msg.data.decryptedContent);
+              this.mailObj.text = parsed.text;
+              this.mailObj.subject = parsed.subject;
+              this.mailContentHTML = parsed.html;
+              this.generateAttachmentURLs(parsed.attachments);
+              this.mailObj.attachments = parsed.attachments;
+
+              console.log(parsed);
+
+
+            } else if (msg.data.ready) {
+              pgpapp.postMessage(res.blob(), 'https://pgpapp.no');
+            }
+          }
+        };
+        window.addEventListener('message', pgpapplistener);
+      });
+  }
+
+  public openAttachment(attachment: any) {
+    if (attachment.contentType.indexOf('text/calendar') > -1) {
+      this.router.navigate(['/calendar'], { queryParams: { import_from: attachment.downloadURL }});
+      return;
     }
+    if (attachment.contentType.indexOf('text/vcard') > -1) {
+      this.router.navigate(['/contacts'], { queryParams: { import_from: attachment.downloadURL }});
+      return;
+    }
+
+    // as long as we don't have a separate domain for attachments, we cannot show them in a new tab/window
+    const alink = document.createElement('a');
+    alink.download = attachment.filename;
+    alink.href = attachment.downloadURL;
+    alink.target = '_blank';
+    document.documentElement.appendChild(alink);
+    alink.click();
+    document.documentElement.removeChild(alink);
   }
 
   public downloadAttachmentFromServer(attachmentIndex: number) {
@@ -473,7 +529,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     const a = document.createElement('a');
     const theurl = URL.createObjectURL(new Blob([attachment.content], { type: attachment.contentType }));
     a.href = theurl;
-    a.download = attachment.fileName;
+    a.download = attachment.filename;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();

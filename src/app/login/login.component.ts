@@ -59,19 +59,21 @@ export class LoginComponent implements OnInit {
         this.twofactor.otpcode = undefined;
         this.twofactor.unlock_code = undefined;
         this.twofactor.unlock_answer = undefined;
+        this.twofactor.trust_this_browser = undefined;
 
         if (theform.twofactormethod === 'totp') {
             this.twofactor.cmd = 'authtotp';
             this.twofactor.totpcode = theform.totp;
+            this.twofactor.trust_this_browser = theform.trust_this_browser_totp ? 1 : 0;
         } else if (theform.twofactormethod === 'otp') {
             this.twofactor.cmd = 'authotp';
             this.twofactor.otpcode = theform.otp;
+            this.twofactor.trust_this_browser = theform.trust_this_browser_otp ? 1 : 0;
         } else if (theform.twofactormethod === 'unlock_code') {
             this.twofactor.cmd = 'authunlockcode';
             this.twofactor.unlock_code = theform.unlock_code;
             this.twofactor.unlock_answer = theform.unlock_answer;
         }
-
         this.httpclient.post('/ajax_mfa_authenticate', this.twofactor).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {

@@ -1,0 +1,169 @@
+<mat-sidenav-container autosize>
+    <style>
+        button {
+            margin: 0.5em;
+        }
+    </style>
+    <mat-sidenav #sidemenu mode="side" opened>
+        <mat-nav-list dense>
+            <mat-list-item>
+                <button mat-button (click)="addEvent()">
+                    <mat-icon>add</mat-icon> Add event
+                </button>
+            </mat-list-item>
+            <mat-list-item>
+                <input #icsUploadInput type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
+                <button mat-button (click)="importEventClicked()">
+                    <mat-icon>import_export</mat-icon> Import event
+                </button>
+            </mat-list-item>
+            <mat-list-item>
+                <button mat-button (click)="openSettings()">
+                    <mat-icon>settings</mat-icon> Settings
+                </button>
+            </mat-list-item>
+            <mat-list-item>
+                <h4> Calendars </h4>
+                <button mat-icon-button (click)="showAddCalendarDialog()">
+                    <mat-icon> add </mat-icon>
+                </button>
+            </mat-list-item>
+            <mat-list-item *ngIf="calendars.length === 0">
+                Loading calendars...
+            </mat-list-item>
+            <mat-list-item class="calendarListItem" *ngFor="let calendar of calendars">
+                <button mat-icon-button (click)="toggleCalendar(calendar.id)">
+                    <mat-icon *ngIf="calendar.shown"
+                        [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
+                        label
+                    </mat-icon>
+                    <mat-icon *ngIf="!calendar.shown">
+                        label_off
+                    </mat-icon>
+                </button>
+                <button mat-button (click)="editCalendar(calendar.id)">
+                    {{ calendar.displayname || calendar.id }}
+                </button>
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar style="display: flex">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <button mat-raised-button mwlCalendarPreviousView
+                id="previousPeriodButton"
+                [view]="view"
+                [(viewDate)]="viewDate"
+                (viewDateChange)="activeDayIsOpen = false"
+            >
+                Previous
+            </button>
+            <button mat-raised-button
+                id="todayButton"
+                mwlCalendarToday
+                [(viewDate)]="viewDate"
+            >
+                Today
+            </button>
+            <button mat-raised-button
+                id="nextPeriodButton"
+                mwlCalendarNextView
+                [view]="view"
+                [(viewDate)]="viewDate"
+                (viewDateChange)="activeDayIsOpen = false"
+            >
+                Next
+            </button>
+
+            <span class="calendarTitle" *ngIf="view">
+                {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
+            </span>
+
+            <button mat-raised-button
+                (click)="view = CalendarView.Month"
+                [color]="view === CalendarView.Month ? 'primary' : ''"
+            >
+                Month
+            </button>
+            <button mat-raised-button
+                (click)="view = CalendarView.Week"
+                [color]="view === CalendarView.Week ? 'primary' : ''"
+            >
+                Week
+            </button>
+            <button mat-raised-button
+                (click)="view = CalendarView.Day"
+                [color]="view === CalendarView.Day ? 'primary' : ''"
+            >
+                Day
+            </button>
+        </mat-toolbar>
+
+        <ng-template #dayViewTemplate let-day="day" let-locale="locale">
+            <div class="calendarMonthDayView">
+                <div class="cal-cell-top">
+                    <span class="cal-day-number">
+                        {{ day.date | calendarDate:'monthViewDayNumber':locale }}
+                    </span>
+                    <div style="display: flex; flex-direction: column;">
+                        <div class="add-new-event">
+                            <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
+                        </div>
+                        <button mat-button class="calendarMonthDayEvent"
+                            *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
+                            (click)="openEvent(event); $event.stopPropagation()"
+                        >
+                            <strong *ngIf="!event.allDay && event.start.getDay() == day.date.getDay()">
+                                {{ event.start.getHours() }}:{{ ('0' + event.start.getMinutes()).slice(-2) }}
+                            </strong>
+                            {{ event.title }}
+                        </button>
+                        <button mat-button *ngIf="day.events.length > 4" class="calendarMonthDayEvent">
+                            ...and {{ day.events.length - 3 }} other events
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+
+        <div [ngSwitch]="view">
+          <mwl-calendar-month-view
+            *ngSwitchCase="CalendarView.Month"
+            [cellTemplate]="dayViewTemplate"
+            [viewDate]="viewDate"
+            [events]="shown_events"
+            [refresh]="refresh"
+            [activeDayIsOpen]="activeDayIsOpen"
+            [weekStartsOn]="settings.weekStartsOnSunday ? 0 : 1"
+            (dayClicked)="dayClicked($event.day)"
+            (eventClicked)="openEvent($event.event)"
+            (eventTimesChanged)="eventTimesChanged($event)"
+            (beforeViewRender)="beforeViewRender($event)"
+          >
+          </mwl-calendar-month-view>
+          <mwl-calendar-week-view
+            *ngSwitchCase="CalendarView.Week"
+            [viewDate]="viewDate"
+            [events]="shown_events"
+            [refresh]="refresh"
+            [weekStartsOn]="settings.weekStartsOnSunday ? 0 : 1"
+            (eventClicked)="openEvent($event.event)"
+            (eventTimesChanged)="eventTimesChanged($event)"
+            (beforeViewRender)="beforeViewRender($event)"
+          >
+          </mwl-calendar-week-view>
+          <mwl-calendar-day-view
+            *ngSwitchCase="CalendarView.Day"
+            [viewDate]="viewDate"
+            [events]="shown_events"
+            [refresh]="refresh"
+            (eventClicked)="openEvent($event.event)"
+            (eventTimesChanged)="eventTimesChanged($event)"
+            (beforeViewRender)="beforeViewRender($event)"
+          >
+          </mwl-calendar-day-view>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

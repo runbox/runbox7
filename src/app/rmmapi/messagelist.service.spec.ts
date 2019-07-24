@@ -27,7 +27,7 @@ describe('MessageListService', () => {
     it('Check spam and trash folder names', (done) => {
         const msglistservice = new MessageListService(
             {
-                markSeenSubject: new Subject(),
+                messageFlagChangeSubject: new Subject(),
                 getFolderCount: () => {
                     return new Observable(observer => {
                         setTimeout(() =>

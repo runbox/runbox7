@@ -1,0 +1,43 @@
+<h1 mat-dialog-title>{{ name }}</h1>
+<div mat-dialog-content>
+    <p>
+        <mat-form-field *ngIf="calendar.id">
+            <input matInput type="text" placeholder="ID" [(ngModel)]="calendar.id" disabled>
+        </mat-form-field>
+    </p>
+
+    <p>
+        <mat-form-field>
+            <input matInput type="text" placeholder="Name"
+                  [(ngModel)]="calendar.displayname">
+        </mat-form-field>
+    </p>
+    <p>
+        <mat-label> Colour </mat-label>
+        <button mat-button (click)="openColorSelector()">
+            <span *ngIf="calendar.color; else noColor">
+                <mat-icon [ngStyle]="{ 'color': calendar.color }"> brightness_1 </mat-icon>
+                {{ calendar.color }}
+            </span>
+            <ng-template #noColor>
+                Select colour
+            </ng-template>
+        </button>
+    </p>
+</div>
+
+<div mat-dialog-actions style="justify-content: flex-end;">
+    <button *ngIf="calendar.id"
+            mat-raised-button color="warn"
+            (click)="onDeleteClick()">Delete this calendar</button>
+
+    <button mat-button
+            (click)="onCancelClick()">Cancel</button>
+
+    <button mat-raised-button color="primary"
+            (click)="onSubmitClick()">
+        <span *ngIf="calendar.id">  Update </span>
+        <span *ngIf="!calendar.id"> Create </span>
+    </button>
+
+</div>

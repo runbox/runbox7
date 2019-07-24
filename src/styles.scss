@@ -1,5 +1,7 @@
 @import '../node_modules/@angular/material/theming';
 @import '../iconfont/material-icons.css';
+@import "../node_modules/angular-calendar/css/angular-calendar.css";
+@import "~ng-pick-datetime/assets/style/picker.min.css";
 
 // Include non-theme styles for core.
 @include mat-core();
@@ -43,6 +45,10 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
+mat-form-field {
+    /* This is for iOS not to zoom in when focusing on text fields */
+    font-size: 16px !important;
+}
 
 /* Generic styles */
 
@@ -98,7 +104,25 @@ h5 {
     display: inline !important;
 }
 
+mat-icon {
+    margin-bottom: 3px;
+    vertical-align: middle !important;
+}
 
+/* Generic custom styles */
+
+.contentButton {
+    margin: 0 5px !important;
+    border: 1px solid mat-color($rmm-default-primary) !important;
+    padding: 5px 5px 3px 5px !important;
+    line-height: 1.5em !important;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.mainTextContent {
+    padding: 3em;
+}
 
 /* Palette colors */
 
@@ -466,7 +490,16 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
 /* Folders */
 
 .mailFolder {
-    height: 40px;
+    vertical-align: middle;
+}
+
+.mailFolder mat-icon {
+    margin-bottom: 1px !important;
+}
+
+.mailFolder span {
+    height: 1em;
+    vertical-align: middle;
 }
 
 .folderIconStandard {
@@ -489,11 +522,15 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
 
 .mat-badge-content {
     height: 17px !important;
-    width: 17px !important;
+    width: auto !important;
+    min-width: 17px !important;
     color: white !important;
     background-color: mat-color($rmm-default-foreground) !important;
     font-size: 10px;
-    line-height: 20px !important;
+    line-height: 18px !important;
+    right: auto !important;
+    left: 0px;
+    padding: 2px 3px 2px 3px;
 }
 
 .foldersidebarcount {
@@ -722,4 +759,63 @@ compose .mat-standard-chip {
 
 .domreg .default_margintop {
     margin-top: 35px;
+}
+
+/* Calendar */
+
+app-calendar-app-component mat-nav-list button {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.calendarTitle {
+    margin: 0 1em;
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+div.calendarMonthDayView {
+    height: 15vh;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+}
+
+div.calendarMonthDayView .add-new-event {
+    visibility: hidden;
+}
+
+div.calendarMonthDayView:hover .add-new-event {
+    visibility: visible;
+}
+
+.add-new-event {
+    position: absolute;
+    bottom: 0.1em;
+    right: 0.1em;
+}
+
+button.calendarMonthDayEvent {
+    width: 100%;
+    margin: 5px !important;
+    padding: 0 !important;
+    text-align: left;
+    white-space: pre-line !important;
+    overflow: hidden;
+    font-size: 12px !important;
+    line-height: 1.2em;
+}
+
+app-calendar-app-component .mat-button .mat-button-wrapper>* {
+    vertical-align: top !important;
+}
+
+app-calendar-event-editor-dialog p {
+    margin: 5px 0 !important;
+    padding: 0 !important;
+}
+
+.calendarEventPeriodLabel {
+    display: inline-block;
+    width: 50px;
 }

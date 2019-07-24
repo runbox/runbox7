@@ -26,6 +26,8 @@ describe('MessageInfo', () => {
         expect(MessageInfo.getSubjectWithoutAbbreviation('FWD: Testing the subject')).toBe('Testing the subject');
         expect(MessageInfo.getSubjectWithoutAbbreviation('Re: Fwd: Testing the subject')).toBe('Testing the subject');
         expect(MessageInfo.getSubjectWithoutAbbreviation('SV: Fwd: Test FWD: svar')).toBe('Test FWD: svar');
+        expect(MessageInfo.getSubjectWithoutAbbreviation('')).toBe('');
+        expect(MessageInfo.getSubjectWithoutAbbreviation(null)).toBe('');
     });
 
     it('testAddMessageToIndexWithDeleteFolders', () => {

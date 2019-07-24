@@ -20,10 +20,11 @@
 import { Component, Input, EventEmitter, Output, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { MatChipInputEvent, MatAutocomplete } from '@angular/material';
+import { MatChipInputEvent, MatAutocomplete, MatSnackBar } from '@angular/material';
 import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
+import { Recipient } from './recipient';
 
 const COMMA = 188;
 
@@ -34,7 +35,7 @@ const COMMA = 188;
     templateUrl: 'mailrecipientinput.component.html'
 })
 export class MailRecipientInputComponent implements OnInit, AfterViewInit {
-    filteredRecipients: BehaviorSubject<string[]> = new BehaviorSubject([]);
+    filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: FormControl = new FormControl();
     recipientsList: string[] = [];
@@ -53,18 +54,21 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     @ViewChild('searchTextInput') searchTextInput: ElementRef;
     @ViewChild('auto') auto: MatAutocomplete;
 
-    constructor(recipientservice: RecipientsService) {
+    constructor(
+        private snackBar: MatSnackBar,
+        recipientservice: RecipientsService
+    ) {
         recipientservice.recipients.subscribe((recipients) => {
 
         // Listen to search text input and popup suggestions from recipient list
         this.searchTextFormControl.valueChanges
             .pipe(debounceTime(50))
-            .subscribe((searchtext: string) => {
+            .subscribe((searchtext: string | Recipient) => {
                 if (searchtext) {
-                    const lowercaseSearchText = searchtext.toLowerCase();
+                    const lowercaseSearchText = searchtext.toString().toLowerCase();
                     this.filteredRecipients.next(
                         recipients.filter(recipient =>
-                            recipient.toLowerCase().indexOf(lowercaseSearchText) > -1
+                            recipient.name.toLowerCase().indexOf(lowercaseSearchText) > -1
                         )
                     );
                 } else {
@@ -98,10 +102,27 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
 
-    addRecipientFromAutoComplete(recipient: string) {
+    addRecipientFromAutoComplete(recipient: Recipient) {
         this.invalidemail = false;
         this.addedFromAutoComplete = true;
-        this.recipientsList.push(recipient);
+
+        const recipientCount = recipient.toStringList().length;
+
+        if (recipientCount > 1) {
+            const recipientsListBackup = this.recipientsList.slice();
+
+            this.snackBar.open(
+                recipientCount + ' contacts added to recipient list',
+                'Undo', { duration: 3000 }
+            ).onAction().subscribe(() => {
+                this.recipientsList = recipientsListBackup;
+            });
+        }
+
+        for (const r of recipient.toStringList()) {
+            this.recipientsList.push(r);
+        }
+
         this.notifyChangeListener();
         this.searchTextInput.nativeElement.value = '';
     }
@@ -127,7 +148,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
     addRecipient(event: MatChipInputEvent) {
         const input = event.input;
-        const value = (input.value || '').trim();
+        const value = input.value;
         input.value = '';
 
         if (value && this.searchTextFormControl.valid && !this.addedFromAutoComplete) {

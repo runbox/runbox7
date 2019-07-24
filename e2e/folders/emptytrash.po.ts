@@ -1,4 +1,4 @@
-import { browser, by, element, until, Key } from 'protractor';
+import { browser, by, element, until } from 'protractor';
 
 export class EmptyTrashPage {
   navigateTo() {
@@ -25,10 +25,13 @@ export class EmptyTrashPage {
     const trashFolderActionsButton = element(by.cssContainingText('mat-tree-node', 'Trash'))
                 .element(by.css('button.mat-icon-button[mattooltip="Folder actions"]'));
 
-    trashFolderActionsButton.click();
-    await browser.wait(until.elementLocated(by.css('div.mat-menu-content button')), 10000);
+    browser.wait(() => trashFolderActionsButton.isPresent(), 5000);
+    await trashFolderActionsButton.click();
     const emptyTrashButton = element(by.cssContainingText('div.mat-menu-content button', 'Empty trash'));
-    emptyTrashButton.click();
+    browser.wait(() => emptyTrashButton.isPresent(), 5000);
+    // Opening a sub menu seems to leave an overlay for some moment so we need to wait a bit more
+    await (new Promise(r => setTimeout(r, 500))); // Not a good solution, but should be enough to wait for the overlay to disappear
+    await emptyTrashButton.click();
   }
 
 }

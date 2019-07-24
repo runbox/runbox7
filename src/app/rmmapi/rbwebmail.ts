@@ -23,13 +23,11 @@ import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 
 import { Contact } from '../contacts-app/contact';
+import { RunboxCalendar } from '../calendar-app/runbox-calendar';
+import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
-
-
-
-
 
 import { ProgressDialog } from '../dialog/dialog.module';
 import { HttpClient, HttpResponse } from '@angular/common/http';
@@ -144,12 +142,27 @@ export class MessageContents {
     text: MessageTextContents;
 }
 
+export class MessageFlagChange {
+    /**
+     * @param id message id
+     * @param seenFlag seen flag - set to null if N/A
+     * @param flaggedFlag flagged flag - set to null if N/A
+     */
+    constructor(
+        public id: number,
+        public seenFlag: boolean,
+        public flaggedFlag: boolean
+    ) {
+
+    }
+}
+
 @Injectable()
 export class RunboxWebmailAPI {
 
     public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 1000;
 
-    public markSeenSubject: Subject<MessageInfo> = new Subject();
+    public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
     public rblocale: any;
 
@@ -197,10 +210,12 @@ export class RunboxWebmailAPI {
             this.http.get('/rest/v1/email/' + messageId)
             .pipe(
                 map((r: any) => r.result),
-
             ).subscribe((r) => {
                 messageContentsObservable.next(r);
                 messageContentsObservable.complete();
+            }, err => {
+                delete this.messageContentsCache[messageId];
+                messageContentsObservable.error(err);
             });
 
             return messageContentsObservable;
@@ -215,18 +230,13 @@ export class RunboxWebmailAPI {
         delete this.messageContentsCache[messageId];
     }
 
-    public listDeletedMessagesSince(sincechangeddate: Date): Observable<MessageInfo[]> {
+    public listDeletedMessagesSince(sincechangeddate: Date): Observable<number[]> {
         const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
-        const now = new Date();
-        return this.http.get(`/rest/v1/list/deleted_messages/${datestring}`).pipe(
-            map((r: any) => (r.message_ids as number[]).map(
-                id => {
-                    const msg = new MessageInfo(id,
-                        now, now, '', false, false, false,
-                        [], [], [], [], '', '', 0, false);
-                    msg.deletedFlag = true;
-                    return msg;
-                })));
+        const url = `/rest/v1/list/deleted_messages/${datestring}`;
+
+        return this.http.get(url).pipe(
+            map((r: any) => (r.message_ids as number[]))
+        );
     }
 
     public listAllMessages(page: number,
@@ -236,12 +246,16 @@ export class RunboxWebmailAPI {
         skipContent: boolean = false,
         folder?: string)
         : Observable<MessageInfo[]> {
-        return this.http.get('/mail/download_xapian_index?listallmessages=1' +
-            '&page=' + page +
-            '&sinceid=' + sinceid +
-            '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
-            '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-            (folder ? '&folder=' + folder.replace(/\//g, '.') : ''), { responseType: 'text' }).pipe(
+        // TODO: Need a JSON based REST api endpoint for this
+        const url = '/mail/download_xapian_index?listallmessages=1' +
+                    '&page=' + page +
+                    '&sinceid=' + sinceid +
+                    '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
+                    '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
+                    (folder ? '&folder=' + folder.replace(/\//g, '.') : '') +
+                    '&avoidcacheuniqueparam=' + new Date().getTime();
+
+        return this.http.get(url, { responseType: 'text' }).pipe(
             map((txt: string) => txt.length > 0 ? txt.split('\n') : []),
             map((lines: string[]) =>
                 lines.map((line) => {
@@ -382,23 +396,21 @@ export class RunboxWebmailAPI {
     }
 
     public markSeen(messageId: any, seen_flag_value = 1): Observable<any> {
-        return this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ seen_flag: seen_flag_value }))
-            .pipe(
-                mergeMap(() => this.listAllMessages(0, parseInt('' + messageId, 10) + 1, 0, 1, false)),
-                map((msgInfos) => msgInfos[0]),
-                tap((msgInfo) => this.markSeenSubject.next(msgInfo))
-            );
+        return of(null).pipe(
+            tap(() => this.messageFlagChangeSubject.next(
+                new MessageFlagChange(messageId, seen_flag_value === 1 ? true : false, null)
+            )),
+            mergeMap(() => this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ seen_flag: seen_flag_value }))
+        ));
     }
 
     public markFlagged(messageId: any, flagged_flag_value = 1): Observable<any> {
-        return this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ flagged_flag: flagged_flag_value }))
+        return of(null)
             .pipe(
-                mergeMap(() => this.listAllMessages(0,
-                    parseInt('' + messageId, 10) + 1,
-                    0, 1, false)
-                ),
-                map((msgInfos) => msgInfos[0]),
-                tap((msgInfo) => this.markSeenSubject.next(msgInfo))
+                tap((msgInfo) => this.messageFlagChangeSubject.next(
+                    new MessageFlagChange(messageId, null, flagged_flag_value === 1 ? true : false)
+                )),
+                mergeMap(() => this.http.put('/rest/v1/email/' + messageId, JSON.stringify({ flagged_flag: flagged_flag_value })))
             );
     }
 
@@ -493,6 +505,12 @@ export class RunboxWebmailAPI {
         }));
     }
 
+    public getContactsSettings(): Observable<any> {
+        return this.http.get<any>('/rest/v1/addresses_contact/settings').pipe(
+            map((res: HttpResponse<any>) => res['result']),
+        );
+    }
+
     public getAllContacts(): Observable<Contact[]> {
         return this.http.get<any>('/rest/v1/addresses_contact').pipe(
             map((res: HttpResponse<any>) => res['result']['addresses_contacts']),
@@ -510,5 +528,89 @@ export class RunboxWebmailAPI {
     public modifyContact(c: Contact): Observable<Contact> {
         return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
             map((res: HttpResponse<any>) => new Contact(res['contact'])));
+    }
+
+    public deleteContact(c: Contact): Observable<any> {
+        return this.http.delete('/rest/v1/addresses_contact/' + c.id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public isMigrationPending(): Observable<any> {
+        return this.http.get('/rest/v1/addresses_contact/migrate', {}).pipe(
+            map((res: HttpResponse<any>) => res['status'])
+        );
+    }
+
+    public migrateContacts(): Observable<any> {
+        return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
+            map((contacts: any[]) =>
+                contacts.map((contact) => new Contact(contact))
+            )
+        );
+    }
+
+    public importContacts(vcf: string): Observable<Contact[]> {
+        return this.http.put('/rest/v1/addresses_contact/vcf', { vcf: vcf }).pipe(
+            map((res: HttpResponse<any>) => res['result']['contacts']),
+            map((contacts: any[]) => contacts.map((contact) => new Contact(contact)))
+        );
+    }
+
+    public getCalendars(): Observable<RunboxCalendar[]> {
+        return this.http.get('/rest/v1/calendar/calendars').pipe(
+            map((res: HttpResponse<any>) => res['result']['calendars']),
+            map((calendars: any[]) =>
+                calendars.map((c) => new RunboxCalendar(c))
+            )
+        );
+    }
+
+    public addCalendar(e: RunboxCalendar): Observable<any> {
+        return this.http.put('/rest/v1/calendar/calendars', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public modifyCalendar(e: RunboxCalendar): Observable<any> {
+        return this.http.post('/rest/v1/calendar/calendars', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public deleteCalendar(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/calendar/calendars/' + id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public getCalendarEvents(): Observable<any> {
+        return this.http.get('/rest/v1/calendar/events').pipe(
+            map((res: HttpResponse<any>) => res['result']['events'])
+        );
+    }
+
+    public addCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
+        return this.http.put('/rest/v1/calendar/events', e).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public modifyCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
+        return this.http.post('/rest/v1/calendar/events/' + e.id, e).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public deleteCalendarEvent(id: string|number): Observable<any> {
+        return this.http.delete('/rest/v1/calendar/events/' + id).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
+
+    public importCalendar(calendar_id: string, ical: string): Observable<any> {
+        return this.http.put('/rest/v1/calendar/ics/' + calendar_id, { ical: ical }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
     }
 }

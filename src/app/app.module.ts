@@ -49,6 +49,8 @@ import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { ComposeModule } from './compose/compose.module';
 import { ContactsAppModule } from './contacts-app/contacts-app.module';
 import { ContactsAppComponent } from './contacts-app/contacts-app.component';
+import { CalendarAppModule } from './calendar-app/calendar-app.module';
+import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { ProgressBrowserXhr, ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
@@ -67,6 +69,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SearchExpressionBuilderModule } from './xapian/search-expression-builder/search-expression-builder.module';
 import { UpdateAlertModule } from './updatealert/updatealert.module';
+import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields-input/multiple-search-fields-input.module';
+import { LoginLogoutModule } from './login/loginlogout.module';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -82,7 +86,7 @@ const routes: Routes = [
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
       { path: 'dkim', component: DkimComponent},
-      { path: 'contacts', component: ContactsAppComponent },
+      { path: 'calendar', component: CalendarAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -125,15 +129,18 @@ const routes: Routes = [
     DialogModule,
     WebSocketSearchModule,
     MailViewerModule,
+    CalendarAppModule,
     ContactsAppModule,
     ResizerModule,
     DomainRegisterModule,
     UpdateAlertModule,
+    LoginLogoutModule,
     SearchExpressionBuilderModule,
+    MultipleSearchFieldsInputModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production })
   ],
-  declarations: [MainContainerComponent, AppComponent, LoginComponent,
+  declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent
     ],
   providers: [ProgressService,

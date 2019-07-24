@@ -19,11 +19,13 @@
 
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
+import { BUILD_TIMESTAMP } from '../buildtimestamp';
 
 @Component({
     templateUrl: 'updatealert.component.html'
 })
 export class UpdateAlertComponent {
+    buildtimestampstring = BUILD_TIMESTAMP;
     constructor(
         private dialogRef: MatDialogRef<UpdateAlertComponent>
     ) {
