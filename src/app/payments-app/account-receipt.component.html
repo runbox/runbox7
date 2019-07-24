@@ -10,7 +10,7 @@
 <ul>
     <li> <strong> Time of purchase: </strong> {{ receipt.time }}
     <li> <strong> Method:           </strong> {{ receipt.method }}
-    <li *ngIf="status !== 0">
+    <li *ngIf="receipt.status !== 0">
         <strong> Status: {{ statuses[receipt.status] }} </strong>
     </li>
     <li> <strong> Account username: </strong> {{ me.username }}
