@@ -35,6 +35,7 @@ import { ProgressService } from '../http/progress.service';
 })
 export class LoginComponent implements OnInit {
 
+    accountexpired = false;
     loginerrormessage: string;
     twofactor: any = false;
     twofactorerror: string;
@@ -77,8 +78,7 @@ export class LoginComponent implements OnInit {
         this.httpclient.post('/ajax_mfa_authenticate', this.twofactor).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    this.loginerrormessage = null;
-                    this.router.navigateByUrl(this.authservice.urlBeforeLogin);
+                    this.handleLoginResponse(loginresonseobj);
                 } else {
                     this.twofactorerror = loginresonseobj.error;
                 }
@@ -90,9 +90,7 @@ export class LoginComponent implements OnInit {
         this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    // Authenticated
-                    this.loginerrormessage = null;
-                    this.router.navigateByUrl(this.authservice.urlBeforeLogin);
+                    this.handleLoginResponse(loginresonseobj);
                 } else if (loginresonseobj.is_2fa_enabled === '1') {
                     this.twofactorerror = null;
                     this.loginerrormessage = null;
@@ -102,5 +100,17 @@ export class LoginComponent implements OnInit {
                     this.loginerrormessage = loginresonseobj.message + ': ' + loginresonseobj.error;
                 }
             })).subscribe();
+    }
+
+    private handleLoginResponse(loginresonseobj: any) {
+        console.log("login response:", loginresonseobj);
+        if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
+            this.accountexpired = true;
+            this.loginerrormessage = null;
+        } else {
+            this.accountexpired = false;
+            this.loginerrormessage = null;
+            this.router.navigateByUrl(this.authservice.urlBeforeLogin);
+        }
     }
 }

@@ -23,6 +23,7 @@ import { LoginComponent } from './login.component';
 import { MatProgressBarModule, MatInputModule, MatCardModule, MatButtonModule, MatButtonToggleModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
     imports: [
@@ -32,7 +33,8 @@ import { CommonModule } from '@angular/common';
         MatCardModule,
         MatButtonModule,
         MatButtonToggleModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        RouterModule,
     ],
     declarations: [
         LoginComponent
