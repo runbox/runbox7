@@ -27,6 +27,7 @@ import { RouterModule } from '@angular/router';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
+import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
@@ -35,11 +36,10 @@ import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
 import { ComponentCardComponent } from './component-card.component';
-import { ProductComponent } from './payments-product.component';
+import { ProductComponent } from './account-product.component';
 import { ScriptLoaderService } from './scriptloader.service';
 import { ShoppingCartComponent } from './shopping-cart.component';
-import { PaymentMethodComponent } from './payments-method.component';
-import { PaymentsAppComponent } from './payments-app.component';
+import { PaymentMethodComponent } from './payment-method.component';
 import { PaymentsService } from './payments.service';
 import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
 import { PaypalHandlerComponent } from './paypal-handler.component';
@@ -68,6 +68,7 @@ import {
 @NgModule({
   declarations: [
     AccountAddonsComponent,
+    AccountAppComponent,
     AccountComponentsComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
@@ -75,7 +76,6 @@ import {
     AccountUpgradesComponent,
     BitpayPaymentDialogComponent,
     ComponentCardComponent,
-    PaymentsAppComponent,
     PaymentMethodComponent,
     PaypalHandlerComponent,
     PaypalPaymentDialogComponent,
@@ -117,7 +117,7 @@ import {
           },
           {
             path: '',
-            component: PaymentsAppComponent,
+            component: AccountAppComponent,
             children: [
               {
                   path: 'components',
@@ -166,7 +166,7 @@ import {
     PaymentsService,
     ScriptLoaderService,
   ],
-  bootstrap: [PaymentsAppComponent]
+  bootstrap: [AccountAppComponent]
 })
 
-export class PaymentsAppModule { }
+export class AccountAppModule { }

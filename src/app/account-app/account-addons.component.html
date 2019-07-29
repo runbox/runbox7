@@ -20,13 +20,13 @@
 </p>
 
 <div class="productGrid">
-    <app-payments-product
+    <app-account-product
         *ngFor="let p of subaccounts"
         class="productCard"
         [p]="p"
         [currency]="me.currency"
     >
-    </app-payments-product>
+    </app-account-product>
 </div>
 
 <h1> Email add-ons </h1>
@@ -34,13 +34,13 @@
 <p> Some blurb about why this is cool </p>
 
 <div class="productGrid">
-    <app-payments-product
+    <app-account-product
         *ngFor="let p of emailaddons"
         class="productCard"
         [p]="p"
         [currency]="me.currency"
     >
-    </app-payments-product>
+    </app-account-product>
 </div>
 
 <h3> Web & Domain Hosting add-ons </h3>
@@ -48,11 +48,11 @@
 <p> Some blurb about why this is cool </p>
 
 <div class="productGrid">
-    <app-payments-product
+    <app-account-product
         *ngFor="let p of hostingaddons"
         class="productCard"
         [p]="p"
         [currency]="me.currency"
     >
-    </app-payments-product>
+    </app-account-product>
 </div>

@@ -23,7 +23,7 @@ import { Product } from './product';
 import { ProductOrder } from './product-order';
 
 @Component({
-    selector: 'app-payments-product',
+    selector: 'app-account-product',
     template: `
 <mat-card>
     <mat-card-title>

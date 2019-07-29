@@ -25,7 +25,7 @@ import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
-import { Product } from '../payments-app/product';
+import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';

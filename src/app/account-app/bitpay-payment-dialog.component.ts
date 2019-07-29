@@ -26,7 +26,7 @@ import { PaymentsService } from './payments.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-    selector: 'app-bitpay-payments-payment-dialog-component',
+    selector: 'app-bitpay-payment-dialog-component',
     template: `
 <div mat-dialog-content style="width: 500px; height: 200px;">
     <span *ngIf="!redirect_url">

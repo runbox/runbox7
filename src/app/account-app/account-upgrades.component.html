@@ -31,7 +31,7 @@
 </p>
 
 <div id="productGrid">
-    <app-payments-product
+    <app-account-product
         *ngFor="let p of subscriptions"
         class="productCard"
         [p]="p"
@@ -40,5 +40,5 @@
         <ul>
             <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
-    </app-payments-product>
+    </app-account-product>
 </div>

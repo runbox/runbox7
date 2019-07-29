@@ -17,16 +17,29 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
-import { PaymentsService } from './payments.service';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-    selector: 'app-payments-app-component',
-    templateUrl: './payments-app.component.html',
+    selector: 'app-payment-method',
+    template: `
+<mat-card>
+    <div style="height: 120px">
+        <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}"
+             style="width: 350px">
+    </div>
+    <mat-card-content>
+        <ng-content>
+        </ng-content>
+    </mat-card-content>
+    <mat-card-actions style="display: flex; justify-content: center; align-items: center;">
+        <button mat-flat-button color="primary" (click)="clicked.emit()">PROCEED TO PAYMENT</button>
+    </mat-card-actions>
+</mat-card>
+    `,
 })
-export class PaymentsAppComponent {
-    constructor(
-        public  paymentsservice: PaymentsService,
-    ) {
-    }
+export class PaymentMethodComponent {
+    @Input() logo:     string;
+    @Input() logo_alt: string;
+
+    @Output() clicked = new EventEmitter();
 }

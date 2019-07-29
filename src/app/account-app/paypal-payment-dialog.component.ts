@@ -25,7 +25,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-    selector: 'app-paypal-payments-payment-dialog-component',
+    selector: 'app-paypal-payment-dialog-component',
     template: `
 <div mat-dialog-content style="width: 500px; height: 200px;">
     <span *ngIf="!redirect_url">
