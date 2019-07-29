@@ -204,9 +204,10 @@ export class DomainRegisterComponent implements AfterViewInit {
   public calculate_total = function () {
     // tslint:disable-next-line:no-eval
     this.total_price = eval(this.selected_product.price[0].price);
-    if (this.selected_privacy_product === 1) {
+    // tslint:disable-next-line:no-eval
+    if ( this.selected_privacy_product && eval(this.selected_privacy_product)) {
       // tslint:disable-next-line:no-eval
-      this.total_price += eval(this.privacy_products_available[this.selected_product.subscription_interval].price);
+      this.total_price = this.total_price + eval(this.privacy_products_available[this.selected_product.subscription_interval].price);
     }
     this.total_price = parseFloat(this.total_price).toFixed(2);
   };
@@ -453,7 +454,8 @@ export class DomainRegisterComponent implements AfterViewInit {
 
     if (this.validate()) {
       const products_selected = [this.selected_product.pid];
-      if (typeof this.selected_privacy_product !== 'undefined' && this.selected_privacy_product === 1) {
+      // tslint:disable-next-line:no-eval
+      if ( this.selected_privacy_product && eval(this.selected_privacy_product)) {
         products_selected.push(this.privacy_products_available[this.selected_product.subscription_interval].id);
       }
       const d = this.parse_domain_wanted();
