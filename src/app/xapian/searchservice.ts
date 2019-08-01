@@ -48,6 +48,7 @@ const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
 const XAPIAN_TERM_SEEN = 'XFseen';
 const XAPIAN_TERM_ANSWERED = 'XFanswered';
+const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
 
 export const XAPIAN_GLASS_WR = 'xapianglasswr';
 
@@ -736,12 +737,12 @@ export class SearchService {
               searchIndexDocumentUpdates.push(
                 new SearchIndexDocumentUpdate(msginfo.id, async () => {
                   try {
-                    const messageContents = await this.rmmapi.getMessageContents(msginfo.id).toPromise();
-                    msginfo.plaintext = messageContents.text.text;
                     this.indexingTools.addMessageToIndex(msginfo, [
                       this.messagelistservice.spamFolderName,
                       this.messagelistservice.trashFolderName
                     ]);
+                    // Add term about missing body text so that later stage can add this
+                    this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
                   } catch (e) {
                     console.error('failed to add message to index', msginfo, e);
                   }
@@ -813,6 +814,25 @@ export class SearchService {
 
           if (searchIndexDocumentUpdates.length > 0) {
             await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
+          }
+
+          // Look up messages with missing body text term and add the missing text to the index
+          const messagesMissingBodyText = this.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1);
+          if (messagesMissingBodyText.length > 0) {
+            await this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
+              const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
+
+              return new SearchIndexDocumentUpdate(messageId, async () => {
+                try {
+                  const docIdTerm = `Q${messageId}`;
+                  const messageText = (await this.rmmapi.getMessageContents(messageId).toPromise()).text.text;
+                  this.api.addTextToDocument(docIdTerm, true, messageText);
+                  this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
+                } catch (e) {
+                  console.error('Failed to add text to document', messageId, e);
+                }
+              });
+            })).toPromise();
           }
         }
 
