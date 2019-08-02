@@ -36,6 +36,12 @@ describe('SearchService', () => {
     let injector: Injector;
     let httpMock: HttpTestingController;
 
+    const folders = [
+        [1, 1, 2, 'inbox', 'Inbox', 'Inbox', 0 ],
+        [2, 0, 0, 'spam', 'Spam', 'Spam', 0],
+        [3, 0, 0, 'trash', 'Trash', 'Trash', 0 ]
+    ];
+
     beforeEach((() => {
         TestBed.configureTestingModule({
           imports: [
@@ -55,14 +61,38 @@ describe('SearchService', () => {
 
     it('should load searchservice, but no local index', async () => {
         const searchService = injector.get(SearchService);
-        const req = httpMock.expectOne(`/rest/v1/me`);
+        let req = httpMock.expectOne(`/rest/v1/me`);
         req.flush( { result: {
                 uid: 555
             } as RunboxMe
         });
+        req = httpMock.expectOne('/ajax?action=ajax_getfoldercount');
+        req.flush(folders);
+
         expect(await searchService.initSubject.toPromise()).toBeFalsy();
         expect(searchService.localSearchActivated).toBeFalsy();
 
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const messageListService = injector.get(MessageListService);
+        expect(messageListService.trashFolderName).toEqual('Trash');
+        expect(messageListService.spamFolderName).toEqual('Spam');
+        expect(messageListService.folderCountSubject.value.length).toBe(3);
+
+        req = httpMock.expectOne(mockrequest =>
+            mockrequest.urlWithParams.indexOf('/mail/download_xapian_index?' +
+            'listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(searchService.indexLastUpdateTime / 1000) +
+            '&pagesize=1000&skipcontent=1&avoidcacheuniqueparam=') === 0);
+
+        const testMessageId = 3463422;
+        const testMessageTime = searchService.indexLastUpdateTime + 1; // message time must be later so that indexLastUpdateTime is updated
+        req.flush(testMessageId + '\t' + testMessageTime + '\t1561389614\tInbox\t1\t0\t0\t' +
+            'Cloud Web Services <cloud-marketing-email-replies@cloudsuperhosting.com>\ttest@example.com	Analyse Data at Scale\ty');
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        expect(messageListService.messagesById[testMessageId]).toBeTruthy();
+
+        expect(searchService.indexUpdateIntervalId).toBeTruthy();
         clearTimeout(searchService.indexUpdateIntervalId);
 
         await new Promise(resolve => {
@@ -77,11 +107,6 @@ describe('SearchService', () => {
     it('should create local index and load searchservice', async () => {
         const testuserid = 444;
         const localdir =  'rmmsearchservice' + testuserid;
-        const folders = [
-            [1, 1, 2, 'inbox', 'Inbox', 'Inbox', 0 ],
-            [2, 0, 0, 'spam', 'Spam', 'Spam', 0],
-            [3, 0, 0, 'trash', 'Trash', 'Trash', 0 ]
-        ];
 
         await xapianLoadedSubject.toPromise();
 
@@ -172,6 +197,9 @@ describe('SearchService', () => {
         });
 
         await new Promise(resolve => setTimeout(resolve, 100));
+
+        expect(searchService.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1).length).toBe(1);
+
         req = httpMock.expectOne('/rest/v1/email/' + testMessageId);
         req.flush({
             result: {
@@ -191,6 +219,7 @@ describe('SearchService', () => {
         expect(searchService.indexLastUpdateTime).toBe(testMessageTime * 1000);
 
         expect(searchService.api.sortedXapianQuery('SecretSauceFormula', 0, 0, 0, 100, -1).length).toBe(1);
+        expect(searchService.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1).length).toBe(0);
         expect(searchService.api.getXapianDocCount()).toBe(2);
         clearTimeout(searchService.indexUpdateIntervalId);
 
