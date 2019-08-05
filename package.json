@@ -50,7 +50,7 @@
     "runbox-searchindex": "^0.1.0",
     "rxjs": "^6.5.2",
     "rxjs-compat": "^6.2.2",
-    "tinymce": "4.7.4",
+    "tinymce": "^5.0.12",
     "zone.js": "^0.8.29"
   },
   "devDependencies": {

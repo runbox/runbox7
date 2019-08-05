@@ -17,13 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import 'tinymce';
-import 'tinymce/themes/modern/theme';
-
 import {
     Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
 import { Observable } from 'rxjs';
@@ -34,8 +31,8 @@ import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
 
-declare var tinymce: any;
-declare var MailParser;
+declare const tinymce: any;
+declare const MailParser;
 
 @Component({
     moduleId: 'angular2/app/compose/',
@@ -76,7 +73,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private rmmapi: RunboxWebmailAPI,
         public draftDeskservice: DraftDeskService,
         private http: HttpClient,
-        private formBuilder: FormBuilder
+        private formBuilder: FormBuilder,
+        private location: Location
     ) {
 
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -290,18 +288,39 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public htmlToggled() {
         if (this.formGroup.value.useHTML) {
-            tinymce.baseURL = '/_js/tinymce_rmm7';
+            tinymce.overrideDefaults({
+                base_url: this.location.prepareExternalUrl('/tinymce/'),  // Base for assets such as skins, themes and plugins
+                suffix: '.min'          // This will make Tiny load minified versions of all its assets
+            });
             setTimeout(() =>
                 // Need to initialize in a timeout for the editor element to be available
                 tinymce.init({
                     selector: '#' + this.editorRef.nativeElement.id,
-                    plugins: ['image'],
+                    plugins: 'print preview fullpage searchreplace autolink directionality ' +
+                        'visualblocks visualchars fullscreen image link template codesample ' +
+                        'table charmap hr pagebreak ' +
+                        'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
+                        'textpattern help code',
+                    toolbar: 'formatselect | bold italic strikethrough forecolor backcolor codesample | ' +
+                            'link image | alignleft aligncenter alignright alignjustify  | ' +
+                            'numlist bullist outdent indent | removeformat | addcomment | code',
+                    codesample_languages: [
+                                {text: 'HTML/XML', value: 'markup'},
+                                {text: 'JavaScript', value: 'javascript'},
+                                {text: 'CSS', value: 'css'},
+                                {text: 'PHP', value: 'php'},
+                                {text: 'Ruby', value: 'ruby'},
+                                {text: 'Python', value: 'python'},
+                                {text: 'Java', value: 'java'},
+                                {text: 'C', value: 'c'},
+                                {text: 'C#', value: 'csharp'},
+                                {text: 'C++', value: 'cpp'}
+                            ],
                     image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
                         title: this.displayWithoutRBWUL(att.file),
                         value: '/ajax/download_draft_attachment?filename=' + att.file
                     })) : []),
                     menubar: false,
-                    skin_url: '../_css/tinymceskin',
                     setup: editor => {
                         this.editor = editor;
                         editor.on('Change', () => {
