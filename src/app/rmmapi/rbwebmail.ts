@@ -199,8 +199,14 @@ export class RunboxWebmailAPI {
             });
     }
 
-    public getMessageContents(messageId: number): Observable<MessageContents> {
+    public deleteCachedMessageContents(messageId: number) {
         if (this.messageContentsCache[messageId]) {
+            delete this.messageContentsCache[messageId];
+        }
+    }
+
+    public getMessageContents(messageId: number, refresh = false): Observable<MessageContents> {
+        if (!refresh && this.messageContentsCache[messageId]) {
             return this.messageContentsCache[messageId];
         } else {
             const messageContentsObservable = new AsyncSubject<MessageContents>();

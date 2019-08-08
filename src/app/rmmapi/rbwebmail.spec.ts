@@ -59,4 +59,8 @@ describe('RBWebMail', () => {
         comp = fixture.componentInstance; // Component test instance
         console.log('Component initialized');
     });
+
+    it('should cache message contents', () => {
+
+    });
 });

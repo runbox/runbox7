@@ -199,7 +199,7 @@ export class DraftDeskService {
 
     private refreshDrafts(): Observable<DraftFormModel[]> {
         return this.refreshFroms().pipe(
-            mergeMap(() => this.rmmapi.listAllMessages(0, 0, 0, 100, false, 'Drafts')),
+            mergeMap(() => this.rmmapi.listAllMessages(0, 0, 0, 100, true, 'Drafts')),
             map((msgs) => {
                 this.draftModels =
                     msgs.map((msgInfo) =>
@@ -207,7 +207,7 @@ export class DraftDeskService {
                             this.froms[0],
                             msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
                                 addr.address : addr.name + '<' + addr.address + '>').join(','),
-                            msgInfo.subject, msgInfo.plaintext)
+                            msgInfo.subject, null)
                     );
             }),
             map(() => this.draftModels)
