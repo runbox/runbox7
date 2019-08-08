@@ -17,46 +17,74 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, OnInit } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { RunboxWebmailAPI, FolderCountEntry, FromAddress, RunboxMe, Alias } from './rbwebmail';
-import { MatSnackBarModule, MatListModule, MatDialog, MatDialogModule } from '@angular/material';
-
-@Component({
-    // tslint:disable-next-line:component-selector
-    selector: 'testcomponent',
-    template: ``
-})
-export class TestComponent implements OnInit {
-
-    constructor(private http: HttpClient, public rbwmapi: RunboxWebmailAPI) {
-
-    }
-
-    ngOnInit() {
-        // this.rbwmapi.listAllMessages(0).subscribe((res) => console.log(res));
-    }
-}
+import { TestBed } from '@angular/core/testing';
+import { RunboxWebmailAPI } from './rbwebmail';
+import { MatSnackBarModule, MatDialogModule } from '@angular/material';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('RBWebMail', () => {
-
-    let comp:    TestComponent;
-    let fixture: ComponentFixture<TestComponent>;
-
     beforeEach(() => {
-        const testingmodule = TestBed.configureTestingModule({
-            imports: [HttpClientModule,
-                MatDialogModule,
-                MatSnackBarModule,
-                MatListModule],
-            declarations: [ TestComponent ], // declare the test component
-            providers: [RunboxWebmailAPI]
+            TestBed.configureTestingModule({
+                imports: [
+                    MatSnackBarModule,
+                    MatDialogModule,
+                    HttpClientTestingModule,
+                ],
+                providers: [RunboxWebmailAPI]
+            });
+    });
+
+    it('should cache message contents', async () => {
+        const rmmapi = TestBed.get(RunboxWebmailAPI);
+
+        let messageContentsObservable = rmmapi.getMessageContents(123);
+
+        const httpTestingController = TestBed.get(HttpTestingController);
+        let req = httpTestingController.expectOne('/rest/v1/email/123');
+        req.flush({
+            result: {
+                id: 123,
+                subject: 'test'
+            }
         });
 
-        fixture = TestBed.createComponent(TestComponent);
+        let messageContents = await messageContentsObservable.toPromise();
+        expect(messageContents.id).toBe(123);
+        expect(messageContents.subject).toBe('test');
 
-        comp = fixture.componentInstance; // Component test instance
-        console.log('Component initialized');
+        messageContentsObservable = rmmapi.getMessageContents(123);
+        httpTestingController.expectNone('/rest/v1/email/123');
+
+        messageContents = await messageContentsObservable.toPromise();
+        expect(messageContents.id).toBe(123);
+        expect(messageContents.subject).toBe('test');
+
+        messageContentsObservable = rmmapi.getMessageContents(123, true);
+        req = httpTestingController.expectOne('/rest/v1/email/123');
+        req.flush({
+            result: {
+                id: 123,
+                subject: 'test2'
+            }
+        });
+
+        messageContents = await messageContentsObservable.toPromise();
+        expect(messageContents.id).toBe(123);
+        expect(messageContents.subject).toBe('test2');
+
+        rmmapi.deleteCachedMessageContents(123);
+
+        messageContentsObservable = rmmapi.getMessageContents(123);
+        req = httpTestingController.expectOne('/rest/v1/email/123');
+        req.flush({
+            result: {
+                id: 123,
+                subject: 'test3'
+            }
+        });
+
+        messageContents = await messageContentsObservable.toPromise();
+        expect(messageContents.id).toBe(123);
+        expect(messageContents.subject).toBe('test3');
     });
 });
