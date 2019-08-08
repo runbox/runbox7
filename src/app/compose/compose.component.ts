@@ -296,7 +296,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 // Need to initialize in a timeout for the editor element to be available
                 tinymce.init({
                     selector: '#' + this.editorRef.nativeElement.id,
-                    plugins: 'print preview fullpage searchreplace autolink directionality ' +
+                    plugins: 'print preview searchreplace autolink directionality ' +
                         'visualblocks visualchars fullscreen image link template codesample ' +
                         'table charmap hr pagebreak ' +
                         'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
