@@ -90,7 +90,7 @@ export interface CanvasTableColumn {
   originalWidth?: number;
   font?: string;
   backgroundColor?: string;
-  tooltipText?: string;
+  tooltipText?: string | ((rowobj: any) => string);
   draggable?: boolean;
   sortColumn: number;
   excelCellAttributes?: any;
@@ -494,10 +494,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         const colIndex = this.getColIndexByClientX(clientX);
         let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
-        if (!event.shiftKey && !this.lastMouseDownEvent
-          && this.columns[colIndex]
-          && this.columns[colIndex].draggable) {
+        let tooltipText = this.columns[colIndex] && this.columns[colIndex].tooltipText;
 
+        if (typeof tooltipText === 'function') {
+          tooltipText = tooltipText(this.rows[this.hoverRowIndex]);
+        }
+
+        if (!event.shiftKey && !this.lastMouseDownEvent && tooltipText) {
           if (this.rowWrapMode &&
             colIndex >= this.rowWrapModeWrapColumn) {
             // Subtract first row width if in row wrap mode
@@ -509,7 +512,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
             (this.hoverRowIndex - this.topindex) * this.rowheight,
             colStartX - this.horizScroll + this.colpaddingleft,
             this.columns[colIndex].width - this.colpaddingright - this.colpaddingleft,
-            this.rowheight, this.columns[colIndex].tooltipText);
+            this.rowheight, tooltipText);
 
           if (this.rowWrapMode) {
             this.floatingTooltip.top +=
@@ -519,7 +522,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
           setTimeout(() => {
             if (this.columnOverlay) {
-              this.columnOverlay.show(1000);
+              this.columnOverlay.show(300);
             }
           }, 0);
         } else {

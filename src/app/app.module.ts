@@ -133,6 +133,7 @@ const routes: Routes = [
     ContactsAppModule,
     ResizerModule,
     DomainRegisterModule,
+    DkimModule,
     UpdateAlertModule,
     LoginLogoutModule,
     SearchExpressionBuilderModule,

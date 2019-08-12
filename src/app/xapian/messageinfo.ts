@@ -171,9 +171,9 @@ export class IndexingTools {
     public addMessageToIndex(msginfo: MessageInfo,
             foldersNotToIndex?: string[]
         ) {
-        if (msginfo.deletedFlag || (
+        if (
             foldersNotToIndex && foldersNotToIndex.find(foldername =>
-                msginfo.folder === foldername))
+                msginfo.folder === foldername)
          ) {
             this.indexAPI.deleteDocumentByUniqueTerm('Q' + msginfo.id);
             console.log('Deleted msg id search index', msginfo.id);
