@@ -56,7 +56,7 @@ import {
 
 @Component({
   moduleId: 'angular2/app/dkim/',
-  selector: 'dkim',
+  selector: 'app-dkim',
   templateUrl: 'dkim.component.html'
 })
 
@@ -64,7 +64,7 @@ export class DkimComponent implements AfterViewInit {
   panelOpenState = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  @Output() onClose: EventEmitter<string> = new EventEmitter();
+  @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
   keys = [];
   is_rotating = 0;
@@ -75,7 +75,7 @@ export class DkimComponent implements AfterViewInit {
     private http: Http,
     public snackBar: MatSnackBar,
   ) {
-    let domain = window.location.href.match(/domain=([^&]+)/);
+    const domain = window.location.href.match(/domain=([^&]+)/);
     if (domain && domain[1]) {
       this.domain = domain[1];
       this.load_keys();
@@ -83,15 +83,15 @@ export class DkimComponent implements AfterViewInit {
   }
 
   load_keys () {
-    let get_keys = this.http.get('/rest/v1/dkim/'+this.domain+'/keys');
-    get_keys.pipe(timeout(180000))
+    const get_keys = this.http.get('/rest/v1/dkim/' + this.domain + '/keys');
+    get_keys.pipe(timeout(180000));
     get_keys.subscribe(
       result => {
-        let r = result.json();
-        if ( r.status == 'success' ) {
+        const r = result.json();
+        if ( r.status === 'success' ) {
           this.keys = r.result.keys;
           this.is_rotating = r.result.domain.is_rotating;
-        } else if ( r.status == 'error' ) {
+        } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
           return this.show_error( 'Unknown error has happened.', 'Dismiss' );
@@ -104,18 +104,18 @@ export class DkimComponent implements AfterViewInit {
   }
 
   create_keys () {
-    let req = this.http.post('/rest/v1/dkim/'+this.domain+'/keys/create',{});
+    const req = this.http.post('/rest/v1/dkim/' + this.domain + '/keys/create', {});
     req.pipe(timeout(18000));
     req.subscribe(
       result => {
-        let r = result.json();
-        if ( r.status == 'success' ) {
+        const r = result.json();
+        if ( r.status === 'success' ) {
           this.keys = r.result.keys;
           this.load_keys();
-        } else if ( r.status == 'error' ) {
+        } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
-          return this.show_error( 'Unknown error has happened.', 'Dismiss' )
+          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
         }
       },
       error => {
@@ -138,5 +138,5 @@ export class DkimComponent implements AfterViewInit {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
-  };
+  }
 }
