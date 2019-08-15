@@ -22,7 +22,7 @@ install:
 
 script:
   - npm run lint
-  - npm run check-licenses
+  - npm run policy
   - npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI
   - npm run e2e -- --webdriver-update=false --protractor-config=./protractor-ci.conf.js
   - npm run build
