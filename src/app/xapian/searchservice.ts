@@ -18,27 +18,24 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {Injectable, NgZone} from '@angular/core';
-import { Http, Response, ResponseContentType } from '@angular/http';
-import { ProgressService} from '../http/progress.service';
-import { Router } from '@angular/router';
-import { Observable ,  AsyncSubject ,  BehaviorSubject ,  Subject ,  of, from  } from 'rxjs';
+import { Observable ,  AsyncSubject,  Subject ,  of, from  } from 'rxjs';
 import { XapianAPI } from './rmmxapianapi';
-import { RunboxWebmailAPI, RunboxMe, MessageFlagChange } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
 import { MessageInfo,
     IndexingTools } from './messageinfo';
 import { CanvasTableColumn} from '../canvastable/canvastable';
 import { AppComponent } from '../app.component';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { MatSnackBar, MatDialog, MatSnackBarRef } from '@angular/material';
-import { InfoDialog, InfoParams} from '../dialog/info.dialog';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MessageListService } from '../rmmapi/messagelist.service';
-import { mergeMap, map, filter, finalize, catchError, tap, take, bufferCount } from 'rxjs/operators';
-import { HttpClient, HttpRequest, HttpResponse, HttpEventType, HttpDownloadProgressEvent } from '@angular/common/http';
+import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
+import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
 import { DownloadableSearchIndexMap, DownloadablePartition } from './downloadablesearchindexmap.class';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
+import { InfoDialog, InfoParams } from '../dialog/info.dialog';
 
 declare var FS;
 declare var IDBFS;
@@ -48,6 +45,7 @@ const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
 const XAPIAN_TERM_SEEN = 'XFseen';
 const XAPIAN_TERM_ANSWERED = 'XFanswered';
+const XAPIAN_TERM_DELETED = 'XFdeleted';
 const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
 
 export const XAPIAN_GLASS_WR = 'xapianglasswr';
@@ -62,6 +60,7 @@ export class SearchIndexDocumentData {
   flagged?: boolean;
   seen?: boolean;
   answered?: boolean;
+  deleted?: boolean;
   attachment?: boolean;
 }
 
@@ -104,14 +103,15 @@ export class SearchService {
 
   public skipLiveUpdatesIndexingMessageContent = false;
 
+  numberOfMessagesSyncedLastTime: number;
+  folderCountDiscrepanciesCheckedCount: {[folderName: string]: number} = {};
+
   processedUpdatesMap = {};
 
   lowestindexid = 0;
 
   serverIndexSize = -1;
   serverIndexSizeUncompressed = -1;
-
-  public folders: any[] = [];
 
   memindexdir = 'rmmmemoryindex';
   localdir: string;
@@ -127,7 +127,7 @@ export class SearchService {
    * Extra per message verification of index contents to assure that it is in sync with the database
    * (workaround while waiting for deleted_messages support, but also a good extra check)
    */
-  pendingIndexVerifications: {[id: string]: any} = {};
+  pendingIndexVerifications: {[id: string]: SearchIndexDocumentData} = {};
 
   messageProcessingInProgressSubject: AsyncSubject<any> = null;
   pendingMessagesToProcess: SearchIndexDocumentUpdate[];
@@ -259,8 +259,6 @@ export class SearchService {
                 return;
               }
             }
-
-            this.updateFolderInfo();
 
             this.localSearchActivated = true;
             this.initSubject.next(true);
@@ -484,7 +482,7 @@ export class SearchService {
             this.api.initXapianIndex(XAPIAN_GLASS_WR);
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
-            this.updateFolderInfo();
+
             this.updateIndexLastUpdateTime();
 
             this.downloadProgress = null;
@@ -589,22 +587,6 @@ export class SearchService {
     }
   }
 
-  updateFolderInfo() {
-    const folders = this.api.listFolders();
-    this.api.listUnreadFolders().forEach((urfld) =>
-        folders.find((fld) => urfld[0] === fld[0])[2] = urfld[1]
-    );
-
-    this.rmmapi.getFolderCount().subscribe(
-        (folderEntries) =>
-          this.folders = folderEntries.map((fld) => folders.find(folder => folder[0] === fld.folderName) ||
-              [fld.folderName, fld.totalMessages, fld.newMessages
-                , true // Folder is not in local index
-              ]
-            )
-        );
-  }
-
   /**
    * Move messages instantly in the local index (this does not affect server,
    * so the server must also be updated separately)
@@ -659,7 +641,22 @@ export class SearchService {
           )
         )
     );
+  }
 
+  getFolderQuery(querytext: string, folderPath: string, unreadOnly: boolean): string {
+    const folderQuery = (folderName) => 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
+
+    if (folderPath === 'Inbox') {
+      // Workaround for IMAP setting folder to "INBOX" when moving messages  there
+      querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
+    } else {
+      querytext += folderQuery(folderPath);
+    }
+
+    if (unreadOnly) {
+      querytext += ' AND NOT flag:seen';
+    }
+    return querytext;
   }
 
   /**
@@ -681,6 +678,7 @@ export class SearchService {
                         flagged: msgobj.flagged ? 1 : 0,
                         seen: msgobj.seen ? 1 : 0,
                         answered: msgobj.answered ? 1 : 0,
+                        deleted: msgobj.deleted ? 1 : 0,
                         folder: msgobj.folder
                       };
                     }
@@ -696,11 +694,86 @@ export class SearchService {
         ).toPromise();
       }
 
-      const msginfos = await this.rmmapi.listAllMessages(0, 0, this.indexLastUpdateTime,
+      let msginfos = await this.rmmapi.listAllMessages(0, 0, this.indexLastUpdateTime,
             RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
             true).toPromise();
 
       if (this.localSearchActivated) {
+        if (this.numberOfMessagesSyncedLastTime === 0) {
+          // nothing else to do, check for folder count discrepancies
+
+          const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
+
+          const currentFolder = (await this.messagelistservice.folderCountSubject.pipe(take(1)).toPromise())
+                .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
+
+          const indexFolderResults = this.api.sortedXapianQuery(
+              this.getFolderQuery('', currentFolder.folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1);
+
+          const numberOfMessages = indexFolderResults.length;
+          const numberOfUnreadMessages = this.api.sortedXapianQuery(
+                this.getFolderQuery('', currentFolder.folderPath, true), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1).length;
+          if (
+            numberOfMessages < MAX_DISCREPANCY_CHECK_LIMIT &&
+            currentFolder.totalMessages < MAX_DISCREPANCY_CHECK_LIMIT &&
+            (!this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] ||
+            this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] <= 3) && (
+                numberOfMessages !== currentFolder.totalMessages ||
+                numberOfUnreadMessages !== currentFolder.newMessages
+              )
+            ) {
+            console.log(`number of messages
+                (${numberOfMessages} vs ${currentFolder.totalMessages} and
+                (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
+                  not matching with index for current folder`);
+
+            if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] >= 1) {
+              this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath]++;
+
+              if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] === 3) {
+                this.dialog.open(InfoDialog, {data: new InfoParams(
+                  `Message count mismatch in folder ${currentFolder.folderName}`,
+                  `<p>Your local search index is not in sync for folder ${currentFolder.folderName}.
+                  Number of messages are ${numberOfMessages} but the search index has got ${currentFolder.totalMessages} and
+                  ${numberOfUnreadMessages} unread messages vs ${currentFolder.newMessages} in the search index.</p>
+                  <p>An attempt has already been made to correct this automatically without success, so you
+                  should consider downloading a new search index from the server. Click
+                  "Stop Synchronizing" in the left side menu, wait for confirmation, and then you can
+                  reload and click "Start synchronizing" to download a fresh index.</p>
+                  `)
+                });
+              }
+            } else {
+              // Only check folder discrepancies once per folder
+              this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] = 1;
+
+              const folderMessages = await this.rmmapi.listAllMessages(0, 0, 0,
+                MAX_DISCREPANCY_CHECK_LIMIT,
+                true, currentFolder.folderPath).toPromise();
+              msginfos = msginfos.concat(folderMessages);
+
+              const folderMessageIDS: {[messageId: number]: boolean} = {};
+              folderMessages.forEach(msg => folderMessageIDS[msg.id] = true);
+
+              indexFolderResults.forEach((searchResultRow: number[]) => {
+                  const docdataparts = this.api.getDocumentData(searchResultRow[0]).split('\t');
+                  const rmmMessageId = parseInt(docdataparts[0].substring(1), 10);
+
+                  if (!folderMessageIDS[rmmMessageId]) {
+                    /*
+                     * For messages present in the index but not in the server folder list, request index verification from the server -
+                     * which means that the server either will update the changed_date timestamp of the message, or the deleted timestamp
+                     * if the message was deleted.
+                     */
+                    this.pendingIndexVerifications[rmmMessageId] = {
+                      id: docdataparts[0],
+                      folder: currentFolder.folderPath
+                    } as SearchIndexDocumentData;
+                  }
+              });
+            }
+          }
+        }
         const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
 
         const deletedMessages = await this.rmmapi.listDeletedMessagesSince(new Date(
@@ -743,6 +816,9 @@ export class SearchService {
                     ]);
                     // Add term about missing body text so that later stage can add this
                     this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
+                    if (msginfo.deletedFlag) {
+                      this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_DELETED);
+                    }
                   } catch (e) {
                     console.error('failed to add message to index', msginfo, e);
                   }
@@ -753,7 +829,8 @@ export class SearchService {
               const messageStatusInIndex = {
                 flagged: false,
                 seen: false,
-                answered: false
+                answered: false,
+                deleted: false
               };
               const documentTermList = (Module.documenttermlistresult as string[]);
               const addSearchIndexDocumentUpdate = (func: () => void) =>
@@ -783,6 +860,8 @@ export class SearchService {
                   messageStatusInIndex.seen = true;
                 } else if (term === XAPIAN_TERM_ANSWERED) {
                   messageStatusInIndex.answered = true;
+                } else if (term === XAPIAN_TERM_DELETED) {
+                  messageStatusInIndex.deleted = true;
                 }
               });
 
@@ -809,8 +888,18 @@ export class SearchService {
                 addSearchIndexDocumentUpdate(() =>
                   this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
               }
+
+              if (msginfo.deletedFlag && !messageStatusInIndex.deleted) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+              } else if (!msginfo.deletedFlag && messageStatusInIndex.deleted) {
+                addSearchIndexDocumentUpdate(() =>
+                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+              }
             }
           });
+
+          this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
 
           if (searchIndexDocumentUpdates.length > 0) {
             await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
@@ -1064,6 +1153,8 @@ export class SearchService {
                   this.currentDocData.seen = true;
                 } else if (s === XAPIAN_TERM_ANSWERED) {
                   this.currentDocData.answered = true;
+                } else if (s === XAPIAN_TERM_DELETED) {
+                  this.currentDocData.deleted = true;
                 } else if (s === 'XFattachment') {
                   this.currentDocData.attachment = true;
                 } else if (s.indexOf('XRECIPIENT') === 0) {
@@ -1184,10 +1275,12 @@ export class SearchService {
               rowWrapModeHidden: true,
               textAlign: 1,
               getValue: (rowobj): string => {
-                return  '' + this.api.getNumericValue(rowobj[0], 3);
+                return  `${this.api.getNumericValue(rowobj[0], 3)}`;
               },
-              getFormattedValue: MessageTableRowTool.formatBytes,
-              width: app.canvastablecontainer.getSavedColumnWidth(4, 80)
+              getFormattedValue: (val) => val === '-1' ? '\u267B' : MessageTableRowTool.formatBytes(val),
+              width: app.canvastablecontainer.getSavedColumnWidth(4, 80),
+              tooltipText: (rowobj) => this.api.getNumericValue(rowobj[0], 3) === -1 ?
+                          'This message is marked for deletion by an IMAP client' : null
             });
 
           columns.push({

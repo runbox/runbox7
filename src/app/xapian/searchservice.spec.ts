@@ -82,7 +82,7 @@ describe('SearchService', () => {
         req = httpMock.expectOne(mockrequest =>
             mockrequest.urlWithParams.indexOf('/mail/download_xapian_index?' +
             'listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(searchService.indexLastUpdateTime / 1000) +
-            '&pagesize=1000&skipcontent=1&avoidcacheuniqueparam=') === 0);
+            '&pagesize=' + RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE + '&skipcontent=1&avoidcacheuniqueparam=') === 0);
 
         const testMessageId = 3463422;
         const testMessageTime = searchService.indexLastUpdateTime + 1; // message time must be later so that indexLastUpdateTime is updated
@@ -166,9 +166,6 @@ describe('SearchService', () => {
 
         expect(indexLastUpdateTime).toEqual(searchService.indexLastUpdateTime);
 
-        req = httpMock.expectOne('/ajax?action=ajax_getfoldercount');
-        req.flush(folders);
-
         await new Promise(resolve => setTimeout(resolve, 100));
 
         const messageListService = injector.get(MessageListService);
@@ -181,7 +178,7 @@ describe('SearchService', () => {
         req = httpMock.expectOne(mockrequest =>
                 mockrequest.urlWithParams.indexOf('/mail/download_xapian_index?' +
             'listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(indexLastUpdateTime / 1000) +
-            '&pagesize=1000&skipcontent=1&avoidcacheuniqueparam=') === 0);
+            '&pagesize=' + RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE + '&skipcontent=1&avoidcacheuniqueparam=') === 0);
         const testMessageTime = indexLastUpdateTime + 1; // message time must be later so that indexLastUpdateTime is updated
         req.flush(testMessageId + '\t' + testMessageTime + '\t1561389614\tInbox\t1\t0\t0\t' +
             'Cloud Web Services <cloud-marketing-email-replies@cloudsuperhosting.com>\ttest@example.com	Analyse Data at Scale\ty');

@@ -160,7 +160,7 @@ export class MessageFlagChange {
 @Injectable()
 export class RunboxWebmailAPI {
 
-    public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 1000;
+    public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 10000;
 
     public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();

@@ -17,12 +17,11 @@ cache:
      - ./node_modules
 
 install:
-  - npm install
-  - npm run webdriver-update-ci
+  - npm install  
 
 script:
   - npm run lint
   - npm run policy
   - npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI
-  - npm run e2e -- --webdriver-update=false --protractor-config=./protractor-ci.conf.js
+  - npm run e2e -- --protractor-config=./protractor-ci.conf.js
   - npm run build
