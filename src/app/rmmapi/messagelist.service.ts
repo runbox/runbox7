@@ -22,7 +22,7 @@ import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI, FolderCountEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
 import { MessageInfo } from '../xapian/messageinfo';
-import { AppComponent } from '../app.component';
+import { EmailAppComponent } from '../email-app/email-app.component';
 import { CanvasTableColumn } from '../canvastable/canvastable';
 import { MessageTableRowTool } from '../messagetable/messagetablerow';
 import { catchError, map, filter } from 'rxjs/operators';
@@ -211,7 +211,7 @@ export class MessageListService {
             '';
     }
 
-    public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
+    public getCanvasTableColumns(app: EmailAppComponent): CanvasTableColumn[] {
         const columns: CanvasTableColumn[] = [
             {
                 sortColumn: null,
