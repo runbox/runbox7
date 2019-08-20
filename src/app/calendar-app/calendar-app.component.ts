@@ -72,7 +72,8 @@ import { EventTitleFormatter } from './event-title-formatter';
     templateUrl: './calendar-app.component.html',
     providers: [
         { provide: CalendarEventTitleFormatter, useClass: EventTitleFormatter }
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CalendarAppComponent {
     view: CalendarView = CalendarView.Month;
@@ -83,6 +84,7 @@ export class CalendarAppComponent {
     settings = new CalendarSettings();
 
     refresh: Subject<any> = new Subject();
+    viewRefreshInterval: any;
 
     @ViewChild('icsUploadInput') icsUploadInput: any;
 
@@ -124,6 +126,11 @@ export class CalendarAppComponent {
             this.updateEventColors();
             this.filterEvents();
         });
+
+        // force re-render to update the last update string
+        this.viewRefreshInterval = setInterval(() => {
+            this.cdr.markForCheck();
+        }, 60 * 1000);
     }
 
     addEvent(on?: Date): void {

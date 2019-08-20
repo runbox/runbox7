@@ -51,6 +51,20 @@
                     <mat-icon> edit </mat-icon>
                 </button>
             </mat-list-item>
+
+            <mat-divider></mat-divider>
+
+            <mat-list-item>
+                <button mat-button
+                    (click)="calendarservice.syncCaldav()"
+                >
+                    <mat-icon mat-list-icon> refresh </mat-icon> Synchronize calendars
+                </button>
+            </mat-list-item>
+
+            <mat-list-item *ngIf="calendarservice.lastUpdate">
+                Last update: {{ calendarservice.lastUpdate.fromNow() }}
+            </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>

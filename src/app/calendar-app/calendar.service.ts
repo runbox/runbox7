@@ -25,11 +25,15 @@ import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 
+import * as moment from 'moment';
+
 @Injectable()
 export class CalendarService {
-    // cache, would be nice to have it offline
-    calendars: RunboxCalendar[]   = [];
-    events: RunboxCalendarEvent[] = [];
+    calendars:    RunboxCalendar[]      = [];
+    events:       RunboxCalendarEvent[] = [];
+    syncInterval: any;
+    syncIntervalMinutes = 10;
+    lastUpdate: moment.Moment;
 
     calendarSubject = new ReplaySubject<RunboxCalendar[]>(1);
     eventSubject    = new ReplaySubject<RunboxCalendarEvent[]>(1);
@@ -38,13 +42,23 @@ export class CalendarService {
     constructor(
         private rmmapi:   RunboxWebmailAPI,
     ) {
-        console.log('Fetching calendars');
-        this.rmmapi.getCalendars().subscribe(calendars => {
-            this.calendars = calendars;
-            console.log('Calendars loaded:', calendars);
-            this.calendarSubject.next(calendars);
-            this.reloadEvents();
-        }, e => this.apiErrorHandler(e));
+        const cache = localStorage.getItem('caldavCache');
+        if (cache) {
+            console.log('Loading calendars/events from local cache');
+            this.calendars = JSON.parse(cache)['calendars'].map(c => new RunboxCalendar(c));
+            this.calendarSubject.next(this.calendars);
+            this.events = JSON.parse(cache)['events'].map(e => new RunboxCalendarEvent(e));
+            this.eventSubject.next(this.events);
+        }
+        this.calendarSubject.subscribe(_ => { this.saveCache(); });
+        this.eventSubject.subscribe(_ => {
+            this.saveCache();
+            this.lastUpdate = moment();
+        });
+
+        this.syncInterval = setInterval(() => {
+            this.syncCaldav();
+        }, this.syncIntervalMinutes * 60 * 1000);
     }
 
     addCalendar(calendar: RunboxCalendar): Promise<void> {
@@ -126,6 +140,25 @@ export class CalendarService {
         this.rmmapi.getCalendarEvents().subscribe(events => {
             this.events = events.map(e => new RunboxCalendarEvent(e));
             this.eventSubject.next(this.events);
+        }, e => this.apiErrorHandler(e));
+    }
+
+    saveCache() {
+        const cache = JSON.stringify({
+            calendars: this.calendars,
+            events:    this.events,
+        });
+        console.log('Storing caldav cache: ', cache);
+        localStorage.setItem('caldavCache', cache);
+    }
+
+    syncCaldav() {
+        console.log('Fetching calendars');
+        this.rmmapi.getCalendars().subscribe(calendars => {
+            this.calendars = calendars;
+            console.log('Calendars loaded:', calendars);
+            this.calendarSubject.next(calendars);
+            this.reloadEvents();
         }, e => this.apiErrorHandler(e));
     }
 }
