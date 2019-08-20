@@ -32,17 +32,23 @@
                 Loading calendars...
             </mat-list-item>
             <mat-list-item class="calendarListItem" *ngFor="let calendar of calendars">
-                <button mat-icon-button (click)="toggleCalendar(calendar.id)">
-                    <mat-icon *ngIf="calendar.shown"
-                        [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
-                        label
-                    </mat-icon>
-                    <mat-icon *ngIf="!calendar.shown">
-                        label_off
-                    </mat-icon>
-                </button>
-                <button mat-button (click)="editCalendar(calendar.id)">
+                <mat-icon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
+                    label
+                </mat-icon>
+                <button mat-button>
                     {{ calendar.displayname || calendar.id }}
+                </button>
+                <button mat-icon-button class="calendarToggleButton"
+                    matTooltip="Show/hide this calendar"
+                    (click)="toggleCalendar(calendar.id)"
+                >
+                    <mat-icon> {{ calendar.shown ? 'visibility' : 'visibility_off' }} </mat-icon>
+                </button>
+                <button mat-icon-button class="calendarEditButton"
+                    matTooltip="Edit this calendar"
+                    (click)="editCalendar(calendar.id)"
+                >
+                    <mat-icon> edit </mat-icon>
                 </button>
             </mat-list-item>
         </mat-nav-list>

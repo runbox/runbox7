@@ -50,6 +50,7 @@ import {
   MatSelectModule,
   MatSidenavModule,
   MatToolbarModule,
+  MatTooltipModule,
 } from '@angular/material';
 
 @NgModule({
@@ -78,6 +79,7 @@ import {
     MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
