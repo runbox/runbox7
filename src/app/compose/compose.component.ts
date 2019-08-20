@@ -30,6 +30,7 @@ import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
 
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
+import { DialogService } from '../dialog/dialog.service';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -74,7 +75,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         public draftDeskservice: DraftDeskService,
         private http: HttpClient,
         private formBuilder: FormBuilder,
-        private location: Location
+        private location: Location,
+        private dialogService: DialogService
     ) {
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
     }
@@ -436,6 +438,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send: boolean = false) {
+        if (send) {
+            this.dialogService.openProgressDialog();
+        }
         this.model.from = this.formGroup.value.from;
         this.model.bcc = this.formGroup.value.bcc;
         this.model.cc = this.formGroup.value.cc;
@@ -482,6 +487,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
                     this.draftDeleted.emit(this.model.mid);
 
+                    this.dialogService.closeProgressDialog();
                     this.exitToTable();
                 }, (err) => {
                     let msg = err.statusText;
@@ -494,6 +500,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         `Error sending: ${msg}`,
                         'Dismiss'
                     );
+                    this.dialogService.closeProgressDialog();
                 });
         } else {
             this.rmmapi.me.pipe(mergeMap((me) => {
