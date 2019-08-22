@@ -21,14 +21,14 @@ import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 
 import * as moment from 'moment';
 
 @Injectable()
-export class CalendarService {
+export class CalendarService implements OnDestroy {
     calendars:    RunboxCalendar[]      = [];
     events:       RunboxCalendarEvent[] = [];
     syncInterval: any;
@@ -59,6 +59,10 @@ export class CalendarService {
         this.syncInterval = setInterval(() => {
             this.syncCaldav();
         }, this.syncIntervalMinutes * 60 * 1000);
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.syncInterval);
     }
 
     addCalendar(calendar: RunboxCalendar): Promise<void> {

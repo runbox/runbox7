@@ -21,6 +21,7 @@ import {
     Component,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
+    OnDestroy,
     ViewChild,
     TemplateRef
 } from '@angular/core';
@@ -75,7 +76,7 @@ import { EventTitleFormatter } from './event-title-formatter';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CalendarAppComponent {
+export class CalendarAppComponent implements OnDestroy {
     view: CalendarView = CalendarView.Month;
     CalendarView = CalendarView;
     viewDate: Date = new Date();
@@ -131,6 +132,10 @@ export class CalendarAppComponent {
         this.viewRefreshInterval = setInterval(() => {
             this.cdr.markForCheck();
         }, 60 * 1000);
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.viewRefreshInterval);
     }
 
     addEvent(on?: Date): void {
