@@ -31,8 +31,10 @@ import * as moment from 'moment';
 export class CalendarService implements OnDestroy {
     calendars:    RunboxCalendar[]      = [];
     events:       RunboxCalendarEvent[] = [];
+
+    syncTokens = {};
     syncInterval: any;
-    syncIntervalMinutes = 10;
+    syncIntervalSeconds = 15;
     lastUpdate: moment.Moment;
 
     calendarSubject = new ReplaySubject<RunboxCalendar[]>(1);
@@ -40,17 +42,38 @@ export class CalendarService implements OnDestroy {
     errorLog        = new Subject<HttpErrorResponse>();
 
     constructor(
-        private rmmapi:   RunboxWebmailAPI,
+        private rmmapi: RunboxWebmailAPI,
     ) {
         const cache = localStorage.getItem('caldavCache');
         if (cache) {
             console.log('Loading calendars/events from local cache');
             this.calendars = JSON.parse(cache)['calendars'].map(c => new RunboxCalendar(c));
+            for (const cal of this.calendars) {
+                this.syncTokens[cal.id] = cal.syncToken;
+            }
             this.calendarSubject.next(this.calendars);
             this.events = JSON.parse(cache)['events'].map(e => new RunboxCalendarEvent(e));
             this.eventSubject.next(this.events);
         }
-        this.calendarSubject.subscribe(_ => { this.saveCache(); });
+
+        this.calendarSubject.subscribe(cals => {
+            const updatedCals = [];
+            for (const cal of cals) {
+                if (cal.syncToken !== this.syncTokens[cal.id]) {
+                    updatedCals.push(cal.id);
+                    this.syncTokens[cal.id] = cal.syncToken;
+                }
+            }
+
+            if (updatedCals.length > 0) {
+                console.log('Changes detected in calendars', updatedCals);
+                this.reloadEvents();
+            } else {
+                console.log('Nothing new in calendars');
+                this.lastUpdate = moment();
+            }
+        });
+
         this.eventSubject.subscribe(_ => {
             this.saveCache();
             this.lastUpdate = moment();
@@ -58,7 +81,8 @@ export class CalendarService implements OnDestroy {
 
         this.syncInterval = setInterval(() => {
             this.syncCaldav();
-        }, this.syncIntervalMinutes * 60 * 1000);
+        }, this.syncIntervalSeconds * 1000);
+        this.syncCaldav();
     }
 
     ngOnDestroy() {
@@ -162,7 +186,6 @@ export class CalendarService implements OnDestroy {
             this.calendars = calendars;
             console.log('Calendars loaded:', calendars);
             this.calendarSubject.next(calendars);
-            this.reloadEvents();
         }, e => this.apiErrorHandler(e));
     }
 }

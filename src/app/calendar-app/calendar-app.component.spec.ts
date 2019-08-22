@@ -105,7 +105,6 @@ describe('CalendarAppComponent', () => {
     it('should display calendars', () => {
         expect(component).toBeTruthy();
 
-        component.calendarservice.syncCaldav();
         fixture.detectChanges();
 
         expect(component.calendars[0]).toBeDefined();
