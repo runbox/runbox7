@@ -112,7 +112,7 @@ describe('CalendarAppComponent', () => {
         expect(calendar).toBeDefined();
         expect(calendar.innerText).toContain('Test Calendar', 'test calendar is displayed on the list');
 
-        const icon = calendar.querySelector('span mat-icon', 'test calendar has a correct icon colour');
+        const icon = calendar.querySelector('.calendarColorLabel', 'test calendar has a correct icon colour');
         expect(icon.style.color).toBe('pink');
     });
 
@@ -129,6 +129,23 @@ describe('CalendarAppComponent', () => {
 
         const event = events[0];
         expect(event.innerText).toContain('Test Event #0', 'test event is displayed in the month view');
+    });
+
+    it('should be possible to hide calendars', () => {
+        mockData['events'] = simpleEvents;
+        component.calendarservice.reloadEvents();
+        fixture.detectChanges();
+
+        let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
+        expect(events[0].innerText).toContain('Test Event #0', 'test event is displayed in the month view');
+
+        fixture.debugElement.nativeElement.querySelector('button.calendarToggleButton').click();
+        events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
+        expect(events.length).toBe(0, 'events are gone from the screen');
+
+        fixture.debugElement.nativeElement.querySelector('button.calendarToggleButton').click();
+        events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
+        expect(events.length).toBe(1, 'events are back on the screen');
     });
 
     it('should display recurring events', () => {
