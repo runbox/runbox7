@@ -37,6 +37,7 @@ import { ProgressDialog } from './progress.dialog';
 import { SimpleInputDialog } from './simpleinput.dialog';
 import { ConfirmDialog } from './confirmdialog.component';
 import { ProgressSnackbarComponent } from './progresssnackbar.component';
+import { DialogService } from './dialog.service';
 export { ConfirmDialog } from './confirmdialog.component';
 export { SimpleInputDialog, SimpleInputDialogParams } from './simpleinput.dialog';
 export { InfoDialog, InfoParams } from './info.dialog';
@@ -60,6 +61,9 @@ export { ProgressDialog } from './progress.dialog';
     declarations: [
         InfoDialog, ProgressDialog, ConfirmDialog,
         SimpleInputDialog, ProgressSnackbarComponent
+    ],
+    providers: [
+        DialogService
     ],
     entryComponents: [InfoDialog, ProgressDialog, SimpleInputDialog, ConfirmDialog, ProgressSnackbarComponent]
 })
