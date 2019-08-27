@@ -106,8 +106,7 @@ export class DkimComponent implements AfterViewInit {
   }
 
   set_active_key (keys) {
-    var active = keys.filter( (k) => { return k.is_active } );
-    console.log('active', active)
+    const active = keys.filter( (k) => k.is_active );
     if ( active.length ) {
       this.key_active = active[0];
     }
