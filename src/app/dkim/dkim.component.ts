@@ -67,6 +67,7 @@ export class DkimComponent implements AfterViewInit {
   @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
   keys = [];
+  key_active;
   is_rotating = 0;
 
   ngAfterViewInit() {
@@ -91,6 +92,7 @@ export class DkimComponent implements AfterViewInit {
         if ( r.status === 'success' ) {
           this.keys = r.result.keys;
           this.is_rotating = r.result.domain.is_rotating;
+          this.set_active_key(this.keys);
         } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
@@ -101,6 +103,14 @@ export class DkimComponent implements AfterViewInit {
         return this.show_error('Could not list dkim keys.', 'Dismiss');
       }
     );
+  }
+
+  set_active_key (keys) {
+    var active = keys.filter( (k) => { return k.is_active } );
+    console.log('active', active)
+    if ( active.length ) {
+      this.key_active = active[0];
+    }
   }
 
   create_keys () {

@@ -40,27 +40,15 @@
                             <span *ngIf="item.is_cname_correct">It might take some minutes for the system to be able to check recent changes.</span>
                         </span>
 
+                        <div *ngIf="!item.is_active">
+                            <p>
+                                This key was is inactive.
+                            </p>
+                        </div>
                         <div *ngIf="item.is_active && item.date_saved_to_pdns && item.date_rotation_finalized">
                             <p>
                                 This key was published on {{item.date_saved_to_pdns}} and is active since {{item.date_rotation_finalized}}.
-                                <br>
-                                Make sure to update dns settings:
-                                <br>
-                                Go to dns &gt; {{domain}} &gt; add CNAME &gt;
-                                <br> name: <strong>{{item.selector_recordset_name}}</strong>
-                                <br> value: <strong>{{item.public_recordset_name}}</strong>
-                                <br> ttl: &gt; 3600
                             </p>
-                            <pre>
-                                dig -t cname {{item.selector_recordset_name}} +short
-
-                                It should point to {{item.public_recordset_name}}
-                            </pre>
-                            <br>
-                                Your public key can be retrieved with
-                            <pre>
-                                dig -t txt {{item.public_recordset_name}}
-                            </pre>
                         </div>
                         <p *ngIf="!is_rotating && !item.is_active && !item.date_saved_to_pdns && !item.date_rotation_finalized">
                             This key was published for the first time on {{item.created}}. It takes 7 days to be effectively published.
@@ -74,6 +62,7 @@
                       </mat-expansion-panel>
 
                     </mat-accordion>
+                    <mat-divider></mat-divider>
                     <div *ngIf="!keys.length">
                         No keys found for {{domain}}
                         <button mat-raised-button color="primary" (click)="create_keys()">Create keys for {{domain}}</button>
