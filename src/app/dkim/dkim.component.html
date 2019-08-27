@@ -44,6 +44,10 @@
                                 <br> value: <strong>{{item.public_recordset_name}}</strong>
                                 <br> ttl: &gt; 3600
                                 <br>To verify use: 
+                                <br>
+                                <mat-checkbox *ngIf="item.is_cname_hosted_by_runbox && item.is_cname_correct" [disabled]="disabled" [(ngModel)]="item.is_cname_correct">Cname correct</mat-checkbox>
+                                <br>
+                                <button  mat-raised-button color="primary" *ngIf="item.is_cname_hosted_by_runbox" (click)="reconfigure(item)">Reconfigure</button>
                             </p>
                             <pre>
                                 dig -t cname {{item.selector_recordset_name}} +short
@@ -64,9 +68,6 @@
                         </p>
                         <p *ngIf="is_rotating && !item.active">
                             This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{item.date_rotation_initiated}} and is expected to take 7 days to become active.
-                        </p>
-                        <p>
-                            <mat-checkbox *ngIf="item.is_cname_hosted_by_runbox && item.is_cname_correct" [disabled]="disabled" [(ngModel)]="item.is_cname_correct">Cname correct</mat-checkbox>
                         </p>
                       </mat-expansion-panel>
 
