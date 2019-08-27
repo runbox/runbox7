@@ -615,11 +615,12 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public orderProducts(products: any[], method: string, currency: string): Observable<any> {
+    public orderProducts(products: any[], method: string, currency: string, domregHash?: string): Observable<any> {
         return this.http.post('/rest/v1/account_product/order', {
-            products: products,
-            method: method,
-            currency: currency
+            products:    products,
+            method:      method,
+            currency:    currency,
+            domreg_hash: domregHash,
         }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
@@ -673,6 +674,12 @@ export class RunboxWebmailAPI {
 
     public getActiveProducts(): Observable<any> {
         return this.http.get('/rest/v1/account_product/active').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getProducts(pids: number[], currency: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/cart', { pids: pids, currency: currency }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

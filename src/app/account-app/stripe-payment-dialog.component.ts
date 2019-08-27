@@ -149,6 +149,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                                 this.state = 'failure';
                                 this.stripeError = res.error.message;
                             } else {
+                                console.log(res.paymentIntent);
                                 this.confirmPayment(res.paymentIntent.id);
                             }
                         });

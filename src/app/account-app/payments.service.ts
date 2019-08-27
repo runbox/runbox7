@@ -51,10 +51,6 @@ export class PaymentsService {
         this.rmmapi.me.subscribe(me => this.currency.next(me.currency));
     }
 
-    orderProducts(products: any[], method: string, currency: string): Observable<any> {
-        return this.rmmapi.orderProducts(products, method, currency)
-    }
-
     submitStripePayment(tid: number, token: string): Observable<any> {
         return this.rmmapi.payWithStripe(tid, token);
     }

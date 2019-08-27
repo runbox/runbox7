@@ -19,7 +19,7 @@
 
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Cart } from './cart';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
@@ -28,36 +28,78 @@ import { StripePaymentDialogComponent } from './stripe-payment-dialog.component'
 import { PaymentsService } from './payments.service';
 import { ProductOrder } from './product-order';
 
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+
 @Component({
     selector: 'app-shopping-cart',
     templateUrl: './shopping-cart.component.html',
 })
 export class ShoppingCartComponent {
     products = {}; // pid => Product
+    itemsReady = false;
+    tableColumns = ['name', 'quantity', 'price', 'total-price', 'remove'];
 
-    cart: Cart;
     currency: string;
+    domregHash: string;
+
+    // the component has two "modes":
+    // it either displays the cart items and allows for their manipulation,
+    // or allows for a purchase of whatever is specified in the URL (as JSON),
+    // in a non-editable form.
+    fromUrl = false;
+    items = [];
 
     constructor(
         private dialog:          MatDialog,
         public  paymentsservice: PaymentsService,
+        private rmmapi:          RunboxWebmailAPI,
+        private route:           ActivatedRoute,
         private router:          Router,
     ) {
-        this.paymentsservice.currency.subscribe(c => this.currency = c);
-        this.paymentsservice.products.subscribe(products => {
+        this.route.queryParams.subscribe(params => {
+            const forParam = params['for'];
+            if (forParam) {
+                const source = JSON.parse(forParam);
+                this.fromUrl = true;
+                this.tableColumns = ['name', 'quantity', 'price', 'total-price']; // no 'remove'
+                this.items   = source['items'];
+                console.log("Got URL items:", this.items);
+                if (source['domregHash']) {
+                    // this is a domain purchase: the only supported currency is USD
+                    this.domregHash = source['domregHash'];
+                    this.currency = 'USD';
+                    this.loadProducts(this.items, this.currency);
+                } else {
+                    this.paymentsservice.currency.subscribe(c => {
+                        this.currency = c;
+                        this.loadProducts(this.items, this.currency);
+                    });
+                }
+            } else {
+                this.items = this.paymentsservice.cart.items;
+                this.paymentsservice.currency.subscribe(c => {
+                    this.currency = c;
+                    this.loadProducts(this.items, this.currency);
+                });
+            }
+        });
+    }
+
+    loadProducts(items: any[], currency: string) {
+        this.rmmapi.getProducts(this.items.map(i => i.pid), this.currency).subscribe(products => {
             for (const p of products) {
                 this.products[p.pid] = p;
             }
+            this.itemsReady = true;
         });
-        this.cart = this.paymentsservice.cart;
     }
 
     remove(p: ProductOrder) {
-        this.cart.remove(p);
+        this.paymentsservice.cart.remove(p);
     }
 
     initiatePayment(method: string) {
-        this.paymentsservice.orderProducts(this.cart.items, method, this.currency).subscribe(tx => {
+        this.rmmapi.orderProducts(this.items, method, this.currency, this.domregHash).subscribe(tx => {
             console.log("Transaction:", tx);
             let dialogRef: MatDialogRef<any>;
             if (method === 'stripe') {
@@ -74,13 +116,15 @@ export class ShoppingCartComponent {
                 });
             } else if (method === 'giro') {
                 this.router.navigateByUrl('/account/receipt/' + tx.tid);
-                this.cart.clear();
+                if (!this.fromUrl) {
+                    this.paymentsservice.cart.clear();
+                }
                 return;
             }
 
             dialogRef.afterClosed().subscribe(paid => {
-                if (paid) {
-                    this.cart.clear();
+                if (paid && !this.fromUrl) {
+                    this.paymentsservice.cart.clear();
                 }
             });
         });
