@@ -134,6 +134,27 @@ export class DkimComponent implements AfterViewInit {
     }
   }
 
+  reconfigure (item) {
+    const url = '/rest/v1/dkim/' + this.domain + '/reconfigure/' + item.selector;
+    const req = this.http.put(url, {});
+    req.pipe(timeout(18000));
+    req.subscribe(
+      result => {
+        const r = result.json();
+        if ( r.status === 'success' ) {
+          this.load_keys();
+        } else if ( r.status === 'error' ) {
+          return this.show_error( r.errors.join('\n'), 'Dismiss' );
+        } else {
+          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
+        }
+      },
+      error => {
+        return this.show_error('There was an error.', 'Dismiss');
+      }
+    );
+  }
+
   show_error (message, action) {
     this.snackBar.open(message, action, {
       duration: 2000,
