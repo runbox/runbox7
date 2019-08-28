@@ -337,6 +337,15 @@ export class RunboxWebmailAPI {
         return req.pipe(map((res: any) => res.status === 'success'));
     }
 
+    moveFolder(folderId: number, newParentFolderId: number): Observable<boolean> {
+        const req = this.http.put('/rest/v1/email_folder/move', {
+            'to_folder': newParentFolderId,
+            'folder_id': folderId
+        });
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(map((res: any) => res.status === 'success'));
+    }
+
     deleteFolder(folderid: number): Observable<boolean> {
         const req = this.http.delete(`/rest/v1/email_folder/delete/${folderid}`);
         this.subscribeShowBackendErrors(req);
