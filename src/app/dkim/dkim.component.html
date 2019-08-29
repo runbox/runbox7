@@ -33,40 +33,43 @@
                           </mat-panel-description>
                         </mat-expansion-panel-header>
 
-                        <span *ngIf="item.is_cname_correct === true || item.is_cname_correct === false">
-                            This CNAME is <strong>{{item.is_cname_correct ? 'correct' : 'incorrect' }}</strong>
-                            <button  mat-raised-button color="primary" *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct" (click)="reconfigure(item)">Reconfigure</button>
-                            <button  mat-raised-button color="primary" *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct" (click)="check_cname(item)">Check cname</button>
-                            <span *ngIf="item.is_cname_correct">It might take some minutes for the system to be able to check recent changes.</span>
+                        <mat-grid-list cols="2" rowHeight="30px" style='max-width: 800px'>
+
+                            <mat-grid-tile style='background: lightblue;'>Hostname</mat-grid-tile>
+                            <mat-grid-tile style='text-align: left'>{{item.selector_recordset_name}}</mat-grid-tile>
+
+                            <mat-grid-tile style='background: lightblue;' *ngIf="item.public_recordset_name">Address</mat-grid-tile>
+                            <mat-grid-tile style='text-align: left' *ngIf="item.public_recordset_name">{{item.public_recordset_name}}</mat-grid-tile>
+
+                            <mat-grid-tile style='background: lightblue;'>CNAME Correct?</mat-grid-tile>
+                            <mat-grid-tile style='text-align: left'>{{item.is_cname_correct ? 'yes' : 'no'}}</mat-grid-tile>
+
+                            <mat-grid-tile style='background: lightblue;'>Key Active?</mat-grid-tile>
+                            <mat-grid-tile style='text-align: left'>{{item.is_active ? 'yes' : 'no'}}</mat-grid-tile>
+
+                            <mat-grid-tile style='background: lightblue;' *ngIf="is_rotating && !item.active">Key rotating?</mat-grid-tile>
+                            <mat-grid-tile style='align-self: left' *ngIf="is_rotating && !item.active">Yes</mat-grid-tile>
+
+                        </mat-grid-list>
+
+                        <div *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct">
+                            <button mat-raised-button color="primary" (click)="reconfigure(item)">Reconfigure</button>
+                            <button mat-raised-button color="primary" (click)="check_cname(item)">Check cname</button>
+                        </div>
+                        <span >* It might take some minutes for the system to be able to check recent changes.</span>
+                        <span *ngIf="is_rotating && !item.active">
+                            This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{item.date_rotation_initiated}} and is expected to take 7 days to become active.
                         </span>
 
-                        <div *ngIf="!item.is_active">
-                            <p>
-                                This key was is inactive.
-                            </p>
-                        </div>
-                        <div *ngIf="item.is_active && item.date_saved_to_pdns && item.date_rotation_finalized">
-                            <p>
-                                This key was published on {{item.date_saved_to_pdns}} and is active since {{item.date_rotation_finalized}}.
-                            </p>
-                        </div>
-                        <p *ngIf="!is_rotating && !item.is_active && !item.date_saved_to_pdns && !item.date_rotation_finalized">
-                            This key was published for the first time on {{item.created}}. It takes 7 days to be effectively published.
-                        </p>
-                        <p *ngIf="!item.is_active && item.date_deactivated">
-                            Deactivated on: {{item.date_deactivated}}
-                        </p>
-                        <p *ngIf="is_rotating && !item.active">
-                            This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{item.date_rotation_initiated}} and is expected to take 7 days to become active.
-                        </p>
                       </mat-expansion-panel>
 
                     </mat-accordion>
                     <mat-divider></mat-divider>
-                    <div *ngIf="!keys.length">
+                    <div *ngIf="!keys.length && !is_creating_keys">
                         No keys found for {{domain}}
                         <button mat-raised-button color="primary" (click)="create_keys()">Create keys for {{domain}}</button>
                     </div>
+                    <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
                 </mat-card>
             </section>
     </mat-sidenav-content>

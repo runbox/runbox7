@@ -69,6 +69,7 @@ export class DkimComponent implements AfterViewInit {
   keys = [];
   key_active;
   is_rotating = 0;
+  is_creating_keys = false;
 
   ngAfterViewInit() {
   }
@@ -113,21 +114,26 @@ export class DkimComponent implements AfterViewInit {
   }
 
   create_keys () {
+    this.is_creating_keys = true;
     const req = this.http.post('/rest/v1/dkim/' + this.domain + '/keys/create', {});
     req.pipe(timeout(18000));
     req.subscribe(
       result => {
         const r = result.json();
         if ( r.status === 'success' ) {
+          this.is_creating_keys = false;
           this.keys = r.result.keys;
           this.load_keys();
         } else if ( r.status === 'error' ) {
+          this.is_creating_keys = false;
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
+          this.is_creating_keys = false;
           return this.show_error( 'Unknown error has happened.', 'Dismiss' );
         }
       },
       error => {
+        this.is_creating_keys = false;
         return this.show_error('Could not create dkim keys', 'Dismiss');
       }
     );
