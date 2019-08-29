@@ -37,7 +37,6 @@ import { AccountUpgradesComponent } from './account-upgrades.component';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
 import { ComponentCardComponent } from './component-card.component';
 import { ProductComponent } from './account-product.component';
-import { ScriptLoaderService } from './scriptloader.service';
 import { ShoppingCartComponent } from './shopping-cart.component';
 import { PaymentMethodComponent } from './payment-method.component';
 import { PaymentsService } from './payments.service';
@@ -164,7 +163,6 @@ import {
   ],
   providers: [
     PaymentsService,
-    ScriptLoaderService,
   ],
   bootstrap: []
 })

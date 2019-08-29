@@ -23,8 +23,9 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PaymentsService } from './payments.service';
-import { ScriptLoaderService } from './scriptloader.service';
+import { AsyncSubject } from 'rxjs';
 
+let stripeLoader: AsyncSubject<void> = null;
 declare var Stripe: any;
 
 @Component({
@@ -56,7 +57,6 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         private dialog: MatDialog,
         private paymentsservice: PaymentsService,
         private router: Router,
-        private scriptLoader: ScriptLoaderService,
         public dialogRef: MatDialogRef<StripePaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
@@ -64,56 +64,65 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         this.tid    = data.tx.tid;
         this.total  = data.tx.total;
         this.currency = data.currency;
+
+        if (stripeLoader === null) {
+            stripeLoader = new AsyncSubject<void>();
+            console.log('Loading Stripe.js');
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://js.stripe.com/v3/';
+            script.onload = () => stripeLoader.complete();
+            document.getElementsByTagName('head')[0].appendChild(script);
+        }
     }
 
     async ngAfterViewInit() {
-        await this.scriptLoader.loadScript('stripe');
+        await stripeLoader.toPromise();
+        const stripePubkey = await this.paymentsservice.stripePubkey.toPromise();
 
-        this.paymentsservice.stripePubkey.subscribe(stripePubkey => {
-            const stripeStyle = {
-                base: {
-                    fontSize: '18px',
-                    color: '#32325d',
-                    textAlign: 'center',
-                }
-            };
+        const stripeStyle = {
+            base: {
+                fontSize: '18px',
+                color: '#32325d',
+                textAlign: 'center',
+            }
+        };
 
-            this.stripe = Stripe(stripePubkey);
-            const elements = this.stripe.elements();
+        this.stripe = Stripe(stripePubkey);
+        const elements = this.stripe.elements();
 
-            const paymentRequest = this.stripe.paymentRequest({
-                country: 'NO',
-                currency: this.currency.toLowerCase(),
-                total: {
-                    label: 'Runbox purchase #' + this.tid,
-                    amount: Math.trunc(this.total * 100),
-                },
-            });
-
-            const prButton = elements.create('paymentRequestButton', {
-                paymentRequest: paymentRequest,
-            });
-            paymentRequest.canMakePayment().then(result => {
-                if (result) {
-                    prButton.mount(this.paymentRequestButton.nativeElement);
-                    this.paymentRequestsSupported = true;
-                }
-            });
-
-            this.card = elements.create('cardNumber', {style: stripeStyle});
-            this.card.mount(this.cardNumber.nativeElement);
-            this.card.addEventListener('change', e => this.errorHandler(e));
-
-            const expiry = elements.create('cardExpiry', {style: stripeStyle});
-            expiry.mount(this.cardExpiry.nativeElement);
-            expiry.addEventListener('change', e => this.errorHandler(e));
-
-            const cvc = elements.create('cardCvc', {style: stripeStyle});
-            cvc.mount(this.cardCvc.nativeElement);
-            cvc.addEventListener('change', e => this.errorHandler(e));
-
-            this.state = 'initial';
+        const paymentRequest = this.stripe.paymentRequest({
+            country: 'NO',
+            currency: this.currency.toLowerCase(),
+            total: {
+                label: 'Runbox purchase #' + this.tid,
+                amount: Math.trunc(this.total * 100),
+            },
         });
+
+        const prButton = elements.create('paymentRequestButton', {
+            paymentRequest: paymentRequest,
+        });
+        paymentRequest.canMakePayment().then(result => {
+            if (result) {
+                prButton.mount(this.paymentRequestButton.nativeElement);
+                this.paymentRequestsSupported = true;
+            }
+        });
+
+        this.card = elements.create('cardNumber', {style: stripeStyle});
+        this.card.mount(this.cardNumber.nativeElement);
+        this.card.addEventListener('change', e => this.errorHandler(e));
+
+        const expiry = elements.create('cardExpiry', {style: stripeStyle});
+        expiry.mount(this.cardExpiry.nativeElement);
+        expiry.addEventListener('change', e => this.errorHandler(e));
+
+        const cvc = elements.create('cardCvc', {style: stripeStyle});
+        cvc.mount(this.cardCvc.nativeElement);
+        cvc.addEventListener('change', e => this.errorHandler(e));
+
+        this.state = 'initial';
     }
 
     errorHandler(event: any) {
