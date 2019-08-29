@@ -19,17 +19,10 @@
 
 import { Component } from '@angular/core';
 
-import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-
 @Component({
     selector: 'app-account-components-component',
     templateUrl: './account-components.component.html',
 })
 export class AccountComponentsComponent {
-    me: RunboxMe = new RunboxMe();
-    constructor(
-        private rmmapi: RunboxWebmailAPI,
-    ) {
-        this.rmmapi.me.subscribe(me => this.me = me);
-    }
+    constructor() {}
 }
