@@ -13,32 +13,38 @@
 
 <h2> Account upgrades </h2>
 
-<p>
-    <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
-</p>
+<div *ngIf="rmmapi.me | async as me; else loading">
+    <p>
+        <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
+    </p>
 
-<p>
-    Note: When selecting a subscription plan please note that your current email disk usage is
-    {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
-</p>
+    <p>
+        Note: When selecting a subscription plan please note that your current email disk usage is
+        {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
+    </p>
 
-<p>
-    Don't forget to check out
-    <button mat-button routerLink="/account/addons">
-        <mat-icon> extension </mat-icon> account addons
-    </button>
-    !
-</p>
+    <p>
+        Don't forget to check out
+        <button mat-button routerLink="/account/addons">
+            <mat-icon> extension </mat-icon> account addons
+        </button>
+        !
+    </p>
 
-<div id="productGrid">
-    <app-account-product
-        *ngFor="let p of subscriptions"
-        class="productCard"
-        [p]="p"
-        [currency]="me.currency"
-    >
-        <ul>
-            <li *ngFor="let detail of p.details"> {{ detail }}
-        </ul>
-    </app-account-product>
+    <div id="productGrid">
+        <app-account-product
+            *ngFor="let p of subscriptions"
+            class="productCard"
+            [p]="p"
+            [currency]="me.currency"
+        >
+            <ul>
+                <li *ngFor="let detail of p.details"> {{ detail }}
+            </ul>
+        </app-account-product>
+    </div>
 </div>
+
+<ng-template #loading>
+    <div> Loading account details... </div>
+</ng-template>

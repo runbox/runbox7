@@ -20,13 +20,17 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { AsyncSubject } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'app-account-receipt-component',
     templateUrl: './account-receipt.component.html',
 })
 export class AccountReceiptComponent {
-    receipt: any = { products: [] };
+    receipt: any;
+    me: RunboxMe;
+    ready = new AsyncSubject<boolean>();
 
     statuses = {
         0: 'successful',
@@ -34,18 +38,26 @@ export class AccountReceiptComponent {
     };
 
     constructor(
-        public rmmapi: RunboxWebmailAPI,
-        private route: ActivatedRoute,
+        private rmmapi: RunboxWebmailAPI,
+        private route:  ActivatedRoute,
     ) {
-        route.params.subscribe(params => {
-            this.rmmapi.getReceipt(params.id).subscribe(receipt => {
-                receipt.time = receipt.time.replace('T', ' ');
-                if (receipt.method === 'giro') {
-                    receipt.method = 'offline';
-                }
+        this.loadReceiptData();
+    }
 
-                this.receipt = receipt;
-            });
-        });
+    async loadReceiptData() {
+        this.me = await this.rmmapi.me.toPromise();
+
+        const params = await this.route.params.pipe(take(1)).toPromise();
+        const receiptID = params.id;
+
+        this.receipt = await this.rmmapi.getReceipt(receiptID).toPromise();
+
+        this.receipt.time = this.receipt.time.replace('T', ' ');
+        if (this.receipt.method === 'giro') {
+            this.receipt.method = 'offline';
+        }
+
+        this.ready.next(true);
+        this.ready.complete();
     }
 }

@@ -28,18 +28,14 @@ import { Product } from './product';
     templateUrl: './account-upgrades.component.html',
 })
 export class AccountUpgradesComponent {
-    me: RunboxMe = new RunboxMe();
-
     subscriptions: Product[];
 
     constructor(
         private paymentsservice: PaymentsService,
-        private rmmapi:          RunboxWebmailAPI,
+        public rmmapi:           RunboxWebmailAPI,
     ) {
         this.paymentsservice.products.subscribe(products => {
             this.subscriptions = products.filter(p => p.type === 'subscription');
         });
-
-        this.rmmapi.me.subscribe(me => this.me = me);
     }
 }
