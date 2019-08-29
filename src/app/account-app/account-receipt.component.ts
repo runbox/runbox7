@@ -27,7 +27,6 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 })
 export class AccountReceiptComponent {
     receipt: any = { products: [] };
-    me: RunboxMe = new RunboxMe();
 
     statuses = {
         0: 'successful',
@@ -35,8 +34,8 @@ export class AccountReceiptComponent {
     };
 
     constructor(
-        private rmmapi: RunboxWebmailAPI,
-        private route:  ActivatedRoute,
+        public rmmapi: RunboxWebmailAPI,
+        private route: ActivatedRoute,
     ) {
         route.params.subscribe(params => {
             this.rmmapi.getReceipt(params.id).subscribe(receipt => {
@@ -48,6 +47,5 @@ export class AccountReceiptComponent {
                 this.receipt = receipt;
             });
         });
-        this.rmmapi.me.subscribe(me => this.me = me);
     }
 }

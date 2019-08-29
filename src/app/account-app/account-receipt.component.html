@@ -13,9 +13,9 @@
     <li *ngIf="receipt.status !== 0">
         <strong> Status: {{ statuses[receipt.status] }} </strong>
     </li>
-    <li> <strong> Account username: </strong> {{ me.username }}
+    <li> <strong> Account username: </strong> {{ (rmmapi.me | async)?.username }}
     <li> <strong> Charge:           </strong> {{ receipt.amount }} {{ receipt.currency }}
-    <li> <strong> Subscription ID:  </strong> {{ me.uid }}
+    <li> <strong> Subscription ID:  </strong> {{ (rmmapi.me | async)?.uid }}
     <li> <strong> Transaction ID:   </strong> {{ receipt.tid }}
     <li> <strong> Product{{ receipt.products.length > 1 ? 's' : '' }}: </strong>
          <span *ngIf="receipt.products.length === 1">
