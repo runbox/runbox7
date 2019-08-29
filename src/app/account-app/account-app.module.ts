@@ -166,7 +166,7 @@ import {
     PaymentsService,
     ScriptLoaderService,
   ],
-  bootstrap: [AccountAppComponent]
+  bootstrap: []
 })
 
 export class AccountAppModule { }
