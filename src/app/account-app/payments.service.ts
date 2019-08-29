@@ -21,7 +21,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { of, AsyncSubject, Observable, Subject, ReplaySubject } from 'rxjs';
+import { of, AsyncSubject, Observable, Subject } from 'rxjs';
 import { Product } from './product';
 import { Cart } from './cart';
 
@@ -29,8 +29,8 @@ import { Cart } from './cart';
 export class PaymentsService {
     errorLog = new Subject<HttpErrorResponse>();
 
-    products       = new ReplaySubject<Product[]>(1);
-    activeProducts = new ReplaySubject<any>(1);
+    products       = new AsyncSubject<Product[]>();
+    activeProducts = new AsyncSubject<any>();
     stripePubkey   = new AsyncSubject<string>();
     currency       = new AsyncSubject<string>();
 
@@ -41,9 +41,11 @@ export class PaymentsService {
     ) {
         this.rmmapi.getAvailableProducts().subscribe(products => {
             this.products.next(products);
+            this.products.complete();
         });
         this.rmmapi.getActiveProducts().subscribe(products => {
             this.activeProducts.next(products);
+            this.activeProducts.complete();
         });
         this.rmmapi.getStripePubkey().subscribe(key => {
             this.stripePubkey.next(key);
