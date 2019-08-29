@@ -24,38 +24,7 @@ import { ProductOrder } from './product-order';
 
 @Component({
     selector: 'app-account-product',
-    template: `
-<mat-card>
-    <mat-card-title>
-        {{ p.name }}
-    </mat-card-title>
-    <mat-card-subtitle>
-        {{ p.description }}
-    </mat-card-subtitle>
-    <mat-card-content>
-        <ng-content></ng-content>
-    </mat-card-content>
-    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
-        <button mat-button (click)="order()">
-            Upgrade for {{ p.price }} {{ currency }}
-        </button>
-    </mat-card-actions>
-    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type === 'addon'">
-        <button mat-icon-button (click)="less()">
-            <mat-icon> remove_circle_outline </mat-icon>
-        </button>
-        <button mat-button>
-            {{ quantity }}
-        </button>
-        <button mat-icon-button (click)="more()">
-            <mat-icon> add_circle_outline </mat-icon>
-        </button>
-        <button mat-button (click)="order()">
-            Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
-        </button>
-    </mat-card-actions>
-</mat-card>
-    `,
+    templateUrl: './account-product.component.html',
 })
 export class ProductComponent {
     @Input() p: Product;
