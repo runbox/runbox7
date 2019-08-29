@@ -30,6 +30,7 @@ import { LoginComponent } from './login/login.component';
 import { MailViewerModule } from './mailviewer/mailviewer.module';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
+import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
 import {
   MatCardModule, MatInputModule, MatSnackBarModule, MatButtonModule,
@@ -152,6 +153,7 @@ const routes: Routes = [
     MessageListService,
     RunboxWebmailAPI,
     RMMAuthGuardService,
+    StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],
   bootstrap: [MainContainerComponent],

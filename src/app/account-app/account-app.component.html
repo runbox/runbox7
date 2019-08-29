@@ -10,13 +10,15 @@
         }
         </style>
 
-        <button mat-fab id="shoppingCartButton"
-            *ngIf="paymentsservice.cart.items.length > 0"
-            matTooltip="Go to your shopping cart"
-            routerLink="/account/cart"
-        >
-            <mat-icon>shopping_cart</mat-icon>
-        </button>
+        <div *ngIf="cart.items | async as items">
+            <button mat-fab id="shoppingCartButton"
+                *ngIf="items.length > 0"
+                matTooltip="Go to your shopping cart"
+                routerLink="/account/cart"
+            >
+                <mat-icon>shopping_cart</mat-icon>
+            </button>
+        </div>
 
         <router-outlet>
         </router-outlet>
