@@ -20,6 +20,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { CartService } from './cart.service';
 import { PaymentsService } from './payments.service';
 
 @Component({
@@ -33,6 +34,7 @@ import { PaymentsService } from './payments.service';
 })
 export class PaypalHandlerComponent {
     constructor(
+        private cart: CartService,
         private paymentsservice: PaymentsService,
         private rmmapi: RunboxWebmailAPI,
         private route:  ActivatedRoute,
@@ -46,7 +48,7 @@ export class PaypalHandlerComponent {
             const payer_id   = params['PayerID'];
             this.rmmapi.confirmPaypalPayment(payment_id, payer_id).subscribe(res => {
                 console.log(res);
-                this.paymentsservice.cart.clear();
+                this.cart.clear();
                 this.router.navigateByUrl('/account/receipt/' + res.tid);
             });
         });

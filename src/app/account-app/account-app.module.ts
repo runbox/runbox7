@@ -35,6 +35,7 @@ import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
+import { CartService } from './cart.service';
 import { ComponentCardComponent } from './component-card.component';
 import { ProductComponent } from './account-product.component';
 import { ShoppingCartComponent } from './shopping-cart.component';
@@ -162,6 +163,7 @@ import {
     StripePaymentDialogComponent,
   ],
   providers: [
+    CartService,
     PaymentsService,
   ],
   bootstrap: []

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { PaymentsService } from './payments.service';
+import { CartService } from './cart.service';
 
 @Component({
     selector: 'app-account-app-component',
@@ -26,7 +26,7 @@ import { PaymentsService } from './payments.service';
 })
 export class AccountAppComponent {
     constructor(
-        public  paymentsservice: PaymentsService,
+        public cart: CartService,
     ) {
     }
 }

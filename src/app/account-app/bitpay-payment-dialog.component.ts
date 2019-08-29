@@ -22,6 +22,7 @@ import { Router } from '@angular/router';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { CartService } from './cart.service';
 import { PaymentsService } from './payments.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
@@ -51,6 +52,7 @@ export class BitpayPaymentDialogComponent {
     redirect_url: string;
 
     constructor(
+        private cart: CartService,
         private dialog: MatDialog,
         private rmmapi: RunboxWebmailAPI,
         private paymentsservice: PaymentsService,
@@ -69,7 +71,7 @@ export class BitpayPaymentDialogComponent {
     redirect() {
         // the payment is not through yet, but this is the last call to clear the cart
         // (we won't get notified on the frontend of its confirmation)
-        this.paymentsservice.cart.clear();
+        this.cart.clear();
         window.location.href = this.redirect_url;
     }
 

@@ -19,31 +19,30 @@
     </p>
 </div>
 
-
-<table mat-table [dataSource]="items" [ngStyle]="{ width: '100%' }" *ngIf="items.length > 0 && itemsReady">
+<table mat-table [dataSource]="items" [ngStyle]="{ width: '100%' }" *ngIf="items.length > 0">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Product </th>
-        <td mat-cell *matCellDef="let p">
-            {{ products[p.pid].name }}
-            <span *ngIf="p.apid"> (renewal) </span>
+        <td mat-cell *matCellDef="let i">
+            {{ i.product.name }}
+            <span *ngIf="i.apid"> (renewal) </span>
         </td>
         <td mat-footer-cell *matFooterCellDef> <strong> Total </strong> </td>
     </ng-container>
 
     <ng-container matColumnDef="quantity">
         <th mat-header-cell *matHeaderCellDef> Quantity </th>
-        <td mat-cell *matCellDef="let p"> {{ p.quantity }} </td>
+        <td mat-cell *matCellDef="let i"> {{ i.quantity }} </td>
     </ng-container>
 
     <ng-container matColumnDef="price">
         <th mat-header-cell *matHeaderCellDef> Price </th>
-        <td mat-cell *matCellDef="let p"> {{ products[p.pid].price | number:'1.2-2' }} {{ currency }} </td>
+        <td mat-cell *matCellDef="let i"> {{ i.product.price | number:'1.2-2' }} {{ currency | async }} </td>
     </ng-container>
 
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
-        <td mat-cell *matCellDef="let p"> {{ products[p.pid].price * p.quantity | number:'1.2-2' }} {{ currency }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong> </td>
+        <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency | async }} </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | async | number:'1.2-2' }} {{ currency | async }} </strong> </td>
     </ng-container>
 
     <ng-container matColumnDef="remove">

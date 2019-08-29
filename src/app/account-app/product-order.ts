@@ -27,4 +27,10 @@ export class ProductOrder {
         this.quantity = quantity;
         this.apid     = apid;
     }
+
+    equals(other: ProductOrder): boolean {
+        return this.pid === other.pid
+            && this.apid === other.apid
+            && this.quantity === other.quantity;
+    }
 }

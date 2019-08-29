@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 
+import { CartService } from './cart.service';
 import { PaymentsService } from './payments.service';
 import { ProductOrder } from './product-order';
 
@@ -32,6 +33,7 @@ export class AccountRenewalsComponent {
     active_products = [];
 
     constructor(
+        private cart:            CartService,
         private paymentsservice: PaymentsService,
     ) {
         this.paymentsservice.activeProducts.subscribe(products => {
@@ -44,9 +46,8 @@ export class AccountRenewalsComponent {
                     p.expires_soon = true;
                 }
 
-                if (paymentsservice.cart.contains(p.pid, p.apid)) {
-                    p.ordered = true;
-                }
+                // TODO subscribe to cart to recheck these whenever they change
+                cart.contains(p.pid, p.apid).then(ordered => p.ordered = ordered);
 
                 return p;
             });
@@ -54,9 +55,8 @@ export class AccountRenewalsComponent {
     }
 
     renew(p: any) {
-        this.paymentsservice.cart.add(
-            new ProductOrder(p.pid, p.quantity, p.apid)
-        );
+        this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
+        // TODO follow-up: if we subscribe above then we don't have to flag it here
         p.ordered = true;
     }
 }

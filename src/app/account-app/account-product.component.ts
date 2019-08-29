@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input } from '@angular/core';
+import { CartService } from './cart.service';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 import { ProductOrder } from './product-order';
@@ -33,6 +34,7 @@ export class ProductComponent {
     quantity = 1;
 
     constructor(
+        private cart:            CartService,
         private paymentsservice: PaymentsService,
     ) {
     }
@@ -48,7 +50,7 @@ export class ProductComponent {
     }
 
     order() {
-        this.paymentsservice.cart.add(
+        this.cart.add(
             new ProductOrder(this.p.pid, this.quantity)
         );
     }
