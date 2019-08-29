@@ -61,7 +61,6 @@ export class PaypalPaymentDialogComponent {
         const return_url = window.location.href.replace(/account.*/, 'account/paypal/confirm');
         const cancel_url = window.location.href.replace(/account.*/, 'account/paypal/cancel');
         this.rmmapi.payWithPaypal(this.tid, return_url, cancel_url).subscribe(res => {
-            console.log(res);
             this.redirect_url = res.redirect_url;
         });
     }
