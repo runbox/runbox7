@@ -1,5 +1,5 @@
 <mat-sidenav-container class="dkim">
-    <mat-sidenav mode="side" opened=false></mat-sidenav>
+    <mat-sidenav mode="side" open="true"></mat-sidenav>
     <mat-sidenav-content>
             <section class="mat-typography">
                 <mat-card class='dkim'>
@@ -21,15 +21,14 @@
                         </mat-card-title>
                     </mat-card-header>
                     <mat-divider></mat-divider>
-                    <mat-accordion *ngIf="keys.length">
-                      <mat-expansion-panel *ngFor="let item of keys">
+                    <mat-accordion *ngIf="keys.length" [multi]="true">
+                      <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="true">
                         <mat-expansion-panel-header>
                             <mat-panel-title>
-                                {{item.selector_recordset_name}}
+                                <strong>DKIM Key#{{i}} </strong> {{item.selector_recordset_name}}
                             </mat-panel-title>
                           <mat-panel-description>
-                            updated at {{item.updated}}
-                            <span>{{get_status(item)}}</span>
+                              <span>{{get_status(item)}} {{item.date_expected_to_activate ? ' - will become active on ' + item.date_expected_to_activate : ''}}</span>
                           </mat-panel-description>
                         </mat-expansion-panel-header>
 
@@ -50,7 +49,38 @@
                             <mat-grid-tile style='background: lightblue;' *ngIf="is_rotating && !item.active">Key rotating?</mat-grid-tile>
                             <mat-grid-tile style='align-self: left' *ngIf="is_rotating && !item.active">Yes</mat-grid-tile>
 
+                            <mat-grid-tile style='background: lightblue;' *ngIf="!item.is_cname_correct && item.cname_check_result">
+                                Lastest cname check result
+                            </mat-grid-tile>
+                            <mat-grid-tile style='align-self: left' *ngIf="!item.is_cname_correct && item.cname_check_result">
+                                {{item.cname_check_result}}
+                            </mat-grid-tile>
+
+                            <mat-grid-tile style='background: lightblue;' *ngIf="!item.is_cname_correct && item.cname_check_result">
+                                Lastest cname <strong>expected</strong> result
+                            </mat-grid-tile>
+                            <mat-grid-tile style='align-self: left' *ngIf="!item.is_cname_correct && item.cname_check_result">
+                                {{item.cname_check_expected}}
+                            </mat-grid-tile>
+
                         </mat-grid-list>
+
+                        <h2>Tips to manually configure the DKIM keys:</h2>
+                        <pre>
+Use the following to configure manually in your DNS
+
+{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
+
+To check the cnames, you can use dig with this example:
+
+dig -t CNAME selector1._domainkey.usefulphysics.uk.
+
+and the expected response would be:
+
+;; ANSWER SECTION:
+{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
+
+                        </pre>
 
                         <div *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct">
                             <button mat-raised-button color="primary" (click)="reconfigure(item)">Reconfigure</button>
