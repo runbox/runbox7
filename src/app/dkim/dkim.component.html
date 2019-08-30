@@ -5,88 +5,89 @@
                 <mat-card class='dkim'>
                     <mat-card-header style="display: flex; width: 100%">
                         <mat-card-title style="flex-grow: 1">
-                            <h1 class="mat-h1">DKIM Signing</h1>
-                            <p>
-                                DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail that helps receiving email servers identify if the message was genuinely sent by you, the domain owner. The DKIM signature also confirms that certain aspects of the message have been unchanged since the digital signature was added.
-                            </p>
-                            <p>
-                                You can read more about DKIM here: <a href="https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail">https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail</a>
-                            </p>
-                            <p>
-                                If you have your domain hosted/registered via Runbox your DNS (Domain Name System) records are also probably managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below.
-                            </p>
-                            <p>
-                                If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
-                            </p>
+                          <h1>DKIM Signing of Domain Names</h1>
                         </mat-card-title>
                     </mat-card-header>
-                    <mat-divider></mat-divider>
-                    <mat-accordion *ngIf="keys.length" [multi]="true">
-                      <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="true">
+                    <p>
+		      DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
+                    </p>
+                    <p>
+		      If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below.
+                    </p>
+                    <p>
+		      If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
+                    </p>
+                    <mat-accordion *ngIf="keys.length" [multi]="true" style="margin-top: 20px">
+		      <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="true">
                         <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                <strong>DKIM Key#{{i}} </strong> {{item.selector_recordset_name}}
-                            </mat-panel-title>
+                          <mat-panel-title>
+                            <strong>DKIM Key #{{i}}: </strong>&nbsp;
+			    {{item.selector_recordset_name}}
+                          </mat-panel-title>
                           <mat-panel-description>
-                              <span>{{get_status(item)}} {{item.date_expected_to_activate ? ' - will become active on ' + item.date_expected_to_activate : ''}}</span>
+                            <span>{{get_status(item)}} {{item.date_expected_to_activate ? ' - will become active on ' + item.date_expected_to_activate : ''}}</span>
                           </mat-panel-description>
                         </mat-expansion-panel-header>
-
+			
                         <mat-grid-list cols="2" rowHeight="30px" style='max-width: 800px'>
 
-                            <mat-grid-tile style='background: lightblue;'>Hostname</mat-grid-tile>
-                            <mat-grid-tile style='text-align: left'>{{item.selector_recordset_name}}</mat-grid-tile>
+                            <mat-grid-tile class="tableTitle">Hostname</mat-grid-tile>
+                            <mat-grid-tile>{{item.selector_recordset_name}}</mat-grid-tile>
 
-                            <mat-grid-tile style='background: lightblue;' *ngIf="item.public_recordset_name">Address</mat-grid-tile>
-                            <mat-grid-tile style='text-align: left' *ngIf="item.public_recordset_name">{{item.public_recordset_name}}</mat-grid-tile>
+                            <mat-grid-tile class="tableTitle" *ngIf="item.public_recordset_name">Address</mat-grid-tile>
+                            <mat-grid-tile *ngIf="item.public_recordset_name">{{item.public_recordset_name}}</mat-grid-tile>
 
-                            <mat-grid-tile style='background: lightblue;'>CNAME Correct?</mat-grid-tile>
-                            <mat-grid-tile style='text-align: left'>{{item.is_cname_correct ? 'yes' : 'no'}}</mat-grid-tile>
+                            <mat-grid-tile class="tableTitle">CNAME Correct?</mat-grid-tile>
+                            <mat-grid-tile>{{item.is_cname_correct ? 'yes' : 'no'}}</mat-grid-tile>
 
-                            <mat-grid-tile style='background: lightblue;'>Key Active?</mat-grid-tile>
-                            <mat-grid-tile style='text-align: left'>{{item.is_active ? 'yes' : 'no'}}</mat-grid-tile>
+                            <mat-grid-tile class="tableTitle">Key Active?</mat-grid-tile>
+                            <mat-grid-tile>{{item.is_active ? 'yes' : 'no'}}</mat-grid-tile>
 
-                            <mat-grid-tile style='background: lightblue;' *ngIf="is_rotating && !item.active">Key rotating?</mat-grid-tile>
-                            <mat-grid-tile style='align-self: left' *ngIf="is_rotating && !item.active">Yes</mat-grid-tile>
+                            <mat-grid-tile class="tableTitle" *ngIf="is_rotating && !item.active">Key rotating?</mat-grid-tile>
+                            <mat-grid-tile *ngIf="is_rotating && !item.active">Yes</mat-grid-tile>
 
-                            <mat-grid-tile style='background: lightblue;' *ngIf="!item.is_cname_correct && item.cname_check_result">
-                                Lastest cname check result
+                            <mat-grid-tile class="tableTitle" *ngIf="!item.is_cname_correct && item.cname_check_result">
+                                Lastest CNAME check result
                             </mat-grid-tile>
-                            <mat-grid-tile style='align-self: left' *ngIf="!item.is_cname_correct && item.cname_check_result">
+                            <mat-grid-tile *ngIf="!item.is_cname_correct && item.cname_check_result">
                                 {{item.cname_check_result}}
                             </mat-grid-tile>
 
-                            <mat-grid-tile style='background: lightblue;' *ngIf="!item.is_cname_correct && item.cname_check_result">
-                                Lastest cname <strong>expected</strong> result
+                            <mat-grid-tile class="tableTitle" *ngIf="!item.is_cname_correct && item.cname_check_result">
+                                Lastest <strong>expected</strong> CNAME result
                             </mat-grid-tile>
-                            <mat-grid-tile style='align-self: left' *ngIf="!item.is_cname_correct && item.cname_check_result">
+                            <mat-grid-tile *ngIf="!item.is_cname_correct && item.cname_check_result">
                                 {{item.cname_check_expected}}
                             </mat-grid-tile>
 
                         </mat-grid-list>
 
-                        <h2>Tips to manually configure the DKIM keys:</h2>
+                        <h2 style="margin-top: 30px">Tips to manually configure the DKIM keys:</h2>
+			<p>
+			  Use the following to manually configure DKIM in your DNS:
+			</p>
                         <pre>
-Use the following to configure manually in your DNS
-
-{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
-
-To check the cnames, you can use dig with this example:
-
-dig -t CNAME selector1._domainkey.usefulphysics.uk.
-
-and the expected response would be:
-
-;; ANSWER SECTION:
-{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
-
+	{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
+			</pre>
+			<p>
+			  To check the CNAME records, you can use the "dig" command such as in this example:
+			</p>
+			<pre>
+	dig -t CNAME selector1._domainkey.usefulphysics.uk.
+			</pre>
+			<p>
+			  ...and the expected response would be:
+			</p>
+			<pre>
+	;; ANSWER SECTION:
+	{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
                         </pre>
 
                         <div *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct">
-                            <button mat-raised-button color="primary" (click)="reconfigure(item)">Reconfigure</button>
-                            <button mat-raised-button color="primary" (click)="check_cname(item)">Check cname</button>
+                            <button mat-raised-button color="primary" (click)="reconfigure(item)">Reconfigure *</button>
+                            <button mat-raised-button color="primary" (click)="check_cname(item)">Check CNAME</button>
                         </div>
-                        <span >* It might take some minutes for the system to be able to check recent changes.</span>
+                        <span >* It might take a few minutes for the system to be able to check recent changes.</span>
                         <span *ngIf="is_rotating && !item.active">
                             This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{item.date_rotation_initiated}} and is expected to take 7 days to become active.
                         </span>
@@ -95,9 +96,13 @@ and the expected response would be:
 
                     </mat-accordion>
                     <mat-divider></mat-divider>
-                    <div *ngIf="!keys.length && !is_creating_keys">
+		    <br />
+		    <div *ngIf="!domain">
+		      Please select a domain to continue.
+		    </div>
+                    <div *ngIf="domain && !keys.length && !is_creating_keys">
                         No keys found for {{domain}}
-                        <button mat-raised-button color="primary" (click)="create_keys()">Create keys for {{domain}}</button>
+                        <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}</button>
                     </div>
                     <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
                 </mat-card>
