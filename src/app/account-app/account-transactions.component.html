@@ -1,4 +1,7 @@
 <h1> Transactions </h1>
+<p>
+  Here you can see a list of all your payment transactions.
+
 <table mat-table [dataSource]="transactions" [ngStyle]="{ width: '100%' }">
     <ng-container matColumnDef="amount">
         <th mat-header-cell *matHeaderCellDef> Amount </th>
@@ -18,7 +21,7 @@
     </ng-container>
     <ng-container matColumnDef="time-desc">
         <th mat-header-cell *matHeaderCellDef> </th>
-        <td mat-cell *matCellDef="let t"> {{ t.time.fromNow() }} </td>
+        <td mat-cell *matCellDef="let t"> ({{ t.time.fromNow() }}) </td>
     </ng-container>
     <ng-container matColumnDef="receipt">
         <th mat-header-cell *matHeaderCellDef> Receipt </th>

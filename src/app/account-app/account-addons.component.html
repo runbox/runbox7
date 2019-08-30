@@ -7,16 +7,18 @@
 
 .productCard {
 	margin: 10px;
-	flex: 600px 1 0;
+	flex: 450px 1 0;
 }
 </style>
 
-<h1> Sub-accounts </h1>
+<h1> Add-ons </h1>
 
-<p> Some blurb about why this is cool </p>
+<h2> Sub-accounts </h2>
+
+<p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings. </p>
 
 <p>
-    For additional accounts tied to your main subscription, please select a number of sub-accounts below
+    To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
 </p>
 
 <div class="productGrid">
@@ -29,9 +31,9 @@
     </app-account-product>
 </div>
 
-<h1> Email add-ons </h1>
+<h2> Email add-ons </h2>
 
-<p> Some blurb about why this is cool </p>
+<p> Add-ons are individual upgrades that can be added to your main account. </p>
 
 <div class="productGrid">
     <app-account-product
@@ -43,16 +45,3 @@
     </app-account-product>
 </div>
 
-<h3> Web & Domain Hosting add-ons </h3>
-
-<p> Some blurb about why this is cool </p>
-
-<div class="productGrid">
-    <app-account-product
-        *ngFor="let p of hostingaddons"
-        class="productCard"
-        [p]="p"
-        [currency]="me.currency"
-    >
-    </app-account-product>
-</div>

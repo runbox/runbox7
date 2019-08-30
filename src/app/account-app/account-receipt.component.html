@@ -1,33 +1,56 @@
+<h1>Payment receipt</h1>
 <p>
-    The details for your purchase are shown below.
+    Thank you for your purchase. The details for your transaction are shown below.
+</p>
+<p>
     You may save or print this receipt, which you will also receive by email in your Runbox account.
 </p>
 
-<h1>
-    Transaction summary
-</h1>
+<h2>
+  Transaction summary
+</h2>
 
 <div *ngIf="ready | async; else loading">
-    <ul>
-        <li> <strong> Time of purchase: </strong> {{ receipt.time }}
-        <li> <strong> Method:           </strong> {{ receipt.method }}
-        <li *ngIf="receipt.status !== 0">
-            <strong> Status: {{ statuses[receipt.status] }} </strong>
-        </li>
-        <li> <strong> Account username: </strong> {{ me.username }}
-        <li> <strong> Charge:           </strong> {{ receipt.amount }} {{ receipt.currency }}
-        <li> <strong> Subscription ID:  </strong> {{ me.uid }}
-        <li> <strong> Transaction ID:   </strong> {{ receipt.tid }}
-        <li> <strong> Product{{ receipt.products.length > 1 ? 's' : '' }}: </strong>
-             <span *ngIf="receipt.products.length === 1">
-                {{ receipt.products[0][1] }}x {{ receipt.products[0][0] }}
-             </span>
-        <ul *ngIf="receipt.products.length > 1">
-            <li *ngFor="let p of receipt.products">
-                {{ p[1] }}x {{ p[0] }}
-            </li>
-        </ul>
-    </ul>
+  <table>
+    <tr>
+      <td><strong> Account username: </strong></td>
+      <td>{{ me.username }}</td>
+    </tr>
+    <tr>
+      <td><strong> Time of purchase: </strong></td>
+      <td>{{ receipt.time }}</td>
+    </tr>
+    <tr>
+      <td><strong> Method: </strong></td>
+      <td>{{ receipt.method }}</td>
+    </tr>
+    <tr>
+      <td><strong>Status:</strong></td>
+      <td>{{ statuses[receipt.status] }}</td>
+    </tr>
+    <tr>
+      <td><strong> Charge: </strong></td>
+      <td>{{ receipt.amount }} {{ receipt.currency }}</td>
+    </tr>
+    <tr>
+      <td><strong> Subscription ID: </strong></td>
+      <td>{{ me.uid }}</td>
+    </tr>
+    <tr>
+      <td><strong> Transaction ID: </strong></td>
+      <td>{{ receipt.tid }}</td>
+    </tr>
+    <tr>
+      <td><strong> Product{{ receipt.products.length > 1 ? 's' : '' }}: </strong></td>
+      <td><span *ngIf="receipt.products.length === 1">
+	  {{ receipt.products[0][1] }}x {{ receipt.products[0][0] }}
+	</span>
+	<div *ngFor="let p of receipt.products">
+          {{ p[1] }} x {{ p[0] }}
+	</div>
+      </td>
+    </tr>
+  </table>
 
     <div *ngIf="receipt.status == 1 && receipt.method === 'offline'">
         <p>

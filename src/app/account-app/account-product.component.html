@@ -1,3 +1,9 @@
+<style>
+mat-card {
+        min-height: 150px;
+}
+</style>
+
 <mat-card>
     <mat-card-title>
         {{ p.name }}
@@ -9,7 +15,7 @@
         <ng-content></ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
-        <button mat-button (click)="order()">
+        <button mat-button (click)="order()" class="contentButton">
             Upgrade for {{ p.price }} {{ currency }}
         </button>
     </mat-card-actions>
@@ -23,7 +29,7 @@
         <button mat-icon-button (click)="more()">
             <mat-icon> add_circle_outline </mat-icon>
         </button>
-        <button mat-button (click)="order()">
+        <button mat-button (click)="order()" class="contentButton" style="margin-left: 20px !important">
             Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
         </button>
     </mat-card-actions>

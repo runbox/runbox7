@@ -1,4 +1,10 @@
-<h2 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h2>
+<style>
+app-payment-method {
+    text-align: center;
+}
+</style>
+
+<h1 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h1>
 <ng-template #urlPurchase> <h2> Your purchase </h2> </ng-template>
 
 <div *ngIf="items.length === 0">
@@ -82,7 +88,7 @@
             (clicked)="initiatePayment('stripe')"
         >
             <p>
-                Pay with your credit/debit card using Stripe
+                Pay with your credit/debit card using Stripe.
             </p>
             <p>
                 All card details are processed securely.
@@ -105,9 +111,9 @@
             </p>
         </app-payment-method>
 
-        <mat-expansion-panel style="margin: 10px;">
+        <mat-expansion-panel style="margin: 50px 10px; text-align: center;">
             <mat-expansion-panel-header>
-                <mat-panel-title> Other payment methods </mat-panel-title>
+                <mat-panel-title style="text-align: center"> Other payment methods </mat-panel-title>
             </mat-expansion-panel-header>
 
             <div style="display: flex; flex-direction: column; align-items: center;">
@@ -125,9 +131,10 @@
                     </button>
                 </p>
                 <p>
-                    You can send us an International Money Order, a SWIFT/IBAN bank transfer
-                    or even email us an envelope with cash.
-                    Your products won't activate until the money is received by Runbox.
+                    You can send us an International Money Order, a SWIFT/IBAN bank transfer or even mail us an envelope with cash.
+		</p>
+		<p>
+                    Your products won't activate until the payment is received by Runbox.
                 </p>
             </div>
         </mat-expansion-panel>

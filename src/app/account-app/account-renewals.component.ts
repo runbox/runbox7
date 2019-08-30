@@ -38,6 +38,7 @@ export class AccountRenewalsComponent {
     ) {
         this.paymentsservice.activeProducts.subscribe(products => {
             this.active_products = products.map(p => {
+                p.active_from = moment(p.active_from, moment.ISO_8601);
                 p.active_until = moment(p.active_until, moment.ISO_8601);
                 const day_diff = p.active_until.diff(moment(), 'days');
                 if (day_diff < 0) {
