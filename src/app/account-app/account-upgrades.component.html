@@ -7,7 +7,7 @@
 
 .productCard {
 	margin: 10px;
-	flex: 600px 1 0;
+	flex: 450px 1 0;
 }
 </style>
 
@@ -19,16 +19,17 @@
     </p>
 
     <p>
-        Note: When selecting a subscription plan please note that your current email disk usage is
+      Here you can upgrade your account's subscription plan.
+    <p>
+        Note: When selecting a subscription plan, please note that your current email disk usage is
         {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
     </p>
 
     <p>
         Don't forget to check out
-        <button mat-button routerLink="/account/addons">
+        <button mat-button routerLink="/account/addons" class="contentButton">
             <mat-icon> extension </mat-icon> account addons
         </button>
-        !
     </p>
 
     <div id="productGrid">

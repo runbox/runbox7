@@ -22,8 +22,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'app-payment-method',
     template: `
-<mat-card>
-    <div style="height: 120px">
+<mat-card style="width: 350px; height: 250px">
+    <div style="width: 350px; height: 120px">
         <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}"
              style="width: 350px">
     </div>
@@ -32,7 +32,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center; align-items: center;">
-        <button mat-flat-button color="primary" (click)="clicked.emit()">PROCEED TO PAYMENT</button>
+        <button mat-flat-button color="primary" (click)="clicked.emit()">PAY NOW</button>
     </mat-card-actions>
 </mat-card>
     `,

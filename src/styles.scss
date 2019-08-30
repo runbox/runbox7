@@ -83,6 +83,10 @@ h5 {
     font-size: 16px;
 }
 
+th {
+   font-size: 16px;
+}
+
 
 /* Generic MD styles */
 
@@ -109,12 +113,16 @@ mat-icon {
     vertical-align: middle !important;
 }
 
+.mat-header-cell {
+    font-size: 16px;
+}
+
 /* Generic custom styles */
 
 .contentButton {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
-    padding: 5px 5px 3px 5px !important;
+    padding: 5px 10px 3px 10px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
