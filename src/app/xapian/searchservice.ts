@@ -730,7 +730,7 @@ export class SearchService {
             if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] >= 1) {
               this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath]++;
 
-              if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] === 3) {
+              /*if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] === 3) {
                 this.dialog.open(InfoDialog, {data: new InfoParams(
                   `Message count mismatch in folder ${currentFolder.folderName}`,
                   `<p>Your local search index is not in sync for folder ${currentFolder.folderName}.
@@ -742,7 +742,7 @@ export class SearchService {
                   reload and click "Start synchronizing" to download a fresh index.</p>
                   `)
                 });
-              }
+              }*/
             } else {
               // Only check folder discrepancies once per folder
               this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] = 1;
