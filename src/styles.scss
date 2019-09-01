@@ -45,11 +45,6 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
-mat-form-field {
-    /* This is for iOS not to zoom in when focusing on text fields */
-    font-size: 16px !important;
-}
-
 /* Generic styles */
 
 html {
@@ -85,6 +80,11 @@ h5 {
 
 
 /* Generic MD styles */
+
+.mat-body p, .mat-body-1 p, .mat-typography p  {
+    font-size: 16px;
+    line-height: 1.25em;
+}
 
 .mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>* {
     padding: 0px 10px !important;
@@ -135,6 +135,12 @@ mat-grid-tile.tableTitle {
 .mainTextContent {
     padding: 3em;
 }
+
+mat-form-field {
+    /* This is for iOS not to zoom in when focusing on text fields */
+    font-size: 16px !important;
+}
+
 
 /* Palette colors */
 
@@ -497,6 +503,11 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
 .mat-nav-list a.textLink {
     color: mat-color($rmm-default-primary);
     text-decoration: underline;
+}
+
+.lightBulb {
+  -webkit-transform: scaleY(-1);
+  transform: scaleY(-1);
 }
 
 /* Folders */
