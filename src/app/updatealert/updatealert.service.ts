@@ -21,6 +21,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatDialog } from '@angular/material';
 import { UpdateAlertComponent } from './updatealert.component';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class UpdateAlertService {
@@ -29,12 +30,14 @@ export class UpdateAlertService {
         private ngZone: NgZone,
         dialog: MatDialog
     ) {
-        console.log('UpdateAlertService started');
-        swupdate.available.subscribe(() => {
-            dialog.open(UpdateAlertComponent);
-        });
+        if (environment.production) {
+            console.log('UpdateAlertService started');
+            swupdate.available.subscribe(() => {
+                dialog.open(UpdateAlertComponent);
+            });
 
-        this.checkForUpdates();
+            this.checkForUpdates();
+        }
     }
 
     checkForUpdates() {

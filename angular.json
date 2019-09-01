@@ -20,15 +20,20 @@
               "src/assets",
               {
                 "glob": "xapianasm*",
-                "input": "",
+                "input": "node_modules/runbox-searchindex/",
                 "output": "/"
               },
+              { "glob": "**/*", "input": "node_modules/tinymce/skins", "output": "/tinymce/skins/" },
+              { "glob": "**/*", "input": "node_modules/tinymce/themes", "output": "/tinymce/themes/" },
+              { "glob": "**/*", "input": "node_modules/tinymce/plugins", "output": "/tinymce/plugins/" },
               "src/manifest.json"
             ],
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/tinymce/tinymce.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -95,7 +100,7 @@
               "src/assets",
               {
                 "glob": "xapianasm*",
-                "input": "",
+                "input": "node_modules/runbox-searchindex/",
                 "output": "/"
               },
               "src/manifest.json"

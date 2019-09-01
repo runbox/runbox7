@@ -51,7 +51,11 @@
       <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>9" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
         <mat-icon>settings</mat-icon>
       </button>      
-      <button mat-icon-button *ngIf="morebuttonindex < 10" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More">
+      <a *ngIf="mailContentHTML && morebuttonindex>10" mat-icon-button
+        matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
+        <mat-icon>warning</mat-icon>
+      </a>
+      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More">
         <mat-icon>more_vert</mat-icon>
       </button>
       
@@ -125,6 +129,11 @@
           <mat-icon>settings</mat-icon>
           <span>HTML settings</span>
         </button>        
+	<a *ngIf="mailContentHTML && morebuttonindex<11" mat-menu-item
+          [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
+          <mat-icon>warning</mat-icon>
+	  <span>Original HTML</span> 
+	</a>
       </mat-menu>
     </div>
 
@@ -170,24 +179,28 @@
       </div>
       <ng-container *ngIf="!showAllHeaders">
         <div class="messageHeaderRow">
-          <div class="messageHeaderFrom">From:</div>
-          <div class="messageHeaderFrom">{{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt;</div>        
+          <div class="messageHeaderFrom">
+            From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+          </div>
         </div>
         <div class="messageHeaderRow">                                                                                                                                       
           <div class="messageHeaderDate">Time:</div>
           <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
         </div>
         <div *ngIf="mailObj.to" class="messageHeaderRow">
-          <div class="messageHeaderTo">To:</div>
-          <div class="messageHeaderTo"><span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span></div>
+          <div class="messageHeaderTo">
+            To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+          </div>
         </div>
         <div *ngIf="mailObj.cc" class="messageHeaderRow">
-          <div class="messageHeaderCC">CC:</div>
-          <div class="messageHeaderCC"><span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span></div>
+          <div class="messageHeaderCC">
+            CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+          </div>
         </div>
         <div *ngIf="mailObj.bcc"class="messageHeaderRow">
-          <div class="messageHeaderBCC">BCC:</div>
-          <div class="messageHeaderBCC"><span *ngFor="let to of mailObj.bcc">{{to.name}} &lt;{{to.address}}&gt;</span></div>
+          <div class="messageHeaderBCC">
+            BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+          </div>
         </div>
       </ng-container>      
       <table *ngIf="showAllHeaders">
@@ -284,21 +297,24 @@
       <mat-card-content>        
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile 
-            *ngFor="let att of mailObj.attachments; let i=index" 
-            (click)="openAttachment(i)">
-              <img *ngIf="att.contentType.indexOf('image')===0; else attachment_icon" matListAvatar 
-                [src]="                
-                  '/rest/v1/email/' + messageId + '/attachmentimagethumbnail/' + i
-                " />
+            *ngFor="let att of mailObj.attachments; let i=index"
+            (click)="openAttachment(att)">
+              <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
+                <img  matListAvatar                 
+                  [src]="att.thumbnailURL" />                
+              </ng-container>
               <ng-template #attachment_icon>
                 <mat-icon matListAvatar 
-                  >{{attachmentIconFromContentType(att.contentType)}}</mat-icon>                
-                
+                  >{{attachmentIconFromContentType(att.contentType)}}</mat-icon>                                
               </ng-template>              
               <mat-grid-tile-footer style="display: flex; text-align: center">
-                  <span>{{att.fileName}}</span>                      
+                  <span>{{att.filename}}</span>                      
+                  <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
+                    matTooltip="Decrypt message"
+                    (click)="decryptAttachment(i);$event.stopPropagation()"
+                  ><mat-icon>lock_open</mat-icon></button>
                   <button mat-icon-button
-                    (click)="openAttachment(i,true);$event.stopPropagation()"
+                    (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
                   ><mat-icon>cloud_download</mat-icon></button>
               </mat-grid-tile-footer>
           </mat-grid-tile>            

@@ -53,6 +53,8 @@ import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
 import { ProgressService } from './http/progress.service';
+import { environment } from '../environments/environment';
+import { LogoutService } from './login/logout.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -140,6 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private sanitizer: DomSanitizer,
     private renderer: Renderer2,
     private ngZone: NgZone,
+    public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
     private draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
@@ -159,8 +162,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.rmmapi = rmmapi;
     this.messageActionsHandler.searchService = searchService;
     this.messageActionsHandler.snackBar = snackBar;
-
-    this.rmmapi.markSeenSubject.subscribe(() => this.canvastable.hasChanges = true);
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (Object.keys(this.selectedRowIds).length === 1 && this.singlemailviewer.messageId) {
@@ -293,7 +294,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
-        throttleTime(500),
+        filter(() => !this.canvastable.isScrollInProgress()),
+        throttleTime(1000),
         map(() => this.canvastable.getVisibleRowIndexes()),
         mergeMap((rowIndexes) =>
           from(
@@ -312,7 +314,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             mergeMap(o =>
               o.pipe(
                 mergeMap(messageId => this.rmmapi.getMessageContents(messageId)),
-                take(1)
+                take(1),
+                tap(() => this.canvastable.hasChanges = true)
               ), 1),
             bufferCount(rowIndexes.length)
           )
@@ -330,6 +333,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   subscribeToNotifications() {
+    if (environment.production) {
       this.http.get('/rest/v1/webpush/vapidkeys').pipe(
         map(res => res.json()),
         map(jwk => exportKeysFromJWK(jwk).public),
@@ -341,6 +345,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         )),
         mergeMap(sub => this.http.post('/rest/v1/webpush/subscribe', sub))
       ).subscribe();
+    }
   }
 
   public drafts() {
@@ -485,7 +490,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public isBoldRow(rowObj: any) {
     if (this.showingSearchResults) {
-      return this.searchService.api.getNumericValue(rowObj[0], 4) === 0;
+      return this.searchService.getDocData(rowObj[0]).seen ? false : true;
     } else if (this.showingWebSocketSearchResults) {
       return !(rowObj as WebSocketSearchMailRow).seen;
     } else {
@@ -812,15 +817,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           default:
             if (this.searchText.length < 3) {
               // Expand to all folders if search text length is longer than 3 characters
-              const folderQuery = (folderName) => (this.unreadMessagesOnlyCheckbox ? 'unread' : '')
-                + 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
-
-              if (this.selectedFolder === 'Inbox') {
-                // Workaround for IMAP setting folder to "INBOX" when moving messages  there
-                querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
-              } else {
-                querytext += folderQuery(this.selectedFolder);
-              }
+              querytext += this.searchService.getFolderQuery(querytext, this.selectedFolder, this.unreadMessagesOnlyCheckbox);
             }
         }
         const previousDisplayFolderColumn = this.displayFolderColumn;
@@ -910,7 +907,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.usewebsocketsearch = true;
         } else {
           const dialogRef = this.dialog.open(ConfirmDialog);
-          dialogRef.componentInstance.title = 'Welcome to Runbox 7 Webmail!';
+          dialogRef.componentInstance.title = 'Welcome to Runbox 7!';
           dialogRef.componentInstance.question =
             `Runbox 7 will now synchronize  with your device to give you an optimal webmail experience.
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;

@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>Importing {{ contacts.length }} contacts</h2>
+
+<div mat-dialog-content>
+    <p>
+        <mat-radio-group [(ngModel)]="choice">
+            <p>
+                <mat-radio-button value="existing"> Import contacts into an existing group </mat-radio-button>
+            </p>
+            <p *ngIf="choice == 'existing'">
+                <mat-select placeholder="Group" [(ngModel)]="target_existing">
+                    <mat-option *ngFor="let group of groups" [value]="group">
+                        {{ group }}
+                    </mat-option>
+                </mat-select>
+            </p>
+            <p>
+                <mat-radio-button value="new"> Import contacts into a new group </mat-radio-button>
+            </p>
+            <p *ngIf="choice == 'new'">
+                <input matInputtype="text" [(ngModel)]="target_new">
+            </p>
+            <p>
+                <mat-radio-button value="nogroup"> Don't add new contacts to any groups </mat-radio-button>
+            </p>
+        </mat-radio-group>
+    </p>
+</div>
+
+<div mat-dialog-actions style="justify-content: flex-end;">
+    <button mat-button (click)="onCancelClick()">
+        Cancel
+    </button>
+
+    <button mat-raised-button color="primary" (click)="onSubmitClick()">
+        Import contacts
+    </button>
+</div>

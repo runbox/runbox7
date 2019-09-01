@@ -17,31 +17,23 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { ProgressDialog } from './progress.dialog';
 
-import { ContactListComponent } from './contactlist.component';
-import { ContactsAppModule } from '../contacts-app.module';
+@Injectable()
+export class DialogService {
+    constructor(
+        private dialog: MatDialog
+    ) {
 
-describe('ContactListComponent', () => {
-  let component: ContactListComponent;
-  let fixture: ComponentFixture<ContactListComponent>;
+    }
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        ContactsAppModule
-      ]
-    })
-    .compileComponents();
-  }));
+    openProgressDialog() {
+        ProgressDialog.open(this.dialog);
+    }
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ContactListComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    closeProgressDialog() {
+        ProgressDialog.close();
+    }
+}

@@ -1,0 +1,119 @@
+<div>
+    <h4>
+        {{ title }}
+        <a mat-button (click)="hidden = false" *ngIf="hidden">
+            Show {{ faObj.controls.length }} elements
+        </a>
+        <a mat-button (click)="hidden = true" *ngIf="!hidden">
+            Hide {{ faObj.controls.length }} elements
+        </a>
+    </h4>
+    <div [formGroup]="inputFG" *ngIf="!hidden">
+        <table [formArrayName]="faName" *ngFor="let elem of faObj.controls; let i=index">
+            <div [formGroupName]="i">
+                <tr>
+                    <td *ngFor="let type of elem.get('types').controls; let j=index">
+                        <mat-form-field>
+                            <mat-select placeholder="Type" [formControl]="type">
+                                <mat-option> None </mat-option>
+                                <!-- I'd rather now have these hardcoded, but you can't really ngFor-generate them for now:
+                                     they hang up the browser for some reason. Someone's SA:
+                                     https://stackoverflow.com/questions/54954934/nested-forms-and-control-vs-value-help-needed
+                                -->
+                                <div *ngIf="faName === 'emails'">
+                                    <mat-option value="home"> Personal </mat-option>
+                                    <mat-option value="work"> Work     </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'related'">
+                                    <mat-option value="child">  Child  </mat-option>
+                                    <mat-option value="spouse"> Spouse </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'phones'">
+                                    <mat-option value="home"> Home </mat-option>
+                                    <mat-option value="work"> Work </mat-option>
+                                    <mat-option value="cell"> Cell </mat-option>
+                                    <mat-option value="fax">  Fax  </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'urls'">
+                                    <mat-option value="personal"> Personal </mat-option>
+                                    <mat-option value="work">     Work     </mat-option>
+                                </div>
+
+                                <div *ngIf="faName === 'addresses'">
+                                    <mat-option value="home"> Home </mat-option>
+                                    <mat-option value="work"> Work </mat-option>
+                                </div>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                    <div *ngIf="layout === 'simple'">
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="value" [placeholder]="valuePlaceholder">
+                            </mat-form-field>
+                        </td>
+                        <td *ngIf="actionIcon === 'link'">
+                            <a mat-button href="{{ elem.value.value }}">
+                                <mat-icon>{{ actionIcon }} </mat-icon> {{ actionDescription }}
+                            </a>
+                        </td>
+                        <td *ngIf="actionIcon === 'email'">
+                            <a mat-button routerLink="/compose" [queryParams]="{to: elem.value.value }">
+                                <mat-icon>{{ actionIcon }}</mat-icon> {{ actionDescription }}
+                            </a>
+                        </td>
+                    </div>
+                    <td>
+                        <a mat-button (click)="removeAt(i)" *ngIf="editable">
+                            <mat-icon>delete</mat-icon> {{ deleteDescription }}
+                        </a>
+                    </td>
+                </tr>
+                <div formGroupName="value" *ngIf="layout === 'complex'">
+                    <!-- so far it means we're dealing with an address -->
+                    <tr>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="street" placeholder="Street">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <!-- placeholder for 'extended' -->
+                        </td>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="city" placeholder="City">
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="region" placeholder="Region">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="post_code" placeholder="Post code">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field>
+                                <input matInput formControlName="country" placeholder="Country">
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                </div>
+            </div>
+        </table>
+
+        <div>
+            <a mat-button (click)="newElementClicked.emit()" *ngIf="editable">
+                <mat-icon>add</mat-icon> {{ addNewDescription }}
+            </a>
+        </div>
+    </div>
+</div>

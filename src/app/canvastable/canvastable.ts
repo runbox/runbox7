@@ -90,7 +90,7 @@ export interface CanvasTableColumn {
   originalWidth?: number;
   font?: string;
   backgroundColor?: string;
-  tooltipText?: string;
+  tooltipText?: string | ((rowobj: any) => string);
   draggable?: boolean;
   sortColumn: number;
   excelCellAttributes?: any;
@@ -179,8 +179,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   private scrollBarRect: any;
 
+  private isTouchZoom = false;
   private touchdownxy: any;
-  private scrollbardrag: Boolean = false;
+  private scrollbarDragInProgress = false;
   private scrollbarArea = false;
 
   visibleColumnSeparatorAlpha = 0;
@@ -232,6 +233,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       this.hasChanges = true;
     }
   }
+
+  private dragSelectionDirectionIsDown: Boolean = null;
 
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
@@ -324,7 +327,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       const canvrect = this.canv.getBoundingClientRect();
       this.touchdownxy = { x: clientX - canvrect.left, y: clientY - canvrect.top };
       if (checkIfScrollbarArea(clientX, clientY)) {
-        this.scrollbardrag = true;
+        this.scrollbarDragInProgress = true;
         this.scrollbarArea = true;
       } else if (checkIfScrollbarArea(clientX, clientY, true)) {
         // Check if click is above or below scrollbar slider
@@ -351,6 +354,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       if (this.visibleColumnSeparatorIndex > 0) {
         this.columnresizestart.emit({ colindex: this.visibleColumnSeparatorIndex, clientx: event.clientX });
       }
+
+      // Reset drag select direction
+      this.dragSelectionDirectionIsDown = null;
     };
 
     let previousTouchY: number;
@@ -358,12 +364,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     let touchMoved = false;
 
     this.canv.addEventListener('touchstart', (event: TouchEvent) => {
+      this.isTouchZoom = false;
 
       this.canv.focus(); // Take away focus from search field
       previousTouchX = event.targetTouches[0].clientX;
       previousTouchY = event.targetTouches[0].clientY;
       checkScrollbarDrag(event.targetTouches[0].clientX, event.targetTouches[0].clientY);
-      if (this.scrollbardrag) {
+      if (this.scrollbarDragInProgress) {
         event.preventDefault();
       }
 
@@ -372,13 +379,17 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
 
     this.canv.addEventListener('touchmove', (event: TouchEvent) => {
+      if (event.targetTouches.length > 1) {
+        this.isTouchZoom = true;
+        return;
+      }
       event.preventDefault();
       touchMoved = true;
 
       if (event.targetTouches.length === 1) {
         const newTouchY = event.targetTouches[0].clientY;
         const newTouchX = event.targetTouches[0].clientX;
-        if (this.scrollbardrag === true) {
+        if (this.scrollbarDragInProgress === true) {
           this.doScrollBarDrag(newTouchY);
         } else {
 
@@ -401,24 +412,28 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     }, false);
 
     this.canv.addEventListener('touchend', (event: TouchEvent) => {
+      if (this.isTouchZoom) {
+        return;
+      }
       event.preventDefault();
       if (!this.scrollbarArea && !touchMoved) {
         this.selectRow(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
       }
-      if (this.scrollbardrag) {
-        this.scrollbardrag = false;
+      if (this.scrollbarDragInProgress) {
+        this.scrollbarDragInProgress = false;
+        this.hasChanges = true;
       }
     });
 
     this.renderer.listenGlobal('window', 'mousemove', (event: MouseEvent) => {
-      if (this.scrollbardrag === true) {
+      if (this.scrollbarDragInProgress === true) {
         event.preventDefault();
         this.doScrollBarDrag(event.clientY);
       }
     });
 
     this.canv.onmousemove = (event: MouseEvent) => {
-      if (this.scrollbardrag === true) {
+      if (this.scrollbarDragInProgress === true) {
         event.preventDefault();
         return;
       }
@@ -426,39 +441,69 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       const canvrect = this.canv.getBoundingClientRect();
       const clientX = event.clientX - canvrect.left;
 
-      if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
-        this.columnresize.emit(this.visibleColumnSeparatorIndex);
-      } else {
-        this.updateVisibleColumnSeparatorIndex(clientX);
-      }
-
-      if (this.visibleColumnSeparatorIndex > 0) {
-        this.lastClientY = event.clientY - canvrect.top;
-        this.hasChanges = true;
-        return;
-      }
-
       let newHoverRowIndex = Math.floor(this.topindex + (event.clientY - canvrect.top) / this.rowheight);
-      if (this.scrollbardrag || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
+      if (this.scrollbarDragInProgress || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
         newHoverRowIndex = null;
       }
 
       if (this.hoverRowIndex !== newHoverRowIndex) {
-        this.hoverRowIndex = newHoverRowIndex;
+        // check if mouse is down
         if (this.lastMouseDownEvent) {
+          // set drag select direction to true if down, or false if up
+          const newDragSelectionDirectionIsDown = newHoverRowIndex > this.hoverRowIndex ? true : false;
 
-          this.selectRow(this.lastMouseDownEvent.clientX, event.clientY);
+          if (this.dragSelectionDirectionIsDown !== newDragSelectionDirectionIsDown) {
+            // select previous row on drag select direction change
+            this.selectRowByIndex(this.lastMouseDownEvent.clientX, this.hoverRowIndex);
+            this.dragSelectionDirectionIsDown = newDragSelectionDirectionIsDown;
+          }
+          let rowIndex = this.hoverRowIndex;
+          // Select all rows between the previous and current hover row index
+          while (
+            (newDragSelectionDirectionIsDown === true && rowIndex < newHoverRowIndex) ||
+            (newDragSelectionDirectionIsDown === false && rowIndex > newHoverRowIndex)
+            ) {
+            if (newDragSelectionDirectionIsDown === true) {
+              rowIndex ++;
+            } else {
+              rowIndex --;
+            }
+            this.selectRowByIndex(this.lastMouseDownEvent.clientX, rowIndex);
+          }
         }
+        this.hoverRowIndex = newHoverRowIndex;
         this.updateDragImage(newHoverRowIndex);
       }
-      if (this.hoverRowIndex !== null) {
+
+      if (this.dragSelectionDirectionIsDown === null) {
+        // Check for column resize
+        if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
+          this.columnresize.emit(this.visibleColumnSeparatorIndex);
+        } else {
+          this.updateVisibleColumnSeparatorIndex(clientX);
+        }
+
+        if (this.visibleColumnSeparatorIndex > 0) {
+          this.lastClientY = event.clientY - canvrect.top;
+          this.hasChanges = true;
+          return;
+        }
+      }
+
+      if (this.dragSelectionDirectionIsDown === null && this.hoverRowIndex !== null) {
         const colIndex = this.getColIndexByClientX(clientX);
         let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
-        if (!event.shiftKey && !this.lastMouseDownEvent
-          && this.columns[colIndex]
-          && this.columns[colIndex].draggable) {
+        let tooltipText: string | ((rowobj: any) => string) =
+              this.columns[colIndex] && this.columns[colIndex].tooltipText;
 
+        if (typeof tooltipText === 'function' && this.rows[this.hoverRowIndex]) {
+          tooltipText = tooltipText(this.rows[this.hoverRowIndex]);
+        }
+
+        if (!event.shiftKey && !this.lastMouseDownEvent &&
+            (tooltipText || (this.columns[colIndex] && this.columns[colIndex].draggable))
+          ) {
           if (this.rowWrapMode &&
             colIndex >= this.rowWrapModeWrapColumn) {
             // Subtract first row width if in row wrap mode
@@ -470,7 +515,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
             (this.hoverRowIndex - this.topindex) * this.rowheight,
             colStartX - this.horizScroll + this.colpaddingleft,
             this.columns[colIndex].width - this.colpaddingright - this.colpaddingleft,
-            this.rowheight, this.columns[colIndex].tooltipText);
+            this.rowheight, tooltipText as string);
 
           if (this.rowWrapMode) {
             this.floatingTooltip.top +=
@@ -480,7 +525,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
           setTimeout(() => {
             if (this.columnOverlay) {
-              this.columnOverlay.show(1000);
+              this.columnOverlay.show(300);
             }
           }, 0);
         } else {
@@ -490,6 +535,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         this.floatingTooltip = null;
       }
     };
+
     this.canv.onmouseout = (event: MouseEvent) => {
       const newHoverRowIndex = null;
       if (this.hoverRowIndex !== newHoverRowIndex) {
@@ -500,8 +546,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this.renderer.listenGlobal('window', 'mouseup', (event: MouseEvent) => {
       this.touchdownxy = undefined;
       this.lastMouseDownEvent = undefined;
-      if (this.scrollbardrag) {
-        this.scrollbardrag = false;
+      if (this.scrollbarDragInProgress) {
+        this.scrollbarDragInProgress = false;
+        this.hasChanges = true;
       }
     });
 
@@ -517,6 +564,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       }
 
       this.lastMouseDownEvent = null;
+      this.dragSelectionDirectionIsDown = null;
     };
 
 
@@ -612,12 +660,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       event.dataTransfer.dropEffect = 'move';
       event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
+      this.selectListener.rowSelected(selectedRowIndex, -1, this.rows[selectedRowIndex]);
     } else {
       event.preventDefault();
       this.lastMouseDownEvent = event;
     }
 
-    this.selectListener.rowSelected(selectedRowIndex, -1, this.rows[selectedRowIndex]);
     this.hasChanges = true;
   }
 
@@ -676,6 +724,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     }
   }
 
+  public isScrollInProgress(): boolean {
+    return this.scrollbarDragInProgress || Math.abs(this.touchScrollSpeedY) > 0;
+  }
+
   public getVisibleRowIndexes(): number[] {
     return new Array(Math.floor(this.maxVisibleRows))
       .fill(0).map((v, n) => Math.round(this.topindex + n));
@@ -701,9 +753,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   public selectRow(clientX: number, clientY: number, multiSelect?: boolean) {
     const canvrect = this.canv.getBoundingClientRect();
-    clientX -= canvrect.left;
-
     const selectedRowIndex = Math.floor(this.topindex + (clientY - canvrect.top) / this.rowheight);
+    this.selectRowByIndex(clientX, selectedRowIndex, multiSelect);
+  }
+
+  public selectRowByIndex(clientX: number, selectedRowIndex: number, multiSelect?: boolean) {
+    const canvrect = this.canv.getBoundingClientRect();
+    clientX -= canvrect.left;
 
     this.selectListener.rowSelected(selectedRowIndex,
       this.getColIndexByClientX(clientX),
@@ -1318,7 +1374,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         height: scrollbarheight - scrollbarverticalpadding
       };
 
-      if (this.scrollbardrag) {
+      if (this.scrollbarDragInProgress) {
         this.ctx.fillStyle = 'rgba(200,200,255,0.5)';
         this.roundRect(this.ctx,
           this.scrollBarRect.x - 4,

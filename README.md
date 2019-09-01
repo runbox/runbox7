@@ -37,13 +37,15 @@ Installation instructions for Node and NPM:
 
 ## Development with your Runbox account (using production servers as backend)
 
-To get started with frontend development without setting up any server.
+Get started with frontend development without setting up any server, by using the Runbox production servers as backend.
 
-Simply run:
+In your repository directory, simply run:
 
 `npm start`
 
-Log in with your production runbox account.
+Then open [http://localhost:4200](http://localhost:4200) in a browser and log in with your Runbox account.
+
+To acquire a Runbox account, simply [sign up](https://runbox.com/signup) for a free 30-day trial account. If you would like to contribute to the Runbox 7 project longer term, contact us either via Github or [Runbox Support](https://support.runbox.com) with you username and you can get a complimentary Runbox account for development purposes.
 
 ## Development with Mock server
 
@@ -57,17 +59,19 @@ And then from another terminal you can start the Angular app using the mockserve
 
 `npm run start-use-mockserver`
 
-## Development with your own Runbox server installation
+## Development with your own server installation
 
-Run `npm run appdev` and you will be able to access Runbox 7 at `https://yourvm/appdev`
+Run `npm run appdev` and you will be able to access Runbox 7 at `https://yourvm/appdev`.
 
-## Development server with Runbox proxy
+This option requires the full Runbox backend, which is not yet open source.
+
+## Development server with proxy
 
 By default running `npm start` will use the production environment at https://runbox.com as backend. If you want to use another backend you may change the `RUNBOX7_ANGULAR_BACKEND_HOST` environment variable.
 
 Run `RUNBOX7_ANGULAR_BACKEND_HOST=https://yourvm.runbox.com npm start` to use the backend of your choice.
     
-You may then access the angular app at: [http://localhost:4200](http://localhost:4200)
+You may then access the Angular app at: [http://localhost:4200](http://localhost:4200)
 
 ## Creating production bundles
 
@@ -122,7 +126,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on the process for sub
 See also [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for our code of conduct.
 
 ## License
-This project is licensed under GPLv3 - see [LICENSE.md](CODE_OF_CONDUCT.md) for details
+This project is licensed under GPLv3 - see [LICENSE](LICENSE) for details
 
 ## Acknowledgments
    * Thanks to the folks behind the Xapian project, an integral part of Runbox 7: [https://xapian.org](https://xapian.org)

@@ -19,6 +19,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { FolderListComponent } from './folderlist.component';
 export { FolderListComponent } from './folderlist.component';
@@ -42,6 +43,7 @@ import { DialogModule } from '../dialog/dialog.module';
         MatListModule,
         MatTreeModule,
         DialogModule,
+        DragDropModule,
         MatTooltipModule,
         MatBadgeModule
     ],

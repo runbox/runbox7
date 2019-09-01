@@ -30,8 +30,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Http } from '@angular/http';
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
+import { ContactsService } from '../contacts-app/contacts.service';
 import { ProgressService } from '../http/progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ContactCardComponent } from './contactcard.component';
 import { MessageActions } from './messageactions';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -62,7 +64,7 @@ describe('SingleMailViewerComponent', () => {
         MatExpansionModule,
         RouterTestingModule
       ],
-      declarations: [SingleMailViewerComponent],
+      declarations: [ContactCardComponent, SingleMailViewerComponent],
       providers: [
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: Http, useValue: {} },
@@ -82,9 +84,25 @@ describe('SingleMailViewerComponent', () => {
                 text: 'blablabla',
                 html: null,
                 textAsHtml: null
-              }
+              },
+              attachments: [
+                {
+                  filename: 'test.jpg',
+                  contentType: 'image/jpeg'
+                },
+                {
+                  filename: 'test2.png',
+                  contentType: 'image/png',
+                  content: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+                }
+              ]
             });
           }
+        } },
+        { provide: ContactsService, useValue: {
+            lookupContact(email: string) {
+              return new Promise((resolve, reject) => resolve(null));
+            }
         } },
         { provide: ProgressService, useValue: {} }
       ]
@@ -142,5 +160,10 @@ describe('SingleMailViewerComponent', () => {
       fixture.detectChanges();
 
       expect(component.messageHeaderHTML.nativeElement.innerText).toContain('Test subject');
+
+      expect(component.mailObj.attachments[0].downloadURL.indexOf('attachment/0')).toBeGreaterThan(-1);
+      expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
+
+      expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 });

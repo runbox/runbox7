@@ -24,10 +24,11 @@ import { MatToolbarModule, MatButtonModule,
     MatTooltipModule, MatDialogModule, MatMenuModule,
     MatRadioModule, MatCheckboxModule, MatCardModule, MatGridListModule,
     MatDividerModule, MatExpansionModule } from '@angular/material';
+import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
-import { FormsModule } from '@angular/forms';
+import { ContactCardComponent } from './contactcard.component';
 export { SingleMailViewerComponent } from './singlemailviewer.component';
 
 @NgModule({
@@ -53,6 +54,7 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         SingleMailViewerComponent
     ],
     declarations: [
+        ContactCardComponent,
         SingleMailViewerComponent,
         ShowHTMLDialogComponent
     ],
