@@ -56,7 +56,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         MatSelectModule,
         MatButtonModule,
         MatGridListModule,
-	MatIconModule,
+        MatIconModule,
     ],
     exports: [ DkimComponent ],
     declarations: [ DkimComponent ],
