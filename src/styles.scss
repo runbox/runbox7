@@ -352,6 +352,23 @@ rmm-headertoolbar {
     width: 100%;
 }
 
+#mainMenu button.accountMenu {
+    margin: 0; 
+    width: 40px; 
+    height: 40px;
+    line-height: 1em;
+}
+
+#mainMenu button.accountMenu .mat-button-wrapper {
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#mainMenu button.accountMenu mat-icon {
+    margin: 0;
+    color: mat-color($rmm-default-primary);
+}
 
 /* Sidenav pane */
 
@@ -462,7 +479,7 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     background-color: rgba(0,0,0,.03) !important;
 }
 
-#mainMenu button, #mainMenu a {
+#mainMenu button, #mainMenu a, .mainMenuSub, .mainMenuSub a {
     font-size: 16px;
 }
 

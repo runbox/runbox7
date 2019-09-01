@@ -9,19 +9,19 @@ app-payment-method {
 
 <div *ngIf="items.length === 0">
     <p>
-        Your shopping cart is empty
+        Your shopping cart is currently empty. <mat-icon> sentiment_dissatisfied </mat-icon>
     </p>
 
     <p>
-        How about you treat yourself with
-        <button mat-button routerLink="/account/upgrades">
-            <mat-icon> hot_tub </mat-icon> an account upgrade
+        How about you treat yourself to an
+        <button mat-button routerLink="/account/upgrades" class="contentButton">
+            <mat-icon> hot_tub </mat-icon> upgrade
         </button>
-        or
-        <button mat-button routerLink="/account/renewals">
-            <mat-icon> autorenew </mat-icon> renew some of your existing features
+        or go ahead and 
+        <button mat-button routerLink="/account/renewals" class="contentButton">
+            <mat-icon> autorenew </mat-icon> renew 
         </button>
-        ?
+        some of your products and lock in today's prices?
     </p>
 </div>
 

@@ -13,6 +13,20 @@
 
 <h1> Add-ons </h1>
 
+<h2> Main account add-ons </h2>
+
+<p> Add-ons are individual upgrades that can be added to your main account. </p>
+
+<div class="productGrid">
+    <app-account-product
+        *ngFor="let p of emailaddons"
+        class="productCard"
+        [p]="p"
+        [currency]="me.currency"
+    >
+    </app-account-product>
+</div>
+
 <h2> Sub-accounts </h2>
 
 <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings. </p>
@@ -30,18 +44,3 @@
     >
     </app-account-product>
 </div>
-
-<h2> Email add-ons </h2>
-
-<p> Add-ons are individual upgrades that can be added to your main account. </p>
-
-<div class="productGrid">
-    <app-account-product
-        *ngFor="let p of emailaddons"
-        class="productCard"
-        [p]="p"
-        [currency]="me.currency"
-    >
-    </app-account-product>
-</div>
-
