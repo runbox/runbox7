@@ -41,7 +41,7 @@ export class CartService {
         });
     }
 
-    async add(p: ProductOrder) {
+    async add(p: ProductOrder): Promise<void> {
         const items = await this.items.pipe(take(1)).toPromise();
         items.push(p);
         this.items.next(items);
@@ -61,7 +61,7 @@ export class CartService {
         return false;
     }
 
-    async remove(order: ProductOrder) {
+    async remove(order: ProductOrder): Promise<void> {
         const items = await this.items.pipe(take(1)).toPromise();
         this.items.next(items.filter(p => !p.equals(order)));
     }
