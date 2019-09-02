@@ -61,7 +61,7 @@
   </button>
   <mat-menu #accountMenu="matMenu" class="mainMenuSub themePalettePrimary">
     <a mat-button href="/mail/account"><mat-icon>person</mat-icon>Account Settings</a><br />
-    <a mat-button href="/account/components"><mat-icon>widgets</mat-icon>Account Products</a><br />
+    <a mat-button routerLink="/account/components"><mat-icon>widgets</mat-icon>Account Products</a><br />
     <a mat-button (click)="logoutservice.logout()"><mat-icon>power_settings_new</mat-icon>Log out</a>
   </mat-menu>
 
