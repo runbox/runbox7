@@ -97,8 +97,8 @@ export class MockServer {
                 case '/ajax/aliases':
                     response.end(JSON.stringify({ 'status': 'success', 'aliases': [] }));
                     break;
-                case '/ajax?action=ajax_getfoldercount':
-                    response.end(JSON.stringify(this.foldercount()));
+                case '/rest/v1/email_folder/list':
+                    response.end(JSON.stringify(this.emailFoldersListResponse()));
                     break;
                 case '/mail/download_xapian_index':
                     response.end('');
@@ -199,13 +199,78 @@ export class MockServer {
         };
     }
 
-    foldercount() {
-        return [
-            [3692896, 0, 413, 'drafts', 'Drafts', 'Drafts', 0], [3692892, 2, 29, 'inbox', 'Inbox', 'Inbox', 0],
-            [3692893, 0, 136, 'sent', 'Sent', 'Sent', 0],
-            [3692894, 0, 0, 'spam', 'Spam', 'Spam', 0],
-            [3692895, 0, 218, 'trash', 'Trash', 'Trash', 0]
-        ];
+    emailFoldersListResponse() {
+        return {
+            'status': 'success',
+            'result': {
+                'folders': [
+                    {
+                        'old': 296,
+                        'name': 'Drafts',
+                        'priority': '0',
+                        'id': '5',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Drafts',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'drafts'
+                    },
+                    {
+                        'old': 296,
+                        'name': 'Inbox',
+                        'priority': '0',
+                        'id': '1',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Inbox',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'inbox'
+                    },
+                    {
+                        'old': 296,
+                        'name': 'Spam',
+                        'priority': '0',
+                        'id': '2',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Spam',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'spam'
+                    },
+                    {
+                        'old': 296,
+                        'name': 'Trash',
+                        'priority': '0',
+                        'id': '2',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Trash',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'trash'
+                    },
+                ]
+            }
+        };
     }
 
     auth_challenge_2fa() {

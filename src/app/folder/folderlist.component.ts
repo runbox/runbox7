@@ -390,7 +390,7 @@ export class FolderListComponent {
         this.messagelistservice.folderCountSubject.next(folders);
 
         const newParentFolderId = destinationParent ? folders.find(fld => fld.folderPath === destinationParent).folderId : 0;
-        await this.rmmapi.moveFolder(sourceFolderId, newParentFolderId).toPromise();
+        await this.rmmapi.moveFolder(sourceFolderId, newParentFolderId, folders.map(folder => folder.folderId)).toPromise();
     }
 
     async emptyTrash() {
