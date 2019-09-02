@@ -66,6 +66,11 @@ export class MockServer {
                 }
                 return;
             }
+            const receiptendpoint = requesturl.match('/\/rest\/v1\/account_product\/receipt\/([0-9]+)');
+            if (receiptendpoint) {
+                response.end(JSON.stringify(this.receipt()));
+                return;
+            }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
@@ -90,6 +95,15 @@ export class MockServer {
                     break;
                 case '/rest/v1/me/defaultprofile':
                     response.end(JSON.stringify(this.defaultprofile()));
+                    break;
+                case '/rest/v1/account_product/available':
+                    response.end(JSON.stringify(this.availableProducts()));
+                    break;
+                case '/rest/v1/account_product/cart':
+                    response.end(JSON.stringify(this.availableProducts()));
+                    break;
+                case '/rest/v1/account_product/order':
+                    response.end(JSON.stringify(this.order()));
                     break;
                 case '/ajax/from_address':
                     response.end(JSON.stringify(this.from_address()));
@@ -179,10 +193,46 @@ export class MockServer {
                     'quota_mail_size': null
                 },
                 'company': null, 'is_overwrite_subaccount_ip_rules': 0,
+                'currency': 'EUR',
                 'user_created': null, 'timezone': 'Europe/Oslo', 'uid': 221,
                 'sub_accounts': ['test%subaccount.com'], 'password_strength': 5,
                 'gender': null, 'has_sub_accounts': 1, 'need2pay': 'n',
                 'paid': 'n', 'country': null
+            }
+        };
+    }
+
+    availableProducts() {
+        return {
+            'status': 'success',
+            'result': {
+                'products': [
+                    {
+                        'name':        'Runbox Test',
+                        'type':        'subscription',
+                        'subtype':     'test',
+                        'price':       '13.37',
+                        'pid':         '9001',
+                        'description': 'Test subscription including some stuff'
+                    }
+                ]
+            }
+        };
+    }
+
+    receipt() {
+        return {
+            'status': 'success',
+            'result': {}
+        };
+    }
+
+    order() {
+        return {
+            'status': 'success',
+            'result': {
+                'total': '13.37',
+                'tid':   '31337',
             }
         };
     }
