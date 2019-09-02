@@ -125,7 +125,9 @@ export class ShoppingCartComponent {
 
     async initiatePayment(method: string) {
         const currency = await this.currency.toPromise();
-        const items    = await this.itemsSubject.pipe(take(1)).toPromise();
+        const items = this.items.map(i => {
+            return { pid: i.pid, apid: i.apid, quantity: i.quantity };
+        });
         this.rmmapi.orderProducts(items, method, currency, this.domregHash).subscribe(tx => {
             let dialogRef: MatDialogRef<any>;
             if (method === 'stripe') {
