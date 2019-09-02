@@ -42,7 +42,7 @@ fdescribe('CartService', () => {
 
     it('should distinguish between orders and renewals', async () => {
         localStorage.clear();
-        let cart = new CartService(storage);
+        const cart = new CartService(storage);
 
         const order = new ProductOrder(401, 3, 402);
         await cart.add(order);
@@ -53,7 +53,7 @@ fdescribe('CartService', () => {
 
     it('should be possible to remove ordered products', async () => {
         localStorage.clear();
-        let cart = new CartService(storage);
+        const cart = new CartService(storage);
 
         const order = new ProductOrder(402, 1);
         await cart.add(order);
@@ -64,7 +64,7 @@ fdescribe('CartService', () => {
 
     it('should be possible to clear the cart', async () => {
         localStorage.clear();
-        let cart = new CartService(storage);
+        const cart = new CartService(storage);
 
         await cart.add(new ProductOrder(403, 1));
         await cart.add(new ProductOrder(404, 1));

@@ -30,7 +30,7 @@ describe('StorageService', () => {
         const store2 = new StorageService(me_1);
 
         await store1.set('test-key', 42);
-        let testVal = await store2.get('test-key');
+        const testVal = await store2.get('test-key');
         expect(testVal).toBe(42, 'store2 can read the data set by store1');
     });
 
@@ -59,7 +59,7 @@ describe('StorageService', () => {
     it('should serialize complex data structures', async () => {
         const user1 = new StorageService(me_1);
         await user1.set('test-key', { foo: { bar: ['baz', 42] } });
-        let testVal = await user1.get('test-key');
+        const testVal = await user1.get('test-key');
         expect(testVal.foo.bar[1]).toBe(42, 'object get serialized and deserialized correctly');
     });
 });
