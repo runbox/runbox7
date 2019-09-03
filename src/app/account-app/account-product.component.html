@@ -6,7 +6,9 @@ mat-card {
 
 <mat-card>
     <mat-card-title>
+        <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
         {{ p.name }}
+        <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
     </mat-card-title>
     <mat-card-subtitle>
         {{ p.description }}
