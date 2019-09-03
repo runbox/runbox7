@@ -1,34 +1,34 @@
 <mat-sidenav-container class="dkim">
     <mat-sidenav mode="side" open="true"></mat-sidenav>
     <mat-sidenav-content>
-            <section class="mat-typography">
-                <mat-card class='dkim'>
-                    <mat-card-header style="display: flex; width: 100%">
-                        <mat-card-title style="flex-grow: 1">
-                          <h1>DKIM Signing of Domain Names</h1>
-                        </mat-card-title>
-                    </mat-card-header>
-                    <p>
-		      DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
-                    </p>
-                    <p>
-		      If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below.
-                    </p>
-                    <p>
-		      If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
-                    </p>
-                    <mat-accordion *ngIf="keys.length" [multi]="true" style="margin-top: 20px">
-		      <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="true">
+        <section class="mat-typography">
+            <mat-card class='dkim'>
+                <mat-card-header style="display: flex; width: 100%">
+                    <mat-card-title style="flex-grow: 1">
+                        <h1>DKIM Signing of Domain Names</h1>
+                    </mat-card-title>
+                </mat-card-header>
+                <p>
+                DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
+                </p>
+                <p>
+                If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below.
+                </p>
+                <p>
+                If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
+                </p>
+                <mat-accordion *ngIf="keys.length" [multi]="true" style="margin-top: 20px">
+                    <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="true">
                         <mat-expansion-panel-header>
-                          <mat-panel-title>
-                            <strong>DKIM Key #{{i}}: </strong>&nbsp;
-			    {{item.selector_recordset_name}}
-                          </mat-panel-title>
-                          <mat-panel-description>
-                            <span>{{get_status(item)}} {{item.date_expected_to_activate ? ' - will become active on ' + item.date_expected_to_activate : ''}}</span>
-                          </mat-panel-description>
+                            <mat-panel-title>
+                                <strong>DKIM Key #{{i}}: </strong>&nbsp;
+                                {{item.selector_recordset_name}}
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                <span>{{get_status(item)}} {{item.date_expected_to_activate ? ' - will become active on ' + item.date_expected_to_activate : ''}}</span>
+                            </mat-panel-description>
                         </mat-expansion-panel-header>
-			
+
                         <mat-grid-list cols="2" rowHeight="30px" style='max-width: 800px'>
 
                             <mat-grid-tile class="tableTitle">Hostname</mat-grid-tile>
@@ -63,24 +63,24 @@
                         </mat-grid-list>
 
                         <h2 style="margin-top: 30px">Tips to manually configure the DKIM keys:</h2>
-			<p>
-			  Use the following to manually configure DKIM in your DNS:
-			</p>
+                        <p>
+                        Use the following to manually configure DKIM in your DNS:
+                        </p>
                         <pre>
-	{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
-			</pre>
-			<p>
-			  To check the CNAME records, you can use the "dig" command such as in this example:
-			</p>
-			<pre>
-	dig -t CNAME selector1._domainkey.usefulphysics.uk.
-			</pre>
-			<p>
-			  ...and the expected response would be:
-			</p>
-			<pre>
-	;; ANSWER SECTION:
-	{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
+    {{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
+                        </pre>
+                        <p>
+                        To check the CNAME records, you can use the "dig" command such as in this example:
+                        </p>
+                        <pre>
+    dig -t CNAME selector1._domainkey.usefulphysics.uk.
+                        </pre>
+                        <p>
+                        ...and the expected response would be:
+                        </p>
+                        <pre>
+    ;; ANSWER SECTION:
+    {{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
                         </pre>
 
                         <div *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct">
@@ -92,21 +92,21 @@
                             This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{item.date_rotation_initiated}} and is expected to take 7 days to become active.
                         </span>
 
-                      </mat-expansion-panel>
+                    </mat-expansion-panel>
 
-                    </mat-accordion>
-                    <mat-divider></mat-divider>
-		    <br />
-		    <div *ngIf="!domain">
-		      Please select a domain to continue.
-		    </div>
-                    <div *ngIf="domain && !keys.length && !is_creating_keys">
-                        No keys found for {{domain}}
-                        <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}</button>
-                    </div>
-                    <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
-                </mat-card>
-            </section>
+                </mat-accordion>
+                <mat-divider></mat-divider>
+                <br />
+                <div *ngIf="!domain">
+                    Please select a domain to continue.
+                </div>
+                <div *ngIf="domain && !keys.length && !is_creating_keys">
+                    No keys found for {{domain}}
+                    <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}</button>
+                </div>
+                <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
+            </mat-card>
+        </section>
     </mat-sidenav-content>
 </mat-sidenav-container>
 
