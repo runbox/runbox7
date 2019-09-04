@@ -5,20 +5,28 @@
                 <mat-card class='dkim'>
                     <mat-card-header style="display: flex; width: 100%">
                         <mat-card-title style="flex-grow: 1">
-                          <h1>DKIM Signing of Domain Names</h1>
+                          <h1>DKIM Signing of Email</h1>
                         </mat-card-title>
                     </mat-card-header>
                     <p>
 		      DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
                     </p>
+		    <h2>DKIM and DNS</h2>
                     <p>
-		      If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below.
+		      If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below by creating DKIM keys for your domain name. If your domain is not hosted with Runbox you will need to make some changes at your domain host/DNS host as shown below.
                     </p>
-                    <p>
-		      If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
-                    </p>
+		    <h2>DKIM signatures and key rotation</h2>
+		    <p>
+		      Once the DKIM keys are created, the Runbox system will start signing outgoing messages from your domain name. Recipients will then be able to compare the signature in your outgoing messages with the DNS record for your domain name.
+		    </p>
+		    <p>
+		      For security reasons, the DKIM keys are automatically rotated (changed) every 3 months. This is reflected in DKIM details below.
+		    </p>
+                    <mat-divider></mat-divider>
+		    <br />
+		    <h2>Your DKIM keys</h2>
                     <mat-accordion *ngIf="keys.length" [multi]="true" style="margin-top: 20px">
-		      <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="true">
+		      <mat-expansion-panel *ngFor="let item of keys; let i = index" expanded="false">
                         <mat-expansion-panel-header>
                           <mat-panel-title>
                             <strong>DKIM Key #{{i}}: </strong>&nbsp;
@@ -69,19 +77,6 @@
                         <pre>
 	{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
 			</pre>
-			<p>
-			  To check the CNAME records, you can use the "dig" command such as in this example:
-			</p>
-			<pre>
-	dig -t CNAME selector1._domainkey.usefulphysics.uk.
-			</pre>
-			<p>
-			  ...and the expected response would be:
-			</p>
-			<pre>
-	;; ANSWER SECTION:
-	{{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}
-                        </pre>
 
                         <div *ngIf="item.is_cname_hosted_by_runbox && !item.is_cname_correct">
                             <button mat-raised-button color="primary" (click)="reconfigure(item)">Reconfigure *</button>
@@ -95,8 +90,6 @@
                       </mat-expansion-panel>
 
                     </mat-accordion>
-                    <mat-divider></mat-divider>
-		    <br />
 		    <div *ngIf="!domain">
 		      Please select a domain to continue.
 		    </div>
@@ -104,7 +97,31 @@
                         No keys found for {{domain}}
                         <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}</button>
                     </div>
+		    <br />
                     <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
+                    <mat-divider></mat-divider>
+		    <br />
+		    <h2>Troubleshooting</h2>
+		    <p>
+		      <mat-icon color="primary" class="lightBulb">wb_incandescent</mat-icon>&nbsp;
+		      <strong>My DKIM signed email is being rejected by the recipient(s). How do I correct this problem?</strong>
+		      <br />
+		      Make sure that your DNS CNAME record is correct, and that your DMARC record (if any) corresponds with your intended results.
+		    </p>
+		    <p>
+                      <mat-icon color="primary" class="lightBulb">wb_incandescent</mat-icon>&nbsp;
+                      <strong>How do I check that my CNAME records are correct?</strong>
+		      <br />
+		      To check your CNAME records, you can use the "dig" command from a command prompt, as in this example:
+		    </p>
+		    <pre>
+      dig -t CNAME selector1._domainkey.usefulphysics.uk.</pre>
+		    <p>
+		      ...and the expected response would be:
+		    </p>
+		    <pre>
+      ;; ANSWER SECTION:
+      {{item.selector_recordset_name}} 3600 IN CNAME {{item.public_recordset_name}}</pre>
                 </mat-card>
             </section>
     </mat-sidenav-content>
