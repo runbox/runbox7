@@ -579,17 +579,16 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public isMigrationPending(): Observable<any> {
-        return this.http.get('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((res: HttpResponse<any>) => res['status'])
+    public isMigrationPending(jobID?: number): Observable<any> {
+        const suffix = jobID ? ('/' + jobID) : '';
+        return this.http.get('/rest/v1/addresses_contact/migrate' + suffix, {}).pipe(
+            map((res: HttpResponse<any>) => res['result'])
         );
     }
 
     public migrateContacts(): Observable<any> {
         return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((contacts: any[]) =>
-                contacts.map((contact) => new Contact(contact))
-            )
+            map((res: HttpResponse<any>) => res)
         );
     }
 

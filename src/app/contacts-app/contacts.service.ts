@@ -116,29 +116,34 @@ export class ContactsService {
 
     isMigrationPending(): Observable<any> {
         const res = this.rmmapi.isMigrationPending();
-        res.subscribe(status => {
-            console.log(status);
-            if (status === 1) {
-                console.log('Migration is pending, installing migration watcher');
-                this.installMigrationWatcher();
+        res.subscribe(jobID => {
+            if (jobID) {
+                console.log(`Migration is pending, installing watcher for #${jobID}`);
+                this.installMigrationWatcher(jobID);
             }
         });
         return res;
     }
 
-    installMigrationWatcher(): void {
+    installMigrationWatcher(jobID: number): void {
+        console.log(`Installing migration watcher for #${jobID}`);
         if (this.migrationWatcher) {
             return;
         }
         this.migrationWatcher = setInterval(() => {
-            this.rmmapi.isMigrationPending().subscribe(
-                status => {
+            console.log('Checking status of migration', jobID);
+            this.rmmapi.isMigrationPending(jobID).subscribe(
+                result => {
+                    const status = +result;
+                    console.log('Migration status:', status);
                     this.migrationResult.next(status);
                     if (status !== 1) {
+                        console.log('Clearing migration watcher');
                         clearInterval(this.migrationWatcher);
                         this.migrationWatcher = null;
                         if (status === 0) {
                             this.informationLog.next('Contact migration has finished');
+                            this.reload();
                         } else if (status === 2) {
                             this.informationLog.next('Contact migration has failed. Try again later or contact us at community.runbox.com');
                         }
@@ -149,12 +154,17 @@ export class ContactsService {
     }
 
     migrateContacts(): Observable<any> {
-        const res = this.rmmapi.migrateContacts();
-        res.subscribe(status => {
-            console.log('Contact migration status:', status);
-            this.informationLog.next('Contact migration has been scheduled. This may take some time');
-            this.installMigrationWatcher();
+        const result = this.rmmapi.migrateContacts();
+        result.subscribe(res => {
+            console.log('Contact migration result:', res);
+            if (res.status === 'pending') {
+                this.installMigrationWatcher(res.result);
+                return;
+            } else if (res.status === 'ok') {
+                this.informationLog.next('Contact migration has been scheduled. This may take some time');
+                this.installMigrationWatcher(res.result);
+            }
         }, e => this.apiErrorHandler(e));
-        return res;
+        return result;
     }
 }

@@ -34,9 +34,9 @@ export class ContactsSettingsComponent {
         private contactsservice: ContactsService
     ) {
         this.contactsservice.isMigrationPending().subscribe(
-            status => {
-                console.log('Migration pendingness:', status);
-                this.migrationPending = !!status;
+            job_id => {
+                console.log('Migration pendingness:', job_id);
+                this.migrationPending = !!job_id;
                 if (this.migrationPending) {
                     this.watchMigrationResult();
                 }
@@ -62,7 +62,8 @@ export class ContactsSettingsComponent {
 
     watchMigrationResult(): void {
         this.contactsservice.migrationResult.subscribe(
-            status => {
+            result => {
+                const status = +result;
                 if (status === 0) {
                     this.contactsservice.reload().subscribe(() => {
                         this.migrationPending = false;
