@@ -46,6 +46,7 @@ import { PaypalHandlerComponent } from './paypal-handler.component';
 import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
 
 import {
+  MatBadgeModule,
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,
@@ -88,6 +89,7 @@ import {
     BrowserAnimationsModule,
     FormsModule,
     MenuModule,
+    MatBadgeModule,
     MatButtonModule,
     MatCardModule,
     MatDatepickerModule,
