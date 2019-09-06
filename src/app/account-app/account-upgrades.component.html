@@ -38,6 +38,7 @@
             *ngFor="let p of subscriptions"
             class="productCard"
             [p]="p"
+            [active]="me.subscription === p.pid"
             [currency]="me.currency"
         >
             <ul>

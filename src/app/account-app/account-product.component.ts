@@ -30,6 +30,7 @@ import { ProductOrder } from './product-order';
 export class ProductComponent {
     @Input() p: Product;
     @Input() currency: string;
+    @Input() active: boolean;
 
     quantity = 1;
 

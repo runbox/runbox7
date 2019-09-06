@@ -8,6 +8,7 @@ mat-card {
     <mat-card-title>
         <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
         {{ p.name }}
+        <strong *ngIf="active"> – your current {{ p.type }} </strong>
         <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
     </mat-card-title>
     <mat-card-subtitle>
