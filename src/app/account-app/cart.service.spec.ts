@@ -24,7 +24,7 @@ import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-fdescribe('CartService', () => {
+describe('CartService', () => {
     const storage = new StorageService({ me: of({ uid: 42 }) } as RunboxWebmailAPI);
 
     it('should store ProductOrders between invocations', async () => {
