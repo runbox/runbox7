@@ -4,6 +4,10 @@
   Here you can see all the active products in your account, and renew any of them at any time.
 </p>
 
+<p *ngIf="active_products.length === 0">
+    Loading your products...
+</p>
+
 <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Name </th>

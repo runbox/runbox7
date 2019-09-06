@@ -20,8 +20,8 @@
 import { Component } from '@angular/core';
 
 import { CartService } from './cart.service';
-import { PaymentsService } from './payments.service';
 import { ProductOrder } from './product-order';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 import * as moment from 'moment';
 
@@ -33,10 +33,10 @@ export class AccountRenewalsComponent {
     active_products = [];
 
     constructor(
-        private cart:            CartService,
-        private paymentsservice: PaymentsService,
+        private cart:   CartService,
+        private rmmapi: RunboxWebmailAPI,
     ) {
-        this.paymentsservice.activeProducts.subscribe(products => {
+        this.rmmapi.getActiveProducts().subscribe(products => {
             this.active_products = products.map(p => {
                 p.active_from = moment(p.active_from, moment.ISO_8601);
                 p.active_until = moment(p.active_until, moment.ISO_8601);

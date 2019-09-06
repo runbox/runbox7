@@ -29,7 +29,6 @@ export class PaymentsService {
     errorLog = new Subject<HttpErrorResponse>();
 
     products       = new AsyncSubject<Product[]>();
-    activeProducts = new AsyncSubject<any>();
     stripePubkey   = new AsyncSubject<string>();
     currency       = new AsyncSubject<string>();
 
@@ -39,10 +38,6 @@ export class PaymentsService {
         this.rmmapi.getAvailableProducts().subscribe(products => {
             this.products.next(products);
             this.products.complete();
-        });
-        this.rmmapi.getActiveProducts().subscribe(products => {
-            this.activeProducts.next(products);
-            this.activeProducts.complete();
         });
         this.rmmapi.getStripePubkey().subscribe(key => {
             this.stripePubkey.next(key);
