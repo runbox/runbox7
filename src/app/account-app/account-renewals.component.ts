@@ -31,11 +31,15 @@ import * as moment from 'moment';
 })
 export class AccountRenewalsComponent {
     active_products = [];
+    current_subscription: number;
 
     constructor(
-        private cart:   CartService,
+        private cart:  CartService,
         private rmmapi: RunboxWebmailAPI,
     ) {
+        this.rmmapi.me.subscribe(me => {
+            this.current_subscription = me.subscription;
+        });
         this.rmmapi.getActiveProducts().subscribe(products => {
             this.active_products = products.map(p => {
                 p.active_from = moment(p.active_from, moment.ISO_8601);

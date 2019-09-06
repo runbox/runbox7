@@ -11,7 +11,10 @@
 <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }">
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let p"> {{ p.name }} </td>
+        <td mat-cell *matCellDef="let p">
+            {{ p.name }}
+            <strong *ngIf="p.pid === current_subscription"> – your current subscription </strong>
+        </td>
     </ng-container>
     <ng-container matColumnDef="quantity">
         <th mat-header-cell *matHeaderCellDef> Quantity </th>
