@@ -51,17 +51,18 @@ export class AccountRenewalsComponent {
                     p.expires_soon = true;
                 }
 
-                // TODO subscribe to cart to recheck these whenever they change
-                cart.contains(p.pid, p.apid).then(ordered => p.ordered = ordered);
-
                 return p;
+            });
+
+            this.cart.items.subscribe(_ => {
+                for (const p of this.active_products) {
+                    this.cart.contains(p.pid, p.apid).then(ordered => p.ordered = ordered);
+                }
             });
         });
     }
 
     renew(p: any) {
         this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
-        // TODO follow-up: if we subscribe above then we don't have to flag it here
-        p.ordered = true;
     }
 }
