@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 import { CartService } from './cart.service';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-account-app-component',
@@ -26,7 +27,8 @@ import { CartService } from './cart.service';
 })
 export class AccountAppComponent {
     constructor(
-        public cart: CartService,
+        public cart:   CartService,
+        public rmmapi: RunboxWebmailAPI,
     ) {
     }
 }
