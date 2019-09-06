@@ -41,7 +41,7 @@ describe('CalendarAppComponent', () => {
             summary: 'Test Event #0',
         }}),
         new RunboxCalendarEvent({ id: 'test-calendar/event1', VEVENT: {
-            dtstart: moment().add(1, 'month').add(1, 'day').toISOString(),
+            dtstart: moment().add(1, 'month').add(14, 'day').toISOString(),
             summary: 'Event #1, next month',
         }}),
     ];

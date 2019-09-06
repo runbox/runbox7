@@ -49,6 +49,7 @@ export class MessageFields {
 
 export class FolderCountEntry {
     isExpandable?: boolean;
+    priority?: number; // for sorting order
 
     constructor(
         public folderId: number,
@@ -341,11 +342,17 @@ export class RunboxWebmailAPI {
         return req.pipe(map((res: any) => res.status === 'success'));
     }
 
-    moveFolder(folderId: number, newParentFolderId: number): Observable<boolean> {
-        const req = this.http.put('/rest/v1/email_folder/move', {
-            'to_folder': newParentFolderId,
-            'folder_id': folderId
-        });
+    moveFolder(folderId: number, newParentFolderId: number, ordered_ids?: number[]): Observable<boolean> {
+        const requestBody: any = {
+                'to_folder': newParentFolderId,
+                'folder_id': folderId
+            };
+
+        if (ordered_ids) {
+            requestBody.ordered_ids = ordered_ids;
+        }
+
+        const req = this.http.put('/rest/v1/email_folder/move', requestBody);
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
@@ -357,18 +364,39 @@ export class RunboxWebmailAPI {
     }
 
     getFolderCount(): Observable<Array<FolderCountEntry>> {
-        return this.http.get('/ajax?action=ajax_getfoldercount').pipe(
-            map((arr: any[]) =>
-                arr.filter((arr2: any[]) => arr2.length > 0)
-                    .map((entry) => new FolderCountEntry(
-                        entry[0],
-                        entry[1],
-                        entry[2],
-                        entry[3],
-                        entry[4],
-                        entry[5],
-                        entry[6]))
-            ));
+        let folderLevel = 0;
+        let depth = 0;
+        const flattenFolders = folders => {
+            folderLevel++;
+            const flattenedFolders = folders.map(folder => {
+                const folderCountEntry = new FolderCountEntry(
+                    parseInt(folder.id, 10),
+                    folder.msg_new,
+                    folder.total,
+                    folder.type,
+                    folder.name,
+                    folder.folder,
+                    folderLevel - 1
+                );
+                folderCountEntry.priority = folder.priority;
+
+                return folder.subfolders.length > 0 ?
+                    [folderCountEntry].concat(flattenFolders(folder.subfolders)) : folderCountEntry;
+
+            });
+            if (folderLevel > depth) {
+                depth = folderLevel;
+            }
+            folderLevel--;
+            return flattenedFolders;
+        };
+        return this.http.get('/rest/v1/email_folder/list').pipe(
+            map((response: any) =>
+                flattenFolders(response.result.folders)
+                .flat(depth)
+                .sort((a, b) => a.priority - b.priority)
+            )
+        );
     }
 
     public moveToFolder(messageIds: number[], folderId: number): Observable<any> {

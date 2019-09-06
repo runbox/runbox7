@@ -117,7 +117,19 @@ mat-icon {
     font-size: 16px;
 }
 
+.mat-card-header-text {
+    margin-left: 0px !important;
+}
+
+mat-grid-tile {
+    text-align: left;
+}
+
 /* Generic custom styles */
+
+mat-grid-tile.tableTitle {
+    background-color: mat-color($rmm-default-foreground);
+}
 
 .contentButton {
     margin: 0 5px !important;

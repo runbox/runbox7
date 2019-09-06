@@ -102,6 +102,7 @@ describe('FolderListComponent', () => {
         expect(refreshFolderCountCalled).toBeTruthy();
     }));
     it('folderReorderingDrop', async () => {
+        let ordered_ids_request: number[];
         const comp = new FolderListComponent({
             folderCountSubject: new BehaviorSubject([
                 new FolderCountEntry(1,
@@ -120,7 +121,8 @@ describe('FolderListComponent', () => {
                     50, 40, 'user', 'folder3', 'folder3', 0)
             ])
         } as MessageListService, {
-            moveFolder: (folderId: number, newParentFolderId: number): Observable<boolean> => {
+            moveFolder: (folderId: number, newParentFolderId: number, ordered_ids?: number[]): Observable<boolean> => {
+                ordered_ids_request = ordered_ids;
                 return of(true);
             }
         } as RunboxWebmailAPI, null);
@@ -141,6 +143,7 @@ describe('FolderListComponent', () => {
         comp.folderReorderingDrop(6, 5, DropPosition.BELOW);
         rearrangedFolders = await comp.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
         console.log(rearrangedFolders.map(f => f.folderId));
+        expect(ordered_ids_request).toEqual([1, 2, 3, 4, 5, 6, 7]);
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 5, 6, 7]);
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 1, 2, 2, 2, 0]);
 
@@ -148,6 +151,7 @@ describe('FolderListComponent', () => {
         comp.folderReorderingDrop(5, 7, DropPosition.BELOW);
         rearrangedFolders = await comp.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
         console.log(rearrangedFolders.map(f => f.folderId));
+        expect(ordered_ids_request).toEqual([1, 2, 3, 4, 6, 7, 5]);
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 6, 7, 5]);
         expect(rearrangedFolders[6].folderPath).toBe('subsubfolder2');
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 1, 2, 2, 0, 0]);
@@ -276,5 +280,6 @@ describe('FolderListComponent', () => {
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 6, 5, 3, 2, 4]);
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 0, 0, 1, 2, 1]);
+        expect(ordered_ids_request).toEqual([1, 7, 6, 5, 3, 2, 4]);
     });
 });
