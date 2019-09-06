@@ -19,121 +19,64 @@
                 If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
                 </p>
                 <mat-divider></mat-divider>
-                <div *ngIf="dkim_domains && dkim_domains.length" style="margin-top: 35px;">
-                    <mat-form-field style='margin-left: 20px; width: auto;'>
-                        <mat-label>View domain</mat-label>
-                        <mat-select [(ngModel)]="domain" (change)="update_selected_dkim_domain()" (selectionChange)="update_selected_dkim_domain()">
-                            <mat-option *ngFor="let item of dkim_domains" [value]="item.domain">{{ item.domain }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field *ngIf="keys && keys.length" style='margin-left: 40px; width: auto;'>
-                        <mat-label>View settings for:</mat-label>
-                        <mat-select [(ngModel)]="selected_selector" (selectionChange)="update_selected_selector()" (change)="update_selected_selector()">
-                            <mat-option *ngFor="let item of keys; let i = index" [value]="item.selector">{{ item.selector }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <div style='margin-left: 40px; display: inline-block;'>
-                        <button *ngIf="domain" mat-raised-button color="warn" (click)="disable()" style='margin-let: 20px;'>Disable DKIM for {{domain}}
-                  <mat-progress-bar mode="indeterminate" *ngIf="is_deleting_keys"></mat-progress-bar>
-</button>
-                    </div>
-                </div>
-                <mat-divider></mat-divider>
-                <mat-card *ngIf="domain && key_selected && keys && keys.length">
-                    <h2 class="mat-h2" style="background: #98ADC9; padding: 20px 15px;">DKIM {{domain}} <span style='font-style: italic;'>{{selected_selector}}</span> <span *ngIf="key_selected"> (<strong>{{get_status(key_selected)}}</strong>)</span>.{{d}}</h2>
-                    <h3 class="subheading-2" *ngIf="key_selected && key_selected.date_expected_to_activate" style='background: #98ADC9; padding: 0 15px 10px 15px; margin-top: -21px;'>Will become active on {{key_selected.date_expected_to_activate}}</h3>
-                    <div *ngIf="key_selected" style="margin-top: 20px">
-                        <mat-grid-list cols="2" rowHeight="30px" style='max-width: 800px'>
-                            <mat-grid-tile><div class="grid_align_right">Hostname:</div></mat-grid-tile>
-                            <mat-grid-tile><div class="grid_align_left">{{key_selected.selector_recordset_name}}</div></mat-grid-tile>
-
-                            <mat-grid-tile *ngIf="key_selected.public_recordset_name"><div class="grid_align_right">Address:</div></mat-grid-tile>
-                            <mat-grid-tile *ngIf="key_selected.public_recordset_name"><div class="grid_align_left">{{key_selected.public_recordset_name}}</div></mat-grid-tile>
-
-                            <mat-grid-tile><div class="grid_align_right">CNAME Correct?</div></mat-grid-tile>
-                            <mat-grid-tile>
-                                <div class="grid_align_left">
-                                    {{key_selected.is_cname_correct ? 'yes' : 'no'}}
-                                </div>
-                                <div *ngIf="key_selected.is_cname_hosted_by_runbox && !key_selected.is_cname_correct">
-                                    <button mat-raised-button color="primary" (click)="reconfigure(key_selected)">Reconfigure *</button>
-                                    <button mat-raised-button color="primary" (click)="check_cname(key_selected)">Check CNAME</button>
-                                </div>
-                            </mat-grid-tile>
-
-                            <mat-grid-tile><div class="grid_align_right">Key Active?</div></mat-grid-tile>
-                            <mat-grid-tile><div class="grid_align_left">{{get_status(key_selected)}}</div></mat-grid-tile>
-
-                            <mat-grid-tile *ngIf="key_selected.date_expected_to_activate"><div class="grid_align_right">Will become active on:</div></mat-grid-tile>
-                            <mat-grid-tile *ngIf="key_selected.date_expected_to_activate"><div class="grid_align_left">{{key_selected.date_expected_to_activate}}</div></mat-grid-tile>
-
-                            <mat-grid-tile *ngIf="is_rotating && !key_selected.active"><div class="grid_align_right">Key rotating?</div></mat-grid-tile>
-                            <mat-grid-tile *ngIf="is_rotating && !key_selected.active"><div class="grid_align_left">Yes</div></mat-grid-tile>
-
-                            <mat-grid-tile *ngIf="!key_selected.is_cname_correct && key_selected.cname_check_result"><div class="grid_align_right">
-                                Lastest CNAME check result:
-                            </div></mat-grid-tile>
-                            <mat-grid-tile *ngIf="!key_selected.is_cname_correct && key_selected.cname_check_result"><div class="grid_align_left">
-                                {{key_selected.cname_check_result}}
-                            </div></mat-grid-tile>
-
-                            <mat-grid-tile *ngIf="!key_selected.is_cname_correct && key_selected.cname_check_result"><div class="grid_align_right">
-                                Lastest <strong>expected</strong> CNAME result:
-                            </div></mat-grid-tile>
-                            <mat-grid-tile *ngIf="!key_selected.is_cname_correct && key_selected.cname_check_result"><div class="grid_align_left">
-                                {{key_selected.cname_check_expected}}
-                            </div></mat-grid-tile>
-
-                        </mat-grid-list>
-
-                        <h2 class='mat-h2' style="margin-top: 30px; background: #98ADC9; padding: 20px 15px;">Tips to manually configure the DKIM keys:</h2>
-                        <p>
-                        Use the following to manually configure DKIM in your DNS:
-                        </p>
-                        <pre class="terminal">
-    {{key_selected.selector_recordset_name}} 3600 IN CNAME {{key_selected.public_recordset_name}}
-                        </pre>
-                        <p>
-                        To check the CNAME records, you can use the "dig" command such as in this example:
-                        </p>
-                        <pre class="terminal">
-    dig -t CNAME {{key_selected.selector_recordset_name}}
-                        </pre>
-                        <p>
-                        ...and the expected response would be:
-                        </p>
-                        <pre class="terminal">
-    ;; ANSWER SECTION:
-    {{key_selected.selector_recordset_name}} 3600 IN CNAME {{key_selected.public_recordset_name}}
-                        </pre>
-                        To check the public key, do:
-                        <pre class="terminal">
-    dig -t TXT {{key_selected.public_recordset_name}}
-                        </pre>
-                        ...and the expected response would be something like:
-                        <pre class="terminal">
-    ;; ANSWER SECTION:
-    {{key_selected.public_recordset_name}}. 300 IN TXT "v=DKIM1; k=rs
-    a; p=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    xx" "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-                        </pre>
-                        <span >* It might take a few minutes for the system to be able to check recent changes.</span>
-                        <span *ngIf="is_rotating && !key_selected.active">
-                            This key is under rotation state. This means it has been published however this key is not in use yet. Rotation has initialized on {{key_selected.date_rotation_initiated}} and is expected to take 7 days to become active.
-                        </span>
-
-                        <mat-divider></mat-divider>
-                        <br />
-                        <div *ngIf="!domain">
-                            Please select a domain to continue.
+                <div *ngIf="domain && keys && keys.length" style='margin-top: 35px'>
+                    <mat-grid-list cols="8" rowHeight="30px" style='' *ngIf="dkim_domain">
+                        <mat-grid-tile [colspan]="2"><div class="grid_align_left" style=''><strong>{{dkim_domain.type}}:</strong></div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="6"><div class="grid_align_left">{{dkim_domain.domain}}</div>
+                        <div style='margin-left: 40px; display: inline-block;'>
+                            <button *ngIf="domain" mat-raised-button color="warn" (click)="disable()" style='margin-let: 20px;'>Disable DKIM for {{domain}}
+                                <mat-progress-bar mode="indeterminate" *ngIf="is_deleting_keys"></mat-progress-bar>
+                            </button>
                         </div>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="1" rowHeight="30px" style=''>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="1" rowHeight="30px" style=''>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>DNS CNAMEs required</strong></div></mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="1" rowHeight="30px" style=''>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="8" rowHeight="30px" style=''>
+                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Hostname</strong></div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>TTL</strong></div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Recrod Type</strong></div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="8" rowHeight="30px" style='' *ngFor="let k of keys">
+                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">3600</div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">CNAME</div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}</div></mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="1" rowHeight="30px" style=''>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>If you are editing your DNS zone file directly you can add the two lines below:</strong></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                        <mat-grid-tile *ngFor="let k of keys" style='border-bottom: 1px dotted #dedede'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}</div></mat-grid-tile>
+                    </mat-grid-list>
 
-                    </div>
-                </mat-card>                    
+                    <mat-grid-list cols="4" rowHeight="30px" style=''>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Selector status</strong></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>CNAME in DNS</strong></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active</strong></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active from</strong></div></mat-grid-tile>
+                    </mat-grid-list>
+
+                    <mat-grid-list cols="4" rowHeight="30px" style='' *ngFor="let k of keys">
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector}}</div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_cname_correct ? 'Yes' : 'No'}}</div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active && keys[0].date_active ? keys[0].date_active : '--'}}</div></mat-grid-tile>
+                    </mat-grid-list>
+                </div>
                 <div *ngIf="!dkim_domains || !dkim_domains.length" style='margin-top: 35px'>
                   <div *ngIf="domain && !keys.length && !is_creating_keys">
                       No keys found for {{domain}}

@@ -90,19 +90,13 @@ export class DkimComponent implements AfterViewInit {
 
   @Output() Close: EventEmitter<string> = new EventEmitter();
 
-  dkim_domain = false;
+  dkim_domain;
   dkim_domains = [];
   domain;
   is_creating_keys = false;
   is_rotating = 0;
-  is_show_subdomain_option = false;
   key = {};
-  key_active;
-  key_selected;
   keys = [];
-  selected_dkim_domain;
-  selected_selector;
-  subdomain;
   is_deleting_keys = false;
 
   ngAfterViewInit() {
@@ -127,7 +121,6 @@ export class DkimComponent implements AfterViewInit {
             if ( r.status === 'success' ) {
               this.keys = [];
               this.key = {};
-              this.key_selected = undefined;
               this.load_dkim_domains();
               this.load_keys();
               return this.show_error( 'Settings will be deleted shortly. Please check in a few minutes!', 'Dismiss' );
@@ -155,11 +148,14 @@ export class DkimComponent implements AfterViewInit {
         const r = result.json();
         if ( r.status === 'success' ) {
           this.dkim_domains = r.result.domains;
-          if ( !this.domain && this.dkim_domains && this.dkim_domains.length && this.dkim_domains[0] ) {
-            this.domain = this.dkim_domains[0]['domain'];
-            this.selected_dkim_domain = this.domain;
+          const filtered = this.dkim_domains.filter((o) => o.domain === this.domain);
+          this.dkim_domain = filtered[0];
+          if ( ! this.dkim_domain ) {
+            return setTimeout(() => { this.load_dkim_domains(); }, 5000);
           }
-          this.selected_selector = 'selector1';
+          if ( !this.domain && this.dkim_domain ) {
+            this.domain = this.dkim_domain.domain;
+          }
         } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
@@ -172,21 +168,6 @@ export class DkimComponent implements AfterViewInit {
     );
   }
 
-  get_key () {
-    if ( this.selected_selector && this.keys && this.keys.length ) {
-      return this.keys[this.selected_selector];
-    }
-  }
-
-  update_selected_selector () {
-    this.key_selected = this.key[this.selected_selector];
-  }
-
-  update_selected_dkim_domain () {
-    this.domain = this.selected_dkim_domain;
-    this.load_keys();
-  }
-
   load_keys () {
     if ( ! this.domain ) { return; }
     const get_keys = this.http.get('/rest/v1/dkim/' + this.domain + '/keys');
@@ -196,13 +177,10 @@ export class DkimComponent implements AfterViewInit {
         const r = result.json();
         if ( r.status === 'success' ) {
           this.key = {};
-          this.key_active = undefined;
           this.keys = r.result.keys;
-          this.selected_dkim_domain = r.result.domain.name;
+          this.domain = r.result.domain.name;
           this.is_rotating = r.result.domain.is_rotating;
-          this.set_active_key(this.keys);
           this.keys.forEach( (k) => this.key[k.selector] = k );
-          this.key_selected = this.key[this.selected_selector];
         } else if ( r.status === 'error' ) {
           this.keys = [];
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
@@ -216,13 +194,6 @@ export class DkimComponent implements AfterViewInit {
     );
   }
 
-  set_active_key (keys) {
-    const active = keys.filter( (k) => k.is_active );
-    if ( active.length ) {
-      this.key_active = active[0];
-    }
-  }
-
   create_keys () {
     this.is_creating_keys = true;
     const req = this.http.post('/rest/v1/dkim/' + this.domain + '/keys/create', {});
@@ -233,7 +204,6 @@ export class DkimComponent implements AfterViewInit {
         if ( r.status === 'success' ) {
           this.is_creating_keys = false;
           this.keys = r.result.keys;
-          this.key_selected = this.keys[0];
           this.load_dkim_domains();
           this.load_keys();
         } else if ( r.status === 'error' ) {
@@ -249,16 +219,6 @@ export class DkimComponent implements AfterViewInit {
         return this.show_error('Could not create dkim keys', 'Dismiss');
       }
     );
-  }
-
-  get_status (item) {
-    if ( !item.is_active && this.is_rotating ) {
-        return 'Rotating';
-    } else if ( item.is_active ) {
-        return 'Active';
-    } else {
-        return 'Inactive';
-    }
   }
 
   check_cname (item) {
