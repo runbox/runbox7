@@ -19,7 +19,13 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatMenuModule, MatToolbarModule, MatButtonModule, MatIconModule } from '@angular/material';
+import {
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatTooltipModule,
+} from '@angular/material';
 import { HeaderToolbarComponent} from './headertoolbar.component';
 import { RouterModule } from '@angular/router';
 
@@ -29,6 +35,7 @@ import { RouterModule } from '@angular/router';
       MatIconModule,
       MatButtonModule,
       MatToolbarModule,
+      MatTooltipModule,
       RouterModule.forChild([]),
       MatMenuModule,
       RouterModule
