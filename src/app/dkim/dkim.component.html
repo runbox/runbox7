@@ -22,12 +22,22 @@
                 <div *ngIf="domain && keys && keys.length" style='margin-top: 35px'>
                     <mat-grid-list cols="8" rowHeight="30px" style='' *ngIf="dkim_domain">
                         <mat-grid-tile [colspan]="2"><div class="grid_align_left" style=''><strong>{{dkim_domain.type}}:</strong></div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="6"><div class="grid_align_left">{{dkim_domain.domain}}</div>
-                        <div style='margin-left: 40px; display: inline-block;'>
-                            <button *ngIf="domain" mat-raised-button color="warn" (click)="disable()" style='margin-let: 20px;'>Disable DKIM for {{domain}}
-                                <mat-progress-bar mode="indeterminate" *ngIf="is_deleting_keys"></mat-progress-bar>
-                            </button>
-                        </div>
+                        <mat-grid-tile [colspan]="6">
+                            <div class="grid_align_left">
+                                <mat-form-field>
+                                  <mat-label>Domain: {{dkim_domain_str}}</mat-label>
+                                  <mat-select [(ngModel)]="dkim_domain_str" (change)="ev_get_domain()" (selectionChange)="ev_get_domain()" >
+                                    <mat-option *ngFor="let d of dkim_domains" [value]="d.domain">
+                                      {{d.domain}}
+                                    </mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div style='margin-left: 40px; display: inline-block;'>
+                                <button *ngIf="domain" mat-raised-button color="warn" (click)="disable()" style='margin-let: 20px;'>Disable DKIM for {{domain}}
+                                    <mat-progress-bar mode="indeterminate" *ngIf="is_deleting_keys"></mat-progress-bar>
+                                </button>
+                            </div>
                         </mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
@@ -49,7 +59,7 @@
                         <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
                         <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">3600</div></mat-grid-tile>
                         <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">CNAME</div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}</div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}.</div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
@@ -88,4 +98,3 @@
         </section>
     </mat-sidenav-content>
 </mat-sidenav-container>
-
