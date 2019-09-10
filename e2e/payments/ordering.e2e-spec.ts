@@ -29,7 +29,7 @@ describe('Purchase a subscription', () => {
 
         expect(
             upgradeButton.getText()
-        ).toContain('Upgrade', 'there is a button that offers to upgrade your subscription');
+        ).toContain('Purchase', 'there is a button that offers to upgrade your subscription');
 
         upgradeButton.click();
         buttonLocator = by.css('#shoppingCartButton');
