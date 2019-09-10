@@ -382,6 +382,10 @@ rmm-headertoolbar {
     color: mat-color($rmm-default-primary);
 }
 
+#mainMenu #runbox6 {
+    color: mat-color($rmm-default-accent) !important;
+}
+
 /* Sidenav pane */
 
 mat-sidenav-container {
@@ -855,4 +859,10 @@ app-calendar-event-editor-dialog p {
 .calendarEventPeriodLabel {
     display: inline-block;
     width: 50px;
+}
+
+/* Payment */
+
+.productCardSpecial .mat-card, .productCardSpecial mat-card {
+        background: mat-color($rmm-default-accent);
 }

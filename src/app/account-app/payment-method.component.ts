@@ -32,7 +32,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center; align-items: center;">
-        <button mat-flat-button color="primary" (click)="clicked.emit()">PAY NOW</button>
+        <button mat-flat-button color="primary" (click)="clicked.emit()">Proceed to Payment</button>
     </mat-card-actions>
 </mat-card>
     `,

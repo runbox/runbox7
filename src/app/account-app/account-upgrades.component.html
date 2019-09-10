@@ -9,6 +9,11 @@
 	margin: 10px;
 	flex: 450px 1 0;
 }
+.productCardSpecial {
+        margin: 10px;
+        flex: 900px 1 0;
+        text-align: center;
+}
 </style>
 
 <h2> Account upgrades </h2>
@@ -19,7 +24,7 @@
     </p>
 
     <p>
-      Here you can upgrade your account's subscription plan.
+      Here you can change your account's subscription plan.
     <p>
       Note: When selecting a subscription plan, please note that your current email disk usage is
       {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
@@ -36,7 +41,7 @@
     <div id="productGrid">
         <app-account-product
             *ngFor="let p of subscriptions"
-            class="productCard"
+	    [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
             [p]="p"
             [active]="me.subscription === p.pid"
             [currency]="me.currency"

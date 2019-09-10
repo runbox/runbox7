@@ -7,7 +7,7 @@ mat-card {
 <mat-card>
     <mat-card-title>
         <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
-        {{ p.name }}
+        <span *ngIf="p.subtype === 'special'"> Special offer: </span>{{ p.name }}
         <strong *ngIf="active"> – your current {{ p.type }} </strong>
         <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
     </mat-card-title>
@@ -19,7 +19,7 @@ mat-card {
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
         <button mat-button (click)="order()" class="contentButton">
-            Upgrade for {{ p.price }} {{ currency }}
+            Purchase for {{ p.price }} {{ currency }}
         </button>
     </mat-card-actions>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type === 'addon'">
