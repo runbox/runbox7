@@ -25,8 +25,8 @@
                         <mat-grid-tile [colspan]="6">
                             <div class="grid_align_left">
                                 <mat-form-field>
-                                  <mat-label>Domain: {{dkim_domain_str}}</mat-label>
-                                  <mat-select [(ngModel)]="dkim_domain_str" (change)="ev_get_domain()" (selectionChange)="ev_get_domain()" >
+                                  <mat-label>Domain: {{domain}}</mat-label>
+                                  <mat-select [(ngModel)]="domain" (change)="ev_get_domain()" (selectionChange)="ev_get_domain()" >
                                     <mat-option *ngFor="let d of dkim_domains" [value]="d.domain">
                                       {{d.domain}}
                                     </mat-option>
