@@ -87,12 +87,9 @@
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active && keys[0].date_active ? keys[0].date_active : '--'}}</div></mat-grid-tile>
                     </mat-grid-list>
                 </div>
-                <div *ngIf="!dkim_domains || !dkim_domains.length" style='margin-top: 35px'>
-                  <div *ngIf="domain && !keys.length && !is_creating_keys">
-                      No keys found for {{domain}}
-                      <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}</button>
-                  </div>
-                  <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
+                <div *ngIf="domain && !keys.length && !is_creating_keys">
+                    No keys found for {{domain}}
+                    <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}<mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar></button>
                 </div>
             </mat-card>
         </section>
