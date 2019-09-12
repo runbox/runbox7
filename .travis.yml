@@ -1,4 +1,4 @@
-dist: trusty
+dist: bionic
 sudo: false
 
 language: node_js
@@ -7,14 +7,15 @@ node_js:
 
 addons:
   apt:
-    sources:
-      - google-chrome
     packages:
-      - google-chrome-stable
+      - chromium-browser
 
 cache:
   directories:
      - ./node_modules
+
+before_install:
+  - export CHROME_BIN=chromium-browser
 
 install:
   - npm install  
