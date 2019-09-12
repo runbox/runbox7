@@ -191,7 +191,6 @@ export class DkimComponent implements AfterViewInit {
         }
       },
       error => {
-        this.show_error('Could not list dkim keys.', 'Dismiss');
       }
     );
   }
