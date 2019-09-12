@@ -20,6 +20,7 @@
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { StorageService } from '../storage.service';
 
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -42,10 +43,13 @@ export class CalendarService implements OnDestroy {
     errorLog        = new Subject<HttpErrorResponse>();
 
     constructor(
-        private rmmapi: RunboxWebmailAPI,
+        private rmmapi:  RunboxWebmailAPI,
+        private storage: StorageService,
     ) {
-        const cache = localStorage.getItem('caldavCache');
-        if (cache) {
+        storage.get('caldavCache').then(cache => {
+            if (!cache) {
+                return;
+            }
             console.log('Loading calendars/events from local cache');
             this.calendars = JSON.parse(cache)['calendars'].map(c => new RunboxCalendar(c));
             for (const cal of this.calendars) {
@@ -54,7 +58,7 @@ export class CalendarService implements OnDestroy {
             this.calendarSubject.next(this.calendars);
             this.events = JSON.parse(cache)['events'].map(e => new RunboxCalendarEvent(e));
             this.eventSubject.next(this.events);
-        }
+        });
 
         this.calendarSubject.subscribe(cals => {
             const updatedCals = [];
@@ -177,7 +181,7 @@ export class CalendarService implements OnDestroy {
             events:    this.events,
         });
         console.log('Storing caldav cache: ', cache);
-        localStorage.setItem('caldavCache', cache);
+        this.storage.set('caldavCache', cache);
     }
 
     syncCaldav() {
