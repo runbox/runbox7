@@ -17,34 +17,44 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AsyncSubject } from 'rxjs';
+import { AsyncSubject, of } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 declare var Module;
 declare var WebAssembly;
 
-export const xapianLoadedSubject = new AsyncSubject();
+let _xapianLoadedSubject: AsyncSubject<any> = null;
 
-if (typeof WebAssembly === 'object') {
-    console.log('Loading Xapian webassembly binary');
+function loadXapian() {
+    if (_xapianLoadedSubject) {
+        return _xapianLoadedSubject;
+    }
+    _xapianLoadedSubject = new AsyncSubject<any>();
+    if (typeof WebAssembly === 'object') {
+        console.log('Loading Xapian webassembly binary');
 
-    const startTime = new Date().getTime();
-    const scriptelm = document.createElement('script');
-    scriptelm.src = 'xapianasm.js';
-    scriptelm.onload = () => {
-        Module['onRuntimeInitialized'] = () => {
-            patchMEMFS();
-            patchIDBFS();
-            console.log('Xapian boot time', (new Date().getTime() - startTime), 'ms');
-            xapianLoadedSubject.next(true);
-            xapianLoadedSubject.complete();
+        const startTime = new Date().getTime();
+        const scriptelm = document.createElement('script');
+        scriptelm.src = 'xapianasm.js';
+        scriptelm.onload = () => {
+            Module['onRuntimeInitialized'] = () => {
+                patchMEMFS();
+                patchIDBFS();
+                console.log('Xapian boot time', (new Date().getTime() - startTime), 'ms');
+                _xapianLoadedSubject.next(true);
+                _xapianLoadedSubject.complete();
+            };
         };
-    };
-    document.body.appendChild(scriptelm);
-} else {
-    console.log('No webassembly support');
-    xapianLoadedSubject.next(false);
-    xapianLoadedSubject.complete();
+        document.body.appendChild(scriptelm);
+    } else {
+        console.log('No webassembly support');
+        _xapianLoadedSubject.next(false);
+        _xapianLoadedSubject.complete();
+    }
+    return _xapianLoadedSubject;
 }
+
+export const xapianLoadedSubject = of(true).pipe(mergeMap(() => loadXapian()));
 
 declare var IDBFS;
 declare var FS;

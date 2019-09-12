@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule, MatSnackBarModule, MatPaginatorModule,
         MatCheckboxModule, MatDialogModule, MatProgressBarModule,
         MatProgressSpinnerModule, MatTabsModule, MatSelectModule, MatListModule,
+        MatGridListModule,
         MatInputModule, MatCardModule, MatChipsModule, MatButtonModule } from '@angular/material';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -54,6 +55,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         MatChipsModule,
         MatSelectModule,
         MatButtonModule,
+        MatGridListModule,
     ],
     exports: [ DkimComponent ],
     declarations: [ DkimComponent ],

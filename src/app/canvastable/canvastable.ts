@@ -494,13 +494,16 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         const colIndex = this.getColIndexByClientX(clientX);
         let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
-        let tooltipText = this.columns[colIndex] && this.columns[colIndex].tooltipText;
+        let tooltipText: string | ((rowobj: any) => string) =
+              this.columns[colIndex] && this.columns[colIndex].tooltipText;
 
-        if (typeof tooltipText === 'function') {
+        if (typeof tooltipText === 'function' && this.rows[this.hoverRowIndex]) {
           tooltipText = tooltipText(this.rows[this.hoverRowIndex]);
         }
 
-        if (!event.shiftKey && !this.lastMouseDownEvent && tooltipText) {
+        if (!event.shiftKey && !this.lastMouseDownEvent &&
+            (tooltipText || (this.columns[colIndex] && this.columns[colIndex].draggable))
+          ) {
           if (this.rowWrapMode &&
             colIndex >= this.rowWrapModeWrapColumn) {
             // Subtract first row width if in row wrap mode
@@ -512,7 +515,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
             (this.hoverRowIndex - this.topindex) * this.rowheight,
             colStartX - this.horizScroll + this.colpaddingleft,
             this.columns[colIndex].width - this.colpaddingright - this.colpaddingleft,
-            this.rowheight, tooltipText);
+            this.rowheight, tooltipText as string);
 
           if (this.rowWrapMode) {
             this.floatingTooltip.top +=

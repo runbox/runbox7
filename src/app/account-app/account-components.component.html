@@ -1,0 +1,58 @@
+<style>
+#accountComponentsGrid {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.componentCard {
+    margin: 10px;
+    flex: 450px 1 0;
+}
+
+</style>
+
+<h1> Account products </h1>
+
+<p>
+    Here you can control your account's subscription products.
+</p>
+
+<p>
+    You can easily upgrade your account, renew it, or extend it with various components like sub-accounts or domain names.
+</p>
+
+
+<div id="accountComponentsGrid">
+    <app-account-component-card ngClass="componentCard"
+        title="Account upgrades"
+        subtitle="Make your account more powerful by upgrading your subscription plan"
+        icon="hot_tub"
+        routerLink="/account/upgrades"
+    >
+    </app-account-component-card>
+
+    <app-account-component-card ngClass="componentCard"
+        title="Account add-ons"
+        subtitle="Extend your account with add-ons such as storage space and sub-accounts"
+        icon="extension"
+        routerLink="/account/addons"
+    >
+    </app-account-component-card>
+
+    <app-account-component-card ngClass="componentCard"
+        title="Active products"
+        subtitle="View your Runbox subscription and add-on products, and their renewals"
+        icon="autorenew"
+        routerLink="/account/renewals"
+    >
+    </app-account-component-card>
+
+    <app-account-component-card ngClass="componentCard"
+        title="Transactions"
+        subtitle="View the history of your transactions, receipts, and invoices"
+        icon="assessment"
+        routerLink="/account/transactions"
+    >
+    </app-account-component-card>
+</div>

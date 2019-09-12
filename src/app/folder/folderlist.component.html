@@ -5,15 +5,19 @@
   </button>
 </div>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding
-      matTreeNodePaddingIndent="20" style="display: flex"
+    <mat-tree-node *matTreeNodeDef="let node" [matTreeNodePadding]="node.folderLevel"
+      matTreeNodePaddingIndent="20"
+      style="display: flex"
+      class="mailFolder"
       [ngClass]="{
         'selectedFolder' : selectedFolder == node.folderPath,
-        'dropToFolderAllowed' : dropFolderId === node.folderId
+        'dropToFolderAllowed' : dropFolderId===node.folderId && dropAboveOrBelowOrInside === dropPosition.INSIDE,
+        'dropAboveFolderAllowed' : dropFolderId===node.folderId && dropAboveOrBelowOrInside === dropPosition.ABOVE,
+        'dropBelowFolderAllowed' : dropFolderId===node.folderId && dropAboveOrBelowOrInside === dropPosition.BELOW
         }"
-        (drop)="dropToFolder(node.folderId)"         
-        (dragover)="allowDropToFolder($event,node.folderId);treeControl.expand(node)" 
-        (dragleave)="dropFolderId=null" class="mailFolder"
+        (drop)="dropToFolder($event,node.folderId)"         
+        (dragover)="allowDropToFolder($event,node)" 
+        (dragend)="dragCancel()" 
         (click)="selectFolder(node.folderPath)"
       >
         <button mat-icon-button matTreeNodeToggle
@@ -30,10 +34,14 @@
         <mat-icon *ngIf="node.folderType=='templates'" mat-list-icon class="folderIconStandard">description</mat-icon>
         <mat-icon *ngIf="node.folderType=='trash'" mat-list-icon class="folderIconStandard">delete</mat-icon>
         <mat-icon *ngIf="node.folderType=='user'" mat-list-icon class="folderIconUser">folder</mat-icon>
-	<span style="margin-left: 5px;">{{node.folderName}}</span>
+        <div style="margin-left: 5px;" 
+              draggable="true"
+              (dragstart)="dragFolderStart($event, node.folderId)">
+              {{node.folderName}}
+        </div>
         <span *ngIf="node.newMessages" matBadge="{{node.newMessages}}" matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">&nbsp;</span>
-	<span style="flex-grow: 1"></span>
-        <span class="foldersidebarcount">{{node.totalMessages}}</span>   
+	      <span style="flex-grow: 1"></span>
+        <span class="foldersidebarcount">{{node.totalMessages}}</span>
         
         <ng-container [ngSwitch]="node.folderType">
           <ng-container *ngSwitchCase="'user'">

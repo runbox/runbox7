@@ -1,0 +1,58 @@
+<style>
+#productGrid {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+}
+
+.productCard {
+	margin: 10px;
+	flex: 450px 1 0;
+}
+.productCardSpecial {
+        margin: 10px;
+        flex: 900px 1 0;
+        text-align: center;
+}
+</style>
+
+<h2> Account upgrades </h2>
+
+<div *ngIf="rmmapi.me | async as me; else loading">
+    <p>
+        <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
+    </p>
+
+    <p>
+      Here you can change your account's subscription plan.
+    <p>
+      Note: When selecting a subscription plan, please note that your current email disk usage is
+      {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
+    </p>
+
+    <p>
+        And don't forget to check out
+        <button mat-button routerLink="/account/addons" class="contentButton">
+            <mat-icon> extension </mat-icon> account addons
+        </button>
+	!
+    </p>
+
+    <div id="productGrid">
+        <app-account-product
+            *ngFor="let p of subscriptions"
+	    [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
+            [p]="p"
+            [active]="me.subscription === p.pid"
+            [currency]="me.currency"
+        >
+            <ul>
+                <li *ngFor="let detail of p.details"> {{ detail }}
+            </ul>
+        </app-account-product>
+    </div>
+</div>
+
+<ng-template #loading>
+    <div> Loading account details... </div>
+</ng-template>

@@ -1,0 +1,63 @@
+<h1> Active products </h1>
+
+<p>
+  Here you can see all the active products in your account, and renew any of them at any time.
+</p>
+
+<p *ngIf="active_products.length === 0">
+    Loading your products...
+</p>
+
+<table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }">
+    <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let p">
+            {{ p.name }}
+            <strong *ngIf="p.pid === current_subscription"> – your current subscription </strong>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef> Quantity </th>
+        <td mat-cell *matCellDef="let p"> {{ p.quantity }} </td>
+    </ng-container>
+    <ng-container matColumnDef="active_from">
+        <th mat-header-cell *matHeaderCellDef> Active from </th>
+        <td mat-cell *matCellDef="let p">
+            {{ p.active_from.format('YYYY-MM-DD') }}
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="active_until">
+        <th mat-header-cell *matHeaderCellDef> Active until </th>
+        <td mat-cell *matCellDef="let p">
+            {{ p.active_until.format('YYYY-MM-DD') }}
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="hints">
+        <th mat-header-cell *matHeaderCellDef> </th>
+        <td mat-cell *matCellDef="let p">
+            <strong *ngIf="p.expired">
+                (expired {{ p.active_until.fromNow() }})
+            </strong>
+            <mat-error *ngIf="p.expires_soon" style="font-weight: bold;">
+                (expires {{ p.active_until.fromNow() }})
+            </mat-error>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="recur">
+        <th mat-header-cell *matHeaderCellDef> Auto renew </th>
+        <td mat-cell *matCellDef="let p"> {{ p.active ? 'Yes' : 'No' }} </td>
+    </ng-container>
+    <ng-container matColumnDef="renew">
+        <th mat-header-cell *matHeaderCellDef> Renew now </th>
+        <td mat-cell *matCellDef="let p">
+            <button mat-button (click)="renew(p)" *ngIf="!p.ordered" class="contentButton">
+                Renew <mat-icon> shopping_cart </mat-icon>
+            </button>
+            <span *ngIf="p.ordered">
+                Added to shopping cart
+            </span>
+        </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew']">
+    <tr mat-row        *matRowDef="let row; columns: ['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];"></tr>
+</table>

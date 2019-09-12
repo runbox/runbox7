@@ -66,6 +66,11 @@ export class MockServer {
                 }
                 return;
             }
+            const receiptendpoint = requesturl.match('/\/rest\/v1\/account_product\/receipt\/([0-9]+)');
+            if (receiptendpoint) {
+                response.end(JSON.stringify(this.receipt()));
+                return;
+            }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
@@ -91,14 +96,23 @@ export class MockServer {
                 case '/rest/v1/me/defaultprofile':
                     response.end(JSON.stringify(this.defaultprofile()));
                     break;
+                case '/rest/v1/account_product/available':
+                    response.end(JSON.stringify(this.availableProducts()));
+                    break;
+                case '/rest/v1/account_product/cart':
+                    response.end(JSON.stringify(this.availableProducts()));
+                    break;
+                case '/rest/v1/account_product/order':
+                    response.end(JSON.stringify(this.order()));
+                    break;
                 case '/ajax/from_address':
                     response.end(JSON.stringify(this.from_address()));
                     break;
                 case '/ajax/aliases':
                     response.end(JSON.stringify({ 'status': 'success', 'aliases': [] }));
                     break;
-                case '/ajax?action=ajax_getfoldercount':
-                    response.end(JSON.stringify(this.foldercount()));
+                case '/rest/v1/email_folder/list':
+                    response.end(JSON.stringify(this.emailFoldersListResponse()));
                     break;
                 case '/mail/download_xapian_index':
                     response.end('');
@@ -179,10 +193,46 @@ export class MockServer {
                     'quota_mail_size': null
                 },
                 'company': null, 'is_overwrite_subaccount_ip_rules': 0,
+                'currency': 'EUR',
                 'user_created': null, 'timezone': 'Europe/Oslo', 'uid': 221,
                 'sub_accounts': ['test%subaccount.com'], 'password_strength': 5,
                 'gender': null, 'has_sub_accounts': 1, 'need2pay': 'n',
                 'paid': 'n', 'country': null
+            }
+        };
+    }
+
+    availableProducts() {
+        return {
+            'status': 'success',
+            'result': {
+                'products': [
+                    {
+                        'name':        'Runbox Test',
+                        'type':        'subscription',
+                        'subtype':     'test',
+                        'price':       '13.37',
+                        'pid':         '9001',
+                        'description': 'Test subscription including some stuff'
+                    }
+                ]
+            }
+        };
+    }
+
+    receipt() {
+        return {
+            'status': 'success',
+            'result': {}
+        };
+    }
+
+    order() {
+        return {
+            'status': 'success',
+            'result': {
+                'total': '13.37',
+                'tid':   '31337',
             }
         };
     }
@@ -199,13 +249,78 @@ export class MockServer {
         };
     }
 
-    foldercount() {
-        return [
-            [3692896, 0, 413, 'drafts', 'Drafts', 'Drafts', 0], [3692892, 2, 29, 'inbox', 'Inbox', 'Inbox', 0],
-            [3692893, 0, 136, 'sent', 'Sent', 'Sent', 0],
-            [3692894, 0, 0, 'spam', 'Spam', 'Spam', 0],
-            [3692895, 0, 218, 'trash', 'Trash', 'Trash', 0]
-        ];
+    emailFoldersListResponse() {
+        return {
+            'status': 'success',
+            'result': {
+                'folders': [
+                    {
+                        'old': 296,
+                        'name': 'Drafts',
+                        'priority': '0',
+                        'id': '5',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Drafts',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'drafts'
+                    },
+                    {
+                        'old': 296,
+                        'name': 'Inbox',
+                        'priority': '0',
+                        'id': '1',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Inbox',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'inbox'
+                    },
+                    {
+                        'old': 296,
+                        'name': 'Spam',
+                        'priority': '0',
+                        'id': '2',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Spam',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'spam'
+                    },
+                    {
+                        'old': 296,
+                        'name': 'Trash',
+                        'priority': '0',
+                        'id': '2',
+                        'parent': null,
+                        'new': 0,
+                        'total': 296,
+                        'folder': 'Trash',
+                        'msg_new': 0,
+                        'msg_total': 296,
+                        'size': '11389678',
+                        'msg_size': '11389678',
+                        'subfolders': [],
+                        'type': 'trash'
+                    },
+                ]
+            }
+        };
     }
 
     auth_challenge_2fa() {

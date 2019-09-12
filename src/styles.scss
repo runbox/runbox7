@@ -83,6 +83,10 @@ h5 {
     font-size: 16px;
 }
 
+th {
+   font-size: 16px;
+}
+
 
 /* Generic MD styles */
 
@@ -109,12 +113,28 @@ mat-icon {
     vertical-align: middle !important;
 }
 
+.mat-header-cell {
+    font-size: 16px;
+}
+
+.mat-card-header-text {
+    margin-left: 0px !important;
+}
+
+mat-grid-tile {
+    text-align: left;
+}
+
 /* Generic custom styles */
+
+mat-grid-tile.tableTitle {
+    background-color: mat-color($rmm-default-foreground);
+}
 
 .contentButton {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
-    padding: 5px 5px 3px 5px !important;
+    padding: 5px 10px 3px 10px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
@@ -344,6 +364,27 @@ rmm-headertoolbar {
     width: 100%;
 }
 
+#mainMenu button.accountMenu {
+    margin: 0; 
+    width: 40px; 
+    height: 40px;
+    line-height: 1em;
+}
+
+#mainMenu button.accountMenu .mat-button-wrapper {
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#mainMenu button.accountMenu mat-icon {
+    margin: 0;
+    color: mat-color($rmm-default-primary);
+}
+
+#mainMenu #runbox6 {
+    color: mat-color($rmm-default-accent) !important;
+}
 
 /* Sidenav pane */
 
@@ -454,7 +495,7 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     background-color: rgba(0,0,0,.03) !important;
 }
 
-#mainMenu button, #mainMenu a {
+#mainMenu button, #mainMenu a, .mainMenuSub, .mainMenuSub a {
     font-size: 16px;
 }
 
@@ -818,4 +859,10 @@ app-calendar-event-editor-dialog p {
 .calendarEventPeriodLabel {
     display: inline-block;
     width: 50px;
+}
+
+/* Payment */
+
+.productCardSpecial .mat-card, .productCardSpecial mat-card {
+        background: mat-color($rmm-default-accent);
 }

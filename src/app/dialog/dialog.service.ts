@@ -17,32 +17,23 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatToolbarModule,
-    MatTooltipModule,
-} from '@angular/material';
-import { HeaderToolbarComponent} from './headertoolbar.component';
-import { RouterModule } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { ProgressDialog } from './progress.dialog';
 
-@NgModule({
-  imports: [
-      CommonModule,
-      MatIconModule,
-      MatButtonModule,
-      MatToolbarModule,
-      MatTooltipModule,
-      RouterModule.forChild([]),
-      MatMenuModule,
-      RouterModule
-  ],
-  declarations: [HeaderToolbarComponent],
-  exports: [HeaderToolbarComponent]
-})
-export class MenuModule {
+@Injectable()
+export class DialogService {
+    constructor(
+        private dialog: MatDialog
+    ) {
 
+    }
+
+    openProgressDialog() {
+        ProgressDialog.open(this.dialog);
+    }
+
+    closeProgressDialog() {
+        ProgressDialog.close();
+    }
 }
