@@ -10,7 +10,7 @@
                     </mat-card-title>
                 </mat-card-header>
                 <p>
-                DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
+                DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a target="_blank" href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
                 </p>
                 <p>
                 If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below.
@@ -52,7 +52,7 @@
                     <mat-grid-list cols="8" rowHeight="30px" style=''>
                         <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Hostname</strong></div></mat-grid-tile>
                         <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>TTL</strong></div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Recrod Type</strong></div></mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Record Type</strong></div></mat-grid-tile>
                         <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="8" rowHeight="30px" style='' *ngFor="let k of keys">
