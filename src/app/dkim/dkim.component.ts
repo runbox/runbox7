@@ -88,7 +88,6 @@ export class DkimComponent implements AfterViewInit {
   @Output() Close: EventEmitter<string> = new EventEmitter();
 
   dkim_domain;
-  dkim_domain_str;
   dkim_domains = [];
   domain;
   is_creating_keys = false;
@@ -153,7 +152,6 @@ export class DkimComponent implements AfterViewInit {
           this.dkim_domains = r.result.domains;
           const filtered = this.dkim_domains.filter((o) => o.domain === this.domain);
           this.dkim_domain = filtered[0];
-          this.dkim_domain_str = this.dkim_domain.domain;
           if ( ! this.dkim_domain ) {
             return setTimeout(() => { this.load_dkim_domains(); }, 5000);
           }
@@ -193,7 +191,6 @@ export class DkimComponent implements AfterViewInit {
         }
       },
       error => {
-        this.show_error('Could not list dkim keys.', 'Dismiss');
       }
     );
   }
