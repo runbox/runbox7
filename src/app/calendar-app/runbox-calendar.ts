@@ -19,6 +19,7 @@
 
 export class RunboxCalendar {
     id:           string;
+    syncToken:    string;
     displayname?: string;
     color?:       string;
 
@@ -28,6 +29,7 @@ export class RunboxCalendar {
         this.id          = props['id'];
         this.displayname = props['displayname'];
         this.color       = props['color'] || props['calendar-color'];
+        this.syncToken   = props['syncToken'] || props['sync-token'];
     }
 
     generateID(): void {
@@ -47,6 +49,7 @@ export class RunboxCalendar {
             id: this.id,
             displayname: this.displayname,
             'calendar-color': this.color,
+            'sync-token': this.syncToken,
         };
     }
 }

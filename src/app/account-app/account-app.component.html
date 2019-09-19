@@ -1,0 +1,43 @@
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu mode="side"></mat-sidenav>
+    <mat-sidenav-content style="padding-left: 25px; padding-right: 25px;">
+        <style>
+        #shoppingCartButton {
+            position: fixed;
+            top: 75px;
+            right: 50px;
+            z-index: 10;
+        }
+        </style>
+
+        <div *ngIf="cart.items | async as items">
+            <button mat-fab id="shoppingCartButton"
+                *ngIf="items.length > 0"
+                matTooltip="Go to your shopping cart"
+                routerLink="/account/cart"
+            >
+                <mat-icon [matBadge]="items.length" matBadgePosition="below before">
+                    shopping_cart
+                </mat-icon>
+            </button>
+        </div>
+
+        <div *ngIf="rmmapi.me | async as me">
+            <div *ngIf="me.owner; else show_subpages">
+                <h4>
+                    <p>
+                        This is a sub-account and can't be managed from within the sub-account itself.
+                    </p>
+                    <p>
+                        Please have the owner of the administrator account ({{ me.owner.username }})
+                        do that for you.
+                    </p>
+                </h4>
+            </div>
+            <ng-template #show_subpages>
+                <router-outlet>
+                </router-outlet>
+            </ng-template>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

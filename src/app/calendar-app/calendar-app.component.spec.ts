@@ -22,6 +22,7 @@ import { Http } from '@angular/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Observable } from 'rxjs';
 import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
@@ -41,7 +42,7 @@ describe('CalendarAppComponent', () => {
             summary: 'Test Event #0',
         }}),
         new RunboxCalendarEvent({ id: 'test-calendar/event1', VEVENT: {
-            dtstart: moment().add(1, 'month').add(1, 'day').toISOString(),
+            dtstart: moment().add(1, 'month').add(14, 'day').toISOString(),
             summary: 'Event #1, next month',
         }}),
     ];
@@ -85,9 +86,11 @@ describe('CalendarAppComponent', () => {
                 RouterTestingModule.withRoutes([])
               ],
             providers: [
+                StorageService,
                 { provide: RunboxWebmailAPI, useValue: {
                     getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
                     getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
+                    me:                    of({ uid: 1 }),
                 } },
                 { provide: Http, useValue: {
                 } },
@@ -104,9 +107,10 @@ describe('CalendarAppComponent', () => {
 
     it('should display calendars', () => {
         expect(component).toBeTruthy();
-        expect(component.calendars[0]).toBeDefined();
 
         fixture.detectChanges();
+
+        expect(component.calendars[0]).toBeDefined();
 
         const calendar = fixture.debugElement.nativeElement.querySelector('.calendarListItem');
         expect(calendar).toBeDefined();

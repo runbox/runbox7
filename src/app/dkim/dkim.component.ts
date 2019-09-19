@@ -34,6 +34,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpModule, JsonpModule, XHRBackend, RequestOptions, BrowserXhr } from '@angular/http';
+import { ConfirmDialog } from '../dialog/dialog.module';
 import {
   MatCardModule,
   MatCheckboxModule,
@@ -57,7 +58,27 @@ import {
 @Component({
   moduleId: 'angular2/app/dkim/',
   selector: 'app-dkim',
-  templateUrl: 'dkim.component.html'
+  templateUrl: 'dkim.component.html',
+  styles: [`
+    .grid_align_left {
+        margin-right: 10px; margin-left: 10px;
+        text-align: left;
+        width: 100%;
+    }
+    .grid_align_right {
+        margin-right: 10px; margin-left: 10px;
+        text-align: right;
+        border-right: 1px solid #ededed;
+        border-bottom: 1px solid #ededed;
+        padding-right: 10px;
+        width: 100%;
+    }
+    .terminal {
+        background: #000;
+        color: #FFF;
+        padding: 25px 10px 10px 10px;
+    }
+  `],
 })
 
 export class DkimComponent implements AfterViewInit {
@@ -65,35 +86,78 @@ export class DkimComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   @Output() Close: EventEmitter<string> = new EventEmitter();
+
+  dkim_domain;
+  dkim_domains = [];
   domain;
-  keys = [];
-  key_active;
-  is_rotating = 0;
   is_creating_keys = false;
+  is_rotating = 0;
+  key = {};
+  keys = [];
+  is_deleting_keys = false;
 
   ngAfterViewInit() {
   }
-  constructor(
-    private http: Http,
-    public snackBar: MatSnackBar,
-  ) {
-    const domain = window.location.href.match(/domain=([^&]+)/);
-    if (domain && domain[1]) {
-      this.domain = domain[1];
-      this.load_keys();
-    }
+
+  disable () {
+    const del_dkim_domain = this.http.delete('/rest/v1/dkim/domain/' + this.domain);
+    const confirmDialog = this.dialog.open(ConfirmDialog);
+    confirmDialog.componentInstance.title = `Delete dkim for domain ${this.domain}?`;
+    confirmDialog.componentInstance.question =
+        `Are you sure that you want to delete DKIM settings for domain ${this.domain}?`;
+    confirmDialog.componentInstance.noOptionTitle = 'cancel';
+    confirmDialog.componentInstance.yesOptionTitle = 'ok';
+    confirmDialog.afterClosed().subscribe(result => {
+      if ( result ) {
+        this.is_deleting_keys = true;
+        del_dkim_domain.pipe(timeout(180000));
+        del_dkim_domain.subscribe(
+          data => {
+            const r = data.json();
+            this.is_deleting_keys = false;
+            if ( r.status === 'success' ) {
+              this.keys = [];
+              this.key = {};
+              this.load_dkim_domains();
+              this.load_keys();
+              return this.show_error( 'Settings will be deleted shortly. Please check in a few minutes!', 'Dismiss' );
+            } else if ( r.status === 'error' ) {
+              return this.show_error( r.errors.join('\n'), 'Dismiss' );
+            } else {
+              return this.show_error( 'Unknown error has happened.', 'Dismiss' );
+            }
+          },
+          error => {
+            this.is_deleting_keys = false;
+            return this.show_error('Could not list dkim domains list.', 'Dismiss');
+          }
+        );
+      }
+    });
   }
 
-  load_keys () {
-    const get_keys = this.http.get('/rest/v1/dkim/' + this.domain + '/keys');
-    get_keys.pipe(timeout(180000));
-    get_keys.subscribe(
+  ev_get_domain () {
+    this.load_dkim_domains();
+    this.load_keys();
+  }
+
+  load_dkim_domains () {
+   // const get_dkim_domains = this.http.get()
+    const get_domains = this.http.get('/rest/v1/dkim/domains');
+    get_domains.pipe(timeout(180000));
+    get_domains.subscribe(
       result => {
         const r = result.json();
         if ( r.status === 'success' ) {
-          this.keys = r.result.keys;
-          this.is_rotating = r.result.domain.is_rotating;
-          this.set_active_key(this.keys);
+          this.dkim_domains = r.result.domains;
+          const filtered = this.dkim_domains.filter((o) => o.domain === this.domain);
+          this.dkim_domain = filtered[0];
+          if ( ! this.dkim_domain ) {
+            return setTimeout(() => { this.load_dkim_domains(); }, 5000);
+          }
+          if ( !this.domain && this.dkim_domain ) {
+            this.domain = this.dkim_domain.domain;
+          }
         } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
@@ -101,16 +165,34 @@ export class DkimComponent implements AfterViewInit {
         }
       },
       error => {
-        return this.show_error('Could not list dkim keys.', 'Dismiss');
+        return this.show_error('Could not list dkim domains list.', 'Dismiss');
       }
     );
   }
 
-  set_active_key (keys) {
-    const active = keys.filter( (k) => k.is_active );
-    if ( active.length ) {
-      this.key_active = active[0];
-    }
+  load_keys () {
+    if ( ! this.domain ) { return; }
+    const get_keys = this.http.get('/rest/v1/dkim/' + this.domain + '/keys');
+    get_keys.pipe(timeout(180000));
+    get_keys.subscribe(
+      result => {
+        const r = result.json();
+        if ( r.status === 'success' ) {
+          this.key = {};
+          this.keys = r.result.keys;
+          this.domain = r.result.domain.name;
+          this.is_rotating = r.result.domain.is_rotating;
+          this.keys.forEach( (k) => this.key[k.selector] = k );
+        } else if ( r.status === 'error' ) {
+          this.keys = [];
+          return this.show_error( r.errors.join('\n'), 'Dismiss' );
+        } else {
+          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
+        }
+      },
+      error => {
+      }
+    );
   }
 
   create_keys () {
@@ -123,6 +205,7 @@ export class DkimComponent implements AfterViewInit {
         if ( r.status === 'success' ) {
           this.is_creating_keys = false;
           this.keys = r.result.keys;
+          this.load_dkim_domains();
           this.load_keys();
         } else if ( r.status === 'error' ) {
           this.is_creating_keys = false;
@@ -139,16 +222,6 @@ export class DkimComponent implements AfterViewInit {
     );
   }
 
-  get_status (item) {
-    if ( !item.is_active && this.is_rotating ) {
-        return 'Rotating';
-    } else if ( item.is_active ) {
-        return 'Active';
-    } else {
-        return 'Inactive';
-    }
-  }
-
   check_cname (item) {
     const url = '/rest/v1/dkim/' + this.domain + '/check_cname/' + item.selector;
     const req = this.http.put(url, {});
@@ -158,6 +231,7 @@ export class DkimComponent implements AfterViewInit {
         const r = result.json();
         if ( r.status === 'success' ) {
           this.load_keys();
+          this.load_dkim_domains();
         } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
@@ -179,6 +253,7 @@ export class DkimComponent implements AfterViewInit {
         const r = result.json();
         if ( r.status === 'success' ) {
           this.load_keys();
+          this.load_dkim_domains();
         } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
@@ -196,4 +271,21 @@ export class DkimComponent implements AfterViewInit {
       duration: 2000,
     });
   }
+
+  constructor(
+    private http: Http,
+    public snackBar: MatSnackBar,
+    public dialog: MatDialog
+  ) {
+    const domain = window.location.href.match(/domain=([^&]+)/);
+    if (domain && domain[1]) {
+      this.domain = domain[1];
+      this.load_dkim_domains();
+      if ( this.domain ) {
+        this.load_keys();
+      }
+    }
+  }
+
+
 }

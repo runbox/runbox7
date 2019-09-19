@@ -20,31 +20,77 @@
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { StorageService } from '../storage.service';
 
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 
+import * as moment from 'moment';
+
 @Injectable()
-export class CalendarService {
-    // cache, would be nice to have it offline
-    calendars: RunboxCalendar[]   = [];
-    events: RunboxCalendarEvent[] = [];
+export class CalendarService implements OnDestroy {
+    calendars:    RunboxCalendar[]      = [];
+    events:       RunboxCalendarEvent[] = [];
+
+    syncTokens = {};
+    syncInterval: any;
+    syncIntervalSeconds = 15;
+    lastUpdate: moment.Moment;
 
     calendarSubject = new ReplaySubject<RunboxCalendar[]>(1);
     eventSubject    = new ReplaySubject<RunboxCalendarEvent[]>(1);
     errorLog        = new Subject<HttpErrorResponse>();
 
     constructor(
-        private rmmapi:   RunboxWebmailAPI,
+        private rmmapi:  RunboxWebmailAPI,
+        private storage: StorageService,
     ) {
-        console.log('Fetching calendars');
-        this.rmmapi.getCalendars().subscribe(calendars => {
-            this.calendars = calendars;
-            console.log('Calendars loaded:', calendars);
-            this.calendarSubject.next(calendars);
-            this.reloadEvents();
-        }, e => this.apiErrorHandler(e));
+        storage.get('caldavCache').then(cache => {
+            if (!cache) {
+                return;
+            }
+            console.log('Loading calendars/events from local cache');
+            this.calendars = JSON.parse(cache)['calendars'].map(c => new RunboxCalendar(c));
+            for (const cal of this.calendars) {
+                this.syncTokens[cal.id] = cal.syncToken;
+            }
+            this.calendarSubject.next(this.calendars);
+            this.events = JSON.parse(cache)['events'].map(e => new RunboxCalendarEvent(e));
+            this.eventSubject.next(this.events);
+        });
+
+        this.calendarSubject.subscribe(cals => {
+            const updatedCals = [];
+            for (const cal of cals) {
+                if (cal.syncToken !== this.syncTokens[cal.id]) {
+                    updatedCals.push(cal.id);
+                    this.syncTokens[cal.id] = cal.syncToken;
+                }
+            }
+
+            if (updatedCals.length > 0) {
+                console.log('Changes detected in calendars', updatedCals);
+                this.reloadEvents();
+            } else {
+                console.log('Nothing new in calendars');
+                this.lastUpdate = moment();
+            }
+        });
+
+        this.eventSubject.subscribe(_ => {
+            this.saveCache();
+            this.lastUpdate = moment();
+        });
+
+        this.syncInterval = setInterval(() => {
+            this.syncCaldav();
+        }, this.syncIntervalSeconds * 1000);
+        this.syncCaldav();
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.syncInterval);
     }
 
     addCalendar(calendar: RunboxCalendar): Promise<void> {
@@ -126,6 +172,24 @@ export class CalendarService {
         this.rmmapi.getCalendarEvents().subscribe(events => {
             this.events = events.map(e => new RunboxCalendarEvent(e));
             this.eventSubject.next(this.events);
+        }, e => this.apiErrorHandler(e));
+    }
+
+    saveCache() {
+        const cache = JSON.stringify({
+            calendars: this.calendars,
+            events:    this.events,
+        });
+        console.log('Storing caldav cache: ', cache);
+        this.storage.set('caldavCache', cache);
+    }
+
+    syncCaldav() {
+        console.log('Fetching calendars');
+        this.rmmapi.getCalendars().subscribe(calendars => {
+            this.calendars = calendars;
+            console.log('Calendars loaded:', calendars);
+            this.calendarSubject.next(calendars);
         }, e => this.apiErrorHandler(e));
     }
 }
