@@ -21,6 +21,7 @@ import {
     Component,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
+    OnDestroy,
     ViewChild,
     TemplateRef
 } from '@angular/core';
@@ -72,9 +73,10 @@ import { EventTitleFormatter } from './event-title-formatter';
     templateUrl: './calendar-app.component.html',
     providers: [
         { provide: CalendarEventTitleFormatter, useClass: EventTitleFormatter }
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CalendarAppComponent {
+export class CalendarAppComponent implements OnDestroy {
     view: CalendarView = CalendarView.Month;
     CalendarView = CalendarView;
     viewDate: Date = new Date();
@@ -83,6 +85,7 @@ export class CalendarAppComponent {
     settings = new CalendarSettings();
 
     refresh: Subject<any> = new Subject();
+    viewRefreshInterval: any;
 
     @ViewChild('icsUploadInput') icsUploadInput: any;
 
@@ -124,6 +127,15 @@ export class CalendarAppComponent {
             this.updateEventColors();
             this.filterEvents();
         });
+
+        // force re-render to update the last update string
+        this.viewRefreshInterval = setInterval(() => {
+            this.cdr.markForCheck();
+        }, 60 * 1000);
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.viewRefreshInterval);
     }
 
     addEvent(on?: Date): void {
