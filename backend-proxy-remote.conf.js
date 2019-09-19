@@ -1,13 +1,21 @@
 let backendhostname = process.env.RUNBOX7_ANGULAR_BACKEND_HOST;
-if(!backendhostname) {
+let backendhostsecure = true;
+if(backendhostname) 
+    {
+    // If we're using a custom (development) backend, turn off security checking to avoid certificate errors:
+    backendhostsecure = false;
+    }
+else 
+    {
+    // Default to production backend
     backendhostname = 'https://runbox.com';
-}
+    }
 
 const PROXY_CONFIG = [
     {
         context: ["/websocket"],
         "target": backendhostname.replace(/^http/,'ws'),
-        "secure": true,
+        "secure": backendhostsecure,
         "ws": true,
         "changeOrigin": true
     },
@@ -27,7 +35,7 @@ const PROXY_CONFIG = [
             }
         },
         "target": backendhostname,
-        "secure": true,
+        "secure": backendhostsecure,
         "cookieDomainRewrite": "localhost",
         "changeOrigin": true
         
