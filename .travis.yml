@@ -20,9 +20,11 @@ before_install:
 install:
   - npm install  
 
-script:
-  - npm run lint
-  - npm run policy
-  - npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI
-  - npm run e2e -- --protractor-config=./protractor-ci.conf.js
-  - npm run build
+env:
+  - COMMAND='lint'
+  - COMMAND='policy'
+  - COMMAND='test -- --watch=false --progress=false --browsers=ChromeHeadlessCI'
+  - COMMAND='e2e -- --protractor-config=./protractor-ci.conf.js'
+  - COMMAND='build'
+
+script: "npm run $COMMAND"
