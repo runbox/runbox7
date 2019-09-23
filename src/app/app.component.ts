@@ -210,7 +210,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
-        this.mailViewerRightSideWidth = '40%';
+        this.mailViewerRightSideWidth = '35%';
       } else if (this.mobileQuery.matches && this.sidemenu.opened) {
         this.sidemenu.close();
       }

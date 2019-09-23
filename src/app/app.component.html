@@ -71,7 +71,7 @@
     <p style="text-align: center; font-size: 12px">Runbox 7 build time: {{buildtimestampstring}}</p>
   </mat-sidenav>
   <mat-sidenav *ngIf="mailViewerOnRightSide" position="end" mode="side" 
-    [opened]="singlemailviewer.messageId"
+    [opened]=true
     [style.width]="mailViewerRightSideWidth"
     id="rightPane"
     appResizable>
@@ -80,6 +80,10 @@
       [adjustableHeight]="false"
       (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
       (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
+      <div *ngIf="mailViewerOnRightSide && !singlemailviewer.messageId"
+	   class="noMessageSelectedNotification">
+	No Message Selected
+      </div>
   </mat-sidenav>
   <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
     <mat-toolbar style="display: flex">
