@@ -29,7 +29,7 @@ import { MatTableModule, MatSnackBarModule, MatPaginatorModule,
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
@@ -38,7 +38,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         BrowserModule,
         BrowserAnimationsModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         MatSnackBarModule,
         MatExpansionModule,
         MatSidenavModule,

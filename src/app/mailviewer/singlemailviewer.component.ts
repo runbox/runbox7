@@ -25,7 +25,7 @@ import {
   DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Http, ResponseContentType } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 import { MatDialog, MatButtonToggle, MatDialogRef, MatExpansionModule } from '@angular/material';
 
@@ -126,7 +126,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   constructor(private _ngZone: NgZone,
     private domSanitizer: DomSanitizer,
-    private http: Http,
+    private http: HttpClient,
     public dialog: MatDialog,
     private rbwebmailapi: RunboxWebmailAPI,
     private progressService: ProgressService,
@@ -455,7 +455,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
    */
   public decryptAttachment(attachmentIndex: number) {
     this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
-      { responseType: ResponseContentType.Blob })
+      { responseType: 'blob' })
       .subscribe((res) => {
         const pgpapp = window.open('https://pgpapp.no/app/messagehandler.html', '_blank');
 
@@ -477,7 +477,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
 
             } else if (msg.data.ready) {
-              pgpapp.postMessage(res.blob(), 'https://pgpapp.no');
+              pgpapp.postMessage(res, 'https://pgpapp.no');
             }
           }
         };
@@ -515,10 +515,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
 
     this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
-      { responseType: ResponseContentType.Blob })
+      { responseType: 'blob' })
       .subscribe((res) => {
         const attachment = this.mailObj.attachments[attachmentIndex];
-        attachment.content = res.blob();
+        attachment.content = res;
         this.downloadAttachment(attachment);
         progressSubscription.unsubscribe();
         ProgressDialog.close();

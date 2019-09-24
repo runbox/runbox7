@@ -18,10 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { NgModule } from '@angular/core';
-import { HttpModule, JsonpModule, BrowserXhr } from '@angular/http';
+import { BrowserXhr } from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
@@ -107,8 +107,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [BrowserModule, HttpModule, JsonpModule, FormsModule,
+  imports: [BrowserModule, FormsModule,
     HttpClientModule,
+    HttpClientJsonpModule,
     CanvasTableModule,
     ComposeModule,
     FolderModule,

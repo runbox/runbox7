@@ -30,7 +30,7 @@ import { MatSidenav, MatSnackBar, MatDialogRef, MatDialog, MatIconRegistry } fro
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { Router, RouterOutlet } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
@@ -138,7 +138,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private router: Router,
     public progressService: ProgressService,
     private mdIconRegistry: MatIconRegistry,
-    private http: Http,
+    private http: HttpClient,
     private sanitizer: DomSanitizer,
     private renderer: Renderer2,
     private ngZone: NgZone,
@@ -335,7 +335,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   subscribeToNotifications() {
     if (environment.production) {
       this.http.get('/rest/v1/webpush/vapidkeys').pipe(
-        map(res => res.json()),
         map(jwk => exportKeysFromJWK(jwk).public),
         mergeMap(publicKey =>
           from(

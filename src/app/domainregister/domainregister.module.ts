@@ -27,7 +27,7 @@ import { MatTableModule, MatSnackBarModule, MatPaginatorModule,
         MatInputModule, MatCardModule, MatChipsModule, MatButtonModule } from '@angular/material';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
@@ -36,7 +36,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         BrowserModule,
         BrowserAnimationsModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         MatSnackBarModule,
         MatSidenavModule,
         MatTableModule,

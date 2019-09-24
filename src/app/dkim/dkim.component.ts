@@ -26,14 +26,13 @@ create initial keys: POST   /rest/v1/dkim/$domain/keys/create
 import { timeout } from 'rxjs/operators';
 import { SecurityContext, Component, Input, Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Http, URLSearchParams, ResponseContentType, Headers } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ProgressService } from '../http/progress.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule, XHRBackend, RequestOptions, BrowserXhr } from '@angular/http';
 import { ConfirmDialog } from '../dialog/dialog.module';
 import {
   MatCardModule,
@@ -110,10 +109,8 @@ export class DkimComponent implements AfterViewInit {
     confirmDialog.afterClosed().subscribe(result => {
       if ( result ) {
         this.is_deleting_keys = true;
-        del_dkim_domain.pipe(timeout(180000));
         del_dkim_domain.subscribe(
-          data => {
-            const r = data.json();
+          (r: any) => {
             this.is_deleting_keys = false;
             if ( r.status === 'success' ) {
               this.keys = [];
@@ -144,10 +141,8 @@ export class DkimComponent implements AfterViewInit {
   load_dkim_domains () {
    // const get_dkim_domains = this.http.get()
     const get_domains = this.http.get('/rest/v1/dkim/domains');
-    get_domains.pipe(timeout(180000));
     get_domains.subscribe(
-      result => {
-        const r = result.json();
+      (r: any) => {
         if ( r.status === 'success' ) {
           this.dkim_domains = r.result.domains;
           const filtered = this.dkim_domains.filter((o) => o.domain === this.domain);
@@ -173,10 +168,8 @@ export class DkimComponent implements AfterViewInit {
   load_keys () {
     if ( ! this.domain ) { return; }
     const get_keys = this.http.get('/rest/v1/dkim/' + this.domain + '/keys');
-    get_keys.pipe(timeout(180000));
     get_keys.subscribe(
-      result => {
-        const r = result.json();
+      (r: any) => {
         if ( r.status === 'success' ) {
           this.key = {};
           this.keys = r.result.keys;
@@ -198,10 +191,8 @@ export class DkimComponent implements AfterViewInit {
   create_keys () {
     this.is_creating_keys = true;
     const req = this.http.post('/rest/v1/dkim/' + this.domain + '/keys/create', {});
-    req.pipe(timeout(18000));
     req.subscribe(
-      result => {
-        const r = result.json();
+      (r: any) => {
         if ( r.status === 'success' ) {
           this.is_creating_keys = false;
           this.keys = r.result.keys;
@@ -225,10 +216,8 @@ export class DkimComponent implements AfterViewInit {
   check_cname (item) {
     const url = '/rest/v1/dkim/' + this.domain + '/check_cname/' + item.selector;
     const req = this.http.put(url, {});
-    req.pipe(timeout(18000));
     req.subscribe(
-      result => {
-        const r = result.json();
+      (r: any) => {
         if ( r.status === 'success' ) {
           this.load_keys();
           this.load_dkim_domains();
@@ -247,10 +236,8 @@ export class DkimComponent implements AfterViewInit {
   reconfigure (item) {
     const url = '/rest/v1/dkim/' + this.domain + '/reconfigure/' + item.selector;
     const req = this.http.put(url, {});
-    req.pipe(timeout(18000));
     req.subscribe(
-      result => {
-        const r = result.json();
+      (r: any) => {
         if ( r.status === 'success' ) {
           this.load_keys();
           this.load_dkim_domains();
@@ -273,7 +260,7 @@ export class DkimComponent implements AfterViewInit {
   }
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     public snackBar: MatSnackBar,
     public dialog: MatDialog
   ) {

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed, async, fakeAsync, tick } from '@angular/core/testing';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -92,7 +92,7 @@ describe('CalendarAppComponent', () => {
                     getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
                     me:                    of({ uid: 1 }),
                 } },
-                { provide: Http, useValue: {
+                { provide: HttpClient, useValue: {
                 } },
                 { provide: MatSnackBar, useValue: {
                 } },

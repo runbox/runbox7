@@ -31,7 +31,7 @@ import { MatButtonModule,
      } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { InfoDialog, InfoParams } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
 import { SimpleInputDialog } from './simpleinput.dialog';
@@ -47,7 +47,7 @@ export { ProgressDialog } from './progress.dialog';
     imports: [
         CommonModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         MatInputModule,
         MatDialogModule,
         MatSnackBarModule,

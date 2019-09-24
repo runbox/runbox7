@@ -18,8 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, ViewChild } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Http, ResponseContentType } from '@angular/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
@@ -51,7 +50,7 @@ export class ContactsAppComponent {
     constructor(
         private contactsservice: ContactsService,
         private dialog:          MatDialog,
-        private http:            Http,
+        private http:            HttpClient,
         private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
         private router:          Router,
@@ -72,8 +71,8 @@ export class ContactsAppComponent {
         this.route.queryParams.subscribe(params => {
             const vcfUrl = params.import_from;
             if (!vcfUrl) { return; }
-            this.http.get(vcfUrl, { responseType: ResponseContentType.Blob }).subscribe(
-                res => (new Response(res.blob())).text().then(
+            this.http.get(vcfUrl, { responseType: 'blob' }).subscribe(
+                res => (new Response(res)).text().then(
                     text => this.processVcfImport(text)
                 )
             );

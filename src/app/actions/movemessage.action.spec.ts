@@ -19,7 +19,7 @@
 
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, flushMicrotasks } from '@angular/core/testing';
-import { Http, HttpModule } from '@angular/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MoveMessageDialogComponent } from './movemessage.action';
 import { MatDialogModule, MatDialog } from '@angular/material';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -69,7 +69,7 @@ describe('MoveMessageAction', () => {
 
     beforeEach(() => {
         const testingmodule = TestBed.configureTestingModule({
-            imports: [HttpModule, MatDialogModule, NoopAnimationsModule],
+            imports: [HttpClientModule, MatDialogModule, NoopAnimationsModule],
             declarations: [
                 MoveMessageDialogComponent, TestComponent
             ],

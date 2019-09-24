@@ -23,7 +23,8 @@ import { MailViewerModule, SingleMailViewerComponent } from '../mailviewer/mailv
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpModule, JsonpModule, Http, XHRBackend, RequestOptions, BrowserXhr } from '@angular/http';
+import { BrowserXhr } from '@angular/http';
+import { HttpClient, HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
 import { ProgressBrowserXhr, ProgressService } from '../http/progress.service';
 import { DialogModule } from '../dialog/dialog.module';
 import { RMM6MessageActions } from '../mailviewer/rmm6messageactions';
@@ -52,7 +53,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
         MatIconModule,
         DomainRegisterModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         MatTableModule,
         MatDialogModule,
         MatCheckboxModule,
@@ -89,7 +90,7 @@ export class RMM6Module {
         public componentFactoryResolver: ComponentFactoryResolver,
         public ngZone: NgZone,
         public snackBar: MatSnackBar,
-        public http: Http
+        public http: HttpClient
     ) {
         this.messageActionsHandler.snackBar = snackBar;
         this.messageActionsHandler.http = http;

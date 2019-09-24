@@ -20,14 +20,14 @@
 import { MessageActions } from './messageactions';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MatSnackBar } from '@angular/material';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 declare var openCompose: (url: string) => void;
 
 export class RMM6MessageActions implements MessageActions {
     mailViewerComponent: SingleMailViewerComponent;
     snackBar: MatSnackBar;
-    http: Http;
+    http: HttpClient;
 
     moveToFolder() {
         this.snackBar.open('Not supported in RMM6 yet', null, {duration: 1000});

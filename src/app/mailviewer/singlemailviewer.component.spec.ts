@@ -28,7 +28,7 @@ import {
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { ProgressService } from '../http/progress.service';
@@ -67,7 +67,7 @@ describe('SingleMailViewerComponent', () => {
       declarations: [ContactCardComponent, SingleMailViewerComponent],
       providers: [
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
-        { provide: Http, useValue: {} },
+        { provide: HttpClient, useValue: {} },
         { provide: RunboxWebmailAPI, useValue: {
           getMessageContents(messageId: number): Observable<MessageContents> {
             console.log('Get message contents for', messageId);
