@@ -20,7 +20,7 @@
 import { Injectable } from '@angular/core';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
 import { CanvasTableColumn } from '../canvastable/canvastable';
-import { AppComponent } from '../app.component';
+import { EmailAppComponent } from '../email-app/email-app.component';
 import { Subject, AsyncSubject } from 'rxjs';
 import { MessageTableRowTool } from '../messagetable/messagetablerow';
 import { MatSnackBar } from '@angular/material';
@@ -145,7 +145,7 @@ export class WebSocketSearchService {
         this.searchInProgress = false;
     }
 
-    public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
+    public getCanvasTableColumns(app: EmailAppComponent): CanvasTableColumn[] {
         const columns: CanvasTableColumn[] = [
             {
                 sortColumn: null,

@@ -18,65 +18,32 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { NgModule } from '@angular/core';
-import { HttpModule, JsonpModule, BrowserXhr } from '@angular/http';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
 
-import { MailViewerModule } from './mailviewer/mailviewer.module';
-import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
-import {
-  MatCardModule, MatInputModule, MatSnackBarModule, MatButtonModule,
-  MatCheckboxModule,
-  MatIconModule,
-  MatMenuModule,
-  MatProgressSpinnerModule,
-  MatListModule,
-  MatDialogModule,
-  MatToolbarModule,
-  MatTooltipModule,
-  MatButtonToggleModule, MatProgressBarModule, MatSidenavModule
-} from '@angular/material';
-import { CanvasTableModule } from './canvastable/canvastable';
-import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { ComposeModule } from './compose/compose.module';
 import { ContactsAppModule } from './contacts-app/contacts-app.module';
-import { ContactsAppComponent } from './contacts-app/contacts-app.component';
 import { CalendarAppModule } from './calendar-app/calendar-app.module';
 import { CalendarAppComponent } from './calendar-app/calendar-app.component';
+import { EmailAppModule } from './email-app/email-app.module';
+import { EmailAppComponent } from './email-app/email-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { AccountAppModule } from './account-app/account-app.module';
-import { AccountAppComponent } from './account-app/account-app.component';
-import { ProgressBrowserXhr, ProgressService } from './http/progress.service';
-import { MessageListService } from './rmmapi/messagelist.service';
-import { DialogModule } from './dialog/dialog.module';
-import { FolderModule } from './folder/folder.module';
 import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
-import { ResizerModule } from './directives/resizer.module';
 import { DkimModule } from './dkim/dkim.module';
 import { DkimComponent } from './dkim/dkim.component';
 import { DomainRegisterModule } from './domainregister/domainregister.module';
 import { DomainRegisterComponent } from './domainregister/domainregister.component';
-import { MainContainerComponent } from './maincontainer.component';
 import { HeaderToolbarComponent } from './menu/headertoolbar.component';
-import { LocalSearchIndexModule } from './xapian/localsearchindex.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { SearchExpressionBuilderModule } from './xapian/search-expression-builder/search-expression-builder.module';
 import { UpdateAlertModule } from './updatealert/updatealert.module';
-import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields-input/multiple-search-fields-input.module';
 import { LoginLogoutModule } from './login/loginlogout.module';
-
-window.addEventListener('dragover', (event) => event.preventDefault());
-window.addEventListener('drop', (event) => event.preventDefault());
 
 const routes: Routes = [
   {
@@ -87,77 +54,47 @@ const routes: Routes = [
         path: '', outlet: 'headertoolbar',
         component: HeaderToolbarComponent
       },
-      { path: 'domainregistration', component: DomainRegisterComponent},
-      { path: 'dkim', component: DkimComponent},
-      { path: 'calendar', component: CalendarAppComponent },
-      { path: 'index_dev.html', component: AppComponent },
-      { path: 'app', component: AppComponent },
       { path: '',
-        component: AppComponent,
+        component: EmailAppComponent,
         children: [
           {
             path: 'compose',
             component: DraftDeskComponent
           }
         ]
-      }
+      },
+      { path: 'domainregistration', component: DomainRegisterComponent},
+      { path: 'dkim', component: DkimComponent},
+      { path: 'calendar', component: CalendarAppComponent },
+      { path: 'index_dev.html', component: AppComponent },
+      { path: 'app', component: AppComponent },
     ]
   },
   { path: 'login', component: LoginComponent }
 ];
 
 @NgModule({
-  imports: [BrowserModule, HttpModule, JsonpModule, FormsModule,
+  imports: [
     HttpClientModule,
-    CanvasTableModule,
     ComposeModule,
-    FolderModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatDialogModule,
-    MatListModule,
-    MatMenuModule,
-    MatCardModule, MatInputModule,
+    EmailAppModule,
     MenuModule,
-    MatCheckboxModule,
-    MatToolbarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatProgressBarModule,
-    MatSidenavModule,
-    BrowserAnimationsModule,
-    LocalSearchIndexModule,
-    DialogModule,
-    WebSocketSearchModule,
-    MailViewerModule,
     AccountAppModule,
     CalendarAppModule,
     ContactsAppModule,
-    ResizerModule,
     DomainRegisterModule,
     DkimModule,
     UpdateAlertModule,
     LoginLogoutModule,
-    SearchExpressionBuilderModule,
-    MultipleSearchFieldsInputModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production })
   ],
-  declarations: [MainContainerComponent, AppComponent,
-    MoveMessageDialogComponent
-    ],
-  providers: [ProgressService,
-    { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
-    MessageListService,
-    RunboxWebmailAPI,
+  declarations: [AppComponent],
+  bootstrap: [AppComponent],
+  providers: [
     RMMAuthGuardService,
     StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],
-  bootstrap: [MainContainerComponent],
-  entryComponents: [MoveMessageDialogComponent]
 })
 export class AppModule { }
-

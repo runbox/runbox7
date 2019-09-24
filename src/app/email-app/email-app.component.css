@@ -1,0 +1,23 @@
+#sideMenu {
+    border-right: 1px solid darkgrey !important;
+}
+
+#rightPane {
+    border-left: 1px solid darkgrey !important;
+}
+
+.contextToolButtons {
+    position: fixed;
+    top: 150px;
+    right: 0px;
+    display: flex;
+    flex-direction: column;	
+    z-index: 10;
+}
+.contextToolButtons button {
+    margin: 5px 10px 5px 0;
+}
+
+.tableViewOptionsMenuElement {
+    vertical-align: middle !important;
+}

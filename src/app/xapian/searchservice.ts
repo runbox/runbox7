@@ -24,7 +24,7 @@ import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
 import { MessageInfo,
     IndexingTools } from './messageinfo';
 import { CanvasTableColumn} from '../canvastable/canvastable';
-import { AppComponent } from '../app.component';
+import { EmailAppComponent } from '../email-app/email-app.component';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { MatSnackBar, MatDialog, MatSnackBarRef } from '@angular/material';
 import { ProgressDialog } from '../dialog/progress.dialog';
@@ -1178,7 +1178,7 @@ export class SearchService {
         return this.currentDocData;
     }
 
-    public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
+    public getCanvasTableColumns(app: EmailAppComponent): CanvasTableColumn[] {
       const columns: CanvasTableColumn[] = [
               {
                   sortColumn: null,
