@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { NgModule } from '@angular/core';
-import { BrowserXhr } from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -55,7 +54,7 @@ import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { AccountAppModule } from './account-app/account-app.module';
 import { AccountAppComponent } from './account-app/account-app.component';
-import { ProgressBrowserXhr, ProgressService } from './http/progress.service';
+import { ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { DialogModule } from './dialog/dialog.module';
 import { FolderModule } from './folder/folder.module';
@@ -150,7 +149,6 @@ const routes: Routes = [
     MoveMessageDialogComponent
     ],
   providers: [ProgressService,
-    { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
     MessageListService,
     RunboxWebmailAPI,
     RMMAuthGuardService,

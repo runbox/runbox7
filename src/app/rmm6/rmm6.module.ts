@@ -23,9 +23,8 @@ import { MailViewerModule, SingleMailViewerComponent } from '../mailviewer/mailv
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserXhr } from '@angular/http';
 import { HttpClient, HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
-import { ProgressBrowserXhr, ProgressService } from '../http/progress.service';
+import { ProgressService } from '../http/progress.service';
 import { DialogModule } from '../dialog/dialog.module';
 import { RMM6MessageActions } from '../mailviewer/rmm6messageactions';
 import { RMM6SearchComponent } from './rmm6search.component';
@@ -75,9 +74,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
         SingleMailViewerComponent,
         RMM6SearchComponent
     ],
-    providers: [ProgressService,
-        { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
-    ],
+    providers: [ProgressService],
 })
 export class RMM6Module {
 

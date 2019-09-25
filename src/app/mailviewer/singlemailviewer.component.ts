@@ -25,7 +25,7 @@ import {
   DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatDialog, MatButtonToggle, MatDialogRef, MatExpansionModule } from '@angular/material';
 
@@ -508,21 +508,21 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public downloadAttachmentFromServer(attachmentIndex: number) {
     ProgressDialog.open(this.dialog);
 
-    const progressSubscription = this.progressService.downloadProgress.pipe(
-      filter((progress: any) => progress.lengthComputable),
-      map((progress: any) => progress.loaded * 100 / progress.total))
-      .subscribe((val) => ProgressDialog.setValue(val === 100 ? null : val));
-
-
-    this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
-      { responseType: 'blob' })
-      .subscribe((res) => {
+    this.http.get(
+      '/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
+      { observe: 'events', reportProgress: true, responseType: 'blob' }
+    ).subscribe((res: HttpEvent<any>) => {
+      console.log(res);
+      if (res.type === HttpEventType.DownloadProgress && res.total) {
+        const progress = res.loaded * 100 / res.total;
+        ProgressDialog.setValue(progress === 100 ? null : progress);
+      } else if (res.type === HttpEventType.Response) {
         const attachment = this.mailObj.attachments[attachmentIndex];
-        attachment.content = res;
+        attachment.content = res.body;
         this.downloadAttachment(attachment);
-        progressSubscription.unsubscribe();
         ProgressDialog.close();
-      });
+      }
+    });
   }
 
   public downloadAttachment(attachment: any) {

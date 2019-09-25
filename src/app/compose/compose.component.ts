@@ -385,14 +385,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             const oReq = new XMLHttpRequest();
             oReq.open('GET', '/mail/download_message?msgid=' + this.model.mid, true);
             oReq.responseType = 'arraybuffer';
-            /*oReq.onprogress = (oEvent) => {
-                if (oEvent.lengthComputable) {
-                this.downloadProgress = Math.floor(oEvent.loaded * 100/ oEvent.total);
-                } else {
-
-                }
-            };*/
-
             oReq.onreadystatechange = () => {
                 if (oReq.readyState === XMLHttpRequest.DONE && oReq.status !== 200) {
 
