@@ -80,6 +80,7 @@ git checkout -b my-fix-branch master
 6. Follow our [Coding Rules](#coding-rules).
 7. Run the lint, unit tests and e2e tests, and ensure that all tests pass:
     - `npm run lint`
+    - `npm run policy`
     - `npm run test`
     - `npm run e2e`
 8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-guidelines). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
