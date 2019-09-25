@@ -92,7 +92,7 @@ export interface ElementTld {
 
 
 export class DomainRegisterComponent implements AfterViewInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
 
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();

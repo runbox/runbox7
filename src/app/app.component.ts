@@ -105,11 +105,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   buildtimestampstring = BUILD_TIMESTAMP;
 
-  @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
+  @ViewChild(SingleMailViewerComponent, { static: false }) singlemailviewer: SingleMailViewerComponent;
 
-  @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(CanvasTableContainerComponent) canvastablecontainer: CanvasTableContainerComponent;
-  @ViewChild(MatSidenav) sidemenu: MatSidenav;
+  @ViewChild(FolderListComponent, { static: false }) folderListComponent: FolderListComponent;
+  @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
+  @ViewChild(MatSidenav, { static: false }) sidemenu: MatSidenav;
 
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;

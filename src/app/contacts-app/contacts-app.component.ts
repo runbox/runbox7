@@ -45,7 +45,7 @@ export class ContactsAppComponent {
     groupFilter = 'RUNBOX:ALL';
     searchTerm  = '';
 
-    @ViewChild('vcfUploadInput') vcfUploadInput: any;
+    @ViewChild('vcfUploadInput', { static: false }) vcfUploadInput: any;
 
     constructor(
         private contactsservice: ContactsService,

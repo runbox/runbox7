@@ -51,8 +51,8 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
     @Output() change: EventEmitter<string> = new EventEmitter();
 
-    @ViewChild('searchTextInput') searchTextInput: ElementRef;
-    @ViewChild('auto') auto: MatAutocomplete;
+    @ViewChild('searchTextInput', { static: false }) searchTextInput: ElementRef;
+    @ViewChild('auto', { static: false }) auto: MatAutocomplete;
 
     constructor(
         private snackBar: MatSnackBar,

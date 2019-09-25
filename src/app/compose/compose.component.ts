@@ -45,10 +45,9 @@ declare const MailParser;
 export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     static tinymceinstancecount = 1;
 
-    @ViewChild('editor') editorRef: ElementRef;
-    // @ViewChild('msgBodyTextAreaAutoSize') msgBodyTextAreaAutoSize : MatTextareaAutosize;
-    @ViewChild('attachmentFileUploadInput') attachmentFileUploadInput: any;
-    @ViewChild('messageTextArea', { read: ElementRef }) messageTextArea: ElementRef;
+    @ViewChild('editor', { static: false }) editorRef: ElementRef;
+    @ViewChild('attachmentFileUploadInput', { static: false }) attachmentFileUploadInput: any;
+    @ViewChild('messageTextArea', { read: ElementRef, static: false }) messageTextArea: ElementRef;
 
     editor: any = null;
     editorId: string;

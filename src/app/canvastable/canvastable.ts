@@ -147,13 +147,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     }
   }
 
-  @ViewChild('thecanvas') canvRef: ElementRef;
+  @ViewChild('thecanvas', { static: false }) canvRef: ElementRef;
 
   @Output() columnresize = new EventEmitter<number>();
   @Output() columnresizeend = new EventEmitter<number>();
   @Output() columnresizestart = new EventEmitter<any>();
 
-  @ViewChild(MatTooltip) columnOverlay: MatTooltip;
+  @ViewChild(MatTooltip, { static: false }) columnOverlay: MatTooltip;
 
   repaintDoneSubject: Subject<any> = new Subject();
   canvasResizedSubject: Subject<boolean> = new Subject();
@@ -1416,9 +1416,9 @@ export class CanvasTableContainerComponent implements OnInit {
 
   @Output() sortToggled: EventEmitter<any> = new EventEmitter();
 
-  @ViewChild(CanvasTableComponent) canvastable: CanvasTableComponent;
-  @ViewChild('tablecontainer') tablecontainer: ElementRef<HTMLDivElement>;
-  @ViewChild('tablebodycontainer') tablebodycontainer: ElementRef<HTMLDivElement>;
+  @ViewChild(CanvasTableComponent, { static: true  }) canvastable:        CanvasTableComponent;
+  @ViewChild('tablecontainer',     { static: false }) tablecontainer:     ElementRef<HTMLDivElement>;
+  @ViewChild('tablebodycontainer', { static: false }) tablebodycontainer: ElementRef<HTMLDivElement>;
 
   constructor(private renderer: Renderer2) {
 

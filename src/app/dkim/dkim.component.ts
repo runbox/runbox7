@@ -82,7 +82,7 @@ import {
 
 export class DkimComponent implements AfterViewInit {
   panelOpenState = false;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
 
   @Output() Close: EventEmitter<string> = new EventEmitter();
 
