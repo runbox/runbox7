@@ -25,7 +25,6 @@ import { MatToolbarModule, MatButtonModule,
     MatRadioModule, MatCheckboxModule, MatCardModule, MatGridListModule,
     MatDividerModule, MatExpansionModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
 import { ContactCardComponent } from './contactcard.component';
@@ -35,7 +34,6 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
     imports: [
         CommonModule,
         FormsModule,
-        HttpModule,
         MatCheckboxModule,
         MatButtonModule,
         MatRadioModule,
