@@ -18,32 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {Injectable} from '@angular/core';
-import {BrowserXhr} from '@angular/http';
-
 import {Subject, BehaviorSubject} from 'rxjs';
 
 @Injectable()
 export class ProgressService {
-  downloadProgress: Subject<ProgressEvent> = new Subject();
-  uploadProgress: Subject<ProgressEvent> = new Subject();
   httpRequestInProgress: Subject<Boolean> = new BehaviorSubject(false);
-}
-
-@Injectable()
-export class ProgressBrowserXhr extends BrowserXhr {
-  constructor(private service: ProgressService) {
-    super();
-  }
-
-  build(): any {
-    const xhr = super.build();
-    xhr.onprogress = (event) => {
-      this.service.downloadProgress.next(event);
-    };
-
-    xhr.upload.onprogress = (event) => {
-      this.service.uploadProgress.next(event);
-    };
-    return <any>(xhr);
-  }
 }

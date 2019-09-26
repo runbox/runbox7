@@ -24,9 +24,9 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
 import { Observable } from 'rxjs';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
-import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
@@ -45,10 +45,9 @@ declare const MailParser;
 export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     static tinymceinstancecount = 1;
 
-    @ViewChild('editor') editorRef: ElementRef;
-    // @ViewChild('msgBodyTextAreaAutoSize') msgBodyTextAreaAutoSize : MatTextareaAutosize;
-    @ViewChild('attachmentFileUploadInput') attachmentFileUploadInput: any;
-    @ViewChild('messageTextArea', { read: ElementRef }) messageTextArea: ElementRef;
+    @ViewChild('editor', { static: false }) editorRef: ElementRef;
+    @ViewChild('attachmentFileUploadInput', { static: false }) attachmentFileUploadInput: any;
+    @ViewChild('messageTextArea', { read: ElementRef, static: false }) messageTextArea: ElementRef;
 
     editor: any = null;
     editorId: string;
@@ -206,28 +205,27 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         formdata.append('attach', 'Attach');
         formdata.append('ajaxAttach', 'Attach');
 
-        this.http.request(
-            new HttpRequest<any>('POST', '/ajax/upload_attachment', formdata, {
-                    reportProgress: true})
-           )
-            .subscribe((event) => {
-                if (event.type === HttpEventType.UploadProgress) {
-                    const progress = event.loaded * 100 / event.total;
-                    this.uploadprogress = progress === 100 ? null : progress;
-                } else if (event.type === HttpEventType.Response) {
-                    if (!this.model.attachments) {
-                        this.model.attachments = [];
-                    }
-                    (event.body as any).result.attachments
-                        .forEach((att) => {
-                            att.file = att.filename;
-                            this.model.attachments.push(att);
-                        });
-
-                    this.uploadprogress = null;
-                    this.submit();
+        this.http.request(new HttpRequest<any>(
+            'POST', '/ajax/upload_attachment', formdata,
+            { reportProgress: true , headers: new HttpHeaders({ 'ngsw-bypass': '1' }) }
+        )).subscribe((event) => {
+            if (event.type === HttpEventType.UploadProgress) {
+                const progress = event.loaded * 100 / event.total;
+                this.uploadprogress = progress === 100 ? null : progress;
+            } else if (event.type === HttpEventType.Response) {
+                if (!this.model.attachments) {
+                    this.model.attachments = [];
                 }
-            });
+                (event.body as any).result.attachments
+                    .forEach((att: any) => {
+                        att.file = att.filename;
+                        this.model.attachments.push(att);
+                    });
+
+                this.uploadprogress = null;
+                this.submit();
+            }
+        });
     }
 
     public editDraft() {
@@ -385,14 +383,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             const oReq = new XMLHttpRequest();
             oReq.open('GET', '/mail/download_message?msgid=' + this.model.mid, true);
             oReq.responseType = 'arraybuffer';
-            /*oReq.onprogress = (oEvent) => {
-                if (oEvent.lengthComputable) {
-                this.downloadProgress = Math.floor(oEvent.loaded * 100/ oEvent.total);
-                } else {
-
-                }
-            };*/
-
             oReq.onreadystatechange = () => {
                 if (oReq.readyState === XMLHttpRequest.DONE && oReq.status !== 200) {
 

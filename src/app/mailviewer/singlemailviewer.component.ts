@@ -25,9 +25,11 @@ import {
   DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Http, ResponseContentType } from '@angular/http';
+import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
-import { MatDialog, MatButtonToggle, MatDialogRef, MatExpansionModule } from '@angular/material';
+import { MatButtonToggle } from '@angular/material/button-toggle';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
@@ -89,14 +91,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @Input() adjustableHeight: boolean;
   @Input() showVerticalSplitButton = false;
 
-  @ViewChild('printFrame') printFrame: ElementRef;
-  @ViewChild('messageContents') messageContents: ElementRef;
-  @ViewChild('htmliframe') htmliframe: ElementRef;
-  @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
-  @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
-  @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
-
-  @ViewChild('toolbarButtonContainer') toolbarButtonContainer: ElementRef;
+  @ViewChild('printFrame',             { static: false }) printFrame:             ElementRef;
+  @ViewChild('messageContents',        { static: false }) messageContents:        ElementRef;
+  @ViewChild('htmliframe',             { static: false }) htmliframe:             ElementRef;
+  @ViewChild('htmlToggleButton',       { static: false }) htmlToggleButton:       MatButtonToggle;
+  @ViewChild('forwardMessageHeader',   { static: false }) messageHeaderHTML:      ElementRef;
+  @ViewChild(HorizResizerDirective,    { static: false }) resizer:                HorizResizerDirective;
+  @ViewChild('toolbarButtonContainer', { static: false }) toolbarButtonContainer: ElementRef;
 
   public downloadProgress: number;
 
@@ -126,7 +127,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   constructor(private _ngZone: NgZone,
     private domSanitizer: DomSanitizer,
-    private http: Http,
+    private http: HttpClient,
     public dialog: MatDialog,
     private rbwebmailapi: RunboxWebmailAPI,
     private progressService: ProgressService,
@@ -455,7 +456,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
    */
   public decryptAttachment(attachmentIndex: number) {
     this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
-      { responseType: ResponseContentType.Blob })
+      { responseType: 'blob' })
       .subscribe((res) => {
         const pgpapp = window.open('https://pgpapp.no/app/messagehandler.html', '_blank');
 
@@ -477,7 +478,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
 
             } else if (msg.data.ready) {
-              pgpapp.postMessage(res.blob(), 'https://pgpapp.no');
+              pgpapp.postMessage(res, 'https://pgpapp.no');
             }
           }
         };
@@ -508,21 +509,21 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public downloadAttachmentFromServer(attachmentIndex: number) {
     ProgressDialog.open(this.dialog);
 
-    const progressSubscription = this.progressService.downloadProgress.pipe(
-      filter((progress: any) => progress.lengthComputable),
-      map((progress: any) => progress.loaded * 100 / progress.total))
-      .subscribe((val) => ProgressDialog.setValue(val === 100 ? null : val));
-
-
-    this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
-      { responseType: ResponseContentType.Blob })
-      .subscribe((res) => {
+    this.http.get(
+      '/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
+      { observe: 'events', reportProgress: true, responseType: 'blob' }
+    ).subscribe((res: HttpEvent<any>) => {
+      console.log(res);
+      if (res.type === HttpEventType.DownloadProgress && res.total) {
+        const progress = res.loaded * 100 / res.total;
+        ProgressDialog.setValue(progress === 100 ? null : progress);
+      } else if (res.type === HttpEventType.Response) {
         const attachment = this.mailObj.attachments[attachmentIndex];
-        attachment.content = res.blob();
+        attachment.content = res.body;
         this.downloadAttachment(attachment);
-        progressSubscription.unsubscribe();
         ProgressDialog.close();
-      });
+      }
+    });
   }
 
   public downloadAttachment(attachment: any) {

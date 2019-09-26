@@ -20,7 +20,9 @@
 import { Component, Input, EventEmitter, Output, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { MatChipInputEvent, MatAutocomplete, MatSnackBar } from '@angular/material';
+import { MatAutocomplete } from '@angular/material/autocomplete';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
@@ -51,8 +53,8 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
     @Output() change: EventEmitter<string> = new EventEmitter();
 
-    @ViewChild('searchTextInput') searchTextInput: ElementRef;
-    @ViewChild('auto') auto: MatAutocomplete;
+    @ViewChild('searchTextInput', { static: false }) searchTextInput: ElementRef;
+    @ViewChild('auto', { static: false }) auto: MatAutocomplete;
 
     constructor(
         private snackBar: MatSnackBar,

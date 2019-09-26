@@ -26,11 +26,14 @@ import {
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
-import { MatSidenav, MatSnackBar, MatDialogRef, MatDialog, MatIconRegistry } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatIconRegistry } from '@angular/material/icon';
+import { MatSidenav } from '@angular/material/sidenav';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { Router, RouterOutlet } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
@@ -105,11 +108,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   buildtimestampstring = BUILD_TIMESTAMP;
 
-  @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
+  @ViewChild(SingleMailViewerComponent, { static: false }) singlemailviewer: SingleMailViewerComponent;
 
-  @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(CanvasTableContainerComponent) canvastablecontainer: CanvasTableContainerComponent;
-  @ViewChild(MatSidenav) sidemenu: MatSidenav;
+  @ViewChild(FolderListComponent, { static: false }) folderListComponent: FolderListComponent;
+  @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
+  @ViewChild(MatSidenav, { static: false }) sidemenu: MatSidenav;
 
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
@@ -138,7 +141,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private router: Router,
     public progressService: ProgressService,
     private mdIconRegistry: MatIconRegistry,
-    private http: Http,
+    private http: HttpClient,
     private sanitizer: DomSanitizer,
     private renderer: Renderer2,
     private ngZone: NgZone,
@@ -223,12 +226,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     };
 
-    this.mobileQuery.addListener(this.mobileQueryListener);
+    this.mobileQuery.addEventListener('change', this.mobileQueryListener);
     this.updateTime();
   }
 
   ngOnDestroy() {
-    this.mobileQuery.removeListener(this.mobileQueryListener);
+    this.mobileQuery.removeEventListener('change', this.mobileQueryListener);
   }
   ngDoCheck(): void {
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
@@ -335,7 +338,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   subscribeToNotifications() {
     if (environment.production) {
       this.http.get('/rest/v1/webpush/vapidkeys').pipe(
-        map(res => res.json()),
         map(jwk => exportKeysFromJWK(jwk).public),
         mergeMap(publicKey =>
           from(

@@ -21,17 +21,16 @@ import { ApplicationRef, ComponentFactoryResolver, Injector,
     NgModule,
     NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule,
-        MatDialogModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
-        MatSnackBarModule
-     } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { InfoDialog, InfoParams } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
 import { SimpleInputDialog } from './simpleinput.dialog';
@@ -47,7 +46,7 @@ export { ProgressDialog } from './progress.dialog';
     imports: [
         CommonModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         MatInputModule,
         MatDialogModule,
         MatSnackBarModule,

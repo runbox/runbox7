@@ -37,39 +37,12 @@ import { timeout } from 'rxjs/operators';
 // along with Runbox 7 App. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { SecurityContext, Component, Input, Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Http, URLSearchParams, ResponseContentType, Headers } from '@angular/http';
-import { Router } from '@angular/router';
-import { ProgressService } from '../http/progress.service';
+import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-
-
-
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule, XHRBackend, RequestOptions, BrowserXhr } from '@angular/http';
-import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSelectModule,
-  MatSnackBarModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-  MatTableDataSource,
-} from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
 
 export interface ElementUserDomain {
   created: string;
@@ -117,7 +90,7 @@ export interface ElementTld {
 
 
 export class DomainRegisterComponent implements AfterViewInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
 
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
@@ -269,9 +242,8 @@ export class DomainRegisterComponent implements AfterViewInit {
     })
       .pipe(timeout(60000))
       .subscribe(
-        data => {
+        (reply: any) => {
           this.is_btn_search_domain_disabled = false;
-          const reply = data.json();
           if (!reply) { return this.show_error('Error! Please try again.', 'Dismiss'); }
           if (reply.status === 'error') { return this.show_error(reply.errors.join('; ')); }
           if (reply.result.is_available === 1) {
@@ -334,8 +306,7 @@ export class DomainRegisterComponent implements AfterViewInit {
       tld: d.tld
     }).pipe(timeout(60000))
       .subscribe(
-        data => {
-          const reply = data.json();
+        (reply: any) => {
           if (!reply) { return this.show_error('Error! Please try again.', 'Dismiss'); }
           if (reply.status === 'error') { return this.show_error(reply.errors.join('; ')); }
           this.agreement_generic = reply.result.agreement.generic;
@@ -352,8 +323,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     const d = this.parse_domain_wanted();
     this.http.post('/rest/v1/domain_registration/enom/tld_docs_generic', {}).pipe(timeout(60000))
       .subscribe(
-        data => {
-          const reply = data.json();
+        (reply: any) => {
           if (!reply) { return this.show_error('Error! Please try again.', 'Dismiss'); }
           if (reply.status === 'error') { return this.show_error(reply.errors.join('; ')); }
           this.generic_docs = reply.result.generic_docs;
@@ -374,8 +344,7 @@ export class DomainRegisterComponent implements AfterViewInit {
       tld: d.tld
     }).pipe(timeout(60000))
       .subscribe(
-        data => {
-          const reply = data.json();
+        (reply: any) => {
           if (!reply) { return this.show_error('Error! Please try again.', 'Dismiss'); }
           if (reply.status === 'error') { return this.show_error(reply.errors.join('; ')); }
           this.specific_docs = reply.result.specific_docs;
@@ -435,9 +404,8 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.http.post('/rest/v1/domain_registration/enom/domreg_hash/' + this.domreg_hash, values)
         .pipe(timeout(6000))
         .subscribe(
-          data => {
+          (reply: any) => {
             this.is_btn_update_disabled = false;
-            const reply = data.json();
             if (reply.status === 'success') {
               this.show_error(reply.result.msg, 'Dismiss');
             } else {
@@ -478,9 +446,8 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.http.post('/rest/v1/domain_registration/enom/purchase', purchase)
         .pipe(timeout(6000))
         .subscribe(
-          data => {
+          (reply: any) => {
             this.is_btn_purchase_disabled = false;
-            const reply = data.json();
             if (reply.status === 'error' || !reply.location) {
               if (reply.errors && reply.errors[0].length) {
                 return this.show_error('There was an error. ' + reply.errors.join('. '), 'Dismiss');
@@ -693,13 +660,12 @@ export class DomainRegisterComponent implements AfterViewInit {
     const hash = window.location.href.match(/domreg_hash=([^&]+)/);
     if (hash && hash[1]) {
       this.domreg_hash = hash[1];
-      const headers = new Headers();
+      const headers = new HttpHeaders();
       headers.append('Accept', 'application/json');
       const url = '/rest/v1/domain_registration/enom/domreg_hash/' + this.domreg_hash;
       this.http.get(url, { headers: headers }).pipe(
         timeout(60000))
-        .subscribe(result => {
-          const r = result.json();
+        .subscribe((r: any) => {
           if (r.status === 'success') {
             this.domain_wanted = r.result.data.domain;
             this.domreg_data = r;
@@ -723,8 +689,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   public get_domain_info ( domain ) {
       this.http.get('/rest/v1/domain_registration/enom/domain_info/' + domain)
         .pipe(timeout(60000))
-        .subscribe( result => {
-            const r = result.json();
+        .subscribe((r: any) => {
             if ( r.status === 'success' ) {
                 this.domain_info = r.result;
                 this.selectedTabNum = 0;
@@ -802,9 +767,8 @@ export class DomainRegisterComponent implements AfterViewInit {
     this.http.post('/rest/v1/domain_registration/enom/renew', renew).pipe(
       timeout(6000))
       .subscribe(
-        data => {
+        (reply: any) => {
           this.is_btn_renew_disabled = false;
-          const reply = data.json();
           if (reply.status === 'error' || !reply.location) {
             if (reply.errors) {
               return this.show_error(reply.errors.join('. '), 'Dismiss');
@@ -846,9 +810,8 @@ export class DomainRegisterComponent implements AfterViewInit {
     post_purchase_privacy.pipe(
     timeout(6000))
     .subscribe(
-        data => {
+        (reply: any) => {
           this.is_btn_renew_disabled = false;
-          const reply = data.json();
           if ( reply.status === 'error' || ! reply.location ) {
             if ( reply.errors ) {
                 return this.show_error(reply.errors.join('. '), 'Dismiss');
@@ -890,7 +853,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   }
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     public snackBar: MatSnackBar,
   ) {
     this.is_loading.tld_list = true;
@@ -898,10 +861,10 @@ export class DomainRegisterComponent implements AfterViewInit {
     const req_tld_list = this.http.get('/rest/v1/domain_registration/enom/tld_list');
     req_tld_list.pipe(
       timeout(180000))
-      .subscribe(result => {
-        this.dataSourceTld.data = result.json().result.product_list;
+      .subscribe((result: any) => {
+        this.dataSourceTld.data = result.result.product_list;
         this.is_loading.tld_list = false;
-        for (let i = 0, item; item = result.json().result.product_list[i++];) {
+        for (let i = 0, item; item = result.result.product_list[i++];) {
           this.tld_list.push(item.tld);
         }
       },

@@ -23,19 +23,26 @@ import { MailViewerModule, SingleMailViewerComponent } from '../mailviewer/mailv
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpModule, JsonpModule, Http, XHRBackend, RequestOptions, BrowserXhr } from '@angular/http';
-import { ProgressBrowserXhr, ProgressService } from '../http/progress.service';
+import { HttpClient, HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
+import { ProgressService } from '../http/progress.service';
 import { DialogModule } from '../dialog/dialog.module';
 import { RMM6MessageActions } from '../mailviewer/rmm6messageactions';
 import { RMM6SearchComponent } from './rmm6search.component';
-import {
-    MatSnackBarModule, MatSnackBar,
-    MatInputModule,
-    MatIconModule, MatButtonModule
-} from '@angular/material';
-import { MatTableModule, MatPaginatorModule, MatCheckboxModule, MatDialogModule,
-    MatProgressBarModule, MatProgressSpinnerModule, MatTabsModule, MatSelectModule,
-    MatListModule, MatCardModule, MatChipsModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
 import { SearchExpressionBuilderComponent } from '../xapian/search-expression-builder/search-expression-builder.component';
 import { SearchExpressionBuilderModule } from '../xapian/search-expression-builder/search-expression-builder.module';
@@ -52,7 +59,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
         MatIconModule,
         DomainRegisterModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         MatTableModule,
         MatDialogModule,
         MatCheckboxModule,
@@ -74,9 +81,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
         SingleMailViewerComponent,
         RMM6SearchComponent
     ],
-    providers: [ProgressService,
-        { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
-    ],
+    providers: [ProgressService],
 })
 export class RMM6Module {
 
@@ -89,7 +94,7 @@ export class RMM6Module {
         public componentFactoryResolver: ComponentFactoryResolver,
         public ngZone: NgZone,
         public snackBar: MatSnackBar,
-        public http: Http
+        public http: HttpClient
     ) {
         this.messageActionsHandler.snackBar = snackBar;
         this.messageActionsHandler.http = http;

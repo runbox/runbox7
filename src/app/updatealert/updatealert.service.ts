@@ -19,7 +19,7 @@
 
 import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { UpdateAlertComponent } from './updatealert.component';
 import { environment } from '../../environments/environment';
 

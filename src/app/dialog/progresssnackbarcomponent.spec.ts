@@ -20,7 +20,7 @@
 import { TestBed, async, ComponentFixture, getTestBed, tick, fakeAsync } from '@angular/core/testing';
 import { DialogModule } from './dialog.module';
 import { ProgressSnackbarComponent } from './progresssnackbar.component';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component } from '@angular/core';
 

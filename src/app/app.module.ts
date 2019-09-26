@@ -18,10 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { NgModule } from '@angular/core';
-import { HttpModule, JsonpModule, BrowserXhr } from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
@@ -32,18 +31,21 @@ import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module'
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
-import {
-  MatCardModule, MatInputModule, MatSnackBarModule, MatButtonModule,
-  MatCheckboxModule,
-  MatIconModule,
-  MatMenuModule,
-  MatProgressSpinnerModule,
-  MatListModule,
-  MatDialogModule,
-  MatToolbarModule,
-  MatTooltipModule,
-  MatButtonToggleModule, MatProgressBarModule, MatSidenavModule
-} from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
@@ -55,7 +57,7 @@ import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { AccountAppModule } from './account-app/account-app.module';
 import { AccountAppComponent } from './account-app/account-app.component';
-import { ProgressBrowserXhr, ProgressService } from './http/progress.service';
+import { ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { DialogModule } from './dialog/dialog.module';
 import { FolderModule } from './folder/folder.module';
@@ -107,8 +109,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [BrowserModule, HttpModule, JsonpModule, FormsModule,
+  imports: [BrowserModule, FormsModule,
     HttpClientModule,
+    HttpClientJsonpModule,
     CanvasTableModule,
     ComposeModule,
     FolderModule,
@@ -149,7 +152,6 @@ const routes: Routes = [
     MoveMessageDialogComponent
     ],
   providers: [ProgressService,
-    { provide: BrowserXhr, useClass: ProgressBrowserXhr, deps: [ProgressService] },
     MessageListService,
     RunboxWebmailAPI,
     RMMAuthGuardService,

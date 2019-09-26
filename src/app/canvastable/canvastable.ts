@@ -24,12 +24,14 @@
 
 import {
   NgModule, Component, QueryList, AfterViewInit,
-  Input, Output, Renderer,
+  Input, Output, Renderer2,
   ElementRef,
   DoCheck, NgZone, EventEmitter, OnInit, ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule, MatTooltip, MatIconModule, MatButtonModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
 
 const getCSSClassProperty = (className, propertyName) => {
@@ -147,13 +149,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     }
   }
 
-  @ViewChild('thecanvas') canvRef: ElementRef;
+  @ViewChild('thecanvas', { static: false }) canvRef: ElementRef;
 
   @Output() columnresize = new EventEmitter<number>();
   @Output() columnresizeend = new EventEmitter<number>();
   @Output() columnresizestart = new EventEmitter<any>();
 
-  @ViewChild(MatTooltip) columnOverlay: MatTooltip;
+  @ViewChild(MatTooltip, { static: false }) columnOverlay: MatTooltip;
 
   repaintDoneSubject: Subject<any> = new Subject();
   canvasResizedSubject: Subject<boolean> = new Subject();
@@ -260,7 +262,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
 
   touchScrollSpeedY = 0;
 
-  constructor(elementRef: ElementRef, private renderer: Renderer, private _ngZone: NgZone) {
+  constructor(elementRef: ElementRef, private renderer: Renderer2, private _ngZone: NgZone) {
 
   }
 
@@ -281,7 +283,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this.canv = this.canvRef.nativeElement;
     this.ctx = this.canv.getContext('2d');
 
-    this.canv.onwheel = (event: MouseWheelEvent) => {
+    this.canv.onwheel = (event: WheelEvent) => {
       event.preventDefault();
       switch (event.deltaMode) {
         case 0:
@@ -425,7 +427,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       }
     });
 
-    this.renderer.listenGlobal('window', 'mousemove', (event: MouseEvent) => {
+    this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
       if (this.scrollbarDragInProgress === true) {
         event.preventDefault();
         this.doScrollBarDrag(event.clientY);
@@ -543,7 +545,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
       }
     };
 
-    this.renderer.listenGlobal('window', 'mouseup', (event: MouseEvent) => {
+    this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
       this.touchdownxy = undefined;
       this.lastMouseDownEvent = undefined;
       if (this.scrollbarDragInProgress) {
@@ -568,7 +570,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     };
 
 
-    this.renderer.listenGlobal('window', 'resize', () => true);
+    this.renderer.listen('window', 'resize', () => true);
 
     const paintLoop = () => {
       if (this.hasChanges) {
@@ -1416,11 +1418,11 @@ export class CanvasTableContainerComponent implements OnInit {
 
   @Output() sortToggled: EventEmitter<any> = new EventEmitter();
 
-  @ViewChild(CanvasTableComponent) canvastable: CanvasTableComponent;
-  @ViewChild('tablecontainer') tablecontainer: ElementRef<HTMLDivElement>;
-  @ViewChild('tablebodycontainer') tablebodycontainer: ElementRef<HTMLDivElement>;
+  @ViewChild(CanvasTableComponent, { static: true  }) canvastable:        CanvasTableComponent;
+  @ViewChild('tablecontainer',     { static: false }) tablecontainer:     ElementRef<HTMLDivElement>;
+  @ViewChild('tablebodycontainer', { static: false }) tablebodycontainer: ElementRef<HTMLDivElement>;
 
-  constructor(private renderer: Renderer) {
+  constructor(private renderer: Renderer2) {
 
   }
 
@@ -1431,14 +1433,14 @@ export class CanvasTableContainerComponent implements OnInit {
     }
 
 
-    this.renderer.listenGlobal('window', 'mousemove', (event: MouseEvent) => {
+    this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
       if (this.colResizePreviousX) {
         event.preventDefault();
         event.stopPropagation();
         this.colresize(event.clientX);
       }
     });
-    this.renderer.listenGlobal('window', 'mouseup', (event: MouseEvent) => {
+    this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
       if (this.colResizePreviousX) {
         event.preventDefault();
         event.stopPropagation();

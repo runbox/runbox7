@@ -19,7 +19,7 @@
 
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PaymentsService } from './payments.service';
@@ -48,10 +48,10 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     zipCode: string;
     failure: string;
 
-    @ViewChild('paymentRequestButton') paymentRequestButton: ElementRef;
-    @ViewChild('cardNumber')           cardNumber:           ElementRef;
-    @ViewChild('cardExpiry')           cardExpiry:           ElementRef;
-    @ViewChild('cardCvc')              cardCvc:              ElementRef;
+    @ViewChild('paymentRequestButton', { static: false }) paymentRequestButton: ElementRef;
+    @ViewChild('cardNumber',           { static: false }) cardNumber:           ElementRef;
+    @ViewChild('cardExpiry',           { static: false }) cardExpiry:           ElementRef;
+    @ViewChild('cardCvc',              { static: false }) cardCvc:              ElementRef;
 
     constructor(
         private dialog: MatDialog,

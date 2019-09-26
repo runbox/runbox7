@@ -19,7 +19,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI } from './rbwebmail';
-import { MatSnackBarModule, MatDialogModule } from '@angular/material';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('RBWebMail', () => {

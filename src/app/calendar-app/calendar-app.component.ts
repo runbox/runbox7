@@ -28,13 +28,10 @@ import {
 
 import { ActivatedRoute } from '@angular/router';
 
-import { Http, ResponseContentType } from '@angular/http';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import {
-    MatDialog,
-    MatSnackBar
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import {
     isSameDay,
@@ -87,7 +84,7 @@ export class CalendarAppComponent implements OnDestroy {
     refresh: Subject<any> = new Subject();
     viewRefreshInterval: any;
 
-    @ViewChild('icsUploadInput') icsUploadInput: any;
+    @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
 
     calendars: RunboxCalendar[] = [];
 
@@ -98,7 +95,7 @@ export class CalendarAppComponent implements OnDestroy {
         public  calendarservice: CalendarService,
         private cdr:      ChangeDetectorRef,
         private dialog:   MatDialog,
-        private http:     Http,
+        private http:     HttpClient,
         private route:    ActivatedRoute,
         private snackBar: MatSnackBar,
     ) {
@@ -114,10 +111,10 @@ export class CalendarAppComponent implements OnDestroy {
             this.route.queryParams.subscribe(params => {
                 const icsUrl = params.import_from;
                 if (!icsUrl)  { return; }
-                this.http.get(icsUrl, { responseType: ResponseContentType.Blob }).subscribe((res) => {
-                    (new Response(res.blob())).text().then(text => {
+                this.http.get(icsUrl, { responseType: 'blob' }).subscribe((res) => {
+                    (new Response(res).text().then(text => {
                         this.processIcsImport(text);
-                    });
+                    }));
                 });
             });
         });

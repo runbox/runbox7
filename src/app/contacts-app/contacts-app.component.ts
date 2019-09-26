@@ -18,9 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, ViewChild } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Http, ResponseContentType } from '@angular/http';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -46,12 +46,12 @@ export class ContactsAppComponent {
     groupFilter = 'RUNBOX:ALL';
     searchTerm  = '';
 
-    @ViewChild('vcfUploadInput') vcfUploadInput: any;
+    @ViewChild('vcfUploadInput', { static: false }) vcfUploadInput: any;
 
     constructor(
         private contactsservice: ContactsService,
         private dialog:          MatDialog,
-        private http:            Http,
+        private http:            HttpClient,
         private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
         private router:          Router,
@@ -72,8 +72,8 @@ export class ContactsAppComponent {
         this.route.queryParams.subscribe(params => {
             const vcfUrl = params.import_from;
             if (!vcfUrl) { return; }
-            this.http.get(vcfUrl, { responseType: ResponseContentType.Blob }).subscribe(
-                res => (new Response(res.blob())).text().then(
+            this.http.get(vcfUrl, { responseType: 'blob' }).subscribe(
+                res => (new Response(res)).text().then(
                     text => this.processVcfImport(text)
                 )
             );
