@@ -19,13 +19,7 @@
 
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
-import { RRule, RRuleSet, rrulestr } from 'rrule';
-
-import {
-    addDays,
-    addHours,
-    addSeconds
-} from 'date-fns';
+import { RRule, rrulestr } from 'rrule';
 
 import * as moment from 'moment';
 

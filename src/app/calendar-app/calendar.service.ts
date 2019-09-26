@@ -104,13 +104,19 @@ export class CalendarService implements OnDestroy {
         });
     }
 
-    addEvent(event: RunboxCalendarEvent) {
-        this.rmmapi.addCalendarEvent(event).subscribe(res => {
-            console.log('Event created:', res);
-            event.id = res.id;
-            this.events.push(event);
-            this.eventSubject.next(this.events);
-        }, e => this.apiErrorHandler(e));
+    addEvent(event: RunboxCalendarEvent): Promise<string> {
+        return new Promise((resolve, reject) => {
+            this.rmmapi.addCalendarEvent(event).subscribe(res => {
+                console.log('Event created:', res);
+                event.id = res.id;
+                this.events.push(event);
+                this.eventSubject.next(this.events);
+                resolve(event.id);
+            }, e => {
+                this.apiErrorHandler(e);
+                reject(e);
+            });
+        });
     }
 
     apiErrorHandler(e: HttpErrorResponse): void {
@@ -150,15 +156,26 @@ export class CalendarService implements OnDestroy {
     }
 
     modifyEvent(event: RunboxCalendarEvent) {
-        this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(res => {
-            console.log('Event updated:', res);
-            const idx = this.events.findIndex(c => c.id === event.id);
-            this.events.splice(idx, 1, event);
-            this.eventSubject.next(this.events);
-        }, e => this.apiErrorHandler(e));
+        const existing = this.events.find(c => c.id === event.id);
+        if (existing.calendar !== event.calendar) {
+            // special case: if event.calendar is being modified we can't simply update the event:
+            // we need to copy it to a new calendar, and remove it from the old one.
+            event.id = null; // this will make it a "new" event
+            this.addEvent(event).then(id => {
+                console.log('Event recreated as', id);
+                this.deleteEvent(existing.id);
+            });
+        } else {
+            // simple case: just modify the event in place
+            this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(_ => {
+                const idx = this.events.findIndex(c => c.id === event.id);
+                this.events.splice(idx, 1, event);
+                this.eventSubject.next(this.events);
+            }, e => this.apiErrorHandler(e));
+        }
     }
 
-    importCalendar(calendarId, ics): Observable<any> {
+    importCalendar(calendarId: string, ics: string): Observable<any> {
         return new Observable(o => {
             this.rmmapi.importCalendar(calendarId, ics).subscribe(res => {
                 this.reloadEvents();
@@ -170,7 +187,7 @@ export class CalendarService implements OnDestroy {
     reloadEvents() {
         console.log('Fetching events');
         this.rmmapi.getCalendarEvents().subscribe(events => {
-            this.events = events.map(e => new RunboxCalendarEvent(e));
+            this.events = events.map((e: any) => new RunboxCalendarEvent(e));
             this.eventSubject.next(this.events);
         }, e => this.apiErrorHandler(e));
     }
@@ -180,7 +197,6 @@ export class CalendarService implements OnDestroy {
             calendars: this.calendars,
             events:    this.events,
         });
-        console.log('Storing caldav cache: ', cache);
         this.storage.set('caldavCache', cache);
     }
 
