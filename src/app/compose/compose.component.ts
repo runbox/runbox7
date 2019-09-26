@@ -26,7 +26,7 @@ import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
-import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
@@ -205,28 +205,27 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         formdata.append('attach', 'Attach');
         formdata.append('ajaxAttach', 'Attach');
 
-        this.http.request(
-            new HttpRequest<any>('POST', '/ajax/upload_attachment', formdata, {
-                    reportProgress: true})
-           )
-            .subscribe((event) => {
-                if (event.type === HttpEventType.UploadProgress) {
-                    const progress = event.loaded * 100 / event.total;
-                    this.uploadprogress = progress === 100 ? null : progress;
-                } else if (event.type === HttpEventType.Response) {
-                    if (!this.model.attachments) {
-                        this.model.attachments = [];
-                    }
-                    (event.body as any).result.attachments
-                        .forEach((att) => {
-                            att.file = att.filename;
-                            this.model.attachments.push(att);
-                        });
-
-                    this.uploadprogress = null;
-                    this.submit();
+        this.http.request(new HttpRequest<any>(
+            'POST', '/ajax/upload_attachment', formdata,
+            { reportProgress: true , headers: new HttpHeaders({ 'ngsw-bypass': '1' }) }
+        )).subscribe((event) => {
+            if (event.type === HttpEventType.UploadProgress) {
+                const progress = event.loaded * 100 / event.total;
+                this.uploadprogress = progress === 100 ? null : progress;
+            } else if (event.type === HttpEventType.Response) {
+                if (!this.model.attachments) {
+                    this.model.attachments = [];
                 }
-            });
+                (event.body as any).result.attachments
+                    .forEach((att: any) => {
+                        att.file = att.filename;
+                        this.model.attachments.push(att);
+                    });
+
+                this.uploadprogress = null;
+                this.submit();
+            }
+        });
     }
 
     public editDraft() {
