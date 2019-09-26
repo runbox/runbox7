@@ -25,7 +25,8 @@ import { async, tick, TestBed, getTestBed } from '@angular/core/testing';
 import { MessageInfo } from '../xapian/messageinfo';
 import { last, take } from 'rxjs/operators';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBarModule, MatDialogModule } from '@angular/material';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogModule } from '../dialog/dialog.module';
 describe('FolderListComponent', () => {

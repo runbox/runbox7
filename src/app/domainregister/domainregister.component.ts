@@ -40,11 +40,9 @@ import { timeout } from 'rxjs/operators';
 import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import {
-  MatPaginator,
-  MatSnackBar,
-  MatTableDataSource,
-} from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
 
 export interface ElementUserDomain {
   created: string;

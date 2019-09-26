@@ -19,7 +19,7 @@
 
 import { Component, ElementRef, EventEmitter, Input, Output, OnChanges, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, Email } from '../contact';

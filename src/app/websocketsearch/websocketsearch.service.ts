@@ -23,7 +23,7 @@ import { CanvasTableColumn } from '../canvastable/canvastable';
 import { AppComponent } from '../app.component';
 import { Subject, AsyncSubject } from 'rxjs';
 import { MessageTableRowTool } from '../messagetable/messagetablerow';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { take } from 'rxjs/operators';
 
 @Injectable()

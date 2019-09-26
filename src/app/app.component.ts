@@ -26,7 +26,10 @@ import {
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
-import { MatSidenav, MatSnackBar, MatDialogRef, MatDialog, MatIconRegistry } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatIconRegistry } from '@angular/material/icon';
+import { MatSidenav } from '@angular/material/sidenav';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { Router, RouterOutlet } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';

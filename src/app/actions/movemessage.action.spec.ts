@@ -21,7 +21,7 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, flushMicrotasks } from '@angular/core/testing';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MoveMessageDialogComponent } from './movemessage.action';
-import { MatDialogModule, MatDialog } from '@angular/material';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';

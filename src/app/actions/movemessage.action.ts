@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
 import { SearchService } from '../xapian/searchservice';
 

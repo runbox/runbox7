@@ -28,14 +28,21 @@ import { ProgressService } from '../http/progress.service';
 import { DialogModule } from '../dialog/dialog.module';
 import { RMM6MessageActions } from '../mailviewer/rmm6messageactions';
 import { RMM6SearchComponent } from './rmm6search.component';
-import {
-    MatSnackBarModule, MatSnackBar,
-    MatInputModule,
-    MatIconModule, MatButtonModule
-} from '@angular/material';
-import { MatTableModule, MatPaginatorModule, MatCheckboxModule, MatDialogModule,
-    MatProgressBarModule, MatProgressSpinnerModule, MatTabsModule, MatSelectModule,
-    MatListModule, MatCardModule, MatChipsModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
 import { SearchExpressionBuilderComponent } from '../xapian/search-expression-builder/search-expression-builder.component';
 import { SearchExpressionBuilderModule } from '../xapian/search-expression-builder/search-expression-builder.module';

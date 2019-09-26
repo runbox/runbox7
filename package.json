@@ -26,14 +26,13 @@
   },
   "dependencies": {
     "@angular/animations": "8.2.7",
-    "@angular/cdk": "^7.3.7",
+    "@angular/cdk": "^8.2.1",
     "@angular/common": "8.2.7",
     "@angular/compiler": "8.2.7",
     "@angular/compiler-cli": "^8.2.7",
     "@angular/core": "8.2.7",
     "@angular/forms": "8.2.7",
-    "@angular/http": "7.2.15",
-    "@angular/material": "^7.3.7",
+    "@angular/material": "^8.2.1",
     "@angular/platform-browser": "8.2.7",
     "@angular/platform-browser-dynamic": "8.2.7",
     "@angular/pwa": "^0.12.2",
@@ -73,6 +72,7 @@
     "protractor": "^5.4.2",
     "ts-node": "~8.0.1",
     "tslint": "~5.12.1",
-    "typescript": "~3.4.0"
+    "typescript": "~3.4.0",
+    "webdriver-manager": "12.1.6"
   }
 }

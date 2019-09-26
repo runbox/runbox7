@@ -34,25 +34,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialog } from '../dialog/dialog.module';
-import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSelectModule,
-  MatSnackBarModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-  MatTableDataSource,
-} from '@angular/material';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   moduleId: 'angular2/app/dkim/',

@@ -19,7 +19,7 @@
 
 import { MessageActions } from './messageactions';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 
 declare var openCompose: (url: string) => void;

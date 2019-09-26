@@ -18,7 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Output, ElementRef, ViewChild } from '@angular/core';
-import { MatDialog, MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { FolderCountEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';

@@ -27,7 +27,8 @@ import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
-import { MatSnackBar, MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
 
 import { ProgressDialog } from '../dialog/dialog.module';

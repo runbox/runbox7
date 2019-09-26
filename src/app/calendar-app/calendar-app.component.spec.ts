@@ -26,7 +26,7 @@ import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Observable } from 'rxjs';
 import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import * as moment from 'moment';

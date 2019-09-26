@@ -29,7 +29,9 @@ import {
   DoCheck, NgZone, EventEmitter, OnInit, ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule, MatTooltip, MatIconModule, MatButtonModule } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
 
 const getCSSClassProperty = (className, propertyName) => {

@@ -27,7 +27,9 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
-import { MatDialog, MatButtonToggle, MatDialogRef, MatExpansionModule } from '@angular/material';
+import { MatButtonToggle } from '@angular/material/button-toggle';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';

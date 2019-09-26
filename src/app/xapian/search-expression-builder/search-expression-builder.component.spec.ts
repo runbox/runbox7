@@ -20,7 +20,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SearchExpressionBuilderComponent } from './search-expression-builder.component';
-import { MatMenuModule, MatIconModule, MatInputModule, MatDatepickerModule, MatNativeDateModule } from '@angular/material';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('SearchExpressionBuilderComponent', () => {

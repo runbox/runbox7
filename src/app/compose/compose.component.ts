@@ -24,7 +24,7 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
 import { Observable } from 'rxjs';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 

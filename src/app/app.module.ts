@@ -31,18 +31,21 @@ import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module'
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
-import {
-  MatCardModule, MatInputModule, MatSnackBarModule, MatButtonModule,
-  MatCheckboxModule,
-  MatIconModule,
-  MatMenuModule,
-  MatProgressSpinnerModule,
-  MatListModule,
-  MatDialogModule,
-  MatToolbarModule,
-  MatTooltipModule,
-  MatButtonToggleModule, MatProgressBarModule, MatSidenavModule
-} from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';

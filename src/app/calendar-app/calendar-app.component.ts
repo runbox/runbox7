@@ -30,10 +30,8 @@ import { ActivatedRoute } from '@angular/router';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import {
-    MatDialog,
-    MatSnackBar
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import {
     isSameDay,

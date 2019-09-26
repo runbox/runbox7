@@ -26,7 +26,8 @@ import { MessageInfo,
 import { CanvasTableColumn} from '../canvastable/canvastable';
 import { AppComponent } from '../app.component';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
-import { MatSnackBar, MatDialog, MatSnackBarRef } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';

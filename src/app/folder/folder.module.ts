@@ -23,15 +23,13 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { FolderListComponent } from './folderlist.component';
 export { FolderListComponent } from './folderlist.component';
-import {
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatTooltipModule,
-    MatTreeModule,
-    MatMenuModule,
-    MatBadgeModule
-} from '@angular/material';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTreeModule } from '@angular/material/tree';
 import { DialogModule } from '../dialog/dialog.module';
 
 @NgModule({

@@ -21,14 +21,13 @@ import { ApplicationRef, ComponentFactoryResolver, Injector,
     NgModule,
     NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule,
-        MatDialogModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
-        MatSnackBarModule
-     } from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
 import { HttpClientModule } from '@angular/common/http';

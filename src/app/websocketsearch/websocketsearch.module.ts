@@ -19,7 +19,8 @@
 
 import { NgModule } from '@angular/core';
 
-import { MatInputModule, MatSnackBarModule } from '@angular/material';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { WebSocketSearchService } from './websocketsearch.service';
 
 @NgModule({

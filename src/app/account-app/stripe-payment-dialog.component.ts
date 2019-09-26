@@ -19,7 +19,7 @@
 
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PaymentsService } from './payments.service';

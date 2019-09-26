@@ -19,7 +19,8 @@
 
 import { TestBed, getTestBed, async } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBarModule, MatDialogModule } from '@angular/material';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
