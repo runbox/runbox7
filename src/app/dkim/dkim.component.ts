@@ -213,8 +213,7 @@ export class DkimComponent implements AfterViewInit {
     req.subscribe(
       (r: any) => {
         if ( r.status === 'success' ) {
-          this.load_keys();
-          this.load_dkim_domains();
+          return this.show_error( 'This CNAME will be checked shortly.', 'Dismiss');
         } else if ( r.status === 'error' ) {
           return this.show_error( r.errors.join('\n'), 'Dismiss' );
         } else {
