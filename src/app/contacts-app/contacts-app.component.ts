@@ -21,9 +21,8 @@ import { Component, ViewChild } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
@@ -52,9 +51,7 @@ export class ContactsAppComponent {
         private contactsservice: ContactsService,
         private dialog:          MatDialog,
         private http:            HttpClient,
-        private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
-        private router:          Router,
         private snackBar:        MatSnackBar
     ) {
         console.log('Contacts.app: waiting for backend contacts...');

@@ -65,7 +65,7 @@ export class ContactsSettingsComponent {
             result => {
                 const status = +result;
                 if (status === 0) {
-                    this.contactsservice.reload().subscribe(() => {
+                    this.contactsservice.reload().then(() => {
                         this.migrationPending = false;
                     });
                 }

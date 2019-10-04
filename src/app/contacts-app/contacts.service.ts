@@ -18,15 +18,15 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { AsyncSubject, Observable, Subject, ReplaySubject } from 'rxjs';
-import { first } from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Injectable()
-export class ContactsService {
-
+export class ContactsService implements OnDestroy {
     settingsSubject = new AsyncSubject<any>();
     contactsSubject = new ReplaySubject<Contact[]>();
     contactsByEmail = new ReplaySubject<any>(1);
@@ -37,10 +37,28 @@ export class ContactsService {
 
     migrationWatcher: any;
 
+    syncInterval: any;
+    syncIntervalSeconds = 15;
+    lastUpdate: moment.Moment;
+
     constructor(
-        private rmmapi: RunboxWebmailAPI
+        private rmmapi: RunboxWebmailAPI,
+        private storage: StorageService,
     ) {
+        storage.get('contactsCache').then(cache => {
+            if (!cache) {
+                return;
+            }
+            console.log('Loading contacts from local cache');
+            const contacts = JSON.parse(cache).map((c: any) => new Contact(c));
+            this.processContacts(contacts);
+        });
+
+        this.syncInterval = setInterval(() => {
+            this.reload();
+        }, this.syncIntervalSeconds * 1000);
         this.reload();
+
         this.rmmapi.getContactsSettings().subscribe(settings => {
             console.log('Settings:', settings);
             this.settingsSubject.next(settings);
@@ -52,27 +70,48 @@ export class ContactsService {
         this.errorLog.next(e);
     }
 
-    reload(): Observable<any> {
-        console.log('Reloading the contacts list');
-        const res = this.rmmapi.getAllContacts();
-        const byEmail = {};
-        res.subscribe(contacts => {
-            console.log('Contacts:', contacts);
-            this.contactsSubject.next(contacts);
+    ngOnDestroy() {
+        clearInterval(this.syncInterval);
+    }
 
-            const groups = {};
-            for (const c of contacts) {
-                for (const cat of c.categories) {
-                    groups[cat] = true;
-                }
-                for (const e of c.emails) {
-                    byEmail[e.value] = c;
-                }
+    processContacts(contacts: Contact[]): void {
+        this.contactsSubject.next(contacts);
+
+        const byEmail = {};
+        const groups = {};
+        for (const c of contacts) {
+            for (const cat of c.categories) {
+                groups[cat] = true;
             }
-            this.contactGroups.next(Object.keys(groups));
-            this.contactsByEmail.next(byEmail);
-        }, e => this.apiErrorHandler(e));
-        return res;
+            for (const e of c.emails) {
+                byEmail[e.value] = c;
+            }
+        }
+        this.contactGroups.next(Object.keys(groups));
+        this.contactsByEmail.next(byEmail);
+    }
+
+    reload(): Promise<void> {
+        console.log('Reloading the contacts list');
+        return new Promise((resolve, reject) => {
+            this.rmmapi.getAllContacts().subscribe(
+                contacts => {
+                    console.log('Contacts:', contacts);
+                    this.saveCache(contacts);
+                    this.processContacts(contacts);
+                    this.lastUpdate = moment();
+                    resolve();
+                },
+                e => {
+                    this.apiErrorHandler(e);
+                    reject();
+                }
+            );
+        });
+    }
+
+    saveCache(contacts: Contact[]): void {
+        this.storage.set('contactsCache', JSON.stringify(contacts));
     }
 
     saveContact(contact: Contact): void {
