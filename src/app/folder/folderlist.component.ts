@@ -101,6 +101,13 @@ export class FolderListComponent {
                 const parentStack: FolderNode[] = [];
                 let previousNode: FolderNode = null;
 
+                // the loop below only handles folders correctly
+                // if it visits parents before it visits their children.
+                // This ensures that it happens
+                folders.sort((a, b) => {
+                    return a.folderLevel - b.folderLevel;
+                });
+
                 folders.forEach((folderCountEntry, ndx) => {
                     const folderNode: FolderNode = { children: [], data: folderCountEntry};
 
