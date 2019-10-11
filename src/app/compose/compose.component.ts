@@ -57,6 +57,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public editing = false;
     public isNew = false;
     public uploadprogress: number = null;
+    public uploadingFiles: File[];
     public saved: Date = null;
 
     saveErrorMessage: string;
@@ -186,6 +187,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public uploadFiles(files: File[]) {
         this.uploadprogress = 0;
+        this.uploadingFiles = files;
         const formdata: FormData = new FormData();
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -561,6 +563,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             range.select();
         }
         txtElement.scrollTo(0, 0);
+    }
+
+    formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 }
 
