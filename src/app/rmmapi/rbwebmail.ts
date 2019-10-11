@@ -632,7 +632,7 @@ export class RunboxWebmailAPI {
     }
 
     public getCalendarEvents(): Observable<any> {
-        return this.http.get('/rest/v1/calendar/events').pipe(
+        return this.http.get('/rest/v1/calendar/events_raw').pipe(
             map((res: HttpResponse<any>) => res['result']['events'])
         );
     }

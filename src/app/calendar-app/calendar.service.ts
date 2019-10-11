@@ -50,13 +50,20 @@ export class CalendarService implements OnDestroy {
             if (!cache) {
                 return;
             }
+            console.log('Cache version:', cache['version']);
+            // tslint:disable-next-line:triple-equals
+            if (cache['version'] != 2) {
+                console.log('Old cache format found, removing');
+                storage.set('caldavCache', undefined);
+                return;
+            }
             console.log('Loading calendars/events from local cache');
-            this.calendars = JSON.parse(cache)['calendars'].map(c => new RunboxCalendar(c));
+            this.calendars = JSON.parse(cache)['calendars'].map((c: any) => new RunboxCalendar(c));
             for (const cal of this.calendars) {
                 this.syncTokens[cal.id] = cal.syncToken;
             }
             this.calendarSubject.next(this.calendars);
-            this.events = JSON.parse(cache)['events'].map(e => new RunboxCalendarEvent(e));
+            this.events = JSON.parse(cache)['events'].map((e: any) => new RunboxCalendarEvent(e.id, e.jcal));
             this.eventSubject.next(this.events);
         });
 
@@ -187,13 +194,14 @@ export class CalendarService implements OnDestroy {
     reloadEvents() {
         console.log('Fetching events');
         this.rmmapi.getCalendarEvents().subscribe(events => {
-            this.events = events.map((e: any) => new RunboxCalendarEvent(e));
+            this.events = events.map((e: any) => RunboxCalendarEvent.fromIcal(e.id, e.ical));
             this.eventSubject.next(this.events);
         }, e => this.apiErrorHandler(e));
     }
 
     saveCache() {
         const cache = JSON.stringify({
+            version:   2,
             calendars: this.calendars,
             events:    this.events,
         });

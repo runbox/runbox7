@@ -23,7 +23,6 @@ import {
     ChangeDetectorRef,
     OnDestroy,
     ViewChild,
-    TemplateRef
 } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
@@ -179,7 +178,7 @@ export class CalendarAppComponent implements OnDestroy {
             }
 
             for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
-                const copy = new RunboxCalendarEvent(e);
+                const copy = e.clone();
                 copy.start = dt;
                 if (duration) {
                     copy.end = moment(copy.start).add(duration).toDate();
@@ -278,7 +277,7 @@ export class CalendarAppComponent implements OnDestroy {
     openEvent(event: CalendarEvent): void {
         console.log('Opening event', event);
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: new RunboxCalendarEvent(event), calendars: this.calendars }
+            data: { event: (event as RunboxCalendarEvent).clone(), calendars: this.calendars }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {

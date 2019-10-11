@@ -24,7 +24,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-fdescribe('CalendarService', () => {
+describe('CalendarService', () => {
     let dav_events: any;
 
     // poor man's callcounter, as I don't have a proper rmmapi stub
@@ -67,7 +67,7 @@ fdescribe('CalendarService', () => {
             'test/foo': {
                 calendar: 'test',
                 id: 'test/foo',
-                VEVENT: { summary: 'Change me', dtstart: '20190906' }
+                ical: 'BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART:20190906T100000\nSUMMARY:Change me\nEND:VEVENT\nEND:VCALENDAR\n'
             }
         };
 
@@ -106,7 +106,7 @@ fdescribe('CalendarService', () => {
     it('should be able to move events between calendars', async () => {
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
             expect(events.length).toBe(1, '1 event loaded');
-            const event = new RunboxCalendarEvent(events[0]);
+            const event = events[0].clone();
             event.calendar = 'test2';
             sut.modifyEvent(event);
             r();

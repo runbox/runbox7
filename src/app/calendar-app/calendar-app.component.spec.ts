@@ -37,41 +37,41 @@ describe('CalendarAppComponent', () => {
     let fixture: ComponentFixture<CalendarAppComponent>;
 
     const simpleEvents = [
-        new RunboxCalendarEvent({ id: 'test-calendar/event0', VEVENT: {
-            dtstart: moment().toISOString(),
-            summary: 'Test Event #0',
-        }}),
-        new RunboxCalendarEvent({ id: 'test-calendar/event1', VEVENT: {
-            dtstart: moment().add(1, 'month').add(14, 'day').toISOString(),
-            summary: 'Event #1, next month',
-        }}),
+        new RunboxCalendarEvent('test-calendar/event0', [ 'vevent', [
+            [ 'dtstart', {}, 'date-time', moment().toISOString() ],
+            [ 'summary', {}, 'text',      'Test Event #0'        ],
+        ]]),
+        new RunboxCalendarEvent('test-calendar/event1', [ 'vevent', [
+            [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(14, 'day').toISOString() ],
+            [ 'summary', {}, 'text',      'Event #1, next month' ],
+        ]]),
     ];
 
     const recurringEvents = [
-        new RunboxCalendarEvent({ id: 'test-calendar/recurring', VEVENT: {
-            dtstart: moment().date(1).toISOString(),
-            summary: 'Weekly event #0',
-            rrule: 'FREQ=WEEKLY',
-        }}),
+        new RunboxCalendarEvent('test-calendar/recurring', [ 'vevent', [
+            [ 'dtstart', {}, 'date-time', moment().date(1).toISOString() ],
+            [ 'summary', {}, 'text',      'Weekly Event #0' ],
+            [ 'rrule',   {}, 'text',      'FREQ=WEEKLY'     ],
+        ]]),
     ];
 
     const GH_179_recurring_yearly = [
-        new RunboxCalendarEvent({ id: 'test-calendar/recurring-yearly', VEVENT: {
-            dtstart: moment().date(5).toISOString().split('T')[0], // no time, so an all-day
-            dtend: moment().date(6).toISOString().split('T')[0],
-            summary: 'Yearly event',
-            rrule: 'FREQ=YEARLY',
-        }}),
+        new RunboxCalendarEvent('test-calendar/recurring-yearly', [ 'vevent', [
+            [ 'dtstart', {}, 'date',  moment().date(5).toISOString().split('T')[0] ],
+            [ 'dtend',   {}, 'date',  moment().date(6).toISOString().split('T')[0] ],
+            [ 'summary', {}, 'text',  'Yearly event' ],
+            [ 'rrule',   {}, 'text',  'FREQ=YEARLY'  ],
+        ]]),
     ];
 
     // the test below only makes sense when the event start date is not now()
     const not_today = moment().date() === 2 ? 3 : 2;
 
     const GH_181_setting_recurrence = [
-        new RunboxCalendarEvent({ id: 'test-calendar/not-recurring-yet', VEVENT: {
-            dtstart: moment().date(not_today).hour(12).minute(34).toISOString(),
-            summary: 'One-shot event',
-        }}),
+        new RunboxCalendarEvent('test-calendar/not-recurring-yet', [ 'vevent', [
+            [ 'dtstart', {}, 'date-time', moment.utc().date(not_today).hour(12).minute(34).toISOString() ],
+            [ 'summary', {}, 'text',      'One-shot event' ],
+        ]]),
     ];
 
     const mockData = {
@@ -80,27 +80,28 @@ describe('CalendarAppComponent', () => {
     };
 
     beforeEach(async(() => {
-    TestBed.configureTestingModule({
-            imports: [
-                CalendarAppModule,
-                RouterTestingModule.withRoutes([])
-              ],
-            providers: [
-                StorageService,
-                { provide: RunboxWebmailAPI, useValue: {
-                    getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
-                    getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
-                    me:                    of({ uid: 1 }),
-                } },
-                { provide: HttpClient, useValue: {
-                } },
-                { provide: MatSnackBar, useValue: {
-                } },
-            ],
-        }).compileComponents();
+        TestBed.configureTestingModule({
+                imports: [
+                    CalendarAppModule,
+                    RouterTestingModule.withRoutes([])
+                  ],
+                providers: [
+                    StorageService,
+                    { provide: RunboxWebmailAPI, useValue: {
+                        getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
+                        getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
+                        me:                    of({ uid: 1 }),
+                    } },
+                    { provide: HttpClient, useValue: {
+                    } },
+                    { provide: MatSnackBar, useValue: {
+                    } },
+                ],
+            }).compileComponents();
     }));
 
     beforeEach(() => {
+        localStorage.clear();
         fixture = TestBed.createComponent(CalendarAppComponent);
         component = fixture.componentInstance;
     });
@@ -121,8 +122,7 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should display events', () => {
-        mockData['events'] = simpleEvents;
-        component.calendarservice.reloadEvents();
+        component.calendarservice.eventSubject.next(simpleEvents);
 
         expect(component.events.length).toBe(2);
 
@@ -136,8 +136,7 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should be possible to hide calendars', () => {
-        mockData['events'] = simpleEvents;
-        component.calendarservice.reloadEvents();
+        component.calendarservice.eventSubject.next(simpleEvents);
         fixture.detectChanges();
 
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
@@ -153,8 +152,7 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should display recurring events', () => {
-        mockData['events'] = recurringEvents;
-        component.calendarservice.reloadEvents();
+        component.calendarservice.eventSubject.next(recurringEvents);
         fixture.detectChanges();
 
         const shownEventsCount = component.shown_events.length;
@@ -168,25 +166,24 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should not display yearly events as longer than they are (GH-179)', () => {
-        mockData['events'] = GH_179_recurring_yearly;
-        component.calendarservice.reloadEvents();
+        component.calendarservice.eventSubject.next(GH_179_recurring_yearly);
         fixture.detectChanges();
 
         const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
     });
 
-    it('should not break event start date when setting recurrence (GH-181)', () => {
-        mockData['events'] = GH_181_setting_recurrence;
-        component.calendarservice.reloadEvents();
+    fit('should not break event start date when setting recurrence (GH-181)', () => {
+        component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
         fixture.detectChanges();
 
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
 
-        mockData['events'][0].setRecurringFrequency(RRule.WEEKLY);
-        component.calendarservice.reloadEvents();
+        GH_181_setting_recurrence[0].setRecurringFrequency(RRule.WEEKLY);
+        component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
         fixture.detectChanges();
+
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
         const first_occurence = component.shown_events[0].start;

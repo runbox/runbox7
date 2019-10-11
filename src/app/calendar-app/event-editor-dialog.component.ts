@@ -33,14 +33,7 @@ import { RRule } from 'rrule';
     templateUrl: 'event-editor-dialog.component.html',
 })
 export class EventEditorDialogComponent {
-    event = new RunboxCalendarEvent({
-        title: '',
-        dtstart: moment(),
-        dtend: moment(),
-        allDay: false,
-        color: {},
-        vevent: {},
-    });
+    event = RunboxCalendarEvent.newEmpty();
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
 
@@ -102,6 +95,7 @@ export class EventEditorDialogComponent {
         } else {
             this.event.calendar = this.calendarFC.value;
         }
+        /* TODO fix for jcal
         this.event.dtstart = moment(this.event.start).seconds(0).milliseconds(0);
         this.event.dtend = moment(this.event.end).seconds(0).milliseconds(0);
 
@@ -113,6 +107,7 @@ export class EventEditorDialogComponent {
         if (this.event.allDay) {
             this.event.dtend.add(1, 'day');
         }
+         */
 
         this.event.refreshDates();
         this.event.setRecurringFrequency(this.recurring_frequency);
