@@ -32,6 +32,17 @@ describe('Compose', () => {
     expect(await page.checkToRecipientInputFocus()).toBeTruthy();
   });
 
+  it('should update action bar text to subject', async () => {
+    await page.navigateTo();
+    await page.waitForRedirect();
+    browser.waitForAngularEnabled(false);
+
+    expect(page.getDraftActionBarText()).toEqual('New message');
+    await page.setSubjectInputField('Email about Subject X');
+
+    await page.waitForDraftActionBarTextToEqual('Email about Subject X');
+  });
+
   it('should complain on invalid email address', async () => {
     await page.navigateTo();
     await page.waitForRedirect();
