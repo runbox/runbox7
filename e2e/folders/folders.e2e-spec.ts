@@ -1,14 +1,14 @@
 import { browser } from 'protractor';
-import { EmptyTrashPage } from './emptytrash.po';
+import { FolderPage } from './folders.po';
 import { MockServer } from '../mockserver/mockserver';
 
-describe('Empty trash', () => {
-  let page: EmptyTrashPage;
+describe('Folders', () => {
+  let page: FolderPage;
 
   let server: MockServer;
   beforeEach(() => {
     server = new MockServer();
-    page = new EmptyTrashPage();
+    page = new FolderPage();
 
     server.start();
   });
@@ -21,6 +21,20 @@ describe('Empty trash', () => {
         });
      });
      server.stop();
+  });
+
+  it('should create folder at root level', async () => {
+    await page.navigateTo();
+    await page.waitForRedirect();
+    browser.waitForAngularEnabled(false);
+    await page.clickCreateFolder();
+
+    await page.waitForInputDialog();
+
+    expect(page.getInputDialogText()).toContain('root level');
+
+    await page.enterFolderNameAndClickDone('Test');
+    await page.waitForFolderToExistInTree('Test');
   });
 
   it('should empty trash', async () => {

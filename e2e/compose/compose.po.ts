@@ -68,6 +68,11 @@ export class ComposePage {
     return element(by.css('mat-card-actions div')).getText();
   }
 
+  waitForDraftActionBarTextToEqual(subject: string) {
+    const elm = element(by.css('mat-card-actions div'));
+    return browser.wait(until.elementTextIs(elm.getWebElement(), subject), 10000);
+  }
+
   async setRecipientInputField(value: string) {
     const elm = element(by.css('mailrecipient-input input'));
     await elm.sendKeys(value);
@@ -85,6 +90,11 @@ export class ComposePage {
     const activeElementPlaceHolder = await activeElement.getAttribute('placeholder');
     console.log('Active element placeholder', activeElementPlaceHolder);
     return elmPlaceHolder === 'To' && elmPlaceHolder === activeElementPlaceHolder;
+  }
+
+  async setSubjectInputField(value: string) {
+    const elm = element(by.css('input[placeholder="Subject"]'));
+    await elm.sendKeys(value);
   }
 
   waitForMailRecipientErrorInputToBePresent() {

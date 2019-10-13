@@ -1,6 +1,6 @@
-import { browser, by, element, until } from 'protractor';
+import { browser, by, element, until, ExpectedConditions } from 'protractor';
 
-export class EmptyTrashPage {
+export class FolderPage {
   navigateTo() {
     return browser.get('/')
         .then(() => browser.executeScript(() => localStorage.setItem('localSearchPromptDisplayed221', 'true')))
@@ -19,6 +19,33 @@ export class EmptyTrashPage {
     return browser.wait(element(by.cssContainingText('snack-bar-container', 'Deleting'))
       .isPresent()
       .then(present => !present), 10000);
+  }
+
+  async clickCreateFolder() {
+    return element(by.id('createFolderButton')).click();
+  }
+
+  waitForInputDialog() {
+    return browser.wait(element(by.cssContainingText('mat-dialog-title', 'Add new folder'))
+      .isPresent(), 10000);
+  }
+
+  getInputDialogText() {
+    return element(by.className('mat-dialog-container')).element(by.css('mat-dialog-content')).getText();
+  }
+
+  async enterFolderNameAndClickDone(folderName: string) {
+    const dialog = element(by.className('mat-dialog-container'));
+    await dialog.element(by.css('input')).sendKeys(folderName);
+
+    const doneButton = dialog.element(by.id('doneButton'));
+    await browser.wait(ExpectedConditions.elementToBeClickable(doneButton), 10000);
+    await doneButton.click();
+  }
+
+  waitForFolderToExistInTree(folderName: string) {
+    return browser.wait(element(by.cssContainingText('mat-tree-node', folderName))
+      .isPresent(), 10000);
   }
 
   async clickEmptyTrash() {
