@@ -46,8 +46,8 @@ export class SimpleInputDialogParams {
 
         <mat-dialog-actions style="display: flex">
             <p style="flex-grow: 1"></p>
-            <button mat-icon-button mat-dialog-close><mat-icon>cancel</mat-icon></button>
-            <button mat-icon-button mat-dialog-close (click)="yes()"
+            <button mat-icon-button mat-dialog-close id="cancelButton"><mat-icon>cancel</mat-icon></button>
+            <button mat-icon-button mat-dialog-close id="doneButton" (click)="yes()"
                 [disabled]="!data.isValidInput(inputText)"><mat-icon>done</mat-icon></button>
         </mat-dialog-actions>`
 })
