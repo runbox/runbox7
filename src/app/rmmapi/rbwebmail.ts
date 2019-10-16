@@ -638,13 +638,21 @@ export class RunboxWebmailAPI {
     }
 
     public addCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
-        return this.http.put('/rest/v1/calendar/events', e).pipe(
+        const payload = {
+            calendar: e.calendar,
+            ical:     e.toIcal(),
+        };
+        return this.http.put('/rest/v1/calendar/events_raw', payload).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }
 
     public modifyCalendarEvent(e: RunboxCalendarEvent): Observable<any> {
-        return this.http.post('/rest/v1/calendar/events/' + e.id, e).pipe(
+        const payload = {
+            id:       e.id,
+            ical:     e.toIcal(),
+        };
+        return this.http.post('/rest/v1/calendar/events_raw', payload).pipe(
             map((res: HttpResponse<any>) => res)
         );
     }

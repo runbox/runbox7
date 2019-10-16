@@ -49,8 +49,28 @@ export class RunboxCalendarEvent implements CalendarEvent {
         this.event.summary = value;
     }
 
+    get location(): string {
+        return this.event.location;
+    }
+
+    set location(value: string) {
+        this.event.location = value;
+    }
+
+    get description(): string {
+        return this.event.description;
+    }
+
+    set description(value: string) {
+        this.event.description = value;
+    }
+
     get dtstart(): moment.Moment {
         return moment(this.event.startDate.toJSDate(), moment.ISO_8601);
+    }
+
+    set dtstart(value: moment.Moment) {
+        this.event.startDate = ICAL.Time.fromJSDate(value.toDate());
     }
 
     get dtend(): moment.Moment {
@@ -59,9 +79,17 @@ export class RunboxCalendarEvent implements CalendarEvent {
             : undefined;
     }
 
+    set dtend(value: moment.Moment) {
+        this.event.endDate = value ? ICAL.Time.fromJSDate(value.toDate()) : undefined;
+    }
+
     get allDay(): boolean {
         // isDate in ICAL.Event means "has no time"
         return this.event.startDate.isDate;
+    }
+
+    set allDay(value) {
+        this.event.startDate.isDate = value;
     }
 
     static fromIcal(id: string, ical: string): RunboxCalendarEvent {
@@ -145,6 +173,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
             ruleOpts.freq  = frequency;
             this.rrule     = new RRule(ruleOpts);
         }
+    }
+
+    toIcal(): string {
+        return 'BEGIN:VCALENDAR\n' + this.event.toString() + '\nEND:VCALENDAR';
     }
 
     // returns jCal
