@@ -71,7 +71,7 @@
     <p style="text-align: center; font-size: 12px">Runbox 7 build time: {{buildtimestampstring}}</p>
   </mat-sidenav>
   <mat-sidenav *ngIf="mailViewerOnRightSide" position="end" mode="side" 
-    [opened]=true
+    [opened]="!hasChildRouterOutlet"
     [style.width]="mailViewerRightSideWidth"
     id="rightPane"
     appResizable>
