@@ -54,17 +54,21 @@ export class EventEditorDialogComponent {
         public dialogRef: MatDialogRef<EventEditorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
+        this.calendars = data['calendars'];
+        this.calendarFC.setValue(this.calendars[0].id);
+
         if (data['event']) {
             this.event = data['event'];
             this.calendarFC.setValue(this.event.calendar);
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
         }
         this.event.refreshDates();
+
         if (data['start']) {
             this.event.start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
             this.event.end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
         }
-        this.calendars = data['calendars'];
+
         this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;
     }
 
