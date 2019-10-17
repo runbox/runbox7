@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, async, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
@@ -25,7 +25,6 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Observable } from 'rxjs';
-import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';

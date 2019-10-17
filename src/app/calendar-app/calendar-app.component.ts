@@ -51,7 +51,6 @@ import {
     CalendarWeekViewBeforeRenderEvent,
 } from 'angular-calendar';
 import { ViewPeriod } from 'calendar-utils';
-import RRule from 'rrule';
 
 import { CalendarService } from './calendar.service';
 import { CalendarSettings } from './calendar-settings';
@@ -106,6 +105,7 @@ export class CalendarAppComponent implements OnDestroy {
         this.calendarservice.calendarSubject.subscribe((calendars) => {
             this.calendars = calendars;
             this.updateEventColors();
+            this.cdr.markForCheck();
             // see if we're told to import some email-ICS
             this.route.queryParams.subscribe(params => {
                 const icsUrl = params.import_from;

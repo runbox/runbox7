@@ -64,7 +64,7 @@
     <button mat-button
             (click)="onCancelClick()">Cancel</button>
 
-    <button mat-raised-button color="primary"
+    <button id="eventSubmitButton" mat-raised-button color="primary"
             (click)="onSubmitClick()">
         <span *ngIf="event.id">  Update </span>
         <span *ngIf="!event.id"> Create </span>
