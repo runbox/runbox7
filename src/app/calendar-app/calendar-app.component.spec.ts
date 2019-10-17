@@ -172,7 +172,7 @@ describe('CalendarAppComponent', () => {
         expect(events.length).toBe(1, 'only one event should be displayed');
     });
 
-    fit('should not break event start date when setting recurrence (GH-181)', () => {
+    it('should not break event start date when setting recurrence (GH-181)', () => {
         component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
         fixture.detectChanges();
 

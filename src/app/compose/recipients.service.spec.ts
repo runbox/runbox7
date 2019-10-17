@@ -3,6 +3,7 @@ import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { Injector } from '@angular/core';
 import { SearchService } from '../xapian/searchservice';
+import { StorageService } from '../storage.service';
 import { AsyncSubject, Observable, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { XapianAPI } from '../xapian/rmmxapianapi';
@@ -89,6 +90,8 @@ export class MockSearchService {
 }
 
 export class RunboxWebMailAPIMock {
+    public me = of({ uid: 33 });
+
     public getAllContacts(): Observable<Contact[]> {
         return of([
             new Contact({
@@ -120,9 +123,9 @@ describe('RecipientsService', () => {
         const testingmodule = TestBed.configureTestingModule({
             imports: [],
             declarations: [ ], // declare the test component
-            providers: [RecipientsService, ContactsService,
+            providers: [RecipientsService, ContactsService, StorageService,
                 {provide: SearchService, useClass: MockSearchService },
-                {provide: RunboxWebmailAPI, useClass: RunboxWebMailAPIMock }
+                {provide: RunboxWebmailAPI, useClass: RunboxWebMailAPIMock },
             ]
         });
         injector = TestBed.get(Injector);
