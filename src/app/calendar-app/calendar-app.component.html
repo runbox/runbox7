@@ -42,7 +42,7 @@
                     matTooltip="Show/hide this calendar"
                     (click)="toggleCalendar(calendar.id)"
                 >
-                    <mat-icon> {{ calendar.shown ? 'visibility' : 'visibility_off' }} </mat-icon>
+                    <mat-icon> {{ calendarVisibility[calendar.id] ? 'visibility' : 'visibility_off' }} </mat-icon>
                 </button>
                 <button mat-icon-button class="calendarEditButton"
                     matTooltip="Edit this calendar"

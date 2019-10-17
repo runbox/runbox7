@@ -85,6 +85,7 @@ export class CalendarAppComponent implements OnDestroy {
     @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
 
     calendars: RunboxCalendar[] = [];
+    calendarVisibility = {};
 
     events:       RunboxCalendarEvent[] = [];
     shown_events: RunboxCalendarEvent[] = [];
@@ -104,6 +105,11 @@ export class CalendarAppComponent implements OnDestroy {
         this.calendarservice.errorLog.subscribe(e => this.showError(e));
         this.calendarservice.calendarSubject.subscribe((calendars) => {
             this.calendars = calendars.sort((a, b) => a.displayname.localeCompare(b.displayname));
+            for (const c of this.calendars) {
+                if (this.calendarVisibility[c.id] === undefined) {
+                    this.calendarVisibility[c.id] = true;
+                }
+            }
             this.updateEventColors();
             this.cdr.markForCheck();
             // see if we're told to import some email-ICS
@@ -234,14 +240,9 @@ export class CalendarAppComponent implements OnDestroy {
             console.log('Calendars not loaded yet, showing all events');
             this.shown_events = this.events;
         } else {
-            const visible = {};
-            for (const c of this.calendars) {
-                visible[c.id] = c.shown;
-            }
-
             this.shown_events = [];
             for (const e of this.events) {
-                if (visible[e.calendar]) {
+                if (this.calendarVisibility[e.calendar]) {
                     this.shown_events.push(e);
                 }
             }
@@ -350,8 +351,8 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     toggleCalendar(calendar_id: string): void {
-        const cal = this.calendars.find(c => c.id === calendar_id);
-        cal.shown = !cal.shown;
+        this.calendarVisibility[calendar_id] = !this.calendarVisibility[calendar_id];
+        this.cdr.markForCheck();
         this.filterEvents();
     }
 
