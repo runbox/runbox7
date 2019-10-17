@@ -226,12 +226,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     };
 
-    this.mobileQuery.addEventListener('change', this.mobileQueryListener);
+    // the non-deprecated addEventListener doesn't work on Safari, so...
+    // tslint:disable-next-line:deprecation
+    this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
   }
 
   ngOnDestroy() {
-    this.mobileQuery.removeEventListener('change', this.mobileQueryListener);
+    // the non-deprecated removeEventListener doesn't work on Safari, so...
+    // tslint:disable-next-line:deprecation
+    this.mobileQuery.removeListener(this.mobileQueryListener);
   }
   ngDoCheck(): void {
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>

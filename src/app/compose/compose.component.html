@@ -101,7 +101,12 @@
                 mode="determinate"
                 [value]="uploadprogress"
                >
-            </mat-progress-bar>              
+            </mat-progress-bar>
+            <mat-card-content *ngIf="uploadprogress!=null">
+                <div *ngFor="let file of uploadingFiles">
+                    <p>{{file.name}}, {{formatBytes(file.size)}}</p>
+                </div>
+            </mat-card-content>
         </section>
         <section *ngIf="editing && model.attachments && model.attachments.length>0" style="display: flex; flex-wrap: wrap; margin-top: 10px;">
 	  Attachments:&nbsp;
