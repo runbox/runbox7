@@ -66,7 +66,7 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                             r.body.is_2fa_enabled === '1') {
                                 console.log('proceed with 2fa login');
                         } else if (
-                            req.url != '/ajax_mfa_authenticate'
+                            req.url !== '/ajax_mfa_authenticate'
                             && r.body.errors && r.body.errors.length) {
                             this.snackBar.open(r.body.errors.join(' '), 'Dismiss');
                         } else {
