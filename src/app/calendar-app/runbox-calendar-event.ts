@@ -70,7 +70,9 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     set dtstart(value: moment.Moment) {
+        const allDay = this.allDay;
         this.event.startDate = ICAL.Time.fromJSDate(value.toDate());
+        this.allDay = allDay;
     }
 
     get dtend(): moment.Moment {
@@ -80,7 +82,9 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     set dtend(value: moment.Moment) {
+        const allDay = this.allDay;
         this.event.endDate = value ? ICAL.Time.fromJSDate(value.toDate()) : undefined;
+        this.allDay = allDay;
     }
 
     get allDay(): boolean {
@@ -90,6 +94,14 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     set allDay(value) {
         this.event.startDate.isDate = value;
+        if (this.event.endDate) {
+            this.event.endDate.isDate = value;
+        }
+        // I know this looks silly, but without this
+        // ICAL.Event will not notice the isDate change
+        // and the event metadata will still be off
+        this.event.startDate = this.event.startDate;
+        this.event.endDate   = this.event.endDate;
     }
 
     static fromIcal(id: string, ical: string): RunboxCalendarEvent {

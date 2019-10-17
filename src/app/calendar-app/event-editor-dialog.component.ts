@@ -100,7 +100,6 @@ export class EventEditorDialogComponent {
             this.event.calendar = this.calendarFC.value;
         }
 
-        // TODO: this resets any previously set allDay
         this.event.dtstart = moment(this.event.start).seconds(0).milliseconds(0);
         this.event.dtend = moment(this.event.end).seconds(0).milliseconds(0);
 
@@ -110,7 +109,8 @@ export class EventEditorDialogComponent {
         // Since the user is the sane one here, let's just make all allDay events one day
         // longer behind the scenes (that's how nextcloud does it too, for example).
         if (this.event.allDay) {
-            this.event.dtend.add(1, 'day');
+            // make sure we're going through the setter
+            this.event.dtend = this.event.dtend.add(1, 'day');
         }
 
         this.event.refreshDates();
