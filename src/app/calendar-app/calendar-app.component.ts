@@ -103,7 +103,7 @@ export class CalendarAppComponent implements OnDestroy {
         }
         this.calendarservice.errorLog.subscribe(e => this.showError(e));
         this.calendarservice.calendarSubject.subscribe((calendars) => {
-            this.calendars = calendars;
+            this.calendars = calendars.sort((a, b) => a.displayname.localeCompare(b.displayname));
             this.updateEventColors();
             this.cdr.markForCheck();
             // see if we're told to import some email-ICS
