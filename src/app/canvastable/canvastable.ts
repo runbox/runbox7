@@ -47,36 +47,6 @@ const getCSSClassProperty = (className, propertyName) => {
   return window.getComputedStyle(element, null).getPropertyValue(propertyName);
 };
 
-export class AnimationFrameThrottler {
-
-  static taskMap: { [key: string]: Function } = null;
-  static hasChanges = false;
-  static mainLoop() {
-    AnimationFrameThrottler.taskMap = {};
-
-    const mainLoop = () => {
-      if (AnimationFrameThrottler.hasChanges) {
-        AnimationFrameThrottler.hasChanges = false;
-        Object.keys(AnimationFrameThrottler.taskMap).forEach(
-          (key) => {
-            AnimationFrameThrottler.taskMap[key]();
-            delete AnimationFrameThrottler.taskMap[key];
-          });
-      }
-      window.requestAnimationFrame(() => mainLoop());
-    };
-    window.requestAnimationFrame(() => mainLoop());
-  }
-
-  constructor(private taskkey: string, private task: Function) {
-    if (!AnimationFrameThrottler.taskMap) {
-      AnimationFrameThrottler.mainLoop();
-    }
-    AnimationFrameThrottler.taskMap[taskkey] = task;
-    AnimationFrameThrottler.hasChanges = true;
-  }
-}
-
 export interface CanvasTableSelectListener {
   rowSelected(rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void;
   isSelectedRow(rowObj: any): boolean;
@@ -184,6 +154,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
   private isTouchZoom = false;
   private touchdownxy: any;
   private scrollbarDragInProgress = false;
+  columnResizeInProgress = false;
   private scrollbarArea = false;
 
   visibleColumnSeparatorAlpha = 0;
@@ -435,7 +406,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     });
 
     this.canv.onmousemove = (event: MouseEvent) => {
-      if (this.scrollbarDragInProgress === true) {
+      if (this.scrollbarDragInProgress === true || this.columnResizeInProgress === true) {
         event.preventDefault();
         return;
       }
@@ -1406,8 +1377,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
   moduleId: 'angular2/app/canvastable/'
 })
 export class CanvasTableContainerComponent implements OnInit {
-  colResizePreviousX: number;
+  colResizeInitialClientX: number;
   colResizeColumnIndex: number;
+  colResizePreviousWidth: number;
+
   columnResized: boolean;
   sortColumn = 0;
   sortDescending = false;
@@ -1434,14 +1407,15 @@ export class CanvasTableContainerComponent implements OnInit {
 
 
     this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
-      if (this.colResizePreviousX) {
+      if (this.colResizeInitialClientX) {
         event.preventDefault();
         event.stopPropagation();
         this.colresize(event.clientX);
       }
     });
+
     this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
-      if (this.colResizePreviousX) {
+      if (this.colResizeInitialClientX) {
         event.preventDefault();
         event.stopPropagation();
         this.colresizeend();
@@ -1451,27 +1425,29 @@ export class CanvasTableContainerComponent implements OnInit {
 
   colresizestart(clientX: number, colIndex: number) {
     if (colIndex > 0) {
-      this.colResizePreviousX = clientX;
-      this.colResizeColumnIndex = colIndex;
+      this.colResizeInitialClientX = clientX;
+      // We're always resizing the column before
+      this.colResizeColumnIndex = colIndex - 1;
+      this.colResizePreviousWidth = this.canvastable.columns[this.colResizeColumnIndex].width;
+      this.canvastable.columnResizeInProgress = true;
     }
   }
 
   colresize(clientX: number) {
-    if (this.colResizePreviousX) {
+    if (this.colResizeInitialClientX) {
       // tslint:disable-next-line:no-unused-expression
-      new AnimationFrameThrottler('colresize', () => {
-        const prevcol: CanvasTableColumn = this.canvastable.columns[this.colResizeColumnIndex - 1];
-        if (prevcol && prevcol.width) {
-          prevcol.width += (clientX - this.colResizePreviousX);
-          if (prevcol.width < 20) {
-            prevcol.width = 20;
-          }
-          this.canvastable.hasChanges = true;
-          this.columnResized = true;
-          this.colResizePreviousX = clientX;
-          this.saveColumnWidths();
+
+      const column: CanvasTableColumn = this.canvastable.columns[this.colResizeColumnIndex];
+      if (column && column.width) {
+        column.width = this.colResizePreviousWidth + (clientX - this.colResizeInitialClientX);
+        if (column.width < 20) {
+          column.width = 20;
         }
-      });
+        this.canvastable.hasChanges = true;
+        this.columnResized = true;
+
+        this.saveColumnWidths();
+      }
     }
   }
 
@@ -1495,8 +1471,9 @@ export class CanvasTableContainerComponent implements OnInit {
   }
 
   colresizeend() {
-    this.colResizePreviousX = null;
+    this.colResizeInitialClientX = null;
     this.colResizeColumnIndex = null;
+    this.canvastable.columnResizeInProgress = false;
   }
 
   horizScroll(evt: Event) {
