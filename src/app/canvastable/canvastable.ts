@@ -339,7 +339,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this.canv.addEventListener('touchstart', (event: TouchEvent) => {
       this.isTouchZoom = false;
 
-      this.canv.focus(); // Take away focus from search field
       previousTouchX = event.targetTouches[0].clientX;
       previousTouchY = event.targetTouches[0].clientY;
       checkScrollbarDrag(event.targetTouches[0].clientX, event.targetTouches[0].clientY);
