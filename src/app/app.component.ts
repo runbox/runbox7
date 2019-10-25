@@ -19,9 +19,8 @@
 
 import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import {
-  CanvasTableSelectListener, AnimationFrameThrottler, CanvasTableComponent,
-  CanvasTableContainerComponent,
-  CanvasTableColumn
+  CanvasTableSelectListener, CanvasTableComponent,
+  CanvasTableContainerComponent
 } from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
