@@ -5,4 +5,7 @@
             <mat-icon>more_horiz</mat-icon>
         </button>        
     </div>
+    <div *ngIf="draftModelsInView.length === 0" class="noMessageSelectedNotification" style="width: 100%">
+      No drafts
+    </div>
 </div>
