@@ -362,7 +362,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   dontShowMessagePane() {
     this.keepMessagePaneOpen = false;
-    localStorage.setItem('keepMessagePaneOpen', 'false');
+    this.saveMessagePaneSetting();
   }
 
   public drafts() {
@@ -379,6 +379,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.sidemenu.close();
     }
     this.router.navigate(['/compose'],  {queryParams: {'new': true}});
+  }
+
+  saveMessagePaneSetting(): void {
+    const setting = this.keepMessagePaneOpen ? 'true' : 'false';
+    localStorage.setItem('keepMessagePaneOpen', setting);
   }
 
   public trainSpam(params) {
