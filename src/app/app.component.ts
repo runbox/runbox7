@@ -79,6 +79,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   usewebsocketsearch = false;
 
   viewmode = 'messages';
+  keepMessagePaneOpen = true;
   conversationGroupingCheckbox = false;
   unreadMessagesOnlyCheckbox = false;
 
@@ -229,6 +230,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // tslint:disable-next-line:deprecation
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
+
+    const messagePaneSetting = localStorage.getItem('keepMessagePaneOpen');
+    if (messagePaneSetting) {
+      this.keepMessagePaneOpen = messagePaneSetting === 'true';
+    }
+
   }
 
   ngOnDestroy() {
@@ -351,6 +358,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         mergeMap(sub => this.http.post('/rest/v1/webpush/subscribe', sub))
       ).subscribe();
     }
+  }
+
+  dontShowMessagePane() {
+    this.keepMessagePaneOpen = false;
+    localStorage.setItem('keepMessagePaneOpen', 'false');
   }
 
   public drafts() {
