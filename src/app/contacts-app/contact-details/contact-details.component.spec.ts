@@ -22,7 +22,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ContactDetailsComponent } from './contact-details.component';
 import { ContactsAppModule } from '../contacts-app.module';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Router } from '@angular/router';
+import { StorageService } from '../../storage.service';
 import { MatDialogModule } from '@angular/material/dialog';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
@@ -37,8 +37,10 @@ describe('ContactDetailsComponent', () => {
           MatDialogModule,
           RouterTestingModule.withRoutes([]) ],
       providers: [
+        StorageService,
         { provide: RunboxWebmailAPI, useValue: {
           // Mocking empty responses from RMMAPI
+          me: of({ uid: 44 }),
           getAllContacts: () => of([]),
           getContactsSettings: () => of({})
         }},

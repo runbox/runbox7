@@ -1,6 +1,7 @@
 {
   "rulesDirectory": [
-    "node_modules/codelyzer"
+    "node_modules/codelyzer",
+    "tslint-no-focused-test"
   ],
   "rules": {
     "arrow-return-shorthand": true,
@@ -59,6 +60,7 @@
     "no-empty": false,
     "no-empty-interface": true,
     "no-eval": true,
+    "no-focused-test": true,
     "no-inferrable-types": [
       true,
       "ignore-params"

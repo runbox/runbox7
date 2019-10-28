@@ -24,7 +24,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-fdescribe('CalendarService', () => {
+describe('CalendarService', () => {
     let dav_events: any;
 
     // poor man's callcounter, as I don't have a proper rmmapi stub
