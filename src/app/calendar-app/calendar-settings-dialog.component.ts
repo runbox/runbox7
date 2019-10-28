@@ -21,10 +21,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CalendarSettings } from './calendar-settings';
-import { RunboxCalendar } from './runbox-calendar';
-import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
-import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
+import { CalendarService } from './calendar.service';
 
 @Component({
     selector: 'app-calendar-editor-dialog-component',
@@ -35,6 +32,15 @@ import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.
         <mat-checkbox [(ngModel)]="settings.weekStartsOnSunday">
             Week starts on sunday
         </mat-checkbox>
+    </p>
+    <mat-divider></mat-divider>
+    <p>
+        <button mat-raised-button (click)="removeCache()">
+            Remove calendar cache
+        </button>
+    </p>
+    <p>
+        Try this if your events or calendars are not getting displayed.
     </p>
 </div>
 
@@ -49,10 +55,14 @@ export class CalendarSettingsDialogComponent {
     settings: CalendarSettings;
 
     constructor(
-        private dialog: MatDialog,
+        private calendarservice: CalendarService,
         public dialogRef: MatDialogRef<CalendarSettingsDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: CalendarSettings
     ) {
         this.settings = data;
+    }
+
+    removeCache() {
+        this.calendarservice.removeCache();
     }
 }

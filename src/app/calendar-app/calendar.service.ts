@@ -199,6 +199,12 @@ export class CalendarService implements OnDestroy {
         }, e => this.apiErrorHandler(e));
     }
 
+    removeCache() {
+        this.storage.set('caldavCache', undefined);
+        this.syncTokens = {};
+        this.syncCaldav();
+    }
+
     saveCache() {
         const cache = JSON.stringify({
             version:   2,
