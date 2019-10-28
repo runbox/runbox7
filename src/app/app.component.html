@@ -129,15 +129,15 @@
           </button>
         </mat-form-field>
 
-        <ng-container *ngIf="dataReady">
-          <!-- currently only supporting threading / unread for local index -->
-          <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
-            matTooltip="Back to conversations list">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+        <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
+          matTooltip="Back to conversations list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
 
-          <mat-menu #tableViewOptionsMenu="matMenu">
-            <mat-list>
+        <mat-menu #tableViewOptionsMenu="matMenu">
+          <mat-list>
+            <ng-container *ngIf="dataReady">
+              <!-- currently only supporting threading / unread for local index -->
               <mat-list-item>
                 <mat-checkbox
                   *ngIf="canvastable"
@@ -173,23 +173,23 @@
                   Unread only
                 </mat-checkbox>
               </mat-list-item>
+            </ng-container>
 
-              <mat-list-item>
-                <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
-                  matLine
-                  (change)="saveMessagePaneSetting()"
-                  (click)="$event.stopPropagation()"
-                >
-                  <mat-icon class="tableViewOptionsMenuElement" matTooltip="Keep message pane open">chrome_reader_mode</mat-icon>
-                  Keep message pane open
-                </mat-checkbox>
-              </mat-list-item>
-            </mat-list>
-          </mat-menu>
-          <button mat-icon-button [matMenuTriggerFor]="tableViewOptionsMenu" matTooltip="Show view options">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-        </ng-container>
+            <mat-list-item>
+              <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
+                matLine
+                (change)="saveMessagePaneSetting()"
+                (click)="$event.stopPropagation()"
+              >
+                <mat-icon class="tableViewOptionsMenuElement" matTooltip="Keep message pane open">chrome_reader_mode</mat-icon>
+                Keep message pane open
+              </mat-checkbox>
+            </mat-list-item>
+          </mat-list>
+        </mat-menu>
+        <button mat-icon-button [matMenuTriggerFor]="tableViewOptionsMenu" matTooltip="Show view options">
+          <mat-icon>more_vert</mat-icon>
+        </button>
       </ng-container>
       <div *ngIf="searchService.downloadProgress!==null" id="syncMessage">
           Synchronizing account index
