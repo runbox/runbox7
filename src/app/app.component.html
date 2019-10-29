@@ -71,7 +71,10 @@
     <p style="text-align: center; font-size: 12px">Runbox 7 build time: {{buildtimestampstring}}</p>
   </mat-sidenav>
   <mat-sidenav *ngIf="mailViewerOnRightSide" position="end" mode="side"
-    [opened]="!hasChildRouterOutlet && (singlemailviewer.messageId || keepMessagePaneOpen)"
+    [opened]="!hasChildRouterOutlet
+              && (singlemailviewer.messageId
+                  || (!mobileQuery.matches && keepMessagePaneOpen)
+            )"
     [style.width]="mailViewerRightSideWidth"
     id="rightPane"
     appResizable>
@@ -175,7 +178,7 @@
               </mat-list-item>
             </ng-container>
 
-            <mat-list-item>
+            <mat-list-item *ngIf="!mobileQuery.matches">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
                 matLine
                 (change)="saveMessagePaneSetting()"
