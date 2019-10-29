@@ -29,7 +29,7 @@
         </mat-form-field>
     </p><p>
         <label class="calendarEventPeriodLabel">Start: </label>
-        <input [(ngModel)]="event.start"
+        <input [(ngModel)]="event_start"
                [owlDateTimeTrigger]="start_dt" [owlDateTime]="start_dt">
         <owl-date-time
             #start_dt
@@ -37,7 +37,7 @@
         ></owl-date-time>
     </p><p>
         <label class="calendarEventPeriodLabel">End: </label>
-        <input [(ngModel)]="event.end"
+        <input [(ngModel)]="event_end"
                [owlDateTimeTrigger]="end_dt" [owlDateTime]="end_dt">
         <owl-date-time
             #end_dt

@@ -26,8 +26,9 @@ import * as ICAL from 'ical.js';
 
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
-    start:     Date;
-    end?:      Date;
+
+    // all recurrences of an event will have a parent set to the original one
+    parent?: RunboxCalendarEvent;
 
     color     = {} as EventColor;
     draggable = true;
@@ -84,6 +85,26 @@ export class RunboxCalendarEvent implements CalendarEvent {
         const allDay = this.allDay;
         this.event.endDate = value ? ICAL.Time.fromJSDate(value.toDate()) : undefined;
         this.allDay = allDay;
+    }
+
+    // angular-calendar compatibility
+
+    get start(): Date {
+        return this.dtstart.toDate();
+    }
+
+    get end(): Date {
+        if (!this.dtend) {
+            return undefined;
+        }
+
+        const shownEnd = moment(this.dtend);
+        if (this.allDay) {
+            shownEnd.subtract(1, 'days');
+        } else {
+            shownEnd.subtract(1, 'seconds');
+        }
+        return shownEnd.toDate();
     }
 
     get allDay(): boolean {
@@ -157,8 +178,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         } else {
             this.event = new ICAL.Event(comp.getFirstSubcomponent('vevent'));
         }
-
-        this.refreshDates();
     }
 
     clone(): RunboxCalendarEvent {
@@ -166,27 +185,21 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return RunboxCalendarEvent.fromIcal(this.id, ical);
     }
 
-    refreshDates(): void {
-        // this method (re)sets the attributes required for displaying the event
-        // based on the dates actually stored in it.
-        //
-        // They won't always be the same: each instance of a recurring event
-        // will have a different start/end, but the same dtstart/dtend.
+    recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
+        const copy = this.clone();
+        copy.parent = this;
 
-        this.start = this.dtstart.toDate();
-
+        let duration: moment.Duration;
         if (this.dtend) {
-            // iCalendar uses non-inclusive end dates, while angular-calendar uses
-            // inclusive ones. To counteract this, roll the end times back a little
-            // so that they show properly
-            const shownEnd = moment(this.dtend);
-            if (this.allDay) {
-                shownEnd.subtract(1, 'days');
-            } else {
-                shownEnd.subtract(1, 'seconds');
-            }
-            this.end = shownEnd.toDate();
+            duration = moment.duration(this.dtend.diff(this.dtstart));
         }
+
+        copy.dtstart = dt;
+        if (duration) {
+            copy.dtend = copy.dtstart.add(duration);
+        }
+
+        return copy;
     }
 
     toIcal(): string {

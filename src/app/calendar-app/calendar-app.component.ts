@@ -178,18 +178,8 @@ export class CalendarAppComponent implements OnDestroy {
                 continue;
             }
 
-            let duration: moment.Duration;
-            if (e.end) {
-                duration = moment.duration(moment(e.end).diff(e.dtstart));
-            }
-
             for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
-                const copy = e.clone();
-                copy.start = dt;
-                if (duration) {
-                    copy.end = moment(copy.start).add(duration).toDate();
-                }
-                events.push(copy);
+                events.push(e.recurrenceAt(moment(dt)));
             }
         }
 
@@ -276,9 +266,14 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     openEvent(event: CalendarEvent): void {
-        console.log('Opening event', event);
+        let target = event as RunboxCalendarEvent;
+        console.log('Opening event', target);
+        if (target.parent) {
+            console.log('It is a recurring event, opening the original instance');
+            target = target.parent;
+        }
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: (event as RunboxCalendarEvent).clone(), calendars: this.calendars }
+            data: { event: target.clone(), calendars: this.calendars }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {

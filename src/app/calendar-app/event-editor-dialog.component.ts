@@ -35,6 +35,8 @@ export class EventEditorDialogComponent {
     event = RunboxCalendarEvent.newEmpty();
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
+    event_start: Date;
+    event_end: Date;
 
     recurring_frequency: string;
     recurrence_frequencies = [
@@ -60,12 +62,19 @@ export class EventEditorDialogComponent {
             this.event = data['event'];
             this.calendarFC.setValue(this.event.calendar);
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
+
+            this.event_start = this.event.dtstart.toDate();
+            if (this.event.allDay) {
+                // inclusive vs exclusive, see the comment in onSubmitClick()
+                this.event_end = this.event.dtend.subtract(1, 'day').toDate();
+            } else {
+                this.event_end = this.event.dtend.toDate();
+            }
         }
-        this.event.refreshDates();
 
         if (data['start']) {
-            this.event.start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
-            this.event.end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
+            this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
+            this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
         }
 
         this.recurring_frequency = this.event.recurringFrequency;
@@ -99,8 +108,8 @@ export class EventEditorDialogComponent {
             this.event.calendar = this.calendarFC.value;
         }
 
-        this.event.dtstart = moment(this.event.start).seconds(0).milliseconds(0);
-        this.event.dtend = moment(this.event.end).seconds(0).milliseconds(0);
+        this.event.dtstart = moment(this.event_start).seconds(0).milliseconds(0);
+        this.event.dtend   = moment(this.event_end).seconds(0).milliseconds(0);
 
         // For a user it makes sense that a 2-day-long event starts on 1st and ends on 2nd.
         // For iCalendar however, that's a 1-day event since end dates are non-inclusive.
@@ -112,7 +121,6 @@ export class EventEditorDialogComponent {
             this.event.dtend = this.event.dtend.add(1, 'day');
         }
 
-        this.event.refreshDates();
         this.event.recurringFrequency = this.recurring_frequency;
 
         this.dialogRef.close(this.event);
