@@ -33,6 +33,11 @@ describe('RunboxCalendarEvent', () => {
         expect(sut.recurringFrequency).toBe('WEEKLY', 'recurrence seems to be set');
         expect(sut.toIcal()).toContain('RRULE:FREQ=WEEKLY', 'recurrence seems to be set');
 
+        sut.recurringFrequency = 'MONTHLY';
+        expect(sut.recurringFrequency).toBe('MONTHLY', 'recurrence seems to be set');
+        expect(sut.toIcal()).toContain('RRULE:FREQ=MONTHLY', 'recurrence seems to be set');
+        expect(sut.toIcal()).not.toContain('RRULE:FREQ=WEEKLY', 'old recurrence seems to be gone');
+
         sut.recurringFrequency = '';
         expect(sut.recurringFrequency).toBe('', 'recurrence seems to be unset');
         expect(sut.toIcal()).not.toContain('RRULE', 'recurrence seems to be unset');

@@ -102,15 +102,14 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     get recurringFrequency(): string {
-        const recur = this.event.component.getFirstPropertyValue( 'rrule');
+        const recur = this.event.component.getFirstPropertyValue('rrule');
         return recur ? recur.freq : '';
     }
 
     set recurringFrequency(frequency: string) {
-        if (frequency === '') {
-            this.event.component.removeProperty('rrule');
-        } else {
-            this.event.component.addPropertyWithValue( 'rrule', new ICAL.Recur({ freq: frequency }));
+        this.event.component.removeProperty('rrule');
+        if (frequency !== '') {
+            this.event.component.addPropertyWithValue('rrule', new ICAL.Recur({ freq: frequency }));
         }
     }
 
