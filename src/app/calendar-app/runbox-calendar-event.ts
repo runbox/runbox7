@@ -37,7 +37,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // and will be different from dtstart/dtend in
     // recurring events
     calendar:  string;
-    rrule?:    RRule;
 
     event: ICAL.Event = {};
 
@@ -92,6 +91,29 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return this.event.startDate.isDate;
     }
 
+    // deprecated, we should move away from this eventually
+    get rrule(): RRule {
+        let rrule = this.event.component.getFirstPropertyValue('rrule');
+        if (rrule) {
+            rrule = rrule.toString(); // ICAL claims this should be a string, but sometimes it's not
+            return rrulestr(rrule, { dtstart: this.dtstart.toDate() });
+        }
+        return undefined;
+    }
+
+    get recurringFrequency(): string {
+        const recur = this.event.component.getFirstPropertyValue( 'rrule');
+        return recur ? recur.freq : '';
+    }
+
+    set recurringFrequency(frequency: string) {
+        if (frequency === '') {
+            this.event.component.removeProperty('rrule');
+        } else {
+            this.event.component.addPropertyWithValue( 'rrule', new ICAL.Recur({ freq: frequency }));
+        }
+    }
+
     set allDay(value) {
         this.event.startDate.isDate = value;
         if (this.event.endDate) {
@@ -137,12 +159,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.event = new ICAL.Event(comp.getFirstSubcomponent('vevent'));
         }
 
-        let rrule = this.event.component.getFirstPropertyValue('rrule');
-        if (rrule) {
-            rrule = rrule.toString(); // ICAL claims this should be a string, but sometimes it's not
-            this.rrule = rrulestr(rrule, { dtstart: this.dtstart.toDate() });
-        }
-
         this.refreshDates();
     }
 
@@ -171,19 +187,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 shownEnd.subtract(1, 'seconds');
             }
             this.end = shownEnd.toDate();
-        }
-    }
-
-    setRecurringFrequency(frequency: number): void {
-        if (frequency === -1) {
-            if (this.rrule) {
-                this.rrule = undefined;
-            }
-        } else {
-            const ruleOpts = this.rrule ? this.rrule.origOptions
-                                        : { dtstart: this.dtstart.toDate() };
-            ruleOpts.freq  = frequency;
-            this.rrule     = new RRule(ruleOpts);
         }
     }
 

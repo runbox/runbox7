@@ -29,7 +29,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import * as moment from 'moment';
-import { RRule } from 'rrule';
 
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
@@ -179,7 +178,7 @@ describe('CalendarAppComponent', () => {
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
 
-        GH_181_setting_recurrence[0].setRecurringFrequency(RRule.WEEKLY);
+        GH_181_setting_recurrence[0].recurringFrequency = 'WEEKLY';
         component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
         fixture.detectChanges();
 

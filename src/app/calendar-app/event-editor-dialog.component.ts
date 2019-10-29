@@ -26,7 +26,6 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 import * as moment from 'moment';
-import { RRule } from 'rrule';
 
 @Component({
     selector: 'app-calendar-event-editor-dialog',
@@ -37,14 +36,14 @@ export class EventEditorDialogComponent {
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
 
-    recurring_frequency: number;
+    recurring_frequency: string;
     recurrence_frequencies = [
-        { name: 'No',      val: -1            },
-        { name: 'Hourly',  val: RRule.HOURLY  },
-        { name: 'Daily',   val: RRule.DAILY   },
-        { name: 'Weekly',  val: RRule.WEEKLY  },
-        { name: 'Monthly', val: RRule.MONTHLY },
-        { name: 'Yearly',  val: RRule.YEARLY  },
+        { name: 'No',      val: ''        },
+        { name: 'Hourly',  val: 'HOURLY'  },
+        { name: 'Daily',   val: 'DAILY'   },
+        { name: 'Weekly',  val: 'WEEKLY'  },
+        { name: 'Monthly', val: 'MONTHLY' },
+        { name: 'Yearly',  val: 'YEARLY'  },
     ];
 
     export_url: string;
@@ -69,7 +68,7 @@ export class EventEditorDialogComponent {
             this.event.end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
         }
 
-        this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;
+        this.recurring_frequency = this.event.recurringFrequency;
     }
 
     onDeleteClick(): void {
@@ -114,7 +113,7 @@ export class EventEditorDialogComponent {
         }
 
         this.event.refreshDates();
-        this.event.setRecurringFrequency(this.recurring_frequency);
+        this.event.recurringFrequency = this.recurring_frequency;
 
         this.dialogRef.close(this.event);
     }
