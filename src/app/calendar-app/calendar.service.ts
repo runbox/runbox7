@@ -58,12 +58,12 @@ export class CalendarService implements OnDestroy {
                 return;
             }
             console.log('Loading calendars/events from local cache');
-            this.calendars = JSON.parse(cache)['calendars'].map((c: any) => new RunboxCalendar(c));
+            this.calendars = cache['calendars'].map((c: any) => new RunboxCalendar(c));
             for (const cal of this.calendars) {
                 this.syncTokens[cal.id] = cal.syncToken;
             }
             this.calendarSubject.next(this.calendars);
-            this.events = JSON.parse(cache)['events'].map((e: any) => new RunboxCalendarEvent(e.id, e.jcal));
+            this.events = cache['events'].map((e: any) => new RunboxCalendarEvent(e.id, e.jcal));
             this.eventSubject.next(this.events);
         });
 
@@ -206,11 +206,11 @@ export class CalendarService implements OnDestroy {
     }
 
     saveCache() {
-        const cache = JSON.stringify({
+        const cache = {
             version:   2,
             calendars: this.calendars,
             events:    this.events,
-        });
+        };
         this.storage.set('caldavCache', cache);
     }
 
