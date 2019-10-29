@@ -87,8 +87,8 @@ export class LoginComponent implements OnInit {
 
     public onSubmit(loginform) {
         const loginBodyObj = { user: loginform.username, password: loginform.password };
-        this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).pipe(
-            map((loginresonseobj: any) => {
+        this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).subscribe(
+            (loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
                     this.handleLoginResponse(loginresonseobj);
                 } else if (loginresonseobj.is_2fa_enabled === '1') {
@@ -99,7 +99,11 @@ export class LoginComponent implements OnInit {
                 } else {
                     this.loginerrormessage = loginresonseobj.message + ': ' + loginresonseobj.error;
                 }
-            })).subscribe();
+            },
+            err => {
+                this.loginerrormessage = 'Error: ' + err.message;
+            }
+        );
     }
 
     private handleLoginResponse(loginresonseobj: any) {

@@ -28,9 +28,9 @@
 }
 </style>
 
-<div mat-dialog-content style="width: 500px; height: 200px;">
+<div mat-dialog-content style="width: 500px; height: 250px;">
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
-        <div id="payment-button-row" class="payment-row" *ngIf="paymentRequestsSupported">
+        <div id="payment-button-row" class="payment-row" [style.display]="paymentRequestsSupported ? 'block' : 'none'">
             <div class="payment-field payment-field-big">
                 <div #paymentRequestButton></div>
             </div>
