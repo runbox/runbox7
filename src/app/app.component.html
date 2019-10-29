@@ -86,7 +86,7 @@
             No Message Selected
         </p>
         <button mat-button (click)="dontShowMessagePane()">
-            Click here to not show this panel in the future
+            Hide preview pane unless a message is opened
         </button>
       </div>
   </mat-sidenav>
@@ -181,8 +181,8 @@
                 (change)="saveMessagePaneSetting()"
                 (click)="$event.stopPropagation()"
               >
-                <mat-icon class="tableViewOptionsMenuElement" matTooltip="Keep message pane open">chrome_reader_mode</mat-icon>
-                Keep message pane open
+                <mat-icon class="tableViewOptionsMenuElement" matTooltip="Keep preview pane open">chrome_reader_mode</mat-icon>
+                Keep preview pane open
               </mat-checkbox>
             </mat-list-item>
           </mat-list>
