@@ -84,6 +84,7 @@ export class CalendarAppComponent implements OnDestroy {
 
     @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
 
+    activityList = [];
     calendars: RunboxCalendar[] = [];
     calendarVisibility = {};
 
@@ -134,6 +135,14 @@ export class CalendarAppComponent implements OnDestroy {
         this.viewRefreshInterval = setInterval(() => {
             this.cdr.markForCheck();
         }, 60 * 1000);
+
+        this.calendarservice.activitySubject.subscribe(activityset => {
+            this.activityList = [];
+            activityset.forEach(activity => {
+                this.activityList.push(activity.toString());
+            });
+            this.cdr.markForCheck();
+        });
     }
 
     ngOnDestroy() {

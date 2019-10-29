@@ -65,6 +65,12 @@
             <mat-list-item *ngIf="calendarservice.lastUpdate">
                 Last update: {{ calendarservice.lastUpdate.fromNow() }}
             </mat-list-item>
+
+            <mat-divider></mat-divider>
+
+            <mat-list-item *ngFor="let activity of activityList" style="display: flex;">
+                <mat-spinner diameter="15"></mat-spinner> {{ activity }}
+            </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
