@@ -82,8 +82,9 @@
 
                     <mat-grid-list cols="4" rowHeight="30px" style='' *ngFor="let k of keys">
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector}}</div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_cname_correct ? 'Yes' : 'No'}}
-                                <a href="javascript:void(0)" *ngIf="!k.is_cname_correct" (click)="check_cname(k)" color="primary">Force re-check {{k.selector}}</a>.
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'>
+                            <div class="grid_align_left">
+                                {{k.is_cname_correct ? 'Yes' : 'No'}}<a *ngIf="k.is_cname_hosted_by_runbox && !k.is_cname_correct" href="javascript:void(0)" (click)="check_cname(k)">Check</a>
                             </div>
                         </mat-grid-tile>
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
