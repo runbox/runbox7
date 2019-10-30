@@ -30,6 +30,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { CalendarService } from './calendar.service';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
+import { CalendarOverviewComponent } from './calendar-overview.component';
 import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
@@ -39,6 +40,7 @@ import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -55,6 +57,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @NgModule({
   declarations: [
     CalendarAppComponent,
+    CalendarOverviewComponent,
     CalendarEditorDialogComponent,
     CalendarSettingsDialogComponent,
     ColorSelectorDialogComponent,
@@ -68,8 +71,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FormsModule,
     MenuModule,
     MatButtonModule,
-    MatDatepickerModule,
+    MatCardModule,
     MatCheckboxModule,
+    MatDatepickerModule,
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,

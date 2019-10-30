@@ -28,22 +28,29 @@
 <ng-template #viewModeButtons>
     <button mat-raised-button
         class="calendarToolbarButton"
-        (click)="view = CalendarView.Month"
-        [color]="view === CalendarView.Month ? 'primary' : ''"
+        (click)="setView(RunboxCalendarView.Overview)"
+        [color]="view === RunboxCalendarView.Overview ? 'primary' : ''"
+    >
+        Overview
+    </button>
+    <button mat-raised-button
+        class="calendarToolbarButton"
+        (click)="setView(RunboxCalendarView.Month)"
+        [color]="view === RunboxCalendarView.Month ? 'primary' : ''"
     >
         Month
     </button>
     <button mat-raised-button
         class="calendarToolbarButton"
-        (click)="view = CalendarView.Week"
-        [color]="view === CalendarView.Week ? 'primary' : ''"
+        (click)="setView(RunboxCalendarView.Week)"
+        [color]="view === RunboxCalendarView.Week ? 'primary' : ''"
     >
         Week
     </button>
     <button mat-raised-button
         class="calendarToolbarButton"
-        (click)="view = CalendarView.Day"
-        [color]="view === CalendarView.Day ? 'primary' : ''"
+        (click)="setView(RunboxCalendarView.Day)"
+        [color]="view === RunboxCalendarView.Day ? 'primary' : ''"
     >
         Day
     </button>
@@ -51,9 +58,10 @@
 
 <ng-template #previousPeriodButton>
     <button mat-raised-button mwlCalendarPreviousView
+        *ngIf="view !== RunboxCalendarView.Overview"
         id="previousPeriodButton"
         class="calendarToolbarButton"
-        [view]="view"
+        [view]="mwlView"
         [(viewDate)]="viewDate"
         (viewDateChange)="activeDayIsOpen = false"
     >
@@ -68,10 +76,11 @@
 
 <ng-template #nextPeriodButton>
     <button mat-raised-button
+        *ngIf="view !== RunboxCalendarView.Overview"
         id="nextPeriodButton"
         class="calendarToolbarButton"
         mwlCalendarNextView
-        [view]="view"
+        [view]="mwlView"
         [(viewDate)]="viewDate"
         (viewDateChange)="activeDayIsOpen = false"
     >
@@ -85,8 +94,8 @@
 </ng-template>
 
 <ng-template #calendarTitle>
-    <span class="calendarTitle" *ngIf="view">
-        {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
+    <span class="calendarTitle">
+        {{ mwlView ? (viewDate | calendarDate:(mwlView + 'ViewTitle'):'en') : 'Overview' }}
     </span>
 </ng-template>
 
@@ -101,10 +110,13 @@
     >
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
-            <mat-list-item *ngIf="mobileQuery.matches">
-                View:
+
+            <mat-divider></mat-divider>
+
+            <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
                 <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
-            </mat-list-item>
+            </div>
+
             <mat-list-item>
                 <button id="addEventButton" mat-button (click)="addEvent()">
                     <mat-icon>add</mat-icon> Add event
@@ -181,10 +193,10 @@
             <div *ngIf="!mobileQuery.matches; else mobileHeader">
                 <ng-container *ngTemplateOutlet="previousPeriodButton">
                 </ng-container>
-                <button mat-raised-button
+                <button mat-raised-button mwlCalendarToday
+                    *ngIf="view !== RunboxCalendarView.Overview"
                     id="todayButton"
                     class="calendarToolbarButton"
-                    mwlCalendarToday
                     [(viewDate)]="viewDate"
                 >
                     Today
@@ -213,8 +225,15 @@
         </mat-toolbar>
 
         <div [ngSwitch]="view">
+          <app-calendar-overview
+            *ngSwitchCase="RunboxCalendarView.Overview"
+            [events]="shown_events"
+            [refresh]="refresh"
+            (editEvent)="openEvent($event)"
+          >
+          </app-calendar-overview>
           <mwl-calendar-month-view
-            *ngSwitchCase="CalendarView.Month"
+            *ngSwitchCase="RunboxCalendarView.Month"
             [cellTemplate]="mobileQuery.matches ? undefined : dayViewTemplate"
             [viewDate]="viewDate"
             [events]="shown_events"
@@ -228,7 +247,7 @@
           >
           </mwl-calendar-month-view>
           <mwl-calendar-week-view
-            *ngSwitchCase="CalendarView.Week"
+            *ngSwitchCase="RunboxCalendarView.Week"
             [viewDate]="viewDate"
             [events]="shown_events"
             [refresh]="refresh"
@@ -239,7 +258,7 @@
           >
           </mwl-calendar-week-view>
           <mwl-calendar-day-view
-            *ngSwitchCase="CalendarView.Day"
+            *ngSwitchCase="RunboxCalendarView.Day"
             [viewDate]="viewDate"
             [events]="shown_events"
             [refresh]="refresh"

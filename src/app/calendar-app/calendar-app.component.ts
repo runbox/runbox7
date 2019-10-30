@@ -33,10 +33,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import {
-    isSameDay,
-    isSameMonth,
-} from 'date-fns';
+import { isSameDay, } from 'date-fns';
 
 import * as moment from 'moment';
 
@@ -59,6 +56,7 @@ import { MobileQueryService } from '../mobile-query.service';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { RunboxCalendarView } from './runbox-calendar-view';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { ImportDialogComponent } from './import-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
@@ -74,13 +72,17 @@ import { EventTitleFormatter } from './event-title-formatter';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CalendarAppComponent implements OnDestroy {
-    view: CalendarView = CalendarView.Month;
+    mwlView = CalendarView.Month;
+    view: RunboxCalendarView = RunboxCalendarView.Month;
+    // needed so that angular templates know what this name means
+    readonly RunboxCalendarView: typeof RunboxCalendarView = RunboxCalendarView;
+
     CalendarView = CalendarView;
     viewDate: Date = new Date();
     viewPeriod: ViewPeriod;
     activeDayIsOpen = false;
     sideMenuOpened = true;
-    settings = new CalendarSettings();
+    settings = new CalendarSettings({});
 
     refresh: Subject<any> = new Subject();
     viewRefreshInterval: any;
@@ -106,7 +108,8 @@ export class CalendarAppComponent implements OnDestroy {
     ) {
         const storedSettings = localStorage.getItem('calendarSettings');
         if (storedSettings) {
-            this.settings = JSON.parse(storedSettings) as CalendarSettings;
+            this.settings = new CalendarSettings(JSON.parse(storedSettings));
+            this.setView(this.settings.lastUsedView);
         }
         this.calendarservice.errorLog.subscribe(e => this.showError(e));
         this.calendarservice.calendarSubject.subscribe((calendars) => {
@@ -331,6 +334,31 @@ export class CalendarAppComponent implements OnDestroy {
                 this.importEvents(result, ics);
             }
         });
+    }
+
+    setView(view: RunboxCalendarView): void {
+        this.view = view;
+        this.settings.lastUsedView = this.view;
+        localStorage.setItem('calendarSettings', JSON.stringify(this.settings));
+
+        switch (this.view) {
+            case RunboxCalendarView.Overview: {
+                this.mwlView = null;
+                break;
+            }
+            case RunboxCalendarView.Month: {
+                this.mwlView = CalendarView.Month;
+                break;
+            }
+            case RunboxCalendarView.Week: {
+                this.mwlView = CalendarView.Week;
+                break;
+            }
+            case RunboxCalendarView.Day: {
+                this.mwlView = CalendarView.Day;
+                break;
+            }
+        }
     }
 
     showAddCalendarDialog(): void {
