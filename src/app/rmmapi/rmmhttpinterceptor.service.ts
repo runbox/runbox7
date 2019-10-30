@@ -24,7 +24,6 @@ import { catchError, filter, tap, map, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ProgressService } from '../http/progress.service';
 import { RMMAuthGuardService } from './rmmauthguard.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable()
 export class RMMHttpInterceptorService implements HttpInterceptor {
@@ -32,7 +31,6 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
     httpRequestCount = 0;
 
     constructor(
-        public snackBar: MatSnackBar,
         private httpClient: HttpClient,
         private router: Router,
         private progressService: ProgressService,
@@ -65,10 +63,6 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                             req.url === '/ajax_mfa_authenticate' &&
                             r.body.is_2fa_enabled === '1') {
                                 console.log('proceed with 2fa login');
-                        } else if (
-                            req.url !== '/ajax_mfa_authenticate'
-                            && r.body.errors && r.body.errors.length) {
-                            this.snackBar.open(r.body.errors.join(' '), 'Dismiss');
                         } else {
                            throw(r.body);
                         }

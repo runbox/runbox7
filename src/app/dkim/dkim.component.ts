@@ -213,8 +213,31 @@ export class DkimComponent implements AfterViewInit {
     req.subscribe(
       (r: any) => {
         if ( r.status === 'success' ) {
+          return this.show_error( 'This CNAME will be checked shortly.', 'Dismiss');
+        } else if ( r.status === 'error' ) {
+          return this.show_error( r.errors.join('\n'), 'Dismiss' );
+        } else {
+          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
+        }
+      },
+      error => {
+        return this.show_error('There was an error.', 'Dismiss');
+      }
+    );
+  }
+
+  reconfigure (item) {
+    const url = '/rest/v1/dkim/' + this.domain + '/reconfigure/' + item.selector;
+    const req = this.http.put(url, {});
+    req.subscribe(
+      (r: any) => {
+        if ( r.status === 'success' ) {
           this.load_keys();
           this.load_dkim_domains();
+        } else if ( r.status === 'error' ) {
+          return this.show_error( r.errors.join('\n'), 'Dismiss' );
+        } else {
+          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
         }
       },
       error => {
