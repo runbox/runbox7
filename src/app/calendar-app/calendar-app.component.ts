@@ -356,8 +356,8 @@ export class CalendarAppComponent implements OnDestroy {
 
     toggleCalendar(calendar_id: string): void {
         this.calendarVisibility[calendar_id] = !this.calendarVisibility[calendar_id];
-        this.cdr.markForCheck();
         this.filterEvents();
+        this.cdr.markForCheck();
     }
 
     updateEventColors(): void {
