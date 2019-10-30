@@ -277,7 +277,11 @@ export class CalendarService implements OnDestroy {
         this.storage.set('caldavCache', cache);
     }
 
-    syncCaldav() {
+    syncCaldav(force = false) {
+        if (force) {
+            // clear local syncTokens to make sure that events get redownloaded
+            this.syncTokens = {};
+        }
         console.log('Fetching calendars');
         this.beginActivity(Activity.RefreshingCalendars);
         this.rmmapi.getCalendars().subscribe(calendars => {
