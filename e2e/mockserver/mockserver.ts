@@ -34,6 +34,12 @@ export class MockServer {
     challenge2fa = false;
     port = 15000;
 
+    calendars = [
+        { id: 'mock cal', displayname: 'Mock Calendar' },
+    ];
+
+    events = [];
+
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
@@ -104,6 +110,13 @@ export class MockServer {
                     break;
                 case '/rest/v1/account_product/order':
                     response.end(JSON.stringify(this.order()));
+                    break;
+                case '/rest/v1/calendar/calendars':
+                    response.end(JSON.stringify(this.getCalendars()));
+                    break;
+                case '/rest/v1/calendar/events':
+                case '/rest/v1/calendar/events_raw':
+                    this.handleEvents(request, response);
                     break;
                 case '/ajax/from_address':
                     response.end(JSON.stringify(this.from_address()));
@@ -235,6 +248,44 @@ export class MockServer {
                 'tid':   '31337',
             }
         };
+    }
+
+    getCalendars() {
+        return {
+            'status': 'success',
+            'result': {
+                'calendars': this.calendars,
+            }
+        };
+    }
+
+    handleEvents(request: any, response: any) {
+        if (request.method === 'PUT') {
+            let body = '';
+            request.on('readable', () => {
+                body += request.read() || '';
+            });
+            request.on('end', () => {
+                const event = JSON.parse(body);
+                event['id'] = 'mock-event-' + (this.events.length + 1);
+                this.events.push(event);
+                response.end(JSON.stringify({
+                    'status': 'success',
+                    'result': {
+                        'id': event['id']
+                    },
+                }));
+            });
+        }
+
+        if (request.method === 'GET') {
+            response.end(JSON.stringify({
+                'status': 'success',
+                'result': {
+                    'events': this.events,
+                },
+            }));
+        }
     }
 
     from_address() {

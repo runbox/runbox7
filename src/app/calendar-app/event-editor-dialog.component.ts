@@ -26,32 +26,26 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 import * as moment from 'moment';
-import { RRule } from 'rrule';
 
 @Component({
     selector: 'app-calendar-event-editor-dialog',
     templateUrl: 'event-editor-dialog.component.html',
 })
 export class EventEditorDialogComponent {
-    event = new RunboxCalendarEvent({
-        title: '',
-        dtstart: moment(),
-        dtend: moment(),
-        allDay: false,
-        color: {},
-        vevent: {},
-    });
+    event = RunboxCalendarEvent.newEmpty();
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
+    event_start: Date;
+    event_end: Date;
 
-    recurring_frequency: number;
+    recurring_frequency: string;
     recurrence_frequencies = [
-        { name: 'No',      val: -1            },
-        { name: 'Hourly',  val: RRule.HOURLY  },
-        { name: 'Daily',   val: RRule.DAILY   },
-        { name: 'Weekly',  val: RRule.WEEKLY  },
-        { name: 'Monthly', val: RRule.MONTHLY },
-        { name: 'Yearly',  val: RRule.YEARLY  },
+        { name: 'No',      val: ''        },
+        { name: 'Hourly',  val: 'HOURLY'  },
+        { name: 'Daily',   val: 'DAILY'   },
+        { name: 'Weekly',  val: 'WEEKLY'  },
+        { name: 'Monthly', val: 'MONTHLY' },
+        { name: 'Yearly',  val: 'YEARLY'  },
     ];
 
     export_url: string;
@@ -61,18 +55,29 @@ export class EventEditorDialogComponent {
         public dialogRef: MatDialogRef<EventEditorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
+        this.calendars = data['calendars'];
+        this.calendarFC.setValue(this.calendars[0].id);
+
         if (data['event']) {
             this.event = data['event'];
             this.calendarFC.setValue(this.event.calendar);
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
+
+            this.event_start = this.event.dtstart.toDate();
+            if (this.event.allDay) {
+                // inclusive vs exclusive, see the comment in onSubmitClick()
+                this.event_end = this.event.dtend.subtract(1, 'day').toDate();
+            } else {
+                this.event_end = this.event.dtend.toDate();
+            }
         }
-        this.event.refreshDates();
+
         if (data['start']) {
-            this.event.start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
-            this.event.end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
+            this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
+            this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
         }
-        this.calendars = data['calendars'];
-        this.recurring_frequency = this.event.rrule ? this.event.rrule.options.freq : -1;
+
+        this.recurring_frequency = this.event.recurringFrequency;
     }
 
     onDeleteClick(): void {
@@ -102,8 +107,9 @@ export class EventEditorDialogComponent {
         } else {
             this.event.calendar = this.calendarFC.value;
         }
-        this.event.dtstart = moment(this.event.start).seconds(0).milliseconds(0);
-        this.event.dtend = moment(this.event.end).seconds(0).milliseconds(0);
+
+        this.event.dtstart = moment(this.event_start).seconds(0).milliseconds(0);
+        this.event.dtend   = moment(this.event_end).seconds(0).milliseconds(0);
 
         // For a user it makes sense that a 2-day-long event starts on 1st and ends on 2nd.
         // For iCalendar however, that's a 1-day event since end dates are non-inclusive.
@@ -111,11 +117,11 @@ export class EventEditorDialogComponent {
         // Since the user is the sane one here, let's just make all allDay events one day
         // longer behind the scenes (that's how nextcloud does it too, for example).
         if (this.event.allDay) {
-            this.event.dtend.add(1, 'day');
+            // make sure we're going through the setter
+            this.event.dtend = this.event.dtend.add(1, 'day');
         }
 
-        this.event.refreshDates();
-        this.event.setRecurringFrequency(this.recurring_frequency);
+        this.event.recurringFrequency = this.recurring_frequency;
 
         this.dialogRef.close(this.event);
     }

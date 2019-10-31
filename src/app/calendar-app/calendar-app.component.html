@@ -7,7 +7,7 @@
     <mat-sidenav #sidemenu mode="side" opened>
         <mat-nav-list dense>
             <mat-list-item>
-                <button mat-button (click)="addEvent()">
+                <button id="addEventButton" mat-button (click)="addEvent()">
                     <mat-icon>add</mat-icon> Add event
                 </button>
             </mat-list-item>
@@ -42,7 +42,7 @@
                     matTooltip="Show/hide this calendar"
                     (click)="toggleCalendar(calendar.id)"
                 >
-                    <mat-icon> {{ calendar.shown ? 'visibility' : 'visibility_off' }} </mat-icon>
+                    <mat-icon> {{ calendarVisibility[calendar.id] ? 'visibility' : 'visibility_off' }} </mat-icon>
                 </button>
                 <button mat-icon-button class="calendarEditButton"
                     matTooltip="Edit this calendar"
@@ -56,7 +56,7 @@
 
             <mat-list-item>
                 <button mat-button
-                    (click)="calendarservice.syncCaldav()"
+                    (click)="calendarservice.syncCaldav(true)"
                 >
                     <mat-icon mat-list-icon> refresh </mat-icon> Synchronize calendars
                 </button>
@@ -64,6 +64,12 @@
 
             <mat-list-item *ngIf="calendarservice.lastUpdate">
                 Last update: {{ calendarservice.lastUpdate.fromNow() }}
+            </mat-list-item>
+
+            <mat-divider></mat-divider>
+
+            <mat-list-item *ngFor="let activity of activityList" style="display: flex;">
+                <mat-spinner diameter="15"></mat-spinner> {{ activity }}
             </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>

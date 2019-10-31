@@ -22,160 +22,196 @@ import { EventColor } from 'calendar-utils';
 import { RRule, rrulestr } from 'rrule';
 
 import * as moment from 'moment';
-
-export class Vevent {
-    location?:    string;
-    description?: string;
-}
+import * as ICAL from 'ical.js';
 
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
-    start:     Date;
-    end?:      Date;
-    // we need those separately from start/end
-    // start and end are for display pursposes only,
-    // and will be different from dtstart/dtend in
-    // recurring events
-    dtstart:   moment.Moment;
-    dtend?:    moment.Moment;
-    title:     string;
-    allDay?:   boolean;
-    calendar:  string;
-    rrule?:    RRule;
 
-    vevent: Vevent = {};
+    // all recurrences of an event will have a parent set to the original one
+    parent?: RunboxCalendarEvent;
 
     color     = {} as EventColor;
     draggable = true;
 
-    constructor(event: any) {
-        this.id = event.id;
+    // we need those separately from start/end
+    // start and end are for display pursposes only,
+    // and will be different from dtstart/dtend in
+    // recurring events
+    calendar:  string;
+
+    event: ICAL.Event = {};
+
+    get title(): string {
+        return this.event.summary;
+    }
+
+    set title(value: string) {
+        this.event.summary = value;
+    }
+
+    get location(): string {
+        return this.event.location;
+    }
+
+    set location(value: string) {
+        this.event.location = value;
+    }
+
+    get description(): string {
+        return this.event.description;
+    }
+
+    set description(value: string) {
+        this.event.description = value;
+    }
+
+    get dtstart(): moment.Moment {
+        return moment(this.event.startDate.toJSDate(), moment.ISO_8601);
+    }
+
+    set dtstart(value: moment.Moment) {
+        const allDay = this.allDay;
+        this.event.startDate = ICAL.Time.fromJSDate(value.toDate());
+        this.allDay = allDay;
+    }
+
+    get dtend(): moment.Moment {
+        return this.event.endDate
+            ? moment(this.event.endDate.toJSDate(), moment.ISO_8601)
+            : undefined;
+    }
+
+    set dtend(value: moment.Moment) {
+        const allDay = this.allDay;
+        this.event.endDate = value ? ICAL.Time.fromJSDate(value.toDate()) : undefined;
+        this.allDay = allDay;
+    }
+
+    // angular-calendar compatibility
+
+    get start(): Date {
+        return this.dtstart.toDate();
+    }
+
+    get end(): Date {
+        if (!this.dtend) {
+            return undefined;
+        }
+
+        const shownEnd = moment(this.dtend);
+        if (this.allDay) {
+            shownEnd.subtract(1, 'days');
+        } else {
+            shownEnd.subtract(1, 'seconds');
+        }
+        return shownEnd.toDate();
+    }
+
+    get allDay(): boolean {
+        // isDate in ICAL.Event means "has no time"
+        return this.event.startDate.isDate;
+    }
+
+    // deprecated, we should move away from this eventually
+    get rrule(): RRule {
+        let rrule = this.event.component.getFirstPropertyValue('rrule');
+        if (rrule) {
+            rrule = rrule.toString(); // ICAL claims this should be a string, but sometimes it's not
+            return rrulestr(rrule, { dtstart: this.dtstart.toDate() });
+        }
+        return undefined;
+    }
+
+    get recurringFrequency(): string {
+        const recur = this.event.component.getFirstPropertyValue('rrule');
+        return recur ? recur.freq : '';
+    }
+
+    set recurringFrequency(frequency: string) {
+        this.event.component.removeProperty('rrule');
+        if (frequency !== '') {
+            this.event.component.addPropertyWithValue('rrule', new ICAL.Recur({ freq: frequency }));
+        }
+    }
+
+    set allDay(value) {
+        this.event.startDate.isDate = value;
+        if (this.event.endDate) {
+            this.event.endDate.isDate = value;
+        }
+        // I know this looks silly, but without this
+        // ICAL.Event will not notice the isDate change
+        // and the event metadata will still be off
+        this.event.startDate = this.event.startDate;
+        this.event.endDate   = this.event.endDate;
+    }
+
+    static fromIcal(id: string, ical: string): RunboxCalendarEvent {
+        return new this(id, ICAL.parse(ical));
+    }
+
+    // creates an unnamed event for today
+    static newEmpty(): RunboxCalendarEvent {
+        return new this(
+            undefined,
+            [ 'vcalendar', [], [
+                [ 'vevent',
+                    [
+                        [ 'dtend',   {}, 'date-time', '2019-10-02T14:00:00' ],
+                        [ 'dtstart', {}, 'date-time', '2019-10-02T12:00:00' ],
+                        [ 'summary', {}, 'text', '' ] ],
+                    []
+                ]
+            ] ]
+        );
+    }
+
+    constructor(id: string, jcal: any) {
+        this.id = id;
         if (this.id) {
             this.calendar = this.id.split('/')[0];
         }
 
-        if (event['VEVENT']) {
-            const vevent = event['VEVENT'];
-            this.dtstart = moment(vevent.dtstart, moment.ISO_8601);
-            if (vevent.dtend) {
-                this.dtend = moment(vevent.dtend, moment.ISO_8601);
-            }
-            this.title   = vevent.summary;
-            this.allDay  = vevent.dtstart.indexOf('T') === -1;
-            this.vevent  = vevent;
-            if (vevent.rrule) {
-                this.rrule = rrulestr(vevent.rrule, { dtstart: this.dtstart.toDate() });
-                this.draggable = false;
-            }
+        const comp = new ICAL.Component(jcal);
+        if (comp.name === 'vevent') {
+            this.event = new ICAL.Event(comp);
         } else {
-            // "copy constructor" :)
-            this.dtstart   = event.dtstart;
-            this.dtend     = event.dtend;
-            this.title     = event.title;
-            this.allDay    = event.allDay;
-            this.vevent    = event.vevent;
-            this.rrule     = event.rrule;
-            this.color     = event.color;
-            this.draggable = event.draggable;
+            this.event = new ICAL.Event(comp.getFirstSubcomponent('vevent'));
         }
-
-        this.refreshDates();
-
-        /*
-        if (event.duration) {
-            // https://tools.ietf.org/html/rfc2445#section-4.3.6
-            const durationRE = /^([\+\-]?)PT?(\d+)([WHMSD])$/;
-            const parts = durationRE.exec(event.duration);
-            switch (parts[3]) {
-                case 'D':
-                    this.end = addDays(this.start, Number(parts[2]));
-                    break;
-                case 'H':
-                    this.end = addHours(this.start, Number(parts[2]));
-                    break;
-                case 'S':
-                    this.end = addSeconds(this.start, Number(parts[2]));
-                    break;
-                default:
-                    throw new Error("Unsupported duration: " +  parts[3]);
-            }
-        }
-        */
     }
 
-    refreshDates(): void {
-        // this method (re)sets the attributes required for displaying the event
-        // based on the dates actually stored in it.
-        //
-        // They won't always be the same: each instance of a recurring event
-        // will have a different start/end, but the same dtstart/dtend.
+    clone(): RunboxCalendarEvent {
+        const ical = this.event.toString();
+        return RunboxCalendarEvent.fromIcal(this.id, ical);
+    }
 
-        this.start = this.dtstart.toDate();
+    recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
+        const copy = this.clone();
+        copy.parent = this;
 
+        let duration: moment.Duration;
         if (this.dtend) {
-            // iCalendar uses non-inclusive end dates, while angular-calendar uses
-            // inclusive ones. To counteract this, roll the end times back a little
-            // so that they show properly
-            const shownEnd = moment(this.dtend);
-            if (this.allDay) {
-                shownEnd.subtract(1, 'days');
-            } else {
-                shownEnd.subtract(1, 'seconds');
-            }
-            this.end = shownEnd.toDate();
+            duration = moment.duration(this.dtend.diff(this.dtstart));
         }
-    }
 
-    setRecurringFrequency(frequency: number): void {
-        if (frequency === -1) {
-            if (this.rrule) {
-                this.rrule = undefined;
-            }
-        } else {
-            const ruleOpts = this.rrule ? this.rrule.origOptions
-                                        : { dtstart: this.dtstart.toDate() };
-            ruleOpts.freq  = frequency;
-            this.rrule     = new RRule(ruleOpts);
+        copy.dtstart = dt;
+        if (duration) {
+            copy.dtend = copy.dtstart.add(duration);
         }
+
+        return copy;
     }
 
-    // borrowed from https://stackoverflow.com/a/36643588
-    dateToJSON(date: Date): string {
-        const timezoneOffsetInHours = -(date.getTimezoneOffset() / 60); // UTC minus local time
-        const sign = timezoneOffsetInHours >= 0 ? '+' : '-';
-        const leadingZero = (Math.abs(timezoneOffsetInHours) < 10) ? '0' : '';
-
-        // It's a bit unfortunate that we need to construct a new Date instance
-        // (we don't want _date_ Date instance to be modified)
-        const correctedDate = new Date(date.getFullYear(), date.getMonth(),
-            date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(),
-            date.getMilliseconds());
-        correctedDate.setHours(date.getHours() + timezoneOffsetInHours);
-        const iso = correctedDate.toISOString().replace('Z', '');
-
-        return iso + sign + leadingZero + Math.abs(timezoneOffsetInHours).toString() + ':00';
+    toIcal(): string {
+        return 'BEGIN:VCALENDAR\n' + this.event.toString() + '\nEND:VCALENDAR';
     }
 
+    // returns jCal
     toJSON(): any {
-        let rruleLine: string;
-        if (this.rrule) {
-            rruleLine = this.rrule.toString().split('\n').find(l => l.indexOf('RRULE') === 0);
-            if (rruleLine) {
-                rruleLine = rruleLine.slice(6);
-            }
-        }
         return {
-            id: this.id,
+            id:       this.id,
             calendar: this.calendar,
-            VEVENT: {
-                dtstart: this.dateToJSON(this.dtstart.toDate()),
-                dtend: this.dtend ? this.dateToJSON(this.dtend.toDate()) : undefined,
-                summary: this.title,
-                location: this.vevent.location,
-                description: this.vevent.description,
-                rrule: rruleLine,
-                _all_day: this.allDay
-            }
+            jcal:     this.event.component.toJSON(),
         };
     }
 }

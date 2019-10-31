@@ -28,6 +28,18 @@ import { Observable, Subject, ReplaySubject } from 'rxjs';
 
 import * as moment from 'moment';
 
+enum Activity {
+    LoadingCache        = 'Loading local cache',
+    CreatingCalendar    = 'Creating calendar',
+    CreatingEvent       = 'Creating event',
+    DeletingCalendar    = 'Deleting calendar',
+    DeletingEvent       = 'Deleting event',
+    EditingCalendar     = 'Editing calendar',
+    EditingEvent        = 'Editing event',
+    RefreshingCalendars = 'Refreshing calendars',
+    RefreshingEvents    = 'Refreshing events',
+}
+
 @Injectable()
 export class CalendarService implements OnDestroy {
     calendars:    RunboxCalendar[]      = [];
@@ -42,6 +54,9 @@ export class CalendarService implements OnDestroy {
     eventSubject    = new ReplaySubject<RunboxCalendarEvent[]>(1);
     errorLog        = new Subject<HttpErrorResponse>();
 
+    activitySet     = new Set<Activity>();
+    activitySubject = new Subject<Set<Activity>>();
+
     constructor(
         private rmmapi:  RunboxWebmailAPI,
         private storage: StorageService,
@@ -50,14 +65,23 @@ export class CalendarService implements OnDestroy {
             if (!cache) {
                 return;
             }
+            console.log('Cache version:', cache['version']);
+            // tslint:disable-next-line:triple-equals
+            if (cache['version'] != 2) {
+                console.log('Old cache format found, removing');
+                storage.set('caldavCache', undefined);
+                return;
+            }
+            this.beginActivity(Activity.LoadingCache);
             console.log('Loading calendars/events from local cache');
-            this.calendars = JSON.parse(cache)['calendars'].map(c => new RunboxCalendar(c));
+            this.calendars = cache['calendars'].map((c: any) => new RunboxCalendar(c));
             for (const cal of this.calendars) {
                 this.syncTokens[cal.id] = cal.syncToken;
             }
             this.calendarSubject.next(this.calendars);
-            this.events = JSON.parse(cache)['events'].map(e => new RunboxCalendarEvent(e));
+            this.events = cache['events'].map((e: any) => new RunboxCalendarEvent(e.id, e.jcal));
             this.eventSubject.next(this.events);
+            this.endActivity(Activity.LoadingCache);
         });
 
         this.calendarSubject.subscribe(cals => {
@@ -95,26 +119,35 @@ export class CalendarService implements OnDestroy {
 
     addCalendar(calendar: RunboxCalendar): Promise<void> {
         return new Promise((resolve, reject) => {
+            this.beginActivity(Activity.CreatingCalendar);
             this.rmmapi.addCalendar(calendar).subscribe(() => {
                 console.log('Calendar created!');
                 this.calendars.push(calendar);
                 this.calendarSubject.next(this.calendars);
                 resolve();
-            }, e => { this.apiErrorHandler(e); reject(); });
+                this.endActivity(Activity.CreatingCalendar);
+            }, e => {
+                this.apiErrorHandler(e);
+                reject();
+                this.endActivity(Activity.CreatingCalendar);
+            });
         });
     }
 
     addEvent(event: RunboxCalendarEvent): Promise<string> {
         return new Promise((resolve, reject) => {
+            this.beginActivity(Activity.CreatingEvent);
             this.rmmapi.addCalendarEvent(event).subscribe(res => {
                 console.log('Event created:', res);
                 event.id = res.id;
                 this.events.push(event);
                 this.eventSubject.next(this.events);
                 resolve(event.id);
+                this.endActivity(Activity.CreatingEvent);
             }, e => {
                 this.apiErrorHandler(e);
                 reject(e);
+                this.endActivity(Activity.CreatingEvent);
             });
         });
     }
@@ -123,7 +156,14 @@ export class CalendarService implements OnDestroy {
         this.errorLog.next(e);
     }
 
+    beginActivity(activity: Activity): void {
+        console.log('Starting activity', activity.toString());
+        this.activitySet.add(activity);
+        this.activitySubject.next(this.activitySet);
+    }
+
     deleteCalendar(id: string) {
+        this.beginActivity(Activity.DeletingCalendar);
         this.rmmapi.deleteCalendar(id).subscribe(() => {
             console.log('Calendar deleted:', id);
             const idx = this.calendars.findIndex(c => c.id === id);
@@ -134,25 +174,45 @@ export class CalendarService implements OnDestroy {
 
             this.calendarSubject.next(this.calendars);
             this.eventSubject.next(this.events);
-        }, e => this.apiErrorHandler(e));
+            this.endActivity(Activity.DeletingCalendar);
+        }, e => {
+            this.apiErrorHandler(e);
+            this.endActivity(Activity.DeletingCalendar);
+        });
     }
 
     deleteEvent(id: string) {
+        this.beginActivity(Activity.DeletingEvent);
         this.rmmapi.deleteCalendarEvent(id).subscribe(res => {
             console.log('Event deleted:', res);
             const idx = this.events.findIndex(e => e.id === id);
             this.events.splice(idx, 1);
             this.eventSubject.next(this.events);
-        }, e => this.apiErrorHandler(e));
+            this.endActivity(Activity.DeletingEvent);
+        }, e => {
+            this.apiErrorHandler(e);
+            this.endActivity(Activity.DeletingEvent);
+        });
+    }
+
+    endActivity(activity: Activity): void {
+        console.log('Ending activity', activity.toString());
+        this.activitySet.delete(activity);
+        this.activitySubject.next(this.activitySet);
     }
 
     modifyCalendar(calendar: RunboxCalendar) {
+        this.beginActivity(Activity.EditingCalendar);
         this.rmmapi.modifyCalendar(calendar).subscribe(() => {
             console.log('Calendar edited:', calendar['id']);
             const idx = this.calendars.findIndex(c => c.id === calendar['id']);
             this.calendars.splice(idx, 1, calendar);
             this.calendarSubject.next(this.calendars);
-        }, e => this.apiErrorHandler(e));
+            this.endActivity(Activity.EditingCalendar);
+        }, e => {
+            this.apiErrorHandler(e);
+            this.endActivity(Activity.EditingCalendar);
+        });
     }
 
     modifyEvent(event: RunboxCalendarEvent) {
@@ -167,11 +227,16 @@ export class CalendarService implements OnDestroy {
             });
         } else {
             // simple case: just modify the event in place
+            this.beginActivity(Activity.EditingEvent);
             this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(_ => {
                 const idx = this.events.findIndex(c => c.id === event.id);
                 this.events.splice(idx, 1, event);
                 this.eventSubject.next(this.events);
-            }, e => this.apiErrorHandler(e));
+                this.endActivity(Activity.EditingEvent);
+            }, e => {
+                this.apiErrorHandler(e);
+                this.endActivity(Activity.EditingEvent);
+            });
         }
     }
 
@@ -186,26 +251,47 @@ export class CalendarService implements OnDestroy {
 
     reloadEvents() {
         console.log('Fetching events');
+        this.beginActivity(Activity.RefreshingEvents);
         this.rmmapi.getCalendarEvents().subscribe(events => {
-            this.events = events.map((e: any) => new RunboxCalendarEvent(e));
+            this.events = events.map((e: any) => RunboxCalendarEvent.fromIcal(e.id, e.ical));
             this.eventSubject.next(this.events);
-        }, e => this.apiErrorHandler(e));
+            this.endActivity(Activity.RefreshingEvents);
+        }, e => {
+            this.apiErrorHandler(e);
+            this.endActivity(Activity.RefreshingEvents);
+        });
+    }
+
+    removeCache() {
+        this.storage.set('caldavCache', undefined);
+        this.syncTokens = {};
+        this.syncCaldav();
     }
 
     saveCache() {
-        const cache = JSON.stringify({
+        const cache = {
+            version:   2,
             calendars: this.calendars,
             events:    this.events,
-        });
+        };
         this.storage.set('caldavCache', cache);
     }
 
-    syncCaldav() {
+    syncCaldav(force = false) {
+        if (force) {
+            // clear local syncTokens to make sure that events get redownloaded
+            this.syncTokens = {};
+        }
         console.log('Fetching calendars');
+        this.beginActivity(Activity.RefreshingCalendars);
         this.rmmapi.getCalendars().subscribe(calendars => {
             this.calendars = calendars;
             console.log('Calendars loaded:', calendars);
             this.calendarSubject.next(calendars);
-        }, e => this.apiErrorHandler(e));
+            this.endActivity(Activity.RefreshingCalendars);
+        }, e => {
+            this.apiErrorHandler(e);
+            this.endActivity(Activity.RefreshingCalendars);
+        });
     }
 }

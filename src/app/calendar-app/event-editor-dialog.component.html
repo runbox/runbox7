@@ -11,11 +11,11 @@
         </mat-form-field>
     </p><p>
         <mat-form-field>
-            <input matInput type="text" placeholder="Location" [(ngModel)]="event.vevent.location">
+            <input matInput type="text" placeholder="Location" [(ngModel)]="event.location">
         </mat-form-field>
     </p><p>
         <mat-form-field>
-            <textarea matInput placeholder="Description" [(ngModel)]="event.vevent.description"></textarea>
+            <textarea matInput placeholder="Description" [(ngModel)]="event.description"></textarea>
         </mat-form-field>
     </p><p>
         <mat-form-field>
@@ -29,14 +29,20 @@
         </mat-form-field>
     </p><p>
         <label class="calendarEventPeriodLabel">Start: </label>
-        <input [(ngModel)]="event.start"
+        <input [(ngModel)]="event_start"
                [owlDateTimeTrigger]="start_dt" [owlDateTime]="start_dt">
-        <owl-date-time #start_dt></owl-date-time>
+        <owl-date-time
+            #start_dt
+            [pickerType]="event.allDay ? 'calendar' : 'both'"
+        ></owl-date-time>
     </p><p>
         <label class="calendarEventPeriodLabel">End: </label>
-        <input [(ngModel)]="event.end"
+        <input [(ngModel)]="event_end"
                [owlDateTimeTrigger]="end_dt" [owlDateTime]="end_dt">
-        <owl-date-time #end_dt></owl-date-time>
+        <owl-date-time
+            #end_dt
+            [pickerType]="event.allDay ? 'calendar' : 'both'"
+        ></owl-date-time>
     </p><p>
         <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>
     </p><p>
@@ -64,7 +70,7 @@
     <button mat-button
             (click)="onCancelClick()">Cancel</button>
 
-    <button mat-raised-button color="primary"
+    <button id="eventSubmitButton" mat-raised-button color="primary"
             (click)="onSubmitClick()">
         <span *ngIf="event.id">  Update </span>
         <span *ngIf="!event.id"> Create </span>
