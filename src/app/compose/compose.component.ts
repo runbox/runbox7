@@ -100,7 +100,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
-                this.model.preview = msgObj.text.text
+                this.model.preview = DraftFormModel.trimmedPreview(msgObj.text.text)
             );
         }
 
@@ -443,13 +443,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.model.useHTML = this.formGroup.value.useHTML;
 
         if (this.model.useHTML && this.editor) {
-            this.model.preview = this.editor.getContent({ format: 'text' }).substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
+            this.model.preview = DraftFormModel.trimmedPreview(this.editor.getContent({ format: 'text' }));
         } else {
-            this.model.preview = this.model.msg_body.substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
-        }
-
-        if (this.model.preview.length === DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH) {
-            this.model.preview += '...';
+            this.model.preview = DraftFormModel.trimmedPreview(this.model.msg_body);
         }
 
         const from = this.draftDeskservice.froms.find(
@@ -576,4 +572,3 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 }
-
