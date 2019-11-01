@@ -6,16 +6,7 @@
       style="width: 330px"
       appResizable>
     <mat-nav-list dense>      
-      <div class="sidenavMainMenu">
-        <div id="sidenavLogoContainer">
-          <a mat-button routerLink="/" 
-             id="sidenavLogoButton"
-	     (click)="this.sidemenu.close();">
-            <img src="assets/runbox7.png" id="logoSidenav" alt="Runbox 7" />
-          </a>
-          <br />
-        </div>
-      </div>
+      <app-sidenav-menu (closeMenu)="sidemenu.close()"></app-sidenav-menu>
 
       <div id="sidenavGreeting">
         <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
