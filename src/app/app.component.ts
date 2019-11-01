@@ -47,13 +47,12 @@ import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
 
-import { MediaMatcher } from '@angular/cdk/layout';
-
 import { BUILD_TIMESTAMP } from './buildtimestamp';
 import { from, of } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
+import { MobileQueryService } from './mobile-query.service';
 import { ProgressService } from './http/progress.service';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
@@ -128,7 +127,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianDocCount: number;
   searchResultsCount: number;
 
-  mobileQuery: MediaQueryList;
   private mobileQueryListener: () => void;
 
   xapianLoaded = xapianLoadedSubject;
@@ -149,7 +147,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
     changeDetectorRef: ChangeDetectorRef,
-    media: MediaMatcher,
+    public mobileQuery: MobileQueryService,
     private swPush: SwPush) {
     const savedColumnWidthsString = localStorage.getItem('rmmCanvasTableColumnWidths');
     if (savedColumnWidthsString) {
@@ -202,8 +200,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // Mobile media query for screen width
 
-    this.mobileQuery = media.matchMedia('(max-width: 1023px)');
-
     this.mobileQueryListener = () => {
       // Open sidenav if screen is wide enough and it was closed
       changeDetectorRef.detectChanges();
@@ -225,15 +221,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     };
 
-    // the non-deprecated addEventListener doesn't work on Safari, so...
-    // tslint:disable-next-line:deprecation
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
   }
 
   ngOnDestroy() {
-    // the non-deprecated removeEventListener doesn't work on Safari, so...
-    // tslint:disable-next-line:deprecation
     this.mobileQuery.removeListener(this.mobileQueryListener);
   }
   ngDoCheck(): void {

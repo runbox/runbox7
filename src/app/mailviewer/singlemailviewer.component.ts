@@ -34,7 +34,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { ProgressService } from '../http/progress.service';
-
+import { MobileQueryService } from '../mobile-query.service';
 
 import { SafeUrl } from '@angular/platform-browser';
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
@@ -122,9 +122,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   folder: string;
 
 
-  mobileQuery: MediaQueryList;
-  private mobileQueryListener: () => void;
-
   constructor(private _ngZone: NgZone,
     private domSanitizer: DomSanitizer,
     private http: HttpClient,
@@ -132,12 +129,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     private rbwebmailapi: RunboxWebmailAPI,
     private progressService: ProgressService,
     public messagelistservice: MessageListService,
+    public mobileQuery: MobileQueryService,
     private router: Router,
-    media: MediaMatcher
   ) {
-    // Mobile media query for screen width
-
-    this.mobileQuery = media.matchMedia('(max-width: 1023px)');
   }
 
   public close(actionstring?: string) {
