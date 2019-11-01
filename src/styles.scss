@@ -819,6 +819,10 @@ app-calendar-app-component mat-nav-list button {
     padding: 0 !important;
 }
 
+.calendarToolbarButton {
+    margin: 0.5em !important;
+}
+
 .calendarTitle {
     margin: 0 1em;
     font-size: 20px !important;
@@ -855,10 +859,6 @@ button.calendarMonthDayEvent {
     overflow: hidden;
     font-size: 12px !important;
     line-height: 1.2em;
-}
-
-app-calendar-app-component .mat-button .mat-button-wrapper>* {
-    vertical-align: top !important;
 }
 
 app-calendar-event-editor-dialog p {

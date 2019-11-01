@@ -1,11 +1,74 @@
+<ng-template #dayViewTemplate let-day="day" let-locale="locale">
+    <div class="calendarMonthDayView">
+        <div class="cal-cell-top">
+            <span class="cal-day-number">
+                {{ day.date | calendarDate:'monthViewDayNumber':locale }}
+            </span>
+            <div *ngIf="!mobileQuery.matches" style="display: flex; flex-direction: column;">
+                <div class="add-new-event">
+                    <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
+                </div>
+                <button mat-button class="calendarMonthDayEvent"
+                    *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
+                    (click)="openEvent(event); $event.stopPropagation()"
+                >
+                    <strong *ngIf="!event.allDay && event.start.getDay() == day.date.getDay()">
+                        {{ event.start.getHours() }}:{{ ('0' + event.start.getMinutes()).slice(-2) }}
+                    </strong>
+                    {{ event.title }}
+                </button>
+                <button mat-button *ngIf="day.events.length > 4" class="calendarMonthDayEvent">
+                    ...and {{ day.events.length - 3 }} other events
+                </button>
+            </div>
+        </div>
+        <div *ngIf="mobileQuery.matches">
+            <div *ngIf="day.events.length" style="font-weight: bold; text-align: center;">
+                {{ day.events.length }} event<span *ngIf="day.events.length > 1">s</span>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #viewModeButtons>
+    <button mat-raised-button
+        class="calendarToolbarButton"
+        (click)="view = CalendarView.Month"
+        [color]="view === CalendarView.Month ? 'primary' : ''"
+    >
+        Month
+    </button>
+    <button mat-raised-button
+        class="calendarToolbarButton"
+        (click)="view = CalendarView.Week"
+        [color]="view === CalendarView.Week ? 'primary' : ''"
+    >
+        Week
+    </button>
+    <button mat-raised-button
+        class="calendarToolbarButton"
+        (click)="view = CalendarView.Day"
+        [color]="view === CalendarView.Day ? 'primary' : ''"
+    >
+        Day
+    </button>
+</ng-template>
+
 <mat-sidenav-container autosize>
-    <style>
-        button {
-            margin: 0.5em;
-        }
-    </style>
-    <mat-sidenav #sidemenu mode="side" opened>
+    <mat-sidenav #sidemenu
+        [opened]="sideMenuOpened"
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        id="sideMenu"
+        style="width: 330px"
+    >
         <mat-nav-list dense>
+            <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+            <mat-list-item *ngIf="mobileQuery.matches">
+                View:
+                <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
+            </mat-list-item>
             <mat-list-item>
                 <button id="addEventButton" mat-button (click)="addEvent()">
                     <mat-icon>add</mat-icon> Add event
@@ -74,85 +137,49 @@
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar style="display: flex">
+        <mat-toolbar style="display: flex; justify-content: space-between;">
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
-            <button mat-raised-button mwlCalendarPreviousView
-                id="previousPeriodButton"
-                [view]="view"
-                [(viewDate)]="viewDate"
-                (viewDateChange)="activeDayIsOpen = false"
-            >
-                Previous
-            </button>
-            <button mat-raised-button
-                id="todayButton"
-                mwlCalendarToday
-                [(viewDate)]="viewDate"
-            >
-                Today
-            </button>
-            <button mat-raised-button
-                id="nextPeriodButton"
-                mwlCalendarNextView
-                [view]="view"
-                [(viewDate)]="viewDate"
-                (viewDateChange)="activeDayIsOpen = false"
-            >
-                Next
-            </button>
+
+            <div>
+                <button mat-raised-button mwlCalendarPreviousView
+                    id="previousPeriodButton"
+                    class="calendarToolbarButton"
+                    [view]="view"
+                    [(viewDate)]="viewDate"
+                    (viewDateChange)="activeDayIsOpen = false"
+                >
+                    Previous
+                </button>
+                <button mat-raised-button
+                    id="todayButton"
+                    class="calendarToolbarButton"
+                    mwlCalendarToday
+                    [(viewDate)]="viewDate"
+                >
+                    Today
+                </button>
+                <button mat-raised-button
+                    id="nextPeriodButton"
+                    class="calendarToolbarButton"
+                    mwlCalendarNextView
+                    [view]="view"
+                    [(viewDate)]="viewDate"
+                    (viewDateChange)="activeDayIsOpen = false"
+                >
+                    Next
+                </button>
+            </div>
 
             <span class="calendarTitle" *ngIf="view">
                 {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
             </span>
 
-            <button mat-raised-button
-                (click)="view = CalendarView.Month"
-                [color]="view === CalendarView.Month ? 'primary' : ''"
-            >
-                Month
-            </button>
-            <button mat-raised-button
-                (click)="view = CalendarView.Week"
-                [color]="view === CalendarView.Week ? 'primary' : ''"
-            >
-                Week
-            </button>
-            <button mat-raised-button
-                (click)="view = CalendarView.Day"
-                [color]="view === CalendarView.Day ? 'primary' : ''"
-            >
-                Day
-            </button>
-        </mat-toolbar>
-
-        <ng-template #dayViewTemplate let-day="day" let-locale="locale">
-            <div class="calendarMonthDayView">
-                <div class="cal-cell-top">
-                    <span class="cal-day-number">
-                        {{ day.date | calendarDate:'monthViewDayNumber':locale }}
-                    </span>
-                    <div style="display: flex; flex-direction: column;">
-                        <div class="add-new-event">
-                            <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
-                        </div>
-                        <button mat-button class="calendarMonthDayEvent"
-                            *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
-                            (click)="openEvent(event); $event.stopPropagation()"
-                        >
-                            <strong *ngIf="!event.allDay && event.start.getDay() == day.date.getDay()">
-                                {{ event.start.getHours() }}:{{ ('0' + event.start.getMinutes()).slice(-2) }}
-                            </strong>
-                            {{ event.title }}
-                        </button>
-                        <button mat-button *ngIf="day.events.length > 4" class="calendarMonthDayEvent">
-                            ...and {{ day.events.length - 3 }} other events
-                        </button>
-                    </div>
-                </div>
+            <div *ngIf="!mobileQuery.matches">
+                <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
             </div>
-        </ng-template>
+        </mat-toolbar>
 
         <div [ngSwitch]="view">
           <mwl-calendar-month-view

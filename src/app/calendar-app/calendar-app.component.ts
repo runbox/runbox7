@@ -30,6 +30,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { MatDialog } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import {
@@ -54,6 +55,7 @@ import { ViewPeriod } from 'calendar-utils';
 
 import { CalendarService } from './calendar.service';
 import { CalendarSettings } from './calendar-settings';
+import { MobileQueryService } from '../mobile-query.service';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
@@ -77,11 +79,13 @@ export class CalendarAppComponent implements OnDestroy {
     viewDate: Date = new Date();
     viewPeriod: ViewPeriod;
     activeDayIsOpen = false;
+    sideMenuOpened = true;
     settings = new CalendarSettings();
 
     refresh: Subject<any> = new Subject();
     viewRefreshInterval: any;
 
+    @ViewChild(MatSidenav,       { static: false }) sideMenu: MatSidenav;
     @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
 
     activityList = [];
@@ -96,6 +100,7 @@ export class CalendarAppComponent implements OnDestroy {
         private cdr:      ChangeDetectorRef,
         private dialog:   MatDialog,
         private http:     HttpClient,
+        public  mobileQuery: MobileQueryService,
         private route:    ActivatedRoute,
         private snackBar: MatSnackBar,
     ) {
@@ -135,6 +140,12 @@ export class CalendarAppComponent implements OnDestroy {
         this.viewRefreshInterval = setInterval(() => {
             this.cdr.markForCheck();
         }, 60 * 1000);
+
+        this.sideMenuOpened = !mobileQuery.matches;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.sideMenuOpened = !mobile;
+            this.cdr.markForCheck()
+        });
 
         this.calendarservice.activitySubject.subscribe(activityset => {
             this.activityList = [];
