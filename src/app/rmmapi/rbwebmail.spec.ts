@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { RunboxWebmailAPI } from './rbwebmail';
+import { FolderCountEntry, RunboxWebmailAPI } from './rbwebmail';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -89,7 +89,7 @@ describe('RBWebMail', () => {
         expect(messageContents.subject).toBe('test3');
     });
 
-    it('should flatten folder tree structure and sort by priority', async () => {
+    it('should flatten folder tree structure', async () => {
         const listEmailFoldersResponse = {
             'status': 'success',
             'result': {
@@ -222,13 +222,18 @@ describe('RBWebMail', () => {
 
         const folders = await folderCountPromise;
         expect(folders.length).toBe(7);
-        expect(folders.findIndex(folder => folder.folderPath === 'HTML')).toBe(0);
-        expect(folders[1].folderPath).toBe('HTML/lalala');
-        expect(folders[1].folderLevel).toBe(1);
-        expect(folders[4].folderPath).toBe('HTML/lalala/Tester');
-        expect(folders[4].folderLevel).toBe(2);
-        expect(folders[3].folderPath).toBe('HTML/lalala/hohohohahaha/subtest');
-        expect(folders[3].folderLevel).toBe(3);
+        expect(folders.find(
+            (f: FolderCountEntry) => f.folderPath === 'HTML'
+        ).folderLevel).toBe(0);
+        expect(folders.find(
+            (f: FolderCountEntry) => f.folderPath === 'HTML/lalala'
+        ).folderLevel).toBe(1);
+        expect(folders.find(
+            (f: FolderCountEntry) => f.folderPath === 'HTML/lalala/Tester'
+        ).folderLevel).toBe(2);
+        expect(folders.find(
+            (f: FolderCountEntry) => f.folderPath === 'HTML/lalala/hohohohahaha/subtest'
+        ).folderLevel).toBe(3);
     });
 
     it('should flatten folder tree structure', async () => {
