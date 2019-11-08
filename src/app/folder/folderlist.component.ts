@@ -101,13 +101,6 @@ export class FolderListComponent {
                 const parentStack: FolderNode[] = [];
                 let previousNode: FolderNode = null;
 
-                // the loop below only handles folders correctly
-                // if it visits parents before it visits their children.
-                // This ensures that it happens
-                folders.sort((a, b) => {
-                    return a.folderLevel - b.folderLevel;
-                });
-
                 folders.forEach((folderCountEntry, ndx) => {
                     const folderNode: FolderNode = { children: [], data: folderCountEntry};
 
@@ -134,6 +127,16 @@ export class FolderListComponent {
 
                     previousNode = folderNode;
                 });
+
+                // Descend into each folder and order its subfolders, but only the direct children.
+                // We need to avoid the situation where sorting would put children above their parents
+                // as that'd mangle the output.
+                const sortSubfolders = (node: FolderNode) => {
+                    node.children.sort((a, b) => a.data.priority - b.data.priority);
+                    node.children.forEach(child => sortSubfolders(child));
+                };
+
+                treedata.forEach(node => sortSubfolders(node));
 
                 return treedata;
             })
@@ -393,7 +396,16 @@ export class FolderListComponent {
             sourceIndex++;
         }
 
-        // console.log('after rearrange', folders.map(f => `${f.folderId} ${f.folderPath}`));
+        // Adjust the priorities, client-side
+        // Eventually the backend will do it by itself, and we'll se the results on the next reload.
+        // We'd rather see an instant change in the UI though -- so let's calculate temporary priorities
+        // so that everythings looks alright.
+        let priority = 1;
+        for (const f of folders) {
+            f.priority = priority++;
+        }
+
+        // console.log('after rearrange', folders.map(f => `${f.folderId} ${f.folderPath} ${f.priority}`));
 
         this.messagelistservice.folderCountSubject.next(folders);
 
