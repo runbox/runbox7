@@ -50,7 +50,7 @@ app-payment-method {
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
         <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency | async }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | async | number:'1.2-2' }} {{ currency | async }} </strong> </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency | async }} </strong> </td>
     </ng-container>
 
     <ng-container matColumnDef="remove">

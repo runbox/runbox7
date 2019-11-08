@@ -48,9 +48,9 @@ export class ShoppingCartComponent {
     // it's not as elegant, but it's *so much easier*
     // to handle in the template when it's synchronous
     items = [];
+    total: number;
 
     itemsSubject = new Subject<any[]>();
-    total    = new Subject<number>();
     currency = new AsyncSubject<string>();
 
     constructor(
@@ -94,7 +94,7 @@ export class ShoppingCartComponent {
         for (const i of items) {
             total += i.quantity * i.product.price;
         }
-        this.total.next(total);
+        this.total = total;
     }
 
     // loads `.product` into incoming items, returns the "enriched" list
