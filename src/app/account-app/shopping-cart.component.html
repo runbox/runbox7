@@ -7,6 +7,8 @@ app-payment-method {
 <h1 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h1>
 <ng-template #urlPurchase> <h2> Your purchase </h2> </ng-template>
 
+<div *ngIf="itemsSubject | async; else loading">
+
 <div *ngIf="items.length === 0">
     <p>
         Your shopping cart is currently empty. <mat-icon> sentiment_dissatisfied </mat-icon>
@@ -140,3 +142,12 @@ app-payment-method {
         </mat-expansion-panel>
     </div>
 </div>
+
+</div>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your cart details..."
+    >
+    </app-runbox-loading>
+</ng-template>

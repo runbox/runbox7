@@ -17,27 +17,17 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
-
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { PaymentsService } from './payments.service';
-import { Product } from './product';
-import { AsyncSubject } from 'rxjs';
+import { Component, Input } from '@angular/core';
 
 @Component({
-    selector: 'app-account-upgrades-component',
-    templateUrl: './account-upgrades.component.html',
+    selector: 'app-runbox-loading',
+    template: `
+<div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="margin: 10px;"> {{ text }} </div>
+    <mat-spinner></mat-spinner>
+</div>
+    `,
 })
-export class AccountUpgradesComponent {
-    subscriptions = new AsyncSubject<Product[]>();
-
-    constructor(
-        private paymentsservice: PaymentsService,
-        public rmmapi:           RunboxWebmailAPI,
-    ) {
-        this.paymentsservice.products.subscribe(products => {
-            this.subscriptions.next(products.filter(p => p.type === 'subscription'));
-            this.subscriptions.complete();
-        });
-    }
+export class RunboxLoadingComponent {
+    @Input() text: string;
 }

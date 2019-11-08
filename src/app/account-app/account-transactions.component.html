@@ -1,6 +1,10 @@
 <h1> Transactions </h1>
+
+<div *ngIf="transactions | async as transactions; else loading">
+
 <p>
   Here you can see a list of all your payment transactions.
+</p>
 
 <table mat-table [dataSource]="transactions" [ngStyle]="{ width: '100%' }">
     <ng-container matColumnDef="amount">
@@ -32,3 +36,12 @@
     <tr mat-header-row *matHeaderRowDef="['amount', 'status', 'method', 'time', 'time-desc', 'receipt']">
     <tr mat-row        *matRowDef="let row; columns: ['amount', 'status', 'method', 'time', 'time-desc', 'receipt'];"></tr>
 </table>
+
+</div>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your transactions..."
+    >
+    </app-runbox-loading>
+</ng-template>

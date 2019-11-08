@@ -22,6 +22,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
+import { RunboxCommonModule } from '../common/common.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
@@ -106,6 +107,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
+    RunboxCommonModule,
     RouterModule.forChild([
       {
         path: 'account',

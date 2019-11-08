@@ -20,8 +20,7 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, AsyncSubject, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { AsyncSubject, Subject } from 'rxjs';
 
 import { CartService } from './cart.service';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';

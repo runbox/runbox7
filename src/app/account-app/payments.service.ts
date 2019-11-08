@@ -21,7 +21,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { of, AsyncSubject, Observable, Subject } from 'rxjs';
+import { AsyncSubject, Observable, Subject } from 'rxjs';
 import { Product } from './product';
 
 @Injectable()
