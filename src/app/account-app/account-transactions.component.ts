@@ -48,7 +48,7 @@ export class AccountTransactionsComponent {
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getTransactions().subscribe(transactions => {
-            let txns =  transactions.map(t => {
+            const txns = transactions.map(t => {
                 t.time = moment(t.time, moment.ISO_8601);
                 return t;
             });
