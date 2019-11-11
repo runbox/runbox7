@@ -63,10 +63,7 @@ export class DraftFormModel {
             const previewElm = document.createElement('div');
             previewElm.innerHTML = preview;
             // And truncate it by MAX_DRAFT_PREVIEW_LENGTH chars
-            ret.preview = previewElm.innerText.trim().replace(/\s+/g, ' ').substr(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
-            if (ret.preview.length === DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH) {
-                ret.preview += '...';
-            }
+            ret.preview = DraftFormModel.trimmedPreview(previewElm.innerText.trim().replace(/\s+/g, ' '));
         }
         return ret;
     }
@@ -126,6 +123,14 @@ export class DraftFormModel {
                     ${mailObj.html}
                 </div>`;
             ret.useHTML = true;
+        }
+        return ret;
+    }
+
+    public static trimmedPreview(preview: string): string {
+        let ret = preview.substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
+        if (ret.length === DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH) {
+            ret += '...';
         }
         return ret;
     }
