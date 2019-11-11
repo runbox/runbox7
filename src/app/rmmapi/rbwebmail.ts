@@ -739,9 +739,9 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public getProducts(pids: number[], currency: string): Observable<any> {
-        return this.http.post('/rest/v1/account_product/cart', { pids: pids, currency: currency }).pipe(
-            map((res: HttpResponse<any>) => res['result'])
+    public getProducts(pids: number[]): Observable<any> {
+        return this.http.get('/rest/v1/account_product/available', { params: { pids: pids.join(',') } }).pipe(
+            map((res: HttpResponse<any>) => res['result']['products'])
         );
     }
 

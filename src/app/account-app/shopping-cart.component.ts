@@ -20,8 +20,7 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, AsyncSubject, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { AsyncSubject, Subject } from 'rxjs';
 
 import { CartService } from './cart.service';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
@@ -49,9 +48,9 @@ export class ShoppingCartComponent {
     // it's not as elegant, but it's *so much easier*
     // to handle in the template when it's synchronous
     items = [];
+    total: number;
 
     itemsSubject = new Subject<any[]>();
-    total    = new Subject<number>();
     currency = new AsyncSubject<string>();
 
     constructor(
@@ -95,7 +94,7 @@ export class ShoppingCartComponent {
         for (const i of items) {
             total += i.quantity * i.product.price;
         }
-        this.total.next(total);
+        this.total = total;
     }
 
     // loads `.product` into incoming items, returns the "enriched" list
@@ -103,20 +102,34 @@ export class ShoppingCartComponent {
     // input: [{ pid: 42 }]
     // output: [{ pid: 42, product: { name: "Runbox mini", price: 9.95, ... }}]
     async loadProducts(items: any[]): Promise<any[]> {
-        const currency = await this.currency.toPromise();
-        const products = await this.rmmapi.getProducts(items.map(i => i.pid), currency).toPromise();
-
         // this is coming straight from the cart,
         // and we want to enhance a local copy rather than the original
         // maybe there is a more elegant way to do this, but it's concise and works :)
-        const myItems = JSON.parse(JSON.stringify(items));
+        const cartItems = JSON.parse(JSON.stringify(items));
 
-        for (const p of products) {
-            const item = myItems.find(i => i.pid === p.pid);
-            item.product = p;
+        let products = await this.paymentsservice.products.toPromise();
+
+        // check if all the products in the cart had their details in the paymentservice
+        // this may not be true if they're coming from the URL for instance,
+        // and in that case we need to fetch them from the API anew
+        const neededPids = [];
+        for (const i of cartItems) {
+            const product = products.find(p => p.pid === i.pid);
+            if (!product) {
+                neededPids.push(i.pid);
+            }
+        }
+        if (neededPids.length > 0) {
+            const extras = await this.rmmapi.getProducts(neededPids).toPromise();
+            products = products.concat(extras);
         }
 
-        return myItems;
+        for (const i of cartItems) {
+            const product = products.find(p => p.pid === i.pid);
+            i.product = product || {};
+        }
+
+        return cartItems;
     }
 
     remove(p: ProductOrder) {
