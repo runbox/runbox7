@@ -2,6 +2,9 @@
 
 We would love for you to contribute to Runbox 7 and help make it even better than it is today!
 
+Please see [The Runbox 7 Roadmap](https://community.runbox.com/t/the-runbox-7-roadmap/732/41) and [Runbox 7 Feature and Bug Bounty Program](https://community.runbox.com/t/runbox-7-feature-and-bug-bounty-program/753) to help get you started. 
+
+
 As a contributor, here are the guidelines we would like you to follow:
 
 * [Code of Conduct](#code-of-conduct)
@@ -76,6 +79,7 @@ git commit -a
 ```
 
 Note: The optional commit `-a` command line option will automatically "add" and "rm" edited files.
+
 9. Push your branch to GitHub:
 
 ```
