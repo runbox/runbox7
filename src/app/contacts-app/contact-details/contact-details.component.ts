@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -25,7 +25,7 @@ import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, Email } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
-import { filter, mergeMap, tap } from 'rxjs/operators';
+import { filter, mergeMap, take, tap } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
 
 @Component({
@@ -54,48 +54,52 @@ export class ContactDetailsComponent {
         private route: ActivatedRoute,
         private contactsservice: ContactsService
     ) {
-        console.log('Contact detail reconstructed');
-
-        let contacts: Contact[];
-        contactsservice.contactsSubject.pipe(
-            tap(c => contacts = c),
-            mergeMap(() => this.route.params)
-        ).subscribe(params => {
+        this.route.params.subscribe(params => {
             const contactid = params.id;
             if (contactid === 'new') {
-                this.contact = new Contact({});
-                this.route.queryParams.subscribe(queryParams => {
-                    this.contact.emails = [
-                        { types: ['home'], value: queryParams.email }
-                    ];
-                    const nameParts = queryParams.name.split(' ');
-                    if (nameParts.length === 2) {
-                        // probably "firstName lastName"
-                        this.contact.first_name = nameParts[0];
-                        this.contact.last_name = nameParts[1];
-                    } else {
-                        // no clue
-                        this.contact.nickname = queryParams.name;
-                    }
-                    this.loadContact();
-                });
-            } else {
-                this.contact = contacts.find(c => c.id === contactid);
-
-                if (this.contact) {
-                    console.log('Contact is now:', this.contact);
-                } else {
-                    console.log('No matching contact found');
-                    return;
-                }
+                this.route.queryParams.subscribe(queryParams => this.loadNewContact(queryParams));
+            } else if (contactid) {
+                this.loadExistingContact(contactid);
             }
-            this.loadContact();
         });
 
         contactsservice.contactGroups.subscribe(groups => this.groups = groups);
     }
 
-    loadContact(): void {
+    loadExistingContact(id: string): void {
+        this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
+            this.contact = contacts.find(c => c.id === id);
+            if (this.contact) {
+                this.loadContactForm();
+            }
+        });
+    }
+
+    loadNewContact(params: any): void {
+        this.contact = new Contact({});
+
+        if (params.email) {
+            this.contact.emails = [
+                { types: ['home'], value: params.email }
+            ];
+        }
+
+        if (params.name) {
+            const nameParts = params.name.split(' ');
+            if (nameParts.length === 2) {
+                // probably "firstName lastName"
+                this.contact.first_name = nameParts[0];
+                this.contact.last_name = nameParts[1];
+            } else {
+                // no clue
+                this.contact.nickname = params.name;
+            }
+        }
+
+        this.loadContactForm();
+    }
+
+    loadContactForm(): void {
         this.contactForm = this.createForm();
 
         // need to prevent ReactiveForms from shitting themvelses on null arrays
