@@ -1,5 +1,13 @@
 <mat-sidenav-container autosize>
-    <mat-sidenav #sidemenu mode="side" opened>
+    <mat-sidenav #sidemenu
+        [opened]="sideMenuOpened"
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        id="sideMenu"
+        style="width: 330px"
+    >
+        <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
         <mat-nav-list dense>
             <mat-list-item>
                 <a mat-button routerLink="/contacts/new">
