@@ -283,16 +283,4 @@ describe('FolderListComponent', () => {
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 0, 0, 1, 2, 1]);
         expect(ordered_ids_request).toEqual([1, 7, 6, 5, 3, 2, 4]);
     });
-    it('folders provided out of order should work fine', async () => {
-        const comp = new FolderListComponent({
-            folderCountSubject: new BehaviorSubject([
-                new FolderCountEntry(1, 0, 0, 'user', 'subfolder', 'parentfolder.subfolder', 1),
-                new FolderCountEntry(2, 0, 0, 'user', 'parentfolder', 'parentfolder', 0),
-            ])
-        } as MessageListService, null, null);
-
-        console.log(comp.dataSource.data);
-        expect(comp.dataSource.data.length).toBe(1, 'a folder got loaded correctly');
-        expect(comp.dataSource.data[0].children.length).toBe(1, 'a subfolder got loaded correctly');
-    });
 });

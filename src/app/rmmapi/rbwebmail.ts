@@ -395,7 +395,6 @@ export class RunboxWebmailAPI {
             map((response: any) =>
                 flattenFolders(response.result.folders)
                 .flat(depth)
-                .sort((a, b) => a.priority - b.priority)
             )
         );
     }
