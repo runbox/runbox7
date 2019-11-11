@@ -144,7 +144,7 @@ export class CalendarAppComponent implements OnDestroy {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => {
             this.sideMenuOpened = !mobile;
-            this.cdr.markForCheck()
+            this.cdr.markForCheck();
         });
 
         this.calendarservice.activitySubject.subscribe(activityset => {
