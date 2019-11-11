@@ -22,7 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule, RouteReuseStrategy } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,7 +40,6 @@ import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { ContactsService } from './contacts.service';
-import { RMMRouteReuseStrategy } from './routereusestrategy';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
@@ -93,7 +92,6 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
               {
                   path: ':id',
                   component: ContactDetailsComponent,
-                  runGuardsAndResolvers: 'always'
               }
             ]
           }
@@ -106,10 +104,6 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
   ],
   providers: [
     ContactsService,
-    {
-      provide: RouteReuseStrategy,
-      useClass: RMMRouteReuseStrategy
-    }
   ],
   bootstrap: [ContactsAppComponent]
 })
