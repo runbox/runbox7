@@ -38,6 +38,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
+import { MobileQueryService } from '../mobile-query.service';
 import { ProgressService } from '../http/progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ContactCardComponent } from './contactcard.component';
@@ -73,6 +74,7 @@ describe('SingleMailViewerComponent', () => {
       ],
       declarations: [ContactCardComponent, SingleMailViewerComponent],
       providers: [
+        MobileQueryService,
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: HttpClient, useValue: {} },
         { provide: RunboxWebmailAPI, useValue: {
