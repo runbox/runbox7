@@ -28,6 +28,15 @@ import { Component, EventEmitter, Output } from '@angular/core';
             <img src="assets/runbox7.png" id="logoSidenav" alt="Runbox 7" />
         </a>
         <br />
+        <div style="display: flex; justify-content: space-around;">
+            <button mat-mini-fab routerLink="/">
+                <mat-icon>email</mat-icon>
+            </button>
+            <button mat-mini-fab routerLink="/calendar">
+                <mat-icon>date_range</mat-icon>
+            </button>
+        </div>
+        <br />
     </div>
 </div>
     `,
