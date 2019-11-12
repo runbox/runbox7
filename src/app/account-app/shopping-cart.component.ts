@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncSubject, Subject } from 'rxjs';
@@ -35,7 +35,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     selector: 'app-shopping-cart',
     templateUrl: './shopping-cart.component.html',
 })
-export class ShoppingCartComponent {
+export class ShoppingCartComponent implements OnInit {
     tableColumns = ['name', 'quantity', 'price', 'total-price', 'remove'];
 
     // the component has two "modes":
@@ -64,7 +64,9 @@ export class ShoppingCartComponent {
         this.itemsSubject.subscribe(items => this.calculateTotal(items));
         this.itemsSubject.subscribe(items => this.items = items);
         this.currency = this.paymentsservice.currency;
+    }
 
+    ngOnInit() {
         this.route.queryParams.subscribe(params => {
             const forParam = params['for'];
             if (forParam) {
