@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject } from 'rxjs';
@@ -27,7 +27,7 @@ import { take } from 'rxjs/operators';
     selector: 'app-account-receipt-component',
     templateUrl: './account-receipt.component.html',
 })
-export class AccountReceiptComponent {
+export class AccountReceiptComponent implements OnInit {
     receipt: any;
     me: RunboxMe;
     ready = new AsyncSubject<boolean>();
@@ -41,10 +41,9 @@ export class AccountReceiptComponent {
         private rmmapi: RunboxWebmailAPI,
         private route:  ActivatedRoute,
     ) {
-        this.loadReceiptData();
     }
 
-    async loadReceiptData() {
+    async ngOnInit() {
         this.me = await this.rmmapi.me.toPromise();
 
         const params = await this.route.params.pipe(take(1)).toPromise();

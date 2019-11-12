@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
@@ -28,13 +28,16 @@ import { AsyncSubject } from 'rxjs';
     selector: 'app-account-upgrades-component',
     templateUrl: './account-upgrades.component.html',
 })
-export class AccountUpgradesComponent {
+export class AccountUpgradesComponent implements OnInit {
     subscriptions = new AsyncSubject<Product[]>();
 
     constructor(
         private paymentsservice: PaymentsService,
         public rmmapi:           RunboxWebmailAPI,
     ) {
+    }
+
+    ngOnInit() {
         this.paymentsservice.products.subscribe(products => {
             this.subscriptions.next(products.filter(p => p.type === 'subscription'));
             this.subscriptions.complete();
