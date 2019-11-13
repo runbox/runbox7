@@ -25,12 +25,11 @@
       <mat-divider></mat-divider>
 
       <div class="sidenavMainMenu">
-        <a mat-button (click)="compose();" matTooltip="Compose">
-          <mat-icon color="primary">edit</mat-icon></a>
-        <a mat-button (click)="drafts();" matTooltip="Drafts">
-          <mat-icon color="primary">drafts</mat-icon></a>
-        <a mat-button (click)="logoutservice.logout()" matTooltip="Log out">
-          <mat-icon>power_settings_new</mat-icon></a>
+        <a mat-button (click)="compose();" matTooltip="Compose"><mat-icon>edit</mat-icon></a>
+        <a mat-button (click)="drafts();" matTooltip="Drafts"><mat-icon>drafts</mat-icon></a>
+	<a mat-button routerLink="/contacts" matTooltip="Contacts"><mat-icon>people</mat-icon></a>
+	<a mat-button routerLink="/calendar" matTooltip="Calendar"><mat-icon>date_range</mat-icon></a>
+        <a mat-button (click)="logoutservice.logout()" matTooltip="Log out"><mat-icon>power_settings_new</mat-icon></a>
       </div>
 
       <mat-list-item (click)="compose();" id="composeButton">
