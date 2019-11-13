@@ -49,6 +49,47 @@
     </button>
 </ng-template>
 
+<ng-template #previousPeriodButton>
+    <button mat-raised-button mwlCalendarPreviousView
+        id="previousPeriodButton"
+        class="calendarToolbarButton"
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="activeDayIsOpen = false"
+    >
+        <mat-icon *ngIf="mobileQuery.matches; else desktopPrevious">
+            navigate_before
+        </mat-icon>
+        <ng-template #desktopPrevious>
+            Previous
+        </ng-template>
+    </button>
+</ng-template>
+
+<ng-template #nextPeriodButton>
+    <button mat-raised-button
+        id="nextPeriodButton"
+        class="calendarToolbarButton"
+        mwlCalendarNextView
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="activeDayIsOpen = false"
+    >
+        <mat-icon *ngIf="mobileQuery.matches; else desktopNext">
+            navigate_next
+        </mat-icon>
+        <ng-template #desktopNext>
+            Next
+        </ng-template>
+    </button>
+</ng-template>
+
+<ng-template #calendarTitle>
+    <span class="calendarTitle" *ngIf="view">
+        {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
+    </span>
+</ng-template>
+
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu
         [opened]="sideMenuOpened"
@@ -132,21 +173,14 @@
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar style="display: flex; justify-content: space-between;">
+        <mat-toolbar>
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
 
-            <div>
-                <button mat-raised-button mwlCalendarPreviousView
-                    id="previousPeriodButton"
-                    class="calendarToolbarButton"
-                    [view]="view"
-                    [(viewDate)]="viewDate"
-                    (viewDateChange)="activeDayIsOpen = false"
-                >
-                    Previous
-                </button>
+            <div *ngIf="!mobileQuery.matches; else mobileHeader">
+                <ng-container *ngTemplateOutlet="previousPeriodButton">
+                </ng-container>
                 <button mat-raised-button
                     id="todayButton"
                     class="calendarToolbarButton"
@@ -155,25 +189,27 @@
                 >
                     Today
                 </button>
-                <button mat-raised-button
-                    id="nextPeriodButton"
-                    class="calendarToolbarButton"
-                    mwlCalendarNextView
-                    [view]="view"
-                    [(viewDate)]="viewDate"
-                    (viewDateChange)="activeDayIsOpen = false"
-                >
-                    Next
-                </button>
-            </div>
+                <ng-container *ngTemplateOutlet="nextPeriodButton">
+                </ng-container>
 
-            <span class="calendarTitle" *ngIf="view">
-                {{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}
-            </span>
+                <ng-container *ngTemplateOutlet="calendarTitle">
+                </ng-container>
 
-            <div *ngIf="!mobileQuery.matches">
                 <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
             </div>
+
+            <ng-template #mobileHeader>
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                    <ng-container *ngTemplateOutlet="previousPeriodButton">
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="calendarTitle">
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="nextPeriodButton">
+                    </ng-container>
+                </div>
+            </ng-template>
         </mat-toolbar>
 
         <div [ngSwitch]="view">

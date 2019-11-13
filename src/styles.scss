@@ -819,14 +819,22 @@ app-calendar-app-component mat-nav-list button {
     padding: 0 !important;
 }
 
-.calendarToolbarButton {
-    margin: 0.5em !important;
+@media(min-width: 1024px) {
+    .calendarToolbarButton {
+        margin: 0.5em !important;
+    }
 }
 
 .calendarTitle {
-    margin: 0 1em;
     font-size: 20px !important;
     font-weight: bold;
+    margin: 0 0.5em;
+}
+
+@media(min-width: 1024px) {
+    .calendarTitle {
+        margin: 0 1em;
+    }
 }
 
 div.calendarMonthDayView {
