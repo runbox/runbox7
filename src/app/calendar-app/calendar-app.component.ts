@@ -161,7 +161,9 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     addEvent(on?: Date): void {
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars, start: on } });
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            data: { calendars: this.calendars, settings: this.settings, start: on } }
+        );
         dialogRef.afterClosed().subscribe(event => {
             console.log('Dialog result:', event);
             if (event) {
@@ -291,7 +293,7 @@ export class CalendarAppComponent implements OnDestroy {
             target = target.parent;
         }
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: target.clone(), calendars: this.calendars }
+            data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
@@ -311,6 +313,7 @@ export class CalendarAppComponent implements OnDestroy {
             const desiredView = this.view;
             this.view = null;
             setTimeout(() => this.view = desiredView);
+            this.cdr.markForCheck();
         });
     }
 

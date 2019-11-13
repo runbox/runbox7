@@ -21,6 +21,7 @@ import { Component, Inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+import { CalendarSettings } from './calendar-settings';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
@@ -37,6 +38,7 @@ export class EventEditorDialogComponent {
     calendarFC = new FormControl('', Validators.required);
     event_start: Date;
     event_end: Date;
+    settings: CalendarSettings;
 
     recurring_frequency: string;
     recurrence_frequencies = [
@@ -76,6 +78,8 @@ export class EventEditorDialogComponent {
             this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
             this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
         }
+
+        this.settings = data['settings'];
 
         this.recurring_frequency = this.event.recurringFrequency;
     }
