@@ -4,7 +4,7 @@
             <span class="cal-day-number">
                 {{ day.date | calendarDate:'monthViewDayNumber':locale }}
             </span>
-            <div *ngIf="!mobileQuery.matches" style="display: flex; flex-direction: column;">
+            <div style="display: flex; flex-direction: column;">
                 <div class="add-new-event">
                     <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
                 </div>
@@ -20,11 +20,6 @@
                 <button mat-button *ngIf="day.events.length > 4" class="calendarMonthDayEvent">
                     ...and {{ day.events.length - 3 }} other events
                 </button>
-            </div>
-        </div>
-        <div *ngIf="mobileQuery.matches">
-            <div *ngIf="day.events.length" style="font-weight: bold; text-align: center;">
-                {{ day.events.length }} event<span *ngIf="day.events.length > 1">s</span>
             </div>
         </div>
     </div>
@@ -184,7 +179,7 @@
         <div [ngSwitch]="view">
           <mwl-calendar-month-view
             *ngSwitchCase="CalendarView.Month"
-            [cellTemplate]="dayViewTemplate"
+            [cellTemplate]="mobileQuery.matches ? undefined : dayViewTemplate"
             [viewDate]="viewDate"
             [events]="shown_events"
             [refresh]="refresh"
