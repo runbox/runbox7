@@ -28,9 +28,9 @@ import * as moment from 'moment';
 @Injectable()
 export class ContactsService implements OnDestroy {
     settingsSubject = new AsyncSubject<any>();
-    contactsSubject = new ReplaySubject<Contact[]>();
+    contactsSubject = new ReplaySubject<Contact[]>(1);
     contactsByEmail = new ReplaySubject<any>(1);
-    contactGroups   = new ReplaySubject<string[]>();
+    contactGroups   = new ReplaySubject<string[]>(1);
     informationLog  = new Subject<string>();
     errorLog        = new Subject<HttpErrorResponse>();
     migrationResult = new Subject<number>();

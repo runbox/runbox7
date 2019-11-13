@@ -38,7 +38,7 @@
 	!
     </p>
 
-    <div id="productGrid">
+    <div id="productGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
         <app-account-product
             *ngFor="let p of subscriptions"
 	    [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
@@ -51,6 +51,12 @@
             </ul>
         </app-account-product>
     </div>
+    <ng-template #productsLoading>
+        <app-runbox-loading
+            text="Loading available upgrades..."
+        >
+        </app-runbox-loading>
+    </ng-template>
 </div>
 
 <ng-template #loading>

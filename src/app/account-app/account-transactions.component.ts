@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { AsyncSubject } from 'rxjs';
 
 import * as moment from 'moment';
 
@@ -27,7 +28,7 @@ import * as moment from 'moment';
     templateUrl: './account-transactions.component.html',
 })
 export class AccountTransactionsComponent {
-    transactions: any = [];
+    transactions = new AsyncSubject<any[]>();
 
     methods = {
         bitpay:     'Bitpay',
@@ -47,12 +48,14 @@ export class AccountTransactionsComponent {
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getTransactions().subscribe(transactions => {
-            this.transactions = transactions.map(t => {
+            const txns = transactions.map(t => {
                 t.time = moment(t.time, moment.ISO_8601);
                 return t;
             });
 
-            this.transactions.reverse();
+            txns.reverse();
+            this.transactions.next(txns);
+            this.transactions.complete();
         });
     }
 }

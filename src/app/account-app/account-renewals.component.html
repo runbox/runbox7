@@ -1,11 +1,16 @@
 <h1> Active products </h1>
 
+<div *ngIf="active_products.length === 0; else productsTable">
+    <app-runbox-loading
+        text="Loading your products..."
+    >
+    </app-runbox-loading>
+</div>
+
+<ng-template #productsTable>
+
 <p>
   Here you can see all the active products in your account, and renew any of them at any time.
-</p>
-
-<p *ngIf="active_products.length === 0">
-    Loading your products...
 </p>
 
 <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }">
@@ -61,3 +66,5 @@
     <tr mat-header-row *matHeaderRowDef="['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew']">
     <tr mat-row        *matRowDef="let row; columns: ['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];"></tr>
 </table>
+
+</ng-template>

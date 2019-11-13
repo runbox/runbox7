@@ -7,6 +7,8 @@ app-payment-method {
 <h1 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h1>
 <ng-template #urlPurchase> <h2> Your purchase </h2> </ng-template>
 
+<div *ngIf="itemsSubject | async; else loading">
+
 <div *ngIf="items.length === 0">
     <p>
         Your shopping cart is currently empty. <mat-icon> sentiment_dissatisfied </mat-icon>
@@ -29,7 +31,7 @@ app-payment-method {
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Product </th>
         <td mat-cell *matCellDef="let i">
-            {{ i.product.name }}
+            {{ i.product.name || "Product #" + i.pid }}
             <span *ngIf="i.apid"> (renewal) </span>
         </td>
         <td mat-footer-cell *matFooterCellDef> <strong> Total </strong> </td>
@@ -48,7 +50,7 @@ app-payment-method {
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
         <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency | async }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | async | number:'1.2-2' }} {{ currency | async }} </strong> </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency | async }} </strong> </td>
     </ng-container>
 
     <ng-container matColumnDef="remove">
@@ -140,3 +142,12 @@ app-payment-method {
         </mat-expansion-panel>
     </div>
 </div>
+
+</div>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your cart details..."
+    >
+    </app-runbox-loading>
+</ng-template>

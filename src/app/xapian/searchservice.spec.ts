@@ -112,6 +112,8 @@ describe('SearchService', () => {
 
     it('should load searchservice, but no local index', async () => {
         const searchService = injector.get(SearchService);
+        await xapianLoadedSubject.toPromise();
+
         let req = httpMock.expectOne(`/rest/v1/me`);
         req.flush( { result: {
                 uid: 555

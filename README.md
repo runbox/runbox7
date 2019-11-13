@@ -1,7 +1,7 @@
 [![Build Status](https://api.travis-ci.com/runbox/runbox7.svg?branch=master)](https://travis-ci.com/runbox/runbox7)
 
 <h4 align="center">
-  <br><img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" width="400">
+  <br><a href="https://runbox.com/app"><img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" width="400"></a>
   <br>Building the fastest webmail app on the planet<br><br>
 </h4>
 
@@ -9,9 +9,14 @@ Welcome to the Runbox 7 project!
 
 Runbox 7 is a next generation webmail app that combines the instant experience of email clients with the versatility of web browsers.
 
-The app is written in Angular 2+ and HTML5 Canvas, using a Perl backend with MySQL storage.
+The app is written in Angular 2+ and HTML5 Canvas, using a Perl backend with MySQL storage. This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.6.8.
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.6.8.
+Please see the following pages for introductory information:
+
+* [The Runbox 7 Project](https://runbox.com/features/email-services/runbox-7-project/)
+* [The Runbox 7 Roadmap](https://community.runbox.com/t/the-runbox-7-roadmap/732/41)
+* [Getting started contributing to Runbox 7](https://community.runbox.com/t/getting-started-contributing-to-runbox-7/769)
+* [Runbox 7 Feature and Bug Bounty Program](https://community.runbox.com/t/runbox-7-feature-and-bug-bounty-program/753)
 
 ## Getting Started
 
@@ -112,6 +117,10 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+## Tips & Tricks
+
+Also check out the tips & tricks page at [Tips & Tricks](https://github.com/runbox/runbox7/wiki/Tips-&-Tricks).
 
 ## Development
 
