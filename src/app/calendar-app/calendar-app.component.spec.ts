@@ -22,6 +22,7 @@ import { HttpClient } from '@angular/common/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { LogoutService } from '../login/logout.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -95,6 +96,8 @@ describe('CalendarAppComponent', () => {
                     { provide: HttpClient, useValue: {
                     } },
                     { provide: MatSnackBar, useValue: {
+                    } },
+                    { provide: LogoutService, useValue: {
                     } },
                 ],
             }).compileComponents();

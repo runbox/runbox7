@@ -430,12 +430,16 @@ mat-sidenav-container {
     }
     .sidenavMainMenu {
 	    display: inline;
-	    flex-grow: 1;
     }
 }
 
 .sidenavMainMenu a {
     width: 30%;
+}
+
+.sidenavSubMenu {
+    display: flex;
+    justify-content: space-evenly;
 }
 
 #sidenavLogoContainer {

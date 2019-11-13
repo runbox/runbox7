@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Output } from '@angular/core';
+import { LogoutService } from '../login/logout.service';
 
 @Component({
     selector: 'app-sidenav-menu',
@@ -35,6 +36,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
             <button mat-mini-fab routerLink="/calendar">
                 <mat-icon>date_range</mat-icon>
             </button>
+            <button mat-mini-fab (click)="logoutservice.logout()">
+                <mat-icon>power_settings_new</mat-icon>
+            </button>
         </div>
         <br />
     </div>
@@ -43,4 +47,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 })
 export class SidenavMenuComponent {
     @Output() closeMenu = new EventEmitter<void>();
+
+    constructor(
+        public logoutservice: LogoutService,
+    ) {
+    }
 }
