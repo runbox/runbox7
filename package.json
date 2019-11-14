@@ -20,6 +20,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "ci-tests": "node run-ci-tests.js",
     "lib": "node ngmakelib-conf.js",
     "libwatch": "node ngmakelib-conf.js --watch",
     "publishlib": "cd .ngmakelibtmp/dist && npm publish"

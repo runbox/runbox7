@@ -23,8 +23,8 @@ install:
 env:
   - COMMAND='lint'
   - COMMAND='policy'
-  - COMMAND='test -- --watch=false --progress=false --browsers=ChromeHeadlessCI'
-  - COMMAND='e2e -- --protractor-config=./protractor-ci.conf.js'
+  - COMMAND='unit'
+  - COMMAND='e2e'
   - COMMAND='build'
 
-script: "npm run $COMMAND"
+script: "npm run ci-tests -- $COMMAND"

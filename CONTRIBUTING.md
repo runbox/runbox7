@@ -71,7 +71,7 @@ git checkout -b my-fix-branch master
 ```
 5. Create your patch, **including appropriate test cases**.
 6. Follow our [Coding Rules](#coding-rules).
-7. Run the full Angular test suite, and ensure that all tests pass.
+7. Run the full test suite (`npm run ci-tests`), and ensure that all tests pass.
 8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-guidelines). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
 ```
@@ -89,7 +89,7 @@ git push origin my-fix-branch
 
 * If we suggest changes then:
   - Make the required updates.
-  - Re-run the Angular test suites to ensure tests are still passing.
+  - Re-run the test suites to ensure tests are still passing.
   - Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
 
 ```
