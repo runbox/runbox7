@@ -18,11 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncSubject, Subject } from 'rxjs';
 
 import { CartService } from './cart.service';
+import { ErrorReportingService } from '../common/error-reporting.service';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
 import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
 import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
@@ -57,6 +59,7 @@ export class ShoppingCartComponent implements OnInit {
         private cart:            CartService,
         private dialog:          MatDialog,
         private paymentsservice: PaymentsService,
+        private reporter:        ErrorReportingService,
         private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
         private router:          Router,
@@ -170,6 +173,8 @@ export class ShoppingCartComponent implements OnInit {
                     this.cart.clear();
                 }
             });
+        }, (e: HttpErrorResponse) => {
+            this.reporter.handle(e);
         });
     }
 }
