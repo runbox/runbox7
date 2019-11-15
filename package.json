@@ -53,7 +53,8 @@
     "rxjs": "^6.5.3",
     "rxjs-compat": "^6.2.2",
     "tinymce": "^5.0.12",
-    "zone.js": "^0.9.1"
+    "zone.js": "^0.9.1",
+    "angular2-hotkeys": "latest"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.803.5",

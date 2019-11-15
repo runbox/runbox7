@@ -56,6 +56,7 @@ import { MobileQueryService } from './mobile-query.service';
 import { ProgressService } from './http/progress.service';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
+import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -149,11 +150,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public messagelistservice: MessageListService,
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
-    private swPush: SwPush) {
+    private swPush: SwPush,
+    private _hotkeysService: HotkeysService) {
     const savedColumnWidthsString = localStorage.getItem('rmmCanvasTableColumnWidths');
     if (savedColumnWidthsString) {
       this.savedColumnWidths = JSON.parse(savedColumnWidthsString);
     }
+
+      this._hotkeysService.add(new Hotkey(['j', 'k', 'x'],
+          (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+              if (combo === 'k') {
+                  this.canvastable.scrollTop();
+                  combo = null;
+              }
+              if (combo === 'j') {
+                  this.canvastable.scrollDown();
+              }
+              const e: ExtendedKeyboardEvent = event;
+              e.returnValue = false;
+              return e;
+          }));
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
       this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
