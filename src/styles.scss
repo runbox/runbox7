@@ -430,12 +430,16 @@ mat-sidenav-container {
     }
     .sidenavMainMenu {
 	    display: inline;
-	    flex-grow: 1;
     }
 }
 
 .sidenavMainMenu a {
     width: 30%;
+}
+
+.sidenavSubMenu {
+    display: flex;
+    justify-content: space-evenly;
 }
 
 #sidenavLogoContainer {
@@ -819,10 +823,22 @@ app-calendar-app-component mat-nav-list button {
     padding: 0 !important;
 }
 
+@media(min-width: 1024px) {
+    .calendarToolbarButton {
+        margin: 0.5em !important;
+    }
+}
+
 .calendarTitle {
-    margin: 0 1em;
     font-size: 20px !important;
     font-weight: bold;
+    margin: 0 0.5em;
+}
+
+@media(min-width: 1024px) {
+    .calendarTitle {
+        margin: 0 1em;
+    }
 }
 
 div.calendarMonthDayView {
@@ -855,10 +871,6 @@ button.calendarMonthDayEvent {
     overflow: hidden;
     font-size: 12px !important;
     line-height: 1.2em;
-}
-
-app-calendar-app-component .mat-button .mat-button-wrapper>* {
-    vertical-align: top !important;
 }
 
 app-calendar-event-editor-dialog p {

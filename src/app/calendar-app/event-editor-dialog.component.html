@@ -34,6 +34,8 @@
         <owl-date-time
             #start_dt
             [pickerType]="event.allDay ? 'calendar' : 'both'"
+            pickerMode="dialog"
+            [firstDayOfWeek]="settings.weekStartsOnSunday ? 0 : 1"
         ></owl-date-time>
     </p><p>
         <label class="calendarEventPeriodLabel">End: </label>
@@ -42,6 +44,8 @@
         <owl-date-time
             #end_dt
             [pickerType]="event.allDay ? 'calendar' : 'both'"
+            pickerMode="dialog"
+            [firstDayOfWeek]="settings.weekStartsOnSunday ? 0 : 1"
         ></owl-date-time>
     </p><p>
         <mat-checkbox [(ngModel)]="event.allDay">All-day event</mat-checkbox>

@@ -59,6 +59,7 @@ import { AccountAppModule } from './account-app/account-app.module';
 import { AccountAppComponent } from './account-app/account-app.component';
 import { ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
+import { MobileQueryService } from './mobile-query.service';
 import { DialogModule } from './dialog/dialog.module';
 import { FolderModule } from './folder/folder.module';
 import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
@@ -153,6 +154,7 @@ const routes: Routes = [
     ],
   providers: [ProgressService,
     MessageListService,
+    MobileQueryService,
     RunboxWebmailAPI,
     RMMAuthGuardService,
     StorageService,

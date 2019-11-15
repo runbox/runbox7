@@ -30,6 +30,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { MatDialog } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import {
@@ -54,6 +55,7 @@ import { ViewPeriod } from 'calendar-utils';
 
 import { CalendarService } from './calendar.service';
 import { CalendarSettings } from './calendar-settings';
+import { MobileQueryService } from '../mobile-query.service';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
@@ -77,11 +79,13 @@ export class CalendarAppComponent implements OnDestroy {
     viewDate: Date = new Date();
     viewPeriod: ViewPeriod;
     activeDayIsOpen = false;
+    sideMenuOpened = true;
     settings = new CalendarSettings();
 
     refresh: Subject<any> = new Subject();
     viewRefreshInterval: any;
 
+    @ViewChild(MatSidenav,       { static: false }) sideMenu: MatSidenav;
     @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
 
     activityList = [];
@@ -96,6 +100,7 @@ export class CalendarAppComponent implements OnDestroy {
         private cdr:      ChangeDetectorRef,
         private dialog:   MatDialog,
         private http:     HttpClient,
+        public  mobileQuery: MobileQueryService,
         private route:    ActivatedRoute,
         private snackBar: MatSnackBar,
     ) {
@@ -136,6 +141,12 @@ export class CalendarAppComponent implements OnDestroy {
             this.cdr.markForCheck();
         }, 60 * 1000);
 
+        this.sideMenuOpened = !mobileQuery.matches;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.sideMenuOpened = !mobile;
+            this.cdr.markForCheck();
+        });
+
         this.calendarservice.activitySubject.subscribe(activityset => {
             this.activityList = [];
             activityset.forEach(activity => {
@@ -150,7 +161,9 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     addEvent(on?: Date): void {
-        const dialogRef = this.dialog.open(EventEditorDialogComponent, { data: { calendars: this.calendars, start: on } });
+        const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            data: { calendars: this.calendars, settings: this.settings, start: on } }
+        );
         dialogRef.afterClosed().subscribe(event => {
             console.log('Dialog result:', event);
             if (event) {
@@ -198,13 +211,11 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-        if (isSameMonth(date, this.viewDate)) {
-            this.viewDate = date;
-            if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen ) || events.length === 0) {
-                this.activeDayIsOpen = false;
-            } else {
-                this.activeDayIsOpen = true;
-            }
+        this.viewDate = date;
+        if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen ) || events.length === 0) {
+            this.activeDayIsOpen = false;
+        } else {
+            this.activeDayIsOpen = true;
         }
     }
 
@@ -282,7 +293,7 @@ export class CalendarAppComponent implements OnDestroy {
             target = target.parent;
         }
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: target.clone(), calendars: this.calendars }
+            data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
@@ -302,6 +313,7 @@ export class CalendarAppComponent implements OnDestroy {
             const desiredView = this.view;
             this.view = null;
             setTimeout(() => this.view = desiredView);
+            this.cdr.markForCheck();
         });
     }
 

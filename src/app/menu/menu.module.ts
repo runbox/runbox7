@@ -24,8 +24,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { HeaderToolbarComponent} from './headertoolbar.component';
 import { RouterModule } from '@angular/router';
+
+import { HeaderToolbarComponent} from './headertoolbar.component';
+import { SidenavMenuComponent } from './sidenav-menu.component';
 
 @NgModule({
   imports: [
@@ -38,8 +40,14 @@ import { RouterModule } from '@angular/router';
       MatMenuModule,
       RouterModule
   ],
-  declarations: [HeaderToolbarComponent],
-  exports: [HeaderToolbarComponent]
+  declarations: [
+    HeaderToolbarComponent,
+    SidenavMenuComponent,
+  ],
+  exports: [
+    HeaderToolbarComponent,
+    SidenavMenuComponent,
+  ]
 })
 export class MenuModule {
 
