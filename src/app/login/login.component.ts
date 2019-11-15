@@ -33,6 +33,7 @@ import { ProgressService } from '../http/progress.service';
     templateUrl: 'login.component.html',
     moduleId: 'angular2/app/login/'
 })
+
 export class LoginComponent implements OnInit {
 
     accountexpired = false;
@@ -40,6 +41,7 @@ export class LoginComponent implements OnInit {
     twofactor: any = false;
     twofactorerror: string;
     unlock_question: string;
+    login_error_html: string;
 
     constructor(private httpclient: HttpClient,
         private router: Router,
@@ -87,6 +89,7 @@ export class LoginComponent implements OnInit {
 
     public onSubmit(loginform) {
         const loginBodyObj = { user: loginform.username, password: loginform.password };
+        this.login_errors_reset();
         this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).subscribe(
             (loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
@@ -101,19 +104,57 @@ export class LoginComponent implements OnInit {
                 }
             },
             err => {
-                this.loginerrormessage = 'Error: ' + err.message;
+                if(!this.handleLoginError(err)){
+                    this.loginerrormessage = 'Error: ' + err.message;
+                }
             }
         );
+    }
+
+    private handleLoginError(loginresonseobj: any) {
+        const error_msgs_1fa = {
+            429: `
+<p>
+Error: Too many failed logins. You have entered the wrong login details too many times.<br />Please use your unlock code to log in, or contact Runbox Support at support@runbox.com.
+</p>
+`,
+            430: `
+<p>
+Error: Excessive failed logins - You have entered wrong login details excessively.<br />For security reasons you have been temporarily banned from logging in. Try again later, or contact Runbox Support at support@runbox.com.
+</p>
+`,
+            500: `
+<p>
+Error: 500 - Authentication server error. Please contact Runbox Support at support@runbox.com.
+</p>
+`,
+        };
+        if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
+            this.login_error_html = error_msgs_1fa[loginresonseobj.code];
+            return true;
+        }
+        if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
+            this.login_error_html = loginresonseobj.error;
+            return true;
+        }
+        return false;
     }
 
     private handleLoginResponse(loginresonseobj: any) {
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
             this.accountexpired = true;
             this.loginerrormessage = null;
+            this.login_error_html = loginresonseobj.error;
         } else {
             this.accountexpired = false;
             this.loginerrormessage = null;
             this.router.navigateByUrl(this.authservice.urlBeforeLogin);
         }
+    }
+
+    private login_errors_reset() {
+        this.login_error_html = undefined;
+        this.loginerrormessage = null;
+        this.accountexpired = false;
     }
 }

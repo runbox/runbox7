@@ -1,3 +1,11 @@
+<style>
+.login_error_html {
+    color: #f00;
+}
+.login_error_html a {
+    color: #f00 !important;
+}
+</style>
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(145deg, #0068b7, #003156);">
   <div id="loginHeader">
     <h1 id="loginHeaderTitle">Welcome to Runbox 7</h1>
@@ -22,8 +30,9 @@
 	<div>
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
 	</div>            
+    <div [innerHTML]="login_error_html" class='login_error_html'></div>
 	<p *ngIf="loginerrormessage" style="color: #f00">{{loginerrormessage}}</p>
-	<p *ngIf="accountexpired" style="color: #f00">
+	<p *ngIf="accountexpired && !login_error_html" style="color: #f00">
         Your account has expired. <br>
         Go to <a style="color: #f00" routerLink="/account/components"> your account page </a> to renew it now.
     </p>
