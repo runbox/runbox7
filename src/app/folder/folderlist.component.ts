@@ -28,6 +28,7 @@ import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinpu
 import { Observable } from 'rxjs';
 import { first, map, filter, mergeMap, take } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
+import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 class FolderNode {
     children: FolderNode[];
@@ -69,8 +70,25 @@ export class FolderListComponent {
     constructor(
         public messagelistservice: MessageListService,
         public rmmapi: RunboxWebmailAPI,
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        private hotkeysService: HotkeysService,
     ) {
+        this.hotkeysService.add(new Hotkey(['g+i', 'g+t'],
+            (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+                if (combo === 'g+i') {
+                    this.clearSelection();
+                    this.selectFolder('Inbox');
+                    combo = null;
+                }
+                if (combo === 'g+t') {
+                    this.clearSelection();
+                    this.selectFolder('Sent');
+                    combo = null;
+                }
+                const e: ExtendedKeyboardEvent = event;
+                e.returnValue = false;
+                return e;
+            }));
 
         try {
             const storedExpandedFolderIds = JSON.parse(localStorage.getItem('rmm7expandedfolderids'));
@@ -155,6 +173,7 @@ export class FolderListComponent {
                     JSON.stringify(this.storedexpandedFolderIds)
                 );
             });
+
     }
 
     private _getLevel = (node: FolderCountEntry) => node.folderLevel;
