@@ -106,13 +106,20 @@ Run `ng generate component --project runbox7 component-name` to generate a new c
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
-## Running unit tests
+## Running tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Runbox7's tests are separated into unit tests and e2e tests, and accompanied by a linter checking for common errors
+and policy tests that check whether your code passes the rules specified in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Running end-to-end tests
+You can run the individual tests using one of the following commands:
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+- `npm run lint`
+- `npm run policy`
+- `npm run test`
+- `npm run e2e`
+
+Or run them all at once with `npm run ci-tests` -- this option will run the tests with the same settings as our CI setup,
+making sure that any errors will be caught before your code becomes public.
 
 ## Further help
 
