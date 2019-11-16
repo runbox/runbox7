@@ -36,10 +36,7 @@ import { ProgressService } from '../http/progress.service';
 
 export class LoginComponent implements OnInit {
 
-    accountexpired = false;
-    loginerrormessage: string;
     twofactor: any = false;
-    twofactorerror: string;
     unlock_question: string;
     login_error_html: string;
 
@@ -63,6 +60,7 @@ export class LoginComponent implements OnInit {
         this.twofactor.unlock_code = undefined;
         this.twofactor.unlock_answer = undefined;
         this.twofactor.trust_this_browser = undefined;
+        this.login_errors_reset();
 
         if (theform.twofactormethod === 'totp') {
             this.twofactor.cmd = 'authtotp';
@@ -82,7 +80,7 @@ export class LoginComponent implements OnInit {
                 if (loginresonseobj.code === 200) {
                     this.handleLoginResponse(loginresonseobj);
                 } else {
-                    this.twofactorerror = loginresonseobj.error;
+                    this.handleLoginError(loginresonseobj);
                 }
             })).subscribe();
     }
@@ -95,18 +93,14 @@ export class LoginComponent implements OnInit {
                 if (loginresonseobj.code === 200) {
                     this.handleLoginResponse(loginresonseobj);
                 } else if (loginresonseobj.is_2fa_enabled === '1') {
-                    this.twofactorerror = null;
-                    this.loginerrormessage = null;
                     this.twofactor = loginBodyObj;
                     this.unlock_question = loginresonseobj.unlock_question;
                 } else {
-                    this.loginerrormessage = loginresonseobj.message + ': ' + loginresonseobj.error;
+                    this.handleLoginError(loginresonseobj);
                 }
             },
             err => {
-                if(!this.handleLoginError(err)){
-                    this.loginerrormessage = 'Error: ' + err.message;
-                }
+                return this.handleLoginError(err);
             }
         );
     }
@@ -114,47 +108,33 @@ export class LoginComponent implements OnInit {
     private handleLoginError(loginresonseobj: any) {
         const error_msgs_1fa = {
             429: `
-<p>
-Error: Too many failed logins. You have entered the wrong login details too many times.<br />Please use your unlock code to log in, or contact Runbox Support at support@runbox.com.
-</p>
+            Error: Too many failed logins. You have entered the wrong login details too many times.<br />Please use your unlock code to log in, or contact Runbox Support at support@runbox.com.
 `,
             430: `
-<p>
-Error: Excessive failed logins - You have entered wrong login details excessively.<br />For security reasons you have been temporarily banned from logging in. Try again later, or contact Runbox Support at support@runbox.com.
-</p>
+            Error: Excessive failed logins - You have entered wrong login details excessively.<br />For security reasons you have been temporarily banned from logging in. Try again later, or contact Runbox Support at support@runbox.com.
 `,
             500: `
-<p>
-Error: 500 - Authentication server error. Please contact Runbox Support at support@runbox.com.
-</p>
-`,
+            Error: 500 - Authentication server error. Please contact Runbox Support at support@runbox.com.
+            `,
         };
         if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
-            this.login_error_html = error_msgs_1fa[loginresonseobj.code];
-            return true;
+            this.login_error_html = '<p>'+error_msgs_1fa[loginresonseobj.code]+'</p>';
         }
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
-            this.login_error_html = loginresonseobj.error;
-            return true;
+            this.login_error_html = '<p>'+loginresonseobj.error+'</p>';
         }
-        return false;
+        this.login_error_html = "<p>"+loginresonseobj.message + ': ' + (loginresonseobj.error||'error')+"</p>";
     }
 
     private handleLoginResponse(loginresonseobj: any) {
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
-            this.accountexpired = true;
-            this.loginerrormessage = null;
             this.login_error_html = loginresonseobj.error;
         } else {
-            this.accountexpired = false;
-            this.loginerrormessage = null;
             this.router.navigateByUrl(this.authservice.urlBeforeLogin);
         }
     }
 
     private login_errors_reset() {
         this.login_error_html = undefined;
-        this.loginerrormessage = null;
-        this.accountexpired = false;
     }
 }

@@ -1,6 +1,8 @@
 <style>
 .login_error_html {
     color: #f00;
+    background: #EDC9C9;
+    border: 1px solid #FF9292;
 }
 .login_error_html a {
     color: #f00 !important;
@@ -30,12 +32,7 @@
 	<div>
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
 	</div>            
-    <div [innerHTML]="login_error_html" class='login_error_html'></div>
-	<p *ngIf="loginerrormessage" style="color: #f00">{{loginerrormessage}}</p>
-	<p *ngIf="accountexpired && !login_error_html" style="color: #f00">
-        Your account has expired. <br>
-        Go to <a style="color: #f00" routerLink="/account/components"> your account page </a> to renew it now.
-    </p>
+    <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	<mat-form-field>
           <input matInput placeholder="Username" name="username" autofocus ngModel />
 	</mat-form-field>
@@ -57,6 +54,7 @@
 	  <div>
 	    <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
 	  </div>            
+		<div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	  <mat-card-title><h3>Two-Factor Authentication</h3></mat-card-title>
 	  <mat-card-content>
             <ng-container *ngIf="!twofactormethodgroup.value">
@@ -98,7 +96,6 @@
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit">Unlock</button>
             </ng-container>
-            <p *ngIf="twofactorerror" style="color: #f00">{{twofactorerror}}</p>
             <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 	  </mat-card-content>
 	  <mat-card-actions style="text-align: center; margin: 0;">
