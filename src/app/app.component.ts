@@ -157,7 +157,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.savedColumnWidths = JSON.parse(savedColumnWidthsString);
     }
 
-      this._hotkeysService.add(new Hotkey(['j', 'k', 'x'],
+      this._hotkeysService.add(new Hotkey(['j', 'k'],
           (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
               if (combo === 'k') {
                   this.canvastable.scrollTop();
