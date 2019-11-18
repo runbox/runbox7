@@ -128,7 +128,7 @@ export class LoginComponent implements OnInit {
 
     private handleLoginResponse(loginresonseobj: any) {
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
-            this.login_error_html = loginresonseobj.error;
+            this.handleLoginError(loginresonseobj);
         } else {
             this.router.navigateByUrl(this.authservice.urlBeforeLogin);
         }
