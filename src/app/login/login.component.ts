@@ -108,22 +108,27 @@ export class LoginComponent implements OnInit {
     private handleLoginError(loginresonseobj: any) {
         const error_msgs_1fa = {
             429: `
-            Error: Too many failed logins. You have entered the wrong login details too many times.<br />Please use your unlock code to log in, or contact Runbox Support at support@runbox.com.
-`,
+            Error: Too many failed logins. You have entered the wrong login details too many times.
+            <br />
+            Please use your unlock code to log in, or contact Runbox Support at support@runbox.com.
+            `,
             430: `
-            Error: Excessive failed logins - You have entered wrong login details excessively.<br />For security reasons you have been temporarily banned from logging in. Try again later, or contact Runbox Support at support@runbox.com.
-`,
+            Error: Excessive failed logins - You have entered wrong login details excessively.
+            <br />
+            For security reasons you have been temporarily banned from logging in.
+            Try again later, or contact Runbox Support at support@runbox.com.
+            `,
             500: `
             Error: 500 - Authentication server error. Please contact Runbox Support at support@runbox.com.
             `,
         };
         if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
-            this.login_error_html = '<p>'+error_msgs_1fa[loginresonseobj.code]+'</p>';
+            this.login_error_html = '<p>' + error_msgs_1fa[loginresonseobj.code] + '</p>';
         }
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
-            this.login_error_html = '<p>'+loginresonseobj.error+'</p>';
+            this.login_error_html = '<p>' + loginresonseobj.error + '</p>';
         }
-        this.login_error_html = "<p>"+loginresonseobj.message + ': ' + (loginresonseobj.error||'error')+"</p>";
+        this.login_error_html = '<p>' + loginresonseobj.message + ': ' + (loginresonseobj.error || 'error') + '</p>';
     }
 
     private handleLoginResponse(loginresonseobj: any) {
