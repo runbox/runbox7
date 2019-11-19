@@ -75,8 +75,8 @@
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
 
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Selector status</strong></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>CNAME in DNS</strong></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active</strong></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>CNAME found in DNS</strong></div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active for signing</strong></div></mat-grid-tile>
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active from</strong></div></mat-grid-tile>
                     </mat-grid-list>
 
@@ -88,7 +88,10 @@
                             </div>
                         </mat-grid-tile>
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active && keys[0].date_active ? keys[0].date_active : '--'}}</div></mat-grid-tile>
+                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{
+                            k.date_expected_to_activate || k.date_active || k.date_rotation_finalized || '--'
+                        }}
+                        </div></mat-grid-tile>
                     </mat-grid-list>
                 </div>
                 <div *ngIf="domain && !keys.length && !is_creating_keys" style='margin-top: 35px;'>
