@@ -33,6 +33,8 @@
 	<mat-form-field>
           <input matInput placeholder="Password" type="password" name="password" ngModel />
 	</mat-form-field>
+    <mat-checkbox name="is_use_rmm6" style='align-self: flex-start;' ngModel>Use runbox legacy</mat-checkbox>
+    <mat-checkbox name="is_keep_logged" style='align-self: flex-start;' ngModel>Stay logged in</mat-checkbox>
 	<button mat-raised-button color="primary" type="submit">Log in</button>
 	<div id="createAccount">
 	  <a href="/signup?runbox7=1">Create account</a>

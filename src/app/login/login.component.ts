@@ -78,7 +78,7 @@ export class LoginComponent implements OnInit {
         this.httpclient.post('/ajax_mfa_authenticate', this.twofactor).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    this.handleLoginResponse(loginresonseobj);
+                    this.handleLoginResponse(loginresonseobj, {});
                 } else {
                     this.twofactorerror = loginresonseobj.error;
                 }
@@ -87,10 +87,16 @@ export class LoginComponent implements OnInit {
 
     public onSubmit(loginform) {
         const loginBodyObj = { user: loginform.username, password: loginform.password };
+        const login_checkboxes = ['is_use_rmm6', 'is_keep_logged'];
+        login_checkboxes.forEach((v) => {
+            if ( loginform[v] ) {
+                loginBodyObj[v] = true;
+            }
+        });
         this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).subscribe(
             (loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    this.handleLoginResponse(loginresonseobj);
+                    this.handleLoginResponse(loginresonseobj, loginBodyObj);
                 } else if (loginresonseobj.is_2fa_enabled === '1') {
                     this.twofactorerror = null;
                     this.loginerrormessage = null;
@@ -106,13 +112,18 @@ export class LoginComponent implements OnInit {
         );
     }
 
-    private handleLoginResponse(loginresonseobj: any) {
+    private handleLoginResponse(loginresonseobj: any, loginreq: any) {
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
             this.accountexpired = true;
             this.loginerrormessage = null;
         } else {
             this.accountexpired = false;
             this.loginerrormessage = null;
+            console.log('URL BEFORE LOGIN', this.authservice);
+            if (loginreq.is_use_rmm6) {
+                window.location.href = '/mail';
+                return;
+            }
             this.router.navigateByUrl(this.authservice.urlBeforeLogin);
         }
     }
