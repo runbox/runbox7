@@ -48,13 +48,10 @@ export class RMM7MessageActions implements MessageActions {
     }
 
     public trashMessage() {
-        const snackBarRef = this.snackBar.open('Deleting');
         this.searchService.deleteMessages([this.mailViewerComponent.messageId]);
         this.searchService.rmmapi.trashMessages([this.mailViewerComponent.messageId])
             .subscribe(() => {
                 this.searchService.updateIndexWithNewChanges();
-
-                snackBarRef.dismiss();
                 this.mailViewerComponent.close();
             });
     }
