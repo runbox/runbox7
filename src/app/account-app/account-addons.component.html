@@ -11,13 +11,20 @@
 }
 </style>
 
+<ng-template #addonsLoading>
+    <app-runbox-loading
+        text="Loading available addons..."
+    >
+    </app-runbox-loading>
+</ng-template>
+
 <h1> Add-ons </h1>
 
 <h2> Main account add-ons </h2>
 
 <p> Add-ons are individual upgrades that can be added to your main account. </p>
 
-<div class="productGrid">
+<div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
     <app-account-product
         *ngFor="let p of emailaddons"
         class="productCard"
@@ -35,7 +42,7 @@
     To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
 </p>
 
-<div class="productGrid">
+<div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
     <app-account-product
         *ngFor="let p of subaccounts"
         class="productCard"

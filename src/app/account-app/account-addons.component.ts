@@ -17,31 +17,36 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
+import { AsyncSubject } from 'rxjs';
 
 @Component({
     selector: 'app-account-addons-component',
     templateUrl: './account-addons.component.html',
 })
-export class AccountAddonsComponent {
+export class AccountAddonsComponent implements OnInit {
     me: RunboxMe = new RunboxMe();
 
-    subaccounts:   Product[];
-    emailaddons:   Product[];
-    hostingaddons: Product[];
+    subaccounts    = new AsyncSubject<Product[]>();
+    emailaddons    = new AsyncSubject<Product[]>();
 
     constructor(
         private paymentsservice: PaymentsService,
         private rmmapi:          RunboxWebmailAPI,
     ) {
+    }
+
+    ngOnInit() {
         this.paymentsservice.products.subscribe(products => {
-            this.subaccounts   = products.filter(p => p.subtype === 'subaccount');
-            this.emailaddons   = products.filter(p => p.subtype === 'emailaddon');
-            this.hostingaddons = products.filter(p => p.subtype === 'hosting');
+            this.subaccounts.next(products.filter(p => p.subtype === 'subaccount'));
+            this.emailaddons.next(products.filter(p => p.subtype === 'emailaddon'));
+
+            this.subaccounts.complete();
+            this.emailaddons.complete();
         });
 
         this.rmmapi.me.subscribe(me => this.me = me);

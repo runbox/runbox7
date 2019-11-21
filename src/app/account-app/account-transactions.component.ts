@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject } from 'rxjs';
 
@@ -27,7 +27,7 @@ import * as moment from 'moment';
     selector: 'app-account-transactions-component',
     templateUrl: './account-transactions.component.html',
 })
-export class AccountTransactionsComponent {
+export class AccountTransactionsComponent implements OnInit {
     transactions = new AsyncSubject<any[]>();
 
     methods = {
@@ -47,6 +47,9 @@ export class AccountTransactionsComponent {
     constructor(
         private rmmapi: RunboxWebmailAPI,
     ) {
+    }
+
+    ngOnInit() {
         this.rmmapi.getTransactions().subscribe(transactions => {
             const txns = transactions.map(t => {
                 t.time = moment(t.time, moment.ISO_8601);
