@@ -29,10 +29,13 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogModule } from '../dialog/dialog.module';
+import { HotkeysService } from 'angular2-hotkeys';
+
 describe('FolderListComponent', () => {
     let injector: TestBed;
     let service: RunboxWebmailAPI;
     let httpMock: HttpTestingController;
+    let hotkeyMock: HotkeysService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -48,6 +51,7 @@ describe('FolderListComponent', () => {
         injector = getTestBed();
         service = injector.get(RunboxWebmailAPI);
         httpMock = injector.get(HttpTestingController);
+        hotkeyMock = { add: _ => null } as HotkeysService;
     });
     it('should empty trash', async(async () => {
         let selectedFolderName: string;
@@ -83,7 +87,8 @@ describe('FolderListComponent', () => {
                 }
             } as MessageListService,
             service,
-            null
+            null,
+            hotkeyMock,
         );
 
         await comp.emptyTrash();
@@ -126,7 +131,7 @@ describe('FolderListComponent', () => {
                 ordered_ids_request = ordered_ids;
                 return of(true);
             }
-        } as RunboxWebmailAPI, null);
+        } as RunboxWebmailAPI, null, hotkeyMock);
 
         console.log('move folder with id 6 above 5');
         await comp.folderReorderingDrop(6, 5, DropPosition.ABOVE);
