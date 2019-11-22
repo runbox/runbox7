@@ -36,6 +36,7 @@ import { ProgressService } from '../http/progress.service';
 
 export class LoginComponent implements OnInit {
 
+    accountExpired = false;
     twofactor: any = false;
     unlock_question: string;
     login_error_html: string;
@@ -126,9 +127,10 @@ export class LoginComponent implements OnInit {
             this.login_error_html = '<p>' + error_msgs_1fa[loginresonseobj.code] + '</p>';
         }
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
-            this.login_error_html = '<p>' + loginresonseobj.error + '</p>';
+            this.accountExpired = true;
+        } else {
+            this.login_error_html = '<p>' + loginresonseobj.message + ': ' + (loginresonseobj.error || 'error') + '</p>';
         }
-        this.login_error_html = '<p>' + loginresonseobj.message + ': ' + (loginresonseobj.error || 'error') + '</p>';
     }
 
     private handleLoginResponse(loginresonseobj: any) {

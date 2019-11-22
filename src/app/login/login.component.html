@@ -8,6 +8,7 @@
     color: #f00 !important;
 }
 </style>
+
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(145deg, #0068b7, #003156);">
   <div id="loginHeader">
     <h1 id="loginHeaderTitle">Welcome to Runbox 7</h1>
@@ -33,6 +34,10 @@
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
 	</div>            
     <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
+    <p *ngIf='accountExpired' class='login_error_html'>
+        Your account has expired. <br>
+        Go to <a routerLink="/account/components"> your account page </a> to renew it now.
+    </p>
 	<mat-form-field>
           <input matInput placeholder="Username" name="username" autofocus ngModel />
 	</mat-form-field>
