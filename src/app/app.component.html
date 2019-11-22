@@ -15,7 +15,7 @@
 
       <mat-divider></mat-divider>
 
-      <div class="sidenavSubMenu">
+      <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
         <a mat-button (click)="compose();" matTooltip="Compose">
           <mat-icon color="primary">edit</mat-icon></a>
         <a mat-button (click)="drafts();" matTooltip="Drafts">
