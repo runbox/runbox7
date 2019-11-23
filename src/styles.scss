@@ -267,11 +267,37 @@ div.loginScreen {
 
 #loginArea {
     border: 1px solid mat-color($rmm-default-primary);
-    padding: 40px 40px 10px 40px;
+    padding: 40px 10px 10px 10px;
     display: flex;
     flex-flow: column;
     align-items: center;
     justify-content: center;
+}
+
+#loginArea mat-form-field {
+    padding: 0 30px;
+}
+
+.login_error_html {
+    margin: 5px;
+    min-height: 20px;
+    border: 1px solid #F00;
+    padding: 5px;
+    color: #f00;
+}
+
+.login_error_html p {
+    margin: 0;
+}
+
+.login_error_html a {
+    color: #f00 !important;
+}
+
+#progressBar {
+    margin-top: 15px;
+    height: 10px;
+    width: 100%;
 }
 
 #tfaArea {
@@ -283,7 +309,7 @@ div.loginScreen mat-button-toggle button {
 }
 
 div.loginScreen #createAccount {
-    margin: 10px;
+    margin: 5px 0 10px 0;
     font-size: 14px;
 }
 
