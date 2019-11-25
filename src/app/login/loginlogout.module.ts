@@ -28,6 +28,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
     imports: [
@@ -35,6 +36,7 @@ import { RouterModule } from '@angular/router';
         FormsModule,
         MatInputModule,
         MatCardModule,
+        MatCheckboxModule,
         MatButtonModule,
         MatButtonToggleModule,
         MatProgressBarModule,

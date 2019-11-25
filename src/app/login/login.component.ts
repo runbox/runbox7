@@ -79,7 +79,7 @@ export class LoginComponent implements OnInit {
         this.httpclient.post('/ajax_mfa_authenticate', this.twofactor).pipe(
             map((loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    this.handleLoginResponse(loginresonseobj);
+                    this.handleLoginResponse(loginresonseobj, {});
                 } else {
                     this.handleLoginError(loginresonseobj);
                 }
@@ -89,10 +89,16 @@ export class LoginComponent implements OnInit {
     public onSubmit(loginform) {
         const loginBodyObj = { user: loginform.username, password: loginform.password };
         this.login_errors_reset();
+        const login_checkboxes = ['is_use_rmm6', 'is_keep_logged'];
+        login_checkboxes.forEach((v) => {
+            if ( loginform[v] ) {
+                loginBodyObj[v] = true;
+            }
+        });
         this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).subscribe(
             (loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    this.handleLoginResponse(loginresonseobj);
+                    this.handleLoginResponse(loginresonseobj, loginBodyObj);
                 } else if (loginresonseobj.is_2fa_enabled === '1') {
                     this.twofactor = loginBodyObj;
                     this.unlock_question = loginresonseobj.unlock_question;
@@ -133,10 +139,14 @@ export class LoginComponent implements OnInit {
         }
     }
 
-    private handleLoginResponse(loginresonseobj: any) {
+    private handleLoginResponse(loginresonseobj: any, loginreq: any) {
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5) {
             this.handleLoginError(loginresonseobj);
         } else {
+            if (loginreq.is_use_rmm6) {
+                window.location.href = '/mail';
+                return;
+            }
             this.router.navigateByUrl(this.authservice.urlBeforeLogin);
         }
     }
