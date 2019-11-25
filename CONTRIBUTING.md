@@ -7,14 +7,24 @@ Please see [The Runbox 7 Roadmap](https://community.runbox.com/t/the-runbox-7-ro
 
 As a contributor, here are the guidelines we would like you to follow:
 
-* [Code of Conduct](#code-of-conduct)
-* [Question or Problem?](#got-a-question-or-problem)
-* [Issues and Bugs](#found-a-bug)
-* [Feature Requests](#missing-a-feature)
-* [Submission Guidelines](#submission-guidelines)
-* [Coding Rules](#coding-rules)
-* [Commit Message Guidelines](#commit-message-guidelines)
-* [License](#license)
+- [Contributing to Runbox 7](#Contributing-to-Runbox-7)
+  - [Code of Conduct](#Code-of-Conduct)
+  - [Got a Question or Problem?](#Got-a-Question-or-Problem)
+  - [Found a Bug?](#Found-a-Bug)
+  - [Missing a Feature?](#Missing-a-Feature)
+  - [Submission Guidelines](#Submission-Guidelines)
+    - [Submitting an Issue](#Submitting-an-Issue)
+    - [Submitting a Pull Request (PR)](#Submitting-a-Pull-Request-PR)
+      - [After your pull request is merged](#After-your-pull-request-is-merged)
+  - [Coding Rules](#Coding-Rules)
+  - [Commit Message Guidelines](#Commit-Message-Guidelines)
+    - [Commit Message Format](#Commit-Message-Format)
+    - [Revert](#Revert)
+    - [Type](#Type)
+    - [Subject](#Subject)
+    - [Body](#Body)
+    - [Footer](#Footer)
+  - [License](#License)
 
 ## Code of Conduct
 
