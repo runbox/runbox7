@@ -38,7 +38,7 @@ export class ContactsService implements OnDestroy {
     migrationWatcher: any;
 
     syncInterval: any;
-    syncIntervalSeconds = 15;
+    syncIntervalSeconds = 180;
     lastUpdate: moment.Moment;
 
     constructor(
@@ -130,15 +130,20 @@ export class ContactsService implements OnDestroy {
         }
     }
 
-    deleteContact(contact: Contact, callback: any): Observable<any> {
-        console.log('Contact.service deleting', contact.id);
-        const deleteResult = this.rmmapi.deleteContact(contact);
-        deleteResult.subscribe(() => {
-            this.informationLog.next('Contact has been deleted');
-            this.reload();
-            callback();
-        }, e => this.apiErrorHandler(e));
-        return deleteResult;
+    deleteContact(contact_id: string): Promise<void> {
+        console.log('Contact.service deleting', contact_id);
+        return new Promise<void>((resolve, reject) => {
+            this.rmmapi.deleteContact(contact_id).subscribe(() => {
+                resolve();
+            }, e => {
+                this.apiErrorHandler(e);
+                reject();
+            });
+        });
+    }
+
+    deleteMultiple(contact_ids: string[]): Promise<void[]> {
+        return Promise.all(contact_ids.map(id => this.deleteContact(id)));
     }
 
     lookupContact(email: string): Promise<Contact> {

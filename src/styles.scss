@@ -844,6 +844,13 @@ compose .mat-standard-chip {
 
 /* Contacts */
 
+.multiContactActions {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 10;
+}
+
 .contact-details-row {
     display: flex;
     flex-wrap: wrap;

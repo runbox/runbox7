@@ -72,7 +72,24 @@
             </mat-list-item>
             -->
 
+            <mat-list-item>
+                <mat-checkbox
+                    [(ngModel)]="selectingMultiple"
+                    (change)="onContactChecked()"
+                >
+                Select multiple
+                </mat-checkbox>
+            </mat-list-item>
+
             <mat-list-item *ngFor="let contact of shownContacts">
+                <mat-checkbox
+                    [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
+                    [(ngModel)]="selectedIDs[contact.id]"
+                    (change)="onContactChecked()"
+                >
+                    &nbsp;&nbsp;&nbsp;
+                </mat-checkbox>
+
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
                     <h4 mat-line>
                         <span *ngIf="contact.show_as_company()">
@@ -92,6 +109,15 @@
                 {{ contacts.length - shownContacts.length }} others in other groups
             </mat-list-item>
         </mat-nav-list>
+
+        <div class="multiContactActions" *ngIf="selectedCount > 0">
+            <button mat-fab
+                matTooltip="Delete these contacts"
+                (click)="deleteSelected()"
+            >
+                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before"> delete </mat-icon>
+            </button>
+        </div>
     </mat-sidenav>
     <mat-sidenav-content>
         <mat-toolbar style="display: flex">

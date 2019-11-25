@@ -217,8 +217,7 @@ export class ContactDetailsComponent {
         confirmDialog.afterClosed().pipe(
             filter(res => res === true)
         ).subscribe(() => {
-            this.contactsservice.deleteContact(this.contact, () => {
-                console.log('Contact deleted');
+            this.contactsservice.deleteContact(this.contact.id).then(() => {
                 this.router.navigateByUrl('/contacts/');
             });
         });
