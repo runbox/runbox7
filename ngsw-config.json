@@ -1,5 +1,8 @@
 {
   "index": "/index.html",
+  "appData" : {
+    "commit": "__COMMIT_HASH__"
+  },
   "assetGroups": [
     {
       "name": "app",
