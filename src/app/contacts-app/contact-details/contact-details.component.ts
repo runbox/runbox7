@@ -17,15 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ElementRef, EventEmitter, Input, Output, OnChanges, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact, Email } from '../contact';
+import { Contact } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
-import { filter, mergeMap, take, tap } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
 
 @Component({
@@ -54,6 +54,8 @@ export class ContactDetailsComponent {
         private route: ActivatedRoute,
         private contactsservice: ContactsService
     ) {
+        this.contactForm = this.createForm();
+
         this.route.params.subscribe(params => {
             const contactid = params.id;
             if (contactid === 'new') {
@@ -100,8 +102,6 @@ export class ContactDetailsComponent {
     }
 
     loadContactForm(): void {
-        this.contactForm = this.createForm();
-
         // need to prevent ReactiveForms from shitting themvelses on null arrays
         if (this.contact.emails === null) {
             this.contact.emails = [];
@@ -148,8 +148,9 @@ export class ContactDetailsComponent {
     }
 
     initializeFormArray(property, formGroupCreator): void {
+        const formArray = this.contactForm.get(property) as FormArray;
+        formArray.clear();
         for (let i = 0; i < this.contact[property].length; i++) {
-            const formArray = this.contactForm.get(property) as FormArray;
             const formGroup = formGroupCreator();
             formArray.push(formGroup);
 
