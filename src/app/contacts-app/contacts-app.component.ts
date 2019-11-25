@@ -20,11 +20,13 @@
 import { Component, ViewChild } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
+import { MobileQueryService } from '../mobile-query.service';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @Component({
@@ -45,13 +47,17 @@ export class ContactsAppComponent {
     groupFilter = 'RUNBOX:ALL';
     searchTerm  = '';
 
+    sideMenuOpened = true;
+    @ViewChild(MatSidenav,       { static: false }) sideMenu: MatSidenav;
     @ViewChild('vcfUploadInput', { static: false }) vcfUploadInput: any;
 
     constructor(
         private contactsservice: ContactsService,
         private dialog:          MatDialog,
         private http:            HttpClient,
+        public  mobileQuery:     MobileQueryService,
         private route:           ActivatedRoute,
+        private router:          Router,
         private snackBar:        MatSnackBar
     ) {
         console.log('Contacts.app: waiting for backend contacts...');
@@ -83,6 +89,19 @@ export class ContactsAppComponent {
         this.contactsservice.errorLog.subscribe(
             e => this.showError(e)
         );
+
+        this.sideMenuOpened = !mobileQuery.matches;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.sideMenuOpened = !mobile;
+        });
+
+        router.events.subscribe(event => {
+            if (event instanceof NavigationStart) {
+                if (mobileQuery.matches) {
+                    this.sideMenu.close();
+                }
+            }
+        });
     }
 
     filterContacts(): void {
