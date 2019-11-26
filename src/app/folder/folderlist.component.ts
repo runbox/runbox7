@@ -110,7 +110,7 @@ export class FolderListComponent {
 
         const foldertreedataobservable = this.folders
             .pipe(
-                map(folders => folders.filter(f => f.folderPath !== 'Drafts')),
+                map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0)),
                 map((folders) => {
                 const treedata: FolderNode[] = [];
 
