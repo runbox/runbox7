@@ -1,7 +1,8 @@
 {
   "index": "/index.html",
   "appData" : {
-    "commit": "__COMMIT_HASH__"
+    "commit": "__COMMIT_HASH__",
+    "build_time": "__BUILD_TIME__"
   },
   "assetGroups": [
     {

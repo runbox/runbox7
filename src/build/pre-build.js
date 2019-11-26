@@ -20,9 +20,10 @@ Object.keys(packageJSON.dependencies).concat(Object.keys(packageJSON.devDependen
 console.log('All dependency versions ok. Will build production bundle.');
 
 console.log('Updating build timestamp');
-fs.writeFileSync('src/app/buildtimestamp.ts', "export const BUILD_TIMESTAMP = '" + new Date().toJSON() + "';\n");
+const build_time = new Date().toJSON();
+fs.writeFileSync('src/app/buildtimestamp.ts', "export const BUILD_TIMESTAMP = '" + build_time + "';\n");
 
-console.log('Updating appData commit hash');
+console.log('Updating appData');
 const dirty = execSync('git status --porcelain ngsw-config.json').toString().trim();
 
 if (dirty) {
@@ -36,4 +37,5 @@ let config = fs.readFileSync('ngsw-config.json').toString();
 const hash = execSync('git rev-parse --short HEAD').toString().trim();
 console.log(`Setting appData commit hash to ${hash}`);
 config = config.replace('__COMMIT_HASH__', hash);
+config = config.replace('__BUILD_TIME__', build_time);
 fs.writeFileSync('ngsw-config.json', config);

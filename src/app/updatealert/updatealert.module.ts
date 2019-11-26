@@ -19,12 +19,14 @@
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { UpdateAlertComponent } from './updatealert.component';
 import { UpdateAlertService } from './updatealert.service';
 
 @NgModule({
     imports: [
+        CommonModule,
         MatDialogModule,
         MatButtonModule
     ],
