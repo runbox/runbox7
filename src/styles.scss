@@ -842,6 +842,24 @@ compose .mat-standard-chip {
     margin-top: 35px;
 }
 
+/* Contacts */
+
+.multiContactActions {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 10;
+}
+
+.contact-details-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.contact-details-row .mat-form-field {
+    padding: 5px;
+}
+
 /* Calendar */
 
 app-calendar-app-component mat-nav-list button {

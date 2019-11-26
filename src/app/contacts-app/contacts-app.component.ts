@@ -43,6 +43,10 @@ export class ContactsAppComponent {
     selectedContact: Contact;
     sortMethod = 'lastname+';
 
+    selectingMultiple = false;
+    selectedCount = 0;
+    selectedIDs = {};
+
     groups      = [];
     groupFilter = 'RUNBOX:ALL';
     searchTerm  = '';
@@ -104,6 +108,25 @@ export class ContactsAppComponent {
         });
     }
 
+    deleteSelected(): void {
+        const toDelete = [];
+        for (const id of Object.keys(this.selectedIDs)) {
+            if (this.selectedIDs[id]) {
+                toDelete.push(id);
+            }
+        }
+
+        this.contacts = this.contacts.filter(c => !this.selectedIDs[c.id]);
+        this.filterContacts();
+        this.selectedIDs = {};
+        this.selectedCount = 0;
+
+        this.contactsservice.deleteMultiple(toDelete).then(_ => {
+            this.showNotification(`Deleted ${toDelete.length} contacts}`);
+            this.contactsservice.reload();
+        });
+    }
+
     filterContacts(): void {
         this.shownContacts = this.contacts.filter(c => {
             if (this.groupFilter === 'RUNBOX:ALL') {
@@ -124,6 +147,10 @@ export class ContactsAppComponent {
 
     importVcfClicked(): void {
         this.vcfUploadInput.nativeElement.click();
+    }
+
+    onContactChecked(): void {
+        this.selectedCount = Object.values(this.selectedIDs).filter(x => x).length;
     }
 
     onVcfUploaded(uploadEvent: any) {

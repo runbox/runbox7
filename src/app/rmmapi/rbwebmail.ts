@@ -577,8 +577,8 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => new Contact(res['contact'])));
     }
 
-    public deleteContact(c: Contact): Observable<any> {
-        return this.http.delete('/rest/v1/addresses_contact/' + c.id).pipe(
+    public deleteContact(contact_id: string): Observable<any> {
+        return this.http.delete('/rest/v1/addresses_contact/' + contact_id).pipe(
             map((res: HttpResponse<any>) => res)
         );
     }
