@@ -17,18 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { RunboxCalendarView } from './runbox-calendar-view';
-
-export class CalendarSettings {
-    weekStartsOnSunday = false;
-    lastUsedView: RunboxCalendarView = RunboxCalendarView.Month;
-
-    constructor(props: any) {
-        if ('weekStartsOnSunday' in props) {
-            this.weekStartsOnSunday = props['weekStartsOnSunday'];
-        }
-        if ('lastUsedView' in props) {
-            this.lastUsedView = props['lastUsedView'];
-        }
-    }
+export enum RunboxCalendarView {
+    Overview,
+    Month,
+    Week,
+    Day,
 }
