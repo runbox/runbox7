@@ -58,7 +58,7 @@ export interface CanvasTableColumn {
   columnSectionName?: string;
   footerText?: string;
 
-  width: number;
+  width?: number;
   originalWidth?: number;
   font?: string;
   backgroundColor?: string;
@@ -107,7 +107,7 @@ export class CanvasTableColumnSection {
   moduleId: 'angular2/app/canvastable/',
   templateUrl: 'canvastable.component.html'
 })
-export class CanvasTableComponent implements AfterViewInit, DoCheck {
+export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   static incrementalId = 1;
   public elementId: string;
   private _topindex = 0.0;
@@ -120,6 +120,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
   }
 
   @ViewChild('thecanvas', { static: false }) canvRef: ElementRef;
+
+  @Input() columnWidths = {};
 
   @Output() columnresize = new EventEmitter<number>();
   @Output() columnresizeend = new EventEmitter<number>();
@@ -178,6 +180,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
   public get columns(): CanvasTableColumn[] { return this._columns; }
   public set columns(columns: CanvasTableColumn[]) {
     if (this._columns !== columns) {
+      this.calculateColumnWidths(columns);
       this._columns = columns;
       this.recalculateColumnSections();
       this.calculateColumnFooterSums();
@@ -234,7 +237,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
   touchScrollSpeedY = 0;
 
   constructor(elementRef: ElementRef, private renderer: Renderer2, private _ngZone: NgZone) {
-
   }
 
   ngDoCheck() {
@@ -248,6 +250,17 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
         this.hasChanges = true;
       }
     }
+  }
+
+  private calculateColumnWidths(columns: CanvasTableColumn[]) {
+    for (const c of columns) {
+      // try the stored settings, then an existing value, then 100px just in case
+      c.width = this.columnWidths[c.name] || c.width || 100;
+    }
+  }
+
+  ngOnInit() {
+    this.calculateColumnWidths(this.columns);
   }
 
   ngAfterViewInit() {
@@ -1346,7 +1359,16 @@ export class CanvasTableContainerComponent implements OnInit {
   sortColumn = 0;
   sortDescending = false;
 
-  savedColumnWidths: number[] = [];
+  columnWidths = {
+    '':        40,
+    'Date':    110,
+    'To':      300,
+    'From':    300,
+    'Subject': 300,
+    'Size':    80,
+    'Count':   80,
+  };
+
   @Input() configname = 'default';
   @Input() canvastableselectlistener: CanvasTableSelectListener;
 
@@ -1357,16 +1379,20 @@ export class CanvasTableContainerComponent implements OnInit {
   @ViewChild('tablebodycontainer', { static: false }) tablebodycontainer: ElementRef<HTMLDivElement>;
 
   constructor(private renderer: Renderer2) {
+    const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
+    if (savedColumnWidths) {
+      this.columnWidths = JSON.parse(savedColumnWidths);
+    }
+  }
 
+  saveColumnWidths() {
+    for (const c of this.canvastable.columns) {
+      this.columnWidths[c.name] = c.width;
+    }
+    localStorage.setItem('canvasNamedColumnWidths', JSON.stringify(this.columnWidths));
   }
 
   ngOnInit() {
-    const savedColumnWidthsString: string = localStorage.getItem(this.configname + 'CanvasTableColumnWidths');
-    if (savedColumnWidthsString) {
-      this.savedColumnWidths = JSON.parse(savedColumnWidthsString);
-    }
-
-
     this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
       if (this.colResizeInitialClientX) {
         event.preventDefault();
@@ -1418,17 +1444,6 @@ export class CanvasTableContainerComponent implements OnInit {
       ret += this.canvastable.columns[n].width;
     }
     return ret;
-  }
-
-  getSavedColumnWidth(colIndex: number, defaultWidth: number): number {
-    return this.savedColumnWidths[colIndex] ?
-      this.savedColumnWidths[colIndex] :
-      defaultWidth;
-  }
-
-  saveColumnWidths() {
-    this.savedColumnWidths = this.canvastable.columns.map((col) => col.width);
-    localStorage.setItem(this.configname + 'CanvasTableColumnWidths', JSON.stringify(this.savedColumnWidths));
   }
 
   colresizeend() {

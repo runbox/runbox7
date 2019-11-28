@@ -153,26 +153,22 @@ export class WebSocketSearchService {
                 rowWrapModeHidden: true,
                 getValue: (rowobj): any => app.isSelectedRow(rowobj),
                 checkbox: true,
-                width: 35
             },
             {
                 name: 'Date',
                 sortColumn: null,
                 rowWrapModeMuted: true,
                 getValue: (rowobj: WebSocketSearchMailRow): string => rowobj.dateTime,
-                width: app.canvastablecontainer.getSavedColumnWidth(1, 110)
             },
             {
                 name: 'From',
                 sortColumn: null,
                 getValue: (rowobj: WebSocketSearchMailRow): string => rowobj.fromName,
-                width: app.canvastablecontainer.getSavedColumnWidth(2, 300)
             },
             {
                 name: 'Subject',
                 sortColumn: null,
                 getValue: (rowobj: WebSocketSearchMailRow): string => rowobj.subject,
-                width: app.canvastablecontainer.getSavedColumnWidth(3, 300),
                 draggable: true
                 // tooltipText: "Tip: Drag subject to a folder to move message(s)"
             },
@@ -183,7 +179,6 @@ export class WebSocketSearchService {
                 textAlign: 1,
                 getValue: (rowobj: WebSocketSearchMailRow): number => rowobj.size,
                 getFormattedValue: MessageTableRowTool.formatBytes,
-                width: app.canvastablecontainer.getSavedColumnWidth(4, 80)
             }
         ];
 

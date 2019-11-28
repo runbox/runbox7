@@ -219,7 +219,6 @@ export class MessageListService {
                 rowWrapModeHidden: false,
                 getValue: (rowobj: MessageInfo): any => app.isSelectedRow(rowobj),
                 checkbox: true,
-                width: 38,
                 draggable: true
             },
             {
@@ -227,20 +226,16 @@ export class MessageListService {
                 sortColumn: null,
                 rowWrapModeMuted: true,
                 getValue: (rowobj: MessageInfo): string => MessageTableRowTool.formatTimestamp(rowobj.messageDate.toJSON()),
-                width: app.canvastablecontainer.getSavedColumnWidth(1, 110)
             },
             {
                 name: this.currentFolder === 'Sent' ? 'To' : 'From',
                 sortColumn: null,
-                getValue: this.currentFolder === 'Sent' ? this.getToColumnValueForRow :
-                    this.getFromColumnValueForRow,
-                width: app.canvastablecontainer.getSavedColumnWidth(2, 200)
+                getValue: this.currentFolder === 'Sent' ? this.getToColumnValueForRow : this.getFromColumnValueForRow,
             },
             {
                 name: 'Subject',
                 sortColumn: null,
                 getValue: (rowobj: MessageInfo): string => rowobj.subject,
-                width: app.canvastablecontainer.getSavedColumnWidth(3, 300),
                 draggable: true
             },
             {
@@ -250,7 +245,6 @@ export class MessageListService {
                 textAlign: 1,
                 getValue: (rowobj: MessageInfo): number => rowobj.size,
                 getFormattedValue: MessageTableRowTool.formatBytes,
-                width: app.canvastablecontainer.getSavedColumnWidth(4, 80)
             },
             {
                 sortColumn: null,
@@ -259,7 +253,6 @@ export class MessageListService {
                 rowWrapModeHidden: true,
                 font: '16px \'Material Icons\'',
                 getValue: (rowobj: MessageInfo): boolean => rowobj.attachment,
-                width: app.canvastablecontainer.getSavedColumnWidth(6, 35),
                 getFormattedValue: (val) => val ? '\uE226' : ''
             },
             {
@@ -269,7 +262,6 @@ export class MessageListService {
                 rowWrapModeHidden: true,
                 font: '16px \'Material Icons\'',
                 getValue: (rowobj: MessageInfo): boolean => rowobj.answeredFlag,
-                width: app.canvastablecontainer.getSavedColumnWidth(5, 35),
                 getFormattedValue: (val) => val ? '\uE15E' : ''
             },
             {
@@ -279,7 +271,6 @@ export class MessageListService {
                 rowWrapModeHidden: true,
                 font: '16px \'Material Icons\'',
                 getValue: (rowobj: MessageInfo): boolean => rowobj.flaggedFlag,
-                width: app.canvastablecontainer.getSavedColumnWidth(6, 35),
                 getFormattedValue: (val) => val ? '\uE153' : ''
             }
         ];
