@@ -160,7 +160,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this._hotkeysService.add(new Hotkey(['j', 'k'],
           (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
               if (combo === 'k') {
-                  this.canvastable.scrollTop();
+                  this.canvastable.scrollUp();
                   combo = null;
               }
               if (combo === 'j') {

@@ -836,10 +836,17 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this.hasChanges = true;
   }
 
-    public scrollDown() {
-        this.topindex = this.scrollbarwidth;
-        this.hasChanges = true;
-    }
+  public scrollUp() {
+    this.topindex--;
+    this.enforceScrollLimit();
+    this.hasChanges = true;
+  }
+
+  public scrollDown() {
+    this.topindex++;
+    this.enforceScrollLimit();
+    this.hasChanges = true;
+  }
 
   public get rows(): any[] {
     return this._rows;
