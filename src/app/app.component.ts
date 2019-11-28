@@ -117,8 +117,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
 
-  savedColumnWidths: Array<number> = [];
-
   messagelist: Array<MessageInfo> = [];
 
   messageActionsHandler: RMM7MessageActions = new RMM7MessageActions();
@@ -152,10 +150,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
     private _hotkeysService: HotkeysService) {
-    const savedColumnWidthsString = localStorage.getItem('rmmCanvasTableColumnWidths');
-    if (savedColumnWidthsString) {
-      this.savedColumnWidths = JSON.parse(savedColumnWidthsString);
-    }
 
       this._hotkeysService.add(new Hotkey(['j', 'k'],
           (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
@@ -278,7 +272,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
         this.canvastable.rows = this.messagelist;
         this.canvastable.hasChanges = true;
-        // this.autoAdjustColumnWidths();
       }
     });
     this.canvastable.scrollLimitHit.subscribe((limit) =>
@@ -916,7 +909,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   autoAdjustColumnWidths() {
     setTimeout(() =>
-      this.canvastable.autoAdjustColumnWidths(40, 1500, true), 0
+      this.canvastable.autoAdjustColumnWidths(40, true), 0
     );
   }
 

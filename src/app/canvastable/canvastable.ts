@@ -742,59 +742,16 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck {
     this.hasChanges = true;
   }
 
-  public autoAdjustColumnWidths(minwidth: number, maxwidth: number, tryFitScreenWidth = false) {
+  public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
     if (!this.canv) {
       return;
     }
-
 
     const padding = this.colpaddingleft + this.colpaddingright;
 
     const canvasWidth = Math.floor(this.wantedCanvasWidth / window.devicePixelRatio) - this.scrollbarwidth - 2;
 
     const columnsTotalWidth = () => this.columns.reduce((prev, curr) => prev + curr.width, 0);
-    /*
-    // Disabled measuring column widths from the contents -
-    // since it causes different column widths per folder
-    // Must have the correct font for measuring text
-    this.ctx.font = this.fontheight + 'px ' + this.fontFamily;
-
-    this.columns.forEach(c => {
-      let newwidth = Math.round(padding + ((this.ctx.measureText(c.name).width))) + padding;
-      if (newwidth > maxwidth) {
-        newwidth = maxwidth;
-      }
-      if (newwidth > minwidth && newwidth > c.width) {
-        c.width = newwidth;
-      }
-    });
-
-    for (let rowindex = this.topindex; rowindex <
-      this.topindex + this.canv.height / this.rowheight &&
-      rowindex < this.rows.length;
-      rowindex++) {
-      const row = this.rows[Math.floor(rowindex)];
-
-      this.columns.forEach(c => {
-        let valueWidth = Math.round(
-          ((this.ctx.measureText(
-            c.getFormattedValue ?
-              c.getFormattedValue(c.getValue(row)) :
-              c.getValue(row) + ''
-          ).width)) + padding
-        );
-
-        if (valueWidth > maxwidth) {
-          valueWidth = maxwidth;
-        }
-
-        if (valueWidth > c.width) {
-          c.width = valueWidth;
-        }
-      });
-
-    }
-    */
 
     if (!this.rowWrapMode && tryFitScreenWidth) {
       // Reduce the width of the widest column to fit screen
