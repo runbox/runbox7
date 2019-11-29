@@ -2,7 +2,7 @@
 <mat-dialog-content>
   An update of the application is available, and you may reload the app now to use the latest version.<br /><br />
 
-  The new version is {{ data.available.appData.commit || data.available.hash }},
+  The new version is name {{ data.available.appData.commit || data.available.hash }},
   <span *ngIf="data.available.appData.build_time; let build_time">
       built on {{ build_time }},
   </span>
