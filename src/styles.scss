@@ -249,7 +249,7 @@ login {
 }
 
 #logoLogin {
-    margin-bottom: 20px;
+    margin: 20px 0;
     width: 180px;
     height: auto;
 }
@@ -265,17 +265,23 @@ div.loginScreen {
     background-color: #fff;
 }
 
-#loginArea {
+div.loginScreen #loginArea {
     border: 1px solid mat-color($rmm-default-primary);
-    padding: 40px 10px 10px 10px;
+    min-width: 250px;
+    min-height: 350px;
     display: flex;
     flex-flow: column;
     align-items: center;
     justify-content: center;
 }
 
-#loginArea mat-form-field {
-    padding: 0 30px;
+div.loginScreen #loginOptions {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+}
+
+div.loginScreen #loginButton {
+    width: 100px;
 }
 
 .login_error_html {
@@ -286,21 +292,30 @@ div.loginScreen {
     color: #f00;
 }
 
-.login_error_html p {
+div.loginScreen .login_error_html {
+    margin: 10px 0 0 0;
+    padding: 5px 10px;
+}
+
+div.loginScreen .login_error_html p {
     margin: 0;
 }
 
-.login_error_html a {
+div.loginScreen .login_error_html a {
     color: #f00 !important;
 }
 
-#progressBar {
-    margin-top: 15px;
-    height: 10px;
+div.loginScreen #progressBar {
+    position: absolute;
+    bottom: 0;
+    height: 5px;
     width: 100%;
 }
 
-#tfaArea {
+div.loginScreen mat-progress-bar {
+}
+
+div.loginScreen #tfaArea {
     border: 1px solid mat-color($rmm-default-primary);
 }
 
@@ -309,7 +324,7 @@ div.loginScreen mat-button-toggle button {
 }
 
 div.loginScreen #createAccount {
-    margin: 5px 0 10px 0;
+    margin: 10px 0 10px 0;
     font-size: 14px;
 }
 
