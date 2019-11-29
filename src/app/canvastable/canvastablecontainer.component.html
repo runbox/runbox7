@@ -96,6 +96,7 @@
         (columnresizestart)="colresizestart($event.clientx, $event.colindex)"
         (columnresizeend)="colresizeend()"
         (columnresize)="colresize($event)"
+        [columnWidths]="columnWidths"
         >
       </canvastable>
     </div>
@@ -107,7 +108,7 @@
         (click)="toggleSort(col.sortColumn)"
         class="footerColumn"
               
-        [style.width]="col.width+'px'"
+        [style.width]="columnWidths[col.name]+'px'"
         [style.backgroundColor]="col.backgroundColor ? col.backgroundColor : inherit"
         [style.left]="(sumWidthsBefore(colIndex))+'px'"
         

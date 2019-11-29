@@ -1187,7 +1187,6 @@ export class SearchService {
                   rowWrapModeHidden: false,
                   getValue: (rowobj): any => app.isSelectedRow(rowobj),
                   checkbox: true,
-                  width: 38
             },
             {
               name: 'Date',
@@ -1197,13 +1196,11 @@ export class SearchService {
                 const datestring = this.api.getStringValue(rowobj[0], 2);
                 return MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring);
               },
-              width: app.canvastablecontainer.getSavedColumnWidth(1, 110)
             },
             (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
               name: 'To',
               sortColumn: null,
               getValue: (rowobj): string => this.getDocData(rowobj[0]).recipients,
-              width:  app.canvastablecontainer.getSavedColumnWidth(2, 300)
             } :
             {
               name: 'From',
@@ -1211,7 +1208,6 @@ export class SearchService {
               getValue: (rowobj): string => {
                 return this.getDocData(rowobj[0]).from;
               },
-              width:  app.canvastablecontainer.getSavedColumnWidth(2, 300)
             },
             {
               name: 'Subject',
@@ -1219,7 +1215,6 @@ export class SearchService {
               getValue: (rowobj): string => {
                 return this.getDocData(rowobj[0]).subject;
               },
-              width:  app.canvastablecontainer.getSavedColumnWidth(3, 300),
               draggable: true,
               getContentPreviewText: (rowobj): string => {
                 const ret = this.getDocData(rowobj[0]).textcontent;
@@ -1266,7 +1261,6 @@ export class SearchService {
                 }
               },
               textAlign: 1,
-              width:  app.canvastablecontainer.getSavedColumnWidth(4, 80)
             });
         } else {
           columns.push(
@@ -1279,7 +1273,6 @@ export class SearchService {
                 return  `${this.api.getNumericValue(rowobj[0], 3)}`;
               },
               getFormattedValue: (val) => val === '-1' ? '\u267B' : MessageTableRowTool.formatBytes(val),
-              width: app.canvastablecontainer.getSavedColumnWidth(4, 80),
               tooltipText: (rowobj) => this.api.getNumericValue(rowobj[0], 3) === -1 ?
                           'This message is marked for deletion by an IMAP client' : null
             });
