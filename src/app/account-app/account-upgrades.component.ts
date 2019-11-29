@@ -18,7 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
@@ -32,15 +34,29 @@ export class AccountUpgradesComponent implements OnInit {
     subscriptions = new AsyncSubject<Product[]>();
 
     constructor(
+        private cart:            CartService,
         private paymentsservice: PaymentsService,
         public rmmapi:           RunboxWebmailAPI,
+        private snackbar:        MatSnackBar,
     ) {
     }
 
     ngOnInit() {
         this.paymentsservice.products.subscribe(products => {
-            this.subscriptions.next(products.filter(p => p.type === 'subscription'));
+            const subs = products.filter(p => p.type === 'subscription');
+            this.subscriptions.next(subs);
             this.subscriptions.complete();
+
+            this.cart.items.subscribe(items => {
+                const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
+                if (ordered_subs.length > 1) {
+                    ordered_subs.pop(); // the most recently added one wins
+                    for (const o of ordered_subs) {
+                        this.cart.remove(o);
+                    }
+                    this.snackbar.open('Only one subscription can be active at a time', 'Okay');
+                }
+            });
         });
     }
 }

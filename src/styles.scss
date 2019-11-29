@@ -140,6 +140,12 @@ mat-grid-tile.tableTitle {
     white-space: nowrap;
 }
 
+.primaryContentButton {
+    @extend .contentButton;
+    background-color: mat-color($rmm-default-primary);
+    color: white;
+}
+
 .mainTextContent {
     padding: 3em;
 }
