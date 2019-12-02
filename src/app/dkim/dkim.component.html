@@ -65,7 +65,7 @@
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>If you are editing your DNS zone file directly you can add the two lines below:</strong></div></mat-grid-tile>
                         <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                        <mat-grid-tile *ngFor="let k of keys" style='border-bottom: 1px dotted #dedede'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}</div></mat-grid-tile>
+                        <mat-grid-tile *ngFor="let k of keys" style='border-bottom: 1px dotted #dedede'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}.</div></mat-grid-tile>
                     </mat-grid-list>
 
                     <mat-grid-list cols="4" rowHeight="30px" style=''>
