@@ -32,8 +32,8 @@ export class UpdateAlertService {
     ) {
         if (environment.production) {
             console.log('UpdateAlertService started');
-            swupdate.available.subscribe(() => {
-                dialog.open(UpdateAlertComponent);
+            swupdate.available.subscribe(ev => {
+                dialog.open(UpdateAlertComponent, { data: ev });
             });
 
             this.checkForUpdates();

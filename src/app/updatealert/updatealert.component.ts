@@ -17,19 +17,18 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
-import { BUILD_TIMESTAMP } from '../buildtimestamp';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     templateUrl: 'updatealert.component.html'
 })
 export class UpdateAlertComponent {
-    buildtimestampstring = BUILD_TIMESTAMP;
     constructor(
-        private dialogRef: MatDialogRef<UpdateAlertComponent>
+        private dialogRef: MatDialogRef<UpdateAlertComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-
+        console.log('Update details:', data);
     }
 
 

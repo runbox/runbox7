@@ -15,7 +15,7 @@
     "start-use-mockserver": "ng serve --aot --proxy-config backend-proxy-mock.conf.js runbox7",
     "mockserver": "tsc -p e2e/tsconfig.e2e.json && node out-tsc/e2e/mockserver/mockserver.main.js",
     "buildrmm6": "ng build --prod --base-href=/app/ rmm6",
-    "build": "node check-prod-bundle-dependencies.js && node updatebuildtimestamp.js && ng build --prod --base-href=/app/ && git checkout src/app/buildtimestamp.ts",
+    "build": "node src/build/pre-build.js && ng build --prod --base-href=/app/; node src/build/post-build.js",
     "policy": "node policy-tests/run-all.js",
     "test": "ng test",
     "lint": "ng lint",

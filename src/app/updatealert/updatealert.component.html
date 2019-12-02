@@ -1,8 +1,12 @@
 <h1 mat-dialog-title>App update available!</h1>
 <mat-dialog-content>
-  An update of the application has been downloaded and installed in your browser, and you may reload the app now to use the latest version.<br /><br />
+  An update of the application is available, and you may reload the app now to use the latest version.<br /><br />
 
-  The new version is {{buildtimestampstring}}, and the changes can be seen <a href="https://github.com/runbox/runbox7/commits/master">here</a>.
+  The new version is name {{ data.available.appData.commit || data.available.hash }},
+  <span *ngIf="data.available.appData.build_time; let build_time">
+      built on {{ build_time }},
+  </span>
+  and the changes can be seen <a href="https://github.com/runbox/runbox7/commits/master">here</a>.
 </mat-dialog-content>
 <mat-dialog-actions style="display: flex">
     <span style="flex-grow: 1"></span>
