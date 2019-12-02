@@ -325,6 +325,9 @@ export class CalendarAppComponent implements OnDestroy {
             data: { ical: ics, calendars: this.calendars.slice() }
         });
         dialogRef.afterClosed().subscribe(result => {
+            if (!result) {
+                return;
+            }
             if (result instanceof RunboxCalendar) {
                 // create the new calendar first
                 this.calendarservice.addCalendar(result).then(
