@@ -28,6 +28,16 @@
 }
 </style>
 
+<ng-template #legacyFallback>
+    <p> Payment form not loading? </p>
+
+    <p>
+        Make sure your browser extensions are not blocking access to
+        <span style="font-family: monospace">stripe.com</span>, or
+        <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank"> try our legacy payment system instead. </a>
+    </p>
+</ng-template>
+
 <div mat-dialog-content style="width: 500px; height: 250px;">
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
         <div id="payment-button-row" class="payment-row" [style.display]="paymentRequestsSupported ? 'block' : 'none'">
@@ -65,6 +75,8 @@
     <div [style.display]="state === 'loading' ? 'block' : 'none'">
         <div> Loading Stripe payment form... </div>
         <mat-spinner style="margin:0 auto;"></mat-spinner>
+
+        <ng-container *ngTemplateOutlet="legacyFallback"></ng-container>
     </div>
 
     <div [style.display]="state === 'processing' ? 'block' : 'none'">
