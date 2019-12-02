@@ -400,15 +400,7 @@ export class RunboxWebmailAPI {
     }
 
     public moveToFolder(messageIds: number[], folderId: number): Observable<any> {
-        const params = new FormData();
-        params.set('action', 'ajax_movemessage');
-        params.set('mid', messageIds.join(','));
-        params.set('fid', folderId + '');
-
-        return this.postForm(params).pipe(map(ret => {
-            console.log('Moved messages', messageIds, 'to folder', folderId);
-            return true;
-        }));
+        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: folderId });
     }
 
     public trainSpam(params): Observable<any> {
