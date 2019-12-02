@@ -17,9 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CartService } from './cart.service';
-import { PaymentsService } from './payments.service';
 import { Product } from './product';
 import { ProductOrder } from './product-order';
 
@@ -27,17 +26,23 @@ import { ProductOrder } from './product-order';
     selector: 'app-account-product',
     templateUrl: './account-product.component.html',
 })
-export class ProductComponent {
+export class ProductComponent implements OnInit {
     @Input() p: Product;
     @Input() currency: string;
     @Input() active: boolean;
 
     quantity = 1;
+    purchased = false;
 
     constructor(
-        private cart:            CartService,
-        private paymentsservice: PaymentsService,
+        private cart: CartService,
     ) {
+    }
+
+    ngOnInit() {
+        this.cart.items.subscribe(items => {
+            this.purchased = !!items.find(i => i.pid === this.p.pid);
+        });
     }
 
     less() {
@@ -52,6 +57,12 @@ export class ProductComponent {
 
     order() {
         this.cart.add(
+            new ProductOrder(this.p.pid, this.quantity)
+        );
+    }
+
+    unorder() {
+        this.cart.remove(
             new ProductOrder(this.p.pid, this.quantity)
         );
     }

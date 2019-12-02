@@ -18,9 +18,20 @@ mat-card {
         <ng-content></ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
-        <button mat-button (click)="order()" class="contentButton">
+        <button mat-button *ngIf="!purchased; else unpurchase"
+            class="contentButton"
+            (click)="order()"
+        >
             Purchase for {{ p.price }} {{ currency }}
         </button>
+        <ng-template #unpurchase>
+            <button mat-button
+                class="primaryContentButton"
+                (click)="unorder()"
+            >
+                Remove from cart
+            </button>
+        </ng-template>
     </mat-card-actions>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type === 'addon'">
         <button mat-icon-button (click)="less()">
