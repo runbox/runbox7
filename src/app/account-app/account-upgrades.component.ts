@@ -54,7 +54,7 @@ export class AccountUpgradesComponent implements OnInit {
                     for (const o of ordered_subs) {
                         this.cart.remove(o);
                     }
-                    this.snackbar.open('Only one subscription can be active at a time', 'Okay');
+                    this.snackbar.open('You can only buy one main account subscription at a time.', 'Okay');
                 }
             });
         });
