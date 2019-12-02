@@ -38,6 +38,7 @@
             (touchend)="colresizeend()"            
             (click)="toggleSort(col.sortColumn)"
           style="
+              display: flex;
               position: absolute;
               top: 0px;
               user-select: none;
@@ -48,6 +49,7 @@
               padding-top: 5px;
               padding-left: 10px;
               text-align: left;
+              overflow: hidden;
             "
             
             [style.width]="col.width+'px'"
