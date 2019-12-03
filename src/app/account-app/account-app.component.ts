@@ -17,8 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 import { CartService } from './cart.service';
+import { MobileQueryService } from '../mobile-query.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
@@ -26,9 +28,12 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     templateUrl: './account-app.component.html',
 })
 export class AccountAppComponent {
+    @ViewChild(MatSidenav, { static: false }) sideMenu: MatSidenav;
+
     constructor(
-        public cart:   CartService,
-        public rmmapi: RunboxWebmailAPI,
+        public cart:        CartService,
+        public mobileQuery: MobileQueryService,
+        public rmmapi:      RunboxWebmailAPI,
     ) {
     }
 }

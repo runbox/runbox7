@@ -1,10 +1,51 @@
 <mat-sidenav-container autosize>
-    <mat-sidenav #sidemenu mode="side"></mat-sidenav>
+    <mat-sidenav #sidemenu
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        style="width: 330px"
+    >
+        <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+        <mat-nav-list dense>
+            <mat-list-item>
+                <a mat-button routerLink="/account/upgrades">
+                    <mat-icon> hot_tub </mat-icon> Upgrades
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/account/addons">
+                    <mat-icon> extension </mat-icon> Add-ons
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/account/renewals">
+                    <mat-icon> autorenew </mat-icon> Renewals
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/account/transactions">
+                    <mat-icon> assessment </mat-icon> Transactions
+                </a>
+            </mat-list-item>
+            <mat-list-item>
+                <a mat-button routerLink="/account/cart">
+                    <mat-icon> shopping_cart </mat-icon> Shopping cart
+                </a>
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+
     <mat-sidenav-content style="padding-left: 25px; padding-right: 25px;">
+        <mat-toolbar style="display: flex">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+        </mat-toolbar>
+
         <style>
         #shoppingCartButton {
             position: fixed;
-            top: 75px;
+            bottom: 50px;
             right: 50px;
             z-index: 10;
         }
