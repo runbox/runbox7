@@ -173,8 +173,10 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                 } else if (res.status === 'succeeded') {
                     this.state = 'finished';
                     resolve();
+                } else if (res.error.message) {
+                    this.fail(res.error.message);
                 } else {
-                    this.unhandled_status(res.status);
+                    this.fail(undefined);
                     reject();
                 }
             }, error => {
@@ -191,6 +193,9 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                     if (pi.status === 'succeeded') {
                         this.state = 'finished';
                         resolve();
+                    } else if (pi.error) {
+                        this.fail(pi.error.message);
+                        reject();
                     } else {
                         this.unhandled_status(pi.status);
                         reject();
@@ -206,7 +211,9 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     fail(error: any) {
         this.state = 'failure';
 
-        if (typeof error === 'string') {
+        if (!error) {
+            this.stripeError = `Payment did not succeed. Please try a different payment method or contact Runbox Support`;
+        } else if (typeof error === 'string') {
             this.stripeError = error;
         } else if (error instanceof HttpErrorResponse) {
             this.stripeError = `Runbox could not process your payment (status: ${error.status}). `
@@ -220,7 +227,11 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     }
 
     unhandled_status(status: string) {
-        this.fail(`Payment did not succeed (status: ${status}). Please try a different payment method or contact Runbox Support`);
+        if (status) {
+            this.fail(`Payment did not succeed (status: ${status}). Please try a different payment method or contact Runbox Support`);
+        } else {
+            this.fail(undefined);
+        }
     }
 
     showReceipt() {
