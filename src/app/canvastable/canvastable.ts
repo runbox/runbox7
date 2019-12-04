@@ -1174,7 +1174,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
                   this.ctx.restore();
                 } else if (col.rowWrapModeMuted) {
                   // Date/time
-                  x -= 8; // Decrease padding before Date
+                  x = 42; // sufficiently away from the checkbox
                   this.ctx.save();
                   this.ctx.font = this.fontheightSmaller + 'px ' + this.fontFamily;
                   this.ctx.fillStyle = this.textColor;
@@ -1183,7 +1183,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
                     );
                   this.ctx.restore();
                 } else {
-                  x += 10; // Increase padding before From
+                  x = 128; // far enough to make the date above fit nicely
                   this.ctx.font = this.fontheightSmall + 'px ' + this.fontFamily;
                   this.ctx.fillText(formattedVal, x, rowy + halfrowheight - 10
                     - (this.showContentTextPreview ? 8 : 0));
