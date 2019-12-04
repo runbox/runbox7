@@ -23,7 +23,7 @@
     <div class="accountGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
         <app-account-product
             *ngFor="let p of subscriptions"
-            [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
+            [ngClass]="p.subtype === 'special' ? 'accountGridCardSpecial' : 'accountGridCard'"
             [p]="p"
             [active]="me.subscription === p.pid"
             [currency]="me.currency"

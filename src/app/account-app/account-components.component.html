@@ -1,17 +1,3 @@
-<style>
-#accountComponentsGrid {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-}
-
-.componentCard {
-    margin: 10px;
-    flex: 450px 1 0;
-}
-
-</style>
-
 <h1> Account products </h1>
 
 <p>
@@ -23,8 +9,8 @@
 </p>
 
 
-<div id="accountComponentsGrid">
-    <app-account-component-card ngClass="componentCard"
+<div class="accountGrid">
+    <app-account-component-card ngClass="accountGridCard"
         title="Account upgrades"
         subtitle="Make your account more powerful by upgrading your subscription plan"
         icon="hot_tub"
@@ -32,7 +18,7 @@
     >
     </app-account-component-card>
 
-    <app-account-component-card ngClass="componentCard"
+    <app-account-component-card ngClass="accountGridCard"
         title="Account add-ons"
         subtitle="Extend your account with add-ons such as storage space and sub-accounts"
         icon="extension"
@@ -40,7 +26,7 @@
     >
     </app-account-component-card>
 
-    <app-account-component-card ngClass="componentCard"
+    <app-account-component-card ngClass="accountGridCard"
         title="Active products"
         subtitle="View your Runbox subscription and add-on products, and their renewals"
         icon="autorenew"
@@ -48,7 +34,7 @@
     >
     </app-account-component-card>
 
-    <app-account-component-card ngClass="componentCard"
+    <app-account-component-card ngClass="accountGridCard"
         title="Transactions"
         subtitle="View the history of your transactions, receipts, and invoices"
         icon="assessment"

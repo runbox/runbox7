@@ -968,24 +968,23 @@ app-calendar-event-editor-dialog p {
     }
 }
 
-
-.productCard {
+.accountGridCard {
     margin: 10px;
     grid-column: auto / auto;
 }
 
 @media(max-width: 1023px) {
-    .productCard {
+    .accountGridCard {
         grid-column: 1 / auto;
     }
 }
 
-
-.productCardSpecial {
+.accountGridCardSpecial {
     margin: 10px;
     text-align: center;
     grid-column: 1 / span 2;
 }
-.productCardSpecial .mat-card, .productCardSpecial mat-card {
-        background: mat-color($rmm-default-accent);
+
+.accountGridCardSpecial .mat-card {
+    background: mat-color($rmm-default-accent);
 }
