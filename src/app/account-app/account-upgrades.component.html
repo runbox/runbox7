@@ -1,21 +1,3 @@
-<style>
-#productGrid {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
-}
-
-.productCard {
-	margin: 10px;
-	flex: 450px 1 0;
-}
-.productCardSpecial {
-        margin: 10px;
-        flex: 900px 1 0;
-        text-align: center;
-}
-</style>
-
 <h2> Account upgrades </h2>
 
 <div *ngIf="rmmapi.me | async as me; else loading">
@@ -38,10 +20,10 @@
 	!
     </p>
 
-    <div id="productGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
+    <div class="accountGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
         <app-account-product
             *ngFor="let p of subscriptions"
-	    [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
+            [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
             [p]="p"
             [active]="me.subscription === p.pid"
             [currency]="me.currency"

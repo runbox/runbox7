@@ -954,6 +954,38 @@ app-calendar-event-editor-dialog p {
 
 /* Payment */
 
+.accountGrid {
+    display: grid;
+    margin: auto;
+    max-width: 1200px;
+    grid-template-columns: 1fr 1fr;
+    justify-content: space-between;
+}
+
+@media(max-width: 1023px) {
+    .accountGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.productCard {
+    margin: 10px;
+    grid-column: auto / auto;
+}
+
+@media(max-width: 1023px) {
+    .productCard {
+        grid-column: 1 / auto;
+    }
+}
+
+
+.productCardSpecial {
+    margin: 10px;
+    text-align: center;
+    grid-column: 1 / span 2;
+}
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
         background: mat-color($rmm-default-accent);
 }
