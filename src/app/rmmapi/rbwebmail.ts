@@ -748,4 +748,13 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res['result'])
         );
     }
+
+    public setProductAutorenew(apid: number, active: boolean): Observable<any> {
+        return this.http.post('/rest/v1/account_product/autorenew', {
+            apid:   apid,
+            active: active ? 1 : 0,
+        }).pipe(
+            map((res: HttpResponse<any>) => res)
+        );
+    }
 }

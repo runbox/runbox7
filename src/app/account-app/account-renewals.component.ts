@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
 import { ProductOrder } from './product-order';
@@ -34,8 +35,9 @@ export class AccountRenewalsComponent {
     current_subscription: number;
 
     constructor(
-        private cart:  CartService,
+        private cart: CartService,
         private rmmapi: RunboxWebmailAPI,
+        private snackbar: MatSnackBar,
     ) {
         this.rmmapi.me.subscribe(me => {
             this.current_subscription = me.subscription;
@@ -64,5 +66,22 @@ export class AccountRenewalsComponent {
 
     renew(p: any) {
         this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
+    }
+
+    toggleAutorenew(p: any) {
+        p.changingAutorenew = new Promise((resolve, reject) => {
+            this.rmmapi.setProductAutorenew(p.apid, !p.active).subscribe(
+                _ => {
+                    p.active = !p.active;
+                    p.changingAutorenew = undefined;
+                    resolve();
+                },
+                _err => {
+                    this.snackbar.open('Failed to adjust autorenewal settings. Try again later or contact Runbox Support', 'Okay');
+                    p.changingAutorenew = undefined;
+                    reject();
+                }
+            );
+        });
     }
 }
