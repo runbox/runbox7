@@ -49,7 +49,7 @@
     "material-design-icons": "^3.0.1",
     "moment": "^2.24.0",
     "ng-pick-datetime": "^7.0.0",
-    "npm": "^6.12.0",
+    "npm": "^6.13.2",
     "rrule": "^2.6.0",
     "runbox-searchindex": "^0.1.0",
     "rxjs": "^6.5.3",
