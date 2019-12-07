@@ -32,7 +32,7 @@ export class Alias {
         let req = this.app.ua.http.get('/rest/v1/aliases', {}).pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
               this.app.show_error( reply.error.join( '' ), 'Dismiss' )
               return
@@ -59,7 +59,7 @@ export class Alias {
         let req = this.app.ua.http.post('/rest/v1/alias/', obj).pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             this.app.handle_field_errors(reply, field_errors)
           },
           error => {
@@ -71,7 +71,7 @@ export class Alias {
     delete(id) {
         let req = this.app.ua.http.delete('/rest/v1/alias/'+id).pipe(timeout(60000), share())
         req.subscribe(data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.handle_errors( reply );
             }
@@ -82,7 +82,7 @@ export class Alias {
         let req = this.app.ua.http.put('/rest/v1/alias/'+id, values).pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             this.app.handle_field_errors(reply, field_errors);
           },
           error => {
@@ -95,7 +95,7 @@ export class Alias {
         let req = this.app.ua.http.post('/rest/v1/alias/'+obj.id+'/validate_email/', obj).pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
           },
           error => {
             this.app.show_error('Could not validate aliases.', 'Dismiss');

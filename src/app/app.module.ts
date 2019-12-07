@@ -78,6 +78,11 @@ import { UpdateAlertModule } from './updatealert/updatealert.module';
 import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields-input/multiple-search-fields-input.module';
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
+import { ProfilesComponent } from './profiles/profiles.component';
+import { DevComponent } from './dev/dev.component';
+import { RMM } from './rmm';
+import { ProfilesEditorModal } from './profiles/profiles.editor.modal';
+import { AliasesEditorModal } from './aliases/aliases.editor.modal';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -92,6 +97,9 @@ const routes: Routes = [
         component: HeaderToolbarComponent
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
+      { path: 'identities', component: ProfilesComponent},
+      { path: 'dev', component: DevComponent},
+      { path: 'dev/:selected_component', component: DevComponent},
       { path: 'dkim', component: DkimComponent},
       { path: 'calendar', component: CalendarAppComponent },
       { path: 'index_dev.html', component: AppComponent },
@@ -158,12 +166,16 @@ const routes: Routes = [
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    RMM,
     RMMAuthGuardService,
     StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],
   bootstrap: [MainContainerComponent],
-  entryComponents: [MoveMessageDialogComponent]
+  entryComponents: [MoveMessageDialogComponent,
+    ProfilesEditorModal,
+    AliasesEditorModal,
+  ]
 })
 export class AppModule { }
 

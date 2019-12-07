@@ -452,7 +452,7 @@ export class ProfilesEditorModal {
         let req = this.rmm.profile.create(values, this.field_errors)
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'success' ) {
                 this.is_busy = false;
                 this.rmm.profile.load()
@@ -467,7 +467,7 @@ export class ProfilesEditorModal {
         let data = this.data;
         let req = this.rmm.profile.delete(data.profile.id)
         req.subscribe(data => {
-            let reply = data.json()
+            let reply = data
             if ( reply.status == 'success' ) {
                 this.is_busy = false;
                 this.rmm.profile.load()
@@ -494,7 +494,7 @@ export class ProfilesEditorModal {
         let req = this.rmm.profile.update(this.data.profile.id, values, this.field_errors)
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             this.is_busy = false;
             if ( reply.status == 'success' ) {
                 this.rmm.profile.load()

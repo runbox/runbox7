@@ -34,7 +34,7 @@ export class Me {
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.show_error( reply.error.join( '' ), 'Dismiss' );
                 return

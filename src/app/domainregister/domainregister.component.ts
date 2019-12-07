@@ -629,7 +629,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   //  .timeout(60000) 
   //  .subscribe(
   //      data => {
-  //          var reply = data.json()
+  //          var reply = data
   //          this.dataSourceUserDomains = new MatTableDataSource<ElementUserDomain>(reply.result.hosted_domains);
   //      },
   //      error => { 
@@ -906,7 +906,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   //  .subscribe(
   //      data => {
   //        this.is_loading.dns_settings = false;
-  //        var reply = data.json()
+  //        var reply = data
   //        if ( reply.status == 'success' ) {
   //          this.update_data_source_dns(reply.result.dns);
   //        } else {
@@ -948,7 +948,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   //  .subscribe(
   //      data => {
   //        this.is_loading.dns_settings = false;
-  //        var reply = data.json()
+  //        var reply = data
   //        if ( reply.status == 'success' ) {
   //          this.update_data_source_dns(reply.result.dns);
   //        } else {

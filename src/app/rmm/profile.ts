@@ -33,7 +33,7 @@ export class Profile {
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.show_error( reply.error.join( '' ), 'Dismiss' )
                 return
@@ -54,7 +54,7 @@ export class Profile {
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.show_error( reply.error.join( '' ), 'Dismiss' )
                 return
@@ -74,7 +74,7 @@ console.log('PROFILES VERIFIED', this.profiles_verified)
         let req = this.app.ua.http.post('/rest/v1/profile/', values).pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.handle_field_errors(reply, field_errors)
                 return
@@ -89,7 +89,7 @@ console.log('PROFILES VERIFIED', this.profiles_verified)
     delete(id){
         let req = this.app.ua.http.delete('/rest/v1/profile/'+id).pipe(timeout(60000), share())
         req.subscribe(data => {
-            let reply = data.json()
+            let reply = data
             if ( reply.status == 'error' ) {
                 this.app.show_error( reply.error.join( '' ), 'Dismiss' )
                 return;
@@ -101,7 +101,7 @@ console.log('PROFILES VERIFIED', this.profiles_verified)
         let req = this.app.ua.http.put('/rest/v1/profile/'+id, values).pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.handle_field_errors(reply, field_errors)
                 return;
@@ -117,7 +117,7 @@ console.log('PROFILES VERIFIED', this.profiles_verified)
         let req = this.app.ua.http.put('/rest/v1/profile/'+id+'/resend_validation_email').pipe(timeout(60000), share())
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'error' ) {
                 this.app.handle_field_errors(reply, field_errors)
                 return;

@@ -250,7 +250,7 @@ export class ProfilesLister {
       let req = this.rmm.profile.resend()
       req.subscribe(
         data => {
-          let reply = data.json();
+          let reply = data;
           if ( reply.status == 'success' ) {
             this.show_error('Email validation sent','Dismiss');
             this.rmm.profile.load()

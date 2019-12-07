@@ -216,7 +216,7 @@ export class AliasesEditorModal {
             forward_to : data.forward_to,
         }, this.field_errors)
         req.subscribe((data)=>{
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'success' ) {
                 this.has_created = true;
                 this.close();
@@ -227,7 +227,7 @@ export class AliasesEditorModal {
         let data = this.data;
         let req = this.rmm.alias.delete(data.id)
         req.subscribe(data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'success' ) {
                 this.has_deleted = true;
                 return this.close();
@@ -242,7 +242,7 @@ export class AliasesEditorModal {
         let req = this.rmm.alias.update(data.id, values, this.field_errors)
         req.subscribe(
           data => {
-            let reply = data.json();
+            let reply = data;
             if ( reply.status == 'success' ) {
             console.log('aliases has updated !!')
                 this.rmm.alias.load()

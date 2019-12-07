@@ -34,7 +34,7 @@ export class RunboxDomain {
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data.json();
+            let reply = data;
             this.data = reply.results;
             return;
           },
