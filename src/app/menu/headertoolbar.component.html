@@ -2,12 +2,12 @@
   <a mat-button routerLink="/" class="mainMenu"><mat-icon>email</mat-icon>Webmail</a><br />
   <a mat-button routerLink="/contacts" class="mainMenu"><mat-icon>people</mat-icon>Contacts</a>
   <a mat-button routerLink="/calendar" class="mainMenu"><mat-icon>date_range</mat-icon>Calendar</a>
-  <a mat-button href="/files" class="mainMenu" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>folder_open</mat-icon>Files</a>
+  <a mat-button href="/files" class="mainMenu" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>folder_open</mat-icon>Files</a>
 
   <mat-menu #settingsMenu="matMenu">
     <mat-menu #accountSubMenu="matMenu" class="mainMenuSub">
-      <a mat-button href="/mail/account" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>person</mat-icon>Account Settings</a><br />
-      <a mat-button href="/mail/account_security" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>security</mat-icon>Account Security</a><br />
+      <a mat-button href="/mail/account" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>person</mat-icon>Account Settings</a><br />
+      <a mat-button href="/mail/account_security" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>security</mat-icon>Account Security</a><br />
       <a mat-button routerLink="/account/components"><mat-icon>widgets</mat-icon>Account Products</a><br />
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="accountSubMenu" class="mainMenuSub">
@@ -15,19 +15,19 @@
     </button>
 
     <mat-menu #managerSubMenu="matMenu" class="mainMenuSub">
-      <a mat-button href="/mail/manager" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>group_work</mat-icon>Manager</a><br />
-      <a mat-button href="/mail/fetch" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>cloud_download</mat-icon>Retrieve</a><br />
-      <a mat-button href="/mail/rules" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>filter_list</mat-icon>Filter</a><br />
-      <a mat-button href="/mail/access" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>get_app</mat-icon>Access</a>
+      <a mat-button href="/mail/manager" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>group_work</mat-icon>Manager</a><br />
+      <a mat-button href="/mail/fetch" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>cloud_download</mat-icon>Retrieve</a><br />
+      <a mat-button href="/mail/rules" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>filter_list</mat-icon>Filter</a><br />
+      <a mat-button href="/mail/access" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>get_app</mat-icon>Access</a>
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="managerSubMenu" class="mainMenuSub">
       <mat-icon>group_work</mat-icon> Manager
     </button>
 
     <mat-menu #hostingSubMenu="matMenu" class="mainMenuSub">
-	<a mat-button href="/mail/account_domain" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>email</mat-icon>Email Hosting</a><br />
-	<a mat-button href="/mail/account_webhosting" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>public</mat-icon>Web Hosting</a><br />
-	<a mat-button href="/mail/account_domain_hosting" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>domain</mat-icon>Domain Hosting</a>
+	<a mat-button href="/mail/account_domain" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>email</mat-icon>Email Hosting</a><br />
+	<a mat-button href="/mail/account_webhosting" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>public</mat-icon>Web Hosting</a><br />
+	<a mat-button href="/mail/account_domain_hosting" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>domain</mat-icon>Domain Hosting</a>
     <a mat-button [routerLink]="['/domainregistration']"><mat-icon>border_inner</mat-icon>Domain Registration</a>
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="hostingSubMenu" class="mainMenuSub">
@@ -64,7 +64,7 @@
     <mat-icon>person</mat-icon>
   </button>
   <mat-menu #accountMenu="matMenu" class="mainMenuSub themePalettePrimary">
-    <a mat-button href="/mail/account" matTooltip="This area isn't upgraded to Runbox 7 yet and will open in a new tab" target="rmm6"><mat-icon>person</mat-icon>Account Settings</a><br />
+    <a mat-button href="/mail/account" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon>person</mat-icon>Account Settings</a><br />
     <a mat-button routerLink="/account/components"><mat-icon>widgets</mat-icon>Account Products</a><br />
     <a mat-button (click)="logoutservice.logout()"><mat-icon>power_settings_new</mat-icon>Log out</a>
   </mat-menu>

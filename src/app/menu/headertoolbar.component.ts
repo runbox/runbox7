@@ -29,6 +29,7 @@ import { LogoutService } from '../login/logout.service';
     templateUrl: 'headertoolbar.component.html'
 })
 export class HeaderToolbarComponent {
+    
     constructor(
         public rmmapi: RunboxWebmailAPI,
         private router: Router,
@@ -48,4 +49,6 @@ export class HeaderToolbarComponent {
     public contacts() {
         this.router.navigate(['contacts']);
     }
+
+    rmm6tooltip = "This area isn't upgraded to Runbox 7 yet and will open in a new tab";
 }
