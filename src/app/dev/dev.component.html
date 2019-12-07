@@ -1,0 +1,69 @@
+<style>
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.column.right {
+  flex-grow: 7;
+}
+
+</style>
+<mat-sidenav-container class="" style="padding: 10px;">
+    <mat-sidenav mode="side" opened=false></mat-sidenav>
+    <mat-sidenav-content>
+        <section class="mat-typography">
+            <div class='some-page-wrapper'>
+              <div class='row'>
+                <div class='column left'>
+                  <div class='blue-column'>
+                    <h2>Components</h2>
+                    <mat-list>
+                     <mat-list-item>
+                        <a mat-button [routerLink]="['/dev/runbox-intro']"><mat-icon>border_inner</mat-icon>Intro</a>
+                     </mat-list-item>
+                     <mat-list-item>
+                        <a mat-button [routerLink]="['/dev/runbox-list']"><mat-icon>border_inner</mat-icon>List</a>
+                     </mat-list-item>
+                    </mat-list>
+                  </div>
+                </div>
+                <div class='column right'>
+                  <div class='green-column'>
+                    <runbox-intro *ngIf="route.params['getValue']().selected_component === 'runbox-intro'">
+                    </runbox-intro>
+                    <runbox-list
+                        *ngIf="route.params['getValue']().selected_component === 'runbox-list'"
+                        [values]='values_runbox_list'
+                    >
+                        <ng-template #runbox_list_row_small let-item>
+                            <h1 style="color:red;">{{ item.firstname }}</h1>
+                            <div>{{ item.lastname }}</div>
+                        </ng-template>
+                        <ng-template #runbox_list_row_medium let-item>
+                            <h1 style="color:red;">{{ item.firstname }}</h1>
+                            <div>{{ item.firstname }}</div>
+                            <br>
+                            <div>{{ item.lastname }}</div>
+                            <br>
+                            This is a medium row. Its bigger than the small row.. it displays more content.
+                            <button (click)="edit(item)">EDIT ITEM</button>
+                        </ng-template>
+                    </runbox-list>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </section>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
