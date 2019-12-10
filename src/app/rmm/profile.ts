@@ -20,8 +20,8 @@ import { timeout, share } from 'rxjs/operators';
 import { RMM } from '../rmm';
 
 export class Profile {
-    public profiles:any;
-    public profiles_verified:any;
+    public profiles: any;
+    public profiles_verified: any;
     is_busy = false;
     constructor(
         private app: RMM,
@@ -29,14 +29,14 @@ export class Profile {
     }
     load() {
         this.is_busy = true;
-        let req = this.app.ua.http.get('/rest/v1/profiles', {}).pipe(timeout(60000), share())
+        const req = this.app.ua.http.get('/rest/v1/profiles', {}).pipe(timeout(60000), share());
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data;
-            if ( reply.status == 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' )
-                return
+            const reply = data;
+            if ( reply.status === 'error' ) {
+                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+                return;
             }
             this.profiles = reply.result;
             return;
@@ -45,39 +45,38 @@ export class Profile {
             this.is_busy = false;
             return this.app.show_error('Could not load profiles.', 'Dismiss');
           }
-        )
-        return req
+        );
+        return req;
     }
     load_verified() {
         this.is_busy = true;
-        let req = this.app.ua.http.get('/rest/v1/profiles/verified', {}).pipe(timeout(60000), share())
+        const req = this.app.ua.http.get('/rest/v1/profiles/verified', {}).pipe(timeout(60000), share());
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data;
-            if ( reply.status == 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' )
-                return
+            const reply = data;
+            if ( reply.status === 'error' ) {
+                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+                return;
             }
             this.profiles_verified = reply.result;
-console.log('PROFILES VERIFIED', this.profiles_verified)
             return;
           },
           error => {
             this.is_busy = false;
             return this.app.show_error('Could not load profiles.', 'Dismiss');
           }
-        )
-        return req
+        );
+        return req;
     }
     create(values, field_errors) {
-        let req = this.app.ua.http.post('/rest/v1/profile/', values).pipe(timeout(60000), share())
+        const req = this.app.ua.http.post('/rest/v1/profile/', values).pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
-            if ( reply.status == 'error' ) {
-                this.app.handle_field_errors(reply, field_errors)
-                return
+            const reply = data;
+            if ( reply.status === 'error' ) {
+                this.app.handle_field_errors(reply, field_errors);
+                return;
             }
           },
           error => {
@@ -86,24 +85,24 @@ console.log('PROFILES VERIFIED', this.profiles_verified)
         );
         return req;
     }
-    delete(id){
-        let req = this.app.ua.http.delete('/rest/v1/profile/'+id).pipe(timeout(60000), share())
+    delete(id) {
+        const req = this.app.ua.http.delete('/rest/v1/profile/' + id).pipe(timeout(60000), share());
         req.subscribe(data => {
-            let reply = data
-            if ( reply.status == 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' )
+            const reply = data;
+            if ( reply.status === 'error' ) {
+                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
                 return;
             }
         });
         return req;
     }
     update(id, values, field_errors) {
-        let req = this.app.ua.http.put('/rest/v1/profile/'+id, values).pipe(timeout(60000), share())
+        const req = this.app.ua.http.put('/rest/v1/profile/' + id, values).pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
-            if ( reply.status == 'error' ) {
-                this.app.handle_field_errors(reply, field_errors)
+            const reply = data;
+            if ( reply.status === 'error' ) {
+                this.app.handle_field_errors(reply, field_errors);
                 return;
             }
           },
@@ -114,12 +113,12 @@ console.log('PROFILES VERIFIED', this.profiles_verified)
         return req;
     }
     resend(id, values, field_errors) {
-        let req = this.app.ua.http.put('/rest/v1/profile/'+id+'/resend_validation_email').pipe(timeout(60000), share())
+        const req = this.app.ua.http.put('/rest/v1/profile/' + id + '/resend_validation_email').pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
-            if ( reply.status == 'error' ) {
-                this.app.handle_field_errors(reply, field_errors)
+            const reply = data;
+            if ( reply.status === 'error' ) {
+                this.app.handle_field_errors(reply, field_errors);
                 return;
             }
           },

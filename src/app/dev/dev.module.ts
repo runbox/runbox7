@@ -42,15 +42,15 @@ import {
     MatTableModule
 } from '@angular/material';
 
-import {DevComponent } from './dev.component';
-import { RunboxIntro } from '../runbox-components/runbox-intro';
-import { RunboxList } from '../runbox-components/runbox-list';
+import { DevComponent } from './dev.component';
+import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
+import { RunboxListComponent } from '../runbox-components/runbox-list';
 
 @NgModule({
     declarations: [
     DevComponent,
-    RunboxIntro,
-    RunboxList,
+    RunboxIntroComponent,
+    RunboxListComponent,
     ],
     imports: [
     BrowserModule,

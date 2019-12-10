@@ -20,7 +20,7 @@ import { timeout, share } from 'rxjs/operators';
 import { RMM } from '../rmm';
 
 export class Me {
-    public profiles:any;
+    public profiles: any;
     is_busy = false;
     data;
     constructor(
@@ -28,16 +28,16 @@ export class Me {
     ) {
     }
     load() {
-        if ( this.data ) { return }
+        if ( this.data ) { return; }
         this.is_busy = true;
-        let req = this.app.ua.http.get('/rest/v1/me', {}).pipe(timeout(60000), share())
+        const req = this.app.ua.http.get('/rest/v1/me', {}).pipe(timeout(60000), share());
         req.subscribe(
           data => {
             this.is_busy = false;
-            let reply = data;
-            if ( reply.status == 'error' ) {
+            const reply = data;
+            if ( reply.status === 'error' ) {
                 this.app.show_error( reply.error.join( '' ), 'Dismiss' );
-                return
+                return;
             }
             this.data = reply.result;
             return;
@@ -46,7 +46,7 @@ export class Me {
             this.is_busy = false;
             return this.app.show_error('Could not load me endpoint.', 'Dismiss');
           }
-        )
-        return req
+        );
+        return req;
     }
 }

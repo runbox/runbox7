@@ -29,20 +29,20 @@
                     <h2>Components</h2>
                     <mat-list>
                      <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/runbox-intro']"><mat-icon>border_inner</mat-icon>Intro</a>
+                        <a mat-button [routerLink]="['/dev/app-runbox-intro']"><mat-icon>border_inner</mat-icon>Intro</a>
                      </mat-list-item>
                      <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/runbox-list']"><mat-icon>border_inner</mat-icon>List</a>
+                        <a mat-button [routerLink]="['/dev/app-runbox-list']"><mat-icon>border_inner</mat-icon>List</a>
                      </mat-list-item>
                     </mat-list>
                   </div>
                 </div>
                 <div class='column right'>
                   <div class='green-column'>
-                    <runbox-intro *ngIf="route.params['getValue']().selected_component === 'runbox-intro'">
-                    </runbox-intro>
-                    <runbox-list
-                        *ngIf="route.params['getValue']().selected_component === 'runbox-list'"
+                    <app-runbox-intro *ngIf="route.params['getValue']().selected_component === 'app-runbox-intro'">
+                    </app-runbox-intro>
+                    <app-runbox-list
+                        *ngIf="route.params['getValue']().selected_component === 'app-runbox-list'"
                         [values]='values_runbox_list'
                     >
                         <ng-template #runbox_list_row_small let-item>
@@ -58,7 +58,7 @@
                             This is a medium row. Its bigger than the small row.. it displays more content.
                             <button (click)="edit(item)">EDIT ITEM</button>
                         </ng-template>
-                    </runbox-list>
+                    </app-runbox-list>
                   </div>
                 </div>
               </div>

@@ -20,7 +20,7 @@ import { timeout, share } from 'rxjs/operators';
 import { RMM } from '../rmm';
 
 export class Alias {
-    public profiles:any;
+    public profiles: any;
     public aliases: any;
     public aliases_unique: any;
     public aliases_counter: any;
@@ -29,23 +29,23 @@ export class Alias {
     ) {
     }
     load() {
-        let req = this.app.ua.http.get('/rest/v1/aliases', {}).pipe(timeout(60000), share())
+        const req = this.app.ua.http.get('/rest/v1/aliases', {}).pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
-            if ( reply.status == 'error' ) {
-              this.app.show_error( reply.error.join( '' ), 'Dismiss' )
-              return
+            const reply = data;
+            if ( reply.status === 'error' ) {
+              this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+              return;
             }
             this.aliases = reply.result.aliases;
-            let _unique = {};
-            for ( let value of this.aliases ) {
-                _unique[value.localpart+'@'+value.domain]=1
+            const _unique = {};
+            for ( const value of this.aliases ) {
+                _unique[ value.localpart + '@' + value.domain ] = 1;
             }
             this.aliases_unique = Object.keys(_unique);
             this.aliases_counter = {
-                total : reply.result.counter.total,
-                current : reply.result.counter.current,
+                total: reply.result.counter.total,
+                current: reply.result.counter.current,
             };
             return;
           },
@@ -53,54 +53,54 @@ export class Alias {
             return this.app.show_error('Could not load aliases.', 'Dismiss');
           }
         );
-        return req
+        return req;
     }
     create(obj, field_errors) {
-        let req = this.app.ua.http.post('/rest/v1/alias/', obj).pipe(timeout(60000), share())
+        const req = this.app.ua.http.post('/rest/v1/alias/', obj).pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
-            this.app.handle_field_errors(reply, field_errors)
+            const reply = data;
+            this.app.handle_field_errors(reply, field_errors);
           },
           error => {
             this.app.show_error('Could not load aliases.', 'Dismiss');
           }
         );
-        return req
+        return req;
     }
     delete(id) {
-        let req = this.app.ua.http.delete('/rest/v1/alias/'+id).pipe(timeout(60000), share())
+        const req = this.app.ua.http.delete('/rest/v1/alias/' + id).pipe(timeout(60000), share());
         req.subscribe(data => {
-            let reply = data;
-            if ( reply.status == 'error' ) {
+            const reply = data;
+            if ( reply.status === 'error' ) {
                 this.app.handle_errors( reply );
             }
-        })
-        return req
+        });
+        return req;
     }
-    update(id, values, field_errors){
-        let req = this.app.ua.http.put('/rest/v1/alias/'+id, values).pipe(timeout(60000), share())
+    update(id, values, field_errors) {
+        const req = this.app.ua.http.put('/rest/v1/alias/' + id, values).pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
+            const reply = data;
             this.app.handle_field_errors(reply, field_errors);
           },
           error => {
             this.app.show_error('Could not load profiles.', 'Dismiss');
           }
-        )
-        return req
+        );
+        return req;
     }
     validate(obj) {
-        let req = this.app.ua.http.post('/rest/v1/alias/'+obj.id+'/validate_email/', obj).pipe(timeout(60000), share())
+        const req = this.app.ua.http.post('/rest/v1/alias/' + obj.id + '/validate_email/', obj).pipe(timeout(60000), share());
         req.subscribe(
           data => {
-            let reply = data;
+            const reply = data;
           },
           error => {
             this.app.show_error('Could not validate aliases.', 'Dismiss');
           }
         );
-        return req
+        return req;
     }
 }

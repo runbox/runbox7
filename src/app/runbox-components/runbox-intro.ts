@@ -16,14 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { 
-  SecurityContext, 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
-  NgZone, 
-  ViewChild, 
+import {
+  SecurityContext,
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  NgZone,
+  ViewChild,
   AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -48,15 +48,15 @@ import {
   MatSnackBar,
   MatGridListModule,
 } from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field'; 
+import {MatFormFieldModule} from '@angular/material/form-field';
 import {RMM} from '../rmm';
 
 @Component({
-    selector: 'runbox-intro',
+    selector: 'app-runbox-intro',
     styles: [`
     `],
     template: `
-    <div class="runbox-intro">
+    <div class="app-runbox-intro">
         <h1 class="mat-h1">Runbox7 Dev Components</h1>
         <div>
             <p>
@@ -68,15 +68,16 @@ import {RMM} from '../rmm';
             </p>
 
             <p>
-            New components can be developed here and listed, that way its possible to have examples of how the component is used and possibly some documentation.
+                New components can be developed here and listed, that way its possible to have examples of how
+                the component is used and possibly some documentation.
             </p>
         </div>
     </div>
     `
 })
 
-export class RunboxIntro {
-  private dialog_ref : any;
+export class RunboxIntroComponent {
+  private dialog_ref: any;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
     public snackBar: MatSnackBar,

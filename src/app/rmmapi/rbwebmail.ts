@@ -468,11 +468,11 @@ export class RunboxWebmailAPI {
 
     public getFromAddress(): Observable<FromAddress[]> {
         return this.rmm.profile.load_verified().pipe(
-            map((http_res) =>{
-            let res = http_res;
-                let results = [];
+            map((http_res) => {
+            const res = http_res;
+                const results = [];
                 Object.keys(res['result']).forEach( (k) => {
-                    res['result'][k].forEach((item)=>{
+                    res['result'][k].forEach( (item) => {
                         const profile = FromAddress.fromObject({
                             id: item.profile.id,
                             email: item.profile.email,
@@ -480,11 +480,10 @@ export class RunboxWebmailAPI {
                             name: item.profile.from_name,
                             signature: item.profile.signature,
                         });
-                        console.log('PROFILE:', profile);
-                        results.push(profile)
-                    })
-                } )
-                return results
+                        results.push(profile);
+                    });
+                });
+                return results;
             })
         );
     }

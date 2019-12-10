@@ -9,16 +9,16 @@ import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
 
 describe('ProfilesComponent', () => {
     beforeEach(async(() => {
-	TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
             imports: [
-	        ProfilesModule,
-		RouterTestingModule.withRoutes([])
-	    ],
-	    providers: [
-		{ provide: RunboxWebmailAPI, useValue: {
-		    getAllProfiles: (): Observable<Profile[]> => of([]) }
-		}
-	    ]
-	}).compileComponents();
+            ProfilesModule,
+        RouterTestingModule.withRoutes([])
+        ],
+        providers: [
+        { provide: RunboxWebmailAPI, useValue: {
+            getAllProfiles: (): Observable<Profile[]> => of([]) }
+        }
+        ]
+    }).compileComponents();
     }));
 });

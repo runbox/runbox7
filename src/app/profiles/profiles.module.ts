@@ -23,18 +23,18 @@ import {
 } from '@angular/material';
 
 import { ProfilesComponent } from './profiles.component';
-import { ProfilesLister } from './profiles.lister';
-import { AliasesLister } from '../aliases/aliases.lister';
-import { ProfilesEditorModal } from './profiles.editor.modal';
-import { AliasesEditorModal } from '../aliases/aliases.editor.modal';
+import { ProfilesListerComponent } from './profiles.lister';
+import { AliasesListerComponent } from '../aliases/aliases.lister';
+import { ProfilesEditorModalComponent } from './profiles.editor.modal';
+import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 
 @NgModule({
     declarations: [
-    AliasesLister,
+    AliasesListerComponent,
     ProfilesComponent,
-    ProfilesLister,
-    ProfilesEditorModal,
-    AliasesEditorModal,
+    ProfilesListerComponent,
+    ProfilesEditorModalComponent,
+    AliasesEditorModalComponent,
     ],
     imports: [
     BrowserModule,

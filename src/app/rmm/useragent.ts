@@ -17,9 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout } from 'rxjs/operators';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RMM } from '../rmm';
-//ABSTRACT: this class has the http client that is used on this app
 export class UserAgent {
     constructor(
         private app: RMM,

@@ -16,14 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { 
-  SecurityContext, 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
-  NgZone, 
-  ViewChild, 
+import {
+  SecurityContext,
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  NgZone,
+  ViewChild,
   AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -48,13 +48,13 @@ import {
   MatSnackBar,
   MatGridListModule,
 } from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field'; 
-import {ProfilesEditorModal} from './profiles.editor.modal';
-import {AliasesEditorModal} from '../aliases/aliases.editor.modal';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {ProfilesEditorModalComponent} from './profiles.editor.modal';
+import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
 import {RMM} from '../rmm';
 
 @Component({
-    selector: 'profiles-lister',
+    selector: 'app-profiles-lister',
     styles: [`
         .profile-form {
             padding-top: 10px;
@@ -89,7 +89,8 @@ import {RMM} from '../rmm';
         <ng-content select="[section-header]" style="margin-top: 20px;"></ng-content>
         <ng-content select="[section-description]"></ng-content>
         <ng-content select="[section-buttons]"></ng-content>
-        <mat-card class="mat_card" style="" *ngFor="let item of values; let i = index;" style='width: 600px; display: inline-flex; border-bottom: 1px solid #CCC'>
+        <mat-card class="mat_card" style="" *ngFor="let item of values; let i = index;"
+            style='width: 600px; display: inline-flex; border-bottom: 1px solid #CCC'>
             <mat-card-content class="" style="width: 100%">
                 <p>
                     <mat-grid-list cols="12" rowHeight="35px"class=''>
@@ -209,33 +210,32 @@ import {RMM} from '../rmm';
     </div>
     `
 })
-export class ProfilesLister {
+export class ProfilesListerComponent {
   @Input() values: any[];
   @Output() ev_reload = new EventEmitter<string>();
-  private dialog_ref : any;
+  private dialog_ref: any;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
     public snackBar: MatSnackBar,
   ) {
-    this.rmm.me.load()
+    this.rmm.me.load();
   }
   edit (item): void {
-      item = JSON.parse(JSON.stringify(item))
-      this.dialog_ref = this.dialog.open(ProfilesEditorModal, {
+      item = JSON.parse(JSON.stringify(item));
+      this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
           width: '600px',
           data: item
       });
 
       this.dialog_ref.componentInstance.is_update = true;
+      this.dialog_ref.componentInstance.css_class = 'update';
       this.dialog_ref.afterClosed().subscribe(result => {
-          console.log('Dialog Close !', result)
           this.ev_reload.emit('updated');
           item = result;
       });
   }
   delete (i, item) {
-      console.log("delete", i, item)
-      this.dialog_ref = this.dialog.open(ProfilesEditorModal, {
+      this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
           width: '600px',
           data: item,
       });
@@ -247,13 +247,13 @@ export class ProfilesLister {
       });
   }
   resend_validate_email () {
-      let req = this.rmm.profile.resend()
+      const req = this.rmm.profile.resend();
       req.subscribe(
         data => {
-          let reply = data;
-          if ( reply.status == 'success' ) {
-            this.show_error('Email validation sent','Dismiss');
-            this.rmm.profile.load()
+          const reply = data;
+          if ( reply.status === 'success' ) {
+            this.show_error('Email validation sent', 'Dismiss');
+            this.rmm.profile.load();
             return;
           }
         },

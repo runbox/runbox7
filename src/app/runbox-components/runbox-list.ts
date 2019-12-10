@@ -16,14 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { 
-  SecurityContext, 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
-  NgZone, 
-  ViewChild, 
+import {
+  SecurityContext,
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  NgZone,
+  ViewChild,
   AfterViewInit,
   ContentChild,
   ElementRef,
@@ -51,15 +51,15 @@ import {
   MatSnackBar,
   MatGridListModule,
 } from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field'; 
+import {MatFormFieldModule} from '@angular/material/form-field';
 import {RMM} from '../rmm';
 
 @Component({
-    selector: 'runbox-list',
+    selector: 'app-runbox-list',
     styles: [`
     `],
     template: `
-    <div class="runbox-list">
+    <div class="app-runbox-list">
         <div class="header">
             <mat-toolbar color="primary">
               <mat-toolbar-row>
@@ -91,9 +91,9 @@ import {RMM} from '../rmm';
     `
 })
 
-export class RunboxList {
+export class RunboxListComponent {
   @Input() values: any[];
-  private dialog_ref : any;
+  private dialog_ref: any;
   view_mode: any;
   @ContentChild('runbox_list_row_small', {static: false}) runbox_list_row_small: TemplateRef<ElementRef>;
   @ContentChild('runbox_list_row_medium', {static: false}) runbox_list_row_medium: TemplateRef<ElementRef>;
@@ -101,7 +101,7 @@ export class RunboxList {
     public rmm: RMM,
     public snackBar: MatSnackBar,
   ) {
-    this.view_mode='small';
+    this.view_mode = 'small';
   }
 
   show_error (message, action) {

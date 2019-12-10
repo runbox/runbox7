@@ -103,7 +103,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 if ( !this.has_pasted_signature && from.signature ) {
                     this.has_pasted_signature = true;
                     this.signature = from.signature;
-                    this.model.msg_body = this.signature.concat("\n\n",this.model.msg_body);
+                    this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
                 }
             }
         } else {
@@ -129,13 +129,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     f.nameAndAddress === selected_from_address);
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
-                        let new_signature = from.signature;
-                        let rgx = new RegExp("^"+this.signature,'g');
-                        let msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
+                        const new_signature = from.signature;
+                        const rgx = new RegExp('^' + this.signature, 'g');
+                        const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
                         this.signature = new_signature;
                         this.formGroup.controls.msg_body.setValue(msg_body);
                     } else if ( !this.signature && from.signature) {
-                        let msg_body = from.signature.concat("\n\n",this.model.msg_body);
+                        const msg_body = from.signature.concat('\n\n', this.model.msg_body);
                         this.signature = from.signature;
                         this.formGroup.controls.msg_body.setValue(msg_body);
                     }

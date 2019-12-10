@@ -19,7 +19,7 @@
 import { Injectable } from '@angular/core';
 import { timeout } from 'rxjs/operators';
 import { UserAgent } from './rmm/useragent';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
@@ -40,7 +40,7 @@ export class RMM {
         public http: HttpClient,
         public snackBar: MatSnackBar,
     ) {
-        this.ua = new UserAgent(this, this.http)
+        this.ua = new UserAgent(this, this.http);
         this.profile = new Profile(this);
         this.alias = new Alias(this);
         this.me = new Me(this);
@@ -54,20 +54,20 @@ export class RMM {
     }
 
     public handle_errors ( res ) {
-        if ( res.status == 'error' ) {
+        if ( res.status === 'error' ) {
             if ( res.errors ) {
-                this.show_error( res.errors.join( '' ), 'Dismiss' )
+                this.show_error( res.errors.join( '' ), 'Dismiss' );
             }
         }
     }
 
     public handle_field_errors ( res, field_errors ) {
-        if ( res.status == 'error' ) {
+        if ( res.status === 'error' ) {
             if ( field_errors && res.field_errors ) {
                 field_errors = res.field_errors;
             }
             if ( res.errors ) {
-                this.show_error( res.errors.join( '' ), 'Dismiss' )
+                this.show_error( res.errors.join( '' ), 'Dismiss' );
             }
         }
     }

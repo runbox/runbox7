@@ -4,7 +4,7 @@
         <section class="mat-typography">
             <h1 class="mat-h1">Identities</h1>
             <div>
-                <profiles-lister
+                <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('main')"
                     [values]="rmm.profile.profiles.main"
                     (ev_reload)="ev_reload_emiter($event)"
@@ -30,8 +30,8 @@
                             Add Main Identity
                         </button>
                     </div>
-                </profiles-lister>
-                <profiles-lister
+                </app-profiles-lister>
+                <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('aliases')"
                     [values]="rmm.profile.profiles.aliases"
                     (ev_reload)="ev_reload_emiter($event)"
@@ -59,8 +59,8 @@
                             {{rmm.alias.aliases_counter.current}} of {{rmm.alias.aliases_counter.total}} available aliases created
                         </span>
                     </div>
-                </profiles-lister>
-                <profiles-lister
+                </app-profiles-lister>
+                <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('others')"
                     [values]="rmm.profile.profiles.others"
                     (ev_reload)="ev_reload_emiter($event)"
@@ -86,7 +86,7 @@
                         </button>
                         {{rmm.profile.profiles.others.length}} profiles created
                     </div>
-                </profiles-lister>
+                </app-profiles-lister>
             </div>
         </section>
     </mat-sidenav-content>

@@ -16,19 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { 
-  SecurityContext, 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
-  NgZone, 
-  ViewChild, 
+import {
+  SecurityContext,
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  NgZone,
+  ViewChild,
   AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   MatCardModule,
   MatCheckboxModule,
@@ -47,12 +47,12 @@ import {
   MatPaginator,
   MatSnackBar,
 } from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field'; 
-import {AliasesEditorModal} from '../aliases/aliases.editor.modal';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
 import {RMM} from '../rmm';
 
 @Component({
-    selector: 'aliases-lister',
+    selector: 'app-aliases-lister',
     styles: [`
         .aliases-lister form > div {
             display: inline-block;
@@ -90,19 +90,19 @@ import {RMM} from '../rmm';
                     >
                 </mat-form-field>
 <!--
-                <button 
-                    (click)="edit(item)" 
-                    color='primary' 
-                    mat-raised-button 
+                <button
+                    (click)="edit(item)"
+                    color='primary'
+                    mat-raised-button
                     style="margin: 10px;"
                 >
                     Edit
                 </button>
 
-                <button 
+                <button
                     (click)="delete(i, item)"
                     *ngIf="!is_delete_disabled"
-                    color='primary' 
+                    color='primary'
                     mat-raised-button
                     style="margin: 10px;"
                 >
@@ -116,47 +116,42 @@ import {RMM} from '../rmm';
 
         `
 })
-export class AliasesLister {
+export class AliasesListerComponent {
   @Input() values: any[];
   @Input() is_delete_disabled: false;
   @Output() ev_reload = new EventEmitter<string>();
-  private dialog_ref : any;
+  private dialog_ref: any;
   visible_code_check = {};
   constructor(public dialog: MatDialog,
     public snackBar: MatSnackBar,
     public rmm: RMM,
   ) {}
   edit (item): void {
-      item = JSON.parse(JSON.stringify(item))
-      this.dialog_ref = this.dialog.open(AliasesEditorModal, {
+      item = JSON.parse(JSON.stringify(item));
+      this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
           width: '600px',
           data: item
       });
-
       this.dialog_ref.afterClosed().subscribe(result => {
           item = result;
       });
       this.dialog_ref.componentInstance.is_update = true;
-    //if ( this.dialog_ref.componentInstance.has_created || this.dialog_ref.componentInstance.has_updated ) {
-    //    this.ev_reload.emit('updated or created');
-    //}
+      this.dialog_ref.componentInstance.css_class = 'update';
   }
   delete (i, item) {
-    this.dialog_ref = this.dialog.open(AliasesEditorModal, {
+    this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
         width: '600px',
         data: item,
     });
     this.dialog_ref.componentInstance.is_delete = true;
+      this.dialog_ref.componentInstance.css_class = 'delete';
     this.dialog_ref.afterClosed().subscribe(result => {
-      //if ( this.dialog_ref.componentInstance.has_deleted ) {
-      //    this.ev_reload.emit('deleted');
-      //}
     });
   }
   show_error (message, action) {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
-  };
+  }
 }
 

@@ -44,28 +44,28 @@ import {
   MatSnackBar,
 } from '@angular/material';
 
-import {MatFormFieldModule} from '@angular/material/form-field'; 
-import {AliasesLister} from '../aliases/aliases.lister';
-import {ProfilesLister} from './profiles.lister';
-import {ProfilesEditorModal} from './profiles.editor.modal';
-import {AliasesEditorModal} from '../aliases/aliases.editor.modal';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {AliasesListerComponent} from '../aliases/aliases.lister';
+import {ProfilesListerComponent} from './profiles.lister';
+import {ProfilesEditorModalComponent} from './profiles.editor.modal';
+import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
 import { RMM } from '../rmm';
 
 @Component({
   moduleId: 'angular2/app/profiles/',
-  selector: 'profiles',
+  selector: 'app-profiles',
   templateUrl: 'profiles.component.html'
 })
 
 export class ProfilesComponent implements AfterViewInit {
   panelOpenState = false;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @Output() onClose: EventEmitter<string> = new EventEmitter();
+  @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
   aliases = [];
   aliases_counter = {};
   aliases_unique = [];
-  dialog_ref : any;
+  dialog_ref: any;
 
   ngAfterViewInit() {
   }
@@ -97,14 +97,14 @@ export class ProfilesComponent implements AfterViewInit {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
-  };
+  }
 
   add_alias (): void {
       window.location.href = '/mail/account_alias';
       return;
       let item = {};
 
-      this.dialog_ref = this.dialog.open(AliasesEditorModal, {
+      this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
           width: '600px',
           data: item
       });
@@ -118,13 +118,12 @@ export class ProfilesComponent implements AfterViewInit {
 
   add_profile (type): void {
     let item = {type: type};
-    this.dialog_ref = this.dialog.open(ProfilesEditorModal, {
+    this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
         width: '600px',
         data: item,
     });
     this.dialog_ref.componentInstance.aliases_unique = this.aliases_unique;
     this.dialog_ref.componentInstance.is_create = true;
-    
     this.dialog_ref.afterClosed().subscribe(result => {
         this.load_profiles();
         item = result;

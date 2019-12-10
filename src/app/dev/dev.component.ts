@@ -18,7 +18,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout } from 'rxjs/operators';
-import { SecurityContext, Component, Input, TemplateRef, ElementRef, ContentChild, Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
+import { SecurityContext, Component, Input, TemplateRef, ElementRef, ContentChild,
+    Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProgressService } from '../http/progress.service';
@@ -45,24 +46,24 @@ import {
   MatSnackBar,
 } from '@angular/material';
 
-import {MatFormFieldModule} from '@angular/material/form-field'; 
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { RMM } from '../rmm';
-import { RunboxIntro } from '../runbox-components/runbox-intro';
-import { RunboxList } from '../runbox-components/runbox-list';
+import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
+import { RunboxListComponent } from '../runbox-components/runbox-list';
 
 @Component({
   moduleId: 'angular2/app/dev/',
-  selector: 'dev',
+  selector: 'app-dev',
   templateUrl: 'dev.component.html'
 })
 
 export class DevComponent implements AfterViewInit {
   panelOpenState = false;
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
-  @Output() onClose: EventEmitter<string> = new EventEmitter();
+  @Output() Close: EventEmitter<string> = new EventEmitter();
   selected_component;
   values_runbox_list;
-  dialog_ref : any;
+  dialog_ref: any;
 
   ngAfterViewInit() {
   }
@@ -75,7 +76,7 @@ export class DevComponent implements AfterViewInit {
     private router: Router,
   ) {
     if ( !route || !route.params && route.params['getValue'] || !route.params['getValue']().selected_component ) {
-        this.router.navigate(['/dev', 'runbox-intro']);
+        this.router.navigate(['/dev', 'app-runbox-intro']);
         return;
     }
     this.init();
@@ -86,25 +87,25 @@ export class DevComponent implements AfterViewInit {
   }
 
   load_runbox_list() {
-    //prepares data to be used with <runbox-list>
+    // prepares data to be used with <runbox-list>
     this.values_runbox_list = [
-        {id:1, firstname:'Bob', lastname: 'Sponja', email: 'random@email.com'},
-        {id:2, firstname:'Emliy', lastname: 'Sparrow', email: 'emily@email.com'},
-        {id:3, firstname:'Nicole', lastname:'Leconi', email: 'nicoleconi@runbox.com'},
-    ]
+        {id: 1, firstname: 'Bob', lastname: 'Sponja', email: 'random@email.com'},
+        {id: 2, firstname: 'Emliy', lastname: 'Sparrow', email: 'emily@email.com'},
+        {id: 3, firstname: 'Nicole', lastname: 'Leconi', email: 'nicoleconi@runbox.com'},
+    ];
   }
 
   edit(item) {
-    console.log('edit', item)
-    this.router.navigate(['/dev', 'runbox-list', 'edit', item.id]);
+    console.log('edit', item);
+    this.router.navigate(['/dev', 'app-runbox-list', 'edit', item.id]);
   }
 
   log(item) {
-    console.log('item', item)
+    console.log('item', item);
   }
 
   runbox_list_edit(item) {
-    console.log('edit runbox list item', item)
+    console.log('edit runbox list item', item);
   }
 
 }

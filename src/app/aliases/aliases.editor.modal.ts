@@ -17,20 +17,20 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout } from 'rxjs/operators';
-import { 
-  SecurityContext, 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
-  NgZone, 
-  ViewChild, 
+import {
+  SecurityContext,
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  NgZone,
+  ViewChild,
   Inject,
   AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   MatCardModule,
   MatCheckboxModule,
@@ -50,11 +50,11 @@ import {
   MatSnackBar,
   MAT_DIALOG_DATA,
 } from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field'; 
-import {MatSelectModule} from '@angular/material'; 
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material';
 import {RMM} from '../rmm';
 @Component({
-    selector: 'aliases-edit',
+    selector: 'app-aliases-edit',
     styles: [`
     .mat_header {
         padding: 10px 0 10px 10px
@@ -71,7 +71,7 @@ import {RMM} from '../rmm';
     }
     `],
     template: `
-        <mat-card class="mat_card {{css_class()}}" style="padding: 0px">
+        <mat-card class="mat_card css_class" style="padding: 0px">
           <mat-card-header class="mat_header">
               <div mat-card-avatar class="header-image" >
               </div>
@@ -89,7 +89,7 @@ import {RMM} from '../rmm';
                 <div mat-dialog-content>
                     <form>
                         <mat-form-field style="margin: 10px; width: 40%;">
-                            <input matInput placeholder="Localpart" 
+                            <input matInput placeholder="Localpart"
                                 name="localpart"
                                 [readonly]="!is_create"
                                 [(ngModel)]="data.localpart"
@@ -166,7 +166,7 @@ import {RMM} from '../rmm';
     `
 })
 
-export class AliasesEditorModal {
+export class AliasesEditorModalComponent {
     @Input() value: any[];
     field_errors;
     is_create = false;
@@ -176,76 +176,67 @@ export class AliasesEditorModal {
     has_updated = false;
     has_created = false;
     allowed_domains = [];
+    css_class: string;
     constructor(
         private http: HttpClient,
         public snackBar: MatSnackBar,
-        public dialog_ref: MatDialogRef<AliasesEditorModal>,
-        @Inject(MAT_DIALOG_DATA) 
+        public dialog_ref: MatDialogRef<AliasesEditorModalComponent>,
+        @Inject(MAT_DIALOG_DATA)
         public data: any,
         public rmm: RMM,
     ) {
         this.load_allowed_domains();
     }
-    css_class() {
-        let css = '';
-        if ( this.is_delete ) { return 'delete' }
-        else if ( this.is_create ) { return 'create' }
-        else if ( this.is_update ) { return 'update' }
-    }
     load_allowed_domains() {
-        let req = this.http.get('/rest/v1/alias/allowed_domains')
+        const req = this.http.get('/rest/v1/alias/allowed_domains')
             .pipe(timeout(10000))
             ;
         req.subscribe(
-          data => {
-            const reply = data;
+          reply => {
             this.allowed_domains = reply['result'].allowed_domains;
             return;
-          },
-        );
+        });
     }
     save() {
-        if ( this.is_create ) { this.create() }
-        else { this.update() }
+        if ( this.is_create ) {
+            this.create();
+        } else {
+            this.update();
+        }
     }
-    create(){
-        let data = this.data;
-        let req = this.rmm.alias.create({
-            localpart : data.localpart,
-            domain : data.domain,
-            forward_to : data.forward_to,
-        }, this.field_errors)
-        req.subscribe((data)=>{
-            let reply = data;
-            if ( reply.status == 'success' ) {
+    create() {
+        const data = this.data;
+        const req = this.rmm.alias.create({
+            localpart: data.localpart,
+            domain: data.domain,
+            forward_to: data.forward_to,
+        }, this.field_errors);
+        req.subscribe( reply => {
+            if ( reply.status === 'success' ) {
                 this.has_created = true;
                 this.close();
             }
-        })
+        });
     }
     delete() {
-        let data = this.data;
-        let req = this.rmm.alias.delete(data.id)
-        req.subscribe(data => {
-            let reply = data;
-            if ( reply.status == 'success' ) {
+        const data = this.data;
+        const req = this.rmm.alias.delete(data.id);
+        req.subscribe( reply => {
+            if ( reply.status === 'success' ) {
                 this.has_deleted = true;
                 return this.close();
             }
-        })
+        });
     }
-    update(){
-        let data = this.data;
-        let values = {
+    update() {
+        const data = this.data;
+        const values = {
             forward_to : this.data.forward_to,
-        }
-        let req = this.rmm.alias.update(data.id, values, this.field_errors)
-        req.subscribe(
-          data => {
-            let reply = data;
-            if ( reply.status == 'success' ) {
-            console.log('aliases has updated !!')
-                this.rmm.alias.load()
+        };
+        const req = this.rmm.alias.update(data.id, values, this.field_errors);
+        req.subscribe( reply => {
+            if ( reply.status === 'success' ) {
+                this.rmm.alias.load();
                 return this.close();
             }
           },
