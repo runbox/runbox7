@@ -455,11 +455,11 @@ export class ProfilesEditorModalComponent {
         const req = this.rmm.profile.create(values, this.field_errors);
         req.subscribe(reply => {
             if ( reply.status === 'success' ) {
-                this.is_busy = false;
                 this.rmm.profile.load();
                 this.close();
                 return;
             }
+            this.is_busy = false;
         });
     }
     delete() {
@@ -468,11 +468,11 @@ export class ProfilesEditorModalComponent {
         const req = this.rmm.profile.delete(data.profile.id);
         req.subscribe(reply => {
             if ( reply.status === 'success' ) {
-                this.is_busy = false;
                 this.rmm.profile.load();
                 this.close();
                 return;
             }
+            this.is_busy = false;
         });
     }
     update() {

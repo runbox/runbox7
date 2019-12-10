@@ -624,19 +624,6 @@ export class DomainRegisterComponent implements AfterViewInit {
     });
   };
 
-  // public list_hosted_domains = function () {
-  //  this.http.get("/rest/v1/hosted_domain",{})
-  //  .timeout(60000) 
-  //  .subscribe(
-  //      data => {
-  //          var reply = data
-  //          this.dataSourceUserDomains = new MatTableDataSource<ElementUserDomain>(reply.result.hosted_domains);
-  //      },
-  //      error => { 
-  //          return this.show_error("Could not list your hosted domains.", 'Dismiss') 
-  //      }
-  //  );
-  // }
   public activate_purchase_privacy () {
       const is_purchase_privacy = window.location.href.match(/purchase_privacy=([^&]+)/);
       if ( is_purchase_privacy && is_purchase_privacy[1] ) {
@@ -644,7 +631,6 @@ export class DomainRegisterComponent implements AfterViewInit {
         this.is_purchase_privacy = true;
         const domain = is_purchase_privacy[1];
         console.log(domain);
-//      this.selectedTabNum=0;
         this.get_domain_info(domain);
         this.privacy_domain = is_purchase_privacy[1];
       }

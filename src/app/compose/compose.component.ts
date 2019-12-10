@@ -59,8 +59,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public uploadprogress: number = null;
     public uploadingFiles: File[] = null;
     public saved: Date = null;
-    has_pasted_signature;
-    signature;
+    has_pasted_signature: boolean;
+    signature: string;
 
     saveErrorMessage: string;
 
