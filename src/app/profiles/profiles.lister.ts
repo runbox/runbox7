@@ -246,12 +246,12 @@ export class ProfilesListerComponent {
           }
       });
   }
-  resend_validate_email () {
-      const req = this.rmm.profile.resend();
+  resend_validate_email (id) {
+      const req = this.rmm.profile.resend(id);
       req.subscribe(
         data => {
           const reply = data;
-          if ( reply.status === 'success' ) {
+          if ( reply['status'] === 'success' ) {
             this.show_error('Email validation sent', 'Dismiss');
             this.rmm.profile.load();
             return;

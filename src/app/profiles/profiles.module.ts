@@ -51,8 +51,6 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     AliasesListerComponent,
     ProfilesComponent,
     ProfilesListerComponent,
-    ProfilesEditorModalComponent,
-    AliasesEditorModalComponent,
     ],
     imports: [
     BrowserModule,

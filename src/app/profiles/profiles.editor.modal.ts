@@ -454,7 +454,7 @@ export class ProfilesEditorModalComponent {
         };
         const req = this.rmm.profile.create(values, this.field_errors);
         req.subscribe(reply => {
-            if ( reply.status === 'success' ) {
+            if ( reply['status'] === 'success' ) {
                 this.rmm.profile.load();
                 this.close();
                 return;
@@ -467,7 +467,7 @@ export class ProfilesEditorModalComponent {
         const data = this.data;
         const req = this.rmm.profile.delete(data.profile.id);
         req.subscribe(reply => {
-            if ( reply.status === 'success' ) {
+            if ( reply['status'] === 'success' ) {
                 this.rmm.profile.load();
                 this.close();
                 return;
@@ -493,13 +493,13 @@ export class ProfilesEditorModalComponent {
         const req = this.rmm.profile.update(this.data.profile.id, values, this.field_errors);
         req.subscribe(reply => {
             this.is_busy = false;
-            if ( reply.status === 'success' ) {
+            if ( reply['status'] === 'success' ) {
                 this.rmm.profile.load();
                 this.close();
                 return;
             } else {
-                if ( reply.field_errors ) {
-                    this.field_errors = reply.field_errors;
+                if ( reply['field_errors'] ) {
+                    this.field_errors = reply['field_errors'];
                 }
             }
         });

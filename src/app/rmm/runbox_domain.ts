@@ -24,7 +24,7 @@ export class RunboxDomain {
     is_busy = false;
     data;
     constructor(
-        private app: RMM,
+        public app: RMM,
     ) {
     }
     load() {
@@ -35,7 +35,7 @@ export class RunboxDomain {
           data => {
             this.is_busy = false;
             const reply = data;
-            this.data = reply.results;
+            this.data = reply['results'];
             return;
           },
           error => {

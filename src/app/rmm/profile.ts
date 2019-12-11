@@ -24,21 +24,20 @@ export class Profile {
     public profiles_verified: any;
     is_busy = false;
     constructor(
-        private app: RMM,
+        public app: RMM,
     ) {
     }
     load() {
         this.is_busy = true;
         const req = this.app.ua.http.get('/rest/v1/profiles', {}).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
+          reply => {
             this.is_busy = false;
-            const reply = data;
-            if ( reply.status === 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+            if ( reply['status'] === 'error' ) {
+                this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply.result;
+            this.profiles = reply['result'];
             return;
           },
           error => {
@@ -52,14 +51,13 @@ export class Profile {
         this.is_busy = true;
         const req = this.app.ua.http.get('/rest/v1/profiles/verified', {}).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
+          reply => {
             this.is_busy = false;
-            const reply = data;
-            if ( reply.status === 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+            if ( reply['status'] === 'error' ) {
+                this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles_verified = reply.result;
+            this.profiles_verified = reply['result'];
             return;
           },
           error => {
@@ -72,9 +70,8 @@ export class Profile {
     create(values, field_errors) {
         const req = this.app.ua.http.post('/rest/v1/profile/', values).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
-            const reply = data;
-            if ( reply.status === 'error' ) {
+          reply => {
+            if ( reply['status'] === 'error' ) {
                 this.app.handle_field_errors(reply, field_errors);
                 return;
             }
@@ -87,10 +84,9 @@ export class Profile {
     }
     delete(id) {
         const req = this.app.ua.http.delete('/rest/v1/profile/' + id).pipe(timeout(60000), share());
-        req.subscribe(data => {
-            const reply = data;
-            if ( reply.status === 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+        req.subscribe(reply => {
+            if ( reply['status'] === 'error' ) {
+                this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
         });
@@ -99,9 +95,8 @@ export class Profile {
     update(id, values, field_errors) {
         const req = this.app.ua.http.put('/rest/v1/profile/' + id, values).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
-            const reply = data;
-            if ( reply.status === 'error' ) {
+          reply => {
+            if ( reply['status'] === 'error' ) {
                 this.app.handle_field_errors(reply, field_errors);
                 return;
             }
@@ -112,18 +107,16 @@ export class Profile {
         );
         return req;
     }
-    resend(id, values, field_errors) {
-        const req = this.app.ua.http.put('/rest/v1/profile/' + id + '/resend_validation_email').pipe(timeout(60000), share());
+    resend(id) {
+        const req = this.app.ua.http.put('/rest/v1/profile/' + id + '/resend_validation_email', {}).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
-            const reply = data;
-            if ( reply.status === 'error' ) {
-                this.app.handle_field_errors(reply, field_errors);
-                return;
+          reply => {
+            if ( reply['status'] === 'error' ) {
+                return this.app.show_error('Could not resend validation email.', 'Dismiss');
             }
           },
           error => {
-            return this.app.show_error('Could resend validation email.', 'Dismiss');
+            return this.app.show_error('Could not resend validation email.', 'Dismiss');
           }
         );
         return req;

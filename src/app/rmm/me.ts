@@ -24,7 +24,7 @@ export class Me {
     is_busy = false;
     data;
     constructor(
-        private app: RMM,
+        public app: RMM,
     ) {
     }
     load() {
@@ -35,11 +35,11 @@ export class Me {
           data => {
             this.is_busy = false;
             const reply = data;
-            if ( reply.status === 'error' ) {
-                this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+            if ( reply['status'] === 'error' ) {
+                this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.data = reply.result;
+            this.data = reply['result'];
             return;
           },
           error => {

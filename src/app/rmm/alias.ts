@@ -25,7 +25,7 @@ export class Alias {
     public aliases_unique: any;
     public aliases_counter: any;
     constructor(
-        private app: RMM,
+        public app: RMM,
     ) {
     }
     load() {
@@ -33,19 +33,19 @@ export class Alias {
         req.subscribe(
           data => {
             const reply = data;
-            if ( reply.status === 'error' ) {
-              this.app.show_error( reply.error.join( '' ), 'Dismiss' );
+            if ( reply['status'] === 'error' ) {
+              this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
               return;
             }
-            this.aliases = reply.result.aliases;
+            this.aliases = reply['result'].aliases;
             const _unique = {};
             for ( const value of this.aliases ) {
                 _unique[ value.localpart + '@' + value.domain ] = 1;
             }
             this.aliases_unique = Object.keys(_unique);
             this.aliases_counter = {
-                total: reply.result.counter.total,
-                current: reply.result.counter.current,
+                total: reply['result'].counter.total,
+                current: reply['result'].counter.current,
             };
             return;
           },
@@ -72,7 +72,7 @@ export class Alias {
         const req = this.app.ua.http.delete('/rest/v1/alias/' + id).pipe(timeout(60000), share());
         req.subscribe(data => {
             const reply = data;
-            if ( reply.status === 'error' ) {
+            if ( reply['status'] === 'error' ) {
                 this.app.handle_errors( reply );
             }
         });

@@ -212,7 +212,7 @@ export class AliasesEditorModalComponent {
             forward_to: data.forward_to,
         }, this.field_errors);
         req.subscribe( reply => {
-            if ( reply.status === 'success' ) {
+            if ( reply['status'] === 'success' ) {
                 this.has_created = true;
                 this.close();
             }
@@ -222,7 +222,7 @@ export class AliasesEditorModalComponent {
         const data = this.data;
         const req = this.rmm.alias.delete(data.id);
         req.subscribe( reply => {
-            if ( reply.status === 'success' ) {
+            if ( reply['status'] === 'success' ) {
                 this.has_deleted = true;
                 return this.close();
             }
@@ -235,7 +235,7 @@ export class AliasesEditorModalComponent {
         };
         const req = this.rmm.alias.update(data.id, values, this.field_errors);
         req.subscribe( reply => {
-            if ( reply.status === 'success' ) {
+            if ( reply['status'] === 'success' ) {
                 this.rmm.alias.load();
                 return this.close();
             }

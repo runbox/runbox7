@@ -31,11 +31,11 @@ import {
     providedIn: 'root',
 })
 export class RMM {
-    ua;
-    profile;
-    alias;
-    me;
-    runbox_domain;
+    public ua: UserAgent;
+    public profile: Profile;
+    public alias: Alias;
+    public me: Me;
+    public runbox_domain: RunboxDomain;
     constructor(
         public http: HttpClient,
         public snackBar: MatSnackBar,

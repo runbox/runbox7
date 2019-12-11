@@ -21,8 +21,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RMM } from '../rmm';
 export class UserAgent {
     constructor(
-        private app: RMM,
-        private http: HttpClient,
+        public app: RMM,
+        public http: HttpClient,
     ) {
     }
 }
