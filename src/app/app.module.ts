@@ -66,6 +66,7 @@ import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
 import { ResizerModule } from './directives/resizer.module';
 import { DkimModule } from './dkim/dkim.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { DevModule } from './dev/dev.module';
 import { DkimComponent } from './dkim/dkim.component';
 import { DomainRegisterModule } from './domainregister/domainregister.module';
 import { DomainRegisterComponent } from './domainregister/domainregister.component';
@@ -153,6 +154,7 @@ const routes: Routes = [
     DomainRegisterModule,
     DkimModule,
     ProfilesModule,
+    DevModule,
     UpdateAlertModule,
     LoginLogoutModule,
     SearchExpressionBuilderModule,
