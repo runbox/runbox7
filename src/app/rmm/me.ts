@@ -24,7 +24,7 @@ import { RMM } from '../rmm';
 export class Me {
     public profiles: any;
     is_busy = false;
-    data;
+    data: any;
     constructor(
         public app: RMM,
     ) {
