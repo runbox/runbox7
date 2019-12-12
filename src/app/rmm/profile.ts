@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
+import { Observable } from 'rxjs/Rx';
 import { RMM } from '../rmm';
 
 export class Profile {
@@ -27,7 +28,7 @@ export class Profile {
         public app: RMM,
     ) {
     }
-    load() {
+    load(): Observable<any> {
         this.is_busy = true;
         const req = this.app.ua.http.get('/rest/v1/profiles', {}).pipe(timeout(60000), share());
         req.subscribe(
@@ -47,7 +48,7 @@ export class Profile {
         );
         return req;
     }
-    load_verified() {
+    load_verified(): Observable<any> {
         this.is_busy = true;
         const req = this.app.ua.http.get('/rest/v1/profiles/verified', {}).pipe(timeout(60000), share());
         req.subscribe(

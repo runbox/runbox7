@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
+import { Observable } from 'rxjs/Rx';
 import { RMM } from '../rmm';
 
 export class Alias {
@@ -28,7 +29,7 @@ export class Alias {
         public app: RMM,
     ) {
     }
-    load() {
+    load(): Observable<any> {
         const req = this.app.ua.http.get('/rest/v1/aliases', {}).pipe(timeout(60000), share());
         req.subscribe(
           data => {

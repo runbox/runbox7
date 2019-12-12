@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
+import { Observable } from 'rxjs/Rx';
 import { RMM } from '../rmm';
 
 export class RunboxDomain {
@@ -27,8 +28,8 @@ export class RunboxDomain {
         public app: RMM,
     ) {
     }
-    load() {
-        if ( this.data ) { return; }
+    load(): Observable<any> {
+        if ( this.data || this.is_busy ) { return; }
         this.is_busy = true;
         const req = this.app.ua.http.get('/rest/v1/runbox_domains', {}).pipe(timeout(60000), share());
         req.subscribe(
