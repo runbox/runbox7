@@ -79,10 +79,10 @@ import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { ProfilesComponent } from './profiles/profiles.component';
+import { ProfilesModule } from './profiles/profiles.module';
 import { DevComponent } from './dev/dev.component';
+import { DevModule } from './dev/dev.module';
 import { RMM } from './rmm';
-import { ProfilesEditorModalComponent } from './profiles/profiles.editor.modal';
-import { AliasesEditorModalComponent } from './aliases/aliases.editor.modal';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -148,7 +148,9 @@ const routes: Routes = [
     AccountAppModule,
     CalendarAppModule,
     ContactsAppModule,
+    ProfilesModule,
     ResizerModule,
+    DevModule,
     DomainRegisterModule,
     DkimModule,
     UpdateAlertModule,
@@ -172,10 +174,7 @@ const routes: Routes = [
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],
   bootstrap: [MainContainerComponent],
-  entryComponents: [MoveMessageDialogComponent,
-    ProfilesEditorModalComponent,
-    AliasesEditorModalComponent,
-  ]
+  entryComponents: [MoveMessageDialogComponent]
 })
 export class AppModule { }
 
