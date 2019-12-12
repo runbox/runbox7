@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
 import { Observable } from 'rxjs/Rx';
+import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class Profile {

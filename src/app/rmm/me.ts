@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
 import { Observable } from 'rxjs/Rx';
+import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class Me {
@@ -29,7 +30,7 @@ export class Me {
     ) {
     }
     load(): Observable<any> {
-        if ( this.data || this.is_busy ) { return; }
+        if ( this.data || this.is_busy ) { return of(this.data); }
         this.is_busy = true;
         const req = this.app.ua.http.get('/rest/v1/me', {}).pipe(timeout(60000), share());
         req.subscribe(
