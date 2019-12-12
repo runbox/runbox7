@@ -79,7 +79,7 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     ],
     providers: [
     ],
-    bootstrap: [ProfilesComponent]
+    bootstrap: []
 })
 export class ProfilesModule { }
 
