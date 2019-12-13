@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
