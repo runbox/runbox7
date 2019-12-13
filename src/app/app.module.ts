@@ -65,8 +65,6 @@ import { FolderModule } from './folder/folder.module';
 import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
 import { ResizerModule } from './directives/resizer.module';
 import { DkimModule } from './dkim/dkim.module';
-import { ProfilesModule } from './profiles/profiles.module';
-import { DevModule } from './dev/dev.module';
 import { DkimComponent } from './dkim/dkim.component';
 import { DomainRegisterModule } from './domainregister/domainregister.module';
 import { DomainRegisterComponent } from './domainregister/domainregister.component';
@@ -81,7 +79,9 @@ import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { ProfilesComponent } from './profiles/profiles.component';
+import { ProfilesModule } from './profiles/profiles.module';
 import { DevComponent } from './dev/dev.component';
+import { DevModule } from './dev/dev.module';
 import { RMM } from './rmm';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -148,11 +148,11 @@ const routes: Routes = [
     AccountAppModule,
     CalendarAppModule,
     ContactsAppModule,
+    ProfilesModule,
     ResizerModule,
+    DevModule,
     DomainRegisterModule,
     DkimModule,
-    ProfilesModule,
-    DevModule,
     UpdateAlertModule,
     LoginLogoutModule,
     SearchExpressionBuilderModule,
@@ -174,8 +174,7 @@ const routes: Routes = [
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],
   bootstrap: [MainContainerComponent],
-  entryComponents: [MoveMessageDialogComponent,
-  ]
+  entryComponents: [MoveMessageDialogComponent]
 })
 export class AppModule { }
 

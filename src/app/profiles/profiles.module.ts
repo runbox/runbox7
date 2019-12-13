@@ -48,11 +48,11 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 
 @NgModule({
     declarations: [
-    AliasesListerComponent,
-    ProfilesComponent,
-    ProfilesListerComponent,
-    ProfilesEditorModalComponent,
-    AliasesEditorModalComponent,
+      AliasesListerComponent,
+      ProfilesComponent,
+      ProfilesListerComponent,
+      ProfilesEditorModalComponent,
+      AliasesEditorModalComponent,
     ],
     imports: [
     BrowserModule,
@@ -76,12 +76,12 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     RouterModule
     ],
     entryComponents: [
-        ProfilesEditorModalComponent,
-        AliasesEditorModalComponent,
+      ProfilesEditorModalComponent,
+      AliasesEditorModalComponent,
     ],
     providers: [
     ],
-    bootstrap: []
+    bootstrap: [ProfilesComponent]
 })
 export class ProfilesModule { }
 
