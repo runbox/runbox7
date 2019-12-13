@@ -92,23 +92,25 @@ export class MockSearchService {
 export class RunboxWebMailAPIMock {
     public me = of({ uid: 33 });
 
-    public getAllContacts(): Observable<Contact[]> {
-        return of([
-            new Contact({
-                id: 5,
-                nick: 'test',
-                first_name: 'firstname',
-                last_name: 'lastname',
-                email: 'test@example.com'
-            }),
-            new Contact({
-                id: 6,
-                nick: 'test2',
-                first_name: 'firstname2',
-                last_name: 'lastname2',
-                emails: [{ value: 'test2@example.com'} , {value: 'test4@example.com'}]
-            })
-        ]);
+    public syncContacts(): Observable<any> {
+        return of({
+            added: [
+                new Contact({
+                    id: 5,
+                    nick: 'test',
+                    first_name: 'firstname',
+                    last_name: 'lastname',
+                    email: 'test@example.com'
+                }),
+                new Contact({
+                    id: 6,
+                    nick: 'test2',
+                    first_name: 'firstname2',
+                    last_name: 'lastname2',
+                    emails: [{ value: 'test2@example.com'} , {value: 'test4@example.com'}]
+                })
+            ]
+        });
     }
 
     public getContactsSettings(): Observable<any> {

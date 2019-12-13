@@ -23,7 +23,6 @@ import { ContactsAppModule } from './contacts-app.module';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Observable } from 'rxjs';
-import { Contact } from './contact';
 import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
 
 describe('ContactsAppComponent', () => {
@@ -35,7 +34,7 @@ describe('ContactsAppComponent', () => {
       ],
       providers: [
         { provide: RunboxWebmailAPI, useValue: {
-          getAllContacts: (): Observable<Contact[]> => of([]) }
+            syncContacts: (_): Observable<any> => of({added: []}) }
         }
       ]
     }).compileComponents();

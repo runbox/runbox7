@@ -77,6 +77,14 @@ export class Alias {
     ) { }
 }
 
+export class ContactSyncResult {
+    constructor(
+        public newSyncToken: string,
+        public added:        Contact[],
+        public removed:      string[],
+    ) { }
+}
+
 class FromAddressResponse {
     public from_addresses: FromAddress[];
     public status: string;
@@ -556,6 +564,18 @@ export class RunboxWebmailAPI {
         return this.http.put('/rest/v1/addresses_contact/vcf', { vcf: vcf }).pipe(
             map((res: HttpResponse<any>) => res['result']['contacts']),
             map((contacts: any[]) => contacts.map((contact) => new Contact(contact)))
+        );
+    }
+
+    public syncContacts(syncToken?: string): Observable<ContactSyncResult> {
+        const path = syncToken ? ('/' + btoa(syncToken)) : '';
+        return this.http.get<any>('/rest/v1/addresses_contact/sync' + path).pipe(
+            map((res: HttpResponse<any>) => res['result']),
+            map((result: any) => new ContactSyncResult(
+                result.newToken,
+                result.added.map((contact: any) => new Contact(contact)),
+                result.removed,
+            )),
         );
     }
 
