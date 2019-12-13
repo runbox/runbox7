@@ -76,6 +76,8 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     RouterModule
     ],
     entryComponents: [
+        ProfilesEditorModalComponent,
+        AliasesEditorModalComponent,
     ],
     providers: [
     ],

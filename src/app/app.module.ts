@@ -83,8 +83,6 @@ import { HotkeyModule } from 'angular2-hotkeys';
 import { ProfilesComponent } from './profiles/profiles.component';
 import { DevComponent } from './dev/dev.component';
 import { RMM } from './rmm';
-import { ProfilesEditorModalComponent } from './profiles/profiles.editor.modal';
-import { AliasesEditorModalComponent } from './aliases/aliases.editor.modal';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -177,8 +175,6 @@ const routes: Routes = [
   ],
   bootstrap: [MainContainerComponent],
   entryComponents: [MoveMessageDialogComponent,
-    ProfilesEditorModalComponent,
-    AliasesEditorModalComponent,
   ]
 })
 export class AppModule { }
