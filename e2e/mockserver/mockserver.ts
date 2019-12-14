@@ -393,114 +393,113 @@ export class MockServer {
     }
 
     profiles_verified() {
-        return
-            {
-                "result": {
-                    "aliases": [{
-                        "profile": {
-                            "smtp_username": null,
-                            "email": "a2@example.com",
-                            "reference_type": "aliases",
-                            "id": 16455,
-                            "smtp_port": null,
-                            "smtp_address": null,
-                            "is_smtp_enabled": 0,
-                            "signature": null,
-                            "reference": {},
-                            "reply_to": "a2@example.com",
-                            "name": "a2@example.com",
-                            "smtp_password": null,
-                            "from_name": "Hallucinogen",
-                            "type": "aliases"
+        return {
+                'result': {
+                    'aliases': [{
+                        'profile': {
+                            'smtp_username': null,
+                            'email': 'a2@example.com',
+                            'reference_type': 'aliases',
+                            'id': 16455,
+                            'smtp_port': null,
+                            'smtp_address': null,
+                            'is_smtp_enabled': 0,
+                            'signature': null,
+                            'reference': {},
+                            'reply_to': 'a2@example.com',
+                            'name': 'a2@example.com',
+                            'smtp_password': null,
+                            'from_name': 'Hallucinogen',
+                            'type': 'aliases'
                         }
                     }, {
-                        "profile": {
-                            "id": 16456,
-                            "email": "aa1@example.com",
-                            "reference_type": "aliases",
-                            "smtp_username": null,
-                            "from_name": "Astrix",
-                            "smtp_password": null,
-                            "type": "aliases",
-                            "reference": {
-                            "domainid": null,
-                            "id": 278,
-                            "localpart": "aa1",
-                            "virtual_domainid": 16,
-                            "virtual_domain": {
-                                "catch_all": "",
-                                "status": 6,
-                                "id": 16,
-                                "name": "example.com"
+                        'profile': {
+                            'id': 16456,
+                            'email': 'aa1@example.com',
+                            'reference_type': 'aliases',
+                            'smtp_username': null,
+                            'from_name': 'Astrix',
+                            'smtp_password': null,
+                            'type': 'aliases',
+                            'reference': {
+                            'domainid': null,
+                            'id': 278,
+                            'localpart': 'aa1',
+                            'virtual_domainid': 16,
+                            'virtual_domain': {
+                                'catch_all': '',
+                                'status': 6,
+                                'id': 16,
+                                'name': 'example.com'
                             }
                         }
                     }
                     }],
-                    "others": [{
-                        "profile": {
-                            "smtp_password": null,
-                            "from_name": "Electric Universe",
-                            "type": "external_email",
-                            "name": "Electric Universe",
-                            "reference": {
-                                "save_sent": "n",
-                                "signature": "xxx",
-                                "use_sig_for_reply": "NO",
-                                "reply_to": "admin@runbox.com",
-                                "name": "Electric Universe",
-                                "default_bcc": "",
-                                "email": "admin@runbox.com",
-                                "msg_per_page": 0,
-                                "folder": "Encoding Test",
-                                "sig_above": "NO",
-                                "charset": null,
-                                "comp_new_window": null,
-                                "status": 0
+                    'others': [{
+                        'profile': {
+                            'smtp_password': null,
+                            'from_name': 'Electric Universe',
+                            'type': 'external_email',
+                            'name': 'Electric Universe',
+                            'reference': {
+                                'save_sent': 'n',
+                                'signature': 'xxx',
+                                'use_sig_for_reply': 'NO',
+                                'reply_to': 'admin@runbox.com',
+                                'name': 'Electric Universe',
+                                'default_bcc': '',
+                                'email': 'admin@runbox.com',
+                                'msg_per_page': 0,
+                                'folder': 'Encoding Test',
+                                'sig_above': 'NO',
+                                'charset': null,
+                                'comp_new_window': null,
+                                'status': 0
                             },
-                            "reply_to": "admin@runbox.com",
-                            "smtp_address": null,
-                            "is_smtp_enabled": 0,
-                            "signature": "xxx",
-                            "smtp_port": null,
-                            "id": 16448,
-                            "email": "admin@runbox.com",
-                            "reference_type": "preference",
-                            "smtp_username": null
+                            'reply_to': 'admin@runbox.com',
+                            'smtp_address': null,
+                            'is_smtp_enabled': 0,
+                            'signature': 'xxx',
+                            'smtp_port': null,
+                            'id': 16448,
+                            'email': 'admin@runbox.com',
+                            'reference_type': 'preference',
+                            'smtp_username': null
                         }
                         }, {
-                            "profile": {
-                                "smtp_address": null,
-                                "signature": "<p>ą</p>\r\n<p>eex</p>",
-                                "is_smtp_enabled": 0,
-                                "smtp_port": null,
-                                "from_name": "folder1",
-                                "smtp_password": null,
-                                "type": "external_email",
-                                "reply_to": "admin@runbox.com",
-                                "reference": {
-                                    "comp_new_window": null,
-                                    "status": 0,
-                                    "charset": null,
-                                    "folder": "LALA",
-                                    "sig_above": "NO",
-                                    "email": "admin@runbox.com",
-                                    "msg_per_page": 0,
-                                    "name": "folder1",
-                                    "reply_to": "admin@runbox.com",
-                                    "default_bcc": "",
-                                    "use_sig_for_reply": "YES",
-                                    "signature": "<p>ą</p>\r\n<p>eex</p>",
-                                    "save_sent": "n"
+                            'profile': {
+                                'smtp_address': null,
+                                'signature': '<p>ą</p>\r\n<p>eex</p>',
+                                'is_smtp_enabled': 0,
+                                'smtp_port': null,
+                                'from_name': 'folder1',
+                                'smtp_password': null,
+                                'type': 'external_email',
+                                'reply_to': 'admin@runbox.com',
+                                'reference': {
+                                    'comp_new_window': null,
+                                    'status': 0,
+                                    'charset': null,
+                                    'folder': 'LALA',
+                                    'sig_above': 'NO',
+                                    'email': 'admin@runbox.com',
+                                    'msg_per_page': 0,
+                                    'name': 'folder1',
+                                    'reply_to': 'admin@runbox.com',
+                                    'default_bcc': '',
+                                    'use_sig_for_reply': 'YES',
+                                    'signature': '<p>ą</p>\r\n<p>eex</p>',
+                                    'save_sent': 'n'
                                 },
-                                "name": "folder1",
-                                "email": "admin@runbox.com",
-                                "reference_type": "preference",
-                                "smtp_username": null,
-                                "id": 16450
+                                'name': 'folder1',
+                                'email': 'admin@runbox.com',
+                                'reference_type': 'preference',
+                                'smtp_username': null,
+                                'id': 16450
                             }
                         }],
-                        "main": []
+                        'main': []
                 }
-            }
+            };
     }
 }
