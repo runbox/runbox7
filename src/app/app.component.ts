@@ -54,6 +54,7 @@ import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
 import { MobileQueryService } from './mobile-query.service';
 import { ProgressService } from './http/progress.service';
+import { RMM } from './rmm';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import {Hotkey, HotkeysService} from 'angular2-hotkeys';
@@ -133,6 +134,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   constructor(public searchService: SearchService,
     public rmmapi: RunboxWebmailAPI,
+    public rmm: RMM,
     public snackBar: MatSnackBar,
     public dialog: MatDialog,
     private router: Router,

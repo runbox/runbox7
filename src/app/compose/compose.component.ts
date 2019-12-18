@@ -59,6 +59,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public uploadprogress: number = null;
     public uploadingFiles: File[] = null;
     public saved: Date = null;
+    has_pasted_signature: boolean;
+    signature: string;
 
     saveErrorMessage: string;
 
@@ -92,11 +94,17 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             const from: FromAddress = this.draftDeskservice.froms.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
+            this.has_pasted_signature = false;
             if (!from) {
                 this.model.from = this.draftDeskservice.froms && this.draftDeskservice.froms.length > 0 ?
                     this.draftDeskservice.froms[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
+                if ( !this.has_pasted_signature && from.signature ) {
+                    this.has_pasted_signature = true;
+                    this.signature = from.signature;
+                    this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
+                }
             }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
@@ -113,6 +121,26 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.formGroup.valueChanges
             .pipe(debounceTime(1000))
             .subscribe(() => this.submit(false));
+
+        this.formGroup.controls.from.valueChanges
+            .pipe(debounceTime(1000))
+            .subscribe((selected_from_address) => {
+                const from: FromAddress = this.draftDeskservice.froms.find((f) =>
+                    f.nameAndAddress === selected_from_address);
+                if ( this.formGroup.controls.msg_body.pristine ) {
+                    if ( this.signature && from.signature ) {
+                        const new_signature = from.signature;
+                        const rgx = new RegExp('^' + this.signature, 'g');
+                        const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
+                        this.signature = new_signature;
+                        this.formGroup.controls.msg_body.setValue(msg_body);
+                    } else if ( !this.signature && from.signature) {
+                        const msg_body = from.signature.concat('\n\n', this.model.msg_body);
+                        this.signature = from.signature;
+                        this.formGroup.controls.msg_body.setValue(msg_body);
+                    }
+                }
+            });
     }
 
     ngAfterViewInit() {

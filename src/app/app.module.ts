@@ -78,6 +78,11 @@ import { UpdateAlertModule } from './updatealert/updatealert.module';
 import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields-input/multiple-search-fields-input.module';
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
+import { ProfilesComponent } from './profiles/profiles.component';
+import { ProfilesModule } from './profiles/profiles.module';
+import { DevComponent } from './dev/dev.component';
+import { DevModule } from './dev/dev.module';
+import { RMM } from './rmm';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -92,6 +97,9 @@ const routes: Routes = [
         component: HeaderToolbarComponent
       },
       { path: 'domainregistration', component: DomainRegisterComponent},
+      { path: 'identities', component: ProfilesComponent},
+      { path: 'dev', component: DevComponent},
+      { path: 'dev/:selected_component', component: DevComponent},
       { path: 'dkim', component: DkimComponent},
       { path: 'calendar', component: CalendarAppComponent },
       { path: 'index_dev.html', component: AppComponent },
@@ -140,7 +148,9 @@ const routes: Routes = [
     AccountAppModule,
     CalendarAppModule,
     ContactsAppModule,
+    ProfilesModule,
     ResizerModule,
+    DevModule,
     DomainRegisterModule,
     DkimModule,
     UpdateAlertModule,
@@ -158,6 +168,7 @@ const routes: Routes = [
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    RMM,
     RMMAuthGuardService,
     StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
