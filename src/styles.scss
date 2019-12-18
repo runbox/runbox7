@@ -6,12 +6,13 @@
 // Include non-theme styles for core.
 @include mat-core();
 
-// GTA 13.05.2017: From https://material.angular.io/guide/theming:
+// GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
 $rmm-default-primary:    mat-palette($mat-light-blue, 900, A400, A600);
 $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 $rmm-default-warn:       mat-palette($mat-orange, 500, A400, A600);
 $rmm-default-foreground: mat-palette($mat-light-blue, 400, 200, 600);
+$rmm-default-highlight:  mat-palette($mat-light-blue, 50, 25, 75);
 $rmm-default-background: mat-palette($mat-light-blue, 900, A400, A600);
 
 $rmm-default-theme: mat-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
@@ -134,6 +135,7 @@ mat-grid-tile.tableTitle {
 .contentButton {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
+    background: mat-color($rmm-default-highlight);
     padding: 5px 10px 3px 10px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;

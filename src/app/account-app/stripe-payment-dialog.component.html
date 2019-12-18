@@ -1,5 +1,3 @@
-<h1 mat-dialog-title>Payment via Stripe</h1>
-
 <style>
 .payment-row {
   display: -ms-flexbox;
@@ -32,6 +30,8 @@
 }
 </style>
 
+<h1 mat-dialog-title>Payment via Stripe</h1>
+
 <ng-template #legacyFallback>
     <p> Payment form not loading? </p>
 
@@ -42,7 +42,10 @@
     </p>
 </ng-template>
 
-<div mat-dialog-content style="width: 500px; height: 250px;">
+<div mat-dialog-content style="width: 500px; height: 300px;">
+    <div style="width: 100%; text-align: center">
+        <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: 300px; height: auto" />
+    </div>
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
         <div id="payment-button-row" class="payment-row" [style.display]="paymentRequestsSupported ? 'block' : 'none'">
             <div class="payment-field payment-field-big">
