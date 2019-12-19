@@ -66,27 +66,28 @@
                         </a>
                     </div>
                 </ng-container>
-            </div>
-            <div formGroupName="value" *ngIf="layout === 'complex'">
-                <!-- so far it means we're dealing with an address -->
-                <div class="contact-details-row">
-                    <mat-form-field>
-                        <input matInput formControlName="street" placeholder="Street">
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput formControlName="city" placeholder="City">
-                    </mat-form-field>
-                </div>
-                <div class="contact-details-row">
-                    <mat-form-field>
-                        <input matInput formControlName="region" placeholder="Region">
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput formControlName="post_code" placeholder="Post code">
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput formControlName="country" placeholder="Country">
-                    </mat-form-field>
+
+                <div formGroupName="value" *ngIf="layout === 'complex'">
+                    <!-- so far it means we're dealing with an address -->
+                    <div class="contact-details-row">
+                        <mat-form-field>
+                            <input matInput formControlName="street" placeholder="Street">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <input matInput formControlName="city" placeholder="City">
+                        </mat-form-field>
+                    </div>
+                    <div class="contact-details-row">
+                        <mat-form-field>
+                            <input matInput formControlName="region" placeholder="Region">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <input matInput formControlName="post_code" placeholder="Post code">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <input matInput formControlName="country" placeholder="Country">
+                        </mat-form-field>
+                    </div>
                 </div>
             </div>
         </div>
