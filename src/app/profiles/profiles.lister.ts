@@ -118,7 +118,7 @@ import {RMM} from '../rmm';
                             <div
                                 style="text-align: left; width: 100%; margin-left: 5px;"
                                 >
-                                {{item.profile.email}} {{item.profile.name?'('+item.profile.name+')':''}}
+                                {{item.profile.email}}
                             </div>
                         </mat-grid-tile>
                         <mat-grid-tile
