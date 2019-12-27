@@ -750,6 +750,24 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getPaypalBillingAgreements(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/billing_agreement').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getPaypalBillingAgreementDetails(id: string): Observable<any> {
+        return this.http.get('/rest/v1/account_product/billing_agreement/' + id).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public cancelPaypalBillingAgreement(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/account_product/billing_agreement/' + id).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
     public getProducts(pids: number[]): Observable<any> {
         return this.http.get('/rest/v1/account_product/available', { params: { pids: pids.join(',') } }).pipe(
             map((res: HttpResponse<any>) => res['result']['products'])

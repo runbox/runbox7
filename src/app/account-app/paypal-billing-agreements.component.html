@@ -1,0 +1,82 @@
+<h1> Paypal Billing Agreements </h1>
+
+<div *ngIf="billing_agreements | async as agreements; else loading">
+
+<table #table mat-table [dataSource]="agreements" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
+    <ng-container matColumnDef="id">
+        <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+        <mat-cell *matCellDef="let a"> {{ a.paypal_id }} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="state">
+        <mat-header-cell *matHeaderCellDef> State </mat-header-cell>
+        <mat-cell *matCellDef="let a"> {{ a.state }} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="next_billing">
+        <mat-header-cell *matHeaderCellDef> Next Billing </mat-header-cell>
+        <mat-cell *matCellDef="let a"> {{ a.next_billing ? a.next_billing.fromNow() : 'N/A' }} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="details-button">
+        <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+        <mat-cell *matCellDef="let a">
+            <button mat-button (click)="toggleDetails(a)"> {{ a.details ? 'Hide' : 'Show' }} details </button>
+        </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="agreementDetails">
+        <mat-cell *matCellDef="let a">
+            <div *ngIf="a.details | async as details; else detailsLoading">
+                <div *ngIf="details.ok">
+                    <p> Name:         {{ details.name }}              </p>
+                    <p> Active since: {{ details.active_since }}      </p>
+                    <p> Amount:       {{ details.amount }}            </p>
+                    <p> Last payment: {{ details.last_payment_date }} </p>
+                    <p> Status:       {{ details.status }}            </p>
+                    <p *ngIf="!a.cancelling && details.status === 'Active'">
+                        <button mat-raised-button (click)="cancelAgreement(a)"> Cancel this agreement </button>
+                    </p>
+                    <div *ngIf="a.cancelling">
+                        <div *ngIf="a.cancelling | async as cancelled; else cancellingLoading">
+                            <p *ngIf="cancelled.ok">
+                                You agreement has been cancelled.
+                            </p>
+                            <div *ngIf="!cancelled.ok">
+                                <p> We could not cancel your agreement. </p>
+                                <p> Check your Paypal account for more details. </p>
+                            </div>
+                        </div>
+                        <ng-template #cancellingLoading>
+                            <app-runbox-loading
+                                style="margin: auto;"
+                                text="Cancelling your agreement..."
+                            ></app-runbox-loading>
+                        </ng-template>
+                    </div>
+                </div>
+                <div *ngIf="!details.ok">
+                    <p> Could not load agreement details. </p>
+                    <p> It could have been cancelled via Paypal: in that case you won't be charged anymore. </p>
+                    <p> Check your Paypal account for more details. </p>
+                </div>
+            </div>
+            <ng-template #detailsLoading>
+                <app-runbox-loading
+                    style="margin: auto;"
+                    text="Loading agreement details..." 
+                ></app-runbox-loading>
+            </ng-template>
+        </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="['id', 'state', 'next_billing', 'details-button']"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: ['id', 'state', 'next_billing', 'details-button'];"></mat-row>
+    <mat-row *matRowDef="let row; columns: ['agreementDetails']; when: isRowExpanded"></mat-row>
+
+</table>
+
+</div>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your Paypal billing agreements..."
+    >
+    </app-runbox-loading>
+</ng-template>
