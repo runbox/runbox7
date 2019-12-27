@@ -500,12 +500,16 @@ mat-sidenav-container {
 
 #sidenavGreeting {
     margin: 10px;
+}
+
+#sidenavGreeting p {
+    margin-bottom: 5px;
     font-size: 14px;
 }
 
 #sidenavGreetingContent {
-    margin: 10px 0;
-    font-size: 12px;
+    margin: 5px 0;
+    font-size: 12px !important;
 }
 
 .mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
