@@ -54,6 +54,8 @@ import {
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material';
 import {RMM} from '../rmm';
+import { Location } from '@angular/common';
+import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 @Component({
     selector: 'app-profiles-edit',
     styles: [`
@@ -101,22 +103,23 @@ import {RMM} from '../rmm';
                             colspan="6"
                             rowspan="1"
                         >
-                        <mat-form-field style="margin: 10px; width: 100%">
-                            <input matInput placeholder="Identity name"
-                                name="name"
-                                [(ngModel)]="data.profile.name"
-                                (ngModelChange)="onchange_field('name')"
-                                >
-                                <div *ngIf="field_errors && field_errors.name">
+                            <mat-form-field style="margin: 10px; width: 100%">
+                                <input matInput placeholder="From"
+                                    name="from"
+                                    [(ngModel)]="data.profile.from_name"
+                                    (ngModelChange)="onchange_field('from_name')"
+                                    >
+                                <div *ngIf="field_errors && field_errors.from_name">
                                     <mat-hint>
-                                        ie. My main identity
+                                        ie. James Bond
                                     </mat-hint>
-                                    <mat-error *ngFor="let error of field_errors.name; let i = index;">
+                                    <mat-error *ngFor="let error of field_errors.from_name; let i = index;">
                                         {{error}}
                                     </mat-error>
                                 </div>
                             </mat-form-field>
                         </mat-grid-tile>
+
 
                         <mat-grid-tile
                             colspan="6"
@@ -170,20 +173,20 @@ import {RMM} from '../rmm';
                             rowspan="1"
                         >
                             <mat-form-field style="margin: 10px; width: 100%">
-                                <input matInput placeholder="From"
-                                    name="from"
-                                    [(ngModel)]="data.profile.from_name"
-                                    (ngModelChange)="onchange_field('from_name')"
+                                <input matInput placeholder="Description"
+                                    name="name"
+                                    [(ngModel)]="data.profile.name"
+                                    (ngModelChange)="onchange_field('name')"
                                     >
-                                <div *ngIf="field_errors && field_errors.from_name">
-                                    <mat-hint>
-                                        ie. James Bond
-                                    </mat-hint>
-                                    <mat-error *ngFor="let error of field_errors.from_name; let i = index;">
-                                        {{error}}
-                                    </mat-error>
-                                </div>
-                            </mat-form-field>
+                                    <div *ngIf="field_errors && field_errors.name">
+                                        <mat-hint>
+                                            ie. My main identity
+                                        </mat-hint>
+                                        <mat-error *ngFor="let error of field_errors.name; let i = index;">
+                                            {{error}}
+                                        </mat-error>
+                                    </div>
+                                </mat-form-field>
                         </mat-grid-tile>
 
                         <mat-grid-tile
@@ -220,11 +223,11 @@ import {RMM} from '../rmm';
 
                         <mat-grid-tile
                             colspan="12"
-                            rowspan="1"
+                            rowspan="2"
                             >
-                            <mat-form-field style="margin: 10px; width: 100%; height: 100%">
+                            <mat-form-field style="margin: 10px; width: 100%; min-height: 150px">
                                 <textarea matInput placeholder="Signature"
-                                    rows=4
+                                    [id]="selector"
                                     name="signature"
                                     [(ngModel)]="data.profile.signature"
                                     (ngModelChange)="onchange_field('signature')"
@@ -243,19 +246,29 @@ import {RMM} from '../rmm';
                                 </div>
                             </mat-form-field>
                         </mat-grid-tile>
+                        <mat-grid-tile
+                            colspan="12"
+                            rowspan="1"
+                        >
+                            <div
+                                style="text-align: left; width: 100%"
+                            >
+                                <mat-checkbox name='is_signature_html' [(ngModel)]="data.profile.is_signature_html"
+                                    (change)="toggle_signature_html()"
+                                >
+                                    use HTML for signature
+                                </mat-checkbox>
+                            </div>
+                        </mat-grid-tile>
 <!--
                         <mat-grid-tile
                             colspan="12"
                             rowspan="1"
                             *ngIf="data.profile.reference_type == 'preference'"
-                            >
-                            <div
-                                style="text-align: left; width: 100%"
-                            >
-                                <mat-checkbox name='is_smtp_enabled' [(ngModel)]="data.profile.is_smtp_enabled">
-                                    use smtp details
-                                </mat-checkbox>
-                            </div>
+                        >
+                            <mat-checkbox name='is_smtp_enabled' [(ngModel)]="data.profile.is_smtp_enabled">
+                                use smtp details
+                            </mat-checkbox>
                         </mat-grid-tile>
                         <mat-grid-tile
                             colspan="12"
@@ -387,11 +400,15 @@ export class ProfilesEditorModalComponent {
     is_visible_smtp_detail = false;
     is_different_reply_to = false;
     localpart;
+    editor: any = null;
+    selector: any;
     constructor(
         public rmm: RMM,
         private http: HttpClient,
+        private location: Location,
         public snackBar: MatSnackBar,
         public dialog_ref: MatDialogRef<ProfilesEditorModalComponent>,
+        public draftDeskservice: DraftDeskService,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
         if ( data && data.type ) {
@@ -405,11 +422,15 @@ export class ProfilesEditorModalComponent {
             data = { profile: { } };
             const self = this;
             data.profile.name = ['first_name', 'last_name'].map((attr) => {
-                console.log('attr', attr, self.rmm.me.data[attr]);
                 return self.rmm.me.data[attr];
             }).join(' ');
         }
         this.data = data;
+        if ( this.data.profile.is_signature_html ) {
+            this.init_tinymce();
+        } else {
+            this.data.profile.is_signature_html = false;
+        }
         this.check_reply_to(this.data);
     }
     check_reply_to(data) {
@@ -450,12 +471,15 @@ export class ProfilesEditorModalComponent {
             smtp_username : data.profile.smtp_username,
             smtp_password : data.profile.smtp_password,
             type          : this.type,
+            is_signature_html : ( data.profile.is_signature_html ? 1 : 0),
             is_smtp_enabled : ( data.profile.is_smtp_enabled ? 1 : 0 ),
         };
         const req = this.rmm.profile.create(values, this.field_errors);
         req.subscribe(reply => {
             if ( reply['status'] === 'success' ) {
                 this.rmm.profile.load();
+                this.rmm.profile.load_verified();
+                this.draftDeskservice.refreshFroms();
                 this.close();
                 return;
             }
@@ -488,6 +512,7 @@ export class ProfilesEditorModalComponent {
             smtp_port     : data.profile.smtp_port,
             smtp_username : data.profile.smtp_username,
             smtp_password : data.profile.smtp_password,
+            is_signature_html : ( data.profile.is_signature_html ? 1 : 0),
             is_smtp_enabled : ( data.profile.is_smtp_enabled ? 1 : 0 ),
         };
         const req = this.rmm.profile.update(this.data.profile.id, values, this.field_errors);
@@ -495,6 +520,7 @@ export class ProfilesEditorModalComponent {
             this.is_busy = false;
             if ( reply['status'] === 'success' ) {
                 this.rmm.profile.load();
+                this.draftDeskservice.refreshFroms();
                 this.close();
                 return;
             } else {
@@ -572,6 +598,45 @@ export class ProfilesEditorModalComponent {
         } else {
             return this.rmm.runbox_domain.data;
         }
+    }
+    toggle_signature_html() {
+        if (this.data.profile.is_signature_html) {
+            this.init_tinymce();
+        } else {
+            this.hide_tinymce();
+        }
+    }
+    hide_tinymce() {
+        if (this.editor) {
+            this.data.profile.signature = this.editor.getContent({ format: 'text' });
+            this.rmm.plugins.tinymce_plugin.remove(this.editor);
+            this.editor = null;
+        }
+    }
+    init_tinymce() {
+        this.is_busy = true;
+        const self = this;
+        this.selector = `html-editor-${Math.floor(Math.random() * 10000000000)}`;
+        const options = {
+            base_url: this.location.prepareExternalUrl('/tinymce/'), // Base for assets such as skins, themes and plugins
+            selector: '#' + this.selector,
+            setup: editor => {
+                self.editor = editor;
+                editor.on('Change', () => {
+                    self.data.profile.signature = editor.getContent();
+                });
+            },
+            init_instance_callback: (editor) => {
+                this.is_busy = false;
+                editor.setContent(
+                    self.data.profile.signature ?
+                        self.data.profile.signature.replace(/\n/g, '<br />\n') :
+                        ''
+                );
+            }
+        };
+        this.rmm.plugins.tinymce_plugin.create(options);
+
     }
 }
 
