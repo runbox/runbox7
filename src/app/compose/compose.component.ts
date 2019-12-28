@@ -22,7 +22,8 @@ import {
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FromAddress } from '../rmmapi/from_address';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
@@ -100,6 +101,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.draftDeskservice.froms[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
+                if ( from.is_signature_html ) {
+                    this.model.useHTML = true;
+                }
                 if ( !this.has_pasted_signature && from.signature ) {
                     this.has_pasted_signature = true;
                     this.signature = from.signature;
@@ -140,6 +144,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.formGroup.controls.msg_body.setValue(msg_body);
                     }
                 }
+                this.formGroup.controls.useHTML.setValue( from.is_signature_html );
             });
     }
 
