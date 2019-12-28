@@ -378,7 +378,7 @@ import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
            <mat-progress-bar *ngIf="is_busy" mode="indeterminate"></mat-progress-bar>
            <div
                *ngIf="data.profile.reference_type == 'preference' && data.profile.reference.status === 1"
-               >Email not validated. Check your email or <a href="javascript:void(0)" (click)="resend_validate_email()">re-send</a>.
+               >Email not validated. Check your email or <a href="javascript:void(0)" (click)="resend_validate_email(data.profile.id)">re-send</a>.
            </div>
        </mat-card-footer>
    </mat-card>
@@ -637,6 +637,19 @@ export class ProfilesEditorModalComponent {
         };
         this.rmm.plugins.tinymce_plugin.create(options);
 
+    }
+    resend_validate_email (id) {
+        const req = this.rmm.profile.resend(id);
+        req.subscribe(
+          data => {
+            const reply = data;
+            if ( reply['status'] === 'success' ) {
+              this.show_error('Email validation sent', 'Dismiss');
+              this.rmm.profile.load();
+              return;
+            }
+          },
+        );
     }
 }
 
