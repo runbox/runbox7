@@ -17,48 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { timeout } from 'rxjs/operators';
-import { SecurityContext, Component, Input, TemplateRef, ElementRef, ContentChild,
-    Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProgressService } from '../http/progress.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSelectModule,
-  MatSnackBarModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
   MatDialog,
   MatPaginator,
   MatSnackBar,
 } from '@angular/material';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { RMM } from '../rmm';
-import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
-import { RunboxListComponent } from '../runbox-components/runbox-list';
 
 @Component({
   moduleId: 'angular2/app/dev/',
   selector: 'app-dev',
   templateUrl: 'dev.component.html'
 })
-
-export class DevComponent implements AfterViewInit {
-  panelOpenState = false;
+export class DevComponent implements AfterViewInit { panelOpenState = false;
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   selected_component;

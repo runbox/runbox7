@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
@@ -86,7 +85,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     StripePaymentDialogComponent,
   ],
   imports: [
-    BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
     MenuModule,

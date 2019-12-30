@@ -17,9 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
@@ -56,8 +55,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     VcfImportDialogComponent,
   ],
   imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     MatBadgeModule,
     MatButtonModule,
@@ -74,30 +72,20 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ReactiveFormsModule,
     RouterModule.forChild([
       {
-        path: 'contacts',
-        canActivateChild: [RMMAuthGuardService],
+        path: '',
+        component: ContactsAppComponent,
         children: [
           {
-            path: '', outlet: 'headertoolbar',
-            component: HeaderToolbarComponent
+              path: '',
+              component: ContactsWelcomeComponent,
           },
           {
-            path: '',
-            component: ContactsAppComponent,
-            children: [
-              {
-                  path: '',
-                  component: ContactsWelcomeComponent,
-              },
-              {
-                  path: 'settings',
-                  component: ContactsSettingsComponent,
-              },
-              {
-                  path: ':id',
-                  component: ContactDetailsComponent,
-              }
-            ]
+              path: 'settings',
+              component: ContactsSettingsComponent,
+          },
+          {
+              path: ':id',
+              component: ContactDetailsComponent,
           }
         ]
       }
@@ -109,6 +97,6 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
   providers: [
     ContactsService,
   ],
-  bootstrap: [ContactsAppComponent]
+  bootstrap: []
 })
 export class ContactsAppModule { }

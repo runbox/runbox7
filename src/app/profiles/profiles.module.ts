@@ -16,9 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
@@ -55,10 +54,9 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
       AliasesEditorModalComponent,
     ],
     imports: [
-    BrowserModule,
+    CommonModule,
     MatGridListModule,
     MatCheckboxModule,
-    BrowserAnimationsModule,
     FormsModule,
     MatInputModule,
     MatButtonModule,
@@ -73,7 +71,7 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     MatTooltipModule,
     MatTableModule,
     MenuModule,
-    RouterModule
+    RouterModule.forChild([ { path: '', component: ProfilesComponent } ]),
     ],
     entryComponents: [
       ProfilesEditorModalComponent,
@@ -81,7 +79,7 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     ],
     providers: [
     ],
-    bootstrap: [ProfilesComponent]
+    bootstrap: []
 })
 export class ProfilesModule { }
 
