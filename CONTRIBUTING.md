@@ -90,12 +90,19 @@ git commit -a
 
 Note: The optional commit `-a` command line option will automatically "add" and "rm" edited files.
 
-9. Push your branch to GitHub:
+9. If you haven't done so already in step 7, generate and commit the updated changelog:
+
+```
+node src/build/build-changelog.js
+git commit src/app/changelog/changes.ts -em "docs(changelog): Update changelog"
+```
+
+10. Push your branch to GitHub:
 
 ```
 git push origin my-fix-branch
 ```
-10. In GitHub, send a pull request to `runbox7:master`.
+11. In GitHub, send a pull request to `runbox7:master`.
 
 * If we suggest changes then:
   - Make the required updates.
