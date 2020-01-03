@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { DomainRegisterComponent } from './domainregister.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,13 +38,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
     imports: [
         CommonModule,
-        BrowserModule,
-        BrowserAnimationsModule,
         FormsModule,
         HttpClientModule,
         MatSnackBarModule,
@@ -62,10 +59,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         MatChipsModule,
         MatSelectModule,
         MatButtonModule,
+        RouterModule.forChild([ { path: '', component: DomainRegisterComponent } ]),
     ],
     exports: [ DomainRegisterComponent ],
     declarations: [ DomainRegisterComponent ],
-    bootstrap: [ DomainRegisterComponent ]
+    bootstrap: [ ]
 })
 export class DomainRegisterModule {
 }

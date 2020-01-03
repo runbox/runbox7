@@ -18,10 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { CommonModule } from '@angular/common';
-
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { MenuModule } from '../menu/menu.module';
 
 import { CalendarModule, DateAdapter } from 'angular-calendar';
@@ -66,8 +64,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ImportDialogComponent,
   ],
   imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     MenuModule,
     MatButtonModule,
@@ -88,11 +85,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
     // angular-calendar stuff
-    CommonModule,
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory
-    })
+    }),
+    RouterModule.forChild([ { path: '', component: CalendarAppComponent } ])
   ],
   entryComponents: [
     CalendarEditorDialogComponent,
@@ -105,7 +102,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   providers: [
     CalendarService,
   ],
-  bootstrap: [CalendarAppComponent]
+  bootstrap: []
 })
 
 export class CalendarAppModule { }

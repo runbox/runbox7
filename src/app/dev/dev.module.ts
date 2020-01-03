@@ -18,8 +18,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
@@ -48,36 +47,39 @@ import { RunboxListComponent } from '../runbox-components/runbox-list';
 
 @NgModule({
     declarations: [
-    DevComponent,
-    RunboxIntroComponent,
-    RunboxListComponent,
+        DevComponent,
+        RunboxIntroComponent,
+        RunboxListComponent,
     ],
     imports: [
-    BrowserModule,
-    MatGridListModule,
-    MatCheckboxModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    MatMenuModule,
-    MatIconModule,
-    MatListModule,
-    MatProgressBarModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatTableModule,
-    MenuModule,
-    RouterModule
+        CommonModule,
+        MatGridListModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatInputModule,
+        MatButtonModule,
+        MatCardModule,
+        MatMenuModule,
+        MatIconModule,
+        MatListModule,
+        MatProgressBarModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatTableModule,
+        MenuModule,
+        RouterModule.forChild([
+            { path: '',                    component: DevComponent },
+            { path: ':selected_component', component: DevComponent },
+        ])
     ],
     entryComponents: [
     ],
     providers: [
     ],
-    bootstrap: [DevComponent]
+    bootstrap: [
+    ]
 })
 export class DevModule { }
 
