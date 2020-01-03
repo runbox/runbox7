@@ -97,7 +97,14 @@ export class MockServer {
                         }, 1000);
                     break;
                 case '/rest/v1/addresses_contact':
-                    response.end(JSON.stringify({status: 'success', result: {addresses_contacts: []}}));
+                    response.end(JSON.stringify(
+                        {
+                            status: 'success',
+                            result: {
+                                addresses_contacts: this.contacts()
+                            }
+                        }
+                    ));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
@@ -501,5 +508,64 @@ export class MockServer {
                         'main': []
                 }
             };
+    }
+
+    contacts(): any[] {
+        return [
+            {
+                'nickname' : null,
+                'first_name' : 'Patrick',
+                'addresses' : [
+                    {
+                        'types' : [
+                            'home'
+                        ],
+                        'value' : {
+                            'street' : ' home street',
+                            'po_box' : ' ',
+                            'country' : 'Home country',
+                            'extended' : ' ',
+                            'city' : 'home city',
+                            'post_code' : 'home code',
+                            'region' : 'home region'
+                        }
+                    },
+                    {
+                        'value' : {
+                            'city' : 'work city',
+                            'post_code' : 'work code',
+                            'region' : 'work region',
+                            'extended' : ' ',
+                            'country' : 'work country',
+                            'street' : 'work street',
+                            'po_box' : ' '
+                        },
+                        'types' : [
+                            'work'
+                        ]
+                    }
+                ],
+                'categories' : [],
+                'urls' : [],
+                'last_name' : 'Postcode',
+                'id' : 'ID-MR-POSTCODE',
+                'birthday' : '',
+                'company' : null,
+                'fullname' : 'Patrick Postcode',
+                'phones' : [
+                    {
+                        'types' : [
+                            'work'
+                        ],
+                        'value' : '333333333'
+                    }
+                ],
+                'emails' : [],
+                'department' : null,
+                'note' : '',
+                'show_as' : null,
+                'related' : []
+            }
+        ];
     }
 }

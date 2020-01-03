@@ -13,18 +13,21 @@ addons:
 cache:
   directories:
      - ./node_modules
+     - /home/travis/.cache/Cypress
 
 before_install:
   - export CHROME_BIN=chromium-browser
 
 install:
-  - npm install  
+  - npm install
+  - npx cypress install
 
 env:
   - COMMAND='lint'
   - COMMAND='policy'
   - COMMAND='unit'
   - COMMAND='e2e'
+  - COMMAND='cypress-e2e'
   - COMMAND='build'
 
 script: "npm run ci-tests -- $COMMAND"
