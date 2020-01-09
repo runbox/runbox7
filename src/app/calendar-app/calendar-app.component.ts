@@ -25,7 +25,7 @@ import {
     ViewChild,
 } from '@angular/core';
 
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
@@ -104,6 +104,7 @@ export class CalendarAppComponent implements OnDestroy {
         private http:     HttpClient,
         public  mobileQuery: MobileQueryService,
         private route:    ActivatedRoute,
+        private router:   Router,
         private snackBar: MatSnackBar,
     ) {
         const storedSettings = localStorage.getItem('calendarSettings');
@@ -130,6 +131,7 @@ export class CalendarAppComponent implements OnDestroy {
                         this.processIcsImport(text);
                     }));
                 });
+                this.router.navigate(['/calendar'], { queryParams: {}, replaceUrl: true });
             });
         });
         this.calendarservice.eventSubject.subscribe(events => {

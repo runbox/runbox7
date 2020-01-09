@@ -84,6 +84,7 @@ export class ContactsAppComponent {
                     text => this.processVcfImport(text)
                 )
             );
+            this.router.navigate(['/contacts'], { queryParams: {}, replaceUrl: true });
         });
 
         this.contactsservice.informationLog.subscribe(
