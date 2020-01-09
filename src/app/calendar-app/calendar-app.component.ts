@@ -328,6 +328,14 @@ export class CalendarAppComponent implements OnDestroy {
             if (!result) {
                 return;
             }
+
+            const methodMatch = ics.match(/^METHOD:(.+)$/mi);
+            if (methodMatch) {
+                // Ideally we'd (try to) notify the other party that we accept the invitation,
+                // or something. For now, let's just import it since that's what the user expects.
+                ics = ics.replace(/^METHOD:(.+)$/mi, '');
+            }
+
             if (result instanceof RunboxCalendar) {
                 // create the new calendar first
                 this.calendarservice.addCalendar(result).then(
