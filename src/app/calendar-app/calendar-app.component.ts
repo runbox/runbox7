@@ -193,8 +193,14 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     calculateRecurringEvents(): void {
-        if (!this.viewPeriod) {
-            return;
+        let start, end: Date;
+        if (this.viewPeriod) {
+            start = this.viewPeriod.start;
+            end   = this.viewPeriod.end;
+        } else {
+            // we must be in overview mode, assume 1 month starting today
+            start = new Date();
+            end   = moment().add(1, 'month').toDate();
         }
 
         const events = [];
@@ -205,7 +211,7 @@ export class CalendarAppComponent implements OnDestroy {
                 continue;
             }
 
-            for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
+            for (const dt of e.rrule.between(start, end)) {
                 events.push(e.recurrenceAt(moment(dt)));
             }
         }
