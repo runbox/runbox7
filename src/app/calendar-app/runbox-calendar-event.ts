@@ -166,6 +166,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
         );
     }
 
+    static newMultiple(ical: string): RunboxCalendarEvent[] {
+        const comp = new ICAL.Component(ICAL.parse(ical));
+        return comp.getAllSubcomponents('vevent').map(
+            c => new RunboxCalendarEvent(undefined, c.toJSON())
+        );
+    }
+
     constructor(id: string, jcal: any) {
         this.id = id;
         if (this.id) {
