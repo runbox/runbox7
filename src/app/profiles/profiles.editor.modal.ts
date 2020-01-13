@@ -56,6 +56,7 @@ import {MatSelectModule} from '@angular/material';
 import {RMM} from '../rmm';
 import { Location } from '@angular/common';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
+import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 @Component({
     selector: 'app-profiles-edit',
     styles: [`
@@ -404,6 +405,7 @@ export class ProfilesEditorModalComponent {
     localpart;
     editor: any = null;
     selector: any;
+    public tinymce_plugin: TinyMCEPlugin;
     constructor(
         public rmm: RMM,
         private http: HttpClient,
@@ -413,6 +415,7 @@ export class ProfilesEditorModalComponent {
         public draftDeskservice: DraftDeskService,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
+        this.tinymce_plugin = new TinyMCEPlugin();
         if ( data && data.type ) {
             this.type = data.type;
             delete data.type;
@@ -611,7 +614,7 @@ export class ProfilesEditorModalComponent {
     hide_tinymce() {
         if (this.editor) {
             this.data.profile.signature = this.editor.getContent({ format: 'text' });
-            this.rmm.plugins.tinymce_plugin.remove(this.editor);
+            this.tinymce_plugin.remove(this.editor);
             this.editor = null;
         }
     }
@@ -637,8 +640,7 @@ export class ProfilesEditorModalComponent {
                 );
             }
         };
-        this.rmm.plugins.tinymce_plugin.create(options);
-
+        this.tinymce_plugin.create(options);
     }
     resend_validate_email (id) {
         const req = this.rmm.profile.resend(id);

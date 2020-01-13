@@ -24,7 +24,6 @@ import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
-import { TinyMCEPlugin } from './rmm/plugin/tinymce.plugin';
 import {
     MatSnackBar,
 } from '@angular/material';
@@ -37,8 +36,6 @@ export class RMM {
     public alias: Alias;
     public me: Me;
     public runbox_domain: RunboxDomain;
-    public tinymce_plugin: TinyMCEPlugin;
-    public plugins: any = {};
     constructor(
         public http: HttpClient,
         public snackBar: MatSnackBar,
@@ -48,9 +45,6 @@ export class RMM {
         this.alias = new Alias(this);
         this.me = new Me(this);
         this.runbox_domain = new RunboxDomain(this);
-        this.plugins = {
-            tinymce_plugin: new TinyMCEPlugin(this),
-        };
     }
 
     public show_error ( message, action ) {
