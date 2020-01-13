@@ -18,13 +18,11 @@
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { RMM } from '../../rmm';
 
 declare const tinymce: any;
 
 export class TinyMCEPlugin {
     constructor(
-        public app: RMM,
     ) {
     }
     create(options) {
