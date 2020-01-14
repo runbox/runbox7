@@ -53,6 +53,8 @@ export class AccountRenewalsComponent {
                     p.expires_soon = true;
                 }
 
+                p.can_renew = p.pid !== 1000; // no renewals for trials
+
                 return p;
             });
 
