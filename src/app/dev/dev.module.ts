@@ -32,6 +32,7 @@ import {
     MatListModule,
     MatProgressBarModule,
     MatSelectModule,
+    MatSlideToggleModule,
     MatSidenavModule,
     MatToolbarModule,
     MatTooltipModule,
@@ -45,6 +46,9 @@ import { DevComponent } from './dev.component';
 import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
 import { RunboxListComponent } from '../runbox-components/runbox-list';
 import { RunboxContainerComponent } from '../runbox-components/runbox-container';
+import { RunboxSectionComponent } from '../runbox-components/runbox-section';
+import { RunboxSlideToggleComponent } from '../runbox-components/runbox-slide-toggle';
+import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
 
 @NgModule({
     declarations: [
@@ -52,6 +56,9 @@ import { RunboxContainerComponent } from '../runbox-components/runbox-container'
         RunboxIntroComponent,
         RunboxListComponent,
         RunboxContainerComponent,
+        RunboxSectionComponent,
+        RunboxSlideToggleComponent,
+        RunboxTimerComponent,
     ],
     imports: [
         CommonModule,
@@ -66,6 +73,7 @@ import { RunboxContainerComponent } from '../runbox-components/runbox-container'
         MatListModule,
         MatProgressBarModule,
         MatSelectModule,
+        MatSlideToggleModule,
         MatSidenavModule,
         MatToolbarModule,
         MatTooltipModule,
