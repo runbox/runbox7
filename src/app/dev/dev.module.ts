@@ -44,12 +44,14 @@ import {
 import { DevComponent } from './dev.component';
 import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
 import { RunboxListComponent } from '../runbox-components/runbox-list';
+import { RunboxContainerComponent } from '../runbox-components/runbox-container';
 
 @NgModule({
     declarations: [
         DevComponent,
         RunboxIntroComponent,
         RunboxListComponent,
+        RunboxContainerComponent,
     ],
     imports: [
         CommonModule,
