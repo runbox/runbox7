@@ -17,15 +17,8 @@
   flex-grow: 7;
 }
 
-.nice_blue_timer {
-    color: #00f;
-}
-
-.nice_green_timer {
-    color: #0F0;
-}
 </style>
-<mat-sidenav-container class="" style="padding: 10px;">
+<mat-sidenav-container class="" style="padding: 10px;" class='dev runbox-components'>
     <mat-sidenav mode="side" opened=false></mat-sidenav>
     <mat-sidenav-content>
         <section class="mat-typography">
@@ -112,8 +105,45 @@
                     <div
                         *ngIf="route.params['getValue']().selected_component === 'app-runbox-timer'"
                     >
-                        <app-runbox-timer future_date="2021/01/19 23:24:14" class="nice_blue_timer"></app-runbox-timer>
-                        <app-runbox-timer future_date="2020/12/08 00:44:11" class="nice_green_timer"></app-runbox-timer>
+                        <div class='synopsis'>
+                            <h1>Runbox Timer</h1>
+                            <p>
+                                The runbox timer is a countdown timer. It expects a predefined date in the future and will make the calculations necessary to represent in a countdown timer.
+                            </p>
+                        </div>
+                        <div class='examples'>
+                            <h2>Standard timer with css style</h2>
+                            <app-runbox-timer future_date="2021/01/19 23:24:14" class="nice_blue_timer"></app-runbox-timer>
+                        </div>
+                        <div class='examples'>
+                            <h2>Standard timer with css style</h2>
+                            <app-runbox-timer future_date="2020/12/08 00:44:11" class="nice_green_timer"></app-runbox-timer>
+                        </div>
+                        <div class='examples'>
+                            <h2>Custom timer template</h2>
+                            <app-runbox-timer
+                                class="timer-custom-tpl"
+                                future_date="2025/02/18 01:14:41"
+                                [child_timer]="child_timer"
+                            >
+                                <div custom_template>
+                                    <div>
+                                      <div class='date'>
+                                          <div class="timeunit y" *ngIf="child_timer.years">{{child_timer.years}}</div>
+                                          <div class="timeunit m" *ngIf="child_timer.months">{{child_timer.months}}</div>
+                                          <div class="timeunit d" *ngIf="child_timer.months">{{child_timer.days}}</div>
+                                      </div>
+                                      <div class='time'>
+                                          <div class="timeunit h">{{child_timer.hours < 10 ? '0'+child_timer.hours : child_timer.hours}}</div>
+:
+                                          <div class="timeunit m" >{{child_timer.minutes < 10 ? '0'+child_timer.minutes : child_timer.minutes}}</div>
+:
+                                          <div class="timeunit s" >{{child_timer.seconds < 10 ? '0'+child_timer.seconds : child_timer.seconds}}</div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </app-runbox-timer>
+                        </div>
                     </div>
                   </div>
                 </div>
