@@ -1,16 +1,21 @@
 <style>
 mat-card {
-        min-height: 150px;
+    min-height: 175px;
+    padding: 10px;
+}
+mat-card-title {
+    white-space: nowrap;
 }
 </style>
 
 <mat-card>
     <mat-card-title>
-        <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
         <span *ngIf="p.subtype === 'special'"> Special offer: </span>{{ p.name }}
         <strong *ngIf="active"> – your current {{ p.type }} </strong>
-        <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
     </mat-card-title>
+    <h3 *ngIf="p.subtype === 'special'" style="margin: 10px">
+        Runbox Medium
+    </h3>
     <mat-card-subtitle>
         {{ p.description }}
     </mat-card-subtitle>
@@ -18,7 +23,7 @@ mat-card {
         <ng-content></ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
-        <button mat-button *ngIf="!purchased; else unpurchase"
+        <button style="position: absolute; bottom: 20px;" mat-button *ngIf="!purchased; else unpurchase"
             class="contentButton"
             (click)="order()"
         >
