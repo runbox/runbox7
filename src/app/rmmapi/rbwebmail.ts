@@ -133,6 +133,8 @@ export class RunboxMe {
     public currency: string;
 
     public subscription: number;
+    public is_trial: boolean;
+    public uses_own_domain: boolean;
 }
 
 export class MessageTextpart {
@@ -682,8 +684,12 @@ export class RunboxWebmailAPI {
     public getAvailableProducts(): Observable<Product[]> {
         return this.http.get('/rest/v1/account_product/available').pipe(
             map((res: HttpResponse<any>) => res['result']['products']),
-            map((products: any[]) => products.map((c) => c as Product)
-            )
+            map((products: any[]) => products.map((c) => {
+                // fixup for RMM API bug
+                c.pid   = parseInt(c.pid, 10);
+                c.price = parseFloat(c.price);
+                return new Product(c);
+            }))
         );
     }
 

@@ -24,6 +24,7 @@ import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
+import { ProductOrder } from './product-order';
 import { AsyncSubject } from 'rxjs';
 
 @Component({
@@ -32,6 +33,14 @@ import { AsyncSubject } from 'rxjs';
 })
 export class AccountUpgradesComponent implements OnInit {
     subscriptions = new AsyncSubject<Product[]>();
+    trial_with_own_domain = false;
+    ordered_micro         = false;
+    ordered_email_hosting = false;
+    currency: string;
+
+    MICRO_PID = 1001;
+    EMAIL_HOSTING_PID = 57;
+    email_hosting_product: Product;
 
     constructor(
         private cart:            CartService,
@@ -42,13 +51,24 @@ export class AccountUpgradesComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.rmmapi.me.subscribe(me => {
+            this.trial_with_own_domain = me.is_trial && me.uses_own_domain;
+            this.currency = me.currency;
+        });
+
         this.paymentsservice.products.subscribe(products => {
+            this.email_hosting_product = products.find(p => p.pid === this.EMAIL_HOSTING_PID);
+
             const subs = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs);
             this.subscriptions.complete();
 
             this.cart.items.subscribe(items => {
+                this.ordered_email_hosting = !!items.find(o => o.pid === this.EMAIL_HOSTING_PID);
+
                 const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
+                this.ordered_micro = !!ordered_subs.find(o => o.pid === this.MICRO_PID);
+
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
                     for (const o of ordered_subs) {
@@ -58,5 +78,9 @@ export class AccountUpgradesComponent implements OnInit {
                 }
             });
         });
+    }
+
+    order_email_hostng(): void {
+        this.cart.add(new ProductOrder(this.EMAIL_HOSTING_PID, 1));
     }
 }
