@@ -37,6 +37,7 @@ import { RunboxLocale } from '../rmmapi/rblocale';
 import { ProgressSnackbarComponent } from '../dialog/progresssnackbar.component';
 import { Profile } from '../profiles/profile';
 import { RMM } from '../rmm';
+import { FromAddress } from './from_address';
 
 export class MessageFields {
     id: number;
@@ -73,43 +74,6 @@ export class Alias {
         public name: string,
         public email: string
     ) { }
-}
-
-export class FromAddress {
-    public email: string;
-    public reply_to: string;
-    public id: number;
-    public folder: string;
-    public name: string;
-    public signature: string;
-
-    public nameAndAddress: string;
-
-    public static fromNameAndAddress(name: string, address: string): FromAddress {
-        const ret = new FromAddress();
-        ret.name = name;
-        ret.email = address;
-        ret.resolveNameAndAddress();
-        return ret;
-    }
-
-    public static fromObject(obj: any): FromAddress {
-        const ret = Object.assign(new FromAddress(), obj);
-        ret.resolveNameAndAddress();
-        return ret;
-    }
-
-    public static fromEmailAddress(email): FromAddress {
-        const ret = new FromAddress();
-        ret.email = email;
-        ret.reply_to = email;
-        return ret;
-    }
-
-    private resolveNameAndAddress() {
-        this.nameAndAddress = this.name ? `${this.name} <${this.email}>` : this.email;
-    }
-
 }
 
 class FromAddressResponse {

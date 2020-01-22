@@ -18,10 +18,12 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../xapian/messageinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
+import {RMM} from '../rmm';
 
 export class ForwardedAttachment {
     constructor(
@@ -167,6 +169,7 @@ export class DraftDeskService {
     froms: FromAddress[] = [];
 
     constructor(
+        public rmm: RMM,
         public rmmapi: RunboxWebmailAPI) {
             this.refreshDrafts()
                 .subscribe(() => {
@@ -175,30 +178,12 @@ export class DraftDeskService {
                 });
     }
 
-    private refreshFroms(): Observable<FromAddress[]> {
-        let newfroms: FromAddress[] = [];
-        let defaultprofile: FromAddress;
-        return this.rmmapi.getDefaultProfile().pipe(
-            map((profile) => {
-                defaultprofile = profile;
-                newfroms.push(defaultprofile);
-            }),
-            mergeMap(() => this.rmmapi.getFromAddress()),
-            map((froms) =>
-                newfroms = newfroms.concat(froms)),
-            mergeMap(() => this.rmmapi.getAliases()),
-            map((aliases) => {
-                    newfroms = newfroms.concat(aliases.map((alias) => ({
-                                reply_to: alias.email,
-                                email: alias.email,
-                                id: alias.id,
-                                name: defaultprofile.name,
-                                folder: defaultprofile.folder
-                            } as FromAddress)));
-                    return newfroms;
-                }
-            ),
-            map(() => this.froms = newfroms.map((fromObj) => FromAddress.fromObject(fromObj)))
+    public refreshFroms(): Observable<FromAddress[]> {
+        return this.rmm.profile.load_verified().pipe(
+            map((reply) => {
+                this.froms = this.rmm.profile.from_addresses;
+                return this.froms;
+            })
         );
     }
 

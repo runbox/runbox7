@@ -118,7 +118,7 @@ import {RMM} from '../rmm';
                             <div
                                 style="text-align: left; width: 100%; margin-left: 5px;"
                                 >
-                                {{item.profile.email}} {{item.profile.name?'('+item.profile.name+')':''}}
+                                {{item.profile.email}}
                             </div>
                         </mat-grid-tile>
                         <mat-grid-tile
@@ -245,19 +245,6 @@ export class ProfilesListerComponent {
               this.ev_reload.emit('deleted');
           }
       });
-  }
-  resend_validate_email (id) {
-      const req = this.rmm.profile.resend(id);
-      req.subscribe(
-        data => {
-          const reply = data;
-          if ( reply['status'] === 'success' ) {
-            this.show_error('Email validation sent', 'Dismiss');
-            this.rmm.profile.load();
-            return;
-          }
-        },
-      );
   }
   show_error (message, action) {
     this.snackBar.open(message, action, {

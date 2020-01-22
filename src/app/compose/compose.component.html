@@ -126,7 +126,7 @@
 			   width: 100%;
 			   height: 300px;
 			   " 
-                    [id]="editorId" #editor 
+                    [id]="selector"
                     [hidden]="!formGroup.value.useHTML">
           </textarea>
           <mat-form-field id="messageTextArea" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto">
