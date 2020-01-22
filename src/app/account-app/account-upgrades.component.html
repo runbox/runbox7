@@ -46,15 +46,12 @@
             [active_sub]="me.subscription === p.pid"
             [currency]="me.currency"
         >
-            <div *ngIf="trial_with_own_domain && p.pid === MICRO_PID && ordered_micro">
-                <div *ngIf="!ordered_email_hosting">
+            <div *ngIf="trial_with_own_domain && p.pid === cart.RUNBOX_MICRO_PID && bought_micro">
+                <div *ngIf="!bought_email_hosting">
                     When using Runbox Micro with your own domain you'll need to
-                    <button mat-button class="contentButton" (click)="order_email_hostng()">
+                    <button mat-button class="contentButton" (click)="cart.order_email_hosting()">
                         Purchase Email Hosting for {{ email_hosting_product.price | number:'1.2-2' }} {{ currency }}
                     </button> as well.
-                </div>
-                <div *ngIf="ordered_email_hosting">
-                    Required email hosting is in your shopping cart. You're good to go!
                 </div>
             </div>
         </app-account-product>

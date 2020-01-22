@@ -34,18 +34,16 @@ import { AsyncSubject } from 'rxjs';
 export class AccountUpgradesComponent implements OnInit {
     subscriptions = new AsyncSubject<Product[]>();
     trial_with_own_domain = false;
-    ordered_micro         = false;
-    ordered_email_hosting = false;
     currency: string;
 
-    MICRO_PID = 1001;
-    EMAIL_HOSTING_PID = 57;
     email_hosting_product: Product;
+    bought_micro = false;
+    bought_email_hosting = false;
 
     constructor(
-        private cart:            CartService,
+        public  cart:            CartService,
         private paymentsservice: PaymentsService,
-        public rmmapi:           RunboxWebmailAPI,
+        public  rmmapi:          RunboxWebmailAPI,
         private snackbar:        MatSnackBar,
     ) {
     }
@@ -57,17 +55,17 @@ export class AccountUpgradesComponent implements OnInit {
         });
 
         this.paymentsservice.products.subscribe(products => {
-            this.email_hosting_product = products.find(p => p.pid === this.EMAIL_HOSTING_PID);
+            this.email_hosting_product = products.find(p => p.pid === this.cart.EMAIL_HOSTING_PID);
 
             const subs = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs);
             this.subscriptions.complete();
 
             this.cart.items.subscribe(items => {
-                this.ordered_email_hosting = !!items.find(o => o.pid === this.EMAIL_HOSTING_PID);
+                this.bought_micro         = !!items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
+                this.bought_email_hosting = !!items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
 
                 const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
-                this.ordered_micro = !!ordered_subs.find(o => o.pid === this.MICRO_PID);
 
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
@@ -78,9 +76,5 @@ export class AccountUpgradesComponent implements OnInit {
                 }
             });
         });
-    }
-
-    order_email_hostng(): void {
-        this.cart.add(new ProductOrder(this.EMAIL_HOSTING_PID, 1));
     }
 }
