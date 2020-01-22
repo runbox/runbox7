@@ -22,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material';
+import { MatDialogModule } from '@angular/material';
 
 import {
     MatButtonModule,
@@ -55,6 +56,7 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     ],
     imports: [
     CommonModule,
+    MatDialogModule,
     MatGridListModule,
     MatCheckboxModule,
     FormsModule,
