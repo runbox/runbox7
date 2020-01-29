@@ -100,6 +100,7 @@ const routes: Routes = [
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
       { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
       { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
+      { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
     ]

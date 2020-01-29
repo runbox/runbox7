@@ -83,6 +83,11 @@ You may then access the Angular app at: [http://localhost:4200](http://localhost
 Run `npm run build`. Production bundles will be created in the `dist` folder and is ready
 to be copied into the production web servers.
 
+Running this command will also permanently modify `src/app/changelog/changes.ts`, which contains
+a pre-parsed `git log`-based changelog. The build script will hint at that and show a suggested way
+to commit it. Make sure to use the suggested format -- it will prevent the changelog update
+commit from being included in future changelogs.
+
 ## No-script
 
 If you use no-script, remember to whitelist localhost to execute localhost.

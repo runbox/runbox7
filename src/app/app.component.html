@@ -57,7 +57,10 @@
 
     <mat-divider></mat-divider>
 
-    <p style="text-align: center; font-size: 12px">Runbox 7 build time: {{buildtimestampstring}}</p>
+    <p style="text-align: center; font-size: 12px">
+        Runbox 7 build time: {{buildtimestampstring}} <br>
+        <a routerLink="/changelog"> Read the changelog </a>
+    </p>
   </mat-sidenav>
   <mat-sidenav *ngIf="mailViewerOnRightSide" position="end" mode="side"
     [opened]="!hasChildRouterOutlet
