@@ -44,12 +44,20 @@ export class AccountUpgradesComponent implements OnInit {
 
     ngOnInit() {
         this.paymentsservice.products.subscribe(products => {
-            const subs = products.filter(p => p.type === 'subscription');
-            this.subscriptions.next(subs);
+            const subs_all = products.filter(p => p.type === 'subscription');
+            this.subscriptions.next(subs_all);
+            this.subscriptions.complete();
+
+            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
+            this.subscriptions.next(subs_regular);
+            this.subscriptions.complete();
+	    
+	    const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
+            this.subscriptions.next(subs_special);
             this.subscriptions.complete();
 
             this.cart.items.subscribe(items => {
-                const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
+                const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
                     for (const o of ordered_subs) {

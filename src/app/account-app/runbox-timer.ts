@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -19,6 +19,7 @@
 import {
   SecurityContext,
   Component,
+  OnInit,
   Input,
   Output,
   EventEmitter,
@@ -42,17 +43,14 @@ import {
   MatProgressBarModule,
   MatProgressSpinnerModule,
   MatSelectModule,
-  MatSnackBarModule,
   MatTableModule,
   MatTabsModule,
   MatChipsModule,
   MatDialog,
   MatPaginator,
-  MatSnackBar,
   MatGridListModule,
 } from '@angular/material';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-runbox-timer',
@@ -73,23 +71,10 @@ import { RMM } from '../rmm';
 
 export class RunboxTimerComponent implements OnInit {
   @ContentChild('custom_template', { static: false }) custom_template: ElementRef;
-  @Input() future_date: any; // yyyy-mm-dd hh:mm:ss
-  @Input() css_class: any; // cool_timer_css
-  @Input() child_timer: any = {years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0};
-  private dialog_ref: any;
-
-  years: any;
-  months: any;
-  days: any;
-  hours: any;
-  minutes: any;
-  seconds: any;
 
   has_time_left: true;
   constructor(
     public dialog: MatDialog,
-    public rmm: RMM,
-    public snackBar: MatSnackBar,
     public ref: ElementRef,
   ) {
   }
@@ -99,39 +84,21 @@ export class RunboxTimerComponent implements OnInit {
   }
 
   recalculate_date () {
-      const now = new Date();
-      const d = this.future_date;
-      const year  = d.split(' ')[0].split('-')[0];
-      const month = Number(d.split(' ')[0].split('-')[1]) - 1;
-      const day   = Number(d.split(' ')[0].split('-')[2]);
-      const hour  = Number(d.split(' ')[1].split(':')[0]);
-      const min   = Number(d.split(' ')[1].split(':')[1]);
-      const sec   = Number(d.split(' ')[1].split(':')[2]);
-      const sometime = new Date(year, month, day, hour, min, sec, 0);
-      const total_seconds = Math.floor((sometime.getTime() - now.getTime()) / 1000);
-      if ( total_seconds < 0 ) { this.has_time_left = false; return ; }
-      setTimeout(() => {
-          this.recalculate_date();
-      }, 1000);
-      const secs_per_year = (365 * 24 * 60 * 60);
-      this.years = Math.floor(total_seconds / secs_per_year);
-      total_seconds -= secs_per_year * this.years;
-      const secs_per_month = 30 * 24 * 60 * 60;
-      this.months = Math.floor(total_seconds / secs_per_month);
-      total_seconds -= secs_per_month * this.months;
-      const secs_per_day = 24 * 60 * 60;
-      this.days = Math.floor(total_seconds / secs_per_day);
-      total_seconds -= secs_per_day * this.days;
-      const secs_per_hour = 60 * 60;
-      this.hours = Math.floor(total_seconds / secs_per_hour);
-      total_seconds -= secs_per_hour * this.hours;
-      const secs_per_minutes = 60;
-      this.minutes = Math.floor(total_seconds / secs_per_minutes);
-      total_seconds -= secs_per_minutes * this.minutes;
-      this.seconds = total_seconds;
+      let moment = import('moment');
 
-      ['years', 'months', 'days', 'hours', 'minutes', 'seconds'].forEach((t) => {
-        this.child_timer[t] = this[t];
-      });
+      let now = moment();
+      // let tomorrow = moment().add(1, 'days');
+      // tomorrow.subtract(7654, 'seconds'); // for a little variety ;)
+
+      let expiration = moment(me.offer_expires); // Need this from API
+      let duration = moment.duration(expiration.diff(now));
+      let limitedTimeOffer = (duration > 0 ? duration : null);
+      
+      console.log(`
+        days:    ${duration.days()}
+        hours:   ${duration.hours()}
+        minutes: ${duration.minutes()}
+        seconds: ${duration.seconds()}
+      `.trim());
   }
 }

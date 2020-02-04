@@ -69,18 +69,18 @@ mat-icon.limitedTimeOffer {
       {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
     </p>
 
-    <div *ngIf="!(future_date < now)" class="limitedTimeOffer">
+    <div *ngIf="(limitedTimeOffer)" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0"><mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star</mat-icon></h2>
       <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra generous today!</h3>
       <h4 style="margin: 20px 0 0 0">Subscribe within 24 hours of signing up and get</h4>
       <h1 style="margin: 10px 0 0 0">1 extra year for free!</h1>
-      <p>This offer expires in <app-runbox-timer future_date="2020-02-01 00:00:00" class="timer"></app-runbox-timer></p>
+      <p>This offer expires in <app-runbox-timer class="timer"></app-runbox-timer></p>
     </div>
 
     <div id="productGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
       <app-account-product
-        *ngFor="let p of subscriptions"
-	[ngClass]="{'productCardSpecialHide' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
+        *ngFor="let p of subs_regular"
+	[ngClass]="productCard"
         [p]="p"
         [active]="me.subscription === p.pid"
         [currency]="me.currency"
@@ -91,8 +91,8 @@ mat-icon.limitedTimeOffer {
       </app-account-product>
 
       <app-account-product
-        *ngFor="let p of subscriptions"
-	[ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCardHide' : p.subtype !== 'special'}"
+        *ngFor="let p of subs_special"
+	[ngClass]="productCardSpecial"
         [p]="p"
         [active]="me.subscription === p.pid"
         [currency]="me.currency"
