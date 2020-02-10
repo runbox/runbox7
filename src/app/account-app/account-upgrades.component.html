@@ -16,7 +16,7 @@
 }
 </style>
 
-<h2> Account upgrades </h2>
+<h2> Main account subscriptions </h2>
 
 <div *ngIf="rmmapi.me | async as me; else loading">
     <p>
@@ -41,14 +41,19 @@
     <div id="productGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
         <app-account-product
             *ngFor="let p of subscriptions"
-	    [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
+            [ngClass]="{'productCardSpecial' : p.subtype === 'special', 'productCard' : p.subtype !== 'special'}"
             [p]="p"
-            [active]="me.subscription === p.pid"
+            [active_sub]="me.subscription === p.pid"
             [currency]="me.currency"
         >
-            <ul>
-                <li *ngFor="let detail of p.details"> {{ detail }}
-            </ul>
+            <div *ngIf="trial_with_own_domain && p.pid === cart.RUNBOX_MICRO_PID && bought_micro">
+                <div *ngIf="!bought_email_hosting">
+                    When using Runbox Micro with your own domain you'll need to
+                    <button mat-button class="contentButton" (click)="cart.order_email_hosting()">
+                        Purchase Email Hosting for {{ email_hosting_product.price | number:'1.2-2' }} {{ currency }}
+                    </button> as well.
+                </div>
+            </div>
         </app-account-product>
     </div>
     <ng-template #productsLoading>

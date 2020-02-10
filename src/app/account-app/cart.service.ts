@@ -28,6 +28,9 @@ import { StorageService } from '../storage.service';
 export class CartService {
     items = new ReplaySubject<ProductOrder[]>(1);
 
+    public RUNBOX_MICRO_PID = 1001;
+    public EMAIL_HOSTING_PID = 57;
+
     constructor(
         private storage: StorageService,
     ) {
@@ -64,5 +67,9 @@ export class CartService {
     async remove(order: ProductOrder): Promise<void> {
         const items = await this.items.pipe(take(1)).toPromise();
         this.items.next(items.filter(p => !p.equals(order)));
+    }
+
+    async order_email_hosting(): Promise<void> {
+        return this.add(new ProductOrder(this.EMAIL_HOSTING_PID, 1));
     }
 }

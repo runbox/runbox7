@@ -31,6 +31,11 @@ import { ProductOrder } from './product-order';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
+enum CartError {
+    NEED_EMAIL_HOSTING,
+    NEED_SUB_FOR_ADDON,
+}
+
 @Component({
     selector: 'app-shopping-cart',
     templateUrl: './shopping-cart.component.html',
@@ -44,6 +49,10 @@ export class ShoppingCartComponent implements OnInit {
     // in a non-editable form.
     fromUrl = false;
     domregHash: string;
+
+    orderError: CartError;
+    // needed so that templates can refer to enum values through `errors.ERROR_CODE`
+    errors = CartError;
 
     // it's not as elegant, but it's *so much easier*
     // to handle in the template when it's synchronous
@@ -63,6 +72,7 @@ export class ShoppingCartComponent implements OnInit {
     ) {
         this.itemsSubject.subscribe(items => this.calculateTotal(items));
         this.itemsSubject.subscribe(items => this.items = items);
+        this.itemsSubject.subscribe(items => this.checkIfLegal(items));
         this.currency = this.paymentsservice.currency;
     }
 
@@ -132,6 +142,33 @@ export class ShoppingCartComponent implements OnInit {
         }
 
         return cartItems;
+    }
+
+    async checkIfLegal(items) {
+        const me = await this.rmmapi.me.toPromise();
+
+        this.orderError = undefined; // unless we find something else :)
+
+        // needs >micro or email hosting if on trial with own domain
+        if (me.is_trial && me.uses_own_domain) {
+            const bought_micro         = items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
+            const bought_email_hosting = items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
+
+            if (bought_micro && !bought_email_hosting) {
+                this.orderError = CartError.NEED_EMAIL_HOSTING;
+            }
+        }
+
+        // cannot buy addon without subscription while on trial
+        if (me.is_trial) {
+            console.log(items);
+            const bought_addon = items.find(i => i.product.type === 'addon');
+            const bought_sub   = items.find(i => i.product.type === 'subscription');
+
+            if (bought_addon && !bought_sub) {
+                this.orderError = CartError.NEED_SUB_FOR_ADDON;
+            }
+        }
     }
 
     remove(p: ProductOrder) {

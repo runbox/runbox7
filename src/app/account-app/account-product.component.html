@@ -13,7 +13,7 @@ mat-card-subtitle {
     <mat-card-title>
         <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
         <span *ngIf="p.subtype === 'special'"> Special offer: </span>{{ p.name }}
-        <strong *ngIf="active"> – your current {{ p.type }} </strong>
+        <strong *ngIf="active_sub"> – your current subscription </strong>
         <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
     </mat-card-title>
     <mat-card-subtitle>
@@ -22,12 +22,12 @@ mat-card-subtitle {
     <mat-card-content>
         <ng-content></ng-content>
     </mat-card-content>
-    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
+    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="!allow_multiple">
         <button mat-button *ngIf="!purchased; else unpurchase"
             class="contentButton"
             (click)="order()"
         >
-            Purchase for {{ p.price }} {{ currency }}
+            Purchase for {{ p.price | number:'1.2-2' }} {{ currency }}
         </button>
         <ng-template #unpurchase>
             <button mat-button
@@ -38,7 +38,7 @@ mat-card-subtitle {
             </button>
         </ng-template>
     </mat-card-actions>
-    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type === 'addon'">
+    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
         <button mat-icon-button (click)="less()">
             <mat-icon> remove_circle_outline </mat-icon>
         </button>

@@ -71,7 +71,7 @@ app-payment-method {
     <tr mat-footer-row *matFooterRowDef="['name', 'empty', 'empty', 'total-price', 'empty']">
 </table>
 
-<div *ngIf="items.length > 0">
+<div *ngIf="items.length > 0 && orderError === undefined">
     <h2> Payment method </h2>
 
     <style>
@@ -140,6 +140,26 @@ app-payment-method {
                 </p>
             </div>
         </mat-expansion-panel>
+    </div>
+</div>
+
+<div *ngIf="orderError !== undefined" style="display: flex; flex-flow: column; align-items: center;">
+    <h3> There is a problem with your order </h3>
+
+    <div *ngIf="orderError === errors.NEED_EMAIL_HOSTING">
+        To use Runbox Micro with your own domain, you need to
+        <button mat-button class="contentButton" (click)="cart.order_email_hosting()">
+            purchase Email Domain addon
+        </button>
+        as well.
+    </div>
+
+    <div *ngIf="orderError === errors.NEED_SUB_FOR_ADDON">
+        You need to
+        <button mat-button class="contentButton" routerLink="/account/upgrades">
+            purchase a subscription
+        </button>
+        to be able to use addons.
     </div>
 </div>
 
