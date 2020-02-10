@@ -17,10 +17,11 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { LOCALE_ID, Inject } from '@angular/core';
+import { LOCALE_ID, Inject, Injectable } from '@angular/core';
 import { CalendarEventTitleFormatter, CalendarEvent } from 'angular-calendar';
 import { DatePipe } from '@angular/common';
 
+@Injectable()
 export class EventTitleFormatter extends CalendarEventTitleFormatter {
     constructor(@Inject(LOCALE_ID) private locale: string) {
         super();

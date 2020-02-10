@@ -87,8 +87,8 @@ export class CalendarAppComponent implements OnDestroy {
     refresh: Subject<any> = new Subject();
     viewRefreshInterval: any;
 
-    @ViewChild(MatSidenav,       { static: false }) sideMenu: MatSidenav;
-    @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild('icsUploadInput') icsUploadInput: any;
 
     activityList = [];
     calendars: RunboxCalendar[] = [];

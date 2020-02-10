@@ -95,8 +95,8 @@ export class RunboxListComponent {
   @Input() values: any[];
   private dialog_ref: any;
   view_mode: any;
-  @ContentChild('runbox_list_row_small', {static: false}) runbox_list_row_small: TemplateRef<ElementRef>;
-  @ContentChild('runbox_list_row_medium', {static: false}) runbox_list_row_medium: TemplateRef<ElementRef>;
+  @ContentChild('runbox_list_row_small') runbox_list_row_small: TemplateRef<ElementRef>;
+  @ContentChild('runbox_list_row_medium') runbox_list_row_medium: TemplateRef<ElementRef>;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
     public snackBar: MatSnackBar,

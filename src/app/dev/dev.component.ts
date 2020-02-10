@@ -33,7 +33,7 @@ import { RMM } from '../rmm';
   templateUrl: 'dev.component.html'
 })
 export class DevComponent implements AfterViewInit { panelOpenState = false;
-  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   selected_component;
   values_runbox_list;

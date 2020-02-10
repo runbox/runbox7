@@ -48,10 +48,10 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     zipCode: string;
     failure: string;
 
-    @ViewChild('paymentRequestButton', { static: false }) paymentRequestButton: ElementRef;
-    @ViewChild('cardNumber',           { static: false }) cardNumber:           ElementRef;
-    @ViewChild('cardExpiry',           { static: false }) cardExpiry:           ElementRef;
-    @ViewChild('cardCvc',              { static: false }) cardCvc:              ElementRef;
+    @ViewChild('paymentRequestButton') paymentRequestButton: ElementRef;
+    @ViewChild('cardNumber') cardNumber:           ElementRef;
+    @ViewChild('cardExpiry') cardExpiry:           ElementRef;
+    @ViewChild('cardCvc') cardCvc:              ElementRef;
 
     constructor(
         private dialog: MatDialog,

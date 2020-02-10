@@ -58,7 +58,7 @@ import { RMM } from '../rmm';
 
 export class ProfilesComponent implements AfterViewInit {
   panelOpenState = false;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
   aliases = [];

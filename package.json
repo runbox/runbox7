@@ -26,19 +26,19 @@
     "publishlib": "cd .ngmakelibtmp/dist && npm publish"
   },
   "dependencies": {
-    "@angular/animations": "8.2.7",
-    "@angular/cdk": "^8.2.1",
-    "@angular/common": "8.2.7",
-    "@angular/compiler": "8.2.7",
-    "@angular/compiler-cli": "^8.2.7",
-    "@angular/core": "8.2.7",
-    "@angular/forms": "8.2.7",
-    "@angular/material": "^8.2.1",
-    "@angular/platform-browser": "8.2.7",
-    "@angular/platform-browser-dynamic": "8.2.7",
+    "@angular/animations": "9.0.0",
+    "@angular/cdk": "^9.0.0",
+    "@angular/common": "9.0.0",
+    "@angular/compiler": "9.0.0",
+    "@angular/compiler-cli": "^9.0.0",
+    "@angular/core": "9.0.0",
+    "@angular/forms": "9.0.0",
+    "@angular/material": "^9.0.0",
+    "@angular/platform-browser": "9.0.0",
+    "@angular/platform-browser-dynamic": "9.0.0",
     "@angular/pwa": "^0.12.2",
-    "@angular/router": "8.2.7",
-    "@angular/service-worker": "8.2.7",
+    "@angular/router": "9.0.0",
+    "@angular/service-worker": "9.0.0",
     "angular-calendar": "^0.27.19",
     "angular2-hotkeys": "2.1.5",
     "array-flat-polyfill": "^1.0.1",
@@ -55,12 +55,12 @@
     "rxjs": "^6.5.3",
     "rxjs-compat": "^6.2.2",
     "tinymce": "^5.1.4",
-    "zone.js": "^0.9.1"
+    "zone.js": "^0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.900.1",
-    "@angular/cli": "~8.3.5",
-    "@angular/language-service": "~8.2.7",
+    "@angular/cli": "~9.0.1",
+    "@angular/language-service": "~9.0.0",
     "@types/jasmine": "~3.3.7",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~10.12.18",
@@ -78,7 +78,7 @@
     "tslib": "^1.10.0",
     "tslint": "~5.12.1",
     "tslint-no-focused-test": "^0.5.0",
-    "typescript": "~3.4.0",
+    "typescript": "~3.7.5",
     "webdriver-manager": "12.1.7"
   }
 }

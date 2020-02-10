@@ -52,8 +52,8 @@ export class ContactsAppComponent {
     searchTerm  = '';
 
     sideMenuOpened = true;
-    @ViewChild(MatSidenav,       { static: false }) sideMenu: MatSidenav;
-    @ViewChild('vcfUploadInput', { static: false }) vcfUploadInput: any;
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild('vcfUploadInput') vcfUploadInput: any;
 
     constructor(
         private contactsservice: ContactsService,
