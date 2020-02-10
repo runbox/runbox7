@@ -376,30 +376,8 @@ export class RunboxWebmailAPI {
     }
 
     public trashMessages(messageIds: number[]): Observable<any> {
-
-        let counter = 1;
-        let progressSnackBar: ProgressSnackbarComponent = null;
-        return from(messageIds).pipe(
-            mergeMap(messageId =>
-                this.http.delete(`/rest/v1/email/${messageId}`)
-                    .pipe(tap(() => {
-                        counter++;
-                        if (!progressSnackBar && counter >= 5) {
-                            progressSnackBar = ProgressSnackbarComponent.create(this.snackBar);
-                        }
-                        if (progressSnackBar) {
-                            progressSnackBar.postMessage(`Deleted message ${counter} of ${messageIds.length}`);
-                        }
-                    })
-                    )
-                , 10),
-            bufferCount(messageIds.length),
-            tap(() => {
-                if (progressSnackBar) {
-                    progressSnackBar.close();
-                }
-            })
-        );
+        const ids = messageIds.join(',');
+        return this.http.delete(`/rest/v1/email/${ids}`);
     }
 
     public markSeen(messageId: any, seen_flag_value = 1): Observable<any> {
