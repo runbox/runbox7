@@ -26,29 +26,9 @@ import {
   ViewChild,
   AfterViewInit
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatExpansionModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSelectModule,
-  MatSnackBarModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-  MatGridListModule,
-} from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import {ProfilesEditorModalComponent} from './profiles.editor.modal';
 import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
 import {RMM} from '../rmm';

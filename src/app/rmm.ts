@@ -24,9 +24,7 @@ import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
-import {
-    MatSnackBar,
-} from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Injectable({
     providedIn: 'root',
 })
