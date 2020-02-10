@@ -22,17 +22,19 @@ import { Component, Input } from '@angular/core';
 @Component({
     selector: 'app-account-component-card',
         template: `
-<mat-card>
-    <mat-card-header>
-        <mat-card-title>    {{ title }}    </mat-card-title>
-        <mat-card-subtitle> {{ subtitle }} </mat-card-subtitle>
-    </mat-card-header>
+<mat-card style="min-height: 20vh; padding: 20px">
+    <a [routerLink]="routerLink" style="text-decoration: none">
+        <mat-card-header>
+            <mat-card-title style="color: #000"> {{ title }} </mat-card-title>
+            <mat-card-subtitle style="min-height: 3vh; font-size: 16px;"> {{ subtitle }} </mat-card-subtitle>
+        </mat-card-header>
 
-    <mat-card-content style="display: flex; justify-content: center;">
+        <mat-card-content style="display: flex; justify-content: center;">
             <a mat-stroked-button [routerLink]="routerLink" style="padding: 10px;">
                 <mat-icon style="transform: scale(2);"> {{ icon }} </mat-icon>
             </a>
-    </mat-card-content>
+        </mat-card-content>
+    </a>
 </mat-card>
 `
 })

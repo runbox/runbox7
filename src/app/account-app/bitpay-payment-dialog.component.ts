@@ -28,21 +28,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-bitpay-payment-dialog-component',
-    template: `
-<div mat-dialog-content style="width: 500px; height: 200px;">
-    <span *ngIf="!redirect_url">
-        We're preparing your Bitpay payment, please wait...
-        <mat-spinner style="margin:0 auto;"></mat-spinner>
-    </span>
-    <span *ngIf="redirect_url">
-        Your payment is ready. Click the "Go to Bitpay" button below to complete your payment.
-    </span>
-</div>
-<div mat-dialog-actions style="justify-content: space-between;">
-    <button mat-button (click)="close()"> Cancel </button>
-    <button *ngIf="redirect_url" mat-flat-button color="primary" (click)="redirect()"> Go to Bitpay </button>
-</div>
-`
+    templateUrl: './bitpay-payment-dialog.component.html',
 })
 export class BitpayPaymentDialogComponent {
     tid:    number;
@@ -50,6 +36,8 @@ export class BitpayPaymentDialogComponent {
     currency: string;
 
     redirect_url: string;
+
+    state = 'loading';
 
     constructor(
         private cart: CartService,
@@ -63,9 +51,15 @@ export class BitpayPaymentDialogComponent {
         this.tid = data.tx.tid;
         // not using Router here because we want the entire URL, hostname and all
         const receipt_url = window.location.href.replace(/account.*/, 'account/receipt/' + this.tid);
-        this.rmmapi.payWithBitpay(this.tid, receipt_url).subscribe(res => {
-            this.redirect_url = res.redirect_url;
-        });
+        this.rmmapi.payWithBitpay(this.tid, receipt_url).subscribe(
+            res => {
+                this.redirect_url = res.redirect_url;
+                this.state = 'created';
+            },
+            _err => {
+                this.state = 'failed';
+            },
+        );
     }
 
     redirect() {

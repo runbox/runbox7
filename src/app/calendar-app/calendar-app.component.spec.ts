@@ -21,6 +21,7 @@ import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { LogoutService } from '../login/logout.service';
 import { MobileQueryService } from '../mobile-query.service';
@@ -82,6 +83,7 @@ describe('CalendarAppComponent', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
                 imports: [
+                    NoopAnimationsModule,
                     CalendarAppModule,
                     RouterTestingModule.withRoutes([])
                   ],

@@ -1,0 +1,17 @@
+<div mat-dialog-content style="width: 500px; height: 200px;">
+    <span *ngIf="state === 'loading'">
+        We're preparing your Bitpay payment, please wait...
+        <mat-spinner style="margin:0 auto;"></mat-spinner>
+    </span>
+    <span *ngIf="state === 'created'">
+        Your payment is ready. Click the "Go to Bitpay" button below to complete your payment.
+    </span>
+    <span *ngIf="state === 'failed'">
+        There was an error creating your payment. <br>
+        Try again later, or contact Runbox Support at support@runbox.com.
+    </span>
+</div>
+<div mat-dialog-actions style="justify-content: space-between;">
+    <button mat-button (click)="close()"> Cancel </button>
+    <button *ngIf="redirect_url" mat-flat-button color="primary" (click)="redirect()"> Go to Bitpay </button>
+</div>

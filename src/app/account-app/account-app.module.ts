@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
@@ -43,6 +42,7 @@ import { ShoppingCartComponent } from './shopping-cart.component';
 import { PaymentMethodComponent } from './payment-method.component';
 import { PaymentsService } from './payments.service';
 import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
+import { PaypalBillingAgreementsComponent } from './paypal-billing-agreements.component';
 import { PaypalHandlerComponent } from './paypal-handler.component';
 import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
 
@@ -77,6 +77,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     BitpayPaymentDialogComponent,
     ComponentCardComponent,
     PaymentMethodComponent,
+    PaypalBillingAgreementsComponent,
     PaypalHandlerComponent,
     PaypalPaymentDialogComponent,
     ProductComponent,
@@ -84,7 +85,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     StripePaymentDialogComponent,
   ],
   imports: [
-    BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
     MenuModule,
@@ -148,6 +148,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               {
                   path: 'cart',
                   component: ShoppingCartComponent,
+              },
+              {
+                  path: 'billing_agreements',
+                  component: PaypalBillingAgreementsComponent,
               },
               {
                   path: 'paypal/:action',

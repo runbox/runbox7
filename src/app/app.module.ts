@@ -29,6 +29,7 @@ import { LoginComponent } from './login/login.component';
 import { MailViewerModule } from './mailviewer/mailviewer.module';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
+import { ContactsService } from './contacts-app/contacts.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,10 +51,6 @@ import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { ComposeModule } from './compose/compose.module';
-import { ContactsAppModule } from './contacts-app/contacts-app.module';
-import { ContactsAppComponent } from './contacts-app/contacts-app.component';
-import { CalendarAppModule } from './calendar-app/calendar-app.module';
-import { CalendarAppComponent } from './calendar-app/calendar-app.component';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { AccountAppModule } from './account-app/account-app.module';
 import { AccountAppComponent } from './account-app/account-app.component';
@@ -64,10 +61,6 @@ import { DialogModule } from './dialog/dialog.module';
 import { FolderModule } from './folder/folder.module';
 import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
 import { ResizerModule } from './directives/resizer.module';
-import { DkimModule } from './dkim/dkim.module';
-import { DkimComponent } from './dkim/dkim.component';
-import { DomainRegisterModule } from './domainregister/domainregister.module';
-import { DomainRegisterComponent } from './domainregister/domainregister.component';
 import { MainContainerComponent } from './maincontainer.component';
 import { HeaderToolbarComponent } from './menu/headertoolbar.component';
 import { LocalSearchIndexModule } from './xapian/localsearchindex.module';
@@ -78,6 +71,7 @@ import { UpdateAlertModule } from './updatealert/updatealert.module';
 import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields-input/multiple-search-fields-input.module';
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
+import { RMM } from './rmm';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -91,9 +85,6 @@ const routes: Routes = [
         path: '', outlet: 'headertoolbar',
         component: HeaderToolbarComponent
       },
-      { path: 'domainregistration', component: DomainRegisterComponent},
-      { path: 'dkim', component: DkimComponent},
-      { path: 'calendar', component: CalendarAppComponent },
       { path: 'index_dev.html', component: AppComponent },
       { path: 'app', component: AppComponent },
       { path: '',
@@ -104,7 +95,14 @@ const routes: Routes = [
             component: DraftDeskComponent
           }
         ]
-      }
+      },
+      { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
+      { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
+      { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
+      { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
+      { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
+      { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
+      { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
     ]
   },
   { path: 'login', component: LoginComponent }
@@ -138,18 +136,14 @@ const routes: Routes = [
     WebSocketSearchModule,
     MailViewerModule,
     AccountAppModule,
-    CalendarAppModule,
-    ContactsAppModule,
     ResizerModule,
-    DomainRegisterModule,
-    DkimModule,
     UpdateAlertModule,
     LoginLogoutModule,
     SearchExpressionBuilderModule,
     MultipleSearchFieldsInputModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-      HotkeyModule.forRoot()
+    HotkeyModule.forRoot()
   ],
   declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent
@@ -158,7 +152,9 @@ const routes: Routes = [
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    RMM,
     RMMAuthGuardService,
+    ContactsService,
     StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
   ],

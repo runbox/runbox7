@@ -35,6 +35,9 @@ import { ProgressDialog } from '../dialog/dialog.module';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { ProgressSnackbarComponent } from '../dialog/progresssnackbar.component';
+import { Profile } from '../profiles/profile';
+import { RMM } from '../rmm';
+import { FromAddress } from './from_address';
 
 export class MessageFields {
     id: number;
@@ -71,42 +74,6 @@ export class Alias {
         public name: string,
         public email: string
     ) { }
-}
-
-export class FromAddress {
-    public email: string;
-    public reply_to: string;
-    public id: number;
-    public folder: string;
-    public name: string;
-
-    public nameAndAddress: string;
-
-    public static fromNameAndAddress(name: string, address: string): FromAddress {
-        const ret = new FromAddress();
-        ret.name = name;
-        ret.email = address;
-        ret.resolveNameAndAddress();
-        return ret;
-    }
-
-    public static fromObject(obj: any): FromAddress {
-        const ret = Object.assign(new FromAddress(), obj);
-        ret.resolveNameAndAddress();
-        return ret;
-    }
-
-    public static fromEmailAddress(email): FromAddress {
-        const ret = new FromAddress();
-        ret.email = email;
-        ret.reply_to = email;
-        return ret;
-    }
-
-    private resolveNameAndAddress() {
-        this.nameAndAddress = this.name ? `${this.name} <${this.email}>` : this.email;
-    }
-
 }
 
 class FromAddressResponse {
@@ -180,6 +147,7 @@ export class RunboxWebmailAPI {
         public snackBar: MatSnackBar,
         private http: HttpClient,
         private dialog: MatDialog,
+        public rmm: RMM,
         private ngZone: NgZone
     ) {
         this.rblocale = new RunboxLocale();
@@ -408,30 +376,8 @@ export class RunboxWebmailAPI {
     }
 
     public trashMessages(messageIds: number[]): Observable<any> {
-
-        let counter = 1;
-        let progressSnackBar: ProgressSnackbarComponent = null;
-        return from(messageIds).pipe(
-            mergeMap(messageId =>
-                this.http.delete(`/rest/v1/email/${messageId}`)
-                    .pipe(tap(() => {
-                        counter++;
-                        if (!progressSnackBar && counter >= 5) {
-                            progressSnackBar = ProgressSnackbarComponent.create(this.snackBar);
-                        }
-                        if (progressSnackBar) {
-                            progressSnackBar.postMessage(`Deleted message ${counter} of ${messageIds.length}`);
-                        }
-                    })
-                    )
-                , 10),
-            bufferCount(messageIds.length),
-            tap(() => {
-                if (progressSnackBar) {
-                    progressSnackBar.close();
-                }
-            })
-        );
+        const ids = messageIds.join(',');
+        return this.http.delete(`/rest/v1/email/${ids}`);
     }
 
     public markSeen(messageId: any, seen_flag_value = 1): Observable<any> {
@@ -463,10 +409,25 @@ export class RunboxWebmailAPI {
     }
 
     public getFromAddress(): Observable<FromAddress[]> {
-        return this.http.get('/ajax/from_address').pipe(
-            map((res: FromAddressResponse) =>
-                res.from_addresses
-            ));
+        return this.rmm.profile.load_verified().pipe(
+            map((http_res) => {
+            const res = http_res;
+                const results = [];
+                Object.keys(res['result']).forEach( (k) => {
+                    res['result'][k].forEach( (item) => {
+                        const profile = FromAddress.fromObject({
+                            id: item.profile.id,
+                            email: item.profile.email,
+                            reply_to: item.profile.reply_to,
+                            name: item.profile.from_name,
+                            signature: item.profile.signature,
+                        });
+                        results.push(profile);
+                    });
+                });
+                return results;
+            })
+        );
     }
 
     public getDefaultProfile(): Observable<FromAddress> {
@@ -731,6 +692,24 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getPaypalBillingAgreements(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/billing_agreement').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getPaypalBillingAgreementDetails(id: string): Observable<any> {
+        return this.http.get('/rest/v1/account_product/billing_agreement/' + id).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public cancelPaypalBillingAgreement(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/account_product/billing_agreement/' + id).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
     public getProducts(pids: number[]): Observable<any> {
         return this.http.get('/rest/v1/account_product/available', { params: { pids: pids.join(',') } }).pipe(
             map((res: HttpResponse<any>) => res['result']['products'])
@@ -746,6 +725,15 @@ export class RunboxWebmailAPI {
     public getTransactions(): Observable<any> {
         return this.http.get('/rest/v1/account_product/transactions').pipe(
             map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public setProductAutorenew(apid: number, active: boolean): Observable<any> {
+        return this.http.post('/rest/v1/account_product/autorenew', {
+            apid:   apid,
+            active: active ? 1 : 0,
+        }).pipe(
+            map((res: HttpResponse<any>) => res)
         );
     }
 }

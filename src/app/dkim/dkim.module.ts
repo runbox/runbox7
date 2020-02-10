@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { DkimComponent } from './dkim.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,13 +40,10 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
     imports: [
         CommonModule,
-        BrowserModule,
-        BrowserAnimationsModule,
         FormsModule,
         HttpClientModule,
         MatSnackBarModule,
@@ -66,10 +63,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         MatSelectModule,
         MatButtonModule,
         MatGridListModule,
-    ],
+        RouterModule.forChild([ { path: '', component: DkimComponent } ]) ],
     exports: [ DkimComponent ],
     declarations: [ DkimComponent ],
-    bootstrap: [ DkimComponent ]
+    bootstrap: [ ]
 })
 export class DkimModule {
 }
