@@ -29,6 +29,9 @@ import { LogoutService } from '../login/logout.service';
     templateUrl: 'headertoolbar.component.html'
 })
 export class HeaderToolbarComponent {
+
+    rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
+
     constructor(
         public rmmapi: RunboxWebmailAPI,
         private router: Router,
