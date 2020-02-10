@@ -153,6 +153,14 @@ export class ContactsAppComponent {
         this.selectedCount = Object.values(this.selectedIDs).filter(x => x).length;
     }
 
+    onSelectMultipleChange(): void {
+        if (!this.selectingMultiple) {
+            // uncheck all contacts if we're switching this off to prevent confusing leftovers
+            this.selectedIDs = {};
+            this.selectedCount = 0;
+        }
+    }
+
     onVcfUploaded(uploadEvent: any) {
         const file = uploadEvent.target.files[0];
         const fr   = new FileReader();
@@ -182,6 +190,13 @@ export class ContactsAppComponent {
                 }
             });
         });
+    }
+
+    selectAll(): void {
+        for (const c of this.shownContacts) {
+            this.selectedIDs[c.id] = true;
+        }
+        this.onContactChecked();
     }
 
     showNotification(message: string, action = 'Dismiss'): void {
