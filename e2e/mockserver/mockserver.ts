@@ -40,6 +40,73 @@ export class MockServer {
 
     events = [];
 
+    folders = [
+        {
+            'old': 296,
+            'name': 'Drafts',
+            'priority': '0',
+            'id': '5',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Drafts',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'drafts'
+        },
+        {
+            'old': 296,
+            'name': 'Inbox',
+            'priority': '0',
+            'id': '1',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Inbox',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'inbox'
+        },
+        {
+            'old': 296,
+            'name': 'Spam',
+            'priority': '0',
+            'id': '2',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Spam',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'spam'
+        },
+        {
+            'old': 296,
+            'name': 'Trash',
+            'priority': '0',
+            'id': '2',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Trash',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'trash'
+        },
+    ];
+
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
@@ -136,6 +203,9 @@ export class MockServer {
                     break;
                 case '/ajax/aliases':
                     response.end(JSON.stringify({ 'status': 'success', 'aliases': [] }));
+                    break;
+                case '/rest/v1/email_folder/create':
+                    this.createFolder(request, response);
                     break;
                 case '/rest/v1/email_folder/list':
                     response.end(JSON.stringify(this.emailFoldersListResponse()));
@@ -246,6 +316,33 @@ export class MockServer {
         };
     }
 
+    createFolder(request, response) {
+        let body = '';
+        request.on('readable', () => {
+            body += request.read() || '';
+        });
+        request.on('end', () => {
+            const params = JSON.parse(body);
+            this.folders.push({
+                'name': params.new_folder,
+                'priority': '999',
+                'id': '999',
+                'old': 999,
+                'parent': null,
+                'new': 0,
+                'total': 0,
+                'folder': params.new_folder,
+                'msg_new': 0,
+                'msg_total': 0,
+                'size': '0',
+                'msg_size': '0',
+                'subfolders': [],
+                'type': 'user'
+            });
+            response.end(JSON.stringify({ 'status': 'success' }));
+        });
+    }
+
     receipt() {
         return {
             'status': 'success',
@@ -316,74 +413,7 @@ export class MockServer {
     emailFoldersListResponse() {
         return {
             'status': 'success',
-            'result': {
-                'folders': [
-                    {
-                        'old': 296,
-                        'name': 'Drafts',
-                        'priority': '0',
-                        'id': '5',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Drafts',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'drafts'
-                    },
-                    {
-                        'old': 296,
-                        'name': 'Inbox',
-                        'priority': '0',
-                        'id': '1',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Inbox',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'inbox'
-                    },
-                    {
-                        'old': 296,
-                        'name': 'Spam',
-                        'priority': '0',
-                        'id': '2',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Spam',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'spam'
-                    },
-                    {
-                        'old': 296,
-                        'name': 'Trash',
-                        'priority': '0',
-                        'id': '2',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Trash',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'trash'
-                    },
-                ]
-            }
+            'result': { 'folders': this.folders }
         };
     }
 
