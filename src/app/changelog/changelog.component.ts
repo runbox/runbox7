@@ -40,14 +40,14 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
 
     sideMenuOpened = true;
 
-    @ViewChild(MatSidenav, { static: false }) sideMenu: MatSidenav;
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
 
-    @ViewChild('featuresElement', { static: false }) featuresElement: ElementRef;
-    @ViewChild('bugfixesElement', { static: false }) bugfixesElement: ElementRef;
-    @ViewChild('styleElement',    { static: false }) styleElement:    ElementRef;
+    @ViewChild('featuresElement') featuresElement: ElementRef;
+    @ViewChild('bugfixesElement') bugfixesElement: ElementRef;
+    @ViewChild('styleElement') styleElement:    ElementRef;
 
-    @ViewChild('docsElement',     { static: false }) docsElement:     ElementRef;
-    @ViewChild('testsElement',    { static: false }) testsElement:    ElementRef;
+    @ViewChild('docsElement') docsElement:     ElementRef;
+    @ViewChild('testsElement') testsElement:    ElementRef;
 
     constructor(
         public  mobileQuery: MobileQueryService,

@@ -19,11 +19,9 @@
 // ---------- END RUNBOX LICENSE ----------
 import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { RMM } from '../rmm';
 
@@ -33,7 +31,7 @@ import { RMM } from '../rmm';
   templateUrl: 'dev.component.html'
 })
 export class DevComponent implements AfterViewInit { panelOpenState = false;
-  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   selected_component;
   values_runbox_list;

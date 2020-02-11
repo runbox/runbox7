@@ -28,30 +28,9 @@ import {
   Inject,
   AfterViewInit
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSnackBarModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
-  MatDialog,
-  MatDialogRef,
-  MatPaginator,
-  MatSnackBar,
-  MAT_DIALOG_DATA,
-} from '@angular/material';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatSelectModule} from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {RMM} from '../rmm';
 @Component({
     selector: 'app-aliases-edit',

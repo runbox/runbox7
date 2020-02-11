@@ -44,7 +44,7 @@ export class ContactDetailsComponent {
 
     newGroupPromptShown = false;
     newGroupValue = '';
-    @ViewChild('newGroupInput', { static: false }) newGroupElement: ElementRef;
+    @ViewChild('newGroupInput') newGroupElement: ElementRef;
 
     constructor(
         public dialog: MatDialog,
