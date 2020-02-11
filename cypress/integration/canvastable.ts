@@ -9,14 +9,9 @@ describe('Selecting rows in canvastable', () => {
         return cy.get('button[mattooltip*="Move"]');
     }
 
-    function closeWelcomeDialog() {
-        cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
-        cy.get('confirm-dialog .mat-dialog-actions button:nth-child(3)').click();
-    }
-
     it('should select one row', () => {
         cy.visit('/');
-        closeWelcomeDialog();
+        cy.closeWelcomeDialog();
 
         // select
         canvas().click({ x: 15, y: 40 });
@@ -28,7 +23,7 @@ describe('Selecting rows in canvastable', () => {
 
     it('should select multiple rows', () => {
         cy.visit('/');
-        closeWelcomeDialog();
+        cy.closeWelcomeDialog();
 
         canvas().trigger('mousedown', { x: 15, y: 10 });
         for (let ndx = 0; ndx <= 5; ndx++) {
