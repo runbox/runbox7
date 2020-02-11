@@ -27,7 +27,6 @@ env:
   - COMMAND='policy'
   - COMMAND='unit'
   - COMMAND='e2e'
-  - COMMAND='cypress-e2e'
   - COMMAND='build'
 
 script: "npm run ci-tests -- $COMMAND"
