@@ -43,3 +43,6 @@ Thumbs.db
 runbox7lib*.tar.gz
 
 mockserver.log
+
+# CI artifacts
+cypress/videos
