@@ -3,7 +3,7 @@
 # compiled output
 /dist
 /tmp
-/out-tsc
+/e2e/mockserver/out
 
 # dependencies
 /node_modules
