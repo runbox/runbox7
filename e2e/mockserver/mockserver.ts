@@ -178,12 +178,14 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
-                case '/rest/v1/addresses_contact':
+                case '/rest/v1/addresses_contact/sync':
                     response.end(JSON.stringify(
                         {
                             status: 'success',
                             result: {
-                                addresses_contacts: this.contacts()
+                                newToken: 'e2e-1',
+                                added: this.contacts(),
+                                removed: [],
                             }
                         }
                     ));
