@@ -51,7 +51,7 @@
     "ical.js": "^1.3.0",
     "material-design-icons": "^3.0.1",
     "moment": "^2.24.0",
-    "ng-pick-datetime": "^7.0.0",
+    "@danielmoncada/angular-datetime-picker": "^9.1.1",
     "npm": "^6.13.7",
     "rrule": "^2.6.0",
     "runbox-searchindex": "^0.1.0",
