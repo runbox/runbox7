@@ -3,7 +3,7 @@
 # compiled output
 /dist
 /tmp
-/out-tsc
+/e2e/mockserver/out
 
 # dependencies
 /node_modules
@@ -43,3 +43,6 @@ Thumbs.db
 runbox7lib*.tar.gz
 
 mockserver.log
+
+# CI artifacts
+cypress/videos

@@ -13,8 +13,9 @@ const phases = {
     lint:   'npm run lint',
     policy: 'npm run policy',
     unit:   'npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI',
-    e2e:    'npm run e2e -- --protractor-config=./protractor-ci.conf.js',
+    e2e:    'npm run cypress-e2e',
     build:  'npm run build',
+    olde2e: 'npm run e2e -- --protractor-config=./protractor-ci.conf.js',
 };
 
 let commands = process.argv.slice(2);

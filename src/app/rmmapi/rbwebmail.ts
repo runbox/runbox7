@@ -20,6 +20,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
+import { share } from 'rxjs/operators';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 
 import { Contact } from '../contacts-app/contact';
@@ -299,7 +300,7 @@ export class RunboxWebmailAPI {
         const req = this.http.post('/rest/v1/email_folder/create', {
             'new_folder': newFolderName,
             'to_folder': parentFolderId
-        });
+        }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
@@ -308,7 +309,7 @@ export class RunboxWebmailAPI {
         const req = this.http.put('/rest/v1/email_folder/rename', {
             'new_folder': newFolderName,
             'folder_id': folderId
-        });
+        }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
@@ -323,13 +324,13 @@ export class RunboxWebmailAPI {
             requestBody.ordered_ids = ordered_ids;
         }
 
-        const req = this.http.put('/rest/v1/email_folder/move', requestBody);
+        const req = this.http.put('/rest/v1/email_folder/move', requestBody).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
 
     deleteFolder(folderid: number): Observable<boolean> {
-        const req = this.http.delete(`/rest/v1/email_folder/delete/${folderid}`);
+        const req = this.http.delete(`/rest/v1/email_folder/delete/${folderid}`).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
