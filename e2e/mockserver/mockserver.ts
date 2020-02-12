@@ -110,6 +110,21 @@ export class MockServer {
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
+            const e2eFixture = request.url.match(/\/rest\/e2e\/(\w+)/);
+            if (e2eFixture) {
+                const command = e2eFixture[1];
+                if (command === 'logout') {
+                    this.loggedIn = false;
+                }
+                if (command === 'require2fa') {
+                    this.challenge2fa = true;
+                }
+                if (command === 'disable2fa') {
+                    this.challenge2fa = false;
+                }
+                response.end();
+            }
+
             if (!this.loggedIn && request.url !== '/ajax_mfa_authenticate') {
                 response.end(JSON.stringify({ 'status': 'error', 'errors': ['Please login to continue'] }));
                 return;
