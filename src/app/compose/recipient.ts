@@ -28,7 +28,13 @@ export class Recipient {
     }
 
     static fromContact(contact: Contact, email: string) {
-        return new this([`"${contact.display_name()}" <${email}>`]);
+        // Use the display_name() (which includes nickname) for autocompletion purposes,
+        // but full_name() (which does not) as the address to send to.
+        // https://github.com/runbox/runbox7/issues/313#issuecomment-548483028
+        return new this(
+            [`"${contact.full_name()}" <${email}>`],
+            `"${contact.display_name()}" <${email}>`
+        );
     }
 
     static fromGroup(groupName: string, contacts: any[]) {
