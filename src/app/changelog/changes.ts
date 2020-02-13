@@ -75,6 +75,13 @@ const changes = [
         "Don't include contacts' nicknames when composing emails to them"
     ],
     [
+        "97b6f79",
+        "1581532103",
+        "fix",
+        "calendar",
+        "Make the datetime picker show up again"
+    ],
+    [
         "a7721d5",
         "1581521104",
         "feat",
