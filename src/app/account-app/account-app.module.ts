@@ -64,6 +64,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ProductComponent,
     ShoppingCartComponent,
     StripePaymentDialogComponent,
+    CreditCardsComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -156,6 +158,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               {
                   path: 'paypal/:action',
                   component: PaypalHandlerComponent,
+              },
+              {
+                  path: 'credit_cards',
+                  component: CreditCardsComponent
               },
             ]
           }
