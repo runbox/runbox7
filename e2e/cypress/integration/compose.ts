@@ -47,4 +47,13 @@ describe('Composing emails', () => {
         // we assume that this is the tinymce frame
         cy.get('iframe').should('exist');
     });
+
+    it('emailing a contact should not use their nickname', () => {
+        composeNew();
+        cy.get('mailrecipient-input input').clear().type('postpat');
+        // autocompletion should show the nickname...
+        cy.get('mat-option:contains(Postpat)').click();
+        // ...but the resulting contact should not
+        cy.get('mat-chip').should('not.contain', 'Postpat');
+    });
 });

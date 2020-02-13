@@ -51,6 +51,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CalendarEventCardComponent } from './calendar-event-card.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     DeleteConfirmationDialogComponent,
     EventEditorDialogComponent,
     ImportDialogComponent,
+    CalendarEventCardComponent,
   ],
   imports: [
     CommonModule,

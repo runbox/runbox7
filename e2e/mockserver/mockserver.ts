@@ -560,7 +560,7 @@ export class MockServer {
     contacts(): any[] {
         return [
             {
-                'nickname' : null,
+                'nickname' : 'Postpat',
                 'first_name' : 'Patrick',
                 'addresses' : [
                     {
@@ -597,7 +597,7 @@ export class MockServer {
                 'last_name' : 'Postcode',
                 'id' : 'ID-MR-POSTCODE',
                 'birthday' : '',
-                'company' : null,
+                'company' : 'Post Office #42',
                 'fullname' : 'Patrick Postcode',
                 'phones' : [
                     {
@@ -607,7 +607,7 @@ export class MockServer {
                         'value' : '333333333'
                     }
                 ],
-                'emails' : [],
+                'emails' : [{ 'types': ['work'], 'value': 'patrick@post.no' }],
                 'department' : null,
                 'note' : '',
                 'show_as' : null,

@@ -75,11 +75,74 @@ const changes = [
         "Add a way to export contacts"
     ],
     [
+        "f1c142d",
+        "1581620926",
+        "fix",
+        "calendar",
+        "Add a missing license header to calendar-event-card"
+    ],
+    [
+        "0da999a",
+        "1581620926",
+        "feat",
+        "calendar",
+        "show event previews in the import dialog"
+    ],
+    [
+        "2484c98",
+        "1581620926",
+        "refactor",
+        "calendar",
+        "refactor event preview card into its own component"
+    ],
+    [
+        "078561c",
+        "1581620926",
+        "fix",
+        "calendar",
+        "make sure recurring events are displayed when starting in overview mode"
+    ],
+    [
+        "9df7df3",
+        "1581620926",
+        "fix",
+        "calednar/contacts",
+        "fix import dialog popping up repeatedly"
+    ],
+    [
+        "f00e7d1",
+        "1581620926",
+        "fix",
+        "contacts",
+        "fix a contact import regression"
+    ],
+    [
+        "4214381",
+        "1581620926",
+        "fix",
+        "calendar",
+        "Fix importing events with a METHOD property"
+    ],
+    [
+        "8c4be7e",
+        "1581539397",
+        "ci",
+        "cypress",
+        "Increase the default command timeout"
+    ],
+    [
         "97b6f79",
         "1581532103",
         "fix",
         "calendar",
         "Make the datetime picker show up again"
+    ],
+    [
+        "7b77a6e",
+        "1581527146",
+        "fix",
+        "contacts",
+        "Don't include contacts' nicknames when composing emails to them"
     ],
     [
         "a7721d5",

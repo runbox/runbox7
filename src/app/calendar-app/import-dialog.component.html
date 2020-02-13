@@ -19,6 +19,11 @@
         Calendar “{{ extractedCalendar.displayname }}” was found in the provided file.<br>
         It will be created automatically if you choose it.
     </p>
+    <app-calendar-event-card
+        *ngFor="let e of events"
+        [event]="e"
+    >
+    </app-calendar-event-card>
 </div>
 
 <div mat-dialog-actions style="justify-content: flex-end;">
