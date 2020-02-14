@@ -131,7 +131,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
                                     <input matInput placeholder="Email"
                                         [ngStyle]="get_form_field_style()"
                                         name="email"
-                                        [readonly]="!is_create && !is_create_main"
+                                        [readonly]="( data.profile && data.profile.type == 'aliases' )"
                                         [(ngModel)]="data.profile.email"
                                         (ngModelChange)="onchange_field('email')"
                                         >
