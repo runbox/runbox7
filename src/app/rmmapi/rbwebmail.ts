@@ -737,6 +737,20 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getCreditCards(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/payment_methods').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public detachCreditCard(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/account_product/payment_methods/' + id);
+    }
+
+    public makeCardDefault(id: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/default_payment_method/' + id, {});
+    }
+
     public getProducts(pids: number[]): Observable<any> {
         return this.http.get('/rest/v1/account_product/available', { params: { pids: pids.join(',') } }).pipe(
             map((res: HttpResponse<any>) => res['result']['products'])

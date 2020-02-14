@@ -1,0 +1,57 @@
+<ng-template #creditCardsLoading>
+    <div *ngIf="!loadingFail">
+        <app-runbox-loading
+            text="Loading your credit cards..."
+        >
+        </app-runbox-loading>
+    </div>
+    <div *ngIf="loadingFail">
+        Failed to load your credit card details.
+        <button mat-button (click)="refreshCards()"> Try again </button>
+    </div>
+</ng-template>
+
+<h1> Your credit cards </h1>
+
+<p> The details of your credit cards are stored and processed by <a href="https://stripe.com/">Stripe</a> </p>
+
+<div class="grid" *ngIf="creditCards | async as creditCards; else creditCardsLoading">
+    <div *ngIf="creditCards.length === 0">
+        You don't have any cards added to your account
+    </div>
+
+    <mat-card *ngFor="let cc of creditCards" class="card">
+        <mat-card-header>
+            <mat-icon mat-card-avatar> credit_card </mat-icon>
+            <mat-card-title>
+                {{ cc.brand }}
+                <span *ngIf="cc.wallet">({{ cc.wallet }})</span>
+                ending in {{ cc.last4 }}
+            </mat-card-title>
+            <mat-card-subtitle> 
+                <strong *ngIf="defaultCard === cc.id"> Your default card </strong> &nbsp;
+            </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+            <p> 
+                Added on {{ cc.created.format("Do MMMM YYYY") }}
+                <br>
+                ({{ cc.created.fromNow() }})
+            </p>
+            <p>
+                Expires on {{ cc.expires.format("MM/YYYY") }}
+                <br>
+                ({{ cc.expires.fromNow() }})
+            </p>
+        </mat-card-content>
+        <mat-card-actions *ngIf="!cc.removing">
+            <button mat-button (click)="cc.removing = true"> Forget </button>
+            <button mat-button  *ngIf="defaultCard !== cc.id" (click)="makeCardDefault(cc)"> Make default </button>
+        </mat-card-actions>
+        <mat-card-actions *ngIf="cc.removing">
+            <span style="padding: 0 16px">Are you sure?</span>
+            <button mat-flat-button color="warn" (click)="removeCard(cc)"> Yes </button>
+            <button mat-button (click)="cc.removing = false"> No </button>
+        </mat-card-actions>
+    </mat-card>
+</div>
