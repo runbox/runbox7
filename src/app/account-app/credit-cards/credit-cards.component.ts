@@ -27,6 +27,7 @@ import * as moment from 'moment';
 class CreditCard {
     id:      string;
     brand:   string;
+    wallet?: string;
     last4:   string;
     created: moment.Moment;
     expires: moment.Moment;
@@ -35,7 +36,20 @@ class CreditCard {
 
     constructor(params: any) {
         this.id      = params.id;
-        this.brand   = params.card.brand.toUpperCase();
+
+        this.brand   = params.card.brand;
+        if (this.brand === 'visa') {
+            this.brand = this.brand.toUpperCase();
+        } else {
+            this.brand = this.brand.charAt(0).toUpperCase() + this.brand.substr(1);
+        }
+
+        if (params.card.wallet) {
+            if (params.card.wallet.type === 'apple_pay') {
+                this.wallet = 'Apple Pay';
+            }
+        }
+
         this.last4   = params.card.last4;
         this.created = moment.utc(params.created * 1000);
         this.expires = moment({ year: params.card.exp_year, month: params.card.exp_month - 1 }).endOf('month');

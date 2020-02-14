@@ -208,6 +208,9 @@ export class MockServer {
                 case '/rest/v1/account_product/order':
                     response.end(JSON.stringify(this.order()));
                     break;
+                case '/rest/v1/account_product/payment_methods':
+                    response.end(JSON.stringify(this.payment_methods()));
+                    break;
                 case '/rest/v1/calendar/calendars':
                     response.end(JSON.stringify(this.getCalendars()));
                     break;
@@ -373,6 +376,39 @@ export class MockServer {
             'result': {
                 'total': '13.37',
                 'tid':   '31337',
+            }
+        };
+    }
+
+    payment_methods() {
+        return {
+            'status': 'success',
+            'result': {
+                'default': null,
+                'payment_methods': [
+                    {
+                        'id': 'e2e_pm_1',
+                        'created': 1569212345,
+                        'card': {
+                            'exp_month': 12,
+                            'exp_year': 2020,
+                            'brand': 'visa',
+                            'last4': 1234,
+                            'wallet': null,
+                        },
+                    },
+                    {
+                        'id': 'e2e_pm_2',
+                        'created': 1569212345,
+                        'card': {
+                            'exp_month': 12,
+                            'exp_year': 2020,
+                            'brand': 'mastercard',
+                            'last4': 4321,
+                            'wallet': { 'type': 'apple_pay' },
+                        },
+                    }
+                ],
             }
         };
     }

@@ -23,7 +23,11 @@
     <mat-card *ngFor="let cc of creditCards" class="card">
         <mat-card-header>
             <mat-icon mat-card-avatar> credit_card </mat-icon>
-            <mat-card-title> {{ cc.brand }} ending in {{ cc.last4 }} </mat-card-title>
+            <mat-card-title>
+                {{ cc.brand }}
+                <span *ngIf="cc.wallet">({{ cc.wallet }})</span>
+                ending in {{ cc.last4 }}
+            </mat-card-title>
             <mat-card-subtitle> 
                 <strong *ngIf="defaultCard === cc.id"> Your default card </strong> &nbsp;
             </mat-card-subtitle>
