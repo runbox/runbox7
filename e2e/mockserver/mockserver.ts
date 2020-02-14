@@ -342,6 +342,14 @@ export class MockServer {
                         'price':       '13.37',
                         'pid':         '9001',
                         'description': 'Test subscription including some stuff'
+                    },
+                    {
+                        'name':        'Runbox Addon',
+                        'type':        'addon',
+                        'subtype':     'emailaddon',
+                        'price':       '5.55',
+                        'pid':         '9002',
+                        'description': 'More cool stuff for your account'
                     }
                 ]
             }

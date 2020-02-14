@@ -22,4 +22,24 @@ describe('Ordering products', () => {
         cy.get('button#payDirectly').click();
         cy.url().should('include', '/account/receipt');
     });
+
+    it('can order product twice to increase quantity', () => {
+        cy.visit('/account/addons');
+
+        cy.get('#shoppingCartButton').should('not.be.visible');
+
+        cy.get('button:contains(Purchase)').click();
+        cy.get('#shoppingCartButton').should('be.visible');
+        cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
+
+        cy.get('button:contains(Purchase)').click();
+        cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
+
+        cy.get('#shoppingCartButton').click();
+
+        cy.get('tr.mat-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
+        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '2');
+        cy.get('tr.mat-row td button').click();
+        cy.contains('shopping cart is currently empty');
+    });
 });
