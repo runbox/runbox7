@@ -31,7 +31,7 @@ import {
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {RMM} from '../rmm';
+import { RMM } from '../rmm';
 import { Location } from '@angular/common';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
@@ -131,7 +131,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
                                     <input matInput placeholder="Email"
                                         [ngStyle]="get_form_field_style()"
                                         name="email"
-                                        [readonly]="!is_create && !is_create_main"
+                                        [readonly]="( data.profile && data.profile.type == 'aliases' )"
                                         [(ngModel)]="data.profile.email"
                                         (ngModelChange)="onchange_field('email')"
                                         >
@@ -171,34 +171,33 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
                         <mat-grid-tile
                                 colspan="6"
                                 rowspan="1"
-                                *ngIf="!is_different_reply_to; else field_reply_to"
                         >
                                 <mat-checkbox name='is_different_reply_to'
+                                    (change)="onchange_field('is_different_reply_to')"
                                     [(ngModel)]="is_different_reply_to">
                                     Use different Reply-to
                                 </mat-checkbox>
                         </mat-grid-tile>
 
-                        <ng-template #field_reply_to>
-                            <mat-grid-tile
-                                    colspan="6"
-                                    rowspan="1"
-                            >
-                                <mat-form-field style="margin: 10px; width: 100%">
-                                    <input matInput placeholder="Reply-to"
-                                        name="reply_to"
-                                        [(ngModel)]="data.profile.reply_to"
-                                        (ngModelChange)="onchange_field('reply_to')"
-                                    >
-                                    <div *ngIf="field_errors && field_errors.reply_to">
-                                        <mat-hint>ie. jamesbond-noreply@runbox.com</mat-hint>
-                                        <mat-error *ngFor="let error of field_errors.reply_to; let i = index;">
-                                            {{error}}
-                                        </mat-error>
-                                    </div>
-                                </mat-form-field>
-                            </mat-grid-tile>
-                        </ng-template>
+                        <mat-grid-tile
+                                colspan="6"
+                                rowspan="1"
+                                *ngIf="is_different_reply_to"
+                        >
+                            <mat-form-field style="margin: 10px; width: 100%">
+                                <input matInput placeholder="Reply-to"
+                                    name="reply_to"
+                                    [(ngModel)]="data.profile.reply_to"
+                                    (ngModelChange)="onchange_field('reply_to')"
+                                >
+                                <div *ngIf="field_errors && field_errors.reply_to">
+                                    <mat-hint>ie. noreply@runbox.com</mat-hint>
+                                    <mat-error *ngFor="let error of field_errors.reply_to; let i = index;">
+                                        {{error}}
+                                    </mat-error>
+                                </div>
+                            </mat-form-field>
+                        </mat-grid-tile>
 
                         <mat-grid-tile
                             colspan="12"
@@ -549,10 +548,15 @@ export class ProfilesEditorModalComponent {
                 }
             });
         }
+        if ( field === 'is_different_reply_to' ) {
+            if ( ! this.is_different_reply_to ) {
+                this.data.profile.reply_to = '';
+            }
+        }
     }
     get_form_field_style() {
         const styles = {};
-        if ( this.is_update ) {
+        if ( this.data.profile && this.data.profile.type === 'aliases' ) {
             styles['background'] = '#dedede';
         }
         return styles;
