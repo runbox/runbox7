@@ -556,7 +556,7 @@ export class ProfilesEditorModalComponent {
     }
     get_form_field_style() {
         const styles = {};
-        if ( this.is_update ) {
+        if ( this.data.profile && this.data.profile.type == 'aliases' ) {
             styles['background'] = '#dedede';
         }
         return styles;
