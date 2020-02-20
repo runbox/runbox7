@@ -9,8 +9,8 @@ mat-card-title {
 </style>
 
 <mat-card>
+  <h4 *ngIf="p.subtype === 'special'">Special offer</h4>
     <mat-card-title>
-      <p *ngIf="p.subtype === 'special'"> Special offer</p>
       {{ p.name }}
       <strong *ngIf="active"> – your current {{ p.type }} </strong>
     </mat-card-title>
@@ -28,7 +28,7 @@ mat-card-title {
             Purchase for {{ p.price }} {{ currency }}
         </button>
         <ng-template #unpurchase>
-            <button mat-button
+            <button style="position: absolute; bottom: 20px;" mat-button
                 class="primaryContentButton"
                 (click)="unorder()"
             >

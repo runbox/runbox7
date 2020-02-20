@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import {
   SecurityContext,
   Component,
@@ -50,7 +51,9 @@ import {
   MatPaginator,
   MatGridListModule,
 } from '@angular/material';
+import { AsyncSubject, Observable, Subject } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import * as moment from 'moment';
 
 @Component({
     selector: 'app-runbox-timer',
@@ -72,11 +75,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 export class RunboxTimerComponent implements OnInit {
   @ContentChild('custom_template', { static: false }) custom_template: ElementRef;
 
-  has_time_left: true;
+  user_created = new AsyncSubject<number>();
+
   constructor(
-    public dialog: MatDialog,
-    public ref: ElementRef,
+      public dialog: MatDialog,
+      public ref: ElementRef,
+      private rmmapi: RunboxWebmailAPI,
   ) {
+      this.rmmapi.me.subscribe(me => {
+          this.user_created.next(me.user_created);
+          this.user_created.complete();
+      });
+
   }
 
   ngOnInit() {
@@ -84,13 +94,14 @@ export class RunboxTimerComponent implements OnInit {
   }
 
   recalculate_date () {
-      let moment = import('moment');
+
+      console.log('HABA');
 
       let now = moment();
       // let tomorrow = moment().add(1, 'days');
       // tomorrow.subtract(7654, 'seconds'); // for a little variety ;)
 
-      let expiration = moment(me.offer_expires); // Need this from API
+      let expiration = moment(this.user_created); // Need this from API
       let duration = moment.duration(expiration.diff(now));
       let limitedTimeOffer = (duration > 0 ? duration : null);
       

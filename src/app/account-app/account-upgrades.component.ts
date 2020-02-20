@@ -33,6 +33,8 @@ import { AsyncSubject } from 'rxjs';
 })
 export class AccountUpgradesComponent implements OnInit {
     subscriptions = new AsyncSubject<Product[]>();
+    subs_regular = new AsyncSubject<Product[]>();
+    subs_special = new AsyncSubject<Product[]>();
 
     constructor(
         private cart:            CartService,
@@ -48,13 +50,13 @@ export class AccountUpgradesComponent implements OnInit {
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
 
-            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
-            this.subscriptions.next(subs_regular);
-            this.subscriptions.complete();
+	    const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
+            this.subs_regular.next(subs_regular);
+            this.subs_regular.complete();
 	    
 	    const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
-            this.subscriptions.next(subs_special);
-            this.subscriptions.complete();
+            this.subs_special.next(subs_special);
+            this.subs_special.complete();
 
             this.cart.items.subscribe(items => {
                 const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));

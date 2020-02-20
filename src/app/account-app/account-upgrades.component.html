@@ -77,31 +77,31 @@ mat-icon.limitedTimeOffer {
       <p>This offer expires in <app-runbox-timer class="timer"></app-runbox-timer></p>
     </div>
 
-    <div id="productGrid" *ngIf="subscriptions | async as subscriptions; else productsLoading">
+    <div id="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
       <app-account-product
         *ngFor="let p of subs_regular"
-	[ngClass]="productCard"
+        [ngClass]="'productCard'"
         [p]="p"
-        [active]="me.subscription === p.pid"
         [currency]="me.currency"
         >
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
       </app-account-product>
+    </div>
 
+    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product
         *ngFor="let p of subs_special"
-	[ngClass]="productCardSpecial"
+        [ngClass]="'productCardSpecial'"
         [p]="p"
-        [active]="me.subscription === p.pid"
         [currency]="me.currency"
         >
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
       </app-account-product>
-</div>
+    </div>
 
     <div style="margin-bottom: 5%; text-align: center">
         ...And don't forget to check out
