@@ -42,7 +42,11 @@
   
   <span flex style="flex-grow: 1"></span>
 
-  <a mat-button color="accent" matTooltip="Go back to the old version of Runbox" href="/mail">
+  <a *ngIf="user_is_trial" mat-button matTooltip="Subscribe now" href="/account/components">
+    <mat-icon id="subscribe">card_membership</mat-icon> Subscribe
+  </a>
+
+  <a *ngIf="!user_is_trial" mat-button color="accent" matTooltip="Go back to the old version of Runbox" href="/mail">
     <mat-icon id="runbox6">undo</mat-icon> Runbox 6
   </a>
 
