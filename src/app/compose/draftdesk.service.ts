@@ -99,9 +99,11 @@ export class DraftFormModel {
                         addr.address : addr.name + '<' + addr.address + '>').join(',');
             }
         }
-        ret.from = (mailObj.to.concat(mailObj.cc || []).find((addr) =>
-            froms.find(fromObj => fromObj.email === addr.address)) || { address: froms[0].email }).address;
-
+        ret.from = (
+            [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
+                addr => froms.find(fromObj => fromObj.email === addr.address)
+            ) || { address: froms[0].email }
+        ).address;
 
         ret.subject = 'Re: ' + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
 
