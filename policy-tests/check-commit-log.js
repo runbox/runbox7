@@ -1,7 +1,6 @@
 const exec = require('child_process').exec;
 
-// starting from b74b99e all messages are fine... hopefully :)
-exec('git log --oneline --no-merges b74b99e..', (stdin, stdout, stderr) => {
+exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
     const lines = stdout.split('\n');
     for (const line of lines) {
         if (!line) {
