@@ -42,7 +42,7 @@ export class HeaderToolbarComponent {
 
     ngOnInit() {
         this.rmmapi.me.subscribe(me => {
-    	    user_is_trial = me.is_trial;
+           this.user_is_trial = me.is_trial;
       });
     }
 
