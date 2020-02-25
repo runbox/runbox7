@@ -82,15 +82,14 @@ export class RunboxTimerComponent implements OnInit {
       public ref: ElementRef,
       private rmmapi: RunboxWebmailAPI,
   ) {
-      this.rmmapi.me.subscribe(me => {
-          this.user_created.next(me.user_created);
-          this.user_created.complete();
-      });
 
   }
 
   ngOnInit() {
       this.recalculate_date();
+      this.rmmapi.me.subscribe(me => {
+          this.user_created = me.user_created;
+      });
   }
 
   recalculate_date () {
