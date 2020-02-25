@@ -75,7 +75,7 @@ import * as moment from 'moment';
 export class RunboxTimerComponent implements OnInit {
   @ContentChild('custom_template', { static: false }) custom_template: ElementRef;
 
-  user_created = new AsyncSubject<number>();
+  user_created = new AsyncSubject<string>();
 
   constructor(
       public dialog: MatDialog,

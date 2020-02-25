@@ -120,6 +120,7 @@ class FromAddressResponse {
 export class RunboxMe {
     public uid: number;
     public username: string;
+    public user_created: string;
 
     public first_name: string;
     public last_name: string;
