@@ -42,6 +42,7 @@
     "@angular/pwa": "^0.12.2",
     "@angular/router": "9.0.0",
     "@angular/service-worker": "9.0.0",
+    "@sentry/browser": "^5.12.1",
     "angular-calendar": "^0.28.2",
     "angular2-hotkeys": "2.1.5",
     "array-flat-polyfill": "^1.0.1",

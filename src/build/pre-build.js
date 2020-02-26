@@ -23,6 +23,11 @@ console.log('Updating build timestamp');
 const build_time = new Date().toJSON();
 fs.writeFileSync('src/app/buildtimestamp.ts', "export const BUILD_TIMESTAMP = '" + build_time + "';\n");
 
+if (process.env.SENTRY_DSN) {
+    console.log('Adding Sentry setup to app.component.ts');
+    console.log(cp.execFileSync('node', ['src/build/add-sentry.js']).toString().trim())
+}
+
 console.log('Updating changelog');
 console.log(cp.execFileSync('node', ['src/build/build-changelog.js']).toString().trim())
 
