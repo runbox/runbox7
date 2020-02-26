@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
 
@@ -35,6 +36,7 @@ export class HeaderToolbarComponent {
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
+        public rmmoffline: RMMOfflineService,
         private router: Router,
         public logoutservice: LogoutService
     ) {

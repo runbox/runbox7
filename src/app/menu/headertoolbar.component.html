@@ -76,3 +76,19 @@
 
   <img src="assets/runbox7.png" id="logo" alt="Runbox 7" />
 </mat-toolbar>
+
+<style>
+#connectionDownIndicator {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 999;
+}
+</style>
+
+<button mat-fab color="warn" *ngIf="rmmoffline.is_offline"
+  id="connectionDownIndicator"
+  matTooltip="Runbox API unavailable"
+>
+    <mat-icon> cloud_off </mat-icon>
+</button>
