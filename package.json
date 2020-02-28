@@ -42,6 +42,7 @@
     "@angular/pwa": "^0.12.2",
     "@angular/router": "9.0.0",
     "@angular/service-worker": "9.0.0",
+    "@sentry/browser": "^5.12.1",
     "angular-calendar": "^0.28.2",
     "@danielmoncada/angular-datetime-picker": "^9.1.1",
     "@types/moment-timezone": "^0.5.12",

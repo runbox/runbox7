@@ -59,6 +59,8 @@ import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
+import './sentry';
+
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 
