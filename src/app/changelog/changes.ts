@@ -75,6 +75,41 @@ const changes = [
         "Increase quantities in cart when adding duplicate products"
     ],
     [
+        "bc4f9f3",
+        "1582737676",
+        "feat",
+        "build",
+        "Add an option to enable Sentry monitoring"
+    ],
+    [
+        "d399270",
+        "1582803126",
+        "feat",
+        "app",
+        "Add an indicator if the API connection is lost"
+    ],
+    [
+        "72d4d93",
+        "1582650205",
+        "fix",
+        "menu",
+        "Bugfix."
+    ],
+    [
+        "be967ed",
+        "1582561863",
+        "fix",
+        "menu",
+        "Delint."
+    ],
+    [
+        "2276d18",
+        "1582552419",
+        "feat",
+        "update-notifier",
+        "Make the update notifier link to changelog for changes"
+    ],
+    [
         "e34f447",
         "1582549440",
         "fix",
@@ -87,6 +122,13 @@ const changes = [
         "fix",
         "mailviewer",
         "Make it possible to reply to emails with no \"To\" header"
+    ],
+    [
+        "409450c",
+        "1582324828",
+        "feat",
+        "payment",
+        "Add subscribe link in header for trial accounts."
     ],
     [
         "ab369d6",

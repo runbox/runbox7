@@ -22,6 +22,7 @@ import { EventColor } from 'calendar-utils';
 import { RRule, rrulestr } from 'rrule';
 
 import * as moment from 'moment';
+import 'moment-timezone';
 import * as ICAL from 'ical.js';
 
 export class RunboxCalendarEvent implements CalendarEvent {
@@ -66,7 +67,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     get dtstart(): moment.Moment {
-        return moment(this.event.startDate.toJSDate(), moment.ISO_8601);
+        return this.icalTimeToLocalMoment(this.event.startDate);
     }
 
     set dtstart(value: moment.Moment) {
@@ -77,7 +78,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     get dtend(): moment.Moment {
         return this.event.endDate
-            ? moment(this.event.endDate.toJSDate(), moment.ISO_8601)
+            ? this.icalTimeToLocalMoment(this.event.endDate)
             : undefined;
     }
 
@@ -220,5 +221,15 @@ export class RunboxCalendarEvent implements CalendarEvent {
             calendar: this.calendar,
             jcal:     this.event.component.toJSON(),
         };
+    }
+
+    private icalTimeToLocalMoment(time: ICAL.Time): moment.Moment {
+        if (!time.timezone) {
+            // assume that the event is in localtime already
+            return moment(time.toString());
+        } else {
+            const localzone = moment.tz.guess(); // TODO get this from account/calendar settings
+            return moment.tz(time.toString(), time.timezone).tz(localzone);
+        }
     }
 }

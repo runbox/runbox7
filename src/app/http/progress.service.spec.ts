@@ -29,6 +29,7 @@ import { ProgressService } from './progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { filter, take } from 'rxjs/operators';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
+import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 
 describe('ProgressService', () => {
     let injector: TestBed;
@@ -43,9 +44,10 @@ describe('ProgressService', () => {
                 MatSnackBarModule,
                 MatDialogModule,
                 NoopAnimationsModule,
-                RouterTestingModule
+                RouterTestingModule,
             ],
         providers: [
+            RMMOfflineService,
             RunboxWebmailAPI,
             RMMAuthGuardService,
             ProgressService,
