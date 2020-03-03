@@ -367,12 +367,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     textContent
                 );
             }
-
-            if (this.formGroup.controls['msg_body'].value) {
-                setTimeout(() => {
-                    this.moveTextAreaCaretPositionToStart();
-                }, 0);
-            }
         }
     }
 
@@ -566,19 +560,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.editor) {
             tinymce.remove(this.editor);
         }
-    }
-
-    moveTextAreaCaretPositionToStart() {
-        const txtElement = this.messageTextArea.nativeElement;
-        if (txtElement.setSelectionRange) {
-            txtElement.focus();
-            txtElement.setSelectionRange(0, 0);
-        } else if (txtElement.createTextRange) {
-            const range = txtElement.createTextRange();
-            range.moveStart('character', 0);
-            range.select();
-        }
-        txtElement.scrollTo(0, 0);
     }
 
     formatBytes(bytes) {

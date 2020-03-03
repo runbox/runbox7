@@ -126,6 +126,7 @@
 			   width: 100%;
 			   height: 300px;
 			   " 
+                    [initialfocus] = "formGroup.value.useHTML && formGroup.value.to ? true : false"
                     [id]="selector"
                     [hidden]="!formGroup.value.useHTML">
           </textarea>
@@ -135,6 +136,7 @@
                placeholder="Message text" 
                matInput                                      
                formControlName="msg_body"
+               [initialfocus] = "formGroup.value.to ? true : false"
                rows="20"
                >
             </textarea>
