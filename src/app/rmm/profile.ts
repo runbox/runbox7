@@ -80,7 +80,7 @@ export class Profile {
                     const profile = FromAddress.fromObject(obj);
                     this.from_addresses.push(profile);
                 });
-            })
+            });
           },
           error => {
             this.is_busy = false;
