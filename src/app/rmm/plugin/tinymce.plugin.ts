@@ -34,6 +34,7 @@ export class TinyMCEPlugin {
             // Need to initialize in a timeout for the editor element to be available
             tinymce.init({
                 selector: options.selector, // '#' + this.editorRef.nativeElement.id,
+                browser_spellcheck: true,
                 plugins: (options.plugins || 'print preview searchreplace autolink directionality ' +
                     'visualblocks visualchars fullscreen image link template codesample ' +
                     'table charmap hr pagebreak ' +

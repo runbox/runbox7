@@ -65,23 +65,26 @@ export class Profile {
                 return;
             }
             this.profiles_verified = reply['result'];
-            Object.keys(this.profiles_verified).forEach( (k) => {
-                this.profiles_verified[k].forEach( (item) => {
-                    const profile = FromAddress.fromObject({
+            const types_order = ['main', 'others', 'aliases'];
+            types_order.forEach( (type) => {
+                this.profiles_verified[type].forEach( (item) => {
+                    const obj = {
                         id: item.profile.id,
                         email: item.profile.email,
                         reply_to: item.profile.reply_to,
                         name: item.profile.from_name,
                         signature: item.profile.signature,
                         is_signature_html: (item.profile.is_signature_html ? true : false),
-                    });
+                        type: item.profile.type,
+                    };
+                    const profile = FromAddress.fromObject(obj);
                     this.from_addresses.push(profile);
                 });
             });
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not load verified profiles.', 'Dismiss');
           }
         );
         return req;
