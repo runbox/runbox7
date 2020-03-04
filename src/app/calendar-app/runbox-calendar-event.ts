@@ -40,7 +40,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // recurring events
     calendar:  string;
 
-    event: ICAL.Event = {};
+    ical: ICAL.Component;
+    event: ICAL.Event;
 
     get title(): string {
         return this.event.summary;
@@ -180,17 +181,27 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this.calendar = this.id.split('/')[0];
         }
 
-        const comp = new ICAL.Component(jcal);
-        if (comp.name === 'vevent') {
-            this.event = new ICAL.Event(comp);
-        } else {
-            this.event = new ICAL.Event(comp.getFirstSubcomponent('vevent'));
+        this.ical = new ICAL.Component(jcal);
+        this.event = new ICAL.Event(this.ical.getFirstSubcomponent('vevent'));
+
+        // extract and register all timezones included so that we can use them for conversion later.
+        // Without this, ICAL.Time.convertToZone will not work
+        if (this.ical.getFirstSubcomponent('vtimezone')) {
+            for (const tzComponent of this.ical.getAllSubcomponents('vtimezone')) {
+                const tz = new ICAL.Timezone({
+                    tzid:      tzComponent.getFirstPropertyValue('tzid'),
+                    component: tzComponent,
+                });
+
+                if (!ICAL.TimezoneService.has(tz.tzid)) {
+                    ICAL.TimezoneService.register(tz.tzid, tz);
+                }
+            }
         }
     }
 
     clone(): RunboxCalendarEvent {
-        const ical = this.event.toString();
-        return RunboxCalendarEvent.fromIcal(this.id, ical);
+        return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
     }
 
     recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
@@ -211,7 +222,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     toIcal(): string {
-        return 'BEGIN:VCALENDAR\n' + this.event.toString() + '\nEND:VCALENDAR';
+        return this.ical.toString();
     }
 
     // returns jCal
@@ -219,7 +230,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return {
             id:       this.id,
             calendar: this.calendar,
-            jcal:     this.event.component.toJSON(),
+            jcal:     this.ical.toJSON(),
         };
     }
 
@@ -228,8 +239,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
             // assume that the event is in localtime already
             return moment(time.toString());
         } else {
-            const localzone = moment.tz.guess(); // TODO get this from account/calendar settings
-            return moment.tz(time.toString(), time.timezone).tz(localzone);
+            // Theoretically, ICAL.Timezone.localTimezone exists.
+            // Practically, it does not do anything. Let's go to UTC first.
+            const utc = time.convertToZone(ICAL.Timezone.utcTimezone);
+            // TODO localzone should perhaps be configurable
+            return moment.utc(utc.toString()).tz(moment.tz.guess());
         }
     }
 }
