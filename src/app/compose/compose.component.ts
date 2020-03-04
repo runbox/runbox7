@@ -489,6 +489,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }
             ), send)
                 .subscribe((res) => {
+                    if (res[0] === '0') {
+                        this.snackBar.open(res[1], 'Dismiss');
+                        this.dialogService.closeProgressDialog();
+                        return;
+                    }
+
                     this.model.mid = parseInt(res[2], 10);
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
                     this.snackBar.open(res[1], null, { duration: 3000 });
