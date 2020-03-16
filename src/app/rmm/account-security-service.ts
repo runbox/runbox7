@@ -28,32 +28,32 @@ export class AccountSecurityService {
     results: any;
     services_translation: any = {
         web : {
-            name : "Web",
-            description : "Runbox Webmail. The web interface is essential and can not be disabled."
+            name : 'Web',
+            description : 'Runbox Webmail. The web interface is essential and can not be disabled.'
         },
         'dovecot-imap' : {
-            name : "IMAP",
-            description : "IMAP service for email programs/apps."
+            name : 'IMAP',
+            description : 'IMAP service for email programs/apps.'
         },
         'dovecot-pop' : {
-            name : "POP",
-            description : "POP service, used instead of IMAP if you only want to download email from Inbox."
+            name : 'POP',
+            description : 'POP service, used instead of IMAP if you only want to download email from Inbox.'
         },
         kmpop3d : {
-            name : "POP (kmpop3d)",
-            description : "kmpop3d is the legacy POP server, and is currently being phased out."
+            name : 'POP (kmpop3d)',
+            description : 'kmpop3d is the legacy POP server, and is currently being phased out.'
         },
         submission : {
-            name : "SMTP",
-            description : "SMTP lets you send email with an email program."
+            name : 'SMTP',
+            description : 'SMTP lets you send email with an email program.'
         },
         ftp : {
-            name : "FTP",
-            description : "FTP can be used to transfer files to/from the server."
+            name : 'FTP',
+            description : 'FTP can be used to transfer files to/from the server.'
         },
         webdav : {
-            name : "WebDAV",
-            description : "WebDAV is used to log in to CalDAV (calendar) and CardDAV (contacts)."
+            name : 'WebDAV',
+            description : 'WebDAV is used to log in to CalDAV (calendar) and CardDAV (contacts).'
         },
     };
 

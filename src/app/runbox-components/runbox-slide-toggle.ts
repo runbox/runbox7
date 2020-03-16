@@ -72,7 +72,7 @@ import { RMM } from '../rmm';
 })
 
 export class RunboxSlideToggleComponent {
-  @Input() is_checked: boolean = true;
+  @Input() is_checked = true;
   private dialog_ref: any;
   constructor(public dialog: MatDialog,
     public rmm: RMM,

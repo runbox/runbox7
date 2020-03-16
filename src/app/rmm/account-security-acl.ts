@@ -169,7 +169,7 @@ export class AccountSecurityACL {
 
     remove_rule(data): Observable<any> {
         this.is_busy = true;
-        const req = this.app.ua.http.put('/rest/v1/acl/remove_rule/'+data.id, data).pipe(timeout(60000), share());
+        const req = this.app.ua.http.put('/rest/v1/acl/remove_rule/' + data.id, data).pipe(timeout(60000), share());
         req.subscribe(
           reply => {
             this.is_busy = false;
@@ -211,12 +211,12 @@ export class AccountSecurityACL {
 
     logins_list(data): Observable<any> {
         this.is_busy = true;
-        let url = new URL('https://www.runbox.com');
-        url.pathname = "/rest/v1/acl/logins";
+        const url = new URL('https://www.runbox.com');
+        url.pathname = '/rest/v1/acl/logins';
         Object.keys(data).forEach((key) => {
             url.searchParams.set(key, encodeURI(data[key]));
         });
-        const req = this.app.ua.http.get([url.pathname, url.searchParams.toString()].join("?"), {}).pipe(timeout(60000), share());
+        const req = this.app.ua.http.get([url.pathname, url.searchParams.toString()].join('?'), {}).pipe(timeout(60000), share());
         req.subscribe(
           reply => {
             this.is_busy = false;

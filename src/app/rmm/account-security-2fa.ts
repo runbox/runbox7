@@ -26,7 +26,7 @@ export class AccountSecurity2fa {
     is_busy = false;
     settings: any = {};
     otp: any;
-    new_totp_code: string = '';
+    new_totp_code = '';
     totp_label: string;
     qr_code_value: any;
 
@@ -45,7 +45,7 @@ export class AccountSecurity2fa {
           reply => {
             this.is_busy = false;
             this.settings = reply['mfa_2fa'][0];
-            ['is_2fa_enabled','is_app_pass_enabled','is_device_2fa_enabled',].forEach( (attr) => {
+            ['is_2fa_enabled', 'is_app_pass_enabled', 'is_device_2fa_enabled', ].forEach( (attr) => {
                 this.settings[attr] = this.settings[attr] ? true : false;
             } );
             if ( reply['status'] === 'error' ) {
@@ -148,32 +148,32 @@ export class AccountSecurity2fa {
         return req;
     }
 
-    totp_regenerate(data){
+    totp_regenerate(data) {
         this.is_busy = true;
         this.new_totp_code = this.generate_totp_code();
-        this.totp_label = "Runbox: " + this.app.me.data.username;
+        this.totp_label = 'Runbox: ' + this.app.me.data.username;
         const device = 'totp';
-        const qr_code_url = new URL(window.location.protocol + "//" + window.location.hostname);
-        qr_code_url.pathname = "/ajax/ajax_mfa_qr_code_generator";
-        qr_code_url.searchParams.set("device", device);
-        qr_code_url.searchParams.set("label", this.totp_label);
-        qr_code_url.searchParams.set("secret", this.new_totp_code);
-        let qr_code_image = this.generate_qr_code(device, this.app.account_security.tfa.totp_label, this.new_totp_code);
+        const qr_code_url = new URL(window.location.protocol + '//' + window.location.hostname);
+        qr_code_url.pathname = '/ajax/ajax_mfa_qr_code_generator';
+        qr_code_url.searchParams.set('device', device);
+        qr_code_url.searchParams.set('label', this.totp_label);
+        qr_code_url.searchParams.set('secret', this.new_totp_code);
+        const qr_code_image = this.generate_qr_code(device, this.app.account_security.tfa.totp_label, this.new_totp_code);
     }
 
     generate_totp_code() {
-        let chars = [
-            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-            "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-            "2", "3", "4", "5", "6", "7"
+        const chars = [
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '2', '3', '4', '5', '6', '7'
         ];
-        let codelen = 16;
+        const codelen = 16;
         return this.random_string( chars, codelen );
     }
 
-    random_string(chars, length) { //['a','b', 1, 3, 'Z'], 10
-        let random_string = "";
-        for ( let i=0; i < length ; i++ ) {
+    random_string(chars, length) { // ['a','b', 1, 3, 'Z'], 10
+        let random_string = '';
+        for ( let i = 0; i < length ; i++ ) {
             const rnd = Math.random();
             const len = chars.length;
             const num = Math.floor(rnd * len);
@@ -185,8 +185,8 @@ export class AccountSecurity2fa {
 
 
     generate_qr_code( device_2fa, device_label, code ) {
-        this.qr_code_value = new URL("otpauth://");
-        this.qr_code_value.pathname = "//" + [device_2fa, encodeURI(device_label)].join("/")
+        this.qr_code_value = new URL('otpauth://');
+        this.qr_code_value.pathname = '//' + [device_2fa, encodeURI(device_label)].join('/');
         this.qr_code_value.searchParams.set('secret', encodeURI(code));
     }
 

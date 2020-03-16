@@ -72,7 +72,7 @@ import { RMM } from '../rmm';
 })
 
 export class RunboxContainerComponent {
-  @Input() sidebar_opened: boolean = false;
+  @Input() sidebar_opened = false;
   private dialog_ref: any;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
