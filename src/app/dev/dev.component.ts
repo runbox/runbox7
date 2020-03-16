@@ -19,11 +19,10 @@
 // ---------- END RUNBOX LICENSE ----------
 import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-} from '@angular/material';
+
+import {MatDialog} from '@angular/material/dialog';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 import { RMM } from '../rmm';
 

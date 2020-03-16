@@ -1,4 +1,3 @@
-
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 // 
@@ -25,6 +24,7 @@ import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 
+
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
@@ -40,16 +40,23 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatTableModule} from '@angular/material/table';
 
-
-import { DevComponent } from './dev.component';
-import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
+import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
+import { RunboxListComponent } from '../runbox-components/runbox-list';
+import { RunboxContainerComponent } from '../runbox-components/runbox-container';
+import { RunboxSectionComponent } from '../runbox-components/runbox-section';
+import { RunboxSlideToggleComponent } from '../runbox-components/runbox-slide-toggle';
+import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
 
 @NgModule({
     declarations: [
-        DevComponent,
+        RunboxIntroComponent,
+        RunboxListComponent,
+        RunboxContainerComponent,
+        RunboxSectionComponent,
+        RunboxSlideToggleComponent,
+        RunboxTimerComponent,
     ],
     imports: [
-		RunboxComponentModule,
         CommonModule,
         MatGridListModule,
         MatCheckboxModule,
@@ -68,12 +75,14 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
         MatTooltipModule,
         MatTableModule,
         MenuModule,
-        RouterModule.forChild([
-            { path: '',                    component: DevComponent },
-            { path: ':selected_component', component: DevComponent },
-        ])
     ],
 	exports: [
+        RunboxIntroComponent,
+        RunboxListComponent,
+        RunboxContainerComponent,
+        RunboxSectionComponent,
+        RunboxSlideToggleComponent,
+        RunboxTimerComponent,
 	],
     entryComponents: [
     ],
@@ -82,6 +91,7 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
     bootstrap: [
     ]
 })
-export class DevModule { }
+
+export class RunboxComponentModule { }
 
 

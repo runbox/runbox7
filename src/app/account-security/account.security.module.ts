@@ -1,4 +1,3 @@
-
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 // 
@@ -17,71 +16,72 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
+import { QRCodeModule } from 'angular2-qrcode';
 
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatGridListModule} from '@angular/material/grid-list';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
+import {MatMenuModule} from '@angular/material/menu';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTableModule} from '@angular/material/table';
+import {MatTabsModule} from '@angular/material/tabs';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatGridListModule} from '@angular/material/grid-list';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatTableModule} from '@angular/material/table';
 
 
-import { DevComponent } from './dev.component';
+import { AccountSecurityComponent } from './account.security.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 
 @NgModule({
     declarations: [
-        DevComponent,
+      AccountSecurityComponent,
     ],
     imports: [
-		RunboxComponentModule,
-        CommonModule,
-        MatGridListModule,
-        MatCheckboxModule,
-        FormsModule,
-        MatInputModule,
-        MatButtonModule,
-        MatCardModule,
-        MatMenuModule,
-        MatIconModule,
-        MatListModule,
-        MatProgressBarModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatSidenavModule,
-        MatToolbarModule,
-        MatTooltipModule,
-        MatTableModule,
-        MenuModule,
-        RouterModule.forChild([
-            { path: '',                    component: DevComponent },
-            { path: ':selected_component', component: DevComponent },
-        ])
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MenuModule,
+    QRCodeModule,
+    RouterModule.forChild([ { path: '', component: AccountSecurityComponent } ]),
+    RunboxComponentModule,
     ],
-	exports: [
-	],
     entryComponents: [
     ],
     providers: [
     ],
-    bootstrap: [
-    ]
+    bootstrap: []
 })
-export class DevModule { }
+export class AccountSecurityModule { }
 
 

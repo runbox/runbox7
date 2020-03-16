@@ -68,7 +68,7 @@ import {RMM} from '../rmm';
 })
 
 export class RunboxSectionComponent {
-  @Input() is_header_open = true;
+  @Input() is_header_open: boolean = true;
   private dialog_ref: any;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
