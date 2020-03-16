@@ -22,7 +22,6 @@ import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class AccountSecurityDevice {
-    public profiles: any;
     user_password: string;
     is_busy = false;
     results: any;
@@ -45,12 +44,11 @@ export class AccountSecurityDevice {
                 return;
             }
             this.results = reply['devices'];
-console.log('DEVICES TRUSTED: ', this.results)
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list devices.', 'Dismiss');
           }
         );
         return req;
@@ -59,14 +57,6 @@ console.log('DEVICES TRUSTED: ', this.results)
     update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//  password : field_password.value,
-//  action : 'trust_device',
-//  name : device_name,
-
-//  password : field_password.value,
-//  action : 'update_status',
-//  is_enabled : item.is_trusted == "0" ? true : false,
-//  id : item.id,
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_device', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -77,12 +67,11 @@ console.log('DEVICES TRUSTED: ', this.results)
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-console.log('RESULT: ', reply);
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update device.', 'Dismiss');
           }
         );
         return req;

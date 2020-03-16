@@ -34,14 +34,6 @@ export class AccountSecurityAppPass {
     update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                                  is_enabled : !btn_enable._value,
-//                                  action : 'update_status',
-//                                  password : field_password.value,
-
-//                                              is_enabled : is_enabled,
-//                                              action : 'update_pass_status',
-//                                              id : item.id,
-//                                              password : field_password.value,
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_app_pass', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -52,12 +44,11 @@ export class AccountSecurityAppPass {
                 return;
             }
             this.list();
-console.log('REPLY', reply)
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update app password.', 'Dismiss');
           }
         );
         return req;
@@ -75,13 +66,12 @@ console.log('REPLY', reply)
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-console.log('REPLY', reply);
             this.results = reply['app_pass'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list app passwords.', 'Dismiss');
           }
         );
         return req;
@@ -90,8 +80,6 @@ console.log('REPLY', reply);
     create(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                                  name : self.app.field['new-app-pass-name'].value,
-//                                  password : field_password.value,
         };
         const req = this.app.ua.http.post('/ajax/ajax_mfa_app_pass', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -107,7 +95,7 @@ console.log('REPLY', reply);
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update app password.', 'Dismiss');
           }
         );
         return req;

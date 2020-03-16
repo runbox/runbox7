@@ -27,9 +27,9 @@
     </button>
 
     <mat-menu #hostingSubMenu="matMenu" class="mainMenuSub">
-	<a mat-button href="/mail/account_domain"><mat-icon>email</mat-icon>Email Hosting</a><br />
-	<a mat-button href="/mail/account_webhosting"><mat-icon>public</mat-icon>Web Hosting</a><br />
-	<a mat-button href="/mail/account_domain_hosting"><mat-icon>domain</mat-icon>Domain Hosting</a>
+    <a mat-button href="/mail/account_domain"><mat-icon>email</mat-icon>Email Hosting</a><br />
+    <a mat-button href="/mail/account_webhosting"><mat-icon>public</mat-icon>Web Hosting</a><br />
+    <a mat-button href="/mail/account_domain_hosting"><mat-icon>domain</mat-icon>Domain Hosting</a>
     <a mat-button [routerLink]="['/domainregistration']"><mat-icon>border_inner</mat-icon>Domain Registration</a>
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="hostingSubMenu" class="mainMenuSub">

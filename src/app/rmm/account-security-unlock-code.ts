@@ -22,7 +22,6 @@ import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class AccountSecurityUnlockCode {
-    public profiles: any;
     user_password: string;
     is_busy = false;
     unlock_code: string;
@@ -48,7 +47,7 @@ export class AccountSecurityUnlockCode {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update unlock code.', 'Dismiss');
           }
         );
         return req;
@@ -71,7 +70,7 @@ export class AccountSecurityUnlockCode {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list unlock code.', 'Dismiss');
           }
         );
         return req;

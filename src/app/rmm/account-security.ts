@@ -29,10 +29,8 @@ import { AccountSecurityAppPass } from './account-security-app-pass';
 import { AccountSecurityService } from './account-security-service';
 
 export class AccountSecurity {
-    public profiles: any;
     user_password: string;
     is_busy = false;
-    
     public session: AccountSecuritySession;
     public acl: AccountSecurityACL;
     public unlock_code: AccountSecurityUnlockCode;
@@ -111,12 +109,11 @@ export class AccountSecurity {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not check password.', 'Dismiss');
           }
         );
         return req;

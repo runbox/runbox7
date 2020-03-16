@@ -22,7 +22,6 @@ import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class AccountSecurityService {
-    public profiles: any;
     user_password: string;
     is_busy = false;
     service: any;
@@ -66,12 +65,6 @@ export class AccountSecurityService {
     update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                                                  services:[{
-//                                                      is_enabled : !item.is_enabled,
-//                                                      service : item.shortname,
-//                                                      id : item.id,
-//                                                  }],
-//                                                  password : field_password.value,
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_service', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -81,12 +74,11 @@ export class AccountSecurityService {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update service.', 'Dismiss');
           }
         );
         return req;
@@ -95,11 +87,6 @@ export class AccountSecurityService {
     create(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                                                  services:[{
-//                                                      is_enabled : !item.is_enabled,
-//                                                      service : item.shortname,
-//                                                  }],
-//                                                  password : field_password.value,
         };
         const req = this.app.ua.http.post('/ajax/ajax_mfa_service', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -109,12 +96,11 @@ export class AccountSecurityService {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update service.', 'Dismiss');
           }
         );
         return req;
@@ -140,7 +126,7 @@ export class AccountSecurityService {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list services.', 'Dismiss');
           }
         );
         return req;
@@ -158,12 +144,11 @@ export class AccountSecurityService {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list service rules.', 'Dismiss');
           }
         );
         return req;

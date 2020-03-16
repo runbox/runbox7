@@ -49,7 +49,7 @@ export class AccountSecuritySession {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list sessions.', 'Dismiss');
           }
         );
         return req;

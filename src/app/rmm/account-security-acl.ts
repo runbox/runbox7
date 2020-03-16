@@ -22,7 +22,6 @@ import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class AccountSecurityACL {
-    public profiles: any;
     user_password: string;
     is_busy = false;
     results_logins_list: any;
@@ -51,7 +50,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not load accounts related to this setting.', 'Dismiss');
           }
         );
         return req;
@@ -60,9 +59,6 @@ export class AccountSecurityACL {
     update_sub_account(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//      is_overwrite_subaccount_ip_rules : _self.app.field.is_overwrite_subaccount_ip_rules.value,
-//      password : field_password.value,
-//          
         };
         const req = this.app.ua.http.put('/rest/v1/acl/subaccount_rules/', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -72,12 +68,11 @@ export class AccountSecurityACL {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update subaccount rules.', 'Dismiss');
           }
         );
         return req;
@@ -99,7 +94,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list blocked ips.', 'Dismiss');
           }
         );
         return req;
@@ -108,8 +103,6 @@ export class AccountSecurityACL {
     unblock(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//      ip : ip,
-//      password : field_password.value,
         };
         const req = this.app.ua.http.put('/rest/v1/acl/unblock', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -124,7 +117,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not unblock.', 'Dismiss');
           }
         );
         return req;
@@ -133,10 +126,6 @@ export class AccountSecurityACL {
     update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//      rule : self.app.field['blocked_ip_action'].value,
-//      ip : ip,
-//      password : field_password.value,
-//      label : self.app.field['block_ip_label'].value,
         };
         const req = this.app.ua.http.post('/rest/v1/acl/rule', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -146,12 +135,11 @@ export class AccountSecurityACL {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update rules.', 'Dismiss');
           }
         );
         return req;
@@ -173,7 +161,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list rules.', 'Dismiss');
           }
         );
         return req;
@@ -193,7 +181,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not delete rule.', 'Dismiss');
           }
         );
         return req;
@@ -202,11 +190,6 @@ export class AccountSecurityACL {
     create_rule(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//        ip : item.ip,
-//        rule : 'deny',
-//        label : '[% locale.account_security.always_block %]',
-//        password : field_password.value,
-//          
         };
         const req = this.app.ua.http.post('/rest/v1/acl/rule', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -220,7 +203,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update rule.', 'Dismiss');
           }
         );
         return req;
@@ -246,7 +229,7 @@ export class AccountSecurityACL {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list last logins.', 'Dismiss');
           }
         );
         return req;

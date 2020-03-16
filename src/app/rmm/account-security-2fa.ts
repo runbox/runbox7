@@ -22,7 +22,6 @@ import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class AccountSecurity2fa {
-    public profiles: any;
     user_password: string;
     is_busy = false;
     settings: any = {};
@@ -84,9 +83,6 @@ export class AccountSecurity2fa {
     update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//  is_enabled: 1,
-//  action: 'update',
-//  password: xxxx
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_2fa', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -110,16 +106,6 @@ export class AccountSecurity2fa {
     totp_update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                                  is_enabled : is_enabled,
-//                                  action : 'update_status',
-//                                  password : field_password.value,
-
-
-// to update the verified secret:
-//                                          secret : self.app.field['totp_code'].value,
-//                                          device : self.app.field['totp_device-select'].value,
-//                                          action : 'update_secret',
-
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_totp', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -134,7 +120,7 @@ export class AccountSecurity2fa {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update TOTP.', 'Dismiss');
           }
         );
         return req;
@@ -143,9 +129,6 @@ export class AccountSecurity2fa {
     totp_check(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                              password : field_password.value,
-//                              code : code,
-//                              secret : self.app.field['totp_code'].value,
         };
         const req = this.app.ua.http.post('/ajax/ajax_mfa_totp_check', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -159,7 +142,7 @@ export class AccountSecurity2fa {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not check TOTP.', 'Dismiss');
           }
         );
         return req;
@@ -180,8 +163,8 @@ export class AccountSecurity2fa {
 
     generate_totp_code() {
         let chars = [
-            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-            "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+            "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
             "2", "3", "4", "5", "6", "7"
         ];
         let codelen = 16;
@@ -210,12 +193,6 @@ export class AccountSecurity2fa {
     otp_upadte(data): Observable<any> {
         this.is_busy = true;
         data = data || {
-//                          password : field_password.value,
-//                          action : 'regenerate',
-
-//                                  password : field_password.value,
-//                                  action : 'update_status',
-//                                  is_enabled : is_enabled,
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_otp', data).pipe(timeout(60000), share());
         req.subscribe(
@@ -230,7 +207,7 @@ export class AccountSecurity2fa {
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not update OTP.', 'Dismiss');
           }
         );
         return req;
@@ -248,13 +225,12 @@ export class AccountSecurity2fa {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-// {total_available: 40, is_enabled:0}
             this.otp = reply;
             return;
           },
           error => {
             this.is_busy = false;
-            return this.app.show_error('Could not load profiles.', 'Dismiss');
+            return this.app.show_error('Could not list OTP.', 'Dismiss');
           }
         );
         return req;
