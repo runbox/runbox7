@@ -29,11 +29,9 @@ import {
   ElementRef,
   TemplateRef,
 } from '@angular/core';
-
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -44,72 +42,44 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RMM } from '../rmm';
 
 @Component({
-    selector: 'app-runbox-list',
+    selector: 'app-runbox-slide-toggle',
     styles: [`
     `],
     template: `
-    <div class="app-runbox-list">
-        <div class="header">
-            <mat-toolbar color="primary">
-              <mat-toolbar-row>
-                <span>runbox table</span>
-                <span class="spacer" style='flex-grow:1'></span>
-                <span (click)="set_view_mode('small')">small</span>
-                |
-                <span (click)="set_view_mode('medium')">medium</span>
-              </mat-toolbar-row>
-            </mat-toolbar>
-        </div>
-        <div *ngFor="let item of values; let i = index" >
-            <ng-template
-                *ngIf="view_mode==='small'"
-                [ngForOf]="[item]"
-                [ngForTemplate]="runbox_list_row_small"
-                let-item
-                ngFor
-            ></ng-template>
-            <ng-template
-                *ngIf="view_mode==='medium'"
-                [ngForOf]="[item]"
-                [ngForTemplate]="runbox_list_row_medium"
-                let-item
-                ngFor
-            ></ng-template>
-        </div>
+    <div class="app-runbox-slide-toggle"
+    >
+        <mat-slide-toggle
+            [(checked)]="is_checked"
+            (toggleChange)="toggle()"
+        >
+        <ng-content></ng-content>
+        </mat-slide-toggle>
     </div>
     `
 })
 
-export class RunboxListComponent {
-  @Input() values: any[];
+export class RunboxSlideToggleComponent {
+  @Input() is_checked = true;
   private dialog_ref: any;
-  view_mode: any;
-  @ContentChild('runbox_list_row_small') runbox_list_row_small: TemplateRef<ElementRef>;
-  @ContentChild('runbox_list_row_medium') runbox_list_row_medium: TemplateRef<ElementRef>;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
-    public snackBar: MatSnackBar,
   ) {
-    this.view_mode = 'small';
   }
-
-  show_error (message, action) {
-    this.snackBar.open(message, action, {
-      duration: 2000,
-    });
-  }
-  set_view_mode(mode) {
-    this.view_mode = mode;
+  toggle () {
+    this.is_checked = this.is_checked ? false : true;
   }
 }
 
