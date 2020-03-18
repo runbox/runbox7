@@ -224,26 +224,35 @@
                     <p>
                         Disabling all the services you don't use adds an extra layer of security to your account, as it completely prevents attempts to gain unauthorized access via those services.
                     </p>
+                    {{ rmm.account_security.service.services_translation | json}}
+
                     <mat-grid-list cols="3" rowHeight="50px" *ngIf="rmm.account_security.service.results">
                         <mat-grid-tile>Service</mat-grid-tile>
                         <mat-grid-tile>Status</mat-grid-tile>
                         <mat-grid-tile>Description</mat-grid-tile>
                     </mat-grid-list>
+
+
                     <mat-grid-list cols="3" rowHeight="50px" *ngIf="rmm.account_security.service.results">
-                        <div *ngFor="let result of rmm.account_security.service.results">
+                        <div *ngFor="let service of rmm.account_security.service.services_translation | keyvalue">
                             <mat-grid-tile>
-                                {{ rmm.account_security.service.services_translation[result.service].name }}
+                                {{ rmm.account_security.service.services_translation[service.key].name }}
                             </mat-grid-tile>
                             <mat-grid-tile>
                                 <mat-slide-toggle
-                                    [(ngModel)]="result.is_enabled"
-                                    (ngModelChange)="service_toggle(result)"
+                                    [(ngModel)]="rmm.account_security.service.results[service.key].is_enabled"
+                                    (ngModelChange)="service_toggle(rmm.account_security.service.results[service.key])"
                                 >
-                                    {{ result.is_enabled ? 'Enabled' : 'Disabled' }}
+                                    {{ 
+                                        rmm.account_security.service.results[service.key] &&
+                                        rmm.account_security.service.results[service.key].is_enabled
+                                        ? 'Enabled'
+                                        : 'Disabled'
+                                    }}
                                 </mat-slide-toggle>
                             </mat-grid-tile>
                             <mat-grid-tile>
-                                {{ rmm.account_security.service.services_translation[result.service].description }}
+                                {{ rmm.account_security.service.services_translation[service.key].description }}
                             </mat-grid-tile>
                         </div>
                     </mat-grid-list>

@@ -118,9 +118,18 @@ export class AccountSecurityService {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.results = reply['services'];
-            this.results.forEach( (result) => {
+            this.results = {};
+            reply['services'].forEach( (result) => {
                 result.is_enabled = result.is_enabled ? true : false;
+                this.results[ result.service ] = result;
+            } );
+            Object.keys(this.services_translation).forEach( ( service ) => {
+                if ( ! this.results[ service ] ) {
+                    this.results[ service ] = {
+                        is_enabled: true,
+                        service: service,
+                    };
+                }
             } );
             return;
           },
