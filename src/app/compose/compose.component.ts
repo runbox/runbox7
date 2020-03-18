@@ -25,13 +25,13 @@ import { Router } from '@angular/router';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
+import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 
@@ -61,6 +61,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public isNew = false;
     public uploadprogress: number = null;
     public uploadingFiles: File[] = null;
+    public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
     has_pasted_signature: boolean;
@@ -254,7 +255,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         formdata.append('attach', 'Attach');
         formdata.append('ajaxAttach', 'Attach');
 
-        this.http.request(new HttpRequest<any>(
+        this.uploadRequest = this.http.request(new HttpRequest<any>(
             'POST', '/ajax/upload_attachment', formdata,
             { reportProgress: true , headers: new HttpHeaders({ 'ngsw-bypass': '1' }) }
         )).subscribe((event) => {
@@ -275,7 +276,17 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 this.uploadingFiles = null;
                 this.submit();
             }
+        }, error => {
+            this.uploadprogress = null;
+            this.uploadingFiles = null;
+            this.snackBar.open(`Error uploading attachments: ${error.statusText}`, 'OK');
         });
+    }
+
+    public cancelAttachmentUpload() {
+        this.uploadRequest.unsubscribe();
+        this.uploadprogress = null;
+        this.uploadingFiles = null;
     }
 
     public editDraft() {
