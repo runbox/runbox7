@@ -5,7 +5,7 @@
 <table #table mat-table [dataSource]="agreements" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
     <ng-container matColumnDef="id">
         <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
-        <mat-cell *matCellDef="let a"> {{ a.paypal_id }} </mat-cell>
+        <mat-cell *matCellDef="let a" id="agreementRow{{ a.paypal_id }}"> {{ a.paypal_id }} </mat-cell>
     </ng-container>
     <ng-container matColumnDef="state">
         <mat-header-cell *matHeaderCellDef> State </mat-header-cell>
@@ -23,7 +23,7 @@
     </ng-container>
     <ng-container matColumnDef="agreementDetails">
         <mat-cell *matCellDef="let a">
-            <div *ngIf="a.details | async as details; else detailsLoading">
+            <div id="agreementDetails{{ a.paypal_id }}" *ngIf="a.details | async as details; else detailsLoading">
                 <div *ngIf="details.ok">
                     <p> Name:         {{ details.name }}              </p>
                     <p> Active since: {{ details.active_since }}      </p>

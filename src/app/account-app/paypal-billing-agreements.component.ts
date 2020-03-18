@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatTable } from '@angular/material/table';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject } from 'rxjs';
@@ -35,6 +36,7 @@ export class PaypalBillingAgreementsComponent implements OnInit {
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
+        private route:  ActivatedRoute,
     ) {
     }
 
@@ -70,6 +72,35 @@ export class PaypalBillingAgreementsComponent implements OnInit {
             this.billing_agreements.next(a8s);
             this.billing_agreements.complete();
         });
+
+        this.route.queryParams.subscribe(params => {
+            const id = params['id'];
+            if (id) {
+                this.billing_agreements.subscribe(agreements => {
+                    for (const agreement of agreements) {
+                        if (agreement.paypal_id === id) {
+                            agreement.details = this.getDetails(id);
+                            // timeout makes "sure" that the table row is rendered by the time we look for it
+                            // first we scroll to the desired agreement as soon as we can...
+                            setTimeout(() => {
+                                document.getElementById('agreementRow' + id).scrollIntoView({
+                                    behavior: 'smooth',
+                                });
+                            }, 0);
+                            // and then we scroll again once the agreement is loaded: making sure that the
+                            // entire details area is visible on screen
+                            agreement.details.then(_ => setTimeout(() => {
+                                document.getElementById('agreementDetails' + id).scrollIntoView({
+                                    behavior: 'smooth',
+                                    block:    'end',
+                                });
+                            }, 0));
+                        }
+                    }
+                });
+            }
+        });
+
     }
 
     getDetails(id: string): Promise<any> {
