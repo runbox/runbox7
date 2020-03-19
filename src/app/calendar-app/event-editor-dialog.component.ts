@@ -60,6 +60,14 @@ export class EventEditorDialogComponent {
         this.calendars = data['calendars'];
         this.calendarFC.setValue(this.calendars[0].id);
 
+        if (data['start']) {
+            this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
+            this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
+        } else {
+            this.event_start = moment().toDate();
+            this.event_end   = moment().toDate();
+        }
+
         if (data['event']) {
             this.event = data['event'];
             this.calendarFC.setValue(this.event.calendar);
@@ -73,15 +81,6 @@ export class EventEditorDialogComponent {
                 this.event_end = this.event.dtend.toDate();
             }
         }
-
-        if (data['start']) {
-            this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
-            this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
-        } else {
-            this.event_start = moment().toDate();
-            this.event_end   = moment().toDate();
-        }
-
         this.settings = data['settings'];
 
         this.recurring_frequency = this.event.recurringFrequency;
