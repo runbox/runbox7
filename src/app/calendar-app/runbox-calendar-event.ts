@@ -237,6 +237,16 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return copy;
     }
 
+    addException(exception: RunboxCalendarEvent) {
+        const date = exception.event.component.getFirstProperty('dtstart');
+        // There is no API for "just change the name of the property",
+        // so this is probably better than messing with internals.
+        let stringified = date.toICALString();
+        stringified = stringified.replace(/^DTSTART/, 'EXDATE');
+        const exdate = ICAL.Property.fromString(stringified);
+        this.event.component.addProperty(exdate);
+    }
+
     toIcal(): string {
         return this.ical.toString();
     }

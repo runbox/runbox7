@@ -24,7 +24,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { CalendarSettings } from './calendar-settings';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent, DeleteConfirmationRecurringDialogComponent } from './delete-confirmation-dialog.component';
 
 import * as moment from 'moment';
 
@@ -88,16 +88,25 @@ export class EventEditorDialogComponent {
     }
 
     onDeleteClick(): void {
-        const dialogData = { name: 'event' };
+        const dialogData = { name: this.event.title };
         if (this.event.recurringFrequency) {
-            dialogData['details'] = 'Note that this is a reccuring event – deleting it will delete ALL instances';
+            const confirmRef = this.dialog.open(DeleteConfirmationRecurringDialogComponent, { data: dialogData });
+            confirmRef.afterClosed().subscribe(result => {
+                console.log(result);
+                if (result === 'all') {
+                    this.dialogRef.close('DELETE');
+                } else if (result === 'one') {
+                    this.dialogRef.close('ADD_EXCEPTION');
+                }
+            });
+        } else {
+            const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: dialogData });
+            confirmRef.afterClosed().subscribe(result => {
+                if (result) {
+                    this.dialogRef.close('DELETE');
+                }
+            });
         }
-        const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: dialogData });
-        confirmRef.afterClosed().subscribe(result => {
-            if (result) {
-                this.dialogRef.close('DELETE');
-            }
-        });
     }
 
     onCancelClick(): void {

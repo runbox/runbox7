@@ -304,6 +304,9 @@ export class CalendarAppComponent implements OnDestroy {
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
                 this.calendarservice.deleteEvent(event.id as string);
+            } else if (result === 'ADD_EXCEPTION') {
+                target.addException(event as RunboxCalendarEvent);
+                this.calendarservice.modifyEvent(target);
             } else if (result) {
                 this.calendarservice.modifyEvent(result);
             }

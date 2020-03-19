@@ -31,7 +31,7 @@ import { CalendarEditorDialogComponent } from './calendar-editor-dialog.componen
 import { CalendarOverviewComponent } from './calendar-overview.component';
 import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
-import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent, DeleteConfirmationRecurringDialogComponent } from './delete-confirmation-dialog.component';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { ImportDialogComponent } from './import-dialog.component';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from '@danielmoncada/angular-datetime-picker';
@@ -61,6 +61,7 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
     CalendarSettingsDialogComponent,
     ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
+    DeleteConfirmationRecurringDialogComponent,
     EventEditorDialogComponent,
     ImportDialogComponent,
     CalendarEventCardComponent,
@@ -98,6 +99,7 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
     CalendarSettingsDialogComponent,
     ColorSelectorDialogComponent,
     DeleteConfirmationDialogComponent,
+    DeleteConfirmationRecurringDialogComponent,
     EventEditorDialogComponent,
     ImportDialogComponent,
   ],
