@@ -52,7 +52,7 @@ describe('CalendarAppComponent', () => {
         new RunboxCalendarEvent('test-calendar/recurring', ['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().date(1).toISOString() ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
-            [ 'rrule',   {}, 'text',      'FREQ=WEEKLY'     ],
+            [ 'rrule',   {}, 'recur',     { 'freq': 'WEEKLY' } ],
         ]]]]),
     ];
 
@@ -61,7 +61,7 @@ describe('CalendarAppComponent', () => {
             [ 'dtstart', {}, 'date',  moment().date(5).toISOString().split('T')[0] ],
             [ 'dtend',   {}, 'date',  moment().date(6).toISOString().split('T')[0] ],
             [ 'summary', {}, 'text',  'Yearly event' ],
-            [ 'rrule',   {}, 'text',  'FREQ=YEARLY'  ],
+            [ 'rrule',   {}, 'recur', { 'freq': 'YEARLY' } ],
         ]]]]),
     ];
 

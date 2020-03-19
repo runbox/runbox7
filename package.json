@@ -56,7 +56,6 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "npm": "^6.13.7",
-    "rrule": "^2.6.0",
     "runbox-searchindex": "^0.1.0",
     "rxjs": "^6.5.3",
     "rxjs-compat": "^6.2.2",

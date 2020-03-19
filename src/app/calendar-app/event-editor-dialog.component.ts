@@ -89,7 +89,7 @@ export class EventEditorDialogComponent {
 
     onDeleteClick(): void {
         const dialogData = { name: 'event' };
-        if (this.event.rrule) {
+        if (this.event.recurringFrequency) {
             dialogData['details'] = 'Note that this is a reccuring event – deleting it will delete ALL instances';
         }
         const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: dialogData });

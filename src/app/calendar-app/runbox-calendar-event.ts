@@ -19,7 +19,6 @@
 
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
-import { RRule, rrulestr } from 'rrule';
 
 import * as moment from 'moment';
 import 'moment-timezone';
@@ -119,16 +118,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return this.event.startDate.isDate;
     }
 
-    // deprecated, we should move away from this eventually
-    get rrule(): RRule {
-        let rrule = this.event.component.getFirstPropertyValue('rrule');
-        if (rrule) {
-            rrule = rrule.toString(); // ICAL claims this should be a string, but sometimes it's not
-            return rrulestr(rrule, { dtstart: this.dtstart.toDate() });
-        }
-        return undefined;
-    }
-
     get recurringFrequency(): string {
         const recur = this.event.component.getFirstPropertyValue('rrule');
         return recur ? recur.freq : '';
@@ -209,19 +198,41 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
     }
 
-    recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
-        const copy = this.clone();
+    recurrences(from: Date, to: Date): RunboxCalendarEvent[] {
+        const iter = this.event.iterator();
+        let next: any;
+        const events = [];
+        while (next = iter.next()) {
+            const recurrenceMoment = this.icalTimeToLocalMoment(next);
+            if (recurrenceMoment.isBefore(from)) {
+                continue;
+            }
+            if (recurrenceMoment.isAfter(to)) {
+                break;
+            }
+            const details = this.event.getOccurrenceDetails(next);
+            if (details) {
+                // clone, but swap the "main" event to the current recurrence
+                events.push(this.recurrenceFrom(details));
+            }
+        }
+
+        return events;
+    }
+
+    recurrenceFrom(details: ICAL.Event.occurrenceDetails): RunboxCalendarEvent {
+        const copy  = this.clone();
         copy.parent = this;
 
-        let duration: moment.Duration;
-        if (this.dtend) {
-            duration = moment.duration(this.dtend.diff(this.dtstart));
-        }
+        // This is really ugly, but ICAL.js is oversharing these,
+        // so we need a proper copy of the details.item ICAL.Event.
+        // Naturally, like many other ICAL.js objects,
+        // this one doesn't have a clone() either :)
+        const eventComponent = ICAL.Component.fromString(details.item.component.toString());
+        copy.event = new ICAL.Event(eventComponent);
 
-        copy.dtstart = dt;
-        if (duration) {
-            copy.dtend = copy.dtstart.add(duration);
-        }
+        copy.event.startDate = details.startDate;
+        copy.event.endDate   = details.endDate;
 
         return copy;
     }
