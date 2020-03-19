@@ -28,6 +28,22 @@ import { DeleteConfirmationDialogComponent, DeleteConfirmationRecurringDialogCom
 
 import * as moment from 'moment';
 
+export enum EventEditorResultType {
+    Delete,
+    Modify,
+    NoChanges,
+    NewEvent,
+    // for recurring events
+    DeleteThisInstance,
+}
+
+export class EventEditorResult {
+    constructor(
+        public type:  EventEditorResultType,
+        public event: RunboxCalendarEvent,
+    ) { }
+}
+
 @Component({
     selector: 'app-calendar-event-editor-dialog',
     templateUrl: 'event-editor-dialog.component.html',
@@ -93,23 +109,28 @@ export class EventEditorDialogComponent {
             confirmRef.afterClosed().subscribe(result => {
                 console.log(result);
                 if (result === 'all') {
-                    this.dialogRef.close('DELETE');
+                    this.closeDialog(EventEditorResultType.Delete);
                 } else if (result === 'one') {
-                    this.dialogRef.close('ADD_EXCEPTION');
+                    this.closeDialog(EventEditorResultType.DeleteThisInstance);
                 }
             });
         } else {
             const confirmRef = this.dialog.open(DeleteConfirmationDialogComponent, { data: dialogData });
             confirmRef.afterClosed().subscribe(result => {
                 if (result) {
-                    this.dialogRef.close('DELETE');
+                    this.closeDialog(EventEditorResultType.Delete);
                 }
             });
         }
     }
 
     onCancelClick(): void {
+        this.closeDialog(EventEditorResultType.NoChanges);
         this.dialogRef.close();
+    }
+
+    closeDialog(action: EventEditorResultType): void {
+        this.dialogRef.close(new EventEditorResult(action, this.event));
     }
 
     onSubmitClick(): void {
@@ -138,6 +159,10 @@ export class EventEditorDialogComponent {
 
         this.event.recurringFrequency = this.recurring_frequency;
 
-        this.dialogRef.close(this.event);
+        if (this.event.id) {
+            this.closeDialog(EventEditorResultType.Modify);
+        } else {
+            this.closeDialog(EventEditorResultType.NewEvent);
+        }
     }
 }

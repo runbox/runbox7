@@ -57,7 +57,7 @@ import { MobileQueryService } from '../mobile-query.service';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { RunboxCalendarView } from './runbox-calendar-view';
-import { EventEditorDialogComponent } from './event-editor-dialog.component';
+import { EventEditorDialogComponent, EventEditorResult, EventEditorResultType } from './event-editor-dialog.component';
 import { ImportDialogComponent } from './import-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
 import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
@@ -169,10 +169,10 @@ export class CalendarAppComponent implements OnDestroy {
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
             data: { calendars: this.calendars, settings: this.settings, start: on } }
         );
-        dialogRef.afterClosed().subscribe(event => {
-            console.log('Dialog result:', event);
-            if (event) {
-                this.calendarservice.addEvent(event);
+        dialogRef.afterClosed().subscribe((result: EventEditorResult) => {
+            console.log('Dialog result:', result.event);
+            if (result.event) {
+                this.calendarservice.addEvent(result.event);
             }
         });
     }
@@ -301,14 +301,14 @@ export class CalendarAppComponent implements OnDestroy {
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
             data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
         });
-        dialogRef.afterClosed().subscribe(result => {
-            if (result === 'DELETE') {
+        dialogRef.afterClosed().subscribe((result: EventEditorResult) => {
+            if (result.type === EventEditorResultType.Delete) {
                 this.calendarservice.deleteEvent(event.id as string);
-            } else if (result === 'ADD_EXCEPTION') {
-                target.addException(event as RunboxCalendarEvent);
+            } else if (result.type === EventEditorResultType.DeleteThisInstance) {
+                target.addRecurrenceException(event as RunboxCalendarEvent);
                 this.calendarservice.modifyEvent(target);
-            } else if (result) {
-                this.calendarservice.modifyEvent(result);
+            } else if (result.type === EventEditorResultType.Modify) {
+                this.calendarservice.modifyEvent(result.event);
             }
         });
     }

@@ -237,7 +237,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return copy;
     }
 
-    addException(exception: RunboxCalendarEvent) {
+    addRecurrenceException(exception: RunboxCalendarEvent) {
         const date = exception.event.component.getFirstProperty('dtstart');
         // There is no API for "just change the name of the property",
         // so this is probably better than messing with internals.
