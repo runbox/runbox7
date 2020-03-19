@@ -106,7 +106,7 @@ describe('SearchService', () => {
           ]
         });
 
-        injector = TestBed.get(Injector);
+        injector = TestBed.inject(Injector);
         httpMock = injector.get(HttpTestingController as Type<HttpTestingController>);
     }));
 

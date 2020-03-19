@@ -130,7 +130,7 @@ describe('RecipientsService', () => {
                 {provide: RunboxWebmailAPI, useClass: RunboxWebMailAPIMock },
             ]
         });
-        injector = TestBed.get(Injector);
+        injector = TestBed.inject(Injector);
     });
 
     it('Should get recipients from contacts', async () => {

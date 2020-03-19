@@ -55,9 +55,9 @@ describe('ProgressService', () => {
         ]
         });
         injector = getTestBed();
-        rmmapiservice = injector.get(RunboxWebmailAPI);
-        progressService = injector.get(ProgressService);
-        httpMock = injector.get(HttpTestingController);
+        rmmapiservice = injector.inject(RunboxWebmailAPI);
+        progressService = injector.inject(ProgressService);
+        httpMock = injector.inject(HttpTestingController);
     });
 
     it('should indicate http request activity', async( async() => {

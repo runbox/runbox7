@@ -49,8 +49,8 @@ describe('FolderListComponent', () => {
         providers: [RunboxWebmailAPI]
         });
         injector = getTestBed();
-        service = injector.get(RunboxWebmailAPI);
-        httpMock = injector.get(HttpTestingController);
+        service = injector.inject(RunboxWebmailAPI);
+        httpMock = injector.inject(HttpTestingController);
         hotkeyMock = { add: _ => null } as HotkeysService;
     });
     it('should empty trash', async(async () => {

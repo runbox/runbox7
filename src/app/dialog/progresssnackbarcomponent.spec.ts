@@ -45,7 +45,7 @@ describe('ProgressService', () => {
     }));
 
     it('should see changes in the progress snackbar', fakeAsync(() => {
-        const snackbar: MatSnackBar = injector.get(MatSnackBar);
+        const snackbar: MatSnackBar = injector.inject(MatSnackBar);
 
         expect(snackbar.openFromComponent).toBeDefined();
 
