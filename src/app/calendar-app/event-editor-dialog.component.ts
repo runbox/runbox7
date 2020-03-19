@@ -35,6 +35,7 @@ export enum EventEditorResultType {
     NewEvent,
     // for recurring events
     DeleteThisInstance,
+    ModifyThisInstance,
 }
 
 export class EventEditorResult {

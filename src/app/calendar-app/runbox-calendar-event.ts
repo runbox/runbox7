@@ -25,10 +25,14 @@ import 'moment-timezone';
 import * as ICAL from 'ical.js';
 
 export class RunboxCalendarEvent implements CalendarEvent {
+    // XXX make this tied to ical's UID property
     id?:       string;
 
     // all recurrences of an event will have a parent set to the original one
     parent?: RunboxCalendarEvent;
+    // all events with a parent must also have recurrenceId set
+    // kept as string since ICAL.Time can't be safely shared
+    recurrenceId?: ICAL.Time;
 
     color     = {} as EventColor;
     draggable = true;
@@ -195,7 +199,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     clone(): RunboxCalendarEvent {
-        return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+        let copy = RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+        // TODO this should've just been in the underlying ical all along I think
+        copy.recurrenceId = this.recurrenceId;
+        return copy;
     }
 
     recurrences(from: Date, to: Date): RunboxCalendarEvent[] {
@@ -223,6 +230,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     recurrenceFrom(details: ICAL.Event.occurrenceDetails): RunboxCalendarEvent {
         const copy  = this.clone();
         copy.parent = this;
+        copy.recurrenceId = new ICAL.Time(JSON.parse(JSON.stringify(details.recurrenceId)));
 
         // This is really ugly, but ICAL.js is oversharing these,
         // so we need a proper copy of the details.item ICAL.Event.
@@ -245,6 +253,23 @@ export class RunboxCalendarEvent implements CalendarEvent {
         stringified = stringified.replace(/^DTSTART/, 'EXDATE');
         const exdate = ICAL.Property.fromString(stringified);
         this.event.component.addProperty(exdate);
+    }
+
+    addRecurrenceSpecialCase(special: RunboxCalendarEvent) {
+        console.log("Special case:", special.toIcal());
+        special.event.component.addPropertyWithValue('recurrence-id', special.recurrenceId.toString());
+
+        let highestSequence = 0;
+        for (const comp of this.ical.getAllSubcomponents('vevent')) {
+            const sequence = comp.getFirstPropertyValue('sequence');
+            if (sequence && sequence > highestSequence) {
+                highestSequence = sequence;
+            }
+        }
+        special.event.component.addPropertyWithValue('sequence', highestSequence + 1);
+
+        this.ical.addSubcomponent(special.event.component);
+        console.log("specialcase added:", this.ical.toString());
     }
 
     toIcal(): string {

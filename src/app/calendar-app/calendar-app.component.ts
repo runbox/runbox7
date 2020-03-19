@@ -292,23 +292,27 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     openEvent(event: CalendarEvent): void {
-        let target = event as RunboxCalendarEvent;
+        const target = event as RunboxCalendarEvent;
         console.log('Opening event', target);
-        if (target.parent) {
-            console.log('It is a recurring event, opening the original instance');
-            target = target.parent;
-        }
+        let parent = target.parent;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
             data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
         });
         dialogRef.afterClosed().subscribe((result: EventEditorResult) => {
+            if (!result) {
+                return;
+            }
             if (result.type === EventEditorResultType.Delete) {
                 this.calendarservice.deleteEvent(event.id as string);
             } else if (result.type === EventEditorResultType.DeleteThisInstance) {
                 target.addRecurrenceException(event as RunboxCalendarEvent);
                 this.calendarservice.modifyEvent(target);
+            } else if (result.type === EventEditorResultType.ModifyThisInstance) {
+                //target.addRecurrenceSpecialCase(event as RunboxCalendarEvent);
+                //this.calendarservice.modifyEvent(target);
             } else if (result.type === EventEditorResultType.Modify) {
-                this.calendarservice.modifyEvent(result.event);
+                parent.addRecurrenceSpecialCase(result.event);
+                this.calendarservice.modifyEvent(parent);
             }
         });
     }
