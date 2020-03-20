@@ -24,23 +24,31 @@ import * as moment from 'moment';
 import 'moment-timezone';
 import * as ICAL from 'ical.js';
 
+function cloneIcalTime(t: ICAL.Time): ICAL.Time {
+    return new ICAL.Time(JSON.parse(JSON.stringify(t)));
+}
+
+function cloneIcalComponent(t: ICAL.Component): ICAL.Component {
+    return new ICAL.Component(JSON.parse(JSON.stringify(t)));
+}
+
 export class RunboxCalendarEvent implements CalendarEvent {
     // XXX make this tied to ical's UID property
     id?:       string;
 
-    // all recurrences of an event will have a parent set to the original one
+    // All recurrences of an event will have a parent set to the original one
     parent?: RunboxCalendarEvent;
-    // all events with a parent must also have recurrenceId set
-    // kept as string since ICAL.Time can't be safely shared
+    // All events with a parent must also have recurrenceId set.
+    // We don't store this in ICAL itself since we don't want to this to be written
+    // to the server unless we're creating a recurrence exception.
     recurrenceId?: ICAL.Time;
 
     color     = {} as EventColor;
     draggable = true;
 
-    // we need those separately from start/end
-    // start and end are for display pursposes only,
-    // and will be different from dtstart/dtend in
-    // recurring events
+    // We need those separately from start/end.
+    // Start and end are for display pursposes only,
+    // and will be different from dtstart/dtend in recurring events
     calendar:  string;
 
     ical: ICAL.Component;
@@ -200,7 +208,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     clone(): RunboxCalendarEvent {
         let copy = RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
-        // TODO this should've just been in the underlying ical all along I think
         copy.recurrenceId = this.recurrenceId;
         return copy;
     }
@@ -236,11 +243,14 @@ export class RunboxCalendarEvent implements CalendarEvent {
         // so we need a proper copy of the details.item ICAL.Event.
         // Naturally, like many other ICAL.js objects,
         // this one doesn't have a clone() either :)
-        const eventComponent = ICAL.Component.fromString(details.item.component.toString());
-        copy.event = new ICAL.Event(eventComponent);
+        const changes = cloneIcalComponent(details.item.component);
+        const thisComponent = copy.ical.getFirstSubcomponent('vevent');
+        Object.assign(thisComponent, changes);
+        // XXX need to replace it in the parent ical as well
+        copy.recurrenceId = cloneIcalTime(details.recurrenceId);
 
-        copy.event.startDate = details.startDate;
-        copy.event.endDate   = details.endDate;
+        //console.log(`Recurrence at ${copy.recurrenceId} starts at ${copy.start}`);
+        //console.log("details for this instance:", copy.toIcal());
 
         return copy;
     }
@@ -256,8 +266,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     addRecurrenceSpecialCase(special: RunboxCalendarEvent) {
-        console.log("Special case:", special.toIcal());
-        special.event.component.addPropertyWithValue('recurrence-id', special.recurrenceId.toString());
+        special.event.component.addPropertyWithValue('recurrence-id', special.recurrenceId);
 
         let highestSequence = 0;
         for (const comp of this.ical.getAllSubcomponents('vevent')) {
@@ -269,7 +278,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         special.event.component.addPropertyWithValue('sequence', highestSequence + 1);
 
         this.ical.addSubcomponent(special.event.component);
-        console.log("specialcase added:", this.ical.toString());
     }
 
     toIcal(): string {

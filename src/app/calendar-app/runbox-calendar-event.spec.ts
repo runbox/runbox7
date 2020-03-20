@@ -21,7 +21,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import * as moment from 'moment';
 
 describe('RunboxCalendarEvent', () => {
-    it('should be possible to add/remove a recurrence rule', async () => {
+    it('should be possible to add/remove a recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
             'testcal/testev', ['vcalendar', [], [
                 [ 'vevent', [
@@ -43,5 +43,37 @@ describe('RunboxCalendarEvent', () => {
         sut.recurringFrequency = '';
         expect(sut.recurringFrequency).toBe('', 'recurrence seems to be unset');
         expect(sut.toIcal()).not.toContain('RRULE', 'recurrence seems to be unset');
+    });
+
+    fit('should be possible to add a special case to a recurring event', () => {
+        const todayStr = moment().toISOString().split('T')[0];
+        const yesterday = moment().subtract(1, 'day');
+        const sut = new RunboxCalendarEvent(
+            'testcal/testev', ['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  todayStr ],
+                    [ 'dtend',   {}, 'date',  todayStr ],
+                    [ 'summary', {}, 'text',  'Weekly event' ],
+                    [ 'uid',     {}, 'text',  'unittestcase1' ],
+                    [ 'rrule',   {}, 'recur', { 'freq': 'WEEKLY' } ],
+                ] ]
+            ]]
+        );
+
+        const future = moment().add(1, 'week').add(3, 'day');
+        let events = sut.recurrences(yesterday.toDate(), future.toDate());
+
+        expect(events.length).toBe(2);
+        expect(events[0].dtstart.isSame(events[1].dtstart)).toBe(false);
+
+        // alter the one happening next week
+        //const copy = events[1].clone();
+        //copy.title = 'Next weekly occurrence';
+        //sut.addRecurrenceSpecialCase(copy);
+        //console.log("Sut after setting specialcase:", sut.toIcal(), "\n");
+
+        //events = sut.recurrences(yesterday.toDate(), future.toDate());
+        //expect(events[0].title).toBe('Weekly event');
+        //expect(events[1].title).toBe('Next weekly event');
     });
 });
