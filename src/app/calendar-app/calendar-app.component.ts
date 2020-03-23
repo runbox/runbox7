@@ -63,6 +63,8 @@ import { CalendarEditorDialogComponent } from './calendar-editor-dialog.componen
 import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
 
+import '../sentry';
+
 @Component({
     selector: 'app-calendar-app-component',
     templateUrl: './calendar-app.component.html',
