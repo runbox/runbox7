@@ -1,29 +1,29 @@
 <mat-card class="upcomingEventCard">
     <mat-card-header>
         <mat-card-title>
-            {{ e.title }}
-            <span *ngIf="e.ongoing" style="font-weight: bold;">
+            {{ event.title }}
+            <span *ngIf="event.ongoing" style="font-weight: bold;">
                 ONGOING
             </span>
         </mat-card-title>
         <mat-card-subtitle>
-            <span *ngIf="!e.ongoing; else started"> Starts </span>
+            <span *ngIf="!event.ongoing; else started"> Starts </span>
             <ng-template #started> Started </ng-template>
-            {{ e.dtstart.calendar() }}
+            {{ event.dtstart.calendar() }}
         </mat-card-subtitle>
-        <mat-card-subtitle *ngIf="e.dtend">
-            Ends {{ e.dtend.calendar() }}
+        <mat-card-subtitle *ngIf="event.dtend">
+            Ends {{ event.dtend.calendar() }}
         </mat-card-subtitle>
-        <mat-card-subtitle *ngIf="e.recurringFrequency">
-            {{ e.recurringFrequency }} event
+        <mat-card-subtitle *ngIf="event.recurringFrequency">
+            {{ event.recurringFrequency }} event
         </mat-card-subtitle>
-        <mat-card-subtitle *ngIf="e.location">
-            Location: {{ e.location }}
+        <mat-card-subtitle *ngIf="event.location">
+            Location: {{ event.location }}
         </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
         <p>
-            {{ e.description }}
+            {{ event.description }}
         </p>
     </mat-card-content>
     <mat-card-actions>

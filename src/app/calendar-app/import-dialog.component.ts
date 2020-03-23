@@ -24,6 +24,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import * as moment from 'moment';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { EventOverview } from './event-overview';
 
 @Component({
     selector: 'app-import-dialog-component',
@@ -32,7 +33,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 export class ImportDialogComponent {
     ical:      string;
     calendars: RunboxCalendar[];
-    events:    RunboxCalendarEvent[];
+    events:    EventOverview[];
 
     target = new FormControl('', Validators.required);
 
@@ -63,8 +64,8 @@ export class ImportDialogComponent {
             this.calendars.push(this.extractedCalendar);
         }
 
-        // extract events from ical to preview them or handle invitations
-        this.events = RunboxCalendarEvent.newMultiple(data['ical']);
+        const event = RunboxCalendarEvent.fromIcal(undefined, data['ical']);
+        this.events = event.get_overview();
     }
 
     onCancelClick(): void {
