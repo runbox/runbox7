@@ -19,11 +19,12 @@
 
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
 import { RunboxCommonModule } from '../common/common.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { SentryErrorHandler } from '../sentry-error-handler';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
@@ -177,6 +178,7 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
   providers: [
     CartService,
     PaymentsService,
+    { provide: ErrorHandler, useClass: SentryErrorHandler },
   ],
   bootstrap: []
 })
