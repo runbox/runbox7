@@ -25,6 +25,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 import { RunboxTimerComponent } from './runbox-timer';
+import { ProductOrder } from './product-order';
 import { AsyncSubject } from 'rxjs';
 
 @Component({
@@ -36,19 +37,31 @@ export class AccountUpgradesComponent implements OnInit {
     subs_regular = new AsyncSubject<Product[]>();
     subs_special = new AsyncSubject<Product[]>();
 
+    trial_with_own_domain = false;
+    currency: string;
+
+    email_hosting_product: Product;
+    bought_micro = false;
+    bought_email_hosting = false;
+
     constructor(
-        private cart:            CartService,
+        public  cart:            CartService,
         private paymentsservice: PaymentsService,
-        public rmmapi:           RunboxWebmailAPI,
+        public  rmmapi:          RunboxWebmailAPI,
         private snackbar:        MatSnackBar,
     ) {
     }
 
     ngOnInit() {
+        this.rmmapi.me.subscribe(me => {
+            this.trial_with_own_domain = me.is_trial && me.uses_own_domain;
+            this.currency = me.currency;
+        });
+
         this.paymentsservice.products.subscribe(products => {
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
-            this.subscriptions.complete();
+            this.email_hosting_product = products.find(p => p.pid === this.cart.EMAIL_HOSTING_PID);
 
 	    const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
             this.subs_regular.next(subs_regular);
@@ -60,6 +73,11 @@ export class AccountUpgradesComponent implements OnInit {
 
             this.cart.items.subscribe(items => {
                 const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
+                this.bought_micro         = !!items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
+                this.bought_email_hosting = !!items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
+
+                const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
+
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
                     for (const o of ordered_subs) {

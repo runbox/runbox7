@@ -31,7 +31,7 @@ import * as moment from 'moment';
 export class PaypalBillingAgreementsComponent implements OnInit {
     billing_agreements = new AsyncSubject<any[]>();
 
-    @ViewChild(MatTable, { static: false }) table: MatTable<any>;
+    @ViewChild(MatTable) table: MatTable<any>;
 
     constructor(
         private rmmapi: RunboxWebmailAPI,

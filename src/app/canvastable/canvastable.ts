@@ -119,7 +119,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
   }
 
-  @ViewChild('thecanvas', { static: false }) canvRef: ElementRef;
+  @ViewChild('thecanvas') canvRef: ElementRef;
 
   @Input() columnWidths = {};
 
@@ -127,7 +127,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   @Output() columnresizeend = new EventEmitter<number>();
   @Output() columnresizestart = new EventEmitter<any>();
 
-  @ViewChild(MatTooltip, { static: false }) columnOverlay: MatTooltip;
+  @ViewChild(MatTooltip) columnOverlay: MatTooltip;
 
   repaintDoneSubject: Subject<any> = new Subject();
   canvasResizedSubject: Subject<boolean> = new Subject();
@@ -1382,8 +1382,8 @@ export class CanvasTableContainerComponent implements OnInit {
   @Output() sortToggled: EventEmitter<any> = new EventEmitter();
 
   @ViewChild(CanvasTableComponent, { static: true  }) canvastable:        CanvasTableComponent;
-  @ViewChild('tablecontainer',     { static: false }) tablecontainer:     ElementRef<HTMLDivElement>;
-  @ViewChild('tablebodycontainer', { static: false }) tablebodycontainer: ElementRef<HTMLDivElement>;
+  @ViewChild('tablecontainer') tablecontainer:     ElementRef<HTMLDivElement>;
+  @ViewChild('tablebodycontainer') tablebodycontainer: ElementRef<HTMLDivElement>;
 
   constructor(private renderer: Renderer2) {
     const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');

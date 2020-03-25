@@ -77,6 +77,9 @@ export class EventEditorDialogComponent {
         if (data['start']) {
             this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
             this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
+        } else {
+            this.event_start = moment().toDate();
+            this.event_end   = moment().toDate();
         }
 
         this.settings = data['settings'];

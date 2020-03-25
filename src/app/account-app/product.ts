@@ -26,4 +26,11 @@ export class Product {
     description: string;
     details?:    string[];
     price:       number;
+
+    constructor(properties: any) {
+        // tslint:disable-next-line:forin
+        for (const key in properties) {
+            this[key] = properties[key];
+        }
+    }
 }

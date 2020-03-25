@@ -45,8 +45,14 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
                     }
                     resolve(success);
                 },
-                _error => {
-                    resolve(false);
+                error => {
+                    if (error.status === 403) {
+                        resolve(false);
+                    } else {
+                        // No indication that the user is unauthorized.
+                        // Let them in, and have the httpinterceptor figure out what to do.
+                        resolve(true);
+                    }
                 }
             );
         });

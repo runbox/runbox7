@@ -25,7 +25,7 @@ import {
     ViewChild,
 } from '@angular/core';
 
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
@@ -87,8 +87,8 @@ export class CalendarAppComponent implements OnDestroy {
     refresh: Subject<any> = new Subject();
     viewRefreshInterval: any;
 
-    @ViewChild(MatSidenav,       { static: false }) sideMenu: MatSidenav;
-    @ViewChild('icsUploadInput', { static: false }) icsUploadInput: any;
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild('icsUploadInput') icsUploadInput: any;
 
     activityList = [];
     calendars: RunboxCalendar[] = [];
@@ -104,6 +104,7 @@ export class CalendarAppComponent implements OnDestroy {
         private http:     HttpClient,
         public  mobileQuery: MobileQueryService,
         private route:    ActivatedRoute,
+        private router:   Router,
         private snackBar: MatSnackBar,
     ) {
         const storedSettings = localStorage.getItem('calendarSettings');
@@ -130,6 +131,7 @@ export class CalendarAppComponent implements OnDestroy {
                         this.processIcsImport(text);
                     }));
                 });
+                this.router.navigate(['/calendar'], { queryParams: {}, replaceUrl: true });
             });
         });
         this.calendarservice.eventSubject.subscribe(events => {
@@ -191,8 +193,14 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     calculateRecurringEvents(): void {
-        if (!this.viewPeriod) {
-            return;
+        let start, end: Date;
+        if (this.viewPeriod) {
+            start = this.viewPeriod.start;
+            end   = this.viewPeriod.end;
+        } else {
+            // we must be in overview mode, assume 1 month starting today
+            start = new Date();
+            end   = moment().add(1, 'month').toDate();
         }
 
         const events = [];
@@ -203,7 +211,7 @@ export class CalendarAppComponent implements OnDestroy {
                 continue;
             }
 
-            for (const dt of e.rrule.between(this.viewPeriod.start, this.viewPeriod.end)) {
+            for (const dt of e.rrule.between(start, end)) {
                 events.push(e.recurrenceAt(moment(dt)));
             }
         }
@@ -328,6 +336,14 @@ export class CalendarAppComponent implements OnDestroy {
             if (!result) {
                 return;
             }
+
+            const methodMatch = ics.match(/^METHOD:(.+)$/mi);
+            if (methodMatch) {
+                // Ideally we'd (try to) notify the other party that we accept the invitation,
+                // or something. For now, let's just import it since that's what the user expects.
+                ics = ics.replace(/^METHOD:(.+)$/mi, '');
+            }
+
             if (result instanceof RunboxCalendar) {
                 // create the new calendar first
                 this.calendarservice.addCalendar(result).then(

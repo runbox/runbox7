@@ -1,0 +1,10 @@
+.grid {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+}
+
+.card {
+	margin: 10px;
+	flex: 450px 1 0;
+}

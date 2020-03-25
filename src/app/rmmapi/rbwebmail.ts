@@ -20,6 +20,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
+import { share } from 'rxjs/operators';
 import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 
 import { Contact } from '../contacts-app/contact';
@@ -37,6 +38,7 @@ import { RunboxLocale } from '../rmmapi/rblocale';
 import { ProgressSnackbarComponent } from '../dialog/progresssnackbar.component';
 import { Profile } from '../profiles/profile';
 import { RMM } from '../rmm';
+import { FromAddress } from './from_address';
 
 export class MessageFields {
     id: number;
@@ -75,41 +77,12 @@ export class Alias {
     ) { }
 }
 
-export class FromAddress {
-    public email: string;
-    public reply_to: string;
-    public id: number;
-    public folder: string;
-    public name: string;
-    public signature: string;
-
-    public nameAndAddress: string;
-
-    public static fromNameAndAddress(name: string, address: string): FromAddress {
-        const ret = new FromAddress();
-        ret.name = name;
-        ret.email = address;
-        ret.resolveNameAndAddress();
-        return ret;
-    }
-
-    public static fromObject(obj: any): FromAddress {
-        const ret = Object.assign(new FromAddress(), obj);
-        ret.resolveNameAndAddress();
-        return ret;
-    }
-
-    public static fromEmailAddress(email): FromAddress {
-        const ret = new FromAddress();
-        ret.email = email;
-        ret.reply_to = email;
-        return ret;
-    }
-
-    private resolveNameAndAddress() {
-        this.nameAndAddress = this.name ? `${this.name} <${this.email}>` : this.email;
-    }
-
+export class ContactSyncResult {
+    constructor(
+        public newSyncToken: string,
+        public added:        Contact[],
+        public removed:      string[],
+    ) { }
 }
 
 class FromAddressResponse {
@@ -134,6 +107,8 @@ export class RunboxMe {
     public currency: string;
 
     public subscription: number;
+    public is_trial: boolean;
+    public uses_own_domain: boolean;
 }
 
 export class MessageTextpart {
@@ -334,7 +309,7 @@ export class RunboxWebmailAPI {
         const req = this.http.post('/rest/v1/email_folder/create', {
             'new_folder': newFolderName,
             'to_folder': parentFolderId
-        });
+        }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
@@ -343,7 +318,7 @@ export class RunboxWebmailAPI {
         const req = this.http.put('/rest/v1/email_folder/rename', {
             'new_folder': newFolderName,
             'folder_id': folderId
-        });
+        }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
@@ -358,13 +333,13 @@ export class RunboxWebmailAPI {
             requestBody.ordered_ids = ordered_ids;
         }
 
-        const req = this.http.put('/rest/v1/email_folder/move', requestBody);
+        const req = this.http.put('/rest/v1/email_folder/move', requestBody).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
 
     deleteFolder(folderid: number): Observable<boolean> {
-        const req = this.http.delete(`/rest/v1/email_folder/delete/${folderid}`);
+        const req = this.http.delete(`/rest/v1/email_folder/delete/${folderid}`).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
     }
@@ -413,30 +388,8 @@ export class RunboxWebmailAPI {
     }
 
     public trashMessages(messageIds: number[]): Observable<any> {
-
-        let counter = 1;
-        let progressSnackBar: ProgressSnackbarComponent = null;
-        return from(messageIds).pipe(
-            mergeMap(messageId =>
-                this.http.delete(`/rest/v1/email/${messageId}`)
-                    .pipe(tap(() => {
-                        counter++;
-                        if (!progressSnackBar && counter >= 5) {
-                            progressSnackBar = ProgressSnackbarComponent.create(this.snackBar);
-                        }
-                        if (progressSnackBar) {
-                            progressSnackBar.postMessage(`Deleted message ${counter} of ${messageIds.length}`);
-                        }
-                    })
-                    )
-                , 10),
-            bufferCount(messageIds.length),
-            tap(() => {
-                if (progressSnackBar) {
-                    progressSnackBar.close();
-                }
-            })
-        );
+        const ids = messageIds.join(',');
+        return this.http.delete(`/rest/v1/email/${ids}`);
     }
 
     public markSeen(messageId: any, seen_flag_value = 1): Observable<any> {
@@ -615,6 +568,18 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public syncContacts(syncToken?: string): Observable<ContactSyncResult> {
+        const path = syncToken ? ('/' + btoa(syncToken)) : '';
+        return this.http.get<any>('/rest/v1/addresses_contact/sync' + path).pipe(
+            map((res: HttpResponse<any>) => res['result']),
+            map((result: any) => new ContactSyncResult(
+                result.newToken,
+                result.added.map((contact: any) => new Contact(contact)),
+                result.removed,
+            )),
+        );
+    }
+
     public getCalendars(): Observable<RunboxCalendar[]> {
         return this.http.get('/rest/v1/calendar/calendars').pipe(
             map((res: HttpResponse<any>) => res['result']['calendars']),
@@ -683,8 +648,12 @@ export class RunboxWebmailAPI {
     public getAvailableProducts(): Observable<Product[]> {
         return this.http.get('/rest/v1/account_product/available').pipe(
             map((res: HttpResponse<any>) => res['result']['products']),
-            map((products: any[]) => products.map((c) => c as Product)
-            )
+            map((products: any[]) => products.map((c) => {
+                // fixup for RMM API bug
+                c.pid   = parseInt(c.pid, 10);
+                c.price = parseFloat(c.price);
+                return new Product(c);
+            }))
         );
     }
 
@@ -767,6 +736,20 @@ export class RunboxWebmailAPI {
         return this.http.delete('/rest/v1/account_product/billing_agreement/' + id).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
+    }
+
+    public getCreditCards(): Observable<any> {
+        return this.http.get('/rest/v1/account_product/payment_methods').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public detachCreditCard(id: string): Observable<any> {
+        return this.http.delete('/rest/v1/account_product/payment_methods/' + id);
+    }
+
+    public makeCardDefault(id: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/default_payment_method/' + id, {});
     }
 
     public getProducts(pids: number[]): Observable<any> {

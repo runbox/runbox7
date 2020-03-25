@@ -38,41 +38,41 @@ describe('CalendarAppComponent', () => {
     let fixture: ComponentFixture<CalendarAppComponent>;
 
     const simpleEvents = [
-        new RunboxCalendarEvent('test-calendar/event0', [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/event0', ['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
-        ]]),
-        new RunboxCalendarEvent('test-calendar/event1', [ 'vevent', [
+        ]]]]),
+        new RunboxCalendarEvent('test-calendar/event1', ['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(14, 'day').toISOString() ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
-        ]]),
+        ]]]]),
     ];
 
     const recurringEvents = [
-        new RunboxCalendarEvent('test-calendar/recurring', [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/recurring', ['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().date(1).toISOString() ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
             [ 'rrule',   {}, 'text',      'FREQ=WEEKLY'     ],
-        ]]),
+        ]]]]),
     ];
 
     const GH_179_recurring_yearly = [
-        new RunboxCalendarEvent('test-calendar/recurring-yearly', [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/recurring-yearly', ['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date',  moment().date(5).toISOString().split('T')[0] ],
             [ 'dtend',   {}, 'date',  moment().date(6).toISOString().split('T')[0] ],
             [ 'summary', {}, 'text',  'Yearly event' ],
             [ 'rrule',   {}, 'text',  'FREQ=YEARLY'  ],
-        ]]),
+        ]]]]),
     ];
 
     // the test below only makes sense when the event start date is not now()
     const not_today = moment().date() === 2 ? 3 : 2;
 
     const GH_181_setting_recurrence = [
-        new RunboxCalendarEvent('test-calendar/not-recurring-yet', [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/not-recurring-yet', ['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment.utc().date(not_today).hour(12).minute(34).toISOString() ],
             [ 'summary', {}, 'text',      'One-shot event' ],
-        ]]),
+        ]]]]),
     ];
 
     const mockData = {

@@ -17,12 +17,13 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { ContactSyncResult, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { AsyncSubject, Observable, Subject, ReplaySubject } from 'rxjs';
+import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 
 @Injectable()
@@ -39,6 +40,7 @@ export class ContactsService implements OnDestroy {
 
     syncInterval: any;
     syncIntervalSeconds = 180;
+    syncToken: string;
     lastUpdate: moment.Moment;
 
     constructor(
@@ -46,18 +48,18 @@ export class ContactsService implements OnDestroy {
         private storage: StorageService,
     ) {
         storage.get('contactsCache').then(cache => {
-            if (!cache) {
+            if (!cache || typeof cache !== 'object' || cache.version !== 2) {
                 return;
             }
-            console.log('Loading contacts from local cache');
-            const contacts = JSON.parse(cache).map((c: any) => new Contact(c));
+            const contacts = cache.contacts.map((c: any) => new Contact(c));
+            this.syncToken = cache.syncToken;
             this.processContacts(contacts);
-        });
-
-        this.syncInterval = setInterval(() => {
+        }).finally(() => {
+            this.syncInterval = setInterval(() => {
+                this.reload();
+            }, this.syncIntervalSeconds * 1000);
             this.reload();
-        }, this.syncIntervalSeconds * 1000);
-        this.reload();
+        });
 
         this.rmmapi.getContactsSettings().subscribe(settings => {
             console.log('Settings:', settings);
@@ -89,18 +91,43 @@ export class ContactsService implements OnDestroy {
         }
         this.contactGroups.next(Object.keys(groups));
         this.contactsByEmail.next(byEmail);
+        this.saveCache(contacts);
+        this.lastUpdate = moment();
     }
 
     reload(): Promise<void> {
-        console.log('Reloading the contacts list');
         return new Promise((resolve, reject) => {
-            this.rmmapi.getAllContacts().subscribe(
-                contacts => {
-                    console.log('Contacts:', contacts);
-                    this.saveCache(contacts);
-                    this.processContacts(contacts);
-                    this.lastUpdate = moment();
-                    resolve();
+            this.rmmapi.syncContacts(this.syncToken).subscribe(
+                (syncResult: ContactSyncResult) => {
+                    if (!this.syncToken) {
+                        // initial sync. Grab whatever's in .added and call it a day
+                        this.syncToken = syncResult.newSyncToken;
+                        this.processContacts(syncResult.added);
+                        resolve();
+                    } else if (this.syncToken === syncResult.newSyncToken) {
+                        // everything up-to-date, nothing to do
+                        resolve();
+                    } else {
+                        // not our first rodeo: take the current list and update it
+                        this.contactsSubject.pipe(take(1)).subscribe(currentContacts => {
+                            const contactsByID: { [key: string]: Contact } = {};
+                            for (const c of currentContacts) {
+                                contactsByID[c.id] = c;
+                            }
+                            for (const id of syncResult.removed) {
+                                delete contactsByID[id];
+                            }
+                            for (const c of syncResult.added) {
+                                contactsByID[c.id] = c;
+                            }
+
+                            const newContacts = Object.values(contactsByID);
+
+                            this.syncToken = syncResult.newSyncToken;
+                            this.processContacts(newContacts);
+                            resolve();
+                        });
+                    }
                 },
                 e => {
                     this.apiErrorHandler(e);
@@ -111,7 +138,11 @@ export class ContactsService implements OnDestroy {
     }
 
     saveCache(contacts: Contact[]): void {
-        this.storage.set('contactsCache', JSON.stringify(contacts));
+        this.storage.set('contactsCache', {
+            contacts:  contacts,
+            syncToken: this.syncToken,
+            version:   2,
+        });
     }
 
     saveContact(contact: Contact): void {

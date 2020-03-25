@@ -91,13 +91,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @Input() adjustableHeight: boolean;
   @Input() showVerticalSplitButton = false;
 
-  @ViewChild('printFrame',             { static: false }) printFrame:             ElementRef;
-  @ViewChild('messageContents',        { static: false }) messageContents:        ElementRef;
-  @ViewChild('htmliframe',             { static: false }) htmliframe:             ElementRef;
-  @ViewChild('htmlToggleButton',       { static: false }) htmlToggleButton:       MatButtonToggle;
-  @ViewChild('forwardMessageHeader',   { static: false }) messageHeaderHTML:      ElementRef;
-  @ViewChild(HorizResizerDirective,    { static: false }) resizer:                HorizResizerDirective;
-  @ViewChild('toolbarButtonContainer', { static: false }) toolbarButtonContainer: ElementRef;
+  @ViewChild('printFrame') printFrame: ElementRef;
+  @ViewChild('messageContents') messageContents: ElementRef;
+  @ViewChild('htmliframe') htmliframe: ElementRef;
+  @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
+  @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
+  @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
+  @ViewChild('toolbarButtonContainer') toolbarButtonContainer: ElementRef;
 
   public downloadProgress: number;
 

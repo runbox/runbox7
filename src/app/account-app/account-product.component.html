@@ -1,10 +1,11 @@
 <style>
 mat-card {
-    min-height: 175px;
-    padding: 10px;
+    min-height: 18vh;
+    padding: 20px;
 }
-mat-card-title {
-    white-space: nowrap;
+mat-card-subtitle {
+    min-height: 3vh;
+    font-size: 16px;
 }
 </style>
 
@@ -25,7 +26,7 @@ mat-card-title {
             class="contentButton"
             (click)="order()"
         >
-            Purchase for {{ p.price }} {{ currency }}
+            Purchase for {{ p.price | number:'1.2-2' }} {{ currency }}
         </button>
         <ng-template #unpurchase>
             <button style="position: absolute; bottom: 20px;" mat-button
@@ -36,7 +37,7 @@ mat-card-title {
             </button>
         </ng-template>
     </mat-card-actions>
-    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type === 'addon'">
+    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
         <button mat-icon-button (click)="less()">
             <mat-icon> remove_circle_outline </mat-icon>
         </button>

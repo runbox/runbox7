@@ -1,8 +1,8 @@
-const execSync = require('child_process').execSync;
+const cp = require('child_process');
 const fs = require('fs');
 
 console.log('WARNING: Reverting to committed package-lock.json. If that means your changes are lost you should rebuild it.')
-execSync('git checkout package-lock.json');
+cp.execSync('git checkout package-lock.json');
 
 const packageLockJSON = JSON.parse(fs.readFileSync('package-lock.json'));
 const packageJSON = JSON.parse(fs.readFileSync('package.json'));
@@ -23,8 +23,16 @@ console.log('Updating build timestamp');
 const build_time = new Date().toJSON();
 fs.writeFileSync('src/app/buildtimestamp.ts', "export const BUILD_TIMESTAMP = '" + build_time + "';\n");
 
+if (process.env.SENTRY_DSN) {
+    console.log('Adding Sentry setup to app.component.ts');
+    console.log(cp.execFileSync('node', ['src/build/add-sentry.js']).toString().trim())
+}
+
+console.log('Updating changelog');
+console.log(cp.execFileSync('node', ['src/build/build-changelog.js']).toString().trim())
+
 console.log('Updating appData');
-const dirty = execSync('git status --porcelain ngsw-config.json').toString().trim();
+const dirty = cp.execSync('git status --porcelain ngsw-config.json').toString().trim();
 
 if (dirty) {
     console.log('You have local changes to ngsw-config.json!\n');
@@ -34,7 +42,7 @@ if (dirty) {
 }
 
 let config = fs.readFileSync('ngsw-config.json').toString();
-const hash = execSync('git rev-parse --short HEAD').toString().trim();
+const hash = cp.execSync('git rev-parse --short HEAD').toString().trim();
 console.log(`Setting appData commit hash to ${hash}`);
 config = config.replace('__COMMIT_HASH__', hash);
 config = config.replace('__BUILD_TIME__', build_time);

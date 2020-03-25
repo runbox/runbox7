@@ -22,7 +22,9 @@ import {
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { RunboxWebmailAPI, FromAddress } from '../rmmapi/rbwebmail';
+
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FromAddress } from '../rmmapi/from_address';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
@@ -31,6 +33,7 @@ import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/co
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { catchError, debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
+import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -45,9 +48,9 @@ declare const MailParser;
 export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     static tinymceinstancecount = 1;
 
-    @ViewChild('editor', { static: false }) editorRef: ElementRef;
-    @ViewChild('attachmentFileUploadInput', { static: false }) attachmentFileUploadInput: any;
-    @ViewChild('messageTextArea', { read: ElementRef, static: false }) messageTextArea: ElementRef;
+    @ViewChild('editor') editorRef: ElementRef;
+    @ViewChild('attachmentFileUploadInput') attachmentFileUploadInput: any;
+    @ViewChild('messageTextArea', { read: ElementRef }) messageTextArea: ElementRef;
 
     editor: any = null;
     editorId: string;
@@ -59,8 +62,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public uploadprogress: number = null;
     public uploadingFiles: File[] = null;
     public saved: Date = null;
+    public tinymce_plugin: TinyMCEPlugin;
     has_pasted_signature: boolean;
     signature: string;
+    selector: string;
 
     saveErrorMessage: string;
 
@@ -80,6 +85,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private location: Location,
         private dialogService: DialogService
     ) {
+        this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
     }
 
@@ -100,6 +106,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.draftDeskservice.froms[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
+                if ( from.is_signature_html ) {
+                    this.model.useHTML = true;
+                }
                 if ( !this.has_pasted_signature && from.signature ) {
                     this.has_pasted_signature = true;
                     this.signature = from.signature;
@@ -129,15 +138,25 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     f.nameAndAddress === selected_from_address);
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
+                        // replaces current signature with new one
                         const new_signature = from.signature;
                         const rgx = new RegExp('^' + this.signature, 'g');
                         const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
                         this.signature = new_signature;
-                        this.formGroup.controls.msg_body.setValue(msg_body);
+                        if (this.formGroup.value.useHTML && this.editor) {
+                            this.editor.setContent(msg_body);
+                        } else {
+                            this.formGroup.controls.msg_body.setValue(msg_body);
+                        }
                     } else if ( !this.signature && from.signature) {
                         const msg_body = from.signature.concat('\n\n', this.model.msg_body);
                         this.signature = from.signature;
-                        this.formGroup.controls.msg_body.setValue(msg_body);
+                        if (this.formGroup.value.useHTML && this.editor) {
+                            this.editor.setContent(msg_body);
+                        } else {
+                            this.formGroup.controls.msg_body.setValue(msg_body);
+                        }
+                        this.formGroup.controls.useHTML.setValue( from.is_signature_html );
                     }
                 }
             });
@@ -317,57 +336,29 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public htmlToggled() {
         if (this.formGroup.value.useHTML) {
-            tinymce.overrideDefaults({
-                base_url: this.location.prepareExternalUrl('/tinymce/'),  // Base for assets such as skins, themes and plugins
-                suffix: '.min'          // This will make Tiny load minified versions of all its assets
-            });
-            setTimeout(() =>
-                // Need to initialize in a timeout for the editor element to be available
-                tinymce.init({
-                    selector: '#' + this.editorRef.nativeElement.id,
-                    plugins: 'print preview searchreplace autolink directionality ' +
-                        'visualblocks visualchars fullscreen image link template codesample ' +
-                        'table charmap hr pagebreak ' +
-                        'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
-                        'textpattern help code',
-                    toolbar: 'formatselect | bold italic strikethrough forecolor backcolor codesample | ' +
-                            'link image | alignleft aligncenter alignright alignjustify  | ' +
-                            'numlist bullist outdent indent | removeformat | addcomment | code',
-                    codesample_languages: [
-                                {text: 'HTML/XML', value: 'markup'},
-                                {text: 'JavaScript', value: 'javascript'},
-                                {text: 'CSS', value: 'css'},
-                                {text: 'PHP', value: 'php'},
-                                {text: 'Ruby', value: 'ruby'},
-                                {text: 'Python', value: 'python'},
-                                {text: 'Java', value: 'java'},
-                                {text: 'C', value: 'c'},
-                                {text: 'C#', value: 'csharp'},
-                                {text: 'C++', value: 'cpp'}
-                            ],
-                    image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
-                        title: this.displayWithoutRBWUL(att.file),
-                        value: '/ajax/download_draft_attachment?filename=' + att.file
-                    })) : []),
-                    menubar: false,
-                    setup: editor => {
-                        this.editor = editor;
-                        editor.on('Change', () => {
-                            this.formGroup.controls['msg_body'].setValue(editor.getContent());
-                        });
-                    },
-                    init_instance_callback: (editor) => {
-                        editor.setContent(
-                            this.formGroup.value.msg_body ?
-                                this.formGroup.value.msg_body.replace(/\n/g, '<br />\n') :
-                                ''
-                        );
-                    }
-                }), 0 );
+            this.selector = `html-editor-${Math.floor(Math.random() * 10000000000)}`;
+            const options = {
+                base_url: this.location.prepareExternalUrl('/tinymce/'), // Base for assets such as skins, themes and plugins
+                selector: '#' + this.selector,
+                setup: editor => {
+                    this.editor = editor;
+                    editor.on('Change', () => {
+                        this.formGroup.controls['msg_body'].setValue(editor.getContent());
+                    });
+                },
+                init_instance_callback: (editor) => {
+                    editor.setContent(
+                        this.formGroup.value.msg_body ?
+                            this.formGroup.value.msg_body.replace(/\n/g, '<br />\n') :
+                            ''
+                    );
+                }
+            };
+            this.tinymce_plugin.create(options);
         } else {
             if (this.editor) {
                 const textContent = this.editor.getContent({ format: 'text' });
-                tinymce.remove(this.editor);
+                this.tinymce_plugin.remove(this.editor);
                 this.editor = null;
 
                 console.log('Back to pain text');
@@ -375,12 +366,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 this.formGroup.controls['msg_body'].setValue(
                     textContent
                 );
-            }
-
-            if (this.formGroup.controls['msg_body'].value) {
-                setTimeout(() => {
-                    this.moveTextAreaCaretPositionToStart();
-                }, 0);
             }
         }
     }
@@ -498,6 +483,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }
             ), send)
                 .subscribe((res) => {
+                    if (res[0] === '0') {
+                        this.snackBar.open(res[1], 'Dismiss');
+                        this.dialogService.closeProgressDialog();
+                        return;
+                    }
+
                     this.model.mid = parseInt(res[2], 10);
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
                     this.snackBar.open(res[1], null, { duration: 3000 });
@@ -575,19 +566,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.editor) {
             tinymce.remove(this.editor);
         }
-    }
-
-    moveTextAreaCaretPositionToStart() {
-        const txtElement = this.messageTextArea.nativeElement;
-        if (txtElement.setSelectionRange) {
-            txtElement.focus();
-            txtElement.setSelectionRange(0, 0);
-        } else if (txtElement.createTextRange) {
-            const range = txtElement.createTextRange();
-            range.moveStart('character', 0);
-            range.select();
-        }
-        txtElement.scrollTo(0, 0);
     }
 
     formatBytes(bytes) {

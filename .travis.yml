@@ -13,12 +13,14 @@ addons:
 cache:
   directories:
      - ./node_modules
+     - /home/travis/.cache/Cypress
 
 before_install:
   - export CHROME_BIN=chromium-browser
 
 install:
-  - npm install  
+  - npm install
+  - npx cypress install
 
 env:
   - COMMAND='lint'

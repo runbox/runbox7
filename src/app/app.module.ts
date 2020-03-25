@@ -50,6 +50,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { AccountAppModule } from './account-app/account-app.module';
@@ -100,6 +101,7 @@ const routes: Routes = [
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
       { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
       { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
+      { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
     ]
@@ -151,6 +153,7 @@ const routes: Routes = [
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    RMMOfflineService,
     RMM,
     RMMAuthGuardService,
     ContactsService,

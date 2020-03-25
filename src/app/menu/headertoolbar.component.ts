@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
 
@@ -29,12 +30,23 @@ import { LogoutService } from '../login/logout.service';
     templateUrl: 'headertoolbar.component.html'
 })
 export class HeaderToolbarComponent {
+
+    rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
+    user_is_trial = false;
+
     constructor(
         public rmmapi: RunboxWebmailAPI,
+        public rmmoffline: RMMOfflineService,
         private router: Router,
         public logoutservice: LogoutService
     ) {
 
+    }
+
+    ngOnInit() {
+        this.rmmapi.me.subscribe(me => {
+           this.user_is_trial = me.is_trial;
+      });
     }
 
     public mailtable() {

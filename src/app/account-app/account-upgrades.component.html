@@ -41,21 +41,13 @@ mat-icon.limitedTimeOffer {
     flex: 200px 1 0;
 }
 
-.productCardHide {
-    display: none;
-}
-
 .productCardSpecial {
     text-align: center;
 }
 
-
-.productCardSpecialHide {
-    display: none;
-}
 </style>
 
-<h2> Account plans </h2>
+<h2> Main account subscriptions </h2>
 
 <div *ngIf="rmmapi.me | async as me; else loading">
     <p>
@@ -109,7 +101,7 @@ mat-icon.limitedTimeOffer {
             <mat-icon> extension </mat-icon> account addons
         </button>
 	!
-    </div>
+    </p>
 
     <ng-template #productsLoading>
         <app-runbox-loading

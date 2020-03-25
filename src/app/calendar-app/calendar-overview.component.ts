@@ -22,38 +22,6 @@ import { Subject } from 'rxjs';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import * as moment from 'moment';
 
-class EventOverview {
-    ongoing: boolean;
-
-    constructor(public event: RunboxCalendarEvent) { }
-
-    get title(): string {
-        return this.event.title;
-    }
-
-    get dtstart(): moment.Moment {
-        return this.event.dtstart;
-    }
-
-    get dtend(): moment.Moment {
-        return this.event.dtend;
-    }
-
-    get recurringFrequency(): string {
-        // titlecase
-        const freq = this.event.recurringFrequency;
-        return freq.charAt(0).toUpperCase() + freq.slice(1).toLowerCase();
-    }
-
-    get location(): string {
-        return this.event.location;
-    }
-
-    get description(): string {
-        return this.event.description;
-    }
-}
-
 @Component({
     selector: 'app-calendar-overview',
     templateUrl: './calendar-overview.component.html',
@@ -64,7 +32,7 @@ export class CalendarOverviewComponent implements OnChanges, OnInit {
 
     @Output() editEvent: EventEmitter<RunboxCalendarEvent> = new EventEmitter();
 
-    visible_events: EventOverview[] = [];
+    visible_events: RunboxCalendarEvent[] = [];
     event_limit = 5;
 
     ngOnChanges() {
@@ -83,12 +51,6 @@ export class CalendarOverviewComponent implements OnChanges, OnInit {
         const now = moment();
         this.visible_events = this.events.filter(e => {
             return e.dtstart.isAfter(now) || (e.dtend && e.dtend.isAfter(now));
-        }).map(e => {
-            const ev = new EventOverview(e);
-            if (e.dtstart.isBefore(now)) {
-                ev.ongoing = true;
-            }
-            return ev;
         }).sort((a, b) => {
             return a.dtstart.isBefore(b.dtstart) ? -1 : 1;
         });

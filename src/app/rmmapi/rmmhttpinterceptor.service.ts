@@ -23,6 +23,7 @@ import { Observable,  throwError } from 'rxjs';
 import { catchError, filter, map, finalize } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 import { RMMAuthGuardService } from './rmmauthguard.service';
+import { RMMOfflineService } from './rmmoffline.service';
 
 @Injectable()
 export class RMMHttpInterceptorService implements HttpInterceptor {
@@ -32,7 +33,8 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
     constructor(
         private httpClient: HttpClient,
         private progressService: ProgressService,
-        private authguardservice: RMMAuthGuardService
+        private authguardservice: RMMAuthGuardService,
+        private rmmoffline: RMMOfflineService,
     ) {
 
     }
@@ -58,6 +60,9 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
 
         return next.handle(req).pipe(
             map((evt: HttpEvent<any>) => {
+                if (req.url.startsWith('/rest')) {
+                    this.rmmoffline.is_offline = false;
+                }
                 if (evt instanceof HttpResponse) {
                     const r = evt as HttpResponse<any>;
                     if (r.body && r.body.status === 'error') {
@@ -78,6 +83,9 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                 if (e.status === 403) {
                     console.log('Forbidden');
                     this.checkAccountStatus();
+                } else if (e.status === 502) {
+                    this.rmmoffline.is_offline = true;
+                    return throwError(e);
                 } else {
                     return throwError(e);
                 }

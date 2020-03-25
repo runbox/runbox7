@@ -23,10 +23,12 @@ import * as moment from 'moment';
 describe('RunboxCalendarEvent', () => {
     it('should be possible to add/remove a recurrence rule', async () => {
         const sut = new RunboxCalendarEvent(
-            'testcal/testev', [ 'vevent', [
-            [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
-            [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
-            [ 'summary', {}, 'text',  'One-time event' ],
+            'testcal/testev', ['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'summary', {}, 'text',  'One-time event' ],
+                ] ]
             ]]
         );
         sut.recurringFrequency = 'WEEKLY';

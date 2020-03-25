@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {DraftFormModel} from './draftdesk.service';
-import { FromAddress } from '../rmmapi/rbwebmail';
+import { FromAddress } from '../rmmapi/from_address';
 import { MailAddressInfo } from '../xapian/messageinfo';
 
 

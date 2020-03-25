@@ -1,0 +1,79 @@
+<style>
+    .mat-nav-list .mat-list-item {
+        font-size: 16px;
+    }
+</style>
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu
+        [opened]="sideMenuOpened"
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        id="sideMenu"
+        style="width: 330px"
+    >
+        <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+        <mat-nav-list dense>
+            <a mat-list-item (click)="scrollTo('features')"> New features </a>
+            <a mat-list-item (click)="scrollTo('bugfixes')"> Bug fixes </a>
+            <a mat-list-item (click)="scrollTo('style')">    Visual changes </a>
+            <mat-divider></mat-divider>
+            <a mat-list-item (click)="scrollTo('docs')">     Documentation </a>
+            <a mat-list-item (click)="scrollTo('tests')">    Tests </a>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <mat-toolbar style="display: flex;">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+
+            <h1> Runbox 7 Changelog </h1>
+
+            <span *ngIf="since"> &nbsp; (since version {{ since }}) </span>
+        </mat-toolbar>
+
+        <div style="padding-left: 25px; padding-right: 25px;">
+            <h2> User-visible changes </h2>
+            
+            <!-- needs this wrapper or else .nativeElement on it wouldn't exist -->
+            <div #featuresElement>
+                <app-changelog-entrylist
+                    name="New features"
+                    [entries]="features"
+                ></app-changelog-entrylist>
+            </div>
+
+            <div #bugfixesElement>
+                <app-changelog-entrylist
+                    name="Bug fixes"
+                    [entries]="fixes"
+                ></app-changelog-entrylist>
+            </div>
+
+            <div #styleElement>
+                <app-changelog-entrylist #styleElement
+                    name="Visual changes"
+                    [entries]="style"
+                ></app-changelog-entrylist>
+            </div>
+
+            <h2> Internal changes </h2>
+            
+            <div #docsElement>
+                <app-changelog-entrylist
+                    name="Documentation"
+                    [entries]="docs"
+                ></app-changelog-entrylist>
+            </div>
+
+            <div #testsElement>
+                <app-changelog-entrylist
+                    name="Tests"
+                    [entries]="tests"
+                ></app-changelog-entrylist>
+            </div>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

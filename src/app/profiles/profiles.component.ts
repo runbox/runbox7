@@ -21,29 +21,11 @@ import { SecurityContext, Component, Input, Output, EventEmitter, NgZone, ViewCh
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ProgressService } from '../http/progress.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSelectModule,
-  MatSnackBarModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
-  MatDialog,
-  MatPaginator,
-  MatSnackBar,
-} from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-import {MatFormFieldModule} from '@angular/material/form-field';
+
 import {AliasesListerComponent} from '../aliases/aliases.lister';
 import {ProfilesListerComponent} from './profiles.lister';
 import {ProfilesEditorModalComponent} from './profiles.editor.modal';
@@ -58,7 +40,7 @@ import { RMM } from '../rmm';
 
 export class ProfilesComponent implements AfterViewInit {
   panelOpenState = false;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
   aliases = [];

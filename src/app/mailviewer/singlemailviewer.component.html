@@ -168,7 +168,7 @@
   </mat-toolbar>
   <div *ngIf="mailObj" #messageContents id="messageContents">
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
-      <mat-expansion-panel-header matTooltip="Toggle message headers">
+      <mat-expansion-panel-header title="Toggle message headers">
 	      <mat-panel-title>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>        

@@ -83,6 +83,11 @@ You may then access the Angular app at: [http://localhost:4200](http://localhost
 Run `npm run build`. Production bundles will be created in the `dist` folder and is ready
 to be copied into the production web servers.
 
+Running this command will also permanently modify `src/app/changelog/changes.ts`, which contains
+a pre-parsed `git log`-based changelog. The build script will hint at that and show a suggested way
+to commit it. Make sure to use the suggested format -- it will prevent the changelog update
+commit from being included in future changelogs.
+
 ## No-script
 
 If you use no-script, remember to whitelist localhost to execute localhost.
@@ -91,20 +96,20 @@ If you use no-script, remember to whitelist localhost to execute localhost.
 
 Example creating a new module and a component:
 
-`ng generate module --project runbox7 xapian/SearchExpressionBuilder`
+`npx ng generate module --project runbox7 xapian/SearchExpressionBuilder`
 
 followed by
-`ng generate component --project runbox7 xapian/SearchExpressionBuilder`
+`npx ng generate component --project runbox7 xapian/SearchExpressionBuilder`
 
 This resulted in the module `xapian/search-expression-builder/search-expression-builder.module.ts` which also imported the component.
 
 And this is from the standard @angular/cli docs:
 
-Run `ng generate component --project runbox7 component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npx ng generate component --project runbox7 component-name` to generate a new component. You can also use `npx ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+Run `npx ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
 ## Running tests
 
@@ -123,7 +128,7 @@ making sure that any errors will be caught before your code becomes public.
 
 ## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+To get more help on the Angular CLI use `npx ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 ## Tips & Tricks
 

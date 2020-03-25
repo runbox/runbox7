@@ -40,9 +40,91 @@ export class MockServer {
 
     events = [];
 
+    folders = [
+        {
+            'old': 296,
+            'name': 'Drafts',
+            'priority': '0',
+            'id': '5',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Drafts',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'drafts'
+        },
+        {
+            'old': 296,
+            'name': 'Inbox',
+            'priority': '0',
+            'id': '1',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Inbox',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'inbox'
+        },
+        {
+            'old': 296,
+            'name': 'Spam',
+            'priority': '0',
+            'id': '2',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Spam',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'spam'
+        },
+        {
+            'old': 296,
+            'name': 'Trash',
+            'priority': '0',
+            'id': '2',
+            'parent': null,
+            'new': 0,
+            'total': 296,
+            'folder': 'Trash',
+            'msg_new': 0,
+            'msg_total': 296,
+            'size': '11389678',
+            'msg_size': '11389678',
+            'subfolders': [],
+            'type': 'trash'
+        },
+    ];
+
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
+            const e2eFixture = request.url.match(/\/rest\/e2e\/(\w+)/);
+            if (e2eFixture) {
+                const command = e2eFixture[1];
+                if (command === 'logout') {
+                    this.loggedIn = false;
+                }
+                if (command === 'require2fa') {
+                    this.challenge2fa = true;
+                }
+                if (command === 'disable2fa') {
+                    this.challenge2fa = false;
+                }
+                response.end();
+            }
+
             if (!this.loggedIn && request.url !== '/ajax_mfa_authenticate') {
                 response.end(JSON.stringify({ 'status': 'error', 'errors': ['Please login to continue'] }));
                 return;
@@ -65,10 +147,19 @@ export class MockServer {
             const emailendpoint = requesturl.match(/\/rest\/v1\/email\/([0-9]+)/);
             if (emailendpoint) {
                 const mailid = emailendpoint[1];
+                let message_obj = mail_message_obj;
+                if (mailid === '11') {
+                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+                    const to = message_obj.result.headers['to'];
+                    delete message_obj.result.headers['to'];
+                    message_obj.result.headers['cc'] = to;
+                    message_obj.result.headers['subject'] = "No 'To', just 'CC'";
+                }
+
                 if (requesturl.endsWith('/html')) {
-                    response.end(mail_message_obj.result.text.html);
+                    response.end(message_obj.result.text.html);
                 } else {
-                    response.end(JSON.stringify(mail_message_obj));
+                    response.end(JSON.stringify(message_obj));
                 }
                 return;
             }
@@ -96,8 +187,17 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
-                case '/rest/v1/addresses_contact':
-                    response.end(JSON.stringify({status: 'success', result: {addresses_contacts: []}}));
+                case '/rest/v1/addresses_contact/sync':
+                    response.end(JSON.stringify(
+                        {
+                            status: 'success',
+                            result: {
+                                newToken: 'e2e-1',
+                                added: this.contacts(),
+                                removed: [],
+                            }
+                        }
+                    ));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
@@ -117,6 +217,9 @@ export class MockServer {
                 case '/rest/v1/account_product/order':
                     response.end(JSON.stringify(this.order()));
                     break;
+                case '/rest/v1/account_product/payment_methods':
+                    response.end(JSON.stringify(this.payment_methods()));
+                    break;
                 case '/rest/v1/calendar/calendars':
                     response.end(JSON.stringify(this.getCalendars()));
                     break;
@@ -129,6 +232,9 @@ export class MockServer {
                     break;
                 case '/ajax/aliases':
                     response.end(JSON.stringify({ 'status': 'success', 'aliases': [] }));
+                    break;
+                case '/rest/v1/email_folder/create':
+                    this.createFolder(request, response);
                     break;
                 case '/rest/v1/email_folder/list':
                     response.end(JSON.stringify(this.emailFoldersListResponse()));
@@ -183,6 +289,9 @@ export class MockServer {
             inboxlines.push(`${msg_id}	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>	Re: hello	709	n	 `);
         }
+        // id=11: email with no "To"
+        inboxlines.push(`11	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>	No 'To', just 'CC'	709	n	 `);
         return inboxlines.join('\n');
     }
 
@@ -233,10 +342,45 @@ export class MockServer {
                         'price':       '13.37',
                         'pid':         '9001',
                         'description': 'Test subscription including some stuff'
+                    },
+                    {
+                        'name':        'Runbox Addon',
+                        'type':        'addon',
+                        'subtype':     'emailaddon',
+                        'price':       '5.55',
+                        'pid':         '9002',
+                        'description': 'More cool stuff for your account'
                     }
                 ]
             }
         };
+    }
+
+    createFolder(request, response) {
+        let body = '';
+        request.on('readable', () => {
+            body += request.read() || '';
+        });
+        request.on('end', () => {
+            const params = JSON.parse(body);
+            this.folders.push({
+                'name': params.new_folder,
+                'priority': '999',
+                'id': '999',
+                'old': 999,
+                'parent': null,
+                'new': 0,
+                'total': 0,
+                'folder': params.new_folder,
+                'msg_new': 0,
+                'msg_total': 0,
+                'size': '0',
+                'msg_size': '0',
+                'subfolders': [],
+                'type': 'user'
+            });
+            response.end(JSON.stringify({ 'status': 'success' }));
+        });
     }
 
     receipt() {
@@ -252,6 +396,39 @@ export class MockServer {
             'result': {
                 'total': '13.37',
                 'tid':   '31337',
+            }
+        };
+    }
+
+    payment_methods() {
+        return {
+            'status': 'success',
+            'result': {
+                'default': null,
+                'payment_methods': [
+                    {
+                        'id': 'e2e_pm_1',
+                        'created': 1569212345,
+                        'card': {
+                            'exp_month': 12,
+                            'exp_year': 2020,
+                            'brand': 'visa',
+                            'last4': 1234,
+                            'wallet': null,
+                        },
+                    },
+                    {
+                        'id': 'e2e_pm_2',
+                        'created': 1569212345,
+                        'card': {
+                            'exp_month': 12,
+                            'exp_year': 2020,
+                            'brand': 'mastercard',
+                            'last4': 4321,
+                            'wallet': { 'type': 'apple_pay' },
+                        },
+                    }
+                ],
             }
         };
     }
@@ -309,74 +486,7 @@ export class MockServer {
     emailFoldersListResponse() {
         return {
             'status': 'success',
-            'result': {
-                'folders': [
-                    {
-                        'old': 296,
-                        'name': 'Drafts',
-                        'priority': '0',
-                        'id': '5',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Drafts',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'drafts'
-                    },
-                    {
-                        'old': 296,
-                        'name': 'Inbox',
-                        'priority': '0',
-                        'id': '1',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Inbox',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'inbox'
-                    },
-                    {
-                        'old': 296,
-                        'name': 'Spam',
-                        'priority': '0',
-                        'id': '2',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Spam',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'spam'
-                    },
-                    {
-                        'old': 296,
-                        'name': 'Trash',
-                        'priority': '0',
-                        'id': '2',
-                        'parent': null,
-                        'new': 0,
-                        'total': 296,
-                        'folder': 'Trash',
-                        'msg_new': 0,
-                        'msg_total': 296,
-                        'size': '11389678',
-                        'msg_size': '11389678',
-                        'subfolders': [],
-                        'type': 'trash'
-                    },
-                ]
-            }
+            'result': { 'folders': this.folders }
         };
     }
 
@@ -501,5 +611,64 @@ export class MockServer {
                         'main': []
                 }
             };
+    }
+
+    contacts(): any[] {
+        return [
+            {
+                'nickname' : 'Postpat',
+                'first_name' : 'Patrick',
+                'addresses' : [
+                    {
+                        'types' : [
+                            'home'
+                        ],
+                        'value' : {
+                            'street' : ' home street',
+                            'po_box' : ' ',
+                            'country' : 'Home country',
+                            'extended' : ' ',
+                            'city' : 'home city',
+                            'post_code' : 'home code',
+                            'region' : 'home region'
+                        }
+                    },
+                    {
+                        'value' : {
+                            'city' : 'work city',
+                            'post_code' : 'work code',
+                            'region' : 'work region',
+                            'extended' : ' ',
+                            'country' : 'work country',
+                            'street' : 'work street',
+                            'po_box' : ' '
+                        },
+                        'types' : [
+                            'work'
+                        ]
+                    }
+                ],
+                'categories' : [],
+                'urls' : [],
+                'last_name' : 'Postcode',
+                'id' : 'ID-MR-POSTCODE',
+                'birthday' : '',
+                'company' : 'Post Office #42',
+                'fullname' : 'Patrick Postcode',
+                'phones' : [
+                    {
+                        'types' : [
+                            'work'
+                        ],
+                        'value' : '333333333'
+                    }
+                ],
+                'emails' : [{ 'types': ['work'], 'value': 'patrick@post.no' }],
+                'department' : null,
+                'note' : '',
+                'show_as' : null,
+                'related' : []
+            }
+        ];
     }
 }

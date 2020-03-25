@@ -67,7 +67,7 @@ export class CalendarService implements OnDestroy {
             }
             console.log('Cache version:', cache['version']);
             // tslint:disable-next-line:triple-equals
-            if (cache['version'] != 2) {
+            if (cache['version'] != 3) {
                 console.log('Old cache format found, removing');
                 storage.set('caldavCache', undefined);
                 return;
@@ -270,7 +270,7 @@ export class CalendarService implements OnDestroy {
 
     saveCache() {
         const cache = {
-            version:   2,
+            version:   3,
             calendars: this.calendars,
             events:    this.events,
         };

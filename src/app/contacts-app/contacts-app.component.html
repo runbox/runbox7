@@ -75,10 +75,14 @@
             <mat-list-item>
                 <mat-checkbox
                     [(ngModel)]="selectingMultiple"
-                    (change)="onContactChecked()"
+                    (change)="onSelectMultipleChange()"
                 >
                 Select multiple
                 </mat-checkbox>
+
+                <button mat-button *ngIf="selectingMultiple" (click)="selectAll()">
+                    Select all visible
+                </button>
             </mat-list-item>
 
             <mat-list-item *ngFor="let contact of shownContacts">

@@ -29,8 +29,9 @@ import { ProductOrder } from './product-order';
 export class ProductComponent implements OnInit {
     @Input() p: Product;
     @Input() currency: string;
-    @Input() active: boolean;
+    @Input() active_sub: boolean;
 
+    allow_multiple = false;
     quantity = 1;
     purchased = false;
 
@@ -43,6 +44,7 @@ export class ProductComponent implements OnInit {
         this.cart.items.subscribe(items => {
             this.purchased = !!items.find(i => i.pid === this.p.pid);
         });
+        this.allow_multiple = this.p.type === 'addon';
     }
 
     less() {

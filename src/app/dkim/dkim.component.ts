@@ -75,7 +75,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 export class DkimComponent implements AfterViewInit {
   panelOpenState = false;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   @Output() Close: EventEmitter<string> = new EventEmitter();
 

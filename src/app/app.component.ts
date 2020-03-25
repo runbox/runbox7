@@ -59,6 +59,8 @@ import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
+import './sentry';
+
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 
@@ -109,11 +111,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   buildtimestampstring = BUILD_TIMESTAMP;
 
-  @ViewChild(SingleMailViewerComponent, { static: false }) singlemailviewer: SingleMailViewerComponent;
+  @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
-  @ViewChild(FolderListComponent, { static: false }) folderListComponent: FolderListComponent;
+  @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
   @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
-  @ViewChild(MatSidenav, { static: false }) sidemenu: MatSidenav;
+  @ViewChild(MatSidenav) sidemenu: MatSidenav;
 
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
