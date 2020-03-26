@@ -48,12 +48,12 @@ export class ChangelogEntry {
 
     constructor(
         public hash:        string,
-               datetime:    number,
+        public epoch:       number,
         public type:        EntryType,
         public component:   string,
         public description: string,
     ) {
-        this.datetime = moment(datetime * 1000); // in ms
+        this.datetime = moment(this.epoch * 1000); // in ms
     }
 
     get url(): string {
