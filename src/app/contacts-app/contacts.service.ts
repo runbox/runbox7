@@ -104,7 +104,10 @@ export class ContactsService implements OnDestroy {
                         this.syncToken = syncResult.newSyncToken;
                         this.processContacts(syncResult.added);
                         resolve();
-                    } else if (this.syncToken === syncResult.newSyncToken) {
+                    // Check for syncResult.added even if the syncToken is the same,
+                    // since it may contain RMM6 contacts: they don't come from DAV
+                    // so they don't have their own syncToken, but they still need to be picked up.
+                    } else if (this.syncToken === syncResult.newSyncToken && syncResult.added.length === 0) {
                         // everything up-to-date, nothing to do
                         resolve();
                     } else {
