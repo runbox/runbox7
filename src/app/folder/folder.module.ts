@@ -22,7 +22,7 @@ import { NgModule } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { FolderListComponent } from './folderlist.component';
-export { FolderListComponent } from './folderlist.component';
+export { FolderListComponent, MoveFolderEvent, RenameFolderEvent, CreateFolderEvent } from './folderlist.component';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -46,12 +46,11 @@ import { DialogModule } from '../dialog/dialog.module';
         MatBadgeModule
     ],
     exports: [
-        FolderListComponent
+        FolderListComponent,
     ],
     declarations: [
-        FolderListComponent
+        FolderListComponent,
     ]
 })
 export class FolderModule {
-
 }

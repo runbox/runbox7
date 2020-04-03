@@ -22,7 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
 import { MessageListService } from '../rmmapi/messagelist.service';
-import { FolderCountEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FolderCountEntry } from '../rmmapi/rbwebmail';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
 import { Observable } from 'rxjs';
@@ -40,6 +40,22 @@ export enum DropPosition {
     ABOVE,
     BELOW,
     INSIDE
+}
+
+export class CreateFolderEvent {
+    parentId: number;
+    name:     string;
+}
+
+export class MoveFolderEvent {
+    sourceId:      number;
+    destinationId: number;
+    order:         number[];
+}
+
+export class RenameFolderEvent {
+    id:   number;
+    name: string;
 }
 
 @Component({
@@ -64,6 +80,10 @@ export class FolderListComponent {
 
     @Output() emptyTrash = new EventEmitter<void>();
     @Output() emptySpam  = new EventEmitter<void>();
+    @Output() createFolder = new EventEmitter<CreateFolderEvent>();
+    @Output() deleteFolder = new EventEmitter<number>();
+    @Output() moveFolder   = new EventEmitter<MoveFolderEvent>();
+    @Output() renameFolder = new EventEmitter<RenameFolderEvent>();
 
     treeControl: FlatTreeControl<FolderCountEntry>;
     treeFlattener: MatTreeFlattener<FolderNode, FolderCountEntry>;
@@ -72,7 +92,6 @@ export class FolderListComponent {
     storedexpandedFolderIds: number[] = [];
     constructor(
         public messagelistservice: MessageListService,
-        public rmmapi: RunboxWebmailAPI,
         public dialog: MatDialog,
         private hotkeysService: HotkeysService
     ) {
@@ -219,8 +238,11 @@ export class FolderListComponent {
     dropToFolder(event: DragEvent, folderId: number): void {
         const eventText = event.dataTransfer.getData('text');
         if (eventText.indexOf('folderId:') === 0) {
-            this.folderReorderingDrop(parseInt(eventText.substr('folderId:'.length), 10),
-                folderId, this.isDropAboveOrBelowOrInside(event.offsetY));
+            this.folderReorderingDrop(
+                parseInt(eventText.substr('folderId:'.length), 10),
+                folderId,
+                this.isDropAboveOrBelowOrInside(event.offsetY)
+            );
         } else {
             this.droppedToFolder.emit(folderId);
         }
@@ -274,12 +296,16 @@ export class FolderListComponent {
             );
             dialogRef.afterClosed().pipe(
                 filter(res => res && res.length > 0),
-                mergeMap(newFolderName => this.rmmapi.createFolder(parentFolderId, newFolderName))
-            ).subscribe(() => this.messagelistservice.refreshFolderCount());
+            ).subscribe(
+                newFolderName => this.createFolder.emit({
+                    parentId: parentFolderId,
+                    name:     newFolderName,
+                })
+            );
         });
     }
 
-    renameFolder(folder: FolderCountEntry): void {
+    renameFolderDialog(folder: FolderCountEntry): void {
         const dialogRef = this.dialog.open(SimpleInputDialog, {
             data: new SimpleInputDialogParams('Rename folder',
                 `Rename folder ${folder.folderName}`,
@@ -289,11 +315,15 @@ export class FolderListComponent {
         });
         dialogRef.afterClosed().pipe(
             filter(res => res && res.length > 0),
-            mergeMap(newFolderName => this.rmmapi.renameFolder(folder.folderId, newFolderName))
-        ).subscribe(() => this.messagelistservice.refreshFolderCount());
+        ).subscribe(
+            newFolderName => this.renameFolder.emit({
+                id:   folder.folderId,
+                name: newFolderName,
+            })
+        );
     }
 
-    deleteFolder(folder: FolderCountEntry): void {
+    deleteFolderDialog(folder: FolderCountEntry): void {
         const confirmDialog = this.dialog.open(ConfirmDialog);
         confirmDialog.componentInstance.title = `Delete folder ${folder.folderName}?`;
         confirmDialog.componentInstance.question =
@@ -302,8 +332,9 @@ export class FolderListComponent {
         confirmDialog.componentInstance.yesOptionTitle = 'ok';
         confirmDialog.afterClosed().pipe(
             filter(res => res === true),
-            mergeMap(() => this.rmmapi.deleteFolder(folder.folderId))
-        ).subscribe(() => this.messagelistservice.refreshFolderCount());
+        ).subscribe(
+            () => this.deleteFolder.emit(folder.folderId)
+        );
     }
 
     async folderReorderingDrop(sourceFolderId: number, destinationFolderId: number, aboveOrBelowOrInside: number) {
@@ -426,6 +457,10 @@ export class FolderListComponent {
         this.messagelistservice.folderCountSubject.next(folders);
 
         const newParentFolderId = destinationParent ? folders.find(fld => fld.folderPath === destinationParent).folderId : 0;
-        await this.rmmapi.moveFolder(sourceFolderId, newParentFolderId, folders.map(folder => folder.folderId)).toPromise();
+        this.moveFolder.emit({
+            sourceId:      sourceFolderId,
+            destinationId: newParentFolderId,
+            order:         folders.map(folder => folder.folderId),
+        });
     }
 }

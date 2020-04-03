@@ -40,7 +40,7 @@ import { InfoDialog, InfoParams } from './dialog/info.dialog';
 import { RunboxMe, RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
-import { FolderListComponent } from './folder/folder.module';
+import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
 import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
@@ -375,6 +375,36 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.sidemenu.close();
         }
       }, 0);
+  }
+
+  // folder-related stuff: perhaps move to its own service
+
+  createFolder(newFolder: CreateFolderEvent) {
+    this.rmmapi.createFolder(
+      newFolder.parentId, newFolder.name
+    ).subscribe(() => {
+      this.messagelistservice.refreshFolderCount();
+    });
+  }
+
+  deleteFolder(folderId: number) {
+    this.rmmapi.deleteFolder(folderId).subscribe(
+      () => this.messagelistservice.refreshFolderCount()
+    );
+  }
+
+  moveFolder(event: MoveFolderEvent) {
+    this.rmmapi.moveFolder(event.sourceId, event.destinationId, event.order).subscribe(
+      () => this.messagelistservice.refreshFolderCount()
+    );
+  }
+
+  renameFolder(folder: RenameFolderEvent) {
+    this.rmmapi.renameFolder(
+      folder.id, folder.name
+    ).subscribe(() => {
+      this.messagelistservice.refreshFolderCount();
+    });
   }
 
   async emptyTrash(trashFolderName: string) {
@@ -977,3 +1007,4 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 }
 
+// vim: set shiftwidth=2

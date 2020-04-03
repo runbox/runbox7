@@ -46,11 +46,11 @@
         <ng-container [ngSwitch]="node.folderType">
           <ng-container *ngSwitchCase="'user'">
             <mat-menu #folderActionsMenu="matMenu">
-              <button mat-menu-item (click)="renameFolder(node)">
+              <button mat-menu-item (click)="renameFolderDialog(node)">
                 <mat-icon color="primary">border_color</mat-icon>
                 <span>Rename</span>
               </button>
-              <button mat-menu-item (click)="deleteFolder(node)">
+              <button mat-menu-item (click)="deleteFolderDialog(node)">
                 <mat-icon color="primary">delete</mat-icon>
                 <span>Delete</span>
               </button>
