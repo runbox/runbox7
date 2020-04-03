@@ -73,7 +73,8 @@ export class FolderListComponent {
         public dialog: MatDialog,
         private hotkeysService: HotkeysService
     ) {
-        this.hotkeysService.add(new Hotkey(['g+i', 'g+t'],
+        this.hotkeysService.add(
+            new Hotkey(['g+i', 'g+t'],
             (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
                 if (combo === 'g+i') {
                     this.clearSelection();
@@ -88,13 +89,16 @@ export class FolderListComponent {
                 const e: ExtendedKeyboardEvent = event;
                 e.returnValue = false;
                 return e;
-            }));
+            })
+        );
         try {
             const storedExpandedFolderIds = JSON.parse(localStorage.getItem('rmm7expandedfolderids'));
             if (storedExpandedFolderIds && storedExpandedFolderIds.length > 0) {
                 this.storedexpandedFolderIds = storedExpandedFolderIds;
             }
-        } catch (e) {}
+        } catch (e) {
+            /* we don't care why it failed, it just means that we'll show all folders as collapsed */
+        }
 
         this.folders = this.messagelistservice.folderCountSubject;
         this.treeControl = new FlatTreeControl<FolderCountEntry>(this._getLevel, this._isExpandable);
@@ -108,10 +112,9 @@ export class FolderListComponent {
         );
         this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-        const foldertreedataobservable = this.folders
-            .pipe(
-                map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0)),
-                map((folders) => {
+        const foldertreedataobservable = this.folders.pipe(
+            map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0)),
+            map((folders) => {
                 const treedata: FolderNode[] = [];
 
                 let currentFolderLevel = 0;
@@ -137,7 +140,7 @@ export class FolderListComponent {
                     }
 
                     const storedexpandedFolderId = this.storedexpandedFolderIds
-                                .find(fid => fid === folderCountEntry.folderId);
+                        .find(fid => fid === folderCountEntry.folderId);
                     if (storedexpandedFolderId) {
                         this.treeControl.expand(folderCountEntry);
                     }
@@ -162,19 +165,18 @@ export class FolderListComponent {
             this.dataSource.data = treedata;
         });
         this.treeControl.expansionModel.changed.subscribe(state => {
-                state.added.forEach(added => {
-                    if (this.storedexpandedFolderIds.findIndex(fid => fid === added.folderId) === -1) {
-                        this.storedexpandedFolderIds.push(added.folderId);
-                    }
-                });
-                this.storedexpandedFolderIds = this.storedexpandedFolderIds
-                        .filter(fid =>
-                    state.removed.findIndex(removed => removed.folderId === fid) === -1
-                );
-                localStorage.setItem('rmm7expandedfolderids',
-                    JSON.stringify(this.storedexpandedFolderIds)
-                );
+            state.added.forEach(added => {
+                if (this.storedexpandedFolderIds.findIndex(fid => fid === added.folderId) === -1) {
+                    this.storedexpandedFolderIds.push(added.folderId);
+                }
             });
+            this.storedexpandedFolderIds = this.storedexpandedFolderIds.filter(fid =>
+                state.removed.findIndex(removed => removed.folderId === fid) === -1
+            );
+            localStorage.setItem('rmm7expandedfolderids',
+                JSON.stringify(this.storedexpandedFolderIds)
+            );
+        });
     }
 
     private _getLevel = (node: FolderCountEntry) => node.folderLevel;
@@ -249,45 +251,39 @@ export class FolderListComponent {
     }
 
     addFolder(): void {
-        this.messagelistservice.folderCountSubject
-            .pipe(
-                first(),
-                map(folders =>
-                    folders.find(fld =>
-                        fld.folderPath === this.selectedFolder)
-                )
-            ).subscribe(selectedFolder => {
-                const parentFolderId = selectedFolder && selectedFolder.folderType === 'user' ? selectedFolder.folderId : 0;
-                const parentFolderName = this.selectedFolder.replace(/\./g, ' / ');
+        this.messagelistservice.folderCountSubject.pipe(
+            first(),
+            map(folders => folders.find(fld => fld.folderPath === this.selectedFolder))
+        ).subscribe(selectedFolder => {
+            const parentFolderId = selectedFolder && selectedFolder.folderType === 'user' ? selectedFolder.folderId : 0;
+            const parentFolderName = this.selectedFolder.replace(/\./g, ' / ');
 
-                const dialogRef = this.dialog.open(SimpleInputDialog, {
-                    data:
-                        new SimpleInputDialogParams('Add new folder',
-                            parentFolderId ?
-                                `Create new folder under ${parentFolderName}` :
-                                'Create new root level folder',
-                            'New folder name',
-                            (value: string) => value && value.trim().length > 0
-                        )
-                }
-                );
-                dialogRef.afterClosed().pipe(
-                    filter(res => res && res.length > 0),
-                    mergeMap(newFolderName => this.rmmapi.createFolder(parentFolderId, newFolderName))
-                ).subscribe(() => this.messagelistservice.refreshFolderCount());
-            });
+            const dialogRef = this.dialog.open(SimpleInputDialog, {
+                data:
+                new SimpleInputDialogParams('Add new folder',
+                    parentFolderId ?
+                    `Create new folder under ${parentFolderName}` :
+                    'Create new root level folder',
+                    'New folder name',
+                    (value: string) => value && value.trim().length > 0
+                )
+            }
+            );
+            dialogRef.afterClosed().pipe(
+                filter(res => res && res.length > 0),
+                mergeMap(newFolderName => this.rmmapi.createFolder(parentFolderId, newFolderName))
+            ).subscribe(() => this.messagelistservice.refreshFolderCount());
+        });
     }
 
     renameFolder(folder: FolderCountEntry): void {
         const dialogRef = this.dialog.open(SimpleInputDialog, {
-            data:
-                new SimpleInputDialogParams('Rename folder',
-                    `Rename folder ${folder.folderName}`,
-                    'New folder name',
-                    (value: string) => value && value.trim().length > 0
-                )
-        }
-        );
+            data: new SimpleInputDialogParams('Rename folder',
+                `Rename folder ${folder.folderName}`,
+                'New folder name',
+                (value: string) => value && value.trim().length > 0
+            )
+        });
         dialogRef.afterClosed().pipe(
             filter(res => res && res.length > 0),
             mergeMap(newFolderName => this.rmmapi.renameFolder(folder.folderId, newFolderName))
@@ -298,7 +294,7 @@ export class FolderListComponent {
         const confirmDialog = this.dialog.open(ConfirmDialog);
         confirmDialog.componentInstance.title = `Delete folder ${folder.folderName}?`;
         confirmDialog.componentInstance.question =
-            `Are you sure that you want to delete the folder named ${folder.folderName}?`;
+        `Are you sure that you want to delete the folder named ${folder.folderName}?`;
         confirmDialog.componentInstance.noOptionTitle = 'cancel';
         confirmDialog.componentInstance.yesOptionTitle = 'ok';
         confirmDialog.afterClosed().pipe(
@@ -318,10 +314,10 @@ export class FolderListComponent {
         let destinationIndex = folders.findIndex(folder => folder.folderId === destinationFolderId);
 
         console.log(`move folder ${folders[sourceIndex].folderPath} ${
-                            aboveOrBelowOrInside === DropPosition.ABOVE ? 'above' :
-                            aboveOrBelowOrInside === DropPosition.BELOW ? 'below' :
-                            aboveOrBelowOrInside === DropPosition.INSIDE ? 'inside' : ''
-                        } ${folders[destinationIndex].folderPath}`);
+            aboveOrBelowOrInside === DropPosition.ABOVE ? 'above' :
+            aboveOrBelowOrInside === DropPosition.BELOW ? 'below' :
+            aboveOrBelowOrInside === DropPosition.INSIDE ? 'inside' : ''
+        } ${folders[destinationIndex].folderPath}`);
 
         let destinationFolderLevel = 0;
         let destinationParent = '';
@@ -333,7 +329,7 @@ export class FolderListComponent {
 
         let moveCount = 1;
         while ( sourceIndex + moveCount < folders.length &&
-                folders[sourceIndex + moveCount].folderLevel > folders[sourceIndex].folderLevel) {
+            folders[sourceIndex + moveCount].folderLevel > folders[sourceIndex].folderLevel) {
             // also move all sub folders if any
             moveCount ++;
         }
@@ -438,9 +434,11 @@ export class FolderListComponent {
 
         if (trashFolderName) {
             console.log('found trash folder with name', trashFolderName);
-            const messageLists = await this.rmmapi.listAllMessages(0, 0, 0,
-                    RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE
-                    , true, trashFolderName).toPromise();
+            const messageLists = await this.rmmapi.listAllMessages(
+                0, 0, 0,
+                RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+                true, trashFolderName
+            ).toPromise();
             await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
             this.messagelistservice.refreshFolderCount();
             console.log('Deleted from', trashFolderName);
@@ -457,9 +455,11 @@ export class FolderListComponent {
 
         if (spamFolderName) {
             console.log('found spam folder with name', spamFolderName);
-            const messageLists = await this.rmmapi.listAllMessages(0, 0, 0,
-                    RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE
-                    , true, spamFolderName).toPromise();
+            const messageLists = await this.rmmapi.listAllMessages(
+                0, 0, 0,
+                RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+                true, spamFolderName
+            ).toPromise();
             await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
             this.messagelistservice.refreshFolderCount();
             console.log('Deleted from', spamFolderName);
