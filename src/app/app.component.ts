@@ -377,6 +377,30 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }, 0);
   }
 
+  async emptyTrash(trashFolderName: string) {
+    console.log('found trash folder with name', trashFolderName);
+    const messageLists = await this.rmmapi.listAllMessages(
+      0, 0, 0,
+      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+      true, trashFolderName
+    ).toPromise();
+    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    this.messagelistservice.refreshFolderCount();
+    console.log('Deleted from', trashFolderName);
+  }
+
+  async emptySpam(spamFolderName) {
+    console.log('found spam folder with name', spamFolderName);
+    const messageLists = await this.rmmapi.listAllMessages(
+      0, 0, 0,
+      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+      true, spamFolderName
+    ).toPromise();
+    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    this.messagelistservice.refreshFolderCount();
+    console.log('Deleted from', spamFolderName);
+  }
+
   public compose() {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();

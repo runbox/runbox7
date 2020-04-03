@@ -53,6 +53,7 @@ describe('FolderListComponent', () => {
         httpMock = injector.get(HttpTestingController);
         hotkeyMock = { add: _ => null } as HotkeysService;
     });
+  /* TODO redo it as an e2e test
     it('should empty trash', async(async () => {
         let selectedFolderName: string;
         const messagesInViewSubject = new BehaviorSubject<MessageInfo[]>([]);
@@ -107,6 +108,7 @@ describe('FolderListComponent', () => {
         });
         expect(refreshFolderCountCalled).toBeTruthy();
     }));
+  */
     it('folderReorderingDrop', async () => {
         let ordered_ids_request: number[];
         const comp = new FolderListComponent({

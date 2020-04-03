@@ -35,7 +35,12 @@
       <mat-divider></mat-divider>
     </mat-nav-list>
 
-    <rmm-folderlist #folderListComponent (folderSelected)="selectFolder($event)" (droppedToFolder)="dropToFolder($event)"></rmm-folderlist>
+    <rmm-folderlist #folderListComponent
+        (folderSelected)="selectFolder($event)"
+        (droppedToFolder)="dropToFolder($event)"
+        (emptyTrash)="emptyTrash($event)"
+        (emptySpam)="emptySpam($event)"
+    ></rmm-folderlist>
 
     <mat-divider></mat-divider>
 

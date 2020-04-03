@@ -63,7 +63,7 @@
           </ng-container>  
           <ng-container *ngSwitchCase="'trash'">
             <mat-menu #trashFolderActionsMenu="matMenu">
-              <button mat-menu-item (click)="emptyTrash()">
+              <button mat-menu-item (click)="emptyTrash.next(node.folderName)">
                 <mat-icon>clear_all</mat-icon>
                 <span>Empty trash</span>              
               </button>
@@ -76,7 +76,7 @@
           </ng-container>
           <ng-container *ngSwitchCase="'spam'">
             <mat-menu #trashFolderActionsMenu="matMenu">
-              <button mat-menu-item (click)="emptySpam()">
+              <button mat-menu-item (click)="emptySpam.next(node.folderName)">
                 <mat-icon>clear_all</mat-icon>
                 <span>Move all to trash</span>              
               </button>

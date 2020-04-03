@@ -62,6 +62,9 @@ export class FolderListComponent {
     @Output() droppedToFolder = new EventEmitter<number>();
     @Output() folderSelected = new EventEmitter<string>();
 
+    @Output() emptyTrash = new EventEmitter<void>();
+    @Output() emptySpam  = new EventEmitter<void>();
+
     treeControl: FlatTreeControl<FolderCountEntry>;
     treeFlattener: MatTreeFlattener<FolderNode, FolderCountEntry>;
     dataSource: MatTreeFlatDataSource<FolderNode, FolderCountEntry>;
@@ -424,47 +427,5 @@ export class FolderListComponent {
 
         const newParentFolderId = destinationParent ? folders.find(fld => fld.folderPath === destinationParent).folderId : 0;
         await this.rmmapi.moveFolder(sourceFolderId, newParentFolderId, folders.map(folder => folder.folderId)).toPromise();
-    }
-
-    async emptyTrash() {
-        const trashFolderName = await this.folders.pipe(
-            map(folders => folders.find(f => f.folderType === 'trash').folderName),
-            take(1)
-        ).toPromise();
-
-        if (trashFolderName) {
-            console.log('found trash folder with name', trashFolderName);
-            const messageLists = await this.rmmapi.listAllMessages(
-                0, 0, 0,
-                RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-                true, trashFolderName
-            ).toPromise();
-            await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
-            this.messagelistservice.refreshFolderCount();
-            console.log('Deleted from', trashFolderName);
-        } else {
-            console.error('no trash folder found', trashFolderName);
-        }
-    }
-
-    async emptySpam() {
-        const spamFolderName = await this.folders.pipe(
-            map(folders => folders.find(f => f.folderType === 'spam').folderName),
-            take(1)
-        ).toPromise();
-
-        if (spamFolderName) {
-            console.log('found spam folder with name', spamFolderName);
-            const messageLists = await this.rmmapi.listAllMessages(
-                0, 0, 0,
-                RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-                true, spamFolderName
-            ).toPromise();
-            await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
-            this.messagelistservice.refreshFolderCount();
-            console.log('Deleted from', spamFolderName);
-        } else {
-            console.error('no spam folder found', spamFolderName);
-        }
     }
 }
