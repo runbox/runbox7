@@ -209,10 +209,12 @@ export class ContactsAppComponent {
     showError(e: HttpErrorResponse): void {
         let message = '';
 
-        if (e.status === 500) {
+        if (e.error.error) {
+            message = e.error.error;
+        } else if (e.status === 500) {
             message = 'Internal server error';
         } else {
-            console.log('Error ' + e.status +  ': ' + e.message);
+            message = 'Error ' + e.status +  ': ' + e.message;
         }
 
         if (message) {

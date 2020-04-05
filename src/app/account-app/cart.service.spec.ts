@@ -77,4 +77,18 @@ describe('CartService', () => {
         expect(await cart.contains(404)).toBe(false, 'cart contains added products no more');
         expect(await cart.contains(405)).toBe(false, 'cart contains added products no more');
     });
+
+    it('should add/subtract quantities on duplicate products', async () => {
+        localStorage.clear();
+        const cart = new CartService(storage);
+
+        await cart.add(new ProductOrder(403, 1));
+        await cart.add(new ProductOrder(403, 1));
+        await cart.remove(new ProductOrder(403, 1));
+        expect(await cart.contains(403)).toBe(true, 'cart contains added products');
+        await cart.remove(new ProductOrder(403, 1));
+        expect(await cart.contains(403)).toBe(false, 'cart contains added products no more');
+        await cart.remove(new ProductOrder(403, 1));
+        expect(await cart.contains(403)).toBe(false, 'cart contains added products no more');
+    });
 });

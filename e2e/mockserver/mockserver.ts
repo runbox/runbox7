@@ -147,10 +147,19 @@ export class MockServer {
             const emailendpoint = requesturl.match(/\/rest\/v1\/email\/([0-9]+)/);
             if (emailendpoint) {
                 const mailid = emailendpoint[1];
+                let message_obj = mail_message_obj;
+                if (mailid === '11') {
+                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+                    const to = message_obj.result.headers['to'];
+                    delete message_obj.result.headers['to'];
+                    message_obj.result.headers['cc'] = to;
+                    message_obj.result.headers['subject'] = "No 'To', just 'CC'";
+                }
+
                 if (requesturl.endsWith('/html')) {
-                    response.end(mail_message_obj.result.text.html);
+                    response.end(message_obj.result.text.html);
                 } else {
-                    response.end(JSON.stringify(mail_message_obj));
+                    response.end(JSON.stringify(message_obj));
                 }
                 return;
             }
@@ -280,6 +289,9 @@ export class MockServer {
             inboxlines.push(`${msg_id}	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>	Re: hello	709	n	 `);
         }
+        // id=11: email with no "To"
+        inboxlines.push(`11	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>	No 'To', just 'CC'	709	n	 `);
         return inboxlines.join('\n');
     }
 
@@ -330,6 +342,14 @@ export class MockServer {
                         'price':       '13.37',
                         'pid':         '9001',
                         'description': 'Test subscription including some stuff'
+                    },
+                    {
+                        'name':        'Runbox Addon',
+                        'type':        'addon',
+                        'subtype':     'emailaddon',
+                        'price':       '5.55',
+                        'pid':         '9002',
+                        'description': 'More cool stuff for your account'
                     }
                 ]
             }

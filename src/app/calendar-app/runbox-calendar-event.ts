@@ -22,7 +22,10 @@ import { EventColor } from 'calendar-utils';
 import { RRule, rrulestr } from 'rrule';
 
 import * as moment from 'moment';
+import 'moment-timezone';
 import * as ICAL from 'ical.js';
+
+import { EventOverview } from './event-overview';
 
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
@@ -39,7 +42,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // recurring events
     calendar:  string;
 
-    event: ICAL.Event = {};
+    ical: ICAL.Component;
+    event: ICAL.Event;
 
     get title(): string {
         return this.event.summary;
@@ -66,7 +70,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     get dtstart(): moment.Moment {
-        return moment(this.event.startDate.toJSDate(), moment.ISO_8601);
+        return this.icalTimeToLocalMoment(this.event.startDate);
     }
 
     set dtstart(value: moment.Moment) {
@@ -77,7 +81,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     get dtend(): moment.Moment {
         return this.event.endDate
-            ? moment(this.event.endDate.toJSDate(), moment.ISO_8601)
+            ? this.icalTimeToLocalMoment(this.event.endDate)
             : undefined;
     }
 
@@ -96,6 +100,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
     get end(): Date {
         if (!this.dtend) {
             return undefined;
+        }
+
+        // GH-252 workaround until https://github.com/mattlewis92/angular-calendar/issues/1192 solves it better :)
+        if (this.dtend.diff(this.dtstart, 'minutes') < 30) {
+            return moment(this.dtstart).add(30, 'minutes').toDate();
         }
 
         const shownEnd = moment(this.dtend);
@@ -166,30 +175,63 @@ export class RunboxCalendarEvent implements CalendarEvent {
         );
     }
 
-    static newMultiple(ical: string): RunboxCalendarEvent[] {
-        const comp = new ICAL.Component(ICAL.parse(ical));
-        return comp.getAllSubcomponents('vevent').map(
-            c => new RunboxCalendarEvent(undefined, c.toJSON())
-        );
-    }
-
     constructor(id: string, jcal: any) {
         this.id = id;
         if (this.id) {
             this.calendar = this.id.split('/')[0];
         }
 
-        const comp = new ICAL.Component(jcal);
-        if (comp.name === 'vevent') {
-            this.event = new ICAL.Event(comp);
-        } else {
-            this.event = new ICAL.Event(comp.getFirstSubcomponent('vevent'));
+        this.ical = new ICAL.Component(jcal);
+        this.event = new ICAL.Event(this.ical.getFirstSubcomponent('vevent'));
+
+        // extract and register all timezones included so that we can use them for conversion later.
+        // Without this, ICAL.Time.convertToZone will not work
+        if (this.ical.getFirstSubcomponent('vtimezone')) {
+            for (const tzComponent of this.ical.getAllSubcomponents('vtimezone')) {
+                const tz = new ICAL.Timezone({
+                    tzid:      tzComponent.getFirstPropertyValue('tzid'),
+                    component: tzComponent,
+                });
+
+                if (!ICAL.TimezoneService.has(tz.tzid)) {
+                    ICAL.TimezoneService.register(tz.tzid, tz);
+                }
+            }
         }
     }
 
     clone(): RunboxCalendarEvent {
-        const ical = this.event.toString();
-        return RunboxCalendarEvent.fromIcal(this.id, ical);
+        return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+    }
+
+    get_overview(): EventOverview[] {
+        const events = [];
+        const seen = {};
+
+        for (let e of this.ical.getAllSubcomponents('vevent')) {
+            e = new ICAL.Event(e);
+
+            // Skip duplicate uids (if defined),
+            // to eliminate possible special cases in recurring events.
+            if (e.uid && seen[e.uid]) {
+                continue;
+            } else {
+                seen[e.uid] = true;
+            }
+
+            const rrule = e.component.getFirstPropertyValue('rrule');
+
+            events.push(new EventOverview(
+                e.summary,
+                this.icalTimeToLocalMoment(e.startDate),
+                e.endDate ? this.icalTimeToLocalMoment(e.endDate) : undefined,
+                rrule ? rrule.freq : undefined,
+                e.location,
+                e.description,
+            ));
+        }
+
+        return events;
     }
 
     recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
@@ -210,7 +252,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     toIcal(): string {
-        return 'BEGIN:VCALENDAR\n' + this.event.toString() + '\nEND:VCALENDAR';
+        return this.ical.toString();
     }
 
     // returns jCal
@@ -218,7 +260,20 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return {
             id:       this.id,
             calendar: this.calendar,
-            jcal:     this.event.component.toJSON(),
+            jcal:     this.ical.toJSON(),
         };
+    }
+
+    private icalTimeToLocalMoment(time: ICAL.Time): moment.Moment {
+        if (!time.timezone) {
+            // assume that the event is in localtime already
+            return moment(time.toString());
+        } else {
+            // Theoretically, ICAL.Timezone.localTimezone exists.
+            // Practically, it does not do anything. Let's go to UTC first.
+            const utc = time.convertToZone(ICAL.Timezone.utcTimezone);
+            // TODO localzone should perhaps be configurable
+            return moment.utc(utc.toString()).tz(moment.tz.guess());
+        }
     }
 }

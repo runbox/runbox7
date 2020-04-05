@@ -17,18 +17,30 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { EventOverview } from './event-overview';
+import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-@Component({
-    selector: 'app-calendar-event-card',
-    templateUrl: './calendar-event-card.component.html',
-})
-export class CalendarEventCardComponent {
-    @Input() event: EventOverview;
-    @Input() editable = false;
+@Injectable()
+export class RMMOfflineService {
+    offline = false;
+    first_time_offline = true;
 
-    @Output() edit = new EventEmitter();
+    get is_offline(): boolean {
+        return this.offline;
+    }
 
-    constructor() { }
+    set is_offline(offline: boolean) {
+        this.offline = offline;
+        if (offline && this.first_time_offline) {
+            this.first_time_offline = false;
+            this.snackbar.open(
+                'Runbox 7 is in offline mode due to a network or server issue. ' +
+                'It will automatically reconnect when the network is available again.',
+                'Okay',
+                { duration: 10_000 },
+            );
+        }
+    }
+
+    constructor(private snackbar: MatSnackBar) { }
 }

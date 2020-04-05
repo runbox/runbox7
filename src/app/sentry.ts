@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -17,18 +17,4 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { EventOverview } from './event-overview';
-
-@Component({
-    selector: 'app-calendar-event-card',
-    templateUrl: './calendar-event-card.component.html',
-})
-export class CalendarEventCardComponent {
-    @Input() event: EventOverview;
-    @Input() editable = false;
-
-    @Output() edit = new EventEmitter();
-
-    constructor() { }
-}
+// ADD SENTRY HERE
