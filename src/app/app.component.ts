@@ -37,7 +37,7 @@ import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetabl
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
 import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI, FolderCountEntry } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
@@ -48,7 +48,7 @@ import { WebSocketSearchService } from './websocketsearch/websocketsearch.servic
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, of } from 'rxjs';
+import { from, of, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -88,6 +88,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   entireHistoryInProgress = false;
 
+  displayedFolders = new Observable<FolderCountEntry[]>();
   selectedFolder = 'Inbox';
 
   timeOfDay: string;
@@ -168,7 +169,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           }));
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
-      this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
+    this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
 
     this.messageActionsHandler.dialog = dialog;
     this.messageActionsHandler.draftDeskService = draftDeskService;
@@ -269,6 +270,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
     this.resetColumns();
+
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
@@ -276,6 +278,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.hasChanges = true;
       }
     });
+
+    this.displayedFolders = this.messagelistservice.folderCountSubject.pipe(
+      map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
+    );
+
     this.canvastable.scrollLimitHit.subscribe((limit) =>
       this.messagelistservice.requestMoreData(limit)
     );

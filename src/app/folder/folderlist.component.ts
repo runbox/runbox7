@@ -17,16 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Output, ElementRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
-import { MessageListService } from '../rmmapi/messagelist.service';
 import { FolderCountEntry } from '../rmmapi/rbwebmail';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
 import { Observable } from 'rxjs';
-import { first, map, filter, mergeMap, take } from 'rxjs/operators';
+import { first, map, filter, take } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
@@ -65,7 +64,7 @@ export class RenameFolderEvent {
     selector: 'rmm-folderlist',
     styleUrls: ['folderlist.component.css']
 })
-export class FolderListComponent {
+export class FolderListComponent implements OnChanges {
     selectedFolder = 'Inbox';
 
     dropFolderId: number;
@@ -73,17 +72,17 @@ export class FolderListComponent {
     dropAboveOrBelowOrInside: DropPosition = DropPosition.NONE;
     dragFolderInProgress = false;
 
-    folders: Observable<Array<FolderCountEntry>>;
+    @Input() folders: Observable<FolderCountEntry[]>;
 
     @Output() droppedToFolder = new EventEmitter<number>();
-    @Output() folderSelected = new EventEmitter<string>();
+    @Output() folderSelected  = new EventEmitter<string>();
 
-    @Output() emptyTrash = new EventEmitter<void>();
-    @Output() emptySpam  = new EventEmitter<void>();
-    @Output() createFolder = new EventEmitter<CreateFolderEvent>();
-    @Output() deleteFolder = new EventEmitter<number>();
-    @Output() moveFolder   = new EventEmitter<MoveFolderEvent>();
-    @Output() renameFolder = new EventEmitter<RenameFolderEvent>();
+    @Output() emptyTrash       = new EventEmitter<void>();
+    @Output() emptySpam        = new EventEmitter<void>();
+    @Output() createFolder     = new EventEmitter<CreateFolderEvent>();
+    @Output() deleteFolder     = new EventEmitter<number>();
+    @Output() moveFolder       = new EventEmitter<MoveFolderEvent>();
+    @Output() renameFolder     = new EventEmitter<RenameFolderEvent>();
 
     treeControl: FlatTreeControl<FolderCountEntry>;
     treeFlattener: MatTreeFlattener<FolderNode, FolderCountEntry>;
@@ -91,7 +90,6 @@ export class FolderListComponent {
 
     storedexpandedFolderIds: number[] = [];
     constructor(
-        public messagelistservice: MessageListService,
         public dialog: MatDialog,
         private hotkeysService: HotkeysService
     ) {
@@ -122,7 +120,6 @@ export class FolderListComponent {
             /* we don't care why it failed, it just means that we'll show all folders as collapsed */
         }
 
-        this.folders = this.messagelistservice.folderCountSubject;
         this.treeControl = new FlatTreeControl<FolderCountEntry>(this._getLevel, this._isExpandable);
         this.treeFlattener = new MatTreeFlattener(
             (node: FolderNode, level: number): FolderCountEntry => {
@@ -134,58 +131,6 @@ export class FolderListComponent {
         );
         this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-        const foldertreedataobservable = this.folders.pipe(
-            map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0)),
-            map((folders) => {
-                const treedata: FolderNode[] = [];
-
-                let currentFolderLevel = 0;
-                const parentStack: FolderNode[] = [];
-                let previousNode: FolderNode = null;
-
-                folders.forEach((folderCountEntry, ndx) => {
-                    const folderNode: FolderNode = { children: [], data: folderCountEntry};
-
-                    if (folderCountEntry.folderLevel > currentFolderLevel) {
-                        currentFolderLevel = folderCountEntry.folderLevel;
-                        parentStack.push(previousNode);
-                    } else if (folderCountEntry.folderLevel < currentFolderLevel) {
-                        currentFolderLevel = folderCountEntry.folderLevel;
-                        parentStack.pop();
-                    }
-                    if (parentStack.length > 0) {
-                        const currentParent = parentStack[parentStack.length - 1];
-                        currentParent.children.push(folderNode);
-                        currentParent.data.isExpandable = true;
-                    } else {
-                        treedata.push(folderNode);
-                    }
-
-                    const storedexpandedFolderId = this.storedexpandedFolderIds
-                        .find(fid => fid === folderCountEntry.folderId);
-                    if (storedexpandedFolderId) {
-                        this.treeControl.expand(folderCountEntry);
-                    }
-
-                    previousNode = folderNode;
-                });
-
-                // Descend into each folder and order its subfolders, but only the direct children.
-                // We need to avoid the situation where sorting would put children above their parents
-                // as that'd mangle the output.
-                const sortSubfolders = (node: FolderNode) => {
-                    node.children.sort((a, b) => a.data.priority - b.data.priority);
-                    node.children.forEach(child => sortSubfolders(child));
-                };
-
-                treedata.forEach(node => sortSubfolders(node));
-
-                return treedata;
-            })
-        );
-        foldertreedataobservable.subscribe(treedata => {
-            this.dataSource.data = treedata;
-        });
         this.treeControl.expansionModel.changed.subscribe(state => {
             state.added.forEach(added => {
                 if (this.storedexpandedFolderIds.findIndex(fid => fid === added.folderId) === -1) {
@@ -199,6 +144,57 @@ export class FolderListComponent {
                 JSON.stringify(this.storedexpandedFolderIds)
             );
         });
+    }
+
+    ngOnChanges(): void {
+        this.folders.subscribe(folders => this.updateFolderTree(folders));
+    }
+
+    private updateFolderTree(folders: FolderCountEntry[]) {
+        const treedata: FolderNode[] = [];
+
+        let currentFolderLevel = 0;
+        const parentStack: FolderNode[] = [];
+        let previousNode: FolderNode = null;
+
+        folders.forEach((folderCountEntry, _) => {
+            const folderNode: FolderNode = { children: [], data: folderCountEntry};
+
+            if (folderCountEntry.folderLevel > currentFolderLevel) {
+                currentFolderLevel = folderCountEntry.folderLevel;
+                parentStack.push(previousNode);
+            } else if (folderCountEntry.folderLevel < currentFolderLevel) {
+                currentFolderLevel = folderCountEntry.folderLevel;
+                parentStack.pop();
+            }
+            if (parentStack.length > 0) {
+                const currentParent = parentStack[parentStack.length - 1];
+                currentParent.children.push(folderNode);
+                currentParent.data.isExpandable = true;
+            } else {
+                treedata.push(folderNode);
+            }
+
+            const storedexpandedFolderId = this.storedexpandedFolderIds
+                .find(fid => fid === folderCountEntry.folderId);
+            if (storedexpandedFolderId) {
+                this.treeControl.expand(folderCountEntry);
+            }
+
+            previousNode = folderNode;
+        });
+
+        // Descend into each folder and order its subfolders, but only the direct children.
+        // We need to avoid the situation where sorting would put children above their parents
+        // as that'd mangle the output.
+        const sortSubfolders = (node: FolderNode) => {
+            node.children.sort((a, b) => a.data.priority - b.data.priority);
+            node.children.forEach(child => sortSubfolders(child));
+        };
+
+        treedata.forEach(node => sortSubfolders(node));
+
+        this.dataSource.data = treedata;
     }
 
     private _getLevel = (node: FolderCountEntry) => node.folderLevel;
@@ -270,13 +266,12 @@ export class FolderListComponent {
     selectFolder(folder: string): void {
         if (folder !== this.selectedFolder) {
             this.selectedFolder = folder;
-            this.messagelistservice.setCurrentFolder(folder);
         }
         this.folderSelected.next(folder);
     }
 
     addFolder(): void {
-        this.messagelistservice.folderCountSubject.pipe(
+        this.folders.pipe(
             first(),
             map(folders => folders.find(fld => fld.folderPath === this.selectedFolder))
         ).subscribe(selectedFolder => {
@@ -343,7 +338,7 @@ export class FolderListComponent {
             return;
         }
 
-        const folders = await this.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
+        const folders = await this.folders.pipe(take(1)).toPromise();
         let sourceIndex = folders.findIndex(fld => fld.folderId === sourceFolderId);
         let destinationIndex = folders.findIndex(folder => folder.folderId === destinationFolderId);
 
@@ -454,7 +449,7 @@ export class FolderListComponent {
 
         // console.log('after rearrange', folders.map(f => `${f.folderId} ${f.folderPath} ${f.priority}`));
 
-        this.messagelistservice.folderCountSubject.next(folders);
+        this.updateFolderTree(folders);
 
         const newParentFolderId = destinationParent ? folders.find(fld => fld.folderPath === destinationParent).folderId : 0;
         this.moveFolder.emit({

@@ -36,6 +36,7 @@
     </mat-nav-list>
 
     <rmm-folderlist #folderListComponent
+        [folders]="displayedFolders"
         (folderSelected)="selectFolder($event)"
         (droppedToFolder)="dropToFolder($event)"
         (emptyTrash)="emptyTrash($event)"
