@@ -22,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialogModule } from '@angular/material/dialog';
 import { QRCodeModule } from 'angular2-qrcode';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -43,12 +44,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 
-import { AccountSecurityComponent } from './account.security.component';
+import { AccountSecurityComponent, ModalPasswordComponent } from './account.security.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 
 @NgModule({
     declarations: [
       AccountSecurityComponent,
+      ModalPasswordComponent,
     ],
     imports: [
     CommonModule,
@@ -60,6 +62,7 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
     MatGridListModule,
     MatIconModule,
     MatInputModule,
+    MatDialogModule,
     MatListModule,
     MatMenuModule,
     MatProgressBarModule,
@@ -77,6 +80,7 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
     RunboxComponentModule,
     ],
     entryComponents: [
+      ModalPasswordComponent,
     ],
     providers: [
     ],

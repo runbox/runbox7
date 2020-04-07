@@ -1,10 +1,4 @@
 <app-runbox-container sidebar_opened=false>
-    <div style="background: #CCC; padding: 15px;">
-        <input type="text" placeholder="Account password" id='user_password' type='password' [(ngModel)]="rmm.account_security.user_password">
-        <span>
-        * Enter your account password above. It will be required for account security changes.
-        </span>
-    </div>
     <mat-tab-group>
       <mat-tab label="Account Security">
             <app-runbox-section>
@@ -224,7 +218,6 @@
                     <p>
                         Disabling all the services you don't use adds an extra layer of security to your account, as it completely prevents attempts to gain unauthorized access via those services.
                     </p>
-                    {{ rmm.account_security.service.services_translation | json}}
 
                     <mat-grid-list cols="3" rowHeight="50px" *ngIf="rmm.account_security.service.results">
                         <mat-grid-tile>Service</mat-grid-tile>
