@@ -35,7 +35,7 @@
                     Two-Factor Authentication
                     <mat-slide-toggle
                         [(ngModel)]="rmm.account_security.tfa.settings.is_2fa_enabled"
-                        (ngModelChange)="rmm.account_security.tfa.toggle_2fa()"
+                        (ngModelChange)="toggle_2fa()"
                         style="float: right;"
                     >
                         {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
@@ -52,7 +52,7 @@
                     Timed One-Time Passwords
                     <mat-slide-toggle
                         [(ngModel)]="rmm.account_security.tfa.settings.is_device_2fa_enabled"
-                        (ngModelChange)="rmm.account_security.tfa.toggle_totp_device()"
+                        (ngModelChange)="toggle_totp_device()"
                         style="float: right;"
                     >
                         {{ rmm.account_security.tfa.settings.is_device_2fa_enabled ? 'Enabled' : 'Disabled' }}
@@ -97,7 +97,7 @@
                     </p>
                     <p>
                         <span>Label:</span>
-                        <span><input type="text" type="text" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="" disabled="" [value]="'Runbox: ' + rmm.me.data.username" *ngIf="rmm.me.data"></span>
+                        <span><input type="text" type="text" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="" readonly [value]="'Runbox: ' + rmm.me.data.username" *ngIf="rmm.me.data"></span>
                     </p>
                 </div>
                 <div *ngIf="rmm.account_security.tfa.qr_code_value">
@@ -127,6 +127,13 @@
             <app-runbox-section>
                 <div runbox-section-header>
                     One-Time Passwords
+                    <mat-slide-toggle
+                        [(ngModel)]="rmm.account_security.tfa.settings.is_otp_enabled"
+                        (ngModelChange)="toggle_otp()"
+                        style="float: right;"
+                    >
+                        {{ rmm.account_security.tfa.settings.is_otp_enabled ? 'Enabled' : 'Disabled' }}
+                    </mat-slide-toggle>
                 </div>
                 <div runbox-section-content>
                     <p>One-Time Passwords (<strong>OTP</strong>) are codes that can be used only once. The OTP must be used together with your username and account password to log in.</p>
@@ -136,8 +143,8 @@
                     <div *ngIf="is_busy_otp_update" style="display: flex; justify-content: center">
                         <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
                     </div>
-                    <ul *ngIf="rmm.account_security.tfa.otp && rmm.account_security.tfa.otp.passwords">
-                        <li *ngFor="let password of rmm.account_security.tfa.otp.passwords">
+                    <ul *ngIf="rmm.account_security.tfa.otp_generated_list && rmm.account_security.tfa.otp_generated_list.passwords">
+                        <li *ngFor="let password of rmm.account_security.tfa.otp_generated_list.passwords">
                             <span>{{password.value}}</span>
                         </li>
                     </ul>

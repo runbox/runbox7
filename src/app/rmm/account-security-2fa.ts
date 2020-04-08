@@ -29,6 +29,7 @@ export class AccountSecurity2fa {
     new_totp_code = '';
     totp_label: string;
     qr_code_value: any;
+    otp_generated_list: any;
 
 
     constructor(
@@ -45,7 +46,7 @@ export class AccountSecurity2fa {
           reply => {
             this.is_busy = false;
             this.settings = reply['mfa_2fa'][0];
-            ['is_2fa_enabled', 'is_app_pass_enabled', 'is_device_2fa_enabled', ].forEach( (attr) => {
+            ['is_otp_enabled','is_2fa_enabled', 'is_app_pass_enabled', 'is_device_2fa_enabled', ].forEach( (attr) => {
                 this.settings[attr] = this.settings[attr] ? true : false;
             } );
             if ( reply['status'] === 'error' ) {
@@ -60,24 +61,6 @@ export class AccountSecurity2fa {
           }
         );
         return req;
-    }
-
-    toggle_2fa() {
-        const data = {
-            action: 'update',
-            is_enabled: this.settings.is_2fa_enabled,
-            password: this.app.account_security.user_password,
-        };
-        this.update(data);
-    }
-
-    toggle_totp_device() {
-        const data = {
-            action: 'update_status',
-            is_enabled: this.settings.is_device_2fa_enabled,
-            password: this.app.account_security.user_password,
-        };
-        this.totp_update(data);
     }
 
     update(data): Observable<any> {
@@ -190,7 +173,7 @@ export class AccountSecurity2fa {
         this.qr_code_value.searchParams.set('secret', encodeURI(code));
     }
 
-    otp_upadte(data): Observable<any> {
+    otp_update(data): Observable<any> {
         this.is_busy = true;
         data = data || {
         };
@@ -202,7 +185,7 @@ export class AccountSecurity2fa {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.otp = reply;
+            this.otp_generated_list = reply;
             return;
           },
           error => {
