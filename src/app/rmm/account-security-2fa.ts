@@ -46,7 +46,7 @@ export class AccountSecurity2fa {
           reply => {
             this.is_busy = false;
             this.settings = reply['mfa_2fa'][0];
-            ['is_otp_enabled','is_2fa_enabled', 'is_app_pass_enabled', 'is_device_2fa_enabled', ].forEach( (attr) => {
+            ['is_otp_enabled', 'is_2fa_enabled', 'is_app_pass_enabled', 'is_device_2fa_enabled', ].forEach( (attr) => {
                 this.settings[attr] = this.settings[attr] ? true : false;
             } );
             if ( reply['status'] === 'error' ) {
