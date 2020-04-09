@@ -28,13 +28,13 @@
 
             <mat-list-item  class="contactListControls">
                 <mat-form-field>
-                    <mat-label> Show groups </mat-label>
-                    <mat-select [(value)]="groupFilter" (selectionChange)="filterContacts()">
+                    <mat-label> Show categories </mat-label>
+                    <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
                         <mat-option value="RUNBOX:ALL">
-                            All groups
+                            All categories
                         </mat-option>
-                        <mat-option *ngFor="let group of groups" [value]="'USER:' + group">
-                            {{ group }}
+                        <mat-option *ngFor="let category of categories" [value]="'USER:' + category">
+                            {{ category }}
                         </mat-option>
                         <mat-option value="RUNBOX:NONE">
                             Uncategorized contacts
@@ -110,7 +110,7 @@
             </mat-list-item>
 
             <mat-list-item *ngIf="shownContacts.length != contacts.length">
-                {{ contacts.length - shownContacts.length }} others in other groups
+                {{ contacts.length - shownContacts.length }} others in other categories
             </mat-list-item>
         </mat-nav-list>
 

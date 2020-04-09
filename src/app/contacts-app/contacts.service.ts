@@ -28,13 +28,13 @@ import * as moment from 'moment';
 
 @Injectable()
 export class ContactsService implements OnDestroy {
-    settingsSubject = new AsyncSubject<any>();
-    contactsSubject = new ReplaySubject<Contact[]>(1);
-    contactsByEmail = new ReplaySubject<any>(1);
-    contactGroups   = new ReplaySubject<string[]>(1);
-    informationLog  = new Subject<string>();
-    errorLog        = new Subject<HttpErrorResponse>();
-    migrationResult = new Subject<number>();
+    settingsSubject    = new AsyncSubject<any>();
+    contactsSubject    = new ReplaySubject<Contact[]>(1);
+    contactsByEmail    = new ReplaySubject<any>(1);
+    contactCategories  = new ReplaySubject<string[]>(1);
+    informationLog     = new Subject<string>();
+    errorLog           = new Subject<HttpErrorResponse>();
+    migrationResult    = new Subject<number>();
 
     migrationWatcher: any;
 
@@ -79,17 +79,17 @@ export class ContactsService implements OnDestroy {
     processContacts(contacts: Contact[]): void {
         this.contactsSubject.next(contacts);
 
-        const byEmail = {};
-        const groups = {};
+        const byEmail    = {};
+        const categories = {};
         for (const c of contacts) {
             for (const cat of c.categories) {
-                groups[cat] = true;
+                categories[cat] = true;
             }
             for (const e of c.emails) {
                 byEmail[e.value] = c;
             }
         }
-        this.contactGroups.next(Object.keys(groups));
+        this.contactCategories.next(Object.keys(categories));
         this.contactsByEmail.next(byEmail);
         this.saveCache(contacts);
         this.lastUpdate = moment();
