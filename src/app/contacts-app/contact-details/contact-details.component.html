@@ -21,30 +21,30 @@
             <mat-form-field>
                 <input matInput formControlName="last_name" placeholder="Last Name">
             </mat-form-field>
-            <mat-form-field *ngIf="newGroupPromptShown">
-                <input matInput #newGroupInput placeholder="New group"
-                      [(ngModel)]="newGroupValue" [ngModelOptions]="{standalone: true}">
+            <mat-form-field *ngIf="newCategoryPromptShown">
+                <input matInput #newCategoryInput placeholder="New category"
+                      [(ngModel)]="newCategoryValue" [ngModelOptions]="{standalone: true}">
                 <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
-                <button matSuffix mat-icon-button (click)="newGroupPromptShown = false">
+                <button matSuffix mat-icon-button (click)="newCategoryPromptShown = false">
                     <mat-icon>cancel</mat-icon>
                 </button>
-                <button matSuffix mat-icon-button (click)="confirmNewGroup()">
+                <button matSuffix mat-icon-button (click)="confirmNewCategory()">
                     <mat-icon>check</mat-icon>
                 </button>
             </mat-form-field>
-            <mat-form-field *ngIf="!newGroupPromptShown">
-                <mat-label> Groups </mat-label>
-                <mat-select formControlName="categories" placeholder="No groups" multiple>
+            <mat-form-field *ngIf="!newCategoryPromptShown">
+                <mat-label> Categories </mat-label>
+                <mat-select formControlName="categories" placeholder="No categories" multiple>
                     <mat-select-trigger>
-                        <span *ngIf="contactForm.get('categories').value; else no_groups">
+                        <span *ngIf="contactForm.get('categories').value; else no_categories">
                             {{ contactForm.get('categories').value }}
                         </span>
-                        <ng-template #no_groups>
-                            No groups
+                        <ng-template #no_categories>
+                            No categories
                         </ng-template>
                     </mat-select-trigger>
-                    <mat-option *ngFor="let group of groups" [value]="group"> {{ group }} </mat-option>
-                    <mat-option (click)="showNewGroupPrompt()"> Add a new group... </mat-option>
+                    <mat-option *ngFor="let category of categories" [value]="category"> {{ category }} </mat-option>
+                    <mat-option (click)="showNewCategoryPrompt()"> Add a new category... </mat-option>
                 </mat-select>
             </mat-form-field>
         </div>

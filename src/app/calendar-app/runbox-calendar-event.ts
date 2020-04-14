@@ -25,6 +25,8 @@ import * as moment from 'moment';
 import 'moment-timezone';
 import * as ICAL from 'ical.js';
 
+import { EventOverview } from './event-overview';
+
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
 
@@ -100,6 +102,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
             return undefined;
         }
 
+        // GH-252 workaround until https://github.com/mattlewis92/angular-calendar/issues/1192 solves it better :)
+        if (this.dtend.diff(this.dtstart, 'minutes') < 30) {
+            return moment(this.dtstart).add(30, 'minutes').toDate();
+        }
+
         const shownEnd = moment(this.dtend);
         if (this.allDay) {
             shownEnd.subtract(1, 'days');
@@ -168,13 +175,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         );
     }
 
-    static newMultiple(ical: string): RunboxCalendarEvent[] {
-        const comp = new ICAL.Component(ICAL.parse(ical));
-        return comp.getAllSubcomponents('vevent').map(
-            c => new RunboxCalendarEvent(undefined, c.toJSON())
-        );
-    }
-
     constructor(id: string, jcal: any) {
         this.id = id;
         if (this.id) {
@@ -202,6 +202,36 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     clone(): RunboxCalendarEvent {
         return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+    }
+
+    get_overview(): EventOverview[] {
+        const events = [];
+        const seen = {};
+
+        for (let e of this.ical.getAllSubcomponents('vevent')) {
+            e = new ICAL.Event(e);
+
+            // Skip duplicate uids (if defined),
+            // to eliminate possible special cases in recurring events.
+            if (e.uid && seen[e.uid]) {
+                continue;
+            } else {
+                seen[e.uid] = true;
+            }
+
+            const rrule = e.component.getFirstPropertyValue('rrule');
+
+            events.push(new EventOverview(
+                e.summary,
+                this.icalTimeToLocalMoment(e.startDate),
+                e.endDate ? this.icalTimeToLocalMoment(e.endDate) : undefined,
+                rrule ? rrule.freq : undefined,
+                e.location,
+                e.description,
+            ));
+        }
+
+        return events;
     }
 
     recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {

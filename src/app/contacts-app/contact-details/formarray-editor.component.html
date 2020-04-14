@@ -76,6 +76,11 @@
                         <mat-form-field>
                             <input matInput formControlName="city" placeholder="City">
                         </mat-form-field>
+                        <div class="mat-form-field">
+                            <a mat-button (click)="removeAt(i)" *ngIf="editable">
+                                <mat-icon>delete</mat-icon> {{ deleteDescription }}
+                            </a>
+                        </div>
                     </div>
                     <div class="contact-details-row">
                         <mat-form-field>

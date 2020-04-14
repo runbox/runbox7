@@ -17,11 +17,12 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { SentryErrorHandler } from './sentry-error-handler';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
@@ -158,7 +159,8 @@ const routes: Routes = [
     RMMAuthGuardService,
     ContactsService,
     StorageService,
-    { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
+    { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true},
+    { provide: ErrorHandler, useClass: SentryErrorHandler },
   ],
   bootstrap: [MainContainerComponent],
   entryComponents: [MoveMessageDialogComponent]

@@ -36,7 +36,8 @@ export class RMMOfflineService {
             this.snackbar.open(
                 'Runbox 7 is in offline mode due to a network or server issue. ' +
                 'It will automatically reconnect when the network is available again.',
-                'Okay'
+                'Okay',
+                { duration: 10_000 },
             );
         }
     }

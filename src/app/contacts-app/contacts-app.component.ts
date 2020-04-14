@@ -47,8 +47,8 @@ export class ContactsAppComponent {
     selectedCount = 0;
     selectedIDs = {};
 
-    groups      = [];
-    groupFilter = 'RUNBOX:ALL';
+    categories  = [];
+    categoryFilter = 'RUNBOX:ALL';
     searchTerm  = '';
 
     sideMenuOpened = true;
@@ -71,8 +71,8 @@ export class ContactsAppComponent {
             this.filterContacts();
         });
 
-        contactsservice.contactGroups.subscribe(groups => {
-            this.groups = groups;
+        contactsservice.contactCategories.subscribe(categories => {
+            this.categories = categories;
             this.filterContacts();
         });
 
@@ -130,14 +130,14 @@ export class ContactsAppComponent {
 
     filterContacts(): void {
         this.shownContacts = this.contacts.filter(c => {
-            if (this.groupFilter === 'RUNBOX:ALL') {
+            if (this.categoryFilter === 'RUNBOX:ALL') {
                 return true;
             }
-            if (this.groupFilter === 'RUNBOX:NONE' && c.categories.length === 0) {
+            if (this.categoryFilter === 'RUNBOX:NONE' && c.categories.length === 0) {
                 return true;
             }
 
-            const target = this.groupFilter.substr(5); // strip 'USER:'
+            const target = this.categoryFilter.substr(5); // strip 'USER:'
 
             return c.categories.find(g => g === target);
         }).filter(c => {
@@ -177,15 +177,15 @@ export class ContactsAppComponent {
     processVcfImport(vcf: string) {
         this.contactsservice.importContacts(vcf).subscribe(contacts => {
             const dialogRef = this.dialog.open(VcfImportDialogComponent, {
-                data: { contacts: contacts, groups: this.groups }
+                data: { contacts: contacts, categories: this.categories }
             });
             dialogRef.afterClosed().subscribe(result => {
                 if (!result) {
                     return;
                 }
                 for (const c of contacts) {
-                    if (result['group']) {
-                        c.categories.push(result['group']);
+                    if (result['category']) {
+                        c.categories.push(result['category']);
                     }
                     this.contactsservice.saveContact(c);
                 }
@@ -209,10 +209,12 @@ export class ContactsAppComponent {
     showError(e: HttpErrorResponse): void {
         let message = '';
 
-        if (e.status === 500) {
+        if (e.error.error) {
+            message = e.error.error;
+        } else if (e.status === 500) {
             message = 'Internal server error';
         } else {
-            console.log('Error ' + e.status +  ': ' + e.message);
+            message = 'Error ' + e.status +  ': ' + e.message;
         }
 
         if (message) {

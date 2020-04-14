@@ -40,11 +40,11 @@ export class ContactDetailsComponent {
 
     contactForm = this.createForm();
 
-    groups = [];
+    categories = [];
 
-    newGroupPromptShown = false;
-    newGroupValue = '';
-    @ViewChild('newGroupInput') newGroupElement: ElementRef;
+    newCategoryPromptShown = false;
+    newCategoryValue = '';
+    @ViewChild('newCategoryInput') newCategoryElement: ElementRef;
 
     constructor(
         public dialog: MatDialog,
@@ -65,7 +65,7 @@ export class ContactDetailsComponent {
             }
         });
 
-        contactsservice.contactGroups.subscribe(groups => this.groups = groups);
+        contactsservice.contactCategories.subscribe(categories => this.categories = categories);
     }
 
     loadExistingContact(id: string): void {
@@ -234,24 +234,24 @@ export class ContactDetailsComponent {
         );
     }
 
-    showNewGroupPrompt(): void {
+    showNewCategoryPrompt(): void {
         // clear the newly added 'undefined' from categories input
         let categories = this.contactForm.get('categories').value;
         categories = categories.filter(c => c);
         this.contactForm.get('categories').setValue(categories);
 
-        this.newGroupPromptShown = true;
-        setTimeout(() => this.newGroupElement.nativeElement.focus());
+        this.newCategoryPromptShown = true;
+        setTimeout(() => this.newCategoryElement.nativeElement.focus());
     }
 
-    confirmNewGroup(): void {
-        this.groups.push(this.newGroupValue);
+    confirmNewCategory(): void {
+        this.categories.push(this.newCategoryValue);
 
         const categories = this.contactForm.get('categories').value;
-        categories.push(this.newGroupValue);
+        categories.push(this.newCategoryValue);
         this.contactForm.get('categories').setValue(categories);
 
-        this.newGroupValue = '';
-        this.newGroupPromptShown = false;
+        this.newCategoryValue = '';
+        this.newCategoryPromptShown = false;
     }
 }
