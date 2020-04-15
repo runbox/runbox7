@@ -175,7 +175,11 @@ import {RMM} from '../rmm';
                         <mat-grid-tile
                             colspan="12"
                             rowspan="1"
-                            *ngIf="rmm.profile.profiles.is_not_owner_alias[item.profile.id]"
+                            *ngIf="
+                                rmm.profile.profiles
+                                && rmm.profile.profiles.is_not_owner_alias
+                                && rmm.profile.profiles.is_not_owner_alias[item.profile.id]
+                            "
                             >
                             <div
                                 style="text-align: left; width: 100%; margin-left: 5px;"
