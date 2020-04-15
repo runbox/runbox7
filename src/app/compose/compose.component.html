@@ -78,16 +78,16 @@
             {{model.to}}
         </span>        
         <div style="display: flex;" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (change)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
+            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (updateRecipient)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
             <button mat-button *ngIf="editing && formGroup.value.cc===null" (click)="formGroup.controls.cc.setValue('')" id="buttonCC">CC</button>
             <button mat-button *ngIf="editing && formGroup.value.bcc===null" (click)="formGroup.controls.bcc.setValue('')" id="buttonBCC">BCC</button>
         </div>
         <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (change)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
+            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (updateRecipient)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
             <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
         </div>
         <div style="display: flex;" *ngIf="editing && formGroup.value.bcc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (change)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
+            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (updateRecipient)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon>close</mat-icon></button>
         </div>
     </mat-card-subtitle>    

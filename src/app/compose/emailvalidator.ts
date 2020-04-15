@@ -22,7 +22,7 @@ const EMAIL_REGEXP =
     /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
 /**
- * Extract the email part of the input string (either plain email address or inside <>)
+ * Extract the email part of the input string (either plain email address or inside <>), and test it against the regexp.
  * @param email 
  */
 export function isValidEmail(email: string) {
@@ -34,4 +34,15 @@ export function isValidEmail(email: string) {
     } else {
         return EMAIL_REGEXP.test(email);
     }
+}
+
+/**
+ * Validate each email in the list, return true if all are valid
+ * @param emailList
+ */
+export function isValidEmailList(emailList: string) {
+  if (!emailList) {
+    return false;
+  }
+  return emailList.split(',').every((recipient => isValidEmail(recipient)));
 }
