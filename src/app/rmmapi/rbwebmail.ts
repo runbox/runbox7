@@ -647,12 +647,7 @@ export class RunboxWebmailAPI {
     public getAvailableProducts(): Observable<Product[]> {
         return this.http.get('/rest/v1/account_product/available').pipe(
             map((res: HttpResponse<any>) => res['result']['products']),
-            map((products: any[]) => products.map((c) => {
-                // fixup for RMM API bug
-                c.pid   = parseInt(c.pid, 10);
-                c.price = parseFloat(c.price);
-                return new Product(c);
-            }))
+            map((products: any[]) => products.map((c) => new Product(c))),
         );
     }
 
@@ -751,9 +746,10 @@ export class RunboxWebmailAPI {
         return this.http.post('/rest/v1/account_product/default_payment_method/' + id, {});
     }
 
-    public getProducts(pids: number[]): Observable<any> {
+    public getProducts(pids: number[]): Observable<Product[]> {
         return this.http.get('/rest/v1/account_product/available', { params: { pids: pids.join(',') } }).pipe(
-            map((res: HttpResponse<any>) => res['result']['products'])
+            map((res: HttpResponse<any>) => res['result']['products']),
+            map((products: any[]) => products.map((c) => new Product(c))),
         );
     }
 

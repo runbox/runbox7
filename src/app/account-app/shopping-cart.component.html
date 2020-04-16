@@ -19,9 +19,9 @@ app-payment-method {
         <button mat-button routerLink="/account/upgrades" class="contentButton">
             <mat-icon> hot_tub </mat-icon> upgrade
         </button>
-        or go ahead and 
+        or go ahead and
         <button mat-button routerLink="/account/renewals" class="contentButton">
-            <mat-icon> autorenew </mat-icon> renew 
+            <mat-icon> autorenew </mat-icon> renew
         </button>
         some of your products and lock in today's prices?
     </p>
@@ -44,13 +44,13 @@ app-payment-method {
 
     <ng-container matColumnDef="price">
         <th mat-header-cell *matHeaderCellDef> Price </th>
-        <td mat-cell *matCellDef="let i"> {{ i.product.price | number:'1.2-2' }} {{ currency | async }} </td>
+        <td mat-cell *matCellDef="let i"> {{ i.product.price | number:'1.2-2' }} {{ currency }} </td>
     </ng-container>
 
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
-        <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency | async }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency | async }} </strong> </td>
+        <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency }} </td>
+        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong> </td>
     </ng-container>
 
     <ng-container matColumnDef="remove">
@@ -134,8 +134,8 @@ app-payment-method {
                 </p>
                 <p>
                     You can send us an International Money Order, a SWIFT/IBAN bank transfer or even mail us an envelope with cash.
-		</p>
-		<p>
+        </p>
+        <p>
                     Your products won't activate until the payment is received by Runbox.
                 </p>
             </div>
@@ -143,8 +143,18 @@ app-payment-method {
     </div>
 </div>
 
+</div>
+
 <div *ngIf="orderError !== undefined" style="display: flex; flex-flow: column; align-items: center;">
     <h3> There is a problem with your order </h3>
+
+    <div *ngIf="orderError === errors.CANT_LOAD_PRODUCTS">
+        Could not load products in your cart. <br>
+        Try again later, or contact Runbox Support at
+        <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">
+            support@runbox.com
+        </a>.
+    </div>
 
     <div *ngIf="orderError === errors.NEED_EMAIL_HOSTING">
         To use Runbox Micro with your own domain, you need to
@@ -163,10 +173,9 @@ app-payment-method {
     </div>
 </div>
 
-</div>
-
 <ng-template #loading>
     <app-runbox-loading
+        *ngIf="orderError === undefined"
         text="Loading your cart details..."
     >
     </app-runbox-loading>
