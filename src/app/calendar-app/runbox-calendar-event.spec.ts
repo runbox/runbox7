@@ -45,7 +45,7 @@ describe('RunboxCalendarEvent', () => {
         expect(sut.toIcal()).not.toContain('RRULE', 'recurrence seems to be unset');
     });
 
-    fit('should be possible to add a special case to a recurring event', () => {
+    it('should be possible to add a special case to a recurring event', () => {
         const todayStr = moment().toISOString().split('T')[0];
         const yesterday = moment().subtract(1, 'day');
         const sut = new RunboxCalendarEvent(

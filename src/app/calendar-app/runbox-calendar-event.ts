@@ -201,7 +201,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     clone(): RunboxCalendarEvent {
-        let copy = RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+        const copy = RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
         copy.recurrenceId = this.recurrenceId;
         return copy;
     }
@@ -261,7 +261,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
     recurrenceFrom(details: ICAL.Event.occurrenceDetails): RunboxCalendarEvent {
         const copy  = this.clone();
         copy.parent = this;
-        copy.recurrenceId = new ICAL.Time(JSON.parse(JSON.stringify(details.recurrenceId)));
 
         // This is really ugly, but ICAL.js is oversharing these,
         // so we need a proper copy of the details.item ICAL.Event.

@@ -296,7 +296,7 @@ export class CalendarAppComponent implements OnDestroy {
     openEvent(event: CalendarEvent): void {
         const target = event as RunboxCalendarEvent;
         console.log('Opening event', target);
-        let parent = target.parent;
+        const parent = target.parent;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
             data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
         });
