@@ -19,6 +19,7 @@
 
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
+import { EventOverview } from './event-overview';
 
 import * as moment from 'moment';
 import 'moment-timezone';
@@ -174,13 +175,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         );
     }
 
-    static newMultiple(ical: string): RunboxCalendarEvent[] {
-        const comp = new ICAL.Component(ICAL.parse(ical));
-        return comp.getAllSubcomponents('vevent').map(
-            c => new RunboxCalendarEvent(undefined, c.toJSON())
-        );
-    }
-
     constructor(id: string, jcal: any) {
         this.id = id;
         if (this.id) {
@@ -229,6 +223,36 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 // clone, but swap the "main" event to the current recurrence
                 events.push(this.recurrenceFrom(details));
             }
+        }
+
+        return events;
+    }
+
+    get_overview(): EventOverview[] {
+        const events = [];
+        const seen = {};
+
+        for (let e of this.ical.getAllSubcomponents('vevent')) {
+            e = new ICAL.Event(e);
+
+            // Skip duplicate uids (if defined),
+            // to eliminate possible special cases in recurring events.
+            if (e.uid && seen[e.uid]) {
+                continue;
+            } else {
+                seen[e.uid] = true;
+            }
+
+            const rrule = e.component.getFirstPropertyValue('rrule');
+
+            events.push(new EventOverview(
+                e.summary,
+                this.icalTimeToLocalMoment(e.startDate),
+                e.endDate ? this.icalTimeToLocalMoment(e.endDate) : undefined,
+                rrule ? rrule.freq : undefined,
+                e.location,
+                e.description,
+            ));
         }
 
         return events;

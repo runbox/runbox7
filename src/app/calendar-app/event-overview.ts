@@ -17,18 +17,28 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { EventOverview } from './event-overview';
+import * as moment from 'moment';
 
-@Component({
-    selector: 'app-calendar-event-card',
-    templateUrl: './calendar-event-card.component.html',
-})
-export class CalendarEventCardComponent {
-    @Input() event: EventOverview;
-    @Input() editable = false;
+export class EventOverview {
+    ongoing: boolean;
 
-    @Output() edit = new EventEmitter();
+    constructor(
+        public title:               string,
+        public dtstart:             moment.Moment,
+        public dtend?:              moment.Moment,
+        public recurringFrequency?: string,
+        public location?:           string,
+        public description?:        string,
 
-    constructor() { }
+    ) {
+        if (dtstart.isBefore(moment()) && dtend && dtend.isAfter(moment())) {
+            this.ongoing = true;
+        }
+        // titlecase
+        const freq = this.recurringFrequency;
+        if (freq) {
+            this.recurringFrequency = freq.charAt(0).toUpperCase()
+                                    + freq.slice(1).toLowerCase();
+        }
+    }
 }

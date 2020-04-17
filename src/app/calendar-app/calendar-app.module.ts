@@ -18,8 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { SentryErrorHandler } from '../sentry-error-handler';
+
 import { MenuModule } from '../menu/menu.module';
 
 import { CalendarModule, DateAdapter } from 'angular-calendar';
@@ -105,6 +107,7 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
   ],
   providers: [
     CalendarService,
+    { provide: ErrorHandler, useClass: SentryErrorHandler },
   ],
   bootstrap: []
 })

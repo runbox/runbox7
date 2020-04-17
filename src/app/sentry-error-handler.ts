@@ -17,18 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { EventOverview } from './event-overview';
+import { Injectable, ErrorHandler } from '@angular/core';
+import * as Sentry from '@sentry/browser';
 
-@Component({
-    selector: 'app-calendar-event-card',
-    templateUrl: './calendar-event-card.component.html',
-})
-export class CalendarEventCardComponent {
-    @Input() event: EventOverview;
-    @Input() editable = false;
+import './sentry';
 
-    @Output() edit = new EventEmitter();
-
-    constructor() { }
+@Injectable()
+export class SentryErrorHandler implements ErrorHandler {
+    constructor() {}
+    handleError(error: any) {
+        Sentry.captureException(error.originalError || error);
+    }
 }

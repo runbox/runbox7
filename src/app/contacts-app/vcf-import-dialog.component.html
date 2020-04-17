@@ -4,23 +4,23 @@
     <p>
         <mat-radio-group [(ngModel)]="choice">
             <p>
-                <mat-radio-button value="existing"> Import contacts into an existing group </mat-radio-button>
+                <mat-radio-button value="existing"> Import contacts into an existing category </mat-radio-button>
             </p>
             <p *ngIf="choice == 'existing'">
-                <mat-select placeholder="Group" [(ngModel)]="target_existing">
-                    <mat-option *ngFor="let group of groups" [value]="group">
-                        {{ group }}
+                <mat-select placeholder="Category" [(ngModel)]="target_existing">
+                    <mat-option *ngFor="let category of categories" [value]="category">
+                        {{ category }}
                     </mat-option>
                 </mat-select>
             </p>
             <p>
-                <mat-radio-button value="new"> Import contacts into a new group </mat-radio-button>
+                <mat-radio-button value="new"> Import contacts into a new category </mat-radio-button>
             </p>
             <p *ngIf="choice == 'new'">
                 <input matInputtype="text" [(ngModel)]="target_new">
             </p>
             <p>
-                <mat-radio-button value="nogroup"> Don't add new contacts to any groups </mat-radio-button>
+                <mat-radio-button value="nocategory"> Don't add new contacts to any categories </mat-radio-button>
             </p>
         </mat-radio-group>
     </p>

@@ -29,9 +29,9 @@ import { Contact } from './contact';
 })
 export class VcfImportDialogComponent {
     contacts: Contact[];
-    groups: string[];
+    categories: string[];
 
-    choice = 'nogroup';
+    choice = 'nocategory';
     target_new: string;
     target_existing: string;
 
@@ -40,8 +40,8 @@ export class VcfImportDialogComponent {
         public dialogRef: MatDialogRef<VcfImportDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        this.contacts = data['contacts'];
-        this.groups   = data['groups'];
+        this.contacts   = data['contacts'];
+        this.categories = data['categories'];
     }
 
     onCancelClick(): void {
@@ -51,9 +51,9 @@ export class VcfImportDialogComponent {
     onSubmitClick(): void {
         const result = {};
         if (this.choice === 'existing') {
-            result['group'] = this.target_existing;
+            result['category'] = this.target_existing;
         } else if (this.choice === 'new') {
-            result['group'] = this.target_new;
+            result['category'] = this.target_new;
         }
         this.dialogRef.close(result);
     }

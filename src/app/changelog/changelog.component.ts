@@ -66,10 +66,8 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
         this.route.queryParams.subscribe(params => {
             this.since = params['since'];
             if (this.since) {
-                const index = changelog.findIndex(c => c.hash === this.since);
-                if (index !== -1) {
-                    this.loadChangelog(changelog.slice(0, index));
-                }
+                const entries = changelog.filter(c => c.epoch > parseInt(this.since, 10));
+                this.loadChangelog(entries);
             } else {
                 this.loadChangelog(changelog);
             }

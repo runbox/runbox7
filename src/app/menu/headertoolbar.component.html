@@ -42,7 +42,7 @@
   
   <span flex style="flex-grow: 1"></span>
 
-  <a *ngIf="user_is_trial" mat-button matTooltip="Subscribe now" href="/account/components">
+  <a *ngIf="user_is_trial" mat-button routerLink="/account/components" matTooltip="Subscribe now">
     <mat-icon id="subscribe">card_membership</mat-icon> Subscribe
   </a>
 
