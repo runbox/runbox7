@@ -5,18 +5,10 @@ language: node_js
 node_js:
   - "10"
 
-addons:
-  apt:
-    packages:
-      - chromium-browser
-
 cache:
   directories:
      - ./node_modules
      - /home/travis/.cache/Cypress
-
-before_install:
-  - export CHROME_BIN=chromium-browser
 
 install:
   - npm install
