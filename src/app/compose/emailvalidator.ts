@@ -41,8 +41,8 @@ export function isValidEmail(email: string) {
  * @param emailList
  */
 export function isValidEmailList(emailList: string) {
-  if (!emailList) {
-    return false;
-  }
-  return emailList.split(',').every((recipient => isValidEmail(recipient)));
+    if (!emailList) {
+        return false;
+    }
+    return emailList.split(',').every((recipient => isValidEmail(recipient)));
 }
