@@ -43,6 +43,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 export interface ElementUserDomain {
   created: string;
@@ -169,6 +170,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   public renew_whois_privacy = [];
   public is_btn_renew_disabled = true;
 
+  public is_trial = false;
 
   public btn_check_avail_color = function () {
     return this.is_available ? 'primary' : 'button';
@@ -840,6 +842,7 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   constructor(
     private http: HttpClient,
+    private rmmapi: RunboxWebmailAPI,
     public snackBar: MatSnackBar,
   ) {
     this.is_loading.tld_list = true;
@@ -864,6 +867,9 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.activate_purchase_privacy();
     });
     //    this.list_hosted_domains();
+    this.rmmapi.me.subscribe(me => {
+      this.is_trial = me.is_trial;
+    });
   }
 
   // public close(actionstring? : string) {    
