@@ -7,6 +7,9 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
             continue;
         }
         const hash = line.split(' ', 1)[0];
+        if (hash.startsWith('04d6bdf')) {
+            continue;
+        }
         const message = line.substr(hash.length + 1);
         const match = message.match(/([^\(]+)\(([^\)]+)\): .+/);
         if (!match) {

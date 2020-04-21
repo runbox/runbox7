@@ -20,7 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncSubject, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { CartService } from './cart.service';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
@@ -30,10 +30,16 @@ import { PaymentsService } from './payments.service';
 import { ProductOrder } from './product-order';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { Product } from './product';
 
 enum CartError {
+    CANT_LOAD_PRODUCTS,
     NEED_EMAIL_HOSTING,
     NEED_SUB_FOR_ADDON,
+}
+
+class CartItem extends ProductOrder {
+    product: Product;
 }
 
 @Component({
@@ -56,11 +62,16 @@ export class ShoppingCartComponent implements OnInit {
 
     // it's not as elegant, but it's *so much easier*
     // to handle in the template when it's synchronous
-    items = [];
+    items: CartItem[] = [];
+    // this too is technically fetched asynchronously,
+    // but boils down to the currency of the first item
+    // in the items above, so for convenience we keep these in sync,
+    // synchronously :)
+    currency: string;
+
     total: number;
 
-    itemsSubject = new Subject<any[]>();
-    currency = new AsyncSubject<string>();
+    itemsSubject = new Subject<CartItem[]>();
 
     constructor(
         private cart:            CartService,
@@ -72,8 +83,8 @@ export class ShoppingCartComponent implements OnInit {
     ) {
         this.itemsSubject.subscribe(items => this.calculateTotal(items));
         this.itemsSubject.subscribe(items => this.items = items);
+        this.itemsSubject.subscribe(items => this.currency = items[0].product.currency);
         this.itemsSubject.subscribe(items => this.checkIfLegal(items));
-        this.currency = this.paymentsservice.currency;
     }
 
     ngOnInit() {
@@ -83,25 +94,31 @@ export class ShoppingCartComponent implements OnInit {
                 const source = JSON.parse(forParam);
                 this.fromUrl = true;
                 this.tableColumns = ['name', 'quantity', 'price', 'total-price']; // no 'remove'
+
                 if (source['domregHash']) {
-                    // this is a domain purchase: the only supported currency is USD
                     this.domregHash = source['domregHash'];
-                    this.currency = new AsyncSubject<string>();
-                    this.currency.next('USD');
-                    this.currency.complete();
                 }
-                this.loadProducts(source['items']).then(items => this.itemsSubject.next(items));
+
+                this.loadProducts(source['items']).then(items => {
+                    this.itemsSubject.next(items);
+                }).catch(e => {
+                    this.orderError = CartError.CANT_LOAD_PRODUCTS;
+                    throw e;
+                });
             } else {
                 this.cart.items.subscribe(items => {
                     this.loadProducts(items).then(loadedItems => {
                         this.itemsSubject.next(loadedItems);
+                    }).catch(e => {
+                        this.orderError = CartError.CANT_LOAD_PRODUCTS;
+                        throw e;
                     });
                 });
             }
         });
     }
 
-    calculateTotal(items) {
+    calculateTotal(items: CartItem[]) {
         let total = 0.0;
         for (const i of items) {
             total += i.quantity * i.product.price;
@@ -113,7 +130,7 @@ export class ShoppingCartComponent implements OnInit {
     // Example:
     // input: [{ pid: 42 }]
     // output: [{ pid: 42, product: { name: "Runbox mini", price: 9.95, ... }}]
-    async loadProducts(items: any[]): Promise<any[]> {
+    async loadProducts(items: any[]): Promise<CartItem[]> {
         // this is coming straight from the cart,
         // and we want to enhance a local copy rather than the original
         // maybe there is a more elegant way to do this, but it's concise and works :)
@@ -133,6 +150,9 @@ export class ShoppingCartComponent implements OnInit {
         }
         if (neededPids.length > 0) {
             const extras = await this.rmmapi.getProducts(neededPids).toPromise();
+            if (extras.length !== neededPids.length) {
+                throw new Error(`Failed to load products ${neededPids.join(',')} (got: ${JSON.stringify(extras)})`);
+            }
             products = products.concat(extras);
         }
 
@@ -144,7 +164,7 @@ export class ShoppingCartComponent implements OnInit {
         return cartItems;
     }
 
-    async checkIfLegal(items) {
+    async checkIfLegal(items: CartItem[]) {
         const me = await this.rmmapi.me.toPromise();
 
         this.orderError = undefined; // unless we find something else :)
@@ -161,7 +181,6 @@ export class ShoppingCartComponent implements OnInit {
 
         // cannot buy addon without subscription while on trial
         if (me.is_trial) {
-            console.log(items);
             const bought_addon = items.find(i => i.product.type === 'addon');
             const bought_sub   = items.find(i => i.product.type === 'subscription');
 
@@ -176,10 +195,10 @@ export class ShoppingCartComponent implements OnInit {
     }
 
     async initiatePayment(method: string) {
-        const currency = await this.currency.toPromise();
         const items = this.items.map(i => {
             return { pid: i.pid, apid: i.apid, quantity: i.quantity };
         });
+        const currency = this.items[0].product.currency;
         this.rmmapi.orderProducts(items, method, currency, this.domregHash).subscribe(tx => {
             let dialogRef: MatDialogRef<any>;
             if (method === 'stripe') {

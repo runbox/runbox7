@@ -26,6 +26,7 @@ export class Product {
     description: string;
     details?:    string[];
     price:       number;
+    currency:    string;
 
     constructor(properties: any) {
         // tslint:disable-next-line:forin

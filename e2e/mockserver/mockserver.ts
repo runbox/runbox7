@@ -340,6 +340,7 @@ export class MockServer {
                         'type':        'subscription',
                         'subtype':     'test',
                         'price':       '13.37',
+                        'currency':    'EUR',
                         'pid':         '9001',
                         'description': 'Test subscription including some stuff'
                     },
@@ -348,6 +349,7 @@ export class MockServer {
                         'type':        'addon',
                         'subtype':     'emailaddon',
                         'price':       '5.55',
+                        'currency':    'EUR',
                         'pid':         '9002',
                         'description': 'More cool stuff for your account'
                     }
