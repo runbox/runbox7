@@ -1,7 +1,19 @@
 <mat-sidenav-container class="domain-register">
     <mat-sidenav mode="side" opened=false></mat-sidenav>
     <mat-sidenav-content>
-        <div class="domain-register">
+        <div *ngIf="is_trial" style="padding-left: 25px; padding-right: 25px;">
+            <h4>
+                <p>
+                    You cannot purchase domains while on trial.
+                </p>
+                <p>
+                    You need to
+                    <a routerLink="/account/upgrades">purchase a subscription</a>
+                    first.
+                </p>
+            </h4>
+        </div>
+        <div class="domain-register" *ngIf="!is_trial">
             <style>
                 mat-form-field.wide {
                 width: 300px;

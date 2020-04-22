@@ -5,14 +5,10 @@ function run(command) {
     exec(command, { stdio: 'inherit' });
 }
 
-if (!process.env['CHROME_BIN']) {
-    process.env['CHROME_BIN'] = 'chromium-browser';
-}
-
 const phases = {
     lint:   'npm run lint',
     policy: 'npm run policy',
-    unit:   'npm run test -- --watch=false --progress=false --browsers=ChromeHeadlessCI',
+    unit:   'npm run test -- --watch=false --progress=false --browsers=FirefoxHeadless',
     e2e:    'npm run cypress-e2e',
     build:  'npm run build',
     olde2e: 'npm run e2e -- --protractor-config=./protractor-ci.conf.js',
