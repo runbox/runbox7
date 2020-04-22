@@ -456,27 +456,31 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send: boolean = false) {
-        let validemails = false;
-        validemails = isValidEmailList(this.formGroup.value.to);
-        if (!validemails) {
-            this.saveErrorMessage = 'Cannot save draft: TO field contains invalid email addresses';
-        }
-        if (validemails && this.formGroup.value.cc) {
-            validemails = isValidEmailList(this.formGroup.value.cc);
-            if (!validemails) {
-                this.saveErrorMessage = 'Cannot save draft: CC field contains invalid email addresses';
-            }
-        }
-        if (validemails && this.formGroup.value.bcc) {
-            validemails = isValidEmailList(this.formGroup.value.bcc);
-            if (!validemails) {
-                this.saveErrorMessage = 'Cannot save draft: BCC field contains invalid email addresses';
-            }
-        }
-        if (!validemails) {
-            return;
-        }
         if (send) {
+            let validemails = false;
+            validemails = isValidEmailList(this.formGroup.value.to);
+            if (!validemails) {
+                this.saveErrorMessage = 'Cannot send email: TO field contains invalid email addresses';
+            }
+            if (validemails && this.formGroup.value.cc) {
+                validemails = isValidEmailList(this.formGroup.value.cc);
+                if (!validemails) {
+                    this.saveErrorMessage = 'Cannot send email: CC field contains invalid email addresses';
+                }
+            }
+            if (validemails && this.formGroup.value.bcc) {
+                validemails = isValidEmailList(this.formGroup.value.bcc);
+                if (!validemails) {
+                    this.saveErrorMessage = 'Cannot send email: BCC field contains invalid email addresses';
+                }
+            }
+            if (!validemails) {
+                this.snackBar.open(
+                    `Error sending: ${this.saveErrorMessage}`,
+                    'Dismiss'
+                );
+                return;
+            }
             this.dialogService.openProgressDialog();
         }
         this.model.from = this.formGroup.value.from;
