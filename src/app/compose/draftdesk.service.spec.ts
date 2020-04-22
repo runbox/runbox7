@@ -56,6 +56,11 @@ describe('DraftDesk', () => {
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.to).toBe('Test1<test1@runbox.com>');
         expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        expect(draft.isUnsavedUntargetedDraft()).toBe(false);
+        expect(draft.isUnsavedContactDraft()).toBe(false);
+        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isReply()).toBe(true);
         draft = DraftFormModel.reply({
                 headers: {
                     'message-id': 'themessageid112414',
@@ -81,6 +86,50 @@ describe('DraftDesk', () => {
                                     '> \n' +
                                     `> 2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n` +
                                     '>> blabla\n>> abcde');
+        expect(draft.isUnsaved()).toBe(true);
+        expect(draft.isUnsavedUntargetedDraft()).toBe(false);
+        expect(draft.isUnsavedContactDraft()).toBe(false);
+        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isReply()).toBe(true);
         done();
+    });
+
+    it('Create', (done) => {
+        console.log('Create test');
+        // compose?new=true
+        let draft = DraftFormModel.create(
+            -1, 
+            [ FromAddress.fromEmailAddress('test2@runbox.com')],
+            null,
+            '');
+        expect(draft.isUnsaved()).toBe(true);
+        expect(draft.isUnsavedUntargetedDraft()).toBe(true);
+        expect(draft.isUnsavedContactDraft()).toBe(false);
+        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isReply()).toBe(false);
+
+        // Link on contact page:
+        draft = DraftFormModel.create(
+            -1,
+            [ FromAddress.fromEmailAddress('test2@runbox.com')],
+            '"Test Runbox" <test2@runbox.com>',
+            '');
+        expect(draft.isUnsaved()).toBe(true);
+        expect(draft.isUnsavedUntargetedDraft()).toBe(false);
+        expect(draft.isUnsavedContactDraft()).toBe(true);
+        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isReply()).toBe(false);
+
+        // refreshDrafts
+        draft = DraftFormModel.create(
+            12345,
+            [ FromAddress.fromEmailAddress('test2@runbox.com')],
+            '"Test Runbox" <test2@runbox.com>',
+            'Some blahblah');
+        expect(draft.isUnsaved()).toBe(false);
+        expect(draft.isUnsavedUntargetedDraft()).toBe(false);
+        expect(draft.isUnsavedContactDraft()).toBe(false);
+        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isReply()).toBe(false);
     });
 });

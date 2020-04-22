@@ -58,7 +58,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public showDropZone = false;
     public draggingOverDropZone = false;
     public editing = false;
-    public isNew = false;
+    public isUnsaved = false;
     public uploadprogress: number = null;
     public uploadingFiles: File[] = null;
     public uploadRequest: Subscription = null;
@@ -71,6 +71,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     saveErrorMessage: string;
 
     @Input() shouldExitToTable = false;
+    @Input() shouldExitToDrafts = false;
+    @Input() shouldExitToContacts = false;
 
     public formGroup: FormGroup;
 
@@ -91,13 +93,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     ngOnInit() {
-        if (this.model.mid <= -1) {
+        if (this.model.isUnsaved()) {
             this.editing = true;
-            this.isNew = true;
-            if (this.isNew && this.model.subject) {
+            this.isUnsaved = true;
+            if (this.model.isUnsavedReply()) {
                 this.shouldExitToTable = true;
             }
-
+            if (this.model.isUnsavedUntargetedDraft()) {
+                this.shouldExitToDrafts = true;
+            }
+            if (this.model.isUnsavedContactDraft()) {
+                this.shouldExitToContacts = true;
+            }
             const from: FromAddress = this.draftDeskservice.froms.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
@@ -386,13 +393,19 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.rmmapi.trashMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
-            this.checkIfExitToTable();
+            this.exitIfNeeded();
         });
     }
 
-    checkIfExitToTable() {
+    exitIfNeeded() {
         if (this.shouldExitToTable) {
             this.exitToTable();
+        }
+        else if (this.shouldExitToDrafts) {
+            this.router.navigate(['/compose']);
+        }
+        else if (this.shouldExitToContacts) {
+            this.router.navigate(['/contacts'])
         }
     }
 
@@ -402,7 +415,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public cancelDraft() {
         this.draftDeleted.emit(this.model.mid);
-        this.checkIfExitToTable();
+        this.exitIfNeeded();
     }
 
     public downloadMessage(): Observable<any> {
@@ -452,6 +465,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public close() {
         this.editing = false;
+        this.exitIfNeeded();
     }
 
     public submit(send: boolean = false) {
@@ -553,7 +567,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
 
-                    this.isNew = false;
+                    this.isUnsaved = false;
                     this.saved = new Date();
                     this.saveErrorMessage = null;
 
