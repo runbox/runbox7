@@ -98,8 +98,8 @@ describe('DraftDesk', () => {
         console.log('Create test');
         // compose?new=true
         let draft = DraftFormModel.create(
-            -1, 
-            [ FromAddress.fromEmailAddress('test2@runbox.com')],
+            -1,
+            'test2@runbox.com',
             null,
             '');
         expect(draft.isUnsaved()).toBe(true);
@@ -111,7 +111,7 @@ describe('DraftDesk', () => {
         // Link on contact page:
         draft = DraftFormModel.create(
             -1,
-            [ FromAddress.fromEmailAddress('test2@runbox.com')],
+            'test2@runbox.com',
             '"Test Runbox" <test2@runbox.com>',
             '');
         expect(draft.isUnsaved()).toBe(true);
@@ -123,7 +123,7 @@ describe('DraftDesk', () => {
         // refreshDrafts
         draft = DraftFormModel.create(
             12345,
-            [ FromAddress.fromEmailAddress('test2@runbox.com')],
+            'test2@runbox.com',
             '"Test Runbox" <test2@runbox.com>',
             'Some blahblah');
         expect(draft.isUnsaved()).toBe(false);
