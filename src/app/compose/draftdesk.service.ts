@@ -54,41 +54,6 @@ export class DraftFormModel {
     save = 'Save';
     attachments: any[];
 
-    public isUnsaved(): boolean {
-        if (this.mid <= -1) {
-            return true;
-        }
-        return false;
-    }
-
-    public isReply(): boolean {
-        if (this.in_reply_to) {
-            return true;
-        }
-        return false;
-    }
-
-    public isUnsavedUntargetedDraft(): boolean {
-        if (this.isUnsaved() && !this.isReply() && !this.to) {
-            return true;
-        }
-        return false;
-    }
-
-    public isUnsavedReply(): boolean {
-        if (this.isUnsaved() && this.isReply()) {
-            return true;
-        }
-        return false;
-    }
-
-    public isUnsavedContactDraft(): boolean {
-        if (this.isUnsaved() && !this.isReply() && this.to) {
-            return true;
-        }
-        return false;
-    }
-
     public static create(draftId: number, fromAddress: FromAddress, to: string, subject: string, preview?: string): DraftFormModel {
         const ret = new DraftFormModel();
         ret.from = fromAddress.email;
@@ -196,6 +161,41 @@ export class DraftFormModel {
             new ForwardedAttachment(mailObj.mid, ndx, attachment.cid)
         );
         return ret;
+    }
+
+    public isUnsaved(): boolean {
+        if (this.mid <= -1) {
+            return true;
+        }
+        return false;
+    }
+
+    public isReply(): boolean {
+        if (this.in_reply_to) {
+            return true;
+        }
+        return false;
+    }
+
+    public isUnsavedUntargetedDraft(): boolean {
+        if (this.isUnsaved() && !this.isReply() && !this.to) {
+            return true;
+        }
+        return false;
+    }
+
+    public isUnsavedReply(): boolean {
+        if (this.isUnsaved() && this.isReply()) {
+            return true;
+        }
+        return false;
+    }
+
+    public isUnsavedContactDraft(): boolean {
+        if (this.isUnsaved() && !this.isReply() && this.to) {
+            return true;
+        }
+        return false;
     }
 }
 

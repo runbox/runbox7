@@ -38,7 +38,7 @@
     <mat-card-actions style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; margin-right: 5px;">
         <div style="flex-grow: 1; padding-left: 15px; font-size: 24px;">
             {{model.subject ? model.subject : "New message"}}
-        </div>           
+        </div>
         <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
         <button *ngIf="editing" mat-icon-button matTooltip="Attach files" (click)="attachFilesClicked()">
             <mat-icon>attachment</mat-icon>

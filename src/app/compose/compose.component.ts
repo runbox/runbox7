@@ -400,12 +400,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     exitIfNeeded() {
         if (this.shouldExitToTable) {
             this.exitToTable();
-        }
-        else if (this.shouldExitToDrafts) {
+        } else if (this.shouldExitToDrafts) {
             this.router.navigate(['/compose']);
-        }
-        else if (this.shouldExitToContacts) {
-            this.router.navigate(['/contacts'])
+        } else if (this.shouldExitToContacts) {
+            this.router.navigate(['/contacts']);
         }
     }
 
