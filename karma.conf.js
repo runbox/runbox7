@@ -7,6 +7,8 @@ module.exports = function (config) {
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
       require('karma-jasmine'),
+      require('karma-chrome-launcher'),
+      require('karma-electron-launcher'),
       require('karma-firefox-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage-istanbul-reporter'),
@@ -27,7 +29,24 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Firefox'],
+    browsers: ['Chrome', 'Electron', 'Firefox'],
+    electronOpts: {
+      width: 1920,
+      height: 1080,
+    },
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--window-size=1920,1080']
+      },
+      ElectronHeadless: {
+        base: 'Electron',
+        electronOpts: {
+          show: false
+        }
+      },
+    },
+
     singleRun: false
   });
 };
