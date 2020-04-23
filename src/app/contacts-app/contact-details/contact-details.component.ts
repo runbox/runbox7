@@ -25,7 +25,7 @@ import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
 
 @Component({
@@ -68,10 +68,21 @@ export class ContactDetailsComponent {
         contactsservice.contactCategories.subscribe(categories => this.categories = categories);
     }
 
+    private contactDiffersFrom(other: Contact): boolean {
+        return JSON.stringify(this.contact.toDict()) !== JSON.stringify(other.toDict());
+    }
+
     loadExistingContact(id: string): void {
-        this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
-            this.contact = contacts.find(c => c.id === id);
-            if (this.contact) {
+        this.contactsservice.contactsSubject.subscribe(contacts => {
+            const contact = contacts.find(c => c.id === id);
+            if (!contact) {
+                // we may have been displaying something that was just deleted
+                this.router.navigateByUrl('/contacts');
+            } else if (!this.contact || this.contactDiffersFrom(contact)) { // don't reload the form if current contact hasn't changed
+                this.contact = contact;
+                // TODO: maybe theck if the form is dirty,
+                // and if it is, ask before reloading
+                console.log('contact changed, (re)loading contact form');
                 this.loadContactForm();
             }
         });
@@ -102,11 +113,6 @@ export class ContactDetailsComponent {
     }
 
     loadContactForm(): void {
-        // need to prevent ReactiveForms from shitting themvelses on null arrays
-        if (this.contact.emails === null) {
-            this.contact.emails = [];
-        }
-
         // prepare room in the form for all the emails, addresses etc
         this.initializeFormArray('emails',    () => this.createEmailFG());
         this.initializeFormArray('addresses', () => this.createAdrFG());
@@ -124,7 +130,7 @@ export class ContactDetailsComponent {
             this.contactForm.enable();
         }
 
-        this.contactForm.patchValue(this.contact);
+        this.contactForm.patchValue(this.contact.toDict());
     }
 
     createForm(): FormGroup {
@@ -199,9 +205,16 @@ export class ContactDetailsComponent {
     newRelative(): void { this.addFGtoFA(this.createEmailFG(['']), 'related');   }
 
     save(): void {
-        this.contact = new Contact(this.contactForm.value);
+        for (const name of Object.keys(this.contactForm.controls)) {
+            const ctl = this.contactForm.get(name);
+            if (ctl.dirty) {
+                this.contact[name] = ctl.value;
+            }
+        }
         console.log('Saving contact:', this.contact);
-        this.contactsservice.saveContact(this.contact);
+        this.contactsservice.saveContact(this.contact).then(
+            () => this.router.navigateByUrl('/contacts/' + this.contact.id)
+        );
     }
 
     rollback(): void {
@@ -218,8 +231,8 @@ export class ContactDetailsComponent {
         confirmDialog.afterClosed().pipe(
             filter(res => res === true)
         ).subscribe(() => {
-            this.contactsservice.deleteContact(this.contact.id).then(() => {
-                this.router.navigateByUrl('/contacts/');
+            this.contactsservice.deleteContact(this.contact).then(() => {
+                this.router.navigateByUrl('/contacts');
             });
         });
     }

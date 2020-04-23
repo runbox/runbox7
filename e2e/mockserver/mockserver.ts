@@ -620,36 +620,6 @@ export class MockServer {
             {
                 'nickname' : 'Postpat',
                 'first_name' : 'Patrick',
-                'addresses' : [
-                    {
-                        'types' : [
-                            'home'
-                        ],
-                        'value' : {
-                            'street' : ' home street',
-                            'po_box' : ' ',
-                            'country' : 'Home country',
-                            'extended' : ' ',
-                            'city' : 'home city',
-                            'post_code' : 'home code',
-                            'region' : 'home region'
-                        }
-                    },
-                    {
-                        'value' : {
-                            'city' : 'work city',
-                            'post_code' : 'work code',
-                            'region' : 'work region',
-                            'extended' : ' ',
-                            'country' : 'work country',
-                            'street' : 'work street',
-                            'po_box' : ' '
-                        },
-                        'types' : [
-                            'work'
-                        ]
-                    }
-                ],
                 'categories' : [],
                 'urls' : [],
                 'last_name' : 'Postcode',
@@ -657,15 +627,8 @@ export class MockServer {
                 'birthday' : '',
                 'company' : 'Post Office #42',
                 'fullname' : 'Patrick Postcode',
-                'phones' : [
-                    {
-                        'types' : [
-                            'work'
-                        ],
-                        'value' : '333333333'
-                    }
-                ],
-                'emails' : [{ 'types': ['work'], 'value': 'patrick@post.no' }],
+                'phones' : [{ 'types' : ['work'], 'value' : '333333333' }],
+                'emails' : [{ 'types': ['work'],   'value': 'patrick@post.no' }],
                 'department' : null,
                 'note' : '',
                 'show_as' : null,

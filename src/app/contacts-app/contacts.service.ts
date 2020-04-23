@@ -148,26 +148,34 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-    saveContact(contact: Contact): void {
-        if (contact.id) {
-            console.log('Modifying contact', contact.id);
-            this.rmmapi.modifyContact(contact).subscribe(() => {
-                this.informationLog.next('Contact modified successfuly');
-                console.log('Contact modified');
-                this.reload();
-            }, e => this.apiErrorHandler(e));
-        } else {
-            this.rmmapi.addNewContact(contact).subscribe(thecontact => {
-                this.informationLog.next('New contact has been created');
-                this.reload();
-            }, e => this.apiErrorHandler(e));
-        }
+    saveContact(contact: Contact): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (contact.id) {
+                console.log('Modifying contact', contact.id);
+                this.rmmapi.modifyContact(contact).subscribe(() => {
+                    this.informationLog.next('Contact modified successfuly');
+                    console.log('Contact modified');
+                    this.reload().then(() => resolve());
+                }, e => {
+                    this.apiErrorHandler(e);
+                    reject();
+                });
+            } else {
+                this.rmmapi.addNewContact(contact).subscribe(_ => {
+                    this.informationLog.next('New contact has been created');
+                    this.reload().then(() => resolve());
+                }, e => {
+                    this.apiErrorHandler(e);
+                    reject();
+                });
+            }
+        });
     }
 
-    deleteContact(contact_id: string): Promise<void> {
-        console.log('Contact.service deleting', contact_id);
+    deleteContact(contact: Contact): Promise<void> {
+        console.log('Contact.service deleting', contact.id);
         return new Promise<void>((resolve, reject) => {
-            this.rmmapi.deleteContact(contact_id).subscribe(() => {
+            this.rmmapi.deleteContact(contact.id).subscribe(() => {
                 resolve();
             }, e => {
                 this.apiErrorHandler(e);
@@ -176,8 +184,8 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-    deleteMultiple(contact_ids: string[]): Promise<void[]> {
-        return Promise.all(contact_ids.map(id => this.deleteContact(id)));
+    deleteMultiple(contacts: Contact[]): Promise<void[]> {
+        return Promise.all(contacts.map(c => this.deleteContact(c)));
     }
 
     lookupContact(email: string): Promise<Contact> {

@@ -17,22 +17,13 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-export class Email {
-    types: string[];
-    value: string;
-}
+import * as ICAL from 'ical.js';
+import { v4 as uuidv4 } from 'uuid';
 
-export class URI {
-    types: string[];
-    value: string;
-}
+// same should be done for bday, documented and PR'd to https://github.com/mozilla-comm/ical.js
+ICAL.design.vcard3.property.tel.defaultType = 'text';
 
-export class Phone {
-    types: string[];
-    value: string;
-}
-
-export class Relative {
+export class StringValueWithTypes {
     types: string[];
     value: string;
 }
@@ -51,26 +42,259 @@ export class Address {
 }
 
 export class Contact {
-    id:         string;
+    component: ICAL.Component;
 
-    nickname:   string;
-    first_name: string;
-    last_name:  string;
-    birthday:   string;
-    note:       string;
-    company:    string;
-    department: string;
-    categories: string[]   = [];
-
-    emails:     Email[]    = [];
-    addresses:  Address[]  = [];
-    urls:       URI[]      = [];
-    phones:     Phone[]    = [];
-    related:    Relative[] = [];
+    // to be removed
+    addresses:  Address[] = [];
+    related:    StringValueWithTypes[] = [];
 
     rmm_backed = false;
 
+    static fromVcard(vcard: string): Contact {
+        const contact = new Contact({});
+        contact.component = ICAL.Component.fromString(vcard);
+        return contact;
+    }
+
+    private getIndexedValue(name: string, index: number): string {
+        const value = this.component.getFirstPropertyValue(name);
+        if (value) {
+            return value[index];
+        } else {
+            return null;
+        }
+    }
+
+    private setIndexedValue(name: string, index: number, value: string) {
+        let prop = this.component.getFirstProperty(name);
+        let values: string[];
+        if (prop) {
+            // We need this weird dance since getValues() returns
+            // an array of values wrapped in an array anyway.
+            const propValue = prop.getValues();
+            if (!propValue) {
+                values = [];
+            } else {
+                values = propValue[0];
+            }
+        } else {
+            prop = new ICAL.Property(name, this.component);
+            this.component.addProperty(prop);
+            values = [];
+        }
+        values[index] = value;
+        // need to fix up the empty spots,
+        // otherwise ICAL.js will crap itself
+        for (let i = 0; i < index; i++) {
+            if (values[i] === undefined) {
+                values[i] = '';
+            }
+        }
+        prop.setValue(values);
+    }
+
+    private getMultiValProp(name: string): string[] {
+        const prop = this.component.getFirstProperty(name);
+        return prop ? prop.getValues() : [];
+    }
+
+    private setMultiValProp(name: string, values: string[]) {
+        let prop = this.component.getFirstProperty(name);
+        if (!prop) {
+            prop = new ICAL.Property(name, this.component);
+            this.component.addProperty(prop);
+        }
+        prop.setValue(values);
+    }
+
+    private setMultiValPropWithTypes(name: string, values: StringValueWithTypes[]) {
+        if (this.component.hasProperty(name)) {
+            this.component.removeAllProperties(name);
+        }
+        for (const e of values) {
+            const prop = this.component.addPropertyWithValue(name, e.value);
+            if (e.types.length > 0) {
+                prop.setParameter('type', e.types);
+            }
+        }
+    }
+
+    private normalizeIcalProperty(p: ICAL.Property): StringValueWithTypes {
+        let types = p.getParameter('type');
+        if (types === undefined) {
+            types = [];
+        } else if (typeof types === 'string') {
+            types = [types];
+        }
+        return {
+            types: types,
+            value: p.getFirstValue(),
+        };
+    }
+
+    private multiplePropertiesNormalized(name: string): StringValueWithTypes[] {
+        const props = this.component.getAllProperties(name);
+        if (props) {
+            return props.map((e: ICAL.Property) => this.normalizeIcalProperty(e));
+        } else {
+            return [];
+        }
+    }
+
+    private setPropertyValue(name: string, value: string) {
+        const prop = this.component.getFirstProperty(name);
+        if (prop) {
+            prop.setValue(value);
+        } else {
+            this.component.addPropertyWithValue(name, value);
+        }
+    }
+
+    get id(): string {
+        return this.component.getFirstPropertyValue('uid');
+    }
+
+    set id(value: string) {
+        this.setPropertyValue('uid', value);
+    }
+
+    get nickname(): string {
+        return this.component.getFirstPropertyValue('nickname');
+    }
+
+    set nickname(value: string) {
+        this.setPropertyValue('nickname', value);
+    }
+
+    get first_name(): string {
+        return this.getIndexedValue('n', 1);
+    }
+
+    set first_name(value: string) {
+        this.setIndexedValue('n', 1, value);
+    }
+
+    get last_name(): string {
+        return this.getIndexedValue('n', 0);
+    }
+
+    set last_name(value: string) {
+        this.setIndexedValue('n', 0, value);
+    }
+
+    get categories(): string[] {
+        return this.getMultiValProp('categories');
+    }
+
+    set categories(value: string[]) {
+        this.setMultiValProp('categories', value);
+    }
+
+    get company(): string {
+        return this.getIndexedValue('org', 0);
+    }
+
+    set company(value: string) {
+        this.setIndexedValue('org', 0, value);
+    }
+
+    get department(): string {
+        return this.getIndexedValue('org', 1);
+    }
+
+    set department(value: string) {
+        this.setIndexedValue('org', 1, value);
+    }
+
+    get birthday(): string {
+        // ICAL.js is bad at parsing this,
+        // ignores VALUE=text and assumes it's a date
+        const prop = this.component.getFirstProperty('bday');
+        if (prop) {
+            return prop.toJSON()[3];
+        }
+    }
+
+    set birthday(value: string) {
+        this.setPropertyValue('bday', value);
+    }
+
+    get note(): string {
+        return this.component.getFirstPropertyValue('note');
+    }
+
+    set note(value: string) {
+        this.setPropertyValue('note', value);
+    }
+
+    get emails(): StringValueWithTypes[] {
+        return this.multiplePropertiesNormalized('email');
+    }
+
+    set emails(emails: StringValueWithTypes[]) {
+        this.setMultiValPropWithTypes('email', emails);
+    }
+
+    get phones(): StringValueWithTypes[] {
+        return this.multiplePropertiesNormalized('tel');
+    }
+
+    set phones(phones: StringValueWithTypes[]) {
+        this.setMultiValPropWithTypes('tel', phones);
+    }
+
+    get urls(): StringValueWithTypes[] {
+        return this.multiplePropertiesNormalized('url');
+    }
+
+    set urls(urls: StringValueWithTypes[]) {
+        this.setMultiValPropWithTypes('url', urls);
+    }
+
+    toDict(): any {
+        return {
+            nickname:   this.nickname,
+            first_name: this.first_name,
+            last_name:  this.last_name,
+            categories: this.categories,
+            company:    this.company,
+            department: this.department,
+            birthday:   this.birthday,
+            note:       this.note,
+            emails:     this.emails,
+            phones:     this.phones,
+            urls:       this.urls,
+        };
+    }
+
+    vcard(): string {
+        if (!this.component.getFirstPropertyValue('fn')) {
+            let fn: string;
+            if (this.nickname) {
+                fn = this.nickname;
+            } else if (this.first_name || this.last_name) {
+                fn = [this.first_name, this.last_name].join(' ');
+            } else if (this.company) {
+                fn = this.company;
+                this.component.setPropertyValue('X-ABSHOWAS', 'COMPANY');
+            } else if (this.primary_email()) {
+                fn = this.primary_email();
+            } else {
+                throw new Error("Can't deduce a fullname for contact");
+            }
+            this.setPropertyValue('fn', fn);
+        }
+
+        // if (!this.id) {
+        //     this.id = uuidv4().toUpperCase();
+        // }
+
+        return this.component.toString();
+    }
+
     constructor(properties: any) {
+        this.component = new ICAL.Component('vcard');
+
         // backcompat with old RMM contacts API
         if (typeof properties['id'] === 'number') {
             properties['id'] = 'RMM-' + properties['id'];
@@ -84,7 +308,9 @@ export class Contact {
 
         // tslint:disable-next-line:forin
         for (const key in properties) {
-            this[key] = properties[key];
+            if (properties[key] !== null && properties[key] !== '') {
+                this[key] = properties[key];
+            }
         }
 
         if (this.id && this.id.substr(0, 4) === 'RMM-') {
@@ -93,7 +319,7 @@ export class Contact {
 
         // if the contact contains fullname (FN) but not any other names,
         // rewrite the FN into the nickname
-        if (!this.nickname && !this.first_name && !this.last_name) {
+        if (!this.nickname && !this.first_name && !this.last_name && properties['fullname']) {
             this.nickname = properties['fullname'];
         }
     }

@@ -107,7 +107,7 @@ export class RunboxWebMailAPIMock {
                     nick: 'test2',
                     first_name: 'firstname2',
                     last_name: 'lastname2',
-                    emails: [{ value: 'test2@example.com'} , {value: 'test4@example.com'}]
+                    emails: [{ types: [], value: 'test2@example.com' }, { types: [], value: 'test4@example.com' }]
                 })
             ]
         });

@@ -110,13 +110,7 @@ export class ContactsAppComponent {
     }
 
     deleteSelected(): void {
-        const toDelete = [];
-        for (const id of Object.keys(this.selectedIDs)) {
-            if (this.selectedIDs[id]) {
-                toDelete.push(id);
-            }
-        }
-
+        const toDelete = this.contacts.filter(c => this.selectedIDs[c.id]);
         this.contacts = this.contacts.filter(c => !this.selectedIDs[c.id]);
         this.filterContacts();
         this.selectedIDs = {};
@@ -206,10 +200,13 @@ export class ContactsAppComponent {
         });
     }
 
-    showError(e: HttpErrorResponse): void {
+    showError(e: any): void {
         let message = '';
+        console.log('Showing error:', e);
 
-        if (e.error.error) {
+        if (typeof e === 'string') {
+            message = e;
+        } else if (e.error.error) {
             message = e.error.error;
         } else if (e.status === 500) {
             message = 'Internal server error';
@@ -233,9 +230,9 @@ export class ContactsAppComponent {
             // as last if they were alphabetically last
             if (a.first_name === b.first_name) {
                 firstname_order = 0;
-            } else if (a.first_name === null) {
+            } else if (!a.first_name) {
                 firstname_order = 1;
-            } else if (b.first_name === null) {
+            } else if (!b.first_name) {
                 firstname_order = -1;
             } else {
                 firstname_order = a.first_name.localeCompare(b.first_name);
@@ -243,9 +240,9 @@ export class ContactsAppComponent {
 
             if (a.last_name === b.last_name) {
                 lastname_order = 0;
-            } else if (a.last_name === null) {
+            } else if (!a.last_name) {
                 lastname_order = 1;
-            } else if (b.last_name === null) {
+            } else if (!b.last_name) {
                 lastname_order = -1;
             } else {
                 lastname_order = a.last_name.localeCompare(b.last_name);
