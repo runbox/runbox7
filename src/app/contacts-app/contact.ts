@@ -22,6 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // same should be done for bday, documented and PR'd to https://github.com/mozilla-comm/ical.js
 ICAL.design.vcard3.property.tel.defaultType = 'text';
+ICAL.design.vcard3.property.n = { defaultType: "text", multiValue: ";" };
 
 export class StringValueWithTypes {
     types: string[];
@@ -43,6 +44,7 @@ export class Address {
 
 export class Contact {
     component: ICAL.Component;
+    url:       string;
 
     // to be removed
     addresses:  Address[] = [];
@@ -50,16 +52,17 @@ export class Contact {
 
     rmm_backed = false;
 
-    static fromVcard(vcard: string): Contact {
+    static fromVcard(url: string, vcard: string): Contact {
         const contact = new Contact({});
         contact.component = ICAL.Component.fromString(vcard);
+        contact.url = url;
         return contact;
     }
 
     private getIndexedValue(name: string, index: number): string {
-        const value = this.component.getFirstPropertyValue(name);
-        if (value) {
-            return value[index];
+        const prop = this.component.getFirstProperty(name);
+        if (prop) {
+            return prop.getValues()[index];
         } else {
             return null;
         }
@@ -99,12 +102,14 @@ export class Contact {
     }
 
     private setMultiValProp(name: string, values: string[]) {
-        let prop = this.component.getFirstProperty(name);
-        if (!prop) {
-            prop = new ICAL.Property(name, this.component);
+        if (this.component.hasProperty(name)) {
+            this.component.removeAllProperties(name);
+        }
+        if (values.length > 0) {
+            const prop = new ICAL.Property(name, this.component);
+            prop.setValue(values);
             this.component.addProperty(prop);
         }
-        prop.setValue(values);
     }
 
     private setMultiValPropWithTypes(name: string, values: StringValueWithTypes[]) {

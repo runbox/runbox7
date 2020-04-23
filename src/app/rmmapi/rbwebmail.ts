@@ -569,11 +569,11 @@ export class RunboxWebmailAPI {
 
     public syncContacts(syncToken?: string): Observable<ContactSyncResult> {
         const path = syncToken ? ('/' + btoa(syncToken)) : '';
-        return this.http.get<any>('/rest/v1/addresses_contact/sync' + path).pipe(
+        return this.http.get<any>('/rest/v1/addresses_contact/sync_raw' + path).pipe(
             map((res: HttpResponse<any>) => res['result']),
             map((result: any) => new ContactSyncResult(
                 result.newToken,
-                result.added.map((contact: any) => new Contact(contact)),
+                result.added.map((c: any) => Contact.fromVcard(c[0], c[1])),
                 result.removed,
             )),
         );

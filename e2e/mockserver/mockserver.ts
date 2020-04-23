@@ -187,7 +187,7 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
-                case '/rest/v1/addresses_contact/sync':
+                case '/rest/v1/addresses_contact/sync_raw':
                     response.end(JSON.stringify(
                         {
                             status: 'success',
@@ -617,23 +617,11 @@ export class MockServer {
 
     contacts(): any[] {
         return [
-            {
-                'nickname' : 'Postpat',
-                'first_name' : 'Patrick',
-                'categories' : [],
-                'urls' : [],
-                'last_name' : 'Postcode',
-                'id' : 'ID-MR-POSTCODE',
-                'birthday' : '',
-                'company' : 'Post Office #42',
-                'fullname' : 'Patrick Postcode',
-                'phones' : [{ 'types' : ['work'], 'value' : '333333333' }],
-                'emails' : [{ 'types': ['work'],   'value': 'patrick@post.no' }],
-                'department' : null,
-                'note' : '',
-                'show_as' : null,
-                'related' : []
-            }
+            [
+                "/contacts/ID-MR-POSTCODE.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
+                + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
+            ]
         ];
     }
 }
