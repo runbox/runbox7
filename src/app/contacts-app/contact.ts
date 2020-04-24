@@ -40,17 +40,28 @@ export class AddressDetails {
 }
 
 export class Address {
-    types: string[];
-    value: AddressDetails;
+    constructor(
+        public types: string[],
+        public value: AddressDetails,
+    ) { }
+
+    toDict() {
+        return {
+            types:     this.types,
+            value: {
+                street:    this.value.street,
+                city:      this.value.city,
+                region:    this.value.region,
+                post_code: this.value.post_code,
+                country:   this.value.country,
+            }
+        };
+    }
 }
 
 export class Contact {
     component: ICAL.Component;
     url:       string;
-
-    // to be removed
-    related:    StringValueWithTypes[] = [];
-
     rmm_backed = false;
 
     static fromVcard(url: string, vcard: string): Contact {
@@ -272,14 +283,22 @@ export class Contact {
         const props = this.component.getAllProperties('adr');
         if (props) {
             return props.map((p: ICAL.Property) => {
-                return {
-                    types: this.getPropertyTypes(p),
-                    value: new AddressDetails(p.getFirstValue()),
-                };
+                return new Address(
+                    this.getPropertyTypes(p),
+                    new AddressDetails(p.getFirstValue()),
+                );
             });
         } else {
             return [];
         }
+    }
+
+    get related(): StringValueWithTypes[] {
+        return this.multiplePropertiesNormalized('related');
+    }
+
+    set related(related: StringValueWithTypes[]) {
+        this.setMultiValPropWithTypes('related', related);
     }
 
     toDict(): any {
@@ -295,6 +314,8 @@ export class Contact {
             emails:     this.emails,
             phones:     this.phones,
             urls:       this.urls,
+            addresses:  this.addresses.map(a => a.toDict()),
+            related:    this.related,
         };
     }
 
