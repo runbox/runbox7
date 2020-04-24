@@ -80,4 +80,25 @@ END:VCARD`;
         expect(sut.last_name).toBe('Last');
         expect(sut.company).toBe('Company');
     });
+
+    it('can parse ADR property', () => {
+        const vcard = `BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Sabre//Sabre VObject 4.1.6//EN
+UID:3e65dced-9784-49ea-b9d7-9aac66c00f99
+REV;VALUE=DATE-AND-OR-TIME:20200424T110821Z
+FN:Addressman
+ADR;TYPE=HOME:pobox 123;;foo street 13;Townsville;Centralia;12-345;Contactia
+EMAIL;TYPE=HOME:
+TEL;TYPE="HOME,VOICE":
+END:VCARD`;
+        const sut = Contact.fromVcard(null, vcard);
+        const addresses = sut.addresses;
+        expect(addresses.length).toBe(1);
+        expect(addresses[0].value.street).toBe('foo street 13');
+        expect(addresses[0].value.city).toBe('Townsville');
+        expect(addresses[0].value.region).toBe('Centralia');
+        expect(addresses[0].value.post_code).toBe('12-345');
+        expect(addresses[0].value.country).toBe('Contactia');
+    });
 });

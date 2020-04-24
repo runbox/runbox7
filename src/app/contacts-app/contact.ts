@@ -29,11 +29,14 @@ export class StringValueWithTypes {
 }
 
 export class AddressDetails {
-    street:      string;
-    city:        string;
-    region:      string;
-    post_code:   string;
-    country:     string;
+    constructor(public values: string[]) { }
+
+    get street():    string { return this.values[2]; }
+    get city():      string { return this.values[3]; }
+    get region():    string { return this.values[4]; }
+    get post_code(): string { return this.values[5]; }
+    get country():   string { return this.values[6]; }
+
 }
 
 export class Address {
@@ -46,7 +49,6 @@ export class Contact {
     url:       string;
 
     // to be removed
-    addresses:  Address[] = [];
     related:    StringValueWithTypes[] = [];
 
     rmm_backed = false;
@@ -123,15 +125,19 @@ export class Contact {
         }
     }
 
-    private normalizeIcalProperty(p: ICAL.Property): StringValueWithTypes {
+    private getPropertyTypes(p: ICAL.Property): string[] {
         let types = p.getParameter('type');
         if (types === undefined) {
             types = [];
         } else if (typeof types === 'string') {
             types = [types];
         }
+        return types;
+    }
+
+    private normalizeStringProperty(p: ICAL.Property): StringValueWithTypes {
         return {
-            types: types,
+            types: this.getPropertyTypes(p),
             value: p.getFirstValue(),
         };
     }
@@ -139,7 +145,7 @@ export class Contact {
     private multiplePropertiesNormalized(name: string): StringValueWithTypes[] {
         const props = this.component.getAllProperties(name);
         if (props) {
-            return props.map((e: ICAL.Property) => this.normalizeIcalProperty(e));
+            return props.map((e: ICAL.Property) => this.normalizeStringProperty(e));
         } else {
             return [];
         }
@@ -260,6 +266,20 @@ export class Contact {
 
     set urls(urls: StringValueWithTypes[]) {
         this.setMultiValPropWithTypes('url', urls);
+    }
+
+    get addresses(): Address[] {
+        const props = this.component.getAllProperties('adr');
+        if (props) {
+            return props.map((p: ICAL.Property) => {
+                return {
+                    types: this.getPropertyTypes(p),
+                    value: new AddressDetails(p.getFirstValue()),
+                };
+            });
+        } else {
+            return [];
+        }
     }
 
     toDict(): any {
