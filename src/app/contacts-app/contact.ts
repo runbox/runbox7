@@ -22,7 +22,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 // same should be done for bday, documented and PR'd to https://github.com/mozilla-comm/ical.js
 ICAL.design.vcard3.property.tel.defaultType = 'text';
-ICAL.design.vcard3.property.n = { defaultType: "text", multiValue: ";" };
 
 export class StringValueWithTypes {
     types: string[];
@@ -60,9 +59,9 @@ export class Contact {
     }
 
     private getIndexedValue(name: string, index: number): string {
-        const prop = this.component.getFirstProperty(name);
-        if (prop) {
-            return prop.getValues()[index];
+        const value = this.component.getFirstPropertyValue(name);
+        if (value) {
+            return value[index];
         } else {
             return null;
         }
@@ -196,7 +195,14 @@ export class Contact {
     }
 
     get company(): string {
-        return this.getIndexedValue('org', 0);
+        const org = this.component.getFirstPropertyValue('org');
+        // Some vCard emiters (like Nextcloud) will store this as a string
+        // rather than an array that it should be.
+        if (Array.isArray(org)) {
+            return org[0];
+        } else {
+            return org;
+        }
     }
 
     set company(value: string) {
