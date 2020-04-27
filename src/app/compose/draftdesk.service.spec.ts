@@ -59,7 +59,7 @@ describe('DraftDesk', () => {
         expect(draft.isUnsaved()).toBe(true);
         expect(draft.isUnsavedUntargetedDraft()).toBe(false);
         expect(draft.isUnsavedContactDraft()).toBe(false);
-        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isUnsavedReply()).toBe(true);
         expect(draft.isReply()).toBe(true);
         draft = DraftFormModel.reply({
                 headers: {
@@ -89,7 +89,7 @@ describe('DraftDesk', () => {
         expect(draft.isUnsaved()).toBe(true);
         expect(draft.isUnsavedUntargetedDraft()).toBe(false);
         expect(draft.isUnsavedContactDraft()).toBe(false);
-        expect(draft.isUnsavedReply()).toBe(false);
+        expect(draft.isUnsavedReply()).toBe(true);
         expect(draft.isReply()).toBe(true);
         done();
     });
