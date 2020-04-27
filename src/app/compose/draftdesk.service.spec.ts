@@ -131,5 +131,6 @@ describe('DraftDesk', () => {
         expect(draft.isUnsavedContactDraft()).toBe(false);
         expect(draft.isUnsavedReply()).toBe(false);
         expect(draft.isReply()).toBe(false);
+        done();
     });
 });
