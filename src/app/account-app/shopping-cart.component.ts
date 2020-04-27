@@ -158,7 +158,10 @@ export class ShoppingCartComponent implements OnInit {
 
         for (const i of cartItems) {
             const product = products.find(p => p.pid === i.pid);
-            i.product = product || {};
+            if (!product) {
+                throw new Error(`Failed to find product info for PID ${i.pid}`);
+            }
+            i.product = product;
         }
 
         return cartItems;
@@ -203,15 +206,15 @@ export class ShoppingCartComponent implements OnInit {
             let dialogRef: MatDialogRef<any>;
             if (method === 'stripe') {
                 dialogRef = this.dialog.open(StripePaymentDialogComponent, {
-                    data: { tx: tx, currency: currency, method: method }
+                    data: { tx }
                 });
             } else if (method === 'bitpay') {
                 dialogRef = this.dialog.open(BitpayPaymentDialogComponent, {
-                    data: { tx: tx }
+                    data: { tx }
                 });
             } else if (method === 'paypal') {
                 dialogRef = this.dialog.open(PaypalPaymentDialogComponent, {
-                    data: { tx: tx }
+                    data: { tx }
                 });
             } else if (method === 'giro') {
                 this.router.navigateByUrl('/account/receipt/' + tx.tid);

@@ -60,10 +60,10 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         public dialogRef: MatDialogRef<StripePaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        this.method = data.method;
+        console.log('Opening stripe form for transaction', data.tx);
         this.tid    = data.tx.tid;
         this.total  = data.tx.total;
-        this.currency = data.currency;
+        this.currency = data.tx.currency;
 
         if (stripeLoader === null) {
             stripeLoader = new AsyncSubject<void>();
