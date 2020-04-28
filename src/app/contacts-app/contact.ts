@@ -126,6 +126,17 @@ export class Contact {
         }
     }
 
+    external_display_name(): string {
+        if (this.full_name()) {
+            return this.full_name();
+        }
+        if (this.primary_email()) {
+            const parts = this.primary_email().split('@');
+            return parts[0];
+        }
+        return 'Unnamed contact';
+    }
+
     primary_email(): string {
         if (this.emails.length > 0) {
             return this.emails[0].value;
