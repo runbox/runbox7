@@ -235,25 +235,27 @@
 
                     <mat-grid-list cols="3" rowHeight="50px" *ngIf="rmm.account_security.service.results">
                         <div *ngFor="let service of rmm.account_security.service.services_translation | keyvalue">
-                            <mat-grid-tile>
-                                {{ rmm.account_security.service.services_translation[service.key].name }}
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                <mat-slide-toggle
-                                    [(ngModel)]="rmm.account_security.service.results[service.key].is_enabled"
-                                    (ngModelChange)="service_toggle(rmm.account_security.service.results[service.key])"
-                                >
-                                    {{ 
-                                        rmm.account_security.service.results[service.key] &&
-                                        rmm.account_security.service.results[service.key].is_enabled
-                                        ? 'Enabled'
-                                        : 'Disabled'
-                                    }}
-                                </mat-slide-toggle>
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                {{ rmm.account_security.service.services_translation[service.key].description }}
-                            </mat-grid-tile>
+                            <div *ngIf="!rmm.account_security.service.services_translation[service.key].hide">
+                                <mat-grid-tile>
+                                    {{ rmm.account_security.service.services_translation[service.key].name }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    <mat-slide-toggle
+                                        [(ngModel)]="rmm.account_security.service.results[service.key].is_enabled"
+                                        (ngModelChange)="service_toggle(rmm.account_security.service.results[service.key])"
+                                    >
+                                        {{
+                                            rmm.account_security.service.results[service.key] &&
+                                            rmm.account_security.service.results[service.key].is_enabled
+                                            ? 'Enabled'
+                                            : 'Disabled'
+                                        }}
+                                    </mat-slide-toggle>
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ rmm.account_security.service.services_translation[service.key].description }}
+                                </mat-grid-tile>
+                            </div>
                         </div>
                     </mat-grid-list>
                 </div>
@@ -327,9 +329,9 @@
                     <p>We recommend that you read the instructions below before making any changes.</p>
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Last logins
+                    &nbsp;&nbsp;&nbsp;Last logins
                 </div>
                 <div runbox-section-content>
                     <div>
@@ -368,7 +370,7 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <span><input type="text" type='text' placeholder="Enter IP or select from list" [(ngModel)]="acl_ip" (ngModelChange)="acl_ip_changed()"></span>
+                    <span><input matInput placeholder="Enter IP or select from list" [(ngModel)]="acl_ip" (ngModelChange)="acl_ip_changed()"></span>
                     <span><button mat-raised-button color="primary" (click)="acl_clear()" [disabled]="!is_acl_clear_enabled">Clear</button></span>
                     <span><button mat-raised-button color="primary" (click)="acl_update()" [disabled]="is_busy_list_logins">Update </button></span>
                     <!-- header -->
@@ -413,9 +415,9 @@
                     </div>
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Access Control List
+                    &nbsp;&nbsp;&nbsp;Access Control List
                 </div>
                 <div runbox-section-content>
                     <p>
@@ -460,9 +462,9 @@
                     </div>
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Manage IPs
+                    &nbsp;&nbsp;&nbsp;Manage IPs
                 </div>
                 <div runbox-section-content>
 
@@ -486,18 +488,18 @@
                         </mat-form-field>
                     </div>
                     <div>
-                        IP:<input type="text" type='text' placeholder="1.22.*.44-55" [(ngModel)]="acl_manage_ip_range">
+                        IP:<input matInput placeholder="1.22.*.44-55" [(ngModel)]="acl_manage_ip_range">
                     </div>
                     <div>
-                        Label:<input type="text" type='text' placeholder="eg. Home IP" [(ngModel)]="acl_manage_ip_label">
+                        Label:<input matInput placeholder="eg. Home IP" [(ngModel)]="acl_manage_ip_label">
                         <span><button mat-raised-button color="primary" (click)="acl_create_rule()" [disabled]="rmm.account_security.acl.is_busy">Submit</button></span>
                     </div>
 
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Blocked IPs
+                    &nbsp;&nbsp;&nbsp;Blocked IPs
                 </div>
                 <div runbox-section-content>
 

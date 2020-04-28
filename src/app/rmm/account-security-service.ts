@@ -29,7 +29,8 @@ export class AccountSecurityService {
     services_translation: any = {
         web : {
             name : 'Web',
-            description : 'Runbox Webmail. The web interface is essential and can not be disabled.'
+            description : 'Runbox Webmail. The web interface is essential and can not be disabled.',
+            hide: true,
         },
         'dovecot-imap' : {
             name : 'IMAP',
@@ -41,7 +42,8 @@ export class AccountSecurityService {
         },
         kmpop3d : {
             name : 'POP (kmpop3d)',
-            description : 'kmpop3d is the legacy POP server, and is currently being phased out.'
+            description : 'kmpop3d is the legacy POP server, and is currently being phased out.',
+            hide: true,
         },
         submission : {
             name : 'SMTP',

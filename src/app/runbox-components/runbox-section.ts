@@ -60,8 +60,9 @@ import { RMM } from '../rmm';
     template: `
     <div class="app-runbox-section">
         <div style="background: #e1eeff; padding: 15px; martin-top: 15px;"
+            [ngStyle]="{'background-color': sizes[size].background}"
             *ngIf="is_header_open"
-        ><ng-content select="[runbox-section-header]" style="margin-top: 20px;"></ng-content></div>
+            ><ng-content select="[runbox-section-header]" style="margin-top: 20px;"></ng-content></div>
         <ng-content select="[runbox-section-content]" style="margin-top: 20px;"></ng-content>
     </div>
     `
@@ -69,7 +70,28 @@ import { RMM } from '../rmm';
 
 export class RunboxSectionComponent {
   @Input() is_header_open = true;
+  @Input() size = 'h1';
   private dialog_ref: any;
+  public sizes = {
+    h1: {
+        background: '#e1eeff'
+    },
+    h2: {
+        background: '#CAE1FF'
+    },
+    h3: {
+        background: '#9CC6FE'
+    },
+    h4: {
+        background: '#7BB1FA'
+    },
+    h5: {
+        background: '#549CFC'
+    },
+    h6: {
+        background: '#207efe'
+    },
+  };
   constructor(public dialog: MatDialog,
     public rmm: RMM,
     public snackBar: MatSnackBar,
