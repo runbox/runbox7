@@ -398,6 +398,7 @@ export class MockServer {
             'result': {
                 'total': '13.37',
                 'tid':   '31337',
+                'currency': 'EUR',
             }
         };
     }
