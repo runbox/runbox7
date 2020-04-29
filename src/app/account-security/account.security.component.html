@@ -87,7 +87,7 @@
                         <span>Click [Generate key] to generate a new TOTP key.</span>
                     </p>
                     <p>
-                        <span><input type="text" placeholder="Key" maxlength="16" disabled="" [value]="rmm.account_security.tfa.new_totp_code"></span>
+                        <span><input matInput placeholder="Key" maxlength="16" disabled="" [value]="rmm.account_security.tfa.new_totp_code"></span>
                         <span><button  mat-raised-button color="primary" (click)="totp_generate_new_key()">Generate key</button></span>
                     </p>
                 </div>
@@ -97,7 +97,7 @@
                     </p>
                     <p>
                         <span>Label:</span>
-                        <span><input type="text" type="text" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="" readonly [value]="'Runbox: ' + rmm.me.data.username" *ngIf="rmm.me.data"></span>
+                        <span><input matInput (ngModel)="rmm.account_security.tfa.totp_label" placeholder="" readonly [value]="'Runbox: ' + rmm.me.data.username" *ngIf="rmm.me.data"></span>
                     </p>
                 </div>
                 <div *ngIf="rmm.account_security.tfa.qr_code_value">
@@ -118,7 +118,7 @@
                     </p>
                     <p>
                         <span>Test code:</span>
-                        <span><input type="text" placeholder="Enter code" maxlength="6" [(ngModel)]="totp_test_code" (ngModelChange)="totp_test_code_change()"></span>
+                        <span><input matInput placeholder="Enter code" maxlength="6" [(ngModel)]="totp_test_code" (ngModelChange)="totp_test_code_change()"></span>
                         <span><button  mat-raised-button color="primary" [disabled]="is_btn_totp_check_disabled" (click)="totp_check_code()">Check code</button></span>
                     </p>
                 </div>
@@ -158,7 +158,7 @@
                     <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
                     <p>
                         <span>Browser name:</span>
-                        <span><input type="text" placeholder="Enter browser/device" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()"></span>
+                        <span><input matInput placeholder="Enter browser/device" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()"></span>
                         <span><button mat-raised-button color="primary" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></span>
                         <span>Suggestion: "Firefox on PC"</span>
                     </p>
@@ -312,7 +312,7 @@
                 <div runbox-section-content>
                     <p>
                         <span>App password name:</span>
-                        <span><input type="text" placeholder="Enter app/device" maxlength="64" [(ngModel)]="app_pass_name" (ngModelChange)="app_pass_name_changed()"></span>
+                        <span><input matInput placeholder="Enter app/device" maxlength="64" [(ngModel)]="app_pass_name" (ngModelChange)="app_pass_name_changed()"></span>
                         <span><button mat-raised-button color="primary" [disabled]="is_btn_app_pass_new_disabled || rmm.account_security.app_pass.is_busy" (click)="app_pass_create()">Submit</button></span>
                         <span>Use a name so you will know which device you are using this app password on.</span>
                     </p>
