@@ -549,7 +549,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
             )).subscribe((res: any) => {
                     if (res.mid) {
-                        this.model.mid = res.mid;
+                        this.model.mid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
                     }
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
 
