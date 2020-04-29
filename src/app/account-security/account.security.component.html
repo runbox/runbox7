@@ -162,10 +162,11 @@
                         <span><button mat-raised-button color="primary" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></span>
                         <span>Suggestion: "Firefox on PC"</span>
                     </p>
-                        <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.device.results">
+                        <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.device.results">
                             <mat-grid-tile>Name</mat-grid-tile>
                             <mat-grid-tile>Status</mat-grid-tile>
                             <mat-grid-tile>Action</mat-grid-tile>
+                            <mat-grid-tile>Created</mat-grid-tile>
                             <mat-grid-tile></mat-grid-tile>
                             <div *ngFor="let result of rmm.account_security.device.results">
                                 <mat-grid-tile>{{ result.name }}</mat-grid-tile>
@@ -180,6 +181,7 @@
                                 <mat-grid-tile>
                                     <button mat-raised-button color="primary" (click)="device_delete(result.id)">Delete</button>
                                 </mat-grid-tile>
+                                <mat-grid-tile>{{result.created}}</mat-grid-tile>
                                 <mat-grid-tile>
                                     <span>
                                         <mat-chip-list *ngIf="result.is_current_device">
