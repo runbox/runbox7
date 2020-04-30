@@ -47,6 +47,7 @@ import { loadLocalMailParser } from './mailparser';
 
 const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
+const resizerHeightKey = 'rmm7resizerheight';
 
 @Component({
   template: `
@@ -172,6 +173,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
+    this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
   }
 
   public ngAfterViewInit() {
@@ -565,6 +567,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.height = height;
     if (height > 0) {
       this.previousHeight = height;
+      localStorage.setItem(resizerHeightKey, height.toString());
     }
   }
 
