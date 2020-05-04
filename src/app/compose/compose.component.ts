@@ -70,9 +70,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     saveErrorMessage: string;
 
-    @Input() shouldExitToTable = false;
-    @Input() shouldExitToDrafts = false;
-    @Input() shouldExitToContacts = false;
+    shouldReturnToPreviousPage = false;
 
     public formGroup: FormGroup;
 
@@ -96,15 +94,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.model.isUnsaved()) {
             this.editing = true;
             this.isUnsaved = true;
-            if (this.model.isUnsavedReply()) {
-                this.shouldExitToTable = true;
-            }
-            if (this.model.isUnsavedUntargetedDraft()) {
-                this.shouldExitToDrafts = true;
-            }
-            if (this.model.isUnsavedContactDraft()) {
-                this.shouldExitToContacts = true;
-            }
+            this.shouldReturnToPreviousPage = true;
             const from: FromAddress = this.draftDeskservice.froms.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
@@ -398,12 +388,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     exitIfNeeded() {
-        if (this.shouldExitToTable) {
-            this.exitToTable();
-        } else if (this.shouldExitToDrafts) {
-            this.router.navigate(['/compose']);
-        } else if (this.shouldExitToContacts) {
-            this.router.navigate(['/contacts']);
+        if (this.shouldReturnToPreviousPage) {
+            this.location.back();
         }
     }
 
