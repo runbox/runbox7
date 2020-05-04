@@ -57,7 +57,8 @@ describe('Composing emails', () => {
         cy.get('mat-chip').should('not.contain', 'Postpat');
     });
 
-    it('closing a newly composed email should return to draftdesk', () => {
+    it('closing a newly composed email should return where we started', () => {
+        cy.visit('/compose');
         composeNew();
         
         cy.get('button[mattooltip="Close draft"').click();
@@ -102,7 +103,7 @@ describe('Composing emails', () => {
         cy.get('button[mattooltip="Close draft"').should('exist');
         cy.get('button[mattooltip="Close draft"').click();
         cy.location().should((loc) => {
-            expect(loc.pathname).to.eq('/contacts');
+            expect(loc.pathname).to.eq('/contacts/ID-MR-POSTCODE');
             expect(loc.search).to.eq('');
         }); 
     });
