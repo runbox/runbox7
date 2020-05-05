@@ -50,6 +50,10 @@
                 <mat-icon color="primary">border_color</mat-icon>
                 <span>Rename</span>
               </button>
+              <button mat-menu-item (click)="addSubFolder(node)">
+                <mat-icon color="primary">create_new_folder</mat-icon>
+                <span>New Folder</span>
+              </button>
               <button mat-menu-item (click)="deleteFolder(node)">
                 <mat-icon color="primary">delete</mat-icon>
                 <span>Delete</span>
