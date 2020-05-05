@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import * as ICAL from 'ical.js';
-import { v4 as uuidv4 } from 'uuid';
 
 // same should be done for bday, documented and PR'd to https://github.com/mozilla-comm/ical.js
 ICAL.design.vcard3.property.tel.defaultType = 'text';
@@ -62,7 +61,6 @@ export class Address {
 export class Contact {
     component: ICAL.Component;
     url:       string;
-    rmm_backed = false;
 
     static fromVcard(url: string, vcard: string): Contact {
         const contact = new Contact({});
@@ -337,20 +335,12 @@ export class Contact {
             this.setPropertyValue('fn', fn);
         }
 
-        // if (!this.id) {
-        //     this.id = uuidv4().toUpperCase();
-        // }
-
         return this.component.toString();
     }
 
     constructor(properties: any) {
         this.component = new ICAL.Component('vcard');
 
-        // backcompat with old RMM contacts API
-        if (typeof properties['id'] === 'number') {
-            properties['id'] = 'RMM-' + properties['id'];
-        }
         if (properties['email']) {
             properties['emails'] = [
                 { 'types': ['home'], 'value': properties['email'] }
@@ -365,19 +355,11 @@ export class Contact {
             }
         }
 
-        if (this.id && this.id.substr(0, 4) === 'RMM-') {
-            this.rmm_backed = true;
-        }
-
         // if the contact contains fullname (FN) but not any other names,
         // rewrite the FN into the nickname
         if (!this.nickname && !this.first_name && !this.last_name && properties['fullname']) {
             this.nickname = properties['fullname'];
         }
-    }
-
-    get_rmm_id(): number {
-        return Number(this.id.substr(4));
     }
 
     display_name(): string|null {

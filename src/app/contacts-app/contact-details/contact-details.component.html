@@ -73,7 +73,6 @@
             faName="emails"
             (newElementClicked)="newEmail()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="E-mail address"
             deleteDescription="Delete this address"
@@ -91,7 +90,6 @@
             faName="phones"
             (newElementClicked)="newPhone()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="Phone number"
             deleteDescription="Delete this phone number"
@@ -106,7 +104,6 @@
             faName="urls"
             (newElementClicked)="newUrl()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="Website address"
             deleteDescription="Delete this address"
@@ -124,7 +121,6 @@
             faName="addresses"
             (newElementClicked)="newAdr()"
             layout="complex"
-            editable="!contact.rmm_backed"
 
             deleteDescription="Delete this address"
             addNewDescription="Add a new address"
@@ -138,7 +134,6 @@
             faName="related"
             (newElementClicked)="newRelative()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="Name"
             deleteDescription="Delete this relative"
@@ -147,14 +142,9 @@
         </app-contact-details-fa-viewer>
 
         <mat-toolbar style="position: fixed; bottom: 0;">
-            <div *ngIf="contact.rmm_backed">
-                <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
-            </div>
-            <div *ngIf="!contact.rmm_backed">
-                <a mat-button (click)="save()">Save changes</a>
-                <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
-                <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
-            </div>
+            <a mat-button (click)="save()">Save changes</a>
+            <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
+            <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
         </mat-toolbar>
     </form>
 </div>

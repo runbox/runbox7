@@ -56,7 +56,7 @@ export class ContactsAppComponent {
     @ViewChild('vcfUploadInput') vcfUploadInput: any;
 
     constructor(
-        private contactsservice: ContactsService,
+        public  contactsservice: ContactsService,
         private dialog:          MatDialog,
         private http:            HttpClient,
         public  mobileQuery:     MobileQueryService,

@@ -122,13 +122,8 @@ export class ContactDetailsComponent {
         this.initializeFormArray('phones',    () => this.createEmailFG());
         this.initializeFormArray('related',   () => this.createEmailFG());
 
-        if (this.contact.rmm_backed === true) {
-            console.log('Disabling edits for', this.contact.display_name());
-            this.contactForm.disable();
-        } else {
-            console.log('Enabling edits for', this.contact.display_name());
-            this.contactForm.enable();
-        }
+        // can this be removed?
+        this.contactForm.enable();
 
         this.contactForm.patchValue(this.contact.toDict());
     }
@@ -235,16 +230,6 @@ export class ContactDetailsComponent {
                 this.router.navigateByUrl('/contacts');
             });
         });
-    }
-
-    edit_rmm6(): void {
-        const return_url = '/contacts/' + this.contact.id;
-        window.open(
-            '/mail/addresses_contacts?edit=1' +
-            '&cid=' + this.contact.get_rmm_id() +
-            '&return_url=' + return_url,
-            '_blank'
-        );
     }
 
     showNewCategoryPrompt(): void {

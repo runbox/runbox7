@@ -29,8 +29,7 @@ export class FormArrayEditorComponent implements OnInit {
     @Input() faName:  string;
     @Input() layout:  string; // 'simple' or 'complex'
 
-    @Input() editable: boolean;
-    @Input() hidden  = true;
+    @Input() hidden   = true;
 
     @Input() title:             string;
     @Input() valuePlaceholder:  string;

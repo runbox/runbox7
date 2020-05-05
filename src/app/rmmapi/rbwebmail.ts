@@ -82,6 +82,7 @@ export class ContactSyncResult {
         public newSyncToken: string,
         public added:        Contact[],
         public removed:      string[],
+        public toMigrate:    number,
     ) { }
 }
 
@@ -522,59 +523,36 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public getAllContacts(): Observable<Contact[]> {
-        return this.http.get<any>('/rest/v1/addresses_contact').pipe(
-            map((res: HttpResponse<any>) => res['result']['addresses_contacts']),
-            map((contacts: any[]) =>
-                contacts.map((contact) => new Contact(contact))
-            )
-        );
-    }
-
-    public addNewContact(c: Contact): Observable<Contact> {
-        return this.http.put('/rest/v1/addresses_contact', c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])));
-    }
-
-    public modifyContact(c: Contact): Observable<Contact> {
-        return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])));
-    }
-
-    public deleteContact(contact_id: string): Observable<any> {
-        return this.http.delete('/rest/v1/addresses_contact/' + contact_id).pipe(
-            map((res: HttpResponse<any>) => res)
-        );
-    }
-
-    public isMigrationPending(jobID?: number): Observable<any> {
-        const suffix = jobID ? ('/' + jobID) : '';
-        return this.http.get('/rest/v1/addresses_contact/migrate' + suffix, {}).pipe(
+    public addNewContact(c: Contact): Observable<string> {
+        return this.http.put('/rest/v1/contacts/by_href/', { vcf: c.vcard() }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }
 
-    public migrateContacts(): Observable<any> {
-        return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((res: HttpResponse<any>) => res)
+    public modifyContact(c: Contact): Observable<Contact> {
+        return this.http.post('/rest/v1/contacts/by_href/' + btoa(c.url), {
+            href: c.url,
+            vcf:  c.vcard(),
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
         );
     }
 
-    public importContacts(vcf: string): Observable<Contact[]> {
-        return this.http.put('/rest/v1/addresses_contact/vcf', { vcf: vcf }).pipe(
-            map((res: HttpResponse<any>) => res['result']['contacts']),
-            map((contacts: any[]) => contacts.map((contact) => new Contact(contact)))
+    public deleteContact(contact: Contact): Observable<any> {
+        return this.http.delete('/rest/v1/contacts/by_href/' + btoa(contact.url)).pipe(
+            map((res: HttpResponse<any>) => res)
         );
     }
 
     public syncContacts(syncToken?: string): Observable<ContactSyncResult> {
         const path = syncToken ? ('/' + btoa(syncToken)) : '';
-        return this.http.get<any>('/rest/v1/addresses_contact/sync_raw' + path).pipe(
+        return this.http.get<any>('/rest/v1/contacts/sync' + path).pipe(
             map((res: HttpResponse<any>) => res['result']),
             map((result: any) => new ContactSyncResult(
                 result.newToken,
                 result.added.map((c: any) => Contact.fromVcard(c[0], c[1])),
                 result.removed,
+                result.to_migrate,
             )),
         );
     }

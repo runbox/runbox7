@@ -10,9 +10,9 @@
         <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
         <mat-nav-list dense>
             <mat-list-item>
-                <a mat-button routerLink="/contacts/new">
+                <button mat-button routerLink="/contacts/new">
                     <mat-icon> add </mat-icon> New contact
-                </a>
+                </button>
             </mat-list-item>
             <mat-list-item>
                 <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
@@ -111,6 +111,10 @@
 
             <mat-list-item *ngIf="shownContacts.length != contacts.length">
                 {{ contacts.length - shownContacts.length }} others in other categories
+            </mat-list-item>
+
+            <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
+                <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
             </mat-list-item>
         </mat-nav-list>
 

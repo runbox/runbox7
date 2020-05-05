@@ -23,17 +23,18 @@
         <h3> Contact migration </h3>
         
         <p>
-            You have <strong>{{ settings.old_contacts_count }}</strong> old-style contacts that haven't been migrated yet.
+            You have <strong>{{ settings.old_contacts_count }}</strong> Runbox 6 contacts that has not been migrated yet.
         </p>
-        <p *ngIf="migrationPending; else migrateButton">
-            Your contact migration has been scheduled. It may take some time before it finishes.
+        <p>
+            The migration is already started, but it may take a while.
+            If you think it's taking too long, please contact Runbox Support at
+            <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">support@runbox.com</a>.
         </p>
-        <ng-template #migrateButton>
-            <a mat-button (click)="migrateContacts()">Click here to migrate them</a>
-        </ng-template>
     </div>
 
     <div>
+        <h3> Contact export </h3>
+
         <a mat-button href="/rest/v1/addresses_contact/vcf">
             Click here to download all your contacts as a VCF file
         </a>

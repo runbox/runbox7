@@ -25,23 +25,12 @@ import { ContactsService } from './contacts.service';
     templateUrl: './contacts-settings.component.html',
 })
 export class ContactsSettingsComponent {
-
-    migrationPending = false;
     settingsLoaded   = false;
     settings:  any   = {};
 
     constructor(
         private contactsservice: ContactsService
     ) {
-        this.contactsservice.isMigrationPending().subscribe(
-            job_id => {
-                console.log('Migration pendingness:', job_id);
-                this.migrationPending = !!job_id;
-                if (this.migrationPending) {
-                    this.watchMigrationResult();
-                }
-            }
-        );
         this.contactsservice.settingsSubject.subscribe(settings => {
             // tslint:disable-next-line:forin
             for (const key in settings) {
@@ -50,36 +39,8 @@ export class ContactsSettingsComponent {
             this.settingsLoaded = true;
         });
 
-        this.contactsservice.contactsSubject.subscribe(c => {
-            this.settings.old_contacts_count = 0;
-            for (const contact of c) {
-                if (contact.rmm_backed) {
-                    this.settings.old_contacts_count++;
-                }
-            }
+        this.contactsservice.contactsSubject.subscribe(_ => {
+            this.settings.old_contacts_count = this.contactsservice.migratingContacts;
         });
-    }
-
-    watchMigrationResult(): void {
-        this.contactsservice.migrationResult.subscribe(
-            result => {
-                const status = +result;
-                if (status === 0) {
-                    this.contactsservice.reload().then(() => {
-                        this.migrationPending = false;
-                    });
-                }
-            }
-        );
-    }
-
-    migrateContacts(): void {
-        this.migrationPending = true;
-        this.contactsservice.migrateContacts().subscribe(
-            status => {
-                this.migrationPending = true;
-                this.watchMigrationResult();
-            }
-        );
     }
 }

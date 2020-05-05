@@ -61,7 +61,7 @@
                         </a>
                     </div>
                     <div class="mat-form-field">
-                        <a mat-button (click)="removeAt(i)" *ngIf="editable">
+                        <a mat-button (click)="removeAt(i)">
                             <mat-icon>delete</mat-icon> {{ deleteDescription }}
                         </a>
                     </div>
@@ -77,7 +77,7 @@
                             <input matInput formControlName="city" placeholder="City">
                         </mat-form-field>
                         <div class="mat-form-field">
-                            <a mat-button (click)="removeAt(i)" *ngIf="editable">
+                            <a mat-button (click)="removeAt(i)">
                                 <mat-icon>delete</mat-icon> {{ deleteDescription }}
                             </a>
                         </div>
@@ -98,7 +98,7 @@
         </div>
 
         <div>
-            <a mat-button (click)="newElementClicked.emit()" *ngIf="editable">
+            <a mat-button (click)="newElementClicked.emit()">
                 <mat-icon>add</mat-icon> {{ addNewDescription }}
             </a>
         </div>
