@@ -47,10 +47,10 @@ export class ContactsService implements OnDestroy {
         private storage: StorageService,
     ) {
         storage.get('contactsCache').then(cache => {
-            if (!cache || typeof cache !== 'object' || cache.version !== 2) {
+            if (!cache || typeof cache !== 'object' || cache.version !== 3) {
                 return;
             }
-            const contacts = cache.contacts.map((c: any) => new Contact(c));
+            const contacts = cache.contacts.map((c: any) => Contact.fromVcard(c[0], c[1]));
             this.syncToken = cache.syncToken;
             this.processContacts(contacts);
         }).finally(() => {
@@ -139,9 +139,9 @@ export class ContactsService implements OnDestroy {
 
     saveCache(contacts: Contact[]): void {
         this.storage.set('contactsCache', {
-            contacts:  contacts,
+            contacts:  contacts.map(c => [c.url, c.vcard()]),
             syncToken: this.syncToken,
-            version:   2,
+            version:   3,
         });
     }
 
