@@ -117,7 +117,7 @@ export class Contact {
         }
         if (values.length > 0) {
             const prop = new ICAL.Property(name, this.component);
-            prop.setValue(values);
+            prop.setValues(values);
             this.component.addProperty(prop);
         }
     }

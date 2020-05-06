@@ -101,4 +101,16 @@ END:VCARD`;
         expect(addresses[0].value.post_code).toBe('12-345');
         expect(addresses[0].value.country).toBe('Contactia');
     });
+
+    it('can set categories for contact', () => {
+        let sut = new Contact({});
+        sut.first_name = 'Peter';
+        sut.categories = ['test'];
+        expect(() => sut.vcard()).not.toThrow();
+
+        sut = Contact.fromVcard(null, sut.vcard());
+        expect(sut.categories.length).toBe(1);
+        expect(sut.categories[0]).toBe('test');
+    });
+
 });
