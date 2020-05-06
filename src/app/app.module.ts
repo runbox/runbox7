@@ -54,6 +54,8 @@ import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
+import { StartModule } from './start/start.module';
+import { StartComponent } from './start/start.component';
 import { AccountAppModule } from './account-app/account-app.module';
 import { AccountAppComponent } from './account-app/account-app.component';
 import { ProgressService } from './http/progress.service';
@@ -95,7 +97,11 @@ const routes: Routes = [
           {
             path: 'compose',
             component: DraftDeskComponent
-          }
+          },
+	  {
+            path: 'start',
+            component: StartComponent
+          },
         ]
       },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
@@ -116,6 +122,7 @@ const routes: Routes = [
     HttpClientJsonpModule,
     CanvasTableModule,
     ComposeModule,
+    StartModule,
     FolderModule,
     MatSnackBarModule,
     MatIconModule,
