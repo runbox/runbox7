@@ -117,7 +117,7 @@ export class ContactsAppComponent {
         this.selectedCount = 0;
 
         this.contactsservice.deleteMultiple(toDelete).then(_ => {
-            this.showNotification(`Deleted ${toDelete.length} contacts}`);
+            this.showNotification(`Deleted ${toDelete.length} contacts`);
             this.contactsservice.reload();
         });
     }
@@ -169,21 +169,26 @@ export class ContactsAppComponent {
     }
 
     processVcfImport(vcf: string) {
-        this.contactsservice.importContacts(vcf).subscribe(contacts => {
-            const dialogRef = this.dialog.open(VcfImportDialogComponent, {
-                data: { contacts: contacts, categories: this.categories }
-            });
-            dialogRef.afterClosed().subscribe(result => {
-                if (!result) {
-                    return;
+        let contacts: Contact[];
+        try {
+            contacts = Contact.fromVcf(vcf);
+        } catch {
+            this.showError('Error parsing contacts: is it a proper VCF file?');
+            return;
+        }
+        const dialogRef = this.dialog.open(VcfImportDialogComponent, {
+            data: { contacts: contacts, categories: this.categories }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+            if (!result) {
+                return;
+            }
+            for (const c of contacts) {
+                if (result['category']) {
+                    c.categories = c.categories.concat(result['category']);
                 }
-                for (const c of contacts) {
-                    if (result['category']) {
-                        c.categories.push(result['category']);
-                    }
-                    this.contactsservice.saveContact(c);
-                }
-            });
+                this.contactsservice.saveContact(c);
+            }
         });
     }
 

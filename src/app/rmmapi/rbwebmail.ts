@@ -524,7 +524,10 @@ export class RunboxWebmailAPI {
     }
 
     public addNewContact(c: Contact): Observable<string> {
-        return this.http.put('/rest/v1/contacts/by_href/', { vcf: c.vcard() }).pipe(
+        return this.http.put('/rest/v1/contacts/by_href/', {
+            uuid: c.id,
+            vcf: c.vcard()
+        }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

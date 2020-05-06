@@ -175,7 +175,7 @@ export class ContactsService implements OnDestroy {
     }
 
     deleteContact(contact: Contact): Promise<void> {
-        console.log('Contact.service deleting', contact.id);
+        console.log('Contact.service deleting', contact.url);
         return new Promise<void>((resolve, reject) => {
             this.rmmapi.deleteContact(contact).subscribe(() => {
                 this.reload().then(() => resolve());
@@ -196,10 +196,5 @@ export class ContactsService implements OnDestroy {
                 resolve(cby[email]);
             }, e => { this.apiErrorHandler(e); reject(); });
         });
-    }
-
-    importContacts(vcf: string): Observable<Contact[]> {
-        // FIXME
-        return of([]);
     }
 }

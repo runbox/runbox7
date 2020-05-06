@@ -62,6 +62,19 @@ export class Contact {
     component: ICAL.Component;
     url:       string;
 
+    // may throw ICAL.ParserError if input is not a valid vcf
+    static fromVcf(vcf: string): Contact[] {
+        const cards = ICAL.parse(vcf);
+        return cards.map((jcard: any) => {
+            if (jcard[0] !== 'vcard') {
+                throw new Error('File does not seem to contain vcards');
+            }
+            const contact = new Contact({});
+            contact.component = new ICAL.Component(jcard);
+            return contact;
+        });
+    }
+
     static fromVcard(url: string, vcard: string): Contact {
         const contact = new Contact({});
         contact.component = ICAL.Component.fromString(vcard);
