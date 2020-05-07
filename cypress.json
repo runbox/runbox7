@@ -1,5 +1,5 @@
 {
-    "baseUrl": "http://localhost:4200",
+    "baseUrl": "http://localhost:4201",
     "defaultCommandTimeout": 10000,
     "fixturesFolder": "e2e/cypress/fixtures",
     "integrationFolder": "e2e/cypress/integration",
