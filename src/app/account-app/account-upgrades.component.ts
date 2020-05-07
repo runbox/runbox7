@@ -76,7 +76,7 @@ export class AccountUpgradesComponent implements OnInit {
                 this.bought_micro         = !!items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
                 this.bought_email_hosting = !!items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
 
-                ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
+                ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
 
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
