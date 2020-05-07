@@ -89,33 +89,27 @@ export class MockSearchService {
     }
 }
 
+export class ContactsServiceMock {
+    public contactsSubject = of([
+        new Contact({
+            id: 5,
+            nick: 'test',
+            first_name: 'firstname',
+            last_name: 'lastname',
+            email: 'test@example.com'
+        }),
+        new Contact({
+            id: 6,
+            nick: 'test2',
+            first_name: 'firstname2',
+            last_name: 'lastname2',
+            emails: [{ types: [], value: 'test2@example.com' }, { types: [], value: 'test4@example.com' }]
+        })
+    ]);
+}
+
 export class RunboxWebMailAPIMock {
     public me = of({ uid: 33 });
-
-    public syncContacts(): Observable<any> {
-        return of({
-            added: [
-                new Contact({
-                    id: 5,
-                    nick: 'test',
-                    first_name: 'firstname',
-                    last_name: 'lastname',
-                    email: 'test@example.com'
-                }),
-                new Contact({
-                    id: 6,
-                    nick: 'test2',
-                    first_name: 'firstname2',
-                    last_name: 'lastname2',
-                    emails: [{ types: [], value: 'test2@example.com' }, { types: [], value: 'test4@example.com' }]
-                })
-            ]
-        });
-    }
-
-    public getContactsSettings(): Observable<any> {
-        return of({});
-    }
 }
 
 describe('RecipientsService', () => {
@@ -125,9 +119,10 @@ describe('RecipientsService', () => {
         const testingmodule = TestBed.configureTestingModule({
             imports: [],
             declarations: [ ], // declare the test component
-            providers: [RecipientsService, ContactsService, StorageService,
-                {provide: SearchService, useClass: MockSearchService },
+            providers: [RecipientsService, StorageService,
+                {provide: SearchService,    useClass: MockSearchService    },
                 {provide: RunboxWebmailAPI, useClass: RunboxWebMailAPIMock },
+                {provide: ContactsService,  useClass: ContactsServiceMock  },
             ]
         });
         injector = TestBed.get(Injector);
