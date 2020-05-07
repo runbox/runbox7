@@ -34,6 +34,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
+import { isValidEmailList } from './emailvalidator';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -454,6 +455,30 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public submit(send: boolean = false) {
         if (send) {
+            let validemails = false;
+            validemails = isValidEmailList(this.formGroup.value.to);
+            if (!validemails) {
+                this.saveErrorMessage = 'Cannot send email: TO field contains invalid email addresses';
+            }
+            if (validemails && this.formGroup.value.cc) {
+                validemails = isValidEmailList(this.formGroup.value.cc);
+                if (!validemails) {
+                    this.saveErrorMessage = 'Cannot send email: CC field contains invalid email addresses';
+                }
+            }
+            if (validemails && this.formGroup.value.bcc) {
+                validemails = isValidEmailList(this.formGroup.value.bcc);
+                if (!validemails) {
+                    this.saveErrorMessage = 'Cannot send email: BCC field contains invalid email addresses';
+                }
+            }
+            if (!validemails) {
+                this.snackBar.open(
+                    `Error sending: ${this.saveErrorMessage}`,
+                    'Dismiss'
+                );
+                return;
+            }
             this.dialogService.openProgressDialog();
         }
         this.model.from = this.formGroup.value.from;
