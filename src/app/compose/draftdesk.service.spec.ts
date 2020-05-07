@@ -56,6 +56,7 @@ describe('DraftDesk', () => {
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.to).toBe('Test1<test1@runbox.com>');
         expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
         draft = DraftFormModel.reply({
                 headers: {
                     'message-id': 'themessageid112414',
@@ -81,6 +82,35 @@ describe('DraftDesk', () => {
                                     '> \n' +
                                     `> 2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n` +
                                     '>> blabla\n>> abcde');
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+
+    it('Create', (done) => {
+        console.log('Create test');
+        // compose?new=true
+        let draft = DraftFormModel.create(
+            -1,
+            FromAddress.fromEmailAddress('test2@runbox.com'),
+            null,
+            '');
+        expect(draft.isUnsaved()).toBe(true);
+
+        // Link on contact page:
+        draft = DraftFormModel.create(
+            -1,
+            FromAddress.fromEmailAddress('test2@runbox.com'),
+            '"Test Runbox" <test2@runbox.com>',
+            '');
+        expect(draft.isUnsaved()).toBe(true);
+
+        // refreshDrafts
+        draft = DraftFormModel.create(
+            12345,
+            FromAddress.fromEmailAddress('test2@runbox.com'),
+            '"Test Runbox" <test2@runbox.com>',
+            'Some blahblah');
+        expect(draft.isUnsaved()).toBe(false);
         done();
     });
 });

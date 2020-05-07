@@ -34,6 +34,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
+import { isValidEmailList } from './emailvalidator';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -58,7 +59,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public showDropZone = false;
     public draggingOverDropZone = false;
     public editing = false;
-    public isNew = false;
+    public isUnsaved = false;
     public uploadprogress: number = null;
     public uploadingFiles: File[] = null;
     public uploadRequest: Subscription = null;
@@ -70,7 +71,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     saveErrorMessage: string;
 
-    @Input() shouldExitToTable = false;
+    shouldReturnToPreviousPage = false;
 
     public formGroup: FormGroup;
 
@@ -91,13 +92,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     ngOnInit() {
-        if (this.model.mid <= -1) {
+        if (this.model.isUnsaved()) {
             this.editing = true;
-            this.isNew = true;
-            if (this.isNew && this.model.subject) {
-                this.shouldExitToTable = true;
-            }
-
+            this.isUnsaved = true;
+            this.shouldReturnToPreviousPage = true;
             const from: FromAddress = this.draftDeskservice.froms.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
@@ -386,13 +384,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.rmmapi.trashMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
-            this.checkIfExitToTable();
+            this.exitIfNeeded();
         });
     }
 
-    checkIfExitToTable() {
-        if (this.shouldExitToTable) {
-            this.exitToTable();
+    exitIfNeeded() {
+        if (this.shouldReturnToPreviousPage) {
+            this.location.back();
         }
     }
 
@@ -402,7 +400,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public cancelDraft() {
         this.draftDeleted.emit(this.model.mid);
-        this.checkIfExitToTable();
+        this.exitIfNeeded();
     }
 
     public downloadMessage(): Observable<any> {
@@ -452,10 +450,35 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public close() {
         this.editing = false;
+        this.exitIfNeeded();
     }
 
     public submit(send: boolean = false) {
         if (send) {
+            let validemails = false;
+            validemails = isValidEmailList(this.formGroup.value.to);
+            if (!validemails) {
+                this.saveErrorMessage = 'Cannot send email: TO field contains invalid email addresses';
+            }
+            if (validemails && this.formGroup.value.cc) {
+                validemails = isValidEmailList(this.formGroup.value.cc);
+                if (!validemails) {
+                    this.saveErrorMessage = 'Cannot send email: CC field contains invalid email addresses';
+                }
+            }
+            if (validemails && this.formGroup.value.bcc) {
+                validemails = isValidEmailList(this.formGroup.value.bcc);
+                if (!validemails) {
+                    this.saveErrorMessage = 'Cannot send email: BCC field contains invalid email addresses';
+                }
+            }
+            if (!validemails) {
+                this.snackBar.open(
+                    `Error sending: ${this.saveErrorMessage}`,
+                    'Dismiss'
+                );
+                return;
+            }
             this.dialogService.openProgressDialog();
         }
         this.model.from = this.formGroup.value.from;
@@ -549,11 +572,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
             )).subscribe((res: any) => {
                     if (res.mid) {
-                        this.model.mid = res.mid;
+                        this.model.mid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
                     }
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
 
-                    this.isNew = false;
+                    this.isUnsaved = false;
                     this.saved = new Date();
                     this.saveErrorMessage = null;
 
