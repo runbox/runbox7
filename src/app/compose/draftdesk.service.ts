@@ -162,6 +162,13 @@ export class DraftFormModel {
         );
         return ret;
     }
+
+    public isUnsaved(): boolean {
+        if (this.mid <= -1) {
+            return true;
+        }
+        return false;
+    }
 }
 
 @Injectable()

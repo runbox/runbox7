@@ -38,7 +38,7 @@
     <mat-card-actions style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; margin-right: 5px;">
         <div style="flex-grow: 1; padding-left: 15px; font-size: 24px;">
             {{model.subject ? model.subject : "New message"}}
-        </div>           
+        </div>
         <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
         <button *ngIf="editing" mat-icon-button matTooltip="Attach files" (click)="attachFilesClicked()">
             <mat-icon>attachment</mat-icon>
@@ -50,13 +50,13 @@
             <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
             <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
         </button>
-        <button *ngIf="!isNew" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
+        <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
             <mat-icon>delete</mat-icon>
         </button>
         <button *ngIf="editing" mat-icon-button matTooltip="Close draft" (click)="close()">
             <mat-icon>close</mat-icon>
         </button>
-        <button *ngIf="editing && isNew" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
+        <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
             <mat-icon>delete</mat-icon>
         </button>
         <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">

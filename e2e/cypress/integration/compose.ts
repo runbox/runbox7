@@ -56,4 +56,55 @@ describe('Composing emails', () => {
         // ...but the resulting contact should not
         cy.get('mat-chip').should('not.contain', 'Postpat');
     });
+
+    it('closing a newly composed email should return where we started', () => {
+        cy.visit('/compose');
+        composeNew();
+        
+        cy.get('button[mattooltip="Close draft"').click();
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/compose');
+            expect(loc.search).to.eq('');
+        });
+    });
+
+    it('closing a new reply should return to inbox', () => {
+        cy.visit('/');
+        cy.closeWelcomeDialog();
+        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
+        cy.get('single-mail-viewer').should('exist');
+        cy.get('button[mattooltip="Reply"]').click();
+        cy.get('button[mattooltip="Close draft"').click();
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/');
+            expect(loc.search).to.eq('');
+        });
+    });
+
+    it('Send email on contacts page, composes an email', () => {
+        cy.visit('/contacts');
+        cy.contains('Welcome to Runbox 7 Contacts');
+        cy.contains('Patrick Postcode').click();
+        cy.contains('Send an email to this address').click();
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/compose');
+            expect(loc.search).to.eq('?to=patrick@post.no');
+        });
+        cy.get('mailrecipient-input mat-chip').should('contain', 'patrick@post.no');
+    });
+
+    it('closing a new email from contacts list, should return to contacts', () => {
+        cy.visit('/contacts');
+        cy.contains('Welcome to Runbox 7 Contacts');
+        cy.contains('Patrick Postcode').click();
+        cy.contains('Send an email to this address').click();
+        // NB if we skip checking exist, we get an issue clicking the button
+        // not loaded??
+        cy.get('button[mattooltip="Close draft"').should('exist');
+        cy.get('button[mattooltip="Close draft"').click();
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/contacts/ID-MR-POSTCODE');
+            expect(loc.search).to.eq('');
+        }); 
+    });
 });
