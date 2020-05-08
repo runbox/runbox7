@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Contact, ContactKind } from './contact';
+import { Contact, ContactKind, Address, AddressDetails } from './contact';
 
 describe('Contact', () => {
     it('cannot create contact with no name', () => {
@@ -111,6 +111,21 @@ END:VCARD`;
         sut = Contact.fromVcard(null, sut.vcard());
         expect(sut.categories.length).toBe(1);
         expect(sut.categories[0]).toBe('test');
+    });
+
+    it('can set address for contact', () => {
+        let sut = new Contact({});
+        sut.first_name = 'Peter';
+
+        sut.addresses = [
+            new Address(
+                ['home'],
+                new AddressDetails(['', '', 'test st.', 'testville', 'state', '12-345', 'liberia'])
+            ),
+        ];
+
+        expect(() => sut.vcard()).not.toThrow();
+        expect(sut.vcard()).toContain('ADR;TYPE=home:;;test');
     });
 
     it('contacts are individuals by default', () => {

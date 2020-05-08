@@ -22,7 +22,7 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact, ContactKind } from '../contact';
+import { Contact, ContactKind, AddressDetails, Address } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
@@ -234,7 +234,13 @@ export class ContactDetailsComponent {
         for (const name of Object.keys(this.contactForm.controls)) {
             const ctl = this.contactForm.get(name);
             if (ctl.dirty) {
-                this.contact[name] = ctl.value;
+                let value = ctl.value;
+                if (name === 'addresses') {
+                    value = value.map(
+                        (entry: any) => new Address(entry.types, AddressDetails.fromDict(entry.value))
+                    );
+                }
+                this.contact[name] = value;
             }
         }
         console.log('Saving contact:', this.contact);

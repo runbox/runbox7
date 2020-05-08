@@ -74,14 +74,28 @@ export namespace ContactKind {
 }
 
 export class AddressDetails {
+    // fields as in https://tools.ietf.org/html/rfc6350#section-6.3.1
     constructor(public values: string[]) { }
 
+    static fromDict(dict: any): AddressDetails {
+        return new AddressDetails([
+            dict['pobox'],
+            dict['extended'],
+            dict['street'],
+            dict['city'],
+            dict['region'],
+            dict['post_code'],
+            dict['country'],
+        ].map(e => e || ''));
+    }
+
+    get pobox():     string { return this.values[0]; }
+    get extended():  string { return this.values[1]; }
     get street():    string { return this.values[2]; }
     get city():      string { return this.values[3]; }
     get region():    string { return this.values[4]; }
     get post_code(): string { return this.values[5]; }
     get country():   string { return this.values[6]; }
-
 }
 
 export class Address {
@@ -94,6 +108,8 @@ export class Address {
         return {
             types:     this.types,
             value: {
+                pobox:     this.value.pobox,
+                extended:  this.value.extended,
                 street:    this.value.street,
                 city:      this.value.city,
                 region:    this.value.region,
@@ -371,6 +387,18 @@ export class Contact {
             });
         } else {
             return [];
+        }
+    }
+
+    set addresses(values: Address[]) {
+        if (this.component.hasProperty('adr')) {
+            this.component.removeAllProperties('adr');
+        }
+        for (const e of values) {
+            const prop = this.component.addPropertyWithValue('adr', e.value.values);
+            if (e.types.length > 0) {
+                prop.setParameter('type', e.types);
+            }
         }
     }
 
