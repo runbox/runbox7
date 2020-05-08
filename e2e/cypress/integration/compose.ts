@@ -103,7 +103,7 @@ describe('Composing emails', () => {
         cy.get('button[mattooltip="Close draft"').should('exist');
         cy.get('button[mattooltip="Close draft"').click();
         cy.location().should((loc) => {
-            expect(loc.pathname).to.eq('/contacts/ID-MR-POSTCODE');
+            expect(loc.pathname).to.eq('/contacts/id-mr-postcode');
             expect(loc.search).to.eq('');
         }); 
     });
