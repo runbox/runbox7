@@ -101,17 +101,10 @@
 
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
                     <h4 mat-line>
-                        <span *ngIf="contact.show_as_company(); else show_kind">
-                            <mat-icon> business </mat-icon>
-                        </span>
-                        <ng-template #show_kind>
-                            <span *ngIf="contact.kind === 'group'">
-                                <mat-icon> group </mat-icon>
-                            </span>
-                        </ng-template>
-                        {{ contact.display_name() || "Unnamed contact"  }}
+                        <app-contact-button [contact]="contact"></app-contact-button>
                     </h4>
                 </a>
+
                 <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
                     *ngIf="contact.primary_email()"
                     routerLink="/compose" [queryParams]="{to: contact.primary_email()}">

@@ -37,6 +37,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ContactsAppComponent } from './contacts-app.component';
+import { ContactButtonComponent } from './contact-button.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
 import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
@@ -47,6 +48,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 @NgModule({
   declarations: [
     ContactsAppComponent,
+    ContactButtonComponent,
     ContactDetailsComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
