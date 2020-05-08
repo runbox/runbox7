@@ -44,7 +44,7 @@ export class GroupMember {
         return this.scheme === 'mailto' ? this.value : this.prop.getParameter('x-email');
     }
 
-    constructor(private prop: ICAL.Property) {
+    constructor(public prop: ICAL.Property) {
         const value = prop.getFirstValue();
         const splitter = value.lastIndexOf(':');
         if (splitter === -1) {
@@ -55,6 +55,12 @@ export class GroupMember {
             this.scheme = value.substr(0, splitter);
             this.value  = value.substr(splitter + 1);
         }
+    }
+
+    static fromUUID(uuid: string): GroupMember {
+        const prop = new ICAL.Property('member');
+        prop.setValue('urn:uuid:' + uuid);
+        return new GroupMember(prop);
     }
 }
 
@@ -424,6 +430,15 @@ export class Contact {
             return props.map((p: ICAL.Property) => new GroupMember(p));
         } else {
             return [];
+        }
+    }
+
+    set members(values: GroupMember[]) {
+        if (this.component.hasProperty('member')) {
+            this.component.removeAllProperties('member');
+        }
+        for (const m of values) {
+            this.component.addProperty(m.prop);
         }
     }
 

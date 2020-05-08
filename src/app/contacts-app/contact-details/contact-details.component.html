@@ -81,16 +81,21 @@
 
         <div *ngIf="contact.kind === kind.GROUP">
             <h3> Members </h3>
-            <div *ngFor="let member of groupMembers">
-                <div *ngIf="member | async as member">
-                    <div *ngIf="member instanceof Contact; else not_contact">
-                        <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
-                            <app-contact-button [contact]="member"></app-contact-button>
-                        </button>
+            <div (drop)="addMember($event)">
+                <div *ngIf="groupMembers.length === 0" style="padding: 25px; border: 2px dotted;">
+                    Drag and drop contacts here to add them to this group
+                </div>
+                <div *ngFor="let member of loadedGroupMembers">
+                    <div *ngIf="member | async as member">
+                        <div *ngIf="member instanceof Contact; else not_contact">
+                            <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
+                                <app-contact-button [contact]="member"></app-contact-button>
+                            </button>
+                        </div>
+                        <ng-template #not_contact>
+                            {{ member.value }}
+                        </ng-template>
                     </div>
-                    <ng-template #not_contact>
-                        {{ member.value }}
-                    </ng-template>
                 </div>
             </div>
         </div>

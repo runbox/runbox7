@@ -270,4 +270,8 @@ export class ContactsAppComponent {
             }
         });
     }
+
+    dragStarted(ev: DragEvent, contact_id: string) {
+        ev.dataTransfer.setData('contact', contact_id);
+    }
 }

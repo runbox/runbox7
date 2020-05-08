@@ -22,7 +22,7 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact, ContactKind, AddressDetails, Address } from '../contact';
+import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
@@ -41,7 +41,10 @@ export class ContactDetailsComponent {
     contactForm = this.createForm();
 
     categories = [];
-    groupMembers = [];
+
+    groupMembers: GroupMember[] = [];
+    // GroupMember or resolved Contact
+    loadedGroupMembers = [];
 
     // needed so that templates can refer to enum values through `kind.GROUP` etc
     kind = ContactKind;
@@ -149,7 +152,12 @@ export class ContactDetailsComponent {
             this.contactIcon = 'person';
         }
 
-        this.groupMembers = this.contact.members.map(member => {
+        this.groupMembers = this.contact.members;
+        this.loadGroupMembers();
+    }
+
+    loadGroupMembers(): void {
+        this.loadedGroupMembers = this.groupMembers.map(member => {
             if (member.uuid) {
                 return this.contactsservice.lookupByUUID(member.uuid).then(c => c || member);
             } else {
@@ -243,6 +251,9 @@ export class ContactDetailsComponent {
                 this.contact[name] = value;
             }
         }
+        if (this.contact.kind === ContactKind.GROUP) {
+            this.contact.members = this.groupMembers;
+        }
         console.log('Saving contact:', this.contact);
         this.contactsservice.saveContact(this.contact).then(
             () => this.router.navigateByUrl('/contacts/' + this.contact.id)
@@ -288,5 +299,11 @@ export class ContactDetailsComponent {
 
         this.newCategoryValue = '';
         this.newCategoryPromptShown = false;
+    }
+
+    addMember(ev: DragEvent) {
+        const id = ev.dataTransfer.getData('contact');
+        this.groupMembers.push(GroupMember.fromUUID(id));
+        this.loadGroupMembers();
     }
 }

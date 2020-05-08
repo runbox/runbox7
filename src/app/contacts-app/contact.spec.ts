@@ -114,7 +114,7 @@ END:VCARD`;
     });
 
     it('can set address for contact', () => {
-        let sut = new Contact({});
+        const sut = new Contact({});
         sut.first_name = 'Peter';
 
         sut.addresses = [
