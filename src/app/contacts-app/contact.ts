@@ -87,7 +87,10 @@ export class Contact {
 
     // may throw ICAL.ParserError if input is not a valid vcf
     static fromVcf(vcf: string): Contact[] {
-        const cards = ICAL.parse(vcf);
+        let cards = ICAL.parse(vcf);
+        if (cards[0] === 'vcard') {
+            cards = [cards];
+        }
         return cards.map((jcard: any) => {
             if (jcard[0] !== 'vcard') {
                 throw new Error('File does not seem to contain vcards');
