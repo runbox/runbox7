@@ -4,62 +4,76 @@
 
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <span *ngIf="contact.show_as_company()">
-            <mat-icon> business </mat-icon>
+        <mat-icon> {{ contactIcon }} </mat-icon>
+        <span *ngIf="contact.display_name(); else defaultName">
+            {{ contact.display_name() }}
         </span>
-        {{ contact.display_name() || "New contact" }}'s details
+        <ng-template #defaultName>
+            <span [ngSwitch]="contact.kind">
+                <span *ngSwitchCase="kind.GROUP"> New group   </span>
+                <span *ngSwitchDefault>           New contact </span>
+            </span>
+        </ng-template>
+        's details
     </h2>
     <form [formGroup]="contactForm">
         <h3> Basic information </h3>
-        <div class="contact-details-row">
+        <div *ngIf="contact.kind !== kind.INVIDIDUAL">
             <mat-form-field>
-                <input matInput formControlName="nickname" placeholder="Nickname">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput formControlName="first_name" placeholder="First name">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput formControlName="last_name" placeholder="Last Name">
-            </mat-form-field>
-            <mat-form-field *ngIf="newCategoryPromptShown">
-                <input matInput #newCategoryInput placeholder="New category"
-                      [(ngModel)]="newCategoryValue" [ngModelOptions]="{standalone: true}">
-                <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
-                <button matSuffix mat-icon-button (click)="newCategoryPromptShown = false">
-                    <mat-icon>cancel</mat-icon>
-                </button>
-                <button matSuffix mat-icon-button (click)="confirmNewCategory()">
-                    <mat-icon>check</mat-icon>
-                </button>
-            </mat-form-field>
-            <mat-form-field *ngIf="!newCategoryPromptShown">
-                <mat-label> Categories </mat-label>
-                <mat-select formControlName="categories" placeholder="No categories" multiple>
-                    <mat-select-trigger>
-                        <span *ngIf="contactForm.get('categories').value; else no_categories">
-                            {{ contactForm.get('categories').value }}
-                        </span>
-                        <ng-template #no_categories>
-                            No categories
-                        </ng-template>
-                    </mat-select-trigger>
-                    <mat-option *ngFor="let category of categories" [value]="category"> {{ category }} </mat-option>
-                    <mat-option (click)="showNewCategoryPrompt()"> Add a new category... </mat-option>
-                </mat-select>
+                <input matInput formControlName="full_name" placeholder="Name">
             </mat-form-field>
         </div>
-        <div class="contact-details-row">
-            <mat-form-field>
-                <input matInput formControlName="company" placeholder="Company">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput formControlName="department" placeholder="Department">
-            </mat-form-field>
-        </div>
-        <div class="contact-details-row">
-            <mat-form-field>
-                <input matInput formControlName="birthday" placeholder="Birthday">
-            </mat-form-field>
+        <div *ngIf="contact.kind === kind.INVIDIDUAL">
+            <div class="contact-details-row">
+                <mat-form-field>
+                    <input matInput formControlName="nickname" placeholder="Nickname">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput formControlName="first_name" placeholder="First name">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput formControlName="last_name" placeholder="Last Name">
+                </mat-form-field>
+                <mat-form-field *ngIf="newCategoryPromptShown">
+                    <input matInput #newCategoryInput placeholder="New category"
+                          [(ngModel)]="newCategoryValue" [ngModelOptions]="{standalone: true}">
+                    <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
+                    <button matSuffix mat-icon-button (click)="newCategoryPromptShown = false">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                    <button matSuffix mat-icon-button (click)="confirmNewCategory()">
+                        <mat-icon>check</mat-icon>
+                    </button>
+                </mat-form-field>
+                <mat-form-field *ngIf="!newCategoryPromptShown">
+                    <mat-label> Categories </mat-label>
+                    <mat-select formControlName="categories" placeholder="No categories" multiple>
+                        <mat-select-trigger>
+                            <span *ngIf="contactForm.get('categories').value; else no_categories">
+                                {{ contactForm.get('categories').value }}
+                            </span>
+                            <ng-template #no_categories>
+                                No categories
+                            </ng-template>
+                        </mat-select-trigger>
+                        <mat-option *ngFor="let category of categories" [value]="category"> {{ category }} </mat-option>
+                        <mat-option (click)="showNewCategoryPrompt()"> Add a new category... </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="contact-details-row">
+                <mat-form-field>
+                    <input matInput formControlName="company" placeholder="Company">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput formControlName="department" placeholder="Department">
+                </mat-form-field>
+            </div>
+            <div class="contact-details-row">
+                <mat-form-field>
+                    <input matInput formControlName="birthday" placeholder="Birthday">
+                </mat-form-field>
+            </div>
         </div>
         <div class="contact-details-row">
             <textarea matInput formControlName="note" placeholder="Notes"> </textarea>

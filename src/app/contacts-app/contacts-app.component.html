@@ -11,7 +11,12 @@
         <mat-nav-list dense>
             <mat-list-item>
                 <button mat-button routerLink="/contacts/new">
-                    <mat-icon> add </mat-icon> New contact
+                    <mat-icon> person_add </mat-icon> New contact
+                </button>
+            </mat-list-item>
+            <mat-list-item>
+                <button mat-button routerLink="/contacts/new_group">
+                    <mat-icon> group_add </mat-icon> New group
                 </button>
             </mat-list-item>
             <mat-list-item>
@@ -96,9 +101,14 @@
 
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
                     <h4 mat-line>
-                        <span *ngIf="contact.show_as_company()">
+                        <span *ngIf="contact.show_as_company(); else show_kind">
                             <mat-icon> business </mat-icon>
                         </span>
+                        <ng-template #show_kind>
+                            <span *ngIf="contact.kind === 'group'">
+                                <mat-icon> group </mat-icon>
+                            </span>
+                        </ng-template>
                         {{ contact.display_name() || "Unnamed contact"  }}
                     </h4>
                 </a>

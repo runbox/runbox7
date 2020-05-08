@@ -27,6 +27,29 @@ export class StringValueWithTypes {
     value: string;
 }
 
+// as in https://tools.ietf.org/html/rfc6350#section-6.1.4
+// 'x-name's are unsupported and treated as individuals
+export enum ContactKind {
+    INVIDIDUAL = 'individual',
+    GROUP      = 'group',
+    ORG        = 'org',
+    LOCATION   = 'location',
+}
+
+// this hack allows us to pretend to have methods for enums
+export namespace ContactKind {
+    export function fromString(name: string): ContactKind {
+        // nullable types suck >:(
+        const lowerName = name ? name.toLowerCase() : null;
+        const mapping = {
+            'group':    ContactKind.GROUP,
+            'org':      ContactKind.ORG,
+            'location': ContactKind.LOCATION,
+        };
+        return mapping[lowerName] || ContactKind.INVIDIDUAL;
+    }
+}
+
 export class AddressDetails {
     constructor(public values: string[]) { }
 
@@ -230,6 +253,17 @@ export class Contact {
         this.setMultiValProp('categories', value);
     }
 
+    get kind(): ContactKind {
+        return ContactKind.fromString(
+            this.component.getFirstPropertyValue('kind')
+            || this.component.getFirstPropertyValue('x-addressbookserver-kind')
+        );
+    }
+
+    set kind(k: ContactKind) {
+        this.component.updatePropertyWithValue('kind', k.toString());
+    }
+
     get company(): string {
         const org = this.component.getFirstPropertyValue('org');
         // Some vCard emiters (like Nextcloud) will store this as a string
@@ -427,6 +461,10 @@ export class Contact {
     }
 
     show_as_company(): boolean {
-        return this['show_as'] === 'COMPANY';
+        if (this.component.hasProperty('x-abshowas')) {
+            return this.component.getFirstPropertyValue('x-abshowas') === 'COMPANY';
+        }
+
+        return this.kind === ContactKind.ORG;
     }
 }

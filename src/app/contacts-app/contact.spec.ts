@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Contact } from './contact';
+import { Contact, ContactKind } from './contact';
 
 describe('Contact', () => {
     it('cannot create contact with no name', () => {
@@ -113,4 +113,29 @@ END:VCARD`;
         expect(sut.categories[0]).toBe('test');
     });
 
+    it('contacts are individuals by default', () => {
+        const sut = new Contact({});
+        expect(sut.kind).toBe(ContactKind.INVIDIDUAL);
+    });
+
+    it('can create a group', () => {
+        const sut = new Contact({});
+        sut.full_name  = 'Neverland characters';
+        sut.kind = ContactKind.GROUP;
+
+        expect(() => sut.vcard()).not.toThrow();
+        expect(sut.vcard()).toContain('FN:Neverland');
+        expect(sut.vcard()).toContain('KIND:group');
+
+        console.log(sut.vcard());
+    });
+
+    it('can parse a 3.0 group', () => {
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+X-ADDRESSBOOKSERVER-KIND:GROUP
+FN:Test Group
+END:VCARD`);
+        expect(sut.kind).toBe(ContactKind.GROUP);
+    });
 });

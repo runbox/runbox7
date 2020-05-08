@@ -22,7 +22,7 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact } from '../contact';
+import { Contact, ContactKind } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
@@ -42,9 +42,13 @@ export class ContactDetailsComponent {
 
     categories = [];
 
+    // needed so that templates can refer to enum values through `kind.GROUP` etc
+    kind = ContactKind;
+
     newCategoryPromptShown = false;
     newCategoryValue = '';
     @ViewChild('newCategoryInput') newCategoryElement: ElementRef;
+    contactIcon: string;
 
     constructor(
         public dialog: MatDialog,
@@ -60,6 +64,8 @@ export class ContactDetailsComponent {
             const contactid = params.id;
             if (contactid === 'new') {
                 this.route.queryParams.subscribe(queryParams => this.loadNewContact(queryParams));
+            } else if (contactid === 'new_group') {
+                this.loadNewGroup();
             } else if (contactid) {
                 this.loadExistingContact(contactid);
             }
@@ -112,6 +118,13 @@ export class ContactDetailsComponent {
         this.loadContactForm();
     }
 
+    loadNewGroup(): void {
+        this.contact = new Contact({
+            kind: ContactKind.GROUP,
+        });
+        this.loadContactForm();
+    }
+
     loadContactForm(): void {
         // prepare room in the form for all the emails, addresses etc
         this.initializeFormArray('emails',    () => this.createEmailFG());
@@ -126,11 +139,20 @@ export class ContactDetailsComponent {
         this.contactForm.enable();
 
         this.contactForm.patchValue(this.contact.toDict());
+
+        if (this.contact.show_as_company()) {
+            this.contactIcon = 'business';
+        } else if (this.contact.kind === ContactKind.GROUP) {
+            this.contactIcon = 'group';
+        } else {
+            this.contactIcon = 'person';
+        }
     }
 
     createForm(): FormGroup {
         return this.fb.group({
             id:         this.fb.control(''),
+            full_name:  this.fb.control(''),
             nickname:   this.fb.control(''),
             first_name: this.fb.control(''),
             last_name:  this.fb.control(''),

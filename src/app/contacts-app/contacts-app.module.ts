@@ -42,8 +42,6 @@ import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { ContactsService } from './contacts.service';
-import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
-import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @NgModule({
