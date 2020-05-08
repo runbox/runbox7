@@ -45,7 +45,7 @@ export class Recipient {
                 if (c.emails.length > 1) {
                     emailDesc = ' (' + e.types.join(', ') + ')';
                 }
-                members.push(`"${c.full_name()}${emailDesc}" <${e.value}>`);
+                members.push(`"${c.first_and_last_name()}${emailDesc}" <${e.value}>`);
             }
         }
         const name = `"${groupName}" group (${members.length} members)`;

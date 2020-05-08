@@ -190,6 +190,14 @@ export class Contact {
         this.setPropertyValue('uid', value);
     }
 
+    get full_name(): string {
+        return this.component.getFirstPropertyValue('fn');
+    }
+
+    set full_name(value: string) {
+        this.setPropertyValue('fn', value);
+    }
+
     get nickname(): string {
         return this.component.getFirstPropertyValue('nickname');
     }
@@ -314,6 +322,7 @@ export class Contact {
 
     toDict(): any {
         return {
+            full_name:  this.full_name,
             nickname:   this.nickname,
             first_name: this.first_name,
             last_name:  this.last_name,
@@ -381,15 +390,15 @@ export class Contact {
         }
 
         if (this.nickname) {
-            const fn = this.full_name();
+            const fn = this.first_and_last_name();
             const postfix = fn ?  (' (' + fn + ')') : '';
             return this.nickname + postfix;
         }
 
-        return this.full_name();
+        return this.first_and_last_name() || this.full_name;
     }
 
-    full_name(): string {
+    first_and_last_name(): string {
         if (this.first_name && this.last_name) {
             return this.first_name + ' ' + this.last_name;
         } else if (this.first_name) {
@@ -400,8 +409,8 @@ export class Contact {
     }
 
     external_display_name(): string {
-        if (this.full_name()) {
-            return this.full_name();
+        if (this.first_and_last_name()) {
+            return this.first_and_last_name();
         }
         if (this.primary_email()) {
             const parts = this.primary_email().split('@');

@@ -56,7 +56,7 @@ export class RecipientsService {
                 const groups = {};
                 contacts.forEach(contact => {
                     contact.emails.forEach(email => {
-                        const recipientString = `"${contact.full_name()}" <${email.value}>`;
+                        const recipientString = `"${contact.first_and_last_name()}" <${email.value}>`;
                         recipientsMap[email.value] = Recipient.fromContact(contact, email.value);
                     });
 
