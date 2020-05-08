@@ -36,6 +36,14 @@ export class GroupMember {
         return this.scheme === 'urn:uuid' ? this.value : null;
     }
 
+    get name(): string {
+        return this.prop.getParameter('x-cn');
+    }
+
+    get email(): string {
+        return this.scheme === 'mailto' ? this.value : this.prop.getParameter('x-email');
+    }
+
     constructor(private prop: ICAL.Property) {
         const value = prop.getFirstValue();
         const splitter = value.lastIndexOf(':');

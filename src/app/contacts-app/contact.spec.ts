@@ -176,4 +176,23 @@ END:VCARD`);
         expect(sut.members[2].scheme).toBe('mailto');
         expect(sut.members[2].value).toBe('subscriber1@example.com');
     });
+
+    it('can make sense of extended member properties', () => {
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:4.0
+KIND:group
+MEMBER;X-CN=Jamie:mailto:jamie@me.me
+MEMBER;X-EMAIL=sybil@syb.il;X-CN=Sybilla:urn:uuid:f00d
+END:VCARD`);
+        expect(sut.kind).toBe(ContactKind.GROUP);
+        expect(sut.members.length).toBe(2);
+
+        expect(sut.members[0].uuid).toBe(null);
+        expect(sut.members[0].name).toBe('Jamie');
+        expect(sut.members[0].email).toBe('jamie@me.me');
+
+        expect(sut.members[1].uuid).toBe('f00d');
+        expect(sut.members[1].name).toBe('Sybilla');
+        expect(sut.members[1].email).toBe('sybil@syb.il');
+    });
 });
