@@ -138,4 +138,27 @@ FN:Test Group
 END:VCARD`);
         expect(sut.kind).toBe(ContactKind.GROUP);
     });
+
+    it('can parse group members', () => {
+        // based on https://tools.ietf.org/html/rfc6350#section-6.6.5
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:4.0
+KIND:group
+FN:The Doe family
+MEMBER:03a0e51f-d1aa-4385-8a53-e29025acd8ae
+MEMBER:urn:uuid:03a0e51f-d1aa-4385-8a53-e29025acd8af
+MEMBER:mailto:subscriber1@example.com
+MEMBER:xmpp:subscriber2@example.com
+MEMBER:sip:subscriber3@example.com
+MEMBER:tel:+1-418-555-5555
+END:VCARD`);
+
+        expect(sut.kind).toBe(ContactKind.GROUP);
+        expect(sut.members.length).toBe(6);
+        expect(sut.members[0].uuid).toBe('03a0e51f-d1aa-4385-8a53-e29025acd8ae');
+        expect(sut.members[1].uuid).toBe('03a0e51f-d1aa-4385-8a53-e29025acd8af');
+        expect(sut.members[2].uuid).toBe(null);
+        expect(sut.members[2].scheme).toBe('mailto');
+        expect(sut.members[2].value).toBe('subscriber1@example.com');
+    });
 });

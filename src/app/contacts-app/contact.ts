@@ -27,6 +27,29 @@ export class StringValueWithTypes {
     value: string;
 }
 
+export class GroupMember {
+    scheme: string;
+    value: string;
+
+    // this will be non-null if an lookup-able URI is present
+    get uuid(): string {
+        return this.scheme === 'urn:uuid' ? this.value : null;
+    }
+
+    constructor(private prop: ICAL.Property) {
+        const value = prop.getFirstValue();
+        const splitter = value.lastIndexOf(':');
+        if (splitter === -1) {
+            // assume it was meant to be a UUID
+            this.scheme = 'urn:uuid';
+            this.value  = value;
+        } else {
+            this.scheme = value.substr(0, splitter);
+            this.value  = value.substr(splitter + 1);
+        }
+    }
+}
+
 // as in https://tools.ietf.org/html/rfc6350#section-6.1.4
 // 'x-name's are unsupported and treated as individuals
 export enum ContactKind {
@@ -208,8 +231,10 @@ export class Contact {
         }
     }
 
+    // always returns lowercase to make comparisons easier
     get id(): string {
-        return this.component.getFirstPropertyValue('uid');
+        const uid = this.component.getFirstPropertyValue('uid');
+        return uid ? uid.toLowerCase() : null;
     }
 
     set id(value: string) {
@@ -355,6 +380,15 @@ export class Contact {
 
     set related(related: StringValueWithTypes[]) {
         this.setMultiValPropWithTypes('related', related);
+    }
+
+    get members(): GroupMember[] {
+        const props = this.component.getAllProperties('member');
+        if (props) {
+            return props.map((p: ICAL.Property) => new GroupMember(p));
+        } else {
+            return [];
+        }
     }
 
     toDict(): any {

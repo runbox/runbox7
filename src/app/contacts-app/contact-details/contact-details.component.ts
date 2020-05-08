@@ -41,6 +41,7 @@ export class ContactDetailsComponent {
     contactForm = this.createForm();
 
     categories = [];
+    groupMembers = [];
 
     // needed so that templates can refer to enum values through `kind.GROUP` etc
     kind = ContactKind;
@@ -147,6 +148,14 @@ export class ContactDetailsComponent {
         } else {
             this.contactIcon = 'person';
         }
+
+        this.groupMembers = this.contact.members.map(member => {
+            if (member.uuid) {
+                return this.contactsservice.lookupByUUID(member.uuid).then(c => c || member);
+            } else {
+                return Promise.resolve(member);
+            }
+        });
     }
 
     createForm(): FormGroup {

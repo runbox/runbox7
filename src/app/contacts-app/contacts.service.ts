@@ -197,4 +197,18 @@ export class ContactsService implements OnDestroy {
             }, e => { this.apiErrorHandler(e); reject(); });
         });
     }
+
+    lookupByUUID(uuid: string): Promise<Contact> {
+        return new Promise((resolve, _) => {
+            this.contactsSubject.pipe(take(1)).subscribe(contacts => {
+                for (const c of contacts) {
+                    if (uuid.toLowerCase() === c.id) {
+                        resolve(c);
+                        return;
+                    }
+                }
+                resolve(null);
+            });
+        });
+    }
 }
