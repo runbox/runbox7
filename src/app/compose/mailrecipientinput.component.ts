@@ -51,7 +51,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     @Input() placeholder: string;
     @Input() initialfocus = false;
 
-    @Output() change: EventEmitter<string> = new EventEmitter();
+    @Output() updateRecipient: EventEmitter<string> = new EventEmitter();
 
     @ViewChild('searchTextInput') searchTextInput: ElementRef;
     @ViewChild('auto') auto: MatAutocomplete;
@@ -94,7 +94,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
     notifyChangeListener() {
-        this.change.emit(this.recipientsList.join(','));
+        this.updateRecipient.emit(this.recipientsList.join(','));
     }
 
     removeRecipient(ndx: number) {
