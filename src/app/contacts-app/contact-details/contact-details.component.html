@@ -87,8 +87,11 @@
                 [ngStyle]="{ 'border':  (loadedGroupMembers.length === 0 || contactIsDragged) ? '2px dotted' : '',
                              'padding': (loadedGroupMembers.length === 0 || contactIsDragged) ? '' : '2px' }"
             >
-                <div *ngFor="let member of loadedGroupMembers">
-                    <div *ngIf="member | async as member">
+                <div *ngFor="let member of loadedGroupMembers; index as idx">
+                    <div *ngIf="member | async as member"
+                        draggable=true
+                        (dragstart)="memberDragged($event, idx)"
+                    >
                         <div *ngIf="member instanceof Contact; else not_contact">
                             <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
                                 <app-contact-button [contact]="member"></app-contact-button>
@@ -105,10 +108,18 @@
                 </div>
                 <ng-template #small_instruction>
                     <div style="font-size: small; color: #bbb; padding: 10px;">
-                        Drag and drop contacts here to add them to this group
+                        Drag and drop contacts to add to or remove from this group
                     </div>
                 </ng-template>
             </div>
+        </div>
+
+        <div
+            *ngIf="memberIsDragged"
+            (drop)="memberDropped($event)"
+            style="padding: 25px; border: 2px dotted;"
+        >
+            <mat-icon> delete </mat-icon> Drop group member here to remove it from the group
         </div>
 
         <app-contact-details-fa-viewer

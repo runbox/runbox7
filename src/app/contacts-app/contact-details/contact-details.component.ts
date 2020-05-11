@@ -55,6 +55,7 @@ export class ContactDetailsComponent {
     contactIcon: string;
 
     contactIsDragged = false;
+    memberIsDragged  = false;
 
     constructor(
         public dialog: MatDialog,
@@ -80,7 +81,7 @@ export class ContactDetailsComponent {
         contactsservice.contactCategories.subscribe(categories => this.categories = categories);
 
         document.addEventListener('dragstart', (ev) => this.contactIsDragged = !!ev.dataTransfer.getData('contact'));
-        document.addEventListener('dragend',   ()   => this.contactIsDragged = false);
+        document.addEventListener('dragend',   ()   => this.contactIsDragged = this.memberIsDragged = false);
     }
 
     private contactDiffersFrom(other: Contact): boolean {
@@ -308,7 +309,22 @@ export class ContactDetailsComponent {
 
     addMember(ev: DragEvent) {
         const id = ev.dataTransfer.getData('contact');
-        this.groupMembers.push(GroupMember.fromUUID(id));
+        if (id) {
+            this.groupMembers.push(GroupMember.fromUUID(id));
+            this.loadGroupMembers();
+        }
+    }
+
+    memberDragged(ev: DragEvent, index: number) {
+        ev.dataTransfer.setData('memberIdx', '' + index);
+        this.memberIsDragged = true;
+    }
+
+    memberDropped(ev: DragEvent) {
+        // if we were dragging something else, then `index` will eval to NaN and won't break anything
+        const index = parseInt(ev.dataTransfer.getData('memberIdx'), 10);
+        this.groupMembers = this.groupMembers.filter((_, i) => i !== index);
         this.loadGroupMembers();
+        this.memberIsDragged = false;
     }
 }
