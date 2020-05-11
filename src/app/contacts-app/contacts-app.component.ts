@@ -24,7 +24,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 
-import { Contact } from './contact';
+import { Contact, ContactKind } from './contact';
 import { ContactsService } from './contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
@@ -230,6 +230,24 @@ export class ContactsAppComponent {
         this.shownContacts.sort((a, b) => {
             let firstname_order: number;
             let lastname_order: number;
+
+            // Show groups first.
+            // Once we get a separate UI elements for them it won't be necessary,
+            // but before that's in this will still improve things.
+            if (a.kind !== b.kind) {
+                if (a.kind === ContactKind.GROUP) {
+                    return -1;
+                }
+                if (b.kind === ContactKind.GROUP) {
+                    return 1;
+                }
+
+                // if they're different kinds but neither is a group
+                // then we'll sort them as regular contacts below
+            } else if (a.kind === ContactKind.GROUP) {
+                // they're both groups, so they don't have first and last names anyway
+                return a.full_name.localeCompare(b.full_name);
+            }
 
             // all this complexity is so that the null values are always treated
             // as last if they were alphabetically last
