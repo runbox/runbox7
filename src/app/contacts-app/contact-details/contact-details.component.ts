@@ -266,7 +266,7 @@ export class ContactDetailsComponent {
     }
 
     rollback(): void {
-        this.router.navigateByUrl('/contacts/' + this.contact.id);
+        this.loadContactForm();
     }
 
     delete(): void {
