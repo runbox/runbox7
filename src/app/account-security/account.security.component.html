@@ -1,0 +1,603 @@
+<app-runbox-container sidebar_opened=false>
+    <mat-tab-group>
+      <mat-tab label="Account Security">
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Account Security
+                </div>
+                <div runbox-section-content>
+                    <div class="accountsecurity-intro body">
+                        <p>In this section you can manage your account's security settings.</p><p>We encourage you to enable Two-Factor Authentication and review the other settings in order to keep your account secure.</p>
+                        <h2>Two-Factor Authentication</h2>
+                        <p>With Two-Factor Authentication you have to use your account password with an extra code to log in.</p><p>When enabling Two-Factor Authentication (2FA), you have the following options:</p>
+                        <ul class="text-list">
+                            <li><strong>Timed One-Time Passwords (TOTP)</strong>: To use this option you need a free TOTP app on your smartphone or computer (see <a href="https://help.runbox.com/account-security/">Help</a> for examples). TOTP works by generating a unique code which changes over time, in addition to your username and password.<br><br></li>
+                            <li><strong>One-Time Passwords (OTP)</strong>: When you enable this option, the system will generate random codes that you can use only once. These are used along with your username and account password to log in.<br><br></li>
+                            <li><strong>Trusted browsers</strong>: This allows the server to trust your current web browser so that you don't have to use a 2FA code to log in. You will of course still need to use your username and account password.<br><br></li>
+                            <li><strong>Unlock code</strong>: This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.<br><br></li>
+                            <h2>Manage Services</h2>
+                            <p>This section lets you disable various services such as IMAP, POP, and SMTP.</p><p>These services are used with email programs/apps such as Outlook, Thunderbird, and Apple Mail. Disabling the services you don't use protects your account from attempts at unauthorized access.</p>
+                            <h2>App Passwords</h2>
+                            <p>App Passwords are strong passwords that can be used with each of your device's <a href="https://help.runbox.com/email-programs/">email programs</a> and apps.</p>
+                            <p>If you use a different app password with each device and then lose one of them, you can easily disable that device's password and prevent it from logging in.</p>
+                            <h2>Access Control</h2>
+                            <p>Here you can manage the access to your account, review your last logins, and allow or deny IP addresses.</p>
+                            <h2>Sessions</h2>
+                            <p>This section shows the currently active sessions for your account.</p>
+                        </ul>
+                    </div>
+                </div>
+            </app-runbox-section>
+        </mat-tab>
+        <mat-tab label="Two-Factor Authentication">
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Two-Factor Authentication
+                    <mat-slide-toggle
+                        [(ngModel)]="rmm.account_security.tfa.settings.is_2fa_enabled"
+                        (ngModelChange)="toggle_2fa()"
+                        style="float: right;"
+                    >
+                        {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
+                    </mat-slide-toggle>
+                </div>
+                <div runbox-section-content>
+                    <p>This is the Two-Factor Authentication (2FA) configuration screen, where you can configure the various options for enabling and using 2FA.</p>
+                    <p><strong>Note:</strong> For security reasons, enabling 2FA disables your account password for non-web services. These include IMAP, POP, and SMTP (for email programs/apps), FTP (for file transfer programs/apps), and CalDAV (for calendar programs/apps). Therefore you will need to set up App Passwords for these services if you want to use them.</p>
+                    <p><strong>Unlock code:</strong> We recommended that you create an unlock code. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Timed One-Time Passwords
+                    <mat-slide-toggle
+                        [(ngModel)]="rmm.account_security.tfa.settings.is_device_2fa_enabled"
+                        (ngModelChange)="toggle_totp_device()"
+                        style="float: right;"
+                    >
+                        {{ rmm.account_security.tfa.settings.is_device_2fa_enabled ? 'Enabled' : 'Disabled' }}
+                    </mat-slide-toggle>
+                </div>
+                <div runbox-section-content>
+                  <p></p><p>Timed One-Time Passwords (<strong>TOTP</strong>) are 6 digit codes that change every 30 seconds. The codes are generated by a free app that you download onto your smartphone or computer.</p><p>To generate codes for your account the system will provide you with a secret key. The secret key is entered into the app, and the generated codes along with your username and account password are used to log into your account.</p><p></p>
+
+                  <hr>
+
+                  <div id="totp_instructions">
+                    <strong>Setting up Timed One-Time Passwords</strong><p>Download and install one of the recommended <a href="https://help.runbox.com/account-security/">TOTP apps</a>.</p><p>Follow the steps below to set up TOTP. The app you installed will help guide you through the process.</p><p>When you have completed the setup, 2FA will be enabled for your account.</p><p>The next time you log into Runbox, you will be asked for a TOTP code in addition to your username and account password.</p>
+                  </div>
+
+                  <div id="totp_example">
+                      <strong class="marginleft">Recommended apps:</strong>
+                      <ul class="totp_advantages">
+                        <li class="bullet">
+                          Authy (<a href="https://itunes.apple.com/br/app/authy/id494168017?mt=8">iOS</a>/<a href="https://play.google.com/store/apps/details?id=com.authy.authy">Android</a>)
+                        </li>
+                        <li class="bullet">
+                          FreeOTP Authenticator (<a href="https://itunes.apple.com/en/app/freeotp-authenticator/id872559395?mt=8">iOS</a>/<a href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp&amp;hl=en">Android</a>)
+                        </li>
+                        <li class="bullet">
+                          Google Authenticator (<a href="https://itunes.apple.com/br/app/google-authenticator/id388497605?mt=8">iOS</a>/<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Android</a>)
+                        </li>
+
+                      </ul>
+                  </div>
+                <div>
+                    <p>
+                        <span>Click [Generate key] to generate a new TOTP key.</span>
+                    </p>
+                    <p>
+                        <span><input matInput placeholder="Key" maxlength="16" disabled="" [value]="rmm.account_security.tfa.new_totp_code"></span>
+                        <span><button  mat-raised-button color="primary" (click)="totp_generate_new_key()">Generate key</button></span>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <span>The label below will identify the key in the app on your device.</span>
+                    </p>
+                    <p>
+                        <span>Label:</span>
+                        <span><input matInput (ngModel)="rmm.account_security.tfa.totp_label" placeholder="" readonly [value]="'Runbox: ' + rmm.me.data.username" *ngIf="rmm.me.data"></span>
+                    </p>
+                </div>
+                <div *ngIf="rmm.account_security.tfa.qr_code_value">
+                    <p>
+                        <span>
+                            Scan the QR code when asked to by the app, or manually enter the key into the app.
+                        </span>
+                    </p>
+                    <p>
+                        <span>
+                            <qr-code [value]="rmm.account_security.tfa.qr_code_value.href" [size]="450" level="H"></qr-code>
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <span>Enter the code generated by the app and click [Check code] to ensure that the setup is correct. If the code is correct, Two-Factor Authenetication with TOTP will be enabled for your account.</span>
+                    </p>
+                    <p>
+                        <span>Test code:</span>
+                        <span><input matInput placeholder="Enter code" maxlength="6" [(ngModel)]="totp_test_code" (ngModelChange)="totp_test_code_change()"></span>
+                        <span><button  mat-raised-button color="primary" [disabled]="is_btn_totp_check_disabled" (click)="totp_check_code()">Check code</button></span>
+                    </p>
+                </div>
+            </div>
+            </app-runbox-section>
+            <app-runbox-section>
+                <div runbox-section-header>
+                    One-Time Passwords
+                    <mat-slide-toggle
+                        [(ngModel)]="rmm.account_security.tfa.settings.is_otp_enabled"
+                        (ngModelChange)="toggle_otp()"
+                        style="float: right;"
+                    >
+                        {{ rmm.account_security.tfa.settings.is_otp_enabled ? 'Enabled' : 'Disabled' }}
+                    </mat-slide-toggle>
+                </div>
+                <div runbox-section-content>
+                    <p>One-Time Passwords (<strong>OTP</strong>) are codes that can be used only once. The OTP must be used together with your username and account password to log in.</p>
+                    <p>You can generate new codes at any time, and this will invalidate any existing codes. A total of 40 codes with 16 characters each are generated each time.</p>
+                    <p>Click the button below to generate a new list of codes that you can copy &amp; paste or print out.</p>
+                    <span><button mat-raised-button color="primary" (click)="otp_generate()" [disabled]="is_busy_otp_update" >Generate passwords</button></span>
+                    <div *ngIf="is_busy_otp_update" style="display: flex; justify-content: center">
+                        <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+                    </div>
+                    <ul *ngIf="rmm.account_security.tfa.otp_generated_list && rmm.account_security.tfa.otp_generated_list.passwords">
+                        <li *ngFor="let password of rmm.account_security.tfa.otp_generated_list.passwords">
+                            <span>{{password.value}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Trusted Browsers
+                </div>
+                <div runbox-section-content>
+                    <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
+                    <p>
+                        <span>Browser name:</span>
+                        <span><input matInput placeholder="Enter browser/device" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()"></span>
+                        <span><button mat-raised-button color="primary" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></span>
+                        <span>Suggestion: "Firefox on PC"</span>
+                    </p>
+                        <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.device.results">
+                            <mat-grid-tile>Name</mat-grid-tile>
+                            <mat-grid-tile>Status</mat-grid-tile>
+                            <mat-grid-tile>Action</mat-grid-tile>
+                            <mat-grid-tile>Created</mat-grid-tile>
+                            <mat-grid-tile></mat-grid-tile>
+                            <div *ngFor="let result of rmm.account_security.device.results">
+                                <mat-grid-tile>{{ result.name }}</mat-grid-tile>
+                                <mat-grid-tile>
+                                    <mat-slide-toggle
+                                        [(ngModel)]="result.is_trusted"
+                                        (ngModelChange)="device_toggle(result)"
+                                    >
+                                        {{ result.is_trusted ? 'Trusted' : 'Not trusted' }}
+                                    </mat-slide-toggle>
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    <button mat-raised-button color="primary" (click)="device_delete(result.id)">Delete</button>
+                                </mat-grid-tile>
+                                <mat-grid-tile>{{result.created}}</mat-grid-tile>
+                                <mat-grid-tile>
+                                    <span>
+                                        <mat-chip-list *ngIf="result.is_current_device">
+                                            <mat-chip>Current device</mat-chip>
+                                        </mat-chip-list>
+                                    </span>
+                                </mat-grid-tile>
+                            </div>
+                        </mat-grid-list>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Unlock code
+                </div>
+                <div runbox-section-content>
+                    <p>
+                        An unlock code is required so that if you lose your TOTP or OTP codes, you can still access your account.
+                    </p>
+                    <p>
+                        Using the unlock code will turn off 2FA for your account. You can easily reactivate 2FA on this page once you are successfully logged in again.
+                    </p>
+                    <div *ngIf="is_busy_unlock_code_update" style="display: flex; justify-content: center">
+                        <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+                    </div>
+                    <span><button mat-raised-button color="primary" (click)="unlock_code_generate()" [disabled]="is_busy_unlock_code_update">Generate code</button></span>
+                    <span *ngIf="this.rmm.account_security.unlock_code.unlock_code">
+                        {{this.rmm.account_security.unlock_code.unlock_code}}
+                    </span>
+                </div>
+            </app-runbox-section>
+
+        </mat-tab>
+        <mat-tab label="Manage Services">
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Manage Services
+                </div>
+                <div runbox-section-content>
+                    <p>
+                        On this screen you can enable or disable specific services. When a service is disabled it's not possible to log into that service at all.
+                    </p>
+                    <p>
+                        Disabling all the services you don't use adds an extra layer of security to your account, as it completely prevents attempts to gain unauthorized access via those services.
+                    </p>
+
+                    <mat-grid-list cols="3" rowHeight="50px" *ngIf="rmm.account_security.service.results">
+                        <mat-grid-tile>Service</mat-grid-tile>
+                        <mat-grid-tile>Status</mat-grid-tile>
+                        <mat-grid-tile>Description</mat-grid-tile>
+                    </mat-grid-list>
+
+
+                    <mat-grid-list cols="3" rowHeight="50px" *ngIf="rmm.account_security.service.results">
+                        <div *ngFor="let service of rmm.account_security.service.services_translation | keyvalue">
+                            <div *ngIf="!rmm.account_security.service.services_translation[service.key].hide">
+                                <mat-grid-tile>
+                                    {{ rmm.account_security.service.services_translation[service.key].name }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    <mat-slide-toggle
+                                        [(ngModel)]="rmm.account_security.service.results[service.key].is_enabled"
+                                        (ngModelChange)="service_toggle(rmm.account_security.service.results[service.key])"
+                                    >
+                                        {{
+                                            rmm.account_security.service.results[service.key] &&
+                                            rmm.account_security.service.results[service.key].is_enabled
+                                            ? 'Enabled'
+                                            : 'Disabled'
+                                        }}
+                                    </mat-slide-toggle>
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ rmm.account_security.service.services_translation[service.key].description }}
+                                </mat-grid-tile>
+                            </div>
+                        </div>
+                    </mat-grid-list>
+                </div>
+            </app-runbox-section>
+        </mat-tab>
+        <mat-tab label="App Passwords">
+            <app-runbox-section>
+                <div runbox-section-header>
+                    App passwords
+                </div>
+                <div runbox-section-content>
+                    <p>Here you can create passwords for specific applications or devices.</p>
+                    <p>The main advantage of using app specific passwords is that you can use different passwords on each app or device. If you happen to lose a device you can immediately disable the password used by that device.</p>
+                    <p>App passwords work for all non-web services such as IMAP, POP, SMTP, FTP, and WebDAV. For example, create one password for 'Outlook on my MacBook Pro', and another password for 'My Android email client'.</p>
+                    <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.app_pass.results">
+                        <mat-grid-tile>Name</mat-grid-tile>
+                        <mat-grid-tile>Status</mat-grid-tile>
+                        <mat-grid-tile>Action</mat-grid-tile>
+                        <mat-grid-tile>Password</mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.app_pass.results">
+                        <div *ngFor="let result of rmm.account_security.app_pass.results">
+                            <mat-grid-tile>
+                                {{ result.name }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-slide-toggle
+                                    [(ngModel)]="result.is_enabled"
+                                    (ngModelChange)="app_pass_toggle(result)"
+                                >
+                                    {{ result.is_enabled ? 'Enabled' : 'Disabled' }}
+                                </mat-slide-toggle>
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <span><button mat-raised-button color="primary" type='button' (click)="app_pass_delete(result)" [disabled]="rmm.account_security.app_pass.is_busy">Delete</button></span>
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <span>
+                                    {{ 
+                                        rmm.account_security.app_pass.password[result.name] 
+                                            ? rmm.account_security.app_pass.password[result.name]
+                                            : '************'
+                                    }}
+                                </span>
+                            </mat-grid-tile>
+                        </div>
+                    </mat-grid-list>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section>
+                <div runbox-section-header>
+                    New app password
+                </div>
+                <div runbox-section-content>
+                    <p>
+                        <span>App password name:</span>
+                        <span><input matInput placeholder="Enter app/device" maxlength="64" [(ngModel)]="app_pass_name" (ngModelChange)="app_pass_name_changed()"></span>
+                        <span><button mat-raised-button color="primary" [disabled]="is_btn_app_pass_new_disabled || rmm.account_security.app_pass.is_busy" (click)="app_pass_create()">Submit</button></span>
+                        <span>Use a name so you will know which device you are using this app password on.</span>
+                    </p>
+                </div>
+            </app-runbox-section>
+        </mat-tab>
+        <mat-tab label="Access Control">
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Access Control
+                </div>
+                <div runbox-section-content>
+                    <p>In this section you can review your last logins and access control lists, and manage the IP addresses that should have access to your account.</p>
+                    <p>We recommend that you read the instructions below before making any changes.</p>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section size="h2">
+                <div runbox-section-header>
+                    &nbsp;&nbsp;&nbsp;Last logins
+                </div>
+                <div runbox-section-content>
+                    <div>
+                        <mat-form-field>
+                            <mat-label>Service</mat-label>
+                            <mat-select [(ngModel)]="acl_service">
+                              <mat-option value="" selected>Any</mat-option>
+                              <mat-option *ngFor="let service of rmm.account_security.service.services_translation | keyvalue" [value]="service.key">
+                                {{ rmm.account_security.service.services_translation[service.key].name }}
+                              </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Status</mat-label>
+                            <mat-select [(ngModel)]="acl_status">
+                              <mat-option value="" selected>Any</mat-option>
+                              <mat-option value="1">Success</mat-option>
+                              <mat-option value="0">Failure</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Period</mat-label>
+                            <mat-select [(ngModel)]="acl_period">
+                                <mat-option value="1h" selected>1 hour </mat-option>
+                                <mat-option value="1d">1 day  </mat-option>
+                                <mat-option value="7d">1 week </mat-option>
+                                <mat-option value="1m">1 month</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Filter IPs</mat-label>
+                            <mat-select [(ngModel)]="acl_filter_ips">
+                              <mat-option value="">None</mat-option>
+                              <mat-option value="not in" selected>Exclude IPs</mat-option>
+                              <mat-option value="in">Include IPs</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <span><input matInput placeholder="Enter IP or select from list" [(ngModel)]="acl_ip" (ngModelChange)="acl_ip_changed()"></span>
+                    <span><button mat-raised-button color="primary" (click)="acl_clear()" [disabled]="!is_acl_clear_enabled">Clear</button></span>
+                    <span><button mat-raised-button color="primary" (click)="acl_update()" [disabled]="is_busy_list_logins">Update </button></span>
+                    <!-- header -->
+                    <mat-grid-list cols="7" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
+                        <mat-grid-tile>Service</mat-grid-tile>
+                        <mat-grid-tile>Login</mat-grid-tile>
+                        <mat-grid-tile>IP</mat-grid-tile>
+                        <mat-grid-tile>Hostname</mat-grid-tile>
+                        <mat-grid-tile>Time</mat-grid-tile>
+                        <mat-grid-tile>Status</mat-grid-tile>
+                        <mat-grid-tile></mat-grid-tile>
+                    </mat-grid-list>
+                    <div style='max-height: 500px; overflow-x: scroll;'>
+                        <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
+                            <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+                        </div>
+                        <mat-grid-list cols="7" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
+                            <div *ngFor="let result of rmm.account_security.acl.results_logins_list">
+                                <mat-grid-tile>
+                                    {{ rmm.account_security.service.services_translation[result.service].name }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.login }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.ip }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.hostname || '-' }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.created }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.success }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    <span><button mat-raised-button color="primary" (click)="ip_always_block(result)">Always block</button></span>
+                                </mat-grid-tile>
+                            </div>
+                        </mat-grid-list>
+                    </div>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section size="h2">
+                <div runbox-section-header>
+                    &nbsp;&nbsp;&nbsp;Access Control List
+                </div>
+                <div runbox-section-content>
+                    <p>
+                        The IPs and IP ranges below indicate one or more IP addresses allowed or denied access to your account. Allowed IPs have higher priority than Denied IPs. Therefore you can allow an IP from within a range that you have otherwise denied.
+                    </p>
+                    <mat-form-field>
+                        <mat-label>Overwrite sub-account IP rules</mat-label>
+                        <mat-select ([ngModel])="acl_overwrite_subaccount_rules">
+                          <mat-option value="0">No</mat-option>
+                          <mat-option value="1">Yes</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span><button mat-raised-button color="primary" (click)="acl_save()">Save</button></span>
+                    <p>
+                        Rules are valid for accounts: 
+                        <span class="usernames" *ngFor="let username of rmm.account_security.acl.results_accounts_affected">{{ username }}&nbsp;</span> 
+                    </p>
+                    <!-- header -->
+                    <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.acl.results_rules">
+                        <mat-grid-tile>Rule</mat-grid-tile>
+                        <mat-grid-tile>IP</mat-grid-tile>
+                        <mat-grid-tile>Label</mat-grid-tile>
+                        <mat-grid-tile></mat-grid-tile>
+                    </mat-grid-list>
+                    <div style='max-height: 500px; overflow-x: scroll;'>
+                        <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.acl.results_rules">
+                            <div *ngFor="let result of rmm.account_security.acl.results_rules">
+                                <mat-grid-tile>
+                                    {{ result.rule }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.ip }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    {{ result.label }}
+                                </mat-grid-tile>
+                                <mat-grid-tile>
+                                    <button mat-raised-button color="primary" (click)="acl_remove_rule(result)" [disabled]="rmm.account_security.acl.is_busy">Remove</button>
+                                </mat-grid-tile>
+                            </div>
+                        </mat-grid-list>
+                    </div>
+                </div>
+            </app-runbox-section>
+            <app-runbox-section size="h2">
+                <div runbox-section-header>
+                    &nbsp;&nbsp;&nbsp;Manage IPs
+                </div>
+                <div runbox-section-content>
+
+                    <p>
+                      Enter one specific IP (e.g. 1.2.3.4) or an IP range (e.g. 1-24.2.3.4-55 or 200.*.*.*), then choose Allow or Deny. Currently supports IPv4 only.
+                    </p>
+                    <p>
+                      One common type of rule is to deny *.*.*.* (all IPs) and only allow for example 12.34.56.78, which could be your own IP or the IP of an Internet connection you want access from. Be careful so that you don't lock yourself out.
+                    </p>
+                    <p>
+                      The rules below affect the following accounts/sub-accounts:
+                      <span class="usernames" *ngFor="let username of rmm.account_security.acl.results_accounts_affected">{{ username }}&nbsp;</span>
+                    </p>
+                    <div>
+                        <mat-form-field>
+                            <mat-label>Rule</mat-label>
+                            <mat-select [(ngModel)]="acl_manage_ip_rule">
+                              <mat-option value="deny">Deny</mat-option>
+                              <mat-option value="allow">Allow</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div>
+                        IP:<input matInput placeholder="1.22.*.44-55" [(ngModel)]="acl_manage_ip_range">
+                    </div>
+                    <div>
+                        Label:<input matInput placeholder="eg. Home IP" [(ngModel)]="acl_manage_ip_label">
+                        <span><button mat-raised-button color="primary" (click)="acl_create_rule()" [disabled]="rmm.account_security.acl.is_busy">Submit</button></span>
+                    </div>
+
+                </div>
+            </app-runbox-section>
+            <app-runbox-section size="h2">
+                <div runbox-section-header>
+                    &nbsp;&nbsp;&nbsp;Blocked IPs
+                </div>
+                <div runbox-section-content>
+
+                    <p>
+                      The list below shows currently blocked IP addresses for your account.
+                    </p>
+                    <p>
+                      The authentication service determines if a particular IP address should be allowed to access the service or whether it should be blocked from further attempts by using a set of internal rules. It also determines which IP addresses may be treated with less caution as they are your legitimate IP addresses.
+                    </p>
+                    <p>
+                      If you change any of your account passwords, remember to update all the devices that are connecting to your account as failed logins may lead to blocked IPs.
+                    </p>
+                    <p>
+                      <b>Unblock:</b> Unblocks an IP address.
+                    </p>
+                    <p>
+                      <b>Block permanently:</b> When this option is selected any attempt to login from this IP address will be rejected.
+                    </p>
+                    <p>
+                      <b>Allow permanently:</b> This option will not prevent the IP address from being blocked. Wrong passwords will fail but will not increase the failed login attempts count that leads to a blocked IP address.
+                    </p>
+
+                    <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.acl.results_blocked">
+                        <mat-grid-tile>Service</mat-grid-tile>
+                        <mat-grid-tile>IP</mat-grid-tile>
+                        <mat-grid-tile>Username</mat-grid-tile>
+                        <mat-grid-tile>Failed attempts</mat-grid-tile>
+                        <mat-grid-tile>Action</mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.acl.results_blocked">
+                        <div *ngFor="let result of rmm.account_security.acl.results_blocked">
+                            <mat-grid-tile>
+                                {{ rmm.account_security.service.services_translation[result.service].name }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.ip }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.login }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.failed_attempts }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <span><button mat-raised-button color="primary" (click)="ip_unblock(result)">unblock</button></span>
+                                <span><button mat-raised-button color="primary" (click)="ip_always_block(result)">always block</button></span>
+                                <span><button mat-raised-button color="primary" (click)="ip_never_block(result)">never unblock</button></span>
+                            </mat-grid-tile>
+                        </div>
+                    </mat-grid-list>
+                </div>
+            </app-runbox-section>
+        </mat-tab>
+        <mat-tab label="Sessions">
+            <app-runbox-section>
+                <div runbox-section-header>
+                    Sessions
+                </div>
+                <div runbox-section-content>
+                    <p>
+                        Below is a list of open browser sessions for your account.
+                    </p>
+                    <p>
+                        <span>
+                            <button mat-raised-button color="primary" type='button' (click)="rmm.account_security.session.list()">Update</button>
+                        </span>
+                    </p>
+                    <!-- header -->
+                    <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.session.results">
+                        <mat-grid-tile>Login time</mat-grid-tile>
+                        <mat-grid-tile>Last seen</mat-grid-tile>
+                        <mat-grid-tile>Logout time</mat-grid-tile>
+                        <mat-grid-tile>IP</mat-grid-tile>
+                        <mat-grid-tile>Browser</mat-grid-tile>
+                    </mat-grid-list>
+                    <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.session.results">
+                        <div *ngFor="let result of rmm.account_security.session.results">
+                            <mat-grid-tile>
+                                {{ result.created }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.updated }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.deleted }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.ip }}
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                {{ result.user_agent }}
+                            </mat-grid-tile>
+                        </div>
+                    </mat-grid-list>
+                </div>
+            </app-runbox-section>
+        </mat-tab>
+    </mat-tab-group>
+</app-runbox-container>

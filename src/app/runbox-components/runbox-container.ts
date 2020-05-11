@@ -1,3 +1,4 @@
+
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 // 
@@ -29,11 +30,9 @@ import {
   ElementRef,
   TemplateRef,
 } from '@angular/core';
-
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -48,68 +47,43 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RMM } from '../rmm';
 
 @Component({
-    selector: 'app-runbox-list',
+    selector: 'app-runbox-container',
     styles: [`
     `],
     template: `
-    <div class="app-runbox-list">
-        <div class="header">
-            <mat-toolbar color="primary">
-              <mat-toolbar-row>
-                <span>runbox table</span>
-                <span class="spacer" style='flex-grow:1'></span>
-                <span (click)="set_view_mode('small')">small</span>
-                |
-                <span (click)="set_view_mode('medium')">medium</span>
-              </mat-toolbar-row>
-            </mat-toolbar>
-        </div>
-        <div *ngFor="let item of values; let i = index" >
-            <ng-template
-                *ngIf="view_mode==='small'"
-                [ngForOf]="[item]"
-                [ngForTemplate]="runbox_list_row_small"
-                let-item
-                ngFor
-            ></ng-template>
-            <ng-template
-                *ngIf="view_mode==='medium'"
-                [ngForOf]="[item]"
-                [ngForTemplate]="runbox_list_row_medium"
-                let-item
-                ngFor
-            ></ng-template>
-        </div>
+    <div class="app-runbox-container">
+        <mat-sidenav-container class="" style="padding: 10px;">
+            <mat-sidenav mode="side" [opened]="sidebar_opened">
+            </mat-sidenav>
+            <mat-sidenav-content>
+                <ng-content></ng-content>
+            </mat-sidenav-content>
+        </mat-sidenav-container>
     </div>
     `
 })
 
-export class RunboxListComponent {
-  @Input() values: any[];
+export class RunboxContainerComponent {
+  @Input() sidebar_opened = false;
   private dialog_ref: any;
-  view_mode: any;
-  @ContentChild('runbox_list_row_small') runbox_list_row_small: TemplateRef<ElementRef>;
-  @ContentChild('runbox_list_row_medium') runbox_list_row_medium: TemplateRef<ElementRef>;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
     public snackBar: MatSnackBar,
   ) {
-    this.view_mode = 'small';
   }
 
   show_error (message, action) {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
-  }
-  set_view_mode(mode) {
-    this.view_mode = mode;
   }
 }
 
