@@ -81,10 +81,12 @@
 
         <div *ngIf="contact.kind === kind.GROUP">
             <h3> Members </h3>
-            <div (drop)="addMember($event)">
-                <div *ngIf="groupMembers.length === 0" style="padding: 25px; border: 2px dotted;">
-                    Drag and drop contacts here to add them to this group
-                </div>
+
+            <div
+                (drop)="addMember($event)"
+                [ngStyle]="{ 'border':  (loadedGroupMembers.length === 0 || contactIsDragged) ? '2px dotted' : '',
+                             'padding': (loadedGroupMembers.length === 0 || contactIsDragged) ? '' : '2px' }"
+            >
                 <div *ngFor="let member of loadedGroupMembers">
                     <div *ngIf="member | async as member">
                         <div *ngIf="member instanceof Contact; else not_contact">
@@ -97,6 +99,15 @@
                         </ng-template>
                     </div>
                 </div>
+
+                <div *ngIf="loadedGroupMembers.length === 0; else small_instruction" style="padding: 25px;">
+                    Drag and drop contacts here to add them to this group
+                </div>
+                <ng-template #small_instruction>
+                    <div style="font-size: small; color: #bbb; padding: 10px;">
+                        Drag and drop contacts here to add them to this group
+                    </div>
+                </ng-template>
             </div>
         </div>
 

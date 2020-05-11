@@ -54,6 +54,8 @@ export class ContactDetailsComponent {
     @ViewChild('newCategoryInput') newCategoryElement: ElementRef;
     contactIcon: string;
 
+    contactIsDragged = false;
+
     constructor(
         public dialog: MatDialog,
         public rmmapi: RunboxWebmailAPI,
@@ -76,6 +78,9 @@ export class ContactDetailsComponent {
         });
 
         contactsservice.contactCategories.subscribe(categories => this.categories = categories);
+
+        document.addEventListener('dragstart', (ev) => this.contactIsDragged = !!ev.dataTransfer.getData('contact'));
+        document.addEventListener('dragend',   ()   => this.contactIsDragged = false);
     }
 
     private contactDiffersFrom(other: Contact): boolean {
