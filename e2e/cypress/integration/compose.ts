@@ -107,4 +107,15 @@ describe('Composing emails', () => {
             expect(loc.search).to.eq('');
         }); 
     });
+
+    it('should find the same address in original "To" and our "From" field in Reply', () => {
+        cy.visit('/');
+        closeWelcomeDialog();
+        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 360 });
+        cy.get('single-mail-viewer').should('exist');
+        const address = 'testmail@testmail.com';
+        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
+        cy.get('button[mattooltip="Reply"]').click();
+        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
+    });
 });
