@@ -38,7 +38,7 @@
     <mat-card-actions style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; margin-right: 5px;">
         <div style="flex-grow: 1; padding-left: 15px; font-size: 24px;">
             {{model.subject ? model.subject : "New message"}}
-        </div>           
+        </div>
         <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
         <button *ngIf="editing" mat-icon-button matTooltip="Attach files" (click)="attachFilesClicked()">
             <mat-icon>attachment</mat-icon>
@@ -50,13 +50,13 @@
             <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
             <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
         </button>
-        <button *ngIf="!isNew" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
+        <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
             <mat-icon>delete</mat-icon>
         </button>
         <button *ngIf="editing" mat-icon-button matTooltip="Close draft" (click)="close()">
             <mat-icon>close</mat-icon>
         </button>
-        <button *ngIf="editing && isNew" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
+        <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
             <mat-icon>delete</mat-icon>
         </button>
         <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
@@ -78,16 +78,16 @@
             {{model.to}}
         </span>        
         <div style="display: flex;" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (change)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
+            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (updateRecipient)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
             <button mat-button *ngIf="editing && formGroup.value.cc===null" (click)="formGroup.controls.cc.setValue('')" id="buttonCC">CC</button>
             <button mat-button *ngIf="editing && formGroup.value.bcc===null" (click)="formGroup.controls.bcc.setValue('')" id="buttonBCC">BCC</button>
         </div>
         <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (change)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
+            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (updateRecipient)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
             <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
         </div>
         <div style="display: flex;" *ngIf="editing && formGroup.value.bcc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (change)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
+            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (updateRecipient)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon>close</mat-icon></button>
         </div>
     </mat-card-subtitle>    
