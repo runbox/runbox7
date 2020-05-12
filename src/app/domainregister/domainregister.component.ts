@@ -43,7 +43,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 export interface ElementUserDomain {
   created: string;
@@ -842,7 +841,6 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   constructor(
     private http: HttpClient,
-    private rmmapi: RunboxWebmailAPI,
     public snackBar: MatSnackBar,
   ) {
     this.is_loading.tld_list = true;
@@ -867,8 +865,8 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.activate_purchase_privacy();
     });
     //    this.list_hosted_domains();
-    this.rmmapi.me.subscribe(me => {
-      this.is_trial = me.is_trial;
+    this.http.get('/rest/v1/me').subscribe(res => {
+      this.is_trial = res['result']['is_trial'];
     });
   }
 

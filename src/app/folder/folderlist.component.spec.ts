@@ -21,6 +21,7 @@ import { FolderListComponent, DropPosition } from './folderlist.component';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
 import { BehaviorSubject, of, Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 import { async, tick, TestBed, getTestBed } from '@angular/core/testing';
 import { MessageInfo } from '../xapian/messageinfo';
 import { last, take } from 'rxjs/operators';
@@ -31,9 +32,18 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogModule } from '../dialog/dialog.module';
 import { HotkeysService } from 'angular2-hotkeys';
 
+class MatDialogMock {
+    open() {
+      return {
+        afterClosed: () => of('testtest')
+      };
+    }
+  }
+
 describe('FolderListComponent', () => {
     let injector: TestBed;
     let service: RunboxWebmailAPI;
+    let dialog: MatDialog;
     let httpMock: HttpTestingController;
     let hotkeyMock: HotkeysService;
 
@@ -46,10 +56,11 @@ describe('FolderListComponent', () => {
                 DialogModule,
                 NoopAnimationsModule
             ],
-        providers: [RunboxWebmailAPI]
+        providers: [RunboxWebmailAPI, { provide: MatDialog, useClass: MatDialogMock }]
         });
         injector = getTestBed();
         service = injector.get(RunboxWebmailAPI);
+        dialog = injector.get(MatDialog);
         httpMock = injector.get(HttpTestingController);
         hotkeyMock = { add: _ => null } as HotkeysService;
     });
@@ -287,5 +298,40 @@ describe('FolderListComponent', () => {
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 6, 5, 3, 2, 4]);
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 0, 0, 1, 2, 1]);
         expect(ordered_ids_request).toEqual([1, 7, 6, 5, 3, 2, 4]);
+    });
+    it('should create new folder in root', async () => {
+        const folders = new BehaviorSubject([
+            new FolderCountEntry(1,
+                50, 40, 'inbox', 'folder1', 'folder2', 0),
+            new FolderCountEntry(2,
+                50, 40, 'user', 'folder2', 'folder2', 0),
+        ]);
+        let refreshFolderCountCalled = false;
+        const comp = new FolderListComponent({
+            folderCountSubject: folders,
+            refreshFolderCount: () => {
+                refreshFolderCountCalled = true;
+            }
+        } as MessageListService, {
+            createFolder: (parentFolderId: number, newFolderName: string): Observable<boolean> => {
+                const currentValue = folders.value;
+                const updatedValue = [...currentValue, new FolderCountEntry(3,
+                    50, 40, 'user', newFolderName, 'folder2', 0)];
+                folders.next(updatedValue);
+
+                return of(true);
+            }
+        } as RunboxWebmailAPI,
+        dialog,
+        hotkeyMock);
+
+        comp.addFolder();
+        const newListOfFolders = await comp.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
+
+        console.log(newListOfFolders);
+
+        expect(newListOfFolders.length).toEqual(3);
+        expect(newListOfFolders[2].folderName).toEqual('testtest');
+        expect(newListOfFolders[2].folderLevel).toEqual(0);
     });
 });
