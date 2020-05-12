@@ -20,7 +20,7 @@ exec('git log --pretty="%h %ct %s" --no-merges b74b99e..', (stdin, stdout, stder
         if (m) {
             changes.push(m.slice(1, 6));
         } else {
-            throw new Error('Invalid commit format for ' + line);
+            console.warn(`Invalid commit format for "${line}", skipping`);
         }
     }
 

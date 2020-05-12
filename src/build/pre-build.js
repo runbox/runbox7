@@ -43,7 +43,9 @@ if (dirty) {
 
 let config = fs.readFileSync('ngsw-config.json').toString();
 const hash = cp.execSync('git rev-parse --short HEAD').toString().trim();
+const epoch = cp.execSync('git show --pretty="%ct" --no-patch').toString().trim();
 console.log(`Setting appData commit hash to ${hash}`);
 config = config.replace('__COMMIT_HASH__', hash);
 config = config.replace('__BUILD_TIME__', build_time);
+config = config.replace('__BUILD_EPOCH__', epoch);
 fs.writeFileSync('ngsw-config.json', config);

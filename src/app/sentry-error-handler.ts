@@ -27,5 +27,6 @@ export class SentryErrorHandler implements ErrorHandler {
     constructor() {}
     handleError(error: any) {
         Sentry.captureException(error.originalError || error);
+        console.error(error);
     }
 }

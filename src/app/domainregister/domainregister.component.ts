@@ -169,6 +169,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   public renew_whois_privacy = [];
   public is_btn_renew_disabled = true;
 
+  public is_trial = false;
 
   public btn_check_avail_color = function () {
     return this.is_available ? 'primary' : 'button';
@@ -864,6 +865,9 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.activate_purchase_privacy();
     });
     //    this.list_hosted_domains();
+    this.http.get('/rest/v1/me').subscribe(res => {
+      this.is_trial = res['result']['is_trial'];
+    });
   }
 
   // public close(actionstring? : string) {    
