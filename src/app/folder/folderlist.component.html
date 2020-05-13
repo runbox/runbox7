@@ -39,9 +39,18 @@
               (dragstart)="dragFolderStart($event, node.folderId)">
               {{node.folderName}}
         </div>
-        <span *ngIf="node.newMessages" matBadge="{{node.newMessages}}" matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">&nbsp;</span>
-	      <span style="flex-grow: 1"></span>
-        <span class="foldersidebarcount">{{node.totalMessages}}</span>
+        <span *ngIf="folderMessageCounts | async as messageCounts">
+            <span
+                *ngIf="messageCounts[node.folderPath].unread > 0"
+                [matBadge]="messageCounts[node.folderPath].unread"
+                matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">
+                &nbsp;
+            </span>
+        </span>
+	    <span style="flex-grow: 1"></span>
+        <span *ngIf="folderMessageCounts | async as messageCounts">
+            <span class="foldersidebarcount">{{ messageCounts[node.folderPath].total }}</span>
+        </span>
         
         <ng-container [ngSwitch]="node.folderType">
           <ng-container *ngSwitchCase="'user'">

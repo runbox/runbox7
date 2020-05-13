@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
 import { FolderListEntry } from '../rmmapi/rbwebmail';
+import { FolderMessageCountMap } from '../rmmapi/messagelist.service';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
 import { Observable } from 'rxjs';
@@ -73,6 +74,7 @@ export class FolderListComponent implements OnChanges {
     dragFolderInProgress = false;
 
     @Input() folders: Observable<FolderListEntry[]>;
+    @Input() folderMessageCounts: Observable<FolderMessageCountMap>;
 
     @Output() droppedToFolder = new EventEmitter<number>();
     @Output() folderSelected  = new EventEmitter<string>();

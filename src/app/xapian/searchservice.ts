@@ -29,7 +29,7 @@ import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ProgressDialog } from '../dialog/progress.dialog';
-import { MessageListService } from '../rmmapi/messagelist.service';
+import { MessageListService, FolderMessageCountEntry } from '../rmmapi/messagelist.service';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
@@ -50,6 +50,8 @@ const XAPIAN_TERM_DELETED = 'XFdeleted';
 const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
 
 export const XAPIAN_GLASS_WR = 'xapianglasswr';
+
+const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
 
 export class SearchIndexDocumentData {
   id: string;
@@ -148,6 +150,7 @@ export class SearchService {
        private dialog: MatDialog,
        private messagelistservice: MessageListService) {
 
+      // we need to set it manually; DI won't work because of a cyclic dependency
       this.messagelistservice.searchservice = this;
       // Check if we have a local index stored
       this.rmmapi.me.pipe(
@@ -660,6 +663,20 @@ export class SearchService {
     return querytext;
   }
 
+  getMessageCountsForFolder(folderPath: string): FolderMessageCountEntry {
+      const total = this.api.sortedXapianQuery(
+          this.getFolderQuery('', folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
+      ).length;
+      const unread = this.api.sortedXapianQuery(
+          this.getFolderQuery('', folderPath, true), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
+      ).length;
+
+      return new FolderMessageCountEntry(
+          unread,
+          total,
+      );
+  }
+
   /**
    * Polling loop (every 10th sec)
    */
@@ -702,8 +719,6 @@ export class SearchService {
       if (this.localSearchActivated) {
         if (this.numberOfMessagesSyncedLastTime === 0) {
           // nothing else to do, check for folder count discrepancies
-
-          const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
 
           const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
                 .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
@@ -971,6 +986,7 @@ export class SearchService {
         console.error('Failed updating with new changes (will retry in 10 secs)', err);
       }
       this.notifyOnNewMessages = true;
+      this.messagelistservice.refreshFolderCounts();
       this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
     }
 

@@ -37,6 +37,7 @@
 
     <rmm-folderlist #folderListComponent
         [folders]="displayedFolders"
+        [folderMessageCounts]="messagelistservice.folderMessageCountSubject"
         (folderSelected)="selectFolder($event)"
         (droppedToFolder)="dropToFolder($event)"
         (emptyTrash)="emptyTrash($event)"
