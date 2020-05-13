@@ -130,7 +130,7 @@ describe('SearchService', () => {
         const messageListService = injector.get(MessageListService);
         expect(messageListService.trashFolderName).toEqual('Trash');
         expect(messageListService.spamFolderName).toEqual('Spam');
-        expect(messageListService.folderCountSubject.value.length).toBe(3);
+        expect(messageListService.folderListSubject.value.length).toBe(3);
 
         req = httpMock.expectOne(mockrequest =>
             mockrequest.urlWithParams.indexOf('/mail/download_xapian_index?' +
@@ -225,7 +225,7 @@ describe('SearchService', () => {
         const messageListService = injector.get(MessageListService);
         expect(messageListService.trashFolderName).toEqual('Trash');
         expect(messageListService.spamFolderName).toEqual('Spam');
-        expect(messageListService.folderCountSubject.value.length).toBe(3);
+        expect(messageListService.folderListSubject.value.length).toBe(3);
 
         const testMessageId = 3463499;
         await new Promise(resolve => setTimeout(resolve, 100));

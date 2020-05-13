@@ -19,7 +19,7 @@
 
 import {throwError as observableThrowError,  BehaviorSubject ,  Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { RunboxWebmailAPI, FolderCountEntry } from './rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
 import { MessageInfo } from '../xapian/messageinfo';
 import { AppComponent } from '../app.component';
@@ -30,7 +30,7 @@ import { catchError, map, filter } from 'rxjs/operators';
 @Injectable()
 export class MessageListService {
     messagesInViewSubject: BehaviorSubject<MessageInfo[]> = new BehaviorSubject([]);
-    folderCountSubject: BehaviorSubject<FolderCountEntry[]> = new BehaviorSubject([]);
+    folderListSubject: BehaviorSubject<FolderListEntry[]> = new BehaviorSubject([]);
     folders: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     currentFolder = 'Inbox';
@@ -47,9 +47,9 @@ export class MessageListService {
     constructor(
         public rmmapi: RunboxWebmailAPI
     ) {
-        this.refreshFolderCount();
+        this.refreshFolderList();
 
-        this.folderCountSubject.subscribe((foldercounts) =>
+        this.folderListSubject.subscribe((foldercounts) =>
             this.folders.next(
                 foldercounts.map((fld) => [fld.folderName, fld.totalMessages,
                     fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
@@ -68,7 +68,7 @@ export class MessageListService {
                 if (msgFlagChange.flaggedFlag === true || msgFlagChange.flaggedFlag === false) {
                     this.messagesById[msgFlagChange.id].flaggedFlag = msgFlagChange.flaggedFlag;
                 }
-                this.refreshFolderCount();
+                this.refreshFolderList(); // TODO should be refreshFolderCount() when available
             });
     }
 
@@ -85,8 +85,8 @@ export class MessageListService {
     }
 
 
-    public refreshFolderCount() {
-        this.rmmapi.getFolderCount().subscribe((folders) => {
+    public refreshFolderList() {
+        this.rmmapi.getFolderList().subscribe((folders) => {
             const trashfolder = folders.find(folder => folder.folderType === 'trash');
             if (trashfolder) {
                 this.trashFolderName = trashfolder.folderName;
@@ -96,7 +96,7 @@ export class MessageListService {
                 this.spamFolderName = spamfolder.folderName;
             }
 
-            this.folderCountSubject.next(folders);
+            this.folderListSubject.next(folders);
         });
     }
 
@@ -163,7 +163,7 @@ export class MessageListService {
 
         if (hasChanges) {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
-            this.refreshFolderCount();
+            this.refreshFolderList();
         }
     }
 

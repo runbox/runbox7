@@ -19,7 +19,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
 import { SearchService } from '../xapian/searchservice';
 
 @Component({
@@ -27,7 +27,7 @@ import { SearchService } from '../xapian/searchservice';
         <mat-spinner *ngIf="moving"></mat-spinner>
         <mat-dialog-content  *ngIf="!moving">
             <mat-nav-list dense>
-                <mat-list-item *ngFor="let fce of folderCountEntries" (click)="moveMessages(fce.folderId)"
+                <mat-list-item *ngFor="let fce of folderListEntries" (click)="moveMessages(fce.folderId)"
                     [style.paddingLeft.px]="fce.folderLevel*10"
                 >
                 <mat-icon *ngIf="fce.folderType=='inbox'" mat-list-icon class="folderIconStandard">move_to_inbox</mat-icon>
@@ -44,7 +44,7 @@ import { SearchService } from '../xapian/searchservice';
 })
 export class MoveMessageDialogComponent implements OnInit {
     moving = false;
-    folderCountEntries: FolderCountEntry[];
+    folderListEntries: FolderListEntry[];
     selectedMessageIds: number[];
 
     constructor(
@@ -55,8 +55,8 @@ export class MoveMessageDialogComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.rmmapi.getFolderCount()
-            .subscribe((folderCountEntries) => this.folderCountEntries = folderCountEntries
+        this.rmmapi.getFolderList()
+            .subscribe((folderListEntries) => this.folderListEntries = folderListEntries
                 .filter(fce =>
                     fce.folderType !== 'drafts' &&
                     fce.folderType !== 'sent' &&
@@ -67,7 +67,7 @@ export class MoveMessageDialogComponent implements OnInit {
     public moveMessages(folderId: number) {
         console.log('Moving to folder', folderId, this.selectedMessageIds);
 
-        const folderPath = this.folderCountEntries.find(fld => fld.folderId === folderId).folderPath;
+        const folderPath = this.folderListEntries.find(fld => fld.folderId === folderId).folderPath;
         if (this.searchService.localSearchActivated) {
             this.searchService.moveMessagesToFolder(this.selectedMessageIds, folderPath);
             this.rmmapi.moveToFolder(this.selectedMessageIds, folderId).subscribe();

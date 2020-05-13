@@ -20,7 +20,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import { Observable ,  AsyncSubject,  Subject ,  of, from  } from 'rxjs';
 import { XapianAPI } from './rmmxapianapi';
-import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
 import { MessageInfo,
     IndexingTools } from './messageinfo';
 import { CanvasTableColumn} from '../canvastable/canvastable';
@@ -595,7 +595,7 @@ export class SearchService {
    * @param destinationfolderPath
    */
   moveMessagesToFolder(messageIds: number[], destinationfolderPath: string) {
-    this.messagelistservice.folderCountSubject
+    this.messagelistservice.folderListSubject
       .pipe(take(1))
       .subscribe((folders) => {
         const destinationFolder = folders.find(folder => folder.folderPath === destinationfolderPath);
@@ -705,7 +705,7 @@ export class SearchService {
 
           const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
 
-          const currentFolder = (await this.messagelistservice.folderCountSubject.pipe(take(1)).toPromise())
+          const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
                 .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
 
           const indexFolderResults = this.api.sortedXapianQuery(
@@ -798,7 +798,7 @@ export class SearchService {
           }
         });
 
-        const folders = await this.messagelistservice.folderCountSubject.pipe(take(1)).toPromise();
+        const folders = await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise();
 
         msginfos.forEach(msginfo => {
             const uniqueIdTerm = `Q${msginfo.id}`;

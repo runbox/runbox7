@@ -21,7 +21,7 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
-import { FolderCountEntry } from '../rmmapi/rbwebmail';
+import { FolderListEntry } from '../rmmapi/rbwebmail';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
 import { Observable } from 'rxjs';
@@ -31,7 +31,7 @@ import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 class FolderNode {
     children: FolderNode[];
-    data: FolderCountEntry;
+    data: FolderListEntry;
 }
 
 export enum DropPosition {
@@ -72,7 +72,7 @@ export class FolderListComponent implements OnChanges {
     dropAboveOrBelowOrInside: DropPosition = DropPosition.NONE;
     dragFolderInProgress = false;
 
-    @Input() folders: Observable<FolderCountEntry[]>;
+    @Input() folders: Observable<FolderListEntry[]>;
 
     @Output() droppedToFolder = new EventEmitter<number>();
     @Output() folderSelected  = new EventEmitter<string>();
@@ -84,9 +84,9 @@ export class FolderListComponent implements OnChanges {
     @Output() moveFolder       = new EventEmitter<MoveFolderEvent>();
     @Output() renameFolder     = new EventEmitter<RenameFolderEvent>();
 
-    treeControl: FlatTreeControl<FolderCountEntry>;
-    treeFlattener: MatTreeFlattener<FolderNode, FolderCountEntry>;
-    dataSource: MatTreeFlatDataSource<FolderNode, FolderCountEntry>;
+    treeControl: FlatTreeControl<FolderListEntry>;
+    treeFlattener: MatTreeFlattener<FolderNode, FolderListEntry>;
+    dataSource: MatTreeFlatDataSource<FolderNode, FolderListEntry>;
 
     storedexpandedFolderIds: number[] = [];
     constructor(
@@ -120,9 +120,9 @@ export class FolderListComponent implements OnChanges {
             /* we don't care why it failed, it just means that we'll show all folders as collapsed */
         }
 
-        this.treeControl = new FlatTreeControl<FolderCountEntry>(this._getLevel, this._isExpandable);
+        this.treeControl = new FlatTreeControl<FolderListEntry>(this._getLevel, this._isExpandable);
         this.treeFlattener = new MatTreeFlattener(
-            (node: FolderNode, level: number): FolderCountEntry => {
+            (node: FolderNode, level: number): FolderListEntry => {
                 return node.data;
             },
             this._getLevel,
@@ -150,7 +150,7 @@ export class FolderListComponent implements OnChanges {
         this.folders.subscribe(folders => this.updateFolderTree(folders));
     }
 
-    private updateFolderTree(folders: FolderCountEntry[]) {
+    private updateFolderTree(folders: FolderListEntry[]) {
         const treedata: FolderNode[] = [];
 
         let currentFolderLevel = 0;
@@ -197,8 +197,8 @@ export class FolderListComponent implements OnChanges {
         this.dataSource.data = treedata;
     }
 
-    private _getLevel = (node: FolderCountEntry) => node.folderLevel;
-    private _isExpandable = (node: FolderCountEntry) => node.isExpandable ? true : false;
+    private _getLevel = (node: FolderListEntry) => node.folderLevel;
+    private _isExpandable = (node: FolderListEntry) => node.isExpandable ? true : false;
 
     /**
      * Folderlist entry is 48 pixels, so if mouse is in the upper region suggest dropping above,
@@ -219,7 +219,7 @@ export class FolderListComponent implements OnChanges {
         }
     }
 
-    allowDropToFolder(event: DragEvent, node: FolderCountEntry): void {
+    allowDropToFolder(event: DragEvent, node: FolderListEntry): void {
         if (this.dragFolderInProgress) {
             this.dropAboveOrBelowOrInside = this.isDropAboveOrBelowOrInside(event.offsetY);
         } else {
@@ -300,7 +300,7 @@ export class FolderListComponent implements OnChanges {
         });
     }
 
-    renameFolderDialog(folder: FolderCountEntry): void {
+    renameFolderDialog(folder: FolderListEntry): void {
         const dialogRef = this.dialog.open(SimpleInputDialog, {
             data: new SimpleInputDialogParams('Rename folder',
                 `Rename folder ${folder.folderName}`,
@@ -318,7 +318,7 @@ export class FolderListComponent implements OnChanges {
         );
     }
 
-    deleteFolderDialog(folder: FolderCountEntry): void {
+    deleteFolderDialog(folder: FolderListEntry): void {
         const confirmDialog = this.dialog.open(ConfirmDialog);
         confirmDialog.componentInstance.title = `Delete folder ${folder.folderName}?`;
         confirmDialog.componentInstance.question =

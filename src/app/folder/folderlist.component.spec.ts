@@ -19,7 +19,7 @@
 
 import { FolderListComponent, DropPosition } from './folderlist.component';
 import { MessageListService } from '../rmmapi/messagelist.service';
-import { FolderCountEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FolderListEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { BehaviorSubject, of, Observable } from 'rxjs';
 import { async, tick, TestBed, getTestBed } from '@angular/core/testing';
 import { MessageInfo } from '../xapian/messageinfo';

@@ -37,7 +37,7 @@ import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetabl
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
 import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI, FolderCountEntry } from './rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI, FolderListEntry } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
@@ -88,7 +88,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   entireHistoryInProgress = false;
 
-  displayedFolders = new Observable<FolderCountEntry[]>();
+  displayedFolders = new Observable<FolderListEntry[]>();
   selectedFolder = 'Inbox';
 
   timeOfDay: string;
@@ -279,7 +279,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
 
-    this.displayedFolders = this.messagelistservice.folderCountSubject.pipe(
+    this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
       map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
 
@@ -390,19 +390,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.rmmapi.createFolder(
       newFolder.parentId, newFolder.name
     ).subscribe(() => {
-      this.messagelistservice.refreshFolderCount();
+      this.messagelistservice.refreshFolderList();
     });
   }
 
   deleteFolder(folderId: number) {
     this.rmmapi.deleteFolder(folderId).subscribe(
-      () => this.messagelistservice.refreshFolderCount()
+      () => this.messagelistservice.refreshFolderList()
     );
   }
 
   moveFolder(event: MoveFolderEvent) {
     this.rmmapi.moveFolder(event.sourceId, event.destinationId, event.order).subscribe(
-      () => this.messagelistservice.refreshFolderCount()
+      () => this.messagelistservice.refreshFolderList()
     );
   }
 
@@ -410,7 +410,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.rmmapi.renameFolder(
       folder.id, folder.name
     ).subscribe(() => {
-      this.messagelistservice.refreshFolderCount();
+      this.messagelistservice.refreshFolderList();
     });
   }
 
@@ -422,7 +422,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       true, trashFolderName
     ).toPromise();
     await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
-    this.messagelistservice.refreshFolderCount();
+    this.messagelistservice.refreshFolderList();
     console.log('Deleted from', trashFolderName);
   }
 
@@ -434,7 +434,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       true, spamFolderName
     ).toPromise();
     await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
-    this.messagelistservice.refreshFolderCount();
+    this.messagelistservice.refreshFolderList();
     console.log('Deleted from', spamFolderName);
   }
 
@@ -753,7 +753,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-      this.messagelistservice.folderCountSubject.subscribe(folders => {
+      this.messagelistservice.folderListSubject.subscribe(folders => {
         const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
         this.searchService.moveMessagesToFolder(messageIds, folderPath);
       });
