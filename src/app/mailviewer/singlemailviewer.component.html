@@ -257,7 +257,7 @@
       </span>
     </div>
     <div *ngIf="showHTML && htmlObjectURL">
-      <div style="text-align: center">
+      <div class="notificationContainer">
 	      <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
       </div>
       <iframe
@@ -272,19 +272,19 @@
 
     <!-- We have an HTML message -->
     <div *ngIf="showHTML && !htmlObjectURL">
-      <div style="text-align: center">
+      <div class="notificationContainer">
 	<span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
       </div>
       <div [innerHTML]="mailContentHTML"></div>
     </div>
 
     <!-- We have an HTML message, but no text version and the user has not chosen to show HTML -->
-    <div *ngIf="mailContentHTML && !showHTML && mailObj.text === 'undefined'" style="text-align: center">
+    <div *ngIf="mailContentHTML && !showHTML && mailObj.text === 'undefined'" class="notificationContainer">
       <span class="inMessageNotification">No text version of this message is available. Please click the HTML button to view the HTML version.</span>
     </div>
 
     <!-- We have an empty message -->
-    <div *ngIf="!mailContentHTML && !showHTML && mailObj.text === 'undefined'" style="text-align: center" id="messageContent">
+    <div *ngIf="!mailContentHTML && !showHTML && mailObj.text === 'undefined'" class="notificationContainer" id="messageContent">
       <span class="inMessageNotification">This message has no content.</span>
     </div>      
 
