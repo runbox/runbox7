@@ -322,15 +322,19 @@ export class Contact {
         this.component.updatePropertyWithValue('kind', k.toString());
     }
 
-    get company(): string {
+    private getOrgArray(): string[] {
+        // it feels like this is a hack around some ical.js parsing quirk,
+        // but I can't quite put my finger on it, so this will have to do
         const org = this.component.getFirstPropertyValue('org');
-        // Some vCard emiters (like Nextcloud) will store this as a string
-        // rather than an array that it should be.
         if (Array.isArray(org)) {
-            return org[0];
-        } else {
             return org;
+        } else {
+            return [org];
         }
+    }
+
+    get company(): string {
+        return this.getOrgArray()[0];
     }
 
     set company(value: string) {
@@ -338,7 +342,7 @@ export class Contact {
     }
 
     get department(): string {
-        return this.getIndexedValue('org', 1);
+        return this.getOrgArray()[1];
     }
 
     set department(value: string) {

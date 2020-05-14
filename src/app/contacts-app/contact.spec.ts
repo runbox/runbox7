@@ -203,4 +203,24 @@ END:VCARD`);
         expect(sut.members[1].name).toBe('Sybilla');
         expect(sut.members[1].email).toBe('sybil@syb.il');
     });
+
+    it('can parse org and department correctly', () => {
+        let sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+FN:testcontact
+ORG:company;department
+END:VCARD`);
+
+        expect(sut.company).toBe('company');
+        expect(sut.department).toBe('department');
+
+        sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+FN:testcontact
+ORG:runbox
+END:VCARD`);
+
+        expect(sut.company).toBe('runbox');
+        expect(sut.department).toBeFalsy();
+    });
 });
