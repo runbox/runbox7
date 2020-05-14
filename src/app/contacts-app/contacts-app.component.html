@@ -90,7 +90,7 @@
                 </button>
             </mat-list-item>
 
-            <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact.id)">
+            <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact)">
                 <mat-checkbox
                     [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
                     [(ngModel)]="selectedIDs[contact.id]"

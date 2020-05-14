@@ -289,7 +289,12 @@ export class ContactsAppComponent {
         });
     }
 
-    dragStarted(ev: DragEvent, contact_id: string) {
-        ev.dataTransfer.setData('contact', contact_id);
+    dragStarted(ev: DragEvent, contact: Contact) {
+        if (contact.kind === ContactKind.GROUP) {
+            // this prevents the drag from happening
+            ev.preventDefault();
+        } else {
+            ev.dataTransfer.setData('contact', contact.id);
+        }
     }
 }
