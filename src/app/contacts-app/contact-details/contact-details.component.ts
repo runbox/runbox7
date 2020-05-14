@@ -20,6 +20,7 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
@@ -63,6 +64,7 @@ export class ContactDetailsComponent {
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,
+        private snackBar: MatSnackBar,
         private contactsservice: ContactsService
     ) {
         this.contactForm = this.createForm();
@@ -263,7 +265,7 @@ export class ContactDetailsComponent {
         console.log('Saving contact:', this.contact);
         this.contactsservice.saveContact(this.contact).then(
             () => this.router.navigateByUrl('/contacts/' + this.contact.id)
-        );
+        ).catch(err => this.snackBar.open(err.message, 'Ok'));
     }
 
     rollback(): void {

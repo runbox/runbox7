@@ -474,7 +474,7 @@ export class Contact {
             } else if (this.primary_email()) {
                 fn = this.primary_email();
             } else {
-                throw new Error("Can't deduce a fullname for contact");
+                throw new Error('Contact needs a name before it can be saved');
             }
             this.setPropertyValue('fn', fn);
         }
