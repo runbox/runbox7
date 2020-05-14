@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -50,9 +50,6 @@ export class ContactDetailsComponent {
     // needed so that templates can refer to enum values through `kind.GROUP` etc
     kind = ContactKind;
 
-    newCategoryPromptShown = false;
-    newCategoryValue = '';
-    @ViewChild('newCategoryInput') newCategoryElement: ElementRef;
     contactIcon: string;
 
     contactIsDragged = false;
@@ -286,27 +283,6 @@ export class ContactDetailsComponent {
                 this.router.navigateByUrl('/contacts');
             });
         });
-    }
-
-    showNewCategoryPrompt(): void {
-        // clear the newly added 'undefined' from categories input
-        let categories = this.contactForm.get('categories').value;
-        categories = categories.filter(c => c);
-        this.contactForm.get('categories').setValue(categories);
-
-        this.newCategoryPromptShown = true;
-        setTimeout(() => this.newCategoryElement.nativeElement.focus());
-    }
-
-    confirmNewCategory(): void {
-        this.categories.push(this.newCategoryValue);
-
-        const categories = this.contactForm.get('categories').value;
-        categories.push(this.newCategoryValue);
-        this.contactForm.get('categories').setValue(categories);
-
-        this.newCategoryValue = '';
-        this.newCategoryPromptShown = false;
     }
 
     addMember(ev: DragEvent) {

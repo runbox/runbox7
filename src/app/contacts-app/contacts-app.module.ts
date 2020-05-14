@@ -42,6 +42,7 @@ import { ContactDetailsComponent } from './contact-details/contact-details.compo
 import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
+import { MultiValueEditorComponent } from './contact-details/multivalue-editor.component';
 import { ContactsService } from './contacts.service';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
@@ -53,6 +54,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
     FormArrayEditorComponent,
+    MultiValueEditorComponent,
     VcfImportDialogComponent,
   ],
   imports: [
