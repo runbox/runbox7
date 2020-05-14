@@ -198,30 +198,19 @@ export class ContactDetailsComponent {
         for (let i = 0; i < this.contact[property].length; i++) {
             const formGroup = formGroupCreator();
             formArray.push(formGroup);
-
-            // also fixup empty types for the same reason as above
-            const e = this.contact[property][i];
-            if (e.types === null) {
-                e.types = [''];
-            }
-
-            for (let j = 0; j < e.types.length; j++) {
-                const typesFA = formGroup.get('types') as FormArray;
-                typesFA.push(this.fb.control(null));
-            }
         }
     }
 
     createEmailFG(types = []): FormGroup {
         return this.fb.group({
-            types: this.fb.array(types),
+            types: this.fb.control(types),
             value: this.fb.control(''),
         });
     }
 
     createAdrFG(types = []): FormGroup {
         return this.fb.group({
-            types: this.fb.array(types),
+            types: this.fb.control(types),
             value: this.fb.group({
                 street:      this.fb.control(''),
                 city:        this.fb.control(''),
@@ -237,11 +226,11 @@ export class ContactDetailsComponent {
         fa.push(fg);
     }
 
-    newEmail():    void { this.addFGtoFA(this.createEmailFG(['']), 'emails');    }
-    newAdr():      void { this.addFGtoFA(this.createAdrFG(['']),   'addresses'); }
-    newPhone():    void { this.addFGtoFA(this.createEmailFG(['']), 'phones');    }
-    newUrl():      void { this.addFGtoFA(this.createEmailFG(['']), 'urls');      }
-    newRelative(): void { this.addFGtoFA(this.createEmailFG(['']), 'related');   }
+    newEmail():    void { this.addFGtoFA(this.createEmailFG([]), 'emails');    }
+    newAdr():      void { this.addFGtoFA(this.createAdrFG([]),   'addresses'); }
+    newPhone():    void { this.addFGtoFA(this.createEmailFG([]), 'phones');    }
+    newUrl():      void { this.addFGtoFA(this.createEmailFG([]), 'urls');      }
+    newRelative(): void { this.addFGtoFA(this.createEmailFG([]), 'related');   }
 
     save(): void {
         for (const name of Object.keys(this.contactForm.controls)) {

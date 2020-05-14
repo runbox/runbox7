@@ -233,7 +233,7 @@ export class Contact {
         } else if (typeof types === 'string') {
             types = [types];
         }
-        return types;
+        return types.map(t => t.toLowerCase());
     }
 
     private normalizeStringProperty(p: ICAL.Property): StringValueWithTypes {
