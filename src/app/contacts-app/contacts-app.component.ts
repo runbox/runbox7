@@ -184,10 +184,16 @@ export class ContactsAppComponent {
                 return;
             }
             for (const c of contacts) {
-                if (result['category']) {
-                    c.categories = c.categories.concat(result['category']);
+                // Check if contact already present:
+                const foundContact = this.contacts.find(contact => contact.id === c.id);
+                if (foundContact) {
+                    this.showNotification('Contact already exists, not importing: ' + c.id);
+                } else {
+                    if (result['category']) {
+                        c.categories = c.categories.concat(result['category']);
+                    }
+                    this.contactsservice.saveContact(c);
                 }
-                this.contactsservice.saveContact(c);
             }
         });
     }
