@@ -95,11 +95,19 @@ END:VCARD`;
         const sut = Contact.fromVcard(null, vcard);
         const addresses = sut.addresses;
         expect(addresses.length).toBe(1);
+        expect(addresses[0].types.length).toBe(1);
+        expect(addresses[0].types[0].toLowerCase()).toBe('home');
         expect(addresses[0].value.street).toBe('foo street 13');
         expect(addresses[0].value.city).toBe('Townsville');
         expect(addresses[0].value.region).toBe('Centralia');
         expect(addresses[0].value.post_code).toBe('12-345');
         expect(addresses[0].value.country).toBe('Contactia');
+
+        const phones = sut.phones;
+        expect(phones.length).toBe(1);
+        expect(phones[0].types.length).toBe(2);
+        expect(phones[0].types[0].toLowerCase()).toBe('home');
+        expect(phones[0].types[1].toLowerCase()).toBe('voice');
     });
 
     it('can set categories for contact', () => {
