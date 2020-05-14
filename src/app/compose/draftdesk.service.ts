@@ -101,9 +101,9 @@ export class DraftFormModel {
         }
         ret.from = (
             [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                addr => froms.find(fromObj => fromObj.email === addr.address)
+                addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
             ) || { address: froms[0].email }
-        ).address;
+        ).address.toLowerCase();
 
         ret.subject = 'Re: ' + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
 
@@ -161,6 +161,13 @@ export class DraftFormModel {
             new ForwardedAttachment(mailObj.mid, ndx, attachment.cid)
         );
         return ret;
+    }
+
+    public isUnsaved(): boolean {
+        if (this.mid <= -1) {
+            return true;
+        }
+        return false;
     }
 }
 

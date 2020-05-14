@@ -278,6 +278,22 @@ export class FolderListComponent {
             });
     }
 
+    addSubFolder(folder: FolderCountEntry): void {
+        const dialogRef = this.dialog.open(SimpleInputDialog, {
+            data:
+                new SimpleInputDialogParams('Add new folder',
+                    `Create new folder under ${folder.folderName}`,
+                    'New folder name',
+                    (value: string) => value && value.trim().length > 0
+                )
+        }
+        );
+        dialogRef.afterClosed().pipe(
+            filter(res => res && res.length > 0),
+            mergeMap(newFolderName => this.rmmapi.createFolder(folder.folderId, newFolderName))
+        ).subscribe(() => this.messagelistservice.refreshFolderCount());
+    }
+
     renameFolder(folder: FolderCountEntry): void {
         const dialogRef = this.dialog.open(SimpleInputDialog, {
             data:
