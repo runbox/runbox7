@@ -24,9 +24,10 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 
-import { Contact, ContactKind } from './contact';
+import { Contact, ContactKind, GroupMember } from './contact';
 import { ContactsService } from './contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
+import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @Component({
@@ -49,6 +50,7 @@ export class ContactsAppComponent {
 
     categories  = [];
     categoryFilter = 'RUNBOX:ALL';
+    hasGroups = false;
     searchTerm  = '';
 
     sideMenuOpened = true;
@@ -65,9 +67,10 @@ export class ContactsAppComponent {
         private snackBar:        MatSnackBar
     ) {
         console.log('Contacts.app: waiting for backend contacts...');
-        this.contactsservice.contactsSubject.subscribe(c => {
+        this.contactsservice.contactsSubject.subscribe(contacts => {
             console.log('Contacts.app: got the contacts!');
-            this.contacts = c;
+            this.contacts = contacts;
+            this.hasGroups = !!this.contacts.find(c => c.kind === ContactKind.GROUP);
             this.filterContacts();
         });
 
@@ -109,12 +112,35 @@ export class ContactsAppComponent {
         });
     }
 
+    addSelectedToGroup(): void {
+        const toAdd = this.contacts.filter(c => this.selectedIDs[c.id]);
+
+        if (toAdd.find(c => c.kind === ContactKind.GROUP)) {
+            this.snackBar.open('Groups cannot be added to groups', 'Ok', {
+                duration: 5000,
+            });
+            return;
+        }
+
+        const dialogRef = this.dialog.open(GroupPickerDialogComponent, {
+            data: { groups: this.contacts.filter(c => c.kind === ContactKind.GROUP) }
+        });
+        dialogRef.afterClosed().subscribe(group => {
+            if (!group) {
+                return;
+            }
+            const newMembers = toAdd.map(c => GroupMember.fromUUID(c.id));
+            group.members = group.members.concat(newMembers);
+            this.contactsservice.saveContact(group);
+            this.resetSelection();
+        });
+    }
+
     deleteSelected(): void {
         const toDelete = this.contacts.filter(c => this.selectedIDs[c.id]);
         this.contacts = this.contacts.filter(c => !this.selectedIDs[c.id]);
         this.filterContacts();
-        this.selectedIDs = {};
-        this.selectedCount = 0;
+        this.resetSelection();
 
         this.contactsservice.deleteMultiple(toDelete).then(_ => {
             this.showNotification(`Deleted ${toDelete.length} contacts`);
@@ -196,6 +222,11 @@ export class ContactsAppComponent {
                 }
             }
         });
+    }
+
+    resetSelection(): void {
+        this.selectedIDs = {};
+        this.selectedCount = 0;
     }
 
     selectAll(): void {

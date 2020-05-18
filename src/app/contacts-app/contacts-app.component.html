@@ -122,6 +122,13 @@
         </mat-nav-list>
 
         <div class="multiContactActions" *ngIf="selectedCount > 0">
+            <button mat-fab *ngIf="hasGroups"
+                matTooltip="Add these contacts to a group"
+                (click)="addSelectedToGroup()"
+            >
+                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before"> group_add </mat-icon>
+            </button>
+
             <button mat-fab
                 matTooltip="Delete these contacts"
                 (click)="deleteSelected()"
