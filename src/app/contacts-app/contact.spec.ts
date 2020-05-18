@@ -223,7 +223,7 @@ END:VCARD`);
     });
 
     it('can parse grouped properties', () => {
-        let sut = Contact.fromVcard(null, `BEGIN:VCARD
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
 VERSION:3.0
 FN:testcontact
 item1.ADR;type=WORK:;;2 Enterprise Avenue;Worktown;NY;01111;USA
@@ -236,7 +236,8 @@ END:VCARD`);
     });
 
     it('contact with exceptionally empty name shows up as email', () => {
-        let sut = Contact.fromVcard(null, `BEGIN:VCARD
+        // tslint:disable:no-trailing-whitespace
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
 VERSION:3.0
 FN: 
 N:;;;;

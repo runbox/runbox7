@@ -526,8 +526,8 @@ export class Contact {
         }
 
         if (this.nickname) {
-            const fn = this.first_and_last_name();
-            const postfix = fn ?  (' (' + fn + ')') : '';
+            const faln = this.first_and_last_name();
+            const postfix = faln ?  (' (' + faln + ')') : '';
             return this.nickname + postfix;
         }
 
