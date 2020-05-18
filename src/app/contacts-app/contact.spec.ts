@@ -234,4 +234,20 @@ END:VCARD`);
 
         expect(sut.addresses.length).toBe(2);
     });
+
+    it('contact with exceptionally empty name shows up as email', () => {
+        let sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+FN: 
+N:;;;;
+NICKNAME:
+ORG:;
+TITLE:
+EMAIL;TYPE=home;TYPE=pref:testperson@test.org
+NOTE:
+PRODID:-//CyrusIMAP.org//Cyrus 3.1.7-238-g170a812-fmstable-20190913v1//EN
+END:VCARD`);
+
+        expect(sut.display_name()).toBe('testperson@test.org');
+    });
 });

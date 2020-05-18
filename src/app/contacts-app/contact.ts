@@ -531,7 +531,22 @@ export class Contact {
             return this.nickname + postfix;
         }
 
-        return this.first_and_last_name() || this.full_name;
+        const fal = this.first_and_last_name();
+        if (fal?.trim()) {
+            return fal;
+        }
+
+        const fn = this.full_name;
+        if (fn?.trim()) {
+            return fn;
+        }
+
+        const email = this.primary_email();
+        if (email?.trim()) {
+            return email;
+        }
+
+        return null;
     }
 
     first_and_last_name(): string {
