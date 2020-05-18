@@ -21,6 +21,7 @@ import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { SearchService } from '../xapian/searchservice';
 import { ContactsService } from '../contacts-app/contacts.service';
+import { ContactKind, Contact } from '../contacts-app/contact';
 import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
 import { Recipient } from './recipient';
@@ -31,7 +32,7 @@ export class RecipientsService {
 
     constructor(
         searchService: SearchService,
-        contactsService: ContactsService
+        private contactsService: ContactsService
     ) {
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
 
@@ -54,7 +55,13 @@ export class RecipientsService {
 
             contactsService.contactsSubject.subscribe(contacts => {
                 const categories = {};
+                const groups     = [];
                 contacts.forEach(contact => {
+                    if (contact.kind === ContactKind.GROUP) {
+                        groups.push(contact);
+                        return;
+                    }
+
                     contact.emails.forEach(email => {
                         const recipientString = `"${contact.first_and_last_name()}" <${email.value}>`;
                         recipientsMap[email.value] = Recipient.fromContact(contact, email.value);
@@ -74,8 +81,49 @@ export class RecipientsService {
                     result.unshift(Recipient.fromCategory(category, categories[category]));
                 }
 
-                this.recipients.next(result);
+                Promise.all(
+                    groups.map(g => this.recipientFromGroup(g))
+                ).then(
+                    recipients => this.recipients.next(result.concat(recipients))
+                ).catch(
+                    () => this.recipients.next(result)
+                );
             });
         });
+    }
+
+    private recipientFromGroup(group: Contact): Promise<Recipient> {
+        const promises = [];
+
+        for (const m of group.members) {
+            if (m.uuid) {
+                promises.push(
+                    this.contactsService.lookupByUUID(m.uuid).then(
+                        (c: Contact) => {
+                            if (c.primary_email()) {
+                                return `"${c.external_display_name()}" <${c.primary_email()}>`;
+                            } else {
+                                return null;
+                            }
+                        }
+                    ).catch(
+                        () => null
+                    )
+                );
+            } else if (m.email) {
+                if (m.name) {
+                    promises.push(Promise.resolve(`${m.name} <${m.email}>`));
+                } else {
+                    promises.push(Promise.resolve(m.email));
+                }
+            }
+        }
+
+        return Promise.all(promises).then(
+            members => {
+                const recipients = members.filter(r => !!r);
+                return new Recipient(recipients, `"${group.full_name}" group (${recipients.length} contacts)`);
+            }
+        );
     }
 }
