@@ -53,25 +53,25 @@ export class RecipientsService {
             }
 
             contactsService.contactsSubject.subscribe(contacts => {
-                const groups = {};
+                const categories = {};
                 contacts.forEach(contact => {
                     contact.emails.forEach(email => {
                         const recipientString = `"${contact.first_and_last_name()}" <${email.value}>`;
                         recipientsMap[email.value] = Recipient.fromContact(contact, email.value);
                     });
 
-                    contact.categories.forEach(group => {
-                        if (!groups[group]) {
-                            groups[group] = [];
+                    contact.categories.forEach(category => {
+                        if (!categories[category]) {
+                            categories[category] = [];
                         }
-                        groups[group].push(contact);
+                        categories[category].push(contact);
                     });
                 });
 
                 const result = Object.keys(recipientsMap).map(mailaddr => recipientsMap[mailaddr]);
 
-                for (const group of Object.keys(groups)) {
-                    result.unshift(Recipient.fromGroup(group, groups[group]));
+                for (const category of Object.keys(categories)) {
+                    result.unshift(Recipient.fromCategory(category, categories[category]));
                 }
 
                 this.recipients.next(result);

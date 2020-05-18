@@ -37,7 +37,7 @@ export class Recipient {
         );
     }
 
-    static fromGroup(groupName: string, contacts: any[]) {
+    static fromCategory(groupName: string, contacts: Contact[]) {
         const members = [];
         for (const c of contacts) {
             for (const e of c.emails) {
@@ -48,7 +48,7 @@ export class Recipient {
                 members.push(`"${c.first_and_last_name()}${emailDesc}" <${e.value}>`);
             }
         }
-        const name = `"${groupName}" group (${members.length} members)`;
+        const name = `"${groupName}" category (${members.length} contacts)`;
         return new this(members, name);
     }
 
