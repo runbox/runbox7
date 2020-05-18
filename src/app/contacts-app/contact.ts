@@ -138,9 +138,19 @@ export class Contact {
     component: ICAL.Component;
     url:       string;
 
+    private static preprocessVcf(vcf: string): string {
+        // since ical.js can't parse these
+        // (not until https://github.com/mozilla-comm/ical.js/pull/442/files is merged anyway)
+        // we just strip them before parsing so that they don't get in the way
+        // (which https://tools.ietf.org/html/rfc6350#page-8) suggests we MAY do :)
+        // `group = 1*(ALPHA / DIGIT / "-")`, as in https://tools.ietf.org/html/rfc6350#section-3.3
+        const group = /^[a-z0-9\-]+\./gmi;
+        return vcf.replace(group, '');
+    }
+
     // may throw ICAL.ParserError if input is not a valid vcf
     static fromVcf(vcf: string): Contact[] {
-        let cards = ICAL.parse(vcf);
+        let cards = ICAL.parse(this.preprocessVcf(vcf));
         if (cards[0] === 'vcard') {
             cards = [cards];
         }
@@ -156,7 +166,7 @@ export class Contact {
 
     static fromVcard(url: string, vcard: string): Contact {
         const contact = new Contact({});
-        contact.component = ICAL.Component.fromString(vcard);
+        contact.component = ICAL.Component.fromString(this.preprocessVcf(vcard));
         contact.url = url;
         return contact;
     }

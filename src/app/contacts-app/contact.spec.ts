@@ -149,8 +149,6 @@ END:VCARD`;
         expect(() => sut.vcard()).not.toThrow();
         expect(sut.vcard()).toContain('FN:Neverland');
         expect(sut.vcard()).toContain('KIND:group');
-
-        console.log(sut.vcard());
     });
 
     it('can parse a 3.0 group', () => {
@@ -222,5 +220,18 @@ END:VCARD`);
 
         expect(sut.company).toBe('runbox');
         expect(sut.department).toBeFalsy();
+    });
+
+    it('can parse grouped properties', () => {
+        let sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+FN:testcontact
+item1.ADR;type=WORK:;;2 Enterprise Avenue;Worktown;NY;01111;USA
+item1.X-ABADR:us
+item2.ADR;type=HOME;type=pref:;;3 Acacia Avenue;Hoemtown;MA;02222;USA
+item2.X-ABADR:us
+END:VCARD`);
+
+        expect(sut.addresses.length).toBe(2);
     });
 });
