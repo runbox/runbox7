@@ -59,7 +59,8 @@ describe('Composing emails', () => {
 
     it('closing a newly composed email should return where we started', () => {
         cy.visit('/compose');
-        composeNew();
+        cy.closeWelcomeDialog();
+        cy.visit('/compose?new=true');
         
         cy.get('button[mattooltip="Close draft"').click();
         cy.location().should((loc) => {
