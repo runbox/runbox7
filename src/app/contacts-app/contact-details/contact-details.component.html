@@ -69,11 +69,16 @@
                              'padding': (loadedGroupMembers.length === 0 || contactIsDragged) ? '' : '2px' }"
             >
                 <div *ngFor="let member of loadedGroupMembers; index as idx">
+
                     <div *ngIf="member | async as member"
                         draggable=true
                         (dragstart)="memberDragged($event, idx)"
                     >
                         <div *ngIf="member instanceof Contact; else not_contact">
+                            <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
+                                      draggable="true" (dragstart)="memberDragged($event, idx)">
+                                drag_handle
+                            </mat-icon>
                             <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
                                 <app-contact-button [contact]="member"></app-contact-button>
                             </button>
@@ -85,11 +90,13 @@
                 </div>
 
                 <div *ngIf="loadedGroupMembers.length === 0; else small_instruction" style="padding: 25px;">
-                    Drag and drop contacts here to add them to this group
+                    Drag and drop contacts here to add them to this group. <br>
+                    Trouble dragging contacts? Enable drag handles in <a routerLink="/contacts/settings">settings</a>.
                 </div>
                 <ng-template #small_instruction>
                     <div style="font-size: small; color: #bbb; padding: 10px;">
-                        Drag and drop contacts to add to or remove from this group
+                        Drag and drop contacts to add to or remove from this group. <br>
+                        Trouble dragging contacts? Enable drag handles in settings.
                     </div>
                 </ng-template>
             </div>

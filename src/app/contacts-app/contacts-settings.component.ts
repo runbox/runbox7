@@ -31,7 +31,7 @@ export class ContactsSettingsComponent {
     oldContacts: number;
 
     constructor(
-        private contactsservice: ContactsService,
+        public  contactsservice: ContactsService,
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getContactsSettings().subscribe(settings => {

@@ -3,6 +3,11 @@
 </ng-template>
 
 <div class="mainTextContent">
+    <div>
+        <h3> General settings </h3>
+        <mat-checkbox [(ngModel)]="contactsservice.settings.showDragHelpers"> Show drag helpers </mat-checkbox>
+        <p style="font-size: small;"> Enable this if you have trouble dragging contacts on your browser </p>
+    </div>
     <div *ngIf="syncSettings | async as sync; else syncLoading">
         <h3> Your CardDAV settings </h3>
 

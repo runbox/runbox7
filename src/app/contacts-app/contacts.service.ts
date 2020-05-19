@@ -22,10 +22,20 @@ import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
-import { AsyncSubject, Observable, Subject, ReplaySubject, of } from 'rxjs';
+import { Subject, ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+
+export class Settings {
+    get showDragHelpers(): boolean {
+        return !!localStorage.getItem('contacts.showDragHelpers');
+    }
+
+    set showDragHelpers(value: boolean) {
+        localStorage.setItem('contacts.showDragHelpers', value ? '1' : '');
+    }
+}
 
 @Injectable()
 export class ContactsService implements OnDestroy {
@@ -36,6 +46,7 @@ export class ContactsService implements OnDestroy {
     errorLog           = new Subject<HttpErrorResponse>();
     migratingContacts  = 0;
 
+    settings = new Settings();
     syncInterval: any;
     syncIntervalSeconds = 180;
     syncToken: string;
