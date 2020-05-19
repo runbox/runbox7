@@ -251,4 +251,16 @@ END:VCARD`);
 
         expect(sut.display_name()).toBe('testperson@test.org');
     });
+
+    it('contact with escaped colons does not grow when serialized', () => {
+        // needs a double backslash because JS eats one of them itself
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+FN:John Doe
+URL;type=pref:http\\://www.example.com/doe
+END:VCARD`);
+
+        // same as above: \\ to mean \
+        expect(sut.vcard()).toContain('http\\://');
+    });
 });

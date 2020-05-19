@@ -493,7 +493,11 @@ export class Contact {
             this.setPropertyValue('fn', fn);
         }
 
-        return this.component.toString();
+        // We strip any duplicated backslashes because of an ical.js bug
+        // (https://github.com/mozilla-comm/ical.js/issues/173#issuecomment-630736605).
+        // While it's technically not a proper solution, the potential to break vcards
+        // for users who actually wanted to have duplicate backslashes in them is negligible at best.
+        return this.component.toString().replace(/\\+/g, '\\');
     }
 
     constructor(properties: any) {
