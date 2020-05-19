@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, ViewChild } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -28,7 +28,9 @@ import { Contact, ContactKind, GroupMember } from './contact';
 import { ContactsService } from './contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
-import { VcfImportDialogComponent } from './vcf-import-dialog.component';
+import { VcfImportDialogComponent, VcfImportDialogResult } from './vcf-import-dialog.component';
+
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
@@ -126,13 +128,10 @@ export class ContactsAppComponent {
             data: { groups: this.contacts.filter(c => c.kind === ContactKind.GROUP) }
         });
         dialogRef.afterClosed().subscribe(group => {
-            if (!group) {
-                return;
+            if (group) {
+                this.addContactsToGroup(group, toAdd);
+                this.resetSelection();
             }
-            const newMembers = toAdd.map(c => GroupMember.fromUUID(c.id));
-            group.members = group.members.concat(newMembers);
-            this.contactsservice.saveContact(group);
-            this.resetSelection();
         });
     }
 
@@ -203,23 +202,38 @@ export class ContactsAppComponent {
             return;
         }
         const dialogRef = this.dialog.open(VcfImportDialogComponent, {
-            data: { contacts: contacts, categories: this.categories }
+            data: {
+                contacts: contacts,
+                categories: this.categories,
+                groups: this.contacts.filter(c => c.kind === ContactKind.GROUP)
+            }
         });
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result: VcfImportDialogResult) => {
             if (!result) {
                 return;
             }
             for (const c of contacts) {
+                // Assign an uuid unless it already has one.
+                // Without it we won't be able to add them to groups if requested
+                if (!c.id) {
+                    c.id = uuidv4().toUpperCase();
+                }
                 // Check if contact already present:
                 const foundContact = this.contacts.find(contact => contact.id === c.id);
                 if (foundContact) {
                     this.showNotification('Contact already exists, not importing: ' + c.id);
                 } else {
-                    if (result['category']) {
-                        c.categories = c.categories.concat(result['category']);
+                    if (result.stripCategories) {
+                        c.categories = [];
+                    }
+                    if (result.newCategory) {
+                        c.categories = c.categories.concat(result.newCategory);
                     }
                     this.contactsservice.saveContact(c);
                 }
+            }
+            if (result.addToGroup) {
+                this.addContactsToGroup(result.addToGroup, contacts);
             }
         });
     }
@@ -334,4 +348,11 @@ export class ContactsAppComponent {
             ev.dataTransfer.setData('contact', contact.id);
         }
     }
+
+    private addContactsToGroup(group: Contact, members: Contact[]): void {
+        const newMembers = members.map(c => GroupMember.fromUUID(c.id));
+        group.members = group.members.concat(newMembers);
+        this.contactsservice.saveContact(group);
+    }
+
 }

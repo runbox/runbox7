@@ -1,12 +1,48 @@
 <h2 mat-dialog-title>Importing {{ contacts.length }} contacts</h2>
 
 <div mat-dialog-content>
-    <p>
-        <mat-radio-group [(ngModel)]="choice">
+    <div>
+        <h4> Groups </h4>
+        <mat-radio-group [(ngModel)]="groupChoice">
+            <p>
+                <mat-radio-button value="addtogroups"> Add these contacts to a group </mat-radio-button>
+            </p>
+            <p *ngIf="groupChoice === 'addtogroups'">
+                <button mat-button (click)="selectTargetGroup()">
+                    <span *ngIf="!target_group">
+                        Select group...
+                    </span>
+                    <span *ngIf="target_group">
+                        <mat-icon> group </mat-icon> {{ target_group.full_name }}
+                    </span>
+                </button>
+            </p>
+            <p>
+                <mat-radio-button value="donothing"> Don't add these contacts to any groups </mat-radio-button>
+            </p>
+        </mat-radio-group>
+    </div>
+    <div *ngIf="contactCategories.length > 0">
+        <h4> Existing categories </h4>
+        <p>
+            Some of the imported contacts have categories assigned to them ({{ contactCategories.join(', ') }}).
+        </p>
+        <mat-radio-group [(ngModel)]="stripCategoriesChoice">
+            <p>
+                <mat-radio-button value="no"> Keep these categories </mat-radio-button>
+            </p>
+            <p>
+                <mat-radio-button value="yes"> Remove them from these contacts </mat-radio-button>
+            </p>
+        </mat-radio-group>
+    </div>
+    <div>
+        <h4> New categories </h4>
+        <mat-radio-group [(ngModel)]="categoryChoice">
             <p>
                 <mat-radio-button value="existing"> Import contacts into an existing category </mat-radio-button>
             </p>
-            <p *ngIf="choice == 'existing'">
+            <p *ngIf="categoryChoice == 'existing'">
                 <mat-select placeholder="Category" [(ngModel)]="target_existing">
                     <mat-option *ngFor="let category of categories" [value]="category">
                         {{ category }}
@@ -16,14 +52,14 @@
             <p>
                 <mat-radio-button value="new"> Import contacts into a new category </mat-radio-button>
             </p>
-            <p *ngIf="choice == 'new'">
+            <p *ngIf="categoryChoice == 'new'">
                 <input matInputtype="text" [(ngModel)]="target_new">
             </p>
             <p>
                 <mat-radio-button value="nocategory"> Don't add new contacts to any categories </mat-radio-button>
             </p>
         </mat-radio-group>
-    </p>
+    </div>
 </div>
 
 <div mat-dialog-actions style="justify-content: flex-end;">
