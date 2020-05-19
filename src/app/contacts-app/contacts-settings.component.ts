@@ -18,29 +18,34 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { ContactsService } from './contacts.service';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-contacts-settings',
     templateUrl: './contacts-settings.component.html',
 })
 export class ContactsSettingsComponent {
-    settingsLoaded   = false;
-    settings:  any   = {};
+    syncSettings = new Subject<any>();
+    oldContacts: number;
 
     constructor(
-        private contactsservice: ContactsService
+        private contactsservice: ContactsService,
+        private rmmapi: RunboxWebmailAPI,
     ) {
-        this.contactsservice.settingsSubject.subscribe(settings => {
+        this.rmmapi.getContactsSettings().subscribe(settings => {
+            const syncSettings = {};
             // tslint:disable-next-line:forin
             for (const key in settings) {
-                this.settings[key] = settings[key];
+                syncSettings[key] = settings[key];
             }
-            this.settingsLoaded = true;
+            this.syncSettings.next(syncSettings);
+            this.syncSettings.complete();
         });
 
         this.contactsservice.contactsSubject.subscribe(_ => {
-            this.settings.old_contacts_count = this.contactsservice.migratingContacts;
+            this.oldContacts = this.contactsservice.migratingContacts;
         });
     }
 }

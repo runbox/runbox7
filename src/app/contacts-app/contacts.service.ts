@@ -29,7 +29,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ContactsService implements OnDestroy {
-    settingsSubject    = new AsyncSubject<any>();
     contactsSubject    = new ReplaySubject<Contact[]>(1);
     contactsByEmail    = new ReplaySubject<any>(1);
     contactCategories  = new ReplaySubject<string[]>(1);
@@ -59,12 +58,6 @@ export class ContactsService implements OnDestroy {
             }, this.syncIntervalSeconds * 1000);
             this.reload();
         });
-
-        this.rmmapi.getContactsSettings().subscribe(settings => {
-            console.log('Settings:', settings);
-            this.settingsSubject.next(settings);
-            this.settingsSubject.complete();
-        }, e => this.apiErrorHandler(e));
     }
 
     apiErrorHandler(e: HttpErrorResponse): void {

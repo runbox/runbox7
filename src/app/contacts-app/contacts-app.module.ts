@@ -21,6 +21,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
+import { RunboxCommonModule } from '../common/common.module';
 import { RouterModule } from '@angular/router';
 
 import { MatBadgeModule } from '@angular/material/badge';
@@ -75,6 +76,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     MatToolbarModule,
     MatTooltipModule,
     MenuModule,
+    RunboxCommonModule,
     ReactiveFormsModule,
     RouterModule.forChild([
       {

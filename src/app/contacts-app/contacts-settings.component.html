@@ -1,29 +1,31 @@
-<div class="loading" *ngIf="!settingsLoaded">
-    Loading the settings...
-</div>
+<ng-template #syncLoading>
+    <app-runbox-loading text="Loading sync settings..."></app-runbox-loading>
+</ng-template>
 
-<div class="mainTextContent" *ngIf="settingsLoaded">
-    <h3> Your CardDAV URL </h3>
+<div class="mainTextContent">
+    <div *ngIf="syncSettings | async as sync; else syncLoading">
+        <h3> Your CardDAV settings </h3>
 
-    <p>
-        Use this URL in a CardDAV client on your device to synchronize your contacts:
-    </p>
+        <p>
+            Use this URL in a CardDAV client on your device to synchronize your contacts:
+        </p>
 
-    <code> {{ settings.carddav_url }} </code>
+        <code> {{ sync.carddav_url }} </code>
 
-    <p>
-        Remember to use your <strong>full username</strong> as your login
-        – <code>{{ settings.carddav_username }}</code>.
-    </p>
-    <p>
-        The password is just your regular account password.
-    </p>
+        <p>
+            Remember to use your <strong>full username</strong> as your login
+            – <code>{{ sync.carddav_username }}</code>.
+        </p>
+        <p>
+            The password is just your regular account password.
+        </p>
+    </div>
 
-    <div *ngIf="settings.old_contacts_count">
+    <div *ngIf="oldContacts">
         <h3> Contact migration </h3>
         
         <p>
-            You have <strong>{{ settings.old_contacts_count }}</strong> Runbox 6 contacts that has not been migrated yet.
+            You have <strong>{{ oldContacts }}</strong> Runbox 6 contacts that has not been migrated yet.
         </p>
         <p>
             The migration is already started, but it may take a while.
