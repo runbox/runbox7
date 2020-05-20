@@ -553,10 +553,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (this.messageContents) {
           this.messageContents.nativeElement.scroll(0, 0);
         }
-        if (this.previousHeight) {
-          this.resizer.resizePixels(this.previousHeight);
-        } else {
-          this.resizer.resizePercentage(50);
+        // Only care about the horizontal pane height in horizontal mode
+        if (this.adjustableHeight) {
+          if (this.previousHeight) {
+            this.resizer.resizePixels(this.previousHeight);
+          } else {
+            this.resizer.resizePercentage(50);
+          }
         }
       }, 0);
     }
