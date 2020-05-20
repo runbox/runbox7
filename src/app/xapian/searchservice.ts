@@ -221,7 +221,10 @@ export class SearchService {
             return this.postMessagesToXapianWorker([
               new SearchIndexDocumentUpdate(
               msgFlagChange.id,
-              () => this.indexingTools.markMessageSeen(msgFlagChange.id, msgFlagChange.seenFlag)
+              () => {
+                this.indexingTools.markMessageSeen(msgFlagChange.id, msgFlagChange.seenFlag);
+                this.messagelistservice.refreshFolderCounts();
+              }
             )]);
           } else {
             console.error('Empty flag change message', msgFlagChange);
@@ -486,6 +489,7 @@ export class SearchService {
             this.api.initXapianIndex(XAPIAN_GLASS_WR);
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
+            this.messagelistservice.refreshFolderCounts();
 
             this.updateIndexLastUpdateTime();
 
