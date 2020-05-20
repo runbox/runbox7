@@ -41,6 +41,9 @@
 	<div id="createAccount" class="login-link">
 	  <a href="/signup?runbox7=1">Create new account</a>
   </div>
+  <div *ngIf='login_error_html' class="login-link" id='forgotPassword'>
+    <a href="/pw_reset">Forgot password</a>
+  </div>
 	<div id="progressBar">
 	  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 	</div>
