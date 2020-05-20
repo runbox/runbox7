@@ -161,6 +161,13 @@ export class MockServer {
                     message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
                     message_obj.result.headers['subject'] = "Default from fix test";
                 }
+                if (mailid === '13') {
+                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+                    const to = message_obj.result.headers['to'];
+                    delete message_obj.result.headers['to'];
+                    message_obj.result.headers['cc'] = to;
+                    message_obj.result.headers['subject'] = "";
+                }
 
                 if (requesturl.endsWith('/html')) {
                     response.end(message_obj.result.text.html);
@@ -300,8 +307,14 @@ export class MockServer {
                 `Test2<test2@lalala.no>	No 'To', just 'CC'	709	n	 `);
 
         // id=12: email with capitalized "To" email
-        inboxlines.push(`12	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+        inboxlines.push(`12	1548071423	1547830044	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
+
+        // id=13: email with no "To" or Subject
+        inboxlines.push(`13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>		709	n	 `);
+
+
         return inboxlines.join('\n');
     }
 
