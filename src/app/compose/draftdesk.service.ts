@@ -101,9 +101,9 @@ export class DraftFormModel {
         }
         ret.from = (
             [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                addr => froms.find(fromObj => fromObj.email === addr.address)
+                addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
             ) || { address: froms[0].email }
-        ).address;
+        ).address.toLowerCase();
 
         ret.subject = 'Re: ' + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
 
@@ -115,10 +115,12 @@ export class DraftFormModel {
             ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
             ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
 
-        if (!useHTML) {
+        if (!useHTML && mailObj.rawtext) {
             ret.msg_body = '\n' + mailDate.toISOString().substr(0, 'yyyy-MM-ddTHH:mm'.length).replace('T', ' ') + ' ' +
                 timezoneOffsetString + ' ' + sender + ':\n' +
                 mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
+        } else if (!useHTML && !mailObj.rawtext) {
+            ret.msg_body = '';
         } else {
             ret.msg_body =
                 `<br /><div style="padding-left: 10px; border-left: black solid 1px">

@@ -1,11 +1,6 @@
 /// <reference types="cypress" />
 
 describe('Composing emails', () => {
-    function closeWelcomeDialog() {
-        cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
-        cy.get('confirm-dialog .mat-dialog-actions button:nth-child(3)').click();
-    }
-
     function composeNew() {
         cy.visit('/compose?new=true');
         cy.closeWelcomeDialog();
@@ -59,7 +54,8 @@ describe('Composing emails', () => {
 
     it('closing a newly composed email should return where we started', () => {
         cy.visit('/compose');
-        composeNew();
+        cy.closeWelcomeDialog();
+        cy.visit('/compose?new=true');
         
         cy.get('button[mattooltip="Close draft"').click();
         cy.location().should((loc) => {
@@ -106,5 +102,16 @@ describe('Composing emails', () => {
             expect(loc.pathname).to.eq('/contacts/ID-MR-POSTCODE');
             expect(loc.search).to.eq('');
         }); 
+    });
+
+    it('should find the same address in original "To" and our "From" field in Reply', () => {
+        cy.visit('/');
+        cy.closeWelcomeDialog();
+        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 360 });
+        cy.get('single-mail-viewer').should('exist');
+        const address = 'testmail@testmail.com';
+        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
+        cy.get('button[mattooltip="Reply"]').click();
+        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
     });
 });

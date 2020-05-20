@@ -302,6 +302,26 @@ export class FolderListComponent implements OnChanges {
         });
     }
 
+    addSubFolderDialog(folder: FolderListEntry): void {
+        const dialogRef = this.dialog.open(SimpleInputDialog, {
+            data:
+                new SimpleInputDialogParams('Add new folder',
+                    `Create new folder under ${folder.folderName}`,
+                    'New folder name',
+                    (value: string) => value && value.trim().length > 0
+                )
+        }
+        );
+        dialogRef.afterClosed().pipe(
+            filter(res => res && res.length > 0),
+        ).subscribe(
+            newFolderName => this.createFolder.emit({
+                parentId: folder.folderId,
+                name:     newFolderName,
+            })
+        );
+    }
+
     renameFolderDialog(folder: FolderListEntry): void {
         const dialogRef = this.dialog.open(SimpleInputDialog, {
             data: new SimpleInputDialogParams('Rename folder',
