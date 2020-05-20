@@ -263,4 +263,12 @@ END:VCARD`);
         // same as above: \\ to mean \
         expect(sut.vcard()).toContain('http\\://');
     });
+
+    it('can set a birtday to arbitrary text', () => {
+        const sut = new Contact({});
+        sut.nickname = 'Birthday Boy';
+        sut.birthday = 'yesterday';
+
+        expect(sut.vcard().toLowerCase()).toContain('bday;value=text:yesterday');
+    });
 });

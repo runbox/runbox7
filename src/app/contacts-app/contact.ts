@@ -369,7 +369,13 @@ export class Contact {
     }
 
     set birthday(value: string) {
-        this.setPropertyValue('bday', value);
+        if (this.component.hasProperty('bday')) {
+            this.component.removeAllProperties('bday');
+        }
+        const prop = this.component.addPropertyWithValue('bday', value);
+        // TODO skip that bit if it's a correct format
+        // according to https://tools.ietf.org/html/rfc6350#section-4.3.4
+        prop.setParameter('value', 'text');
     }
 
     get note(): string {
