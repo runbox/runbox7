@@ -136,7 +136,6 @@ export class LoginComponent implements OnInit {
             this.accountExpired = true;
         } else {
             this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
-            console.log(loginresonseobj);
         }
     }
 
