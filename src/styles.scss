@@ -281,28 +281,37 @@ div.loginScreen #loginArea {
     flex-flow: column;
     align-items: center;
     justify-content: center;
+    padding: 10px;
 }
 
-div.loginScreen #loginOptions {
-    font-size: 14px;
-    margin: 0 0 10px 0;
-}
-
-div.loginScreen #loginButton {
-    width: 100px;
+div.loginScreen {
+    #loginOptions {
+        font-size: 13px;
+        display: flex;
+    }
+    #loginButton {
+        width: 100px;
+        margin: 1em;
+    }
+    .login-checkbox {
+        padding: 0 5px;
+    }
+    .mat-checkbox-layout {
+        display: flex;
+        align-items: center;
+    }
+    .mat-checkbox-inner-container {
+        margin: 0 5px;
+        height: 13px;
+        width: 13px;
+    }
 }
 
 .login_error_html {
-    margin: 5px;
     min-height: 20px;
-    border: 1px solid #F00;
-    padding: 5px;
+    padding: 0 10px 0.7em;
     color: #f00;
-}
-
-div.loginScreen .login_error_html {
-    margin: 10px 0 0 0;
-    padding: 5px 10px;
+    font-size: 14px;
 }
 
 div.loginScreen .login_error_html p {
@@ -331,12 +340,12 @@ div.loginScreen mat-button-toggle button {
     border-right: 1px solid #949494;
 }
 
-div.loginScreen #createAccount {
-    margin: 10px 0 10px 0;
+div.loginScreen .login-link {
+    margin: 0 0 5px;
     font-size: 14px;
 }
 
-div.loginScreen #createAccount a {
+div.loginScreen .login-link a {
     color: mat-color($rmm-default-primary);
 }
 
@@ -826,10 +835,6 @@ compose .draftPreview {
 compose .mat-card-actions {
     padding: 0 !important;
     margin-bottom: 8px !important;
-}
-
-compose .mat-form-field-wrapper {
-    padding-bottom: 8px !important;
 }
 
 compose .mat-form-field-underline, compose input.mat-chip-input {
