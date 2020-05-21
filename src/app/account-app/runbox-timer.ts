@@ -88,7 +88,7 @@ export class RunboxTimerComponent implements OnInit {
   ngOnInit() {
       this.recalculate_date();
       this.rmmapi.me.subscribe(me => {
-          this.user_created = me.user_created;
+          let user_created = me.user_created;
       });
   }
 
