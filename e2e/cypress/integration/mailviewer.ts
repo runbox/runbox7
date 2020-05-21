@@ -5,20 +5,33 @@ describe('Interacting with mailviewer', () => {
         return cy.get('canvastable canvas:first-of-type');
     }
 
-    it('can reply to an email with no "To"', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
+    beforeEach(() => {
+        localStorage.setItem('localSearchPromptDisplayed221', 'true');
+    });
 
-        canvas().click({ x: 400, y: 350 });
+    it('can open an email and go back and forth in browser history', () => {
+        cy.visit('/');
+
+        cy.wait(1000); // should be long enough for the canvas to appear
+        canvas().click({ x: 400, y: 300 });
+
+        cy.hash().should('be', '#Inbox:9');
+        cy.go('back');
+        cy.hash().should('not.contain', 'Inbox:9');
+        cy.go('forward');
+        cy.hash().should('be', '#Inbox:9');
+    });
+
+    it('can reply to an email with no "To"', () => {
+        cy.visit('/#Inbox:11');
+
         cy.get('button[mattooltip="Reply"]').click();
         cy.contains("Re: No 'To', just 'CC'");
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
+        cy.visit('/#Inbox:11');
 
-        canvas().click({ x: 400, y: 350 });
         // Make sure we're in vertical mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
 
@@ -26,10 +39,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Changing viewpane height is stored', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
+        cy.visit('/#Inbox:11');
 
-        canvas().click({ x: 400, y: 350 });
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
         // set full height
@@ -42,10 +53,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Half height reduces stored pane height', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
+        cy.visit('/#Inbox:11');
 
-        canvas().click({ x: 400, y: 350 });
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
         // set full height
@@ -67,4 +76,3 @@ describe('Interacting with mailviewer', () => {
         });
     });
 })
-
