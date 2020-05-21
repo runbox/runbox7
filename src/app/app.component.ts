@@ -934,7 +934,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           const dialogRef = this.dialog.open(ConfirmDialog);
           dialogRef.componentInstance.title = 'Welcome to Runbox 7!';
           dialogRef.componentInstance.question =
-            `Runbox 7 will now synchronize  with your device to give you an optimal webmail experience.
+            `Runbox 7 will now synchronize with your device to give you an optimal webmail experience.
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;
           dialogRef.componentInstance.yesOptionTitle = `Sounds good, let's go!`;
           dialogRef.componentInstance.noOptionTitle = `Don't synchronize with this device.`;
