@@ -107,7 +107,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public mailContentHTML: string = null;
   public htmlObjectURL: SafeUrl = null;
-  public expectedMessageSize: number;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
@@ -158,12 +157,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.onClose.emit(actionstring);
     }
 
-  }
-
-  public shouldPreviewSmallVersion(): boolean {
-    // Only preview small version of messages if more than  30kb
-    // return this.expectedMessageSize>30*1024;
-    return false; // Always download full message
   }
 
   public get messageId() {
