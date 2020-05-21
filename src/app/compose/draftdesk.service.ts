@@ -99,13 +99,8 @@ export class DraftFormModel {
                         addr.address : addr.name + '<' + addr.address + '>').join(',');
             }
         }
-        ret.from = (
-            [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
-            ) || { address: froms[0].email }
-        ).address.toLowerCase();
-
-        ret.subject = 'Re: ' + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
+        ret.setFromForResponse(mailObj, froms);
+        ret.setSubjectForResponse(mailObj, 'Re: ');
 
         let mailDate: Date = mailObj.date;
         const timezoneOffset: number = mailDate.getTimezoneOffset();
@@ -141,10 +136,9 @@ export class DraftFormModel {
 
     public static forward(mailObj, froms: FromAddress[], useHTML: boolean): DraftFormModel {
         const ret = new DraftFormModel();
-        ret.from = (mailObj.to.concat(mailObj.cc || []).find((addr) => froms.find(fromObj => fromObj.email === addr.address))
-            || { address: froms[0].email }).address;
+        ret.setFromForResponse(mailObj, froms);
 
-        ret.subject = 'Fwd: ' + mailObj.subject;
+        ret.setSubjectForResponse(mailObj, 'Fwd: ');
         if (!useHTML) {
             ret.msg_body = '\n\n----------------------------------------------\nForwarded message:\n' +
                 mailObj.origMailHeaderText + '\n\n' + mailObj.rawtext;
@@ -168,6 +162,18 @@ export class DraftFormModel {
             return true;
         }
         return false;
+    }
+
+    private setFromForResponse(mailObj, froms: FromAddress[]): void {
+        this.from = (
+            [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
+                addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
+            ) || { address: froms[0].email }
+        ).address.toLowerCase();
+    }
+
+    private setSubjectForResponse(mailObj, prefix): void {
+        this.subject = prefix + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
     }
 }
 
