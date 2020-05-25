@@ -34,6 +34,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
 
+const MIN_COLUMN_WIDTH = 40;
+
 const getCSSClassProperty = (className, propertyName) => {
   const elementId = '_classPropertyLookup_' + className;
   let element: HTMLSpanElement = document.getElementById(elementId);
@@ -1434,8 +1436,8 @@ export class CanvasTableContainerComponent implements OnInit {
       const column: CanvasTableColumn = this.canvastable.columns[this.colResizeColumnIndex];
       if (column && column.width) {
         column.width = this.colResizePreviousWidth + (clientX - this.colResizeInitialClientX);
-        if (column.width < 20) {
-          column.width = 20;
+        if (column.width < MIN_COLUMN_WIDTH) {
+          column.width = MIN_COLUMN_WIDTH;
         }
         this.canvastable.hasChanges = true;
         this.columnResized = true;
