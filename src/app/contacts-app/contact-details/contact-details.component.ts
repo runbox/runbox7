@@ -250,7 +250,7 @@ export class ContactDetailsComponent {
         }
         console.log('Saving contact:', this.contact);
         this.contactsservice.saveContact(this.contact).then(
-            () => this.router.navigateByUrl('/contacts/' + this.contact.id)
+            id => this.router.navigateByUrl('/contacts/' + id)
         ).catch(err => this.snackBar.open(err.message, 'Ok'));
     }
 

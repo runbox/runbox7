@@ -149,14 +149,14 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-    saveContact(contact: Contact): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    saveContact(contact: Contact): Promise<string> {
+        return new Promise((resolve, reject) => {
             if (contact.url) {
                 console.log('Modifying contact', contact.id);
                 this.rmmapi.modifyContact(contact).subscribe(() => {
                     this.informationLog.next('Contact modified successfuly');
                     console.log('Contact modified');
-                    this.reload().then(() => resolve());
+                    this.reload().then(() => resolve(contact.id));
                 }, e => {
                     this.apiErrorHandler(e);
                     reject();
@@ -169,7 +169,7 @@ export class ContactsService implements OnDestroy {
                 this.rmmapi.addNewContact(contact).subscribe(url => {
                     this.informationLog.next('New contact has been created');
                     contact.url = url;
-                    this.reload().then(() => resolve());
+                    this.reload().then(() => resolve(contact.id));
                 }, e => {
                     this.apiErrorHandler(e);
                     reject();
