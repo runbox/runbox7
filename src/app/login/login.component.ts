@@ -135,7 +135,7 @@ export class LoginComponent implements OnInit {
         if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
             this.accountExpired = true;
         } else {
-            this.login_error_html = '<p>' + loginresonseobj.message + ': ' + (loginresonseobj.error || 'error') + '</p>';
+            this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
         }
     }
 
