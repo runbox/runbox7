@@ -144,9 +144,6 @@ export class ContactDetailsComponent {
         this.initializeFormArray('phones',    () => this.createEmailFG());
         this.initializeFormArray('related',   () => this.createEmailFG());
 
-        // can this be removed?
-        this.contactForm.enable();
-
         this.contactForm.patchValue(this.contact.toDict());
 
         if (this.contact.show_as_company()) {
@@ -276,7 +273,7 @@ export class ContactDetailsComponent {
 
     addMember(ev: DragEvent) {
         const id = ev.dataTransfer.getData('contact');
-        if (id) {
+        if (id && !this.groupMembers.find(g => g.uuid === id)) {
             this.groupMembers.push(GroupMember.fromUUID(id));
             this.loadGroupMembers();
         }

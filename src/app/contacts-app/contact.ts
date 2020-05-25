@@ -478,6 +478,7 @@ export class Contact {
             urls:       this.urls,
             addresses:  this.addresses.map(a => a.toDict()),
             related:    this.related,
+            members:    this.members.map(m => m.prop.toJSON()),
         };
     }
 

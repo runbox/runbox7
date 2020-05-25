@@ -350,7 +350,9 @@ export class ContactsAppComponent {
     }
 
     private addContactsToGroup(group: Contact, members: Contact[]): void {
-        const newMembers = members.map(c => GroupMember.fromUUID(c.id));
+        const newMembers = members.filter(
+            nm => !group.members.find(gm => gm.uuid === nm.id)
+        ).map(c => GroupMember.fromUUID(c.id));
         group.members = group.members.concat(newMembers);
         this.contactsservice.saveContact(group);
     }
