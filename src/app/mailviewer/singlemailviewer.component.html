@@ -256,19 +256,6 @@
         </button>
       </span>
     </div>
-    <div *ngIf="showHTML && htmlObjectURL">
-      <div class="notificationContainer">
-	      <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
-      </div>
-      <iframe
-	        #htmliframe 
-         [src]="htmlObjectURL" 
-         (load)="adjustIframeHTMLHeight()"
-	        style="border: none; width: 100%"
-	        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-	    >
-      </iframe>
-    </div>
 
     <!-- We have an HTML message -->
     <div *ngIf="showHTML && !htmlObjectURL">
@@ -276,6 +263,10 @@
 	<span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
       </div>
       <div [innerHTML]="mailContentHTML"></div>
+    </div>
+
+    <div *ngIf="showHTML && htmlObjectURL" class="notificationContainer">
+      <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
     </div>
 
     <!-- We have an HTML message, but no text version and the user has not chosen to show HTML -->
@@ -290,6 +281,17 @@
 
     <!-- We have a plain text message or the user has chosen to show text -->
     <div *ngIf="!showHTML && mailObj.text !== 'undefined'" id="messageContent" style="white-space: pre-wrap" [innerHTML]='mailObj.text'>
+    </div>
+    
+    <div *ngIf="mailContentHTML && showHTML && htmlObjectURL" class="iframe-container">
+      <iframe
+	        #htmliframe 
+          [src]="htmlObjectURL" 
+          (load)="adjustIframeHTMLHeight()"
+          sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" 
+          id="iframe"
+	    >
+      </iframe>
     </div>      
 
     <mat-card *ngIf="mailObj.attachments && mailObj.attachments.length>0">
