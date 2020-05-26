@@ -943,6 +943,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           dialogRef.afterClosed().subscribe(res => {
             if (res) {
               this.downloadIndexFromServer();
+              this.router.navigate(['/welcome']);
             } else {
               this.usewebsocketsearch = true;
             }
