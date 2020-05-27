@@ -151,24 +151,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
-    private _hotkeysService: HotkeysService) {
-
-      this._hotkeysService.add(new Hotkey(['j', 'k'],
-          (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-              if (combo === 'k') {
-                  this.canvastable.scrollUp();
-                  combo = null;
-              }
-              if (combo === 'j') {
-                  this.canvastable.scrollDown();
-              }
-              const e: ExtendedKeyboardEvent = event;
-              e.returnValue = false;
-              return e;
-          }));
+    private hotkeysService: HotkeysService
+  ) {
+    this.hotkeysService.add(
+        new Hotkey(['j', 'k'],
+        (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+            if (combo === 'k') {
+                this.canvastable.scrollUp();
+                combo = null;
+            }
+            if (combo === 'j') {
+                this.canvastable.scrollDown();
+            }
+            const e: ExtendedKeyboardEvent = event;
+            e.returnValue = false;
+            return e;
+        })
+    );
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
-      this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
+    this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
 
     this.messageActionsHandler.dialog = dialog;
     this.messageActionsHandler.draftDeskService = draftDeskService;
@@ -241,7 +243,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (messagePaneSetting) {
       this.keepMessagePaneOpen = messagePaneSetting === 'true';
     }
-
   }
 
   ngOnDestroy() {
