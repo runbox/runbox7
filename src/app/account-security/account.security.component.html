@@ -3,28 +3,28 @@
       <mat-tab label="Account Security">
             <app-runbox-section>
                 <div runbox-section-header>
-                    Account Security
+                    <h3 class="runbox-section-header">Account Security</h3>
                 </div>
                 <div runbox-section-content>
                     <div class="accountsecurity-intro body">
-                        <p>In this section you can manage your account's security settings.</p><p>We encourage you to enable Two-Factor Authentication and review the other settings in order to keep your account secure.</p>
-                        <h2>Two-Factor Authentication</h2>
-                        <p>With Two-Factor Authentication you have to use your account password with an extra code to log in.</p><p>When enabling Two-Factor Authentication (2FA), you have the following options:</p>
+                        <p>In this area you can manage your account's security settings. These are explained below, and you may then navigate to each section individually.</p><p>We encourage you to enable Two-Factor Authentication and review the other settings in order to keep your account secure.</p>
+                        <h4>Two-Factor Authentication</h4>
+                        <p>With Two-Factor Authentication (2FA) you have to use your username and password along with an extra code to log in. When enabling 2FA, you have the following options:</p>
                         <ul class="text-list">
-                            <li><strong>Timed One-Time Passwords (TOTP)</strong>: To use this option you need a free TOTP app on your smartphone or computer (see <a href="https://help.runbox.com/account-security/">Help</a> for examples). TOTP works by generating a unique code which changes over time, in addition to your username and password.<br><br></li>
-                            <li><strong>One-Time Passwords (OTP)</strong>: When you enable this option, the system will generate random codes that you can use only once. These are used along with your username and account password to log in.<br><br></li>
-                            <li><strong>Trusted browsers</strong>: This allows the server to trust your current web browser so that you don't have to use a 2FA code to log in. You will of course still need to use your username and account password.<br><br></li>
+                            <li><strong>Timed One-Time Passwords (TOTP)</strong>: To use this option you need a free TOTP app on your smartphone or computer (see <a href="https://help.runbox.com/account-security/">Help</a> for examples). TOTP works by generating a unique code which changes over time.<br><br></li>
+                            <li><strong>One-Time Passwords (OTP)</strong>: When you enable this option, the system will generate random codes that you can use only once.<br><br></li>
+                            <li><strong>Trusted browsers</strong>: This allows the server to trust your current web browser so that you don't have to use a 2FA code to log in.<br><br></li>
                             <li><strong>Unlock code</strong>: This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.<br><br></li>
-                            <h2>Manage Services</h2>
-                            <p>This section lets you disable various services such as IMAP, POP, and SMTP.</p><p>These services are used with email programs/apps such as Outlook, Thunderbird, and Apple Mail. Disabling the services you don't use protects your account from attempts at unauthorized access.</p>
-                            <h2>App Passwords</h2>
-                            <p>App Passwords are strong passwords that can be used with each of your device's <a href="https://help.runbox.com/email-programs/">email programs</a> and apps.</p>
-                            <p>If you use a different app password with each device and then lose one of them, you can easily disable that device's password and prevent it from logging in.</p>
-                            <h2>Access Control</h2>
-                            <p>Here you can manage the access to your account, review your last logins, and allow or deny IP addresses.</p>
-                            <h2>Sessions</h2>
-                            <p>This section shows the currently active sessions for your account.</p>
                         </ul>
+                        <h4>Manage Services</h4>
+                        <p>This section lets you disable email services on your account, such as IMAP, POP, and SMTP.</p><p>These services are used with email programs/apps such as Outlook, Thunderbird, and Apple Mail. Disabling the services you don't use can protect your account from attempts at unauthorized access.</p>
+                        <h4>App Passwords</h4>
+                        <p>App Passwords are strong passwords that can be used with each of your device's email programs and apps.</p>
+                        <p>If you use a different app password with each device and then lose one of them, you can easily disable that device's password and prevent it from logging in.</p>
+                        <h4>Access Control</h4>
+                        <p>Here you can manage the access to your account, review your last logins, and allow or deny IP addresses.</p>
+                        <h4>Sessions</h4>
+                        <p>This section shows the currently active sessions for your account.</p>
                     </div>
                 </div>
             </app-runbox-section>
@@ -32,7 +32,7 @@
         <mat-tab label="Two-Factor Authentication">
             <app-runbox-section>
                 <div runbox-section-header>
-                    Two-Factor Authentication
+                    <h3 class="runbox-section-header">Two-Factor Authentication</h3>
                     <mat-slide-toggle
                         [(ngModel)]="rmm.account_security.tfa.settings.is_2fa_enabled"
                         (ngModelChange)="toggle_2fa()"
@@ -43,13 +43,13 @@
                 </div>
                 <div runbox-section-content>
                     <p>This is the Two-Factor Authentication (2FA) configuration screen, where you can configure the various options for enabling and using 2FA.</p>
-                    <p><strong>Note:</strong> For security reasons, enabling 2FA disables your account password for non-web services. These include IMAP, POP, and SMTP (for email programs/apps), FTP (for file transfer programs/apps), and CalDAV (for calendar programs/apps). Therefore you will need to set up App Passwords for these services if you want to use them.</p>
-                    <p><strong>Unlock code:</strong> We recommended that you create an unlock code. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
+                    <p>We recommended that you create an <strong>Unlock Code</strong> when enabling 2FA. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
+                    <p><em><strong>Note:</strong> For security reasons, enabling 2FA will disable your account password for non-web services. These include IMAP, POP, and SMTP (for email programs), FTP (for file transfer programs), and CalDAV (for calendar programs). Therefore you will need to set up App Passwords for these services if you want to continue using them.</em></p>
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Timed One-Time Passwords
+                  <h4 class="runbox-section-header">Timed One-Time Passwords</h4>
                     <mat-slide-toggle
                         [(ngModel)]="rmm.account_security.tfa.settings.is_device_2fa_enabled"
                         (ngModelChange)="toggle_totp_device()"
@@ -61,13 +61,16 @@
                 <div runbox-section-content>
                   <p></p><p>Timed One-Time Passwords (<strong>TOTP</strong>) are 6 digit codes that change every 30 seconds. The codes are generated by a free app that you download onto your smartphone or computer.</p><p>To generate codes for your account the system will provide you with a secret key. The secret key is entered into the app, and the generated codes along with your username and account password are used to log into your account.</p><p></p>
 
-                  <hr>
-
                   <div id="totp_instructions">
                     <strong>Setting up Timed One-Time Passwords</strong><p>Download and install one of the recommended <a href="https://help.runbox.com/account-security/">TOTP apps</a>.</p><p>Follow the steps below to set up TOTP. The app you installed will help guide you through the process.</p><p>When you have completed the setup, 2FA will be enabled for your account.</p><p>The next time you log into Runbox, you will be asked for a TOTP code in addition to your username and account password.</p>
                   </div>
 
                   <div id="totp_example">
+		    <div class="container-totp-animation">
+		      <div style="font-size: 14px;" class="totp-timer timer fill"><div class="percent">50%</div><div id="slice" class="gt50"><div style="transform: rotate(180.072deg);" class="pie"></div><div style="transform: rotate(180.072deg);" class="pie fill"></div></div></div>
+		      <div class="totp-timer-code">136929</div>
+		    </div>
+		    <img class="base64scan">
                       <strong class="marginleft">Recommended apps:</strong>
                       <ul class="totp_advantages">
                         <li class="bullet">
@@ -136,9 +139,9 @@
                 </div>
             </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    One-Time Passwords
+                    <h4 class="runbox-section-header">One-Time Passwords</h4>
                     <mat-slide-toggle
                         [(ngModel)]="rmm.account_security.tfa.settings.is_otp_enabled"
                         (ngModelChange)="toggle_otp()"
@@ -162,9 +165,9 @@
                     </ul>
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Trusted Browsers
+                    <h4 class="runbox-section-header">Trusted Browsers</h4>
                 </div>
                 <div runbox-section-content>
                     <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
@@ -209,9 +212,9 @@
                         </mat-grid-list>
                 </div>
             </app-runbox-section>
-            <app-runbox-section>
+            <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    Unlock code
+                    <h4 class="runbox-section-header">Unlock code</h4>
                 </div>
                 <div runbox-section-content>
                     <p>
@@ -234,7 +237,7 @@
         <mat-tab label="Manage Services">
             <app-runbox-section>
                 <div runbox-section-header>
-                    Manage Services
+                    <h3 class="runbox-section-header">Manage Services</h3>
                 </div>
                 <div runbox-section-content>
                     <p>
@@ -282,7 +285,7 @@
         <mat-tab label="App Passwords">
             <app-runbox-section>
                 <div runbox-section-header>
-                    App passwords
+                    <h3 class="runbox-section-header">App passwords</h3>
                 </div>
                 <div runbox-section-content>
                     <p>Here you can create passwords for specific applications or devices.</p>
@@ -325,7 +328,7 @@
             </app-runbox-section>
             <app-runbox-section>
                 <div runbox-section-header>
-                    New app password
+                    <h4 class="runbox-section-header">New app password</h4>
                 </div>
                 <div runbox-section-content>
                     <p>
@@ -344,7 +347,7 @@
         <mat-tab label="Access Control">
             <app-runbox-section>
                 <div runbox-section-header>
-                    Access Control
+                    <h3 class="runbox-section-header">Access Control</h3>
                 </div>
                 <div runbox-section-content>
                     <p>In this section you can review your last logins and access control lists, and manage the IP addresses that should have access to your account.</p>
@@ -353,7 +356,7 @@
             </app-runbox-section>
             <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    &nbsp;&nbsp;&nbsp;Last logins
+                    <h4 class="runbox-section-header">Last logins</h4>
                 </div>
                 <div runbox-section-content>
                     <div>
@@ -443,7 +446,7 @@
             </app-runbox-section>
             <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    &nbsp;&nbsp;&nbsp;Access Control List
+                    <h4 class="runbox-section-header">Access Control List</h4>
                 </div>
                 <div runbox-section-content>
                     <p>
@@ -490,7 +493,7 @@
             </app-runbox-section>
             <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    &nbsp;&nbsp;&nbsp;Manage IPs
+                    <h4 class="runbox-section-header">Manage IPs</h4>
                 </div>
                 <div runbox-section-content>
 
@@ -531,7 +534,7 @@
             </app-runbox-section>
             <app-runbox-section size="h2">
                 <div runbox-section-header>
-                    &nbsp;&nbsp;&nbsp;Blocked IPs
+                    <h4 class="runbox-section-header">Blocked IPs</h4>
                 </div>
                 <div runbox-section-content>
 
@@ -588,7 +591,7 @@
         <mat-tab label="Sessions">
             <app-runbox-section>
                 <div runbox-section-header>
-                    Sessions
+                    <h3 class="runbox-section-header">Sessions</h3>
                 </div>
                 <div runbox-section-content>
                     <p>

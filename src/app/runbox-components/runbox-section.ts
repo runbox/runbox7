@@ -74,10 +74,10 @@ export class RunboxSectionComponent {
   private dialog_ref: any;
   public sizes = {
     h1: {
-        background: '#e1eeff'
+        background: '#CAE1FF'
     },
     h2: {
-        background: '#CAE1FF'
+        background: '#e1eeff'
     },
     h3: {
         background: '#9CC6FE'
