@@ -249,7 +249,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
   ngDoCheck(): void {
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
-      (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
+      (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 1;
 
     if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
@@ -748,7 +748,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
-    this.clearSelection();
+  //  this.clearSelection();
   }
 
   searchTextFieldFocus() {

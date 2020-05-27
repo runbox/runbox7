@@ -233,7 +233,7 @@
   <router-outlet (activate)="hasChildRouterOutlet=true" (deactivate)="hasChildRouterOutlet=false"></router-outlet>
 </mat-sidenav-container>
 
-<div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && !singlemailviewer.messageId">
+<div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations">
   <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" (click)="moveToFolder()">
     <mat-icon>folder</mat-icon>
   </button>
