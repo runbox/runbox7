@@ -138,6 +138,7 @@
                   *ngIf="canvastable"
                   [(ngModel)]="canvastable.showContentTextPreview"
                   matLine
+                  (change)="saveContentPreviewSetting()"
                   (click)="$event.stopPropagation()"
                   class="tableViewOptionsMenuElement"
                 >
@@ -150,6 +151,7 @@
                   matLine
                   (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
                   (click)="$event.stopPropagation()"
+                  [disabled]="unreadMessagesOnlyCheckbox"
                   class="tableViewOptionsMenuElement"
                 >
                   <mat-icon class="tableViewOptionsMenuElement" matTooltip="Threaded conversation view">view_list</mat-icon>

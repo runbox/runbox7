@@ -61,6 +61,10 @@ import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
+const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
+const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
+const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
+const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 
 @Component({
   moduleId: 'angular2/app/',
@@ -237,11 +241,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
 
-    const messagePaneSetting = localStorage.getItem('keepMessagePaneOpen');
-    if (messagePaneSetting) {
-      this.keepMessagePaneOpen = messagePaneSetting === 'true';
-    }
-
   }
 
   ngOnDestroy() {
@@ -287,6 +286,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.autoAdjustColumnWidths()
     );
 
+    const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
+    if (contentPreview) {
+      this.canvastable.showContentTextPreview = contentPreview === 'true';
+    }
+
+    const messagePaneSetting = localStorage.getItem(LOCAL_STORAGE_KEEP_PANE);
+    if (messagePaneSetting) {
+      this.keepMessagePaneOpen = messagePaneSetting === 'true';
+    }
+
+    const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
+    if (showUnreadOnly) {
+      this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
+    }
+
+    const viewModeSetting = localStorage.getItem(LOCAL_STORAGE_VIEWMODE);
+    if (viewModeSetting) {
+      this.viewmode = viewModeSetting;
+      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
+    }
   }
 
   ngAfterViewInit() {
@@ -386,7 +405,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
-    localStorage.setItem('keepMessagePaneOpen', setting);
+    localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
+  }
+
+  saveContentPreviewSetting(): void {
+    const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
+    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
   }
 
   public trainSpam(params) {
@@ -731,6 +755,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   updateViewMode(viewmode) {
     if (this.viewmode !== viewmode) {
       this.viewmode = viewmode;
+      localStorage.setItem(LOCAL_STORAGE_VIEWMODE, this.viewmode);
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
@@ -803,6 +828,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       return;
     }
+    const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
+    localStorage.setItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
 
