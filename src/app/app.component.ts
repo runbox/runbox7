@@ -577,18 +577,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.selectedRowIds[this.selectedRowId] = true;
 
       if (!multiSelect && columnIndex > 1) {
+        let messageId: number;
         if (this.showingSearchResults) {
-          this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.selectedRowId, 3);
-          this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.selectedRowId);
+          messageId = this.searchService.getMessageIdFromDocId(this.selectedRowId);
         } else if (this.showingWebSocketSearchResults) {
           const msg = (rowContent as WebSocketSearchMailRow);
-          this.singlemailviewer.messageId = msg.id;
-          this.singlemailviewer.expectedMessageSize = msg.size;
+          messageId = msg.id;
         } else {
           const msg: MessageInfo = rowContent;
-          this.singlemailviewer.messageId = msg.id;
-          this.singlemailviewer.expectedMessageSize = msg.size;
+          messageId = msg.id;
         }
+
+        this.singlemailviewer.messageId = messageId;
 
         if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
           this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
