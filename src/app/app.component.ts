@@ -577,6 +577,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       .subscribe(() => {
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+          this.singlemailviewer.close();
+        }
       });
   }
 
