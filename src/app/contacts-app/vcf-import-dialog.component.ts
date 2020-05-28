@@ -18,10 +18,15 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Contact, ContactKind } from './contact';
+import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 
-import { Contact } from './contact';
+export interface VcfImportDialogResult {
+    stripCategories: boolean;
+    newCategory:     string;
+    addToGroup:      Contact;
+}
 
 @Component({
     selector: 'app-contacts-import-dialog-component',
@@ -30,10 +35,16 @@ import { Contact } from './contact';
 export class VcfImportDialogComponent {
     contacts: Contact[];
     categories: string[];
+    groupsAvailable: Contact[];
 
-    choice = 'nocategory';
+    categoryChoice = 'nocategory';
+    groupChoice = 'donothing';
+    stripCategoriesChoice = 'no';
+
+    target_group: Contact;
     target_new: string;
     target_existing: string;
+    contactCategories: string[] = [];
 
     constructor(
         private dialog: MatDialog,
@@ -42,19 +53,46 @@ export class VcfImportDialogComponent {
     ) {
         this.contacts   = data['contacts'];
         this.categories = data['categories'];
+        this.groupsAvailable = data['groups'];
+
+        const catsInContacts = {};
+        for (const c of this.contacts) {
+            for (const cat of c.categories) {
+                catsInContacts[cat] = true;
+            }
+        }
+        this.contactCategories = Object.keys(catsInContacts);
     }
 
     onCancelClick(): void {
-        this.dialogRef.close();
+        this.finish(null);
     }
 
     onSubmitClick(): void {
-        const result = {};
-        if (this.choice === 'existing') {
-            result['category'] = this.target_existing;
-        } else if (this.choice === 'new') {
-            result['category'] = this.target_new;
+        let category: string;
+        if (this.categoryChoice === 'existing') {
+            category = this.target_existing;
+        } else if (this.categoryChoice === 'new') {
+            category = this.target_new;
         }
+
+        const result = {
+            stripCategories: this.stripCategoriesChoice === 'yes',
+            newCategory:     category,
+            addToGroup:      this.target_group,
+        };
+        this.finish(result);
+    }
+
+    selectTargetGroup(): void {
+        const dialogRef = this.dialog.open(GroupPickerDialogComponent, {
+            data: { groups: this.groupsAvailable }
+        });
+        dialogRef.afterClosed().subscribe(group => this.target_group = group);
+    }
+
+    // so that we get typechecking on close() :)
+    private finish(result: VcfImportDialogResult): void {
         this.dialogRef.close(result);
     }
 }

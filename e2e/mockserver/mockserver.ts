@@ -200,7 +200,7 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
-                case '/rest/v1/addresses_contact/sync':
+                case '/rest/v1/contacts/sync':
                     response.end(JSON.stringify(
                         {
                             status: 'success',
@@ -208,6 +208,7 @@ export class MockServer {
                                 newToken: 'e2e-1',
                                 added: this.contacts(),
                                 removed: [],
+                                to_migrate: 0,
                             }
                         }
                     ));
@@ -656,60 +657,11 @@ export class MockServer {
 
     contacts(): any[] {
         return [
-            {
-                'nickname' : 'Postpat',
-                'first_name' : 'Patrick',
-                'addresses' : [
-                    {
-                        'types' : [
-                            'home'
-                        ],
-                        'value' : {
-                            'street' : ' home street',
-                            'po_box' : ' ',
-                            'country' : 'Home country',
-                            'extended' : ' ',
-                            'city' : 'home city',
-                            'post_code' : 'home code',
-                            'region' : 'home region'
-                        }
-                    },
-                    {
-                        'value' : {
-                            'city' : 'work city',
-                            'post_code' : 'work code',
-                            'region' : 'work region',
-                            'extended' : ' ',
-                            'country' : 'work country',
-                            'street' : 'work street',
-                            'po_box' : ' '
-                        },
-                        'types' : [
-                            'work'
-                        ]
-                    }
-                ],
-                'categories' : [],
-                'urls' : [],
-                'last_name' : 'Postcode',
-                'id' : 'ID-MR-POSTCODE',
-                'birthday' : '',
-                'company' : 'Post Office #42',
-                'fullname' : 'Patrick Postcode',
-                'phones' : [
-                    {
-                        'types' : [
-                            'work'
-                        ],
-                        'value' : '333333333'
-                    }
-                ],
-                'emails' : [{ 'types': ['work'], 'value': 'patrick@post.no' }],
-                'department' : null,
-                'note' : '',
-                'show_as' : null,
-                'related' : []
-            }
+            [
+                "/contacts/ID-MR-POSTCODE.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
+                + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
+            ]
         ];
     }
 }
