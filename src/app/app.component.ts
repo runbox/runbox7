@@ -37,10 +37,10 @@ import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetabl
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
 import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI, FolderListEntry } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
-import { FolderListComponent } from './folder/folder.module';
+import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
 import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
@@ -48,7 +48,7 @@ import { WebSocketSearchService } from './websocketsearch/websocketsearch.servic
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, of } from 'rxjs';
+import { from, of, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -88,6 +88,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   entireHistoryInProgress = false;
 
+  displayedFolders = new Observable<FolderListEntry[]>();
   selectedFolder = 'Inbox';
 
   timeOfDay: string;
@@ -168,7 +169,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           }));
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
-      this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
+    this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
 
     this.messageActionsHandler.dialog = dialog;
     this.messageActionsHandler.draftDeskService = draftDeskService;
@@ -269,6 +270,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
     this.resetColumns();
+
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
@@ -276,6 +278,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.hasChanges = true;
       }
     });
+
+    this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
+      map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
+    );
+
     this.canvastable.scrollLimitHit.subscribe((limit) =>
       this.messagelistservice.requestMoreData(limit)
     );
@@ -375,6 +382,60 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.sidemenu.close();
         }
       }, 0);
+  }
+
+  // folder-related stuff: perhaps move to its own service
+
+  createFolder(newFolder: CreateFolderEvent) {
+    this.rmmapi.createFolder(
+      newFolder.parentId, newFolder.name
+    ).subscribe(() => {
+      this.messagelistservice.refreshFolderList();
+    });
+  }
+
+  deleteFolder(folderId: number) {
+    this.rmmapi.deleteFolder(folderId).subscribe(
+      () => this.messagelistservice.refreshFolderList()
+    );
+  }
+
+  moveFolder(event: MoveFolderEvent) {
+    this.rmmapi.moveFolder(event.sourceId, event.destinationId, event.order).subscribe(
+      () => this.messagelistservice.refreshFolderList()
+    );
+  }
+
+  renameFolder(folder: RenameFolderEvent) {
+    this.rmmapi.renameFolder(
+      folder.id, folder.name
+    ).subscribe(() => {
+      this.messagelistservice.refreshFolderList();
+    });
+  }
+
+  async emptyTrash(trashFolderName: string) {
+    console.log('found trash folder with name', trashFolderName);
+    const messageLists = await this.rmmapi.listAllMessages(
+      0, 0, 0,
+      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+      true, trashFolderName
+    ).toPromise();
+    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    this.messagelistservice.refreshFolderList();
+    console.log('Deleted from', trashFolderName);
+  }
+
+  async emptySpam(spamFolderName) {
+    console.log('found spam folder with name', spamFolderName);
+    const messageLists = await this.rmmapi.listAllMessages(
+      0, 0, 0,
+      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+      true, spamFolderName
+    ).toPromise();
+    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    this.messagelistservice.refreshFolderList();
+    console.log('Deleted from', spamFolderName);
   }
 
   public compose() {
@@ -692,7 +753,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-      this.messagelistservice.folderCountSubject.subscribe(folders => {
+      this.messagelistservice.folderListSubject.subscribe(folders => {
         const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
         this.searchService.moveMessagesToFolder(messageIds, folderPath);
       });
@@ -953,3 +1014,4 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 }
 
+// vim: set shiftwidth=2

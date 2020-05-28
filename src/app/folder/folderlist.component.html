@@ -39,22 +39,31 @@
               (dragstart)="dragFolderStart($event, node.folderId)">
               {{node.folderName}}
         </div>
-        <span *ngIf="node.newMessages" matBadge="{{node.newMessages}}" matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">&nbsp;</span>
-	      <span style="flex-grow: 1"></span>
-        <span class="foldersidebarcount">{{node.totalMessages}}</span>
+        <span *ngIf="folderMessageCounts | async as messageCounts">
+            <span
+                *ngIf="messageCounts[node.folderPath].unread > 0"
+                [matBadge]="messageCounts[node.folderPath].unread"
+                matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">
+                &nbsp;
+            </span>
+        </span>
+	    <span style="flex-grow: 1"></span>
+        <span *ngIf="folderMessageCounts | async as messageCounts">
+            <span class="foldersidebarcount">{{ messageCounts[node.folderPath].total }}</span>
+        </span>
         
         <ng-container [ngSwitch]="node.folderType">
           <ng-container *ngSwitchCase="'user'">
             <mat-menu #folderActionsMenu="matMenu">
-              <button mat-menu-item (click)="renameFolder(node)">
+              <button mat-menu-item (click)="renameFolderDialog(node)">
                 <mat-icon color="primary">border_color</mat-icon>
                 <span>Rename</span>
               </button>
-              <button mat-menu-item (click)="addSubFolder(node)">
+              <button mat-menu-item (click)="addSubFolderDialog(node)">
                 <mat-icon color="primary">create_new_folder</mat-icon>
                 <span>New Subfolder</span>
               </button>
-              <button mat-menu-item (click)="deleteFolder(node)">
+              <button mat-menu-item (click)="deleteFolderDialog(node)">
                 <mat-icon color="primary">delete</mat-icon>
                 <span>Delete</span>
               </button>
@@ -67,7 +76,7 @@
           </ng-container>  
           <ng-container *ngSwitchCase="'trash'">
             <mat-menu #trashFolderActionsMenu="matMenu">
-              <button mat-menu-item (click)="emptyTrash()">
+              <button mat-menu-item (click)="emptyTrash.next(node.folderName)">
                 <mat-icon>clear_all</mat-icon>
                 <span>Empty trash</span>              
               </button>
@@ -80,7 +89,7 @@
           </ng-container>
           <ng-container *ngSwitchCase="'spam'">
             <mat-menu #trashFolderActionsMenu="matMenu">
-              <button mat-menu-item (click)="emptySpam()">
+              <button mat-menu-item (click)="emptySpam.next(node.folderName)">
                 <mat-icon>clear_all</mat-icon>
                 <span>Move all to trash</span>              
               </button>
