@@ -92,6 +92,12 @@
     color: rgb(131, 131, 131);
 }
 
+#iframe {
+    border: 0;
+    height: 0px;
+    width: 100%;
+}
+
 .menuradiobutton {
     margin: 5px;
 }  
