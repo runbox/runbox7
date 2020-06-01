@@ -101,6 +101,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   lastSelectedRowIndex: number;
   selectedRowId: number;
+  openedRowId: number;
   searchtextfieldfocused = false;
 
   showMultipleSearchFields = false;
@@ -625,6 +626,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.selectedRowIds[selectedRowId] === true;
   }
 
+  public isOpenedRow(rowObj: any): boolean {
+    let openedRowId;
+    if (this.showingSearchResults) {
+      openedRowId = rowObj[0];
+    } else {
+      const msg: MessageInfo = rowObj;
+      openedRowId = msg.id;
+    }
+    return this.openedRowId === openedRowId;
+  }
+
   public clearSelection() {
     this.selectedRowId = null;
     this.selectedRowIds = {};
@@ -676,9 +688,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // If we clicked right of the checkbox, we wanted to open the email:
     if (columnIndex > 0) {
+      // selectedRow will change when we click on other checkboxes, this one
+      // stays attached to the opened email
+      this.openedRowId = this.selectedRowId;
       if (this.showingSearchResults) {
-        this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.selectedRowId, 3);
-        this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.selectedRowId);
+        this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.openedRowId, 3);
+        this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.openedRowId);
       } else if (this.showingWebSocketSearchResults) {
         const msg = (rowContent as WebSocketSearchMailRow);
         this.singlemailviewer.messageId = msg.id;
