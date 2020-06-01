@@ -39,6 +39,9 @@ describe('canvastable', () => {
             isSelectedRow: (rowObj: any): boolean => {
                 return false;
             },
+            isOpenedRow: (rowObj: any): boolean => {
+                return false;
+            },
             isBoldRow: (rowObj: any): boolean => {
                 return false;
             }
