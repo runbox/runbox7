@@ -138,16 +138,18 @@ export class ShoppingCartComponent implements OnInit {
 
         let products = await this.paymentsservice.products.toPromise();
 
-        // check if all the products in the cart had their details in the paymentservice
-        // this may not be true if they're coming from the URL for instance,
-        // and in that case we need to fetch them from the API anew
-        const neededPids = [];
+        // Check if all the products in the cart had their details in the paymentservice.
+        // This may not be true if they're coming from the URL for instance,
+        // and in that case we need to fetch them from the API anew.
+        // We'll keep these in a Set so that they don't contain duplicate values.
+        const neededPidsSet = new Set<number>();
         for (const i of cartItems) {
             const product = products.find(p => p.pid === i.pid);
             if (!product) {
-                neededPids.push(i.pid);
+                neededPidsSet.add(i.pid);
             }
         }
+        const neededPids = Array.from(neededPidsSet.values());
         if (neededPids.length > 0) {
             const extras = await this.rmmapi.getProducts(neededPids).toPromise();
             if (extras.length !== neededPids.length) {
