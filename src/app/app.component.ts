@@ -37,10 +37,10 @@ import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetabl
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
 import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI, FolderListEntry } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
-import { FolderListComponent } from './folder/folder.module';
+import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
 import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
@@ -48,7 +48,7 @@ import { WebSocketSearchService } from './websocketsearch/websocketsearch.servic
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, of } from 'rxjs';
+import { from, of, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -61,6 +61,10 @@ import {Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
+const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
+const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
+const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
+const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 
 @Component({
   moduleId: 'angular2/app/',
@@ -88,6 +92,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   entireHistoryInProgress = false;
 
+  displayedFolders = new Observable<FolderListEntry[]>();
   selectedFolder = 'Inbox';
 
   timeOfDay: string;
@@ -239,11 +244,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
-
-    const messagePaneSetting = localStorage.getItem('keepMessagePaneOpen');
-    if (messagePaneSetting) {
-      this.keepMessagePaneOpen = messagePaneSetting === 'true';
-    }
   }
 
   ngOnDestroy() {
@@ -271,6 +271,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
     this.resetColumns();
+
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
@@ -278,6 +279,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.hasChanges = true;
       }
     });
+
+    this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
+      map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
+    );
+
     this.canvastable.scrollLimitHit.subscribe((limit) =>
       this.messagelistservice.requestMoreData(limit)
     );
@@ -289,6 +295,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.autoAdjustColumnWidths()
     );
 
+    const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
+    if (contentPreview) {
+      this.canvastable.showContentTextPreview = contentPreview === 'true';
+    }
+
+    const messagePaneSetting = localStorage.getItem(LOCAL_STORAGE_KEEP_PANE);
+    if (messagePaneSetting) {
+      this.keepMessagePaneOpen = messagePaneSetting === 'true';
+    }
+
+    const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
+    if (showUnreadOnly) {
+      this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
+    }
+
+    const viewModeSetting = localStorage.getItem(LOCAL_STORAGE_VIEWMODE);
+    if (viewModeSetting) {
+      this.viewmode = viewModeSetting;
+      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
+    }
   }
 
   ngAfterViewInit() {
@@ -397,6 +423,60 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }, 0);
   }
 
+  // folder-related stuff: perhaps move to its own service
+
+  createFolder(newFolder: CreateFolderEvent) {
+    this.rmmapi.createFolder(
+      newFolder.parentId, newFolder.name
+    ).subscribe(() => {
+      this.messagelistservice.refreshFolderList();
+    });
+  }
+
+  deleteFolder(folderId: number) {
+    this.rmmapi.deleteFolder(folderId).subscribe(
+      () => this.messagelistservice.refreshFolderList()
+    );
+  }
+
+  moveFolder(event: MoveFolderEvent) {
+    this.rmmapi.moveFolder(event.sourceId, event.destinationId, event.order).subscribe(
+      () => this.messagelistservice.refreshFolderList()
+    );
+  }
+
+  renameFolder(folder: RenameFolderEvent) {
+    this.rmmapi.renameFolder(
+      folder.id, folder.name
+    ).subscribe(() => {
+      this.messagelistservice.refreshFolderList();
+    });
+  }
+
+  async emptyTrash(trashFolderName: string) {
+    console.log('found trash folder with name', trashFolderName);
+    const messageLists = await this.rmmapi.listAllMessages(
+      0, 0, 0,
+      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+      true, trashFolderName
+    ).toPromise();
+    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    this.messagelistservice.refreshFolderList();
+    console.log('Deleted from', trashFolderName);
+  }
+
+  async emptySpam(spamFolderName) {
+    console.log('found spam folder with name', spamFolderName);
+    const messageLists = await this.rmmapi.listAllMessages(
+      0, 0, 0,
+      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
+      true, spamFolderName
+    ).toPromise();
+    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    this.messagelistservice.refreshFolderList();
+    console.log('Deleted from', spamFolderName);
+  }
+
   public compose() {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
@@ -406,7 +486,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
-    localStorage.setItem('keepMessagePaneOpen', setting);
+    localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
+  }
+
+  saveContentPreviewSetting(): void {
+    const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
+    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
   }
 
   public trainSpam(params) {
@@ -713,7 +798,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-      this.messagelistservice.folderCountSubject.subscribe(folders => {
+      this.messagelistservice.folderListSubject.subscribe(folders => {
         const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
         this.searchService.moveMessagesToFolder(messageIds, folderPath);
       });
@@ -752,6 +837,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   updateViewMode(viewmode) {
     if (this.viewmode !== viewmode) {
       this.viewmode = viewmode;
+      localStorage.setItem(LOCAL_STORAGE_VIEWMODE, this.viewmode);
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
@@ -829,6 +915,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       return;
     }
+    const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
+    localStorage.setItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
 
@@ -960,7 +1049,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           const dialogRef = this.dialog.open(ConfirmDialog);
           dialogRef.componentInstance.title = 'Welcome to Runbox 7!';
           dialogRef.componentInstance.question =
-            `Runbox 7 will now synchronize  with your device to give you an optimal webmail experience.
+            `Runbox 7 will now synchronize with your device to give you an optimal webmail experience.
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;
           dialogRef.componentInstance.yesOptionTitle = `Sounds good, let's go!`;
           dialogRef.componentInstance.noOptionTitle = `Don't synchronize with this device.`;
@@ -987,3 +1076,4 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 }
 
+// vim: set shiftwidth=2

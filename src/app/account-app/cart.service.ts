@@ -48,7 +48,6 @@ export class CartService {
         const items = await this.items.pipe(take(1)).toPromise();
         // if an item like this is already ordered, increase the quantity
         for (const i of items) {
-            console.log('i is currently', i);
             if (i.isSameProduct(p)) {
                 i.quantity += p.quantity;
                 this.items.next(items);
@@ -78,7 +77,6 @@ export class CartService {
         const items = await this.items.pipe(take(1)).toPromise();
         // check if it's enough to just reduce the quantity on existing product
         for (const i of items) {
-            console.log('i is currently', i);
             if (i.isSameProduct(order)) {
                 i.quantity -= order.quantity;
                 const newItems = items.filter(o => o.quantity > 0);

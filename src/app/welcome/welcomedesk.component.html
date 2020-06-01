@@ -1,0 +1,77 @@
+<style>
+  div.welcomeDesk {
+      position: relative;
+      margin: 64px 20px 100px 30px;
+  }
+  div.welcomeDeskGrid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+  }
+  div.welcomeDeskGrid div {
+      flex-grow: 1;
+      width: 200px;
+      margin: 0 15px 15px 15px;
+      min-height: 100px;
+  }
+  div.welcomeDeskGrid h4 {
+      margin-bottom: 15px;
+  }
+  div.welcomeDeskGrid h4 mat-icon {
+      font-size: 1.4em;
+      height: 1em;
+      margin-right: 10px;
+  }
+</style>
+
+<div class="welcomeDesk">
+  <h1>Welcome to Runbox 7</h1>
+  <p>Let's get you set up with Runbox 7 and make you an email pro!</p>
+  <div class="welcomeDeskGrid">
+    <div>
+      <h4><mat-icon>network_check</mat-icon>Get up to speed</h4>
+      Get <a href="https://help.runbox.com/runbox-7-webmail-new-features/#Synchronized_account_index" target="help">synchronized</a> using the Runbox 7 app on all your devices.
+    </div>
+    
+    <div>
+      <h4><mat-icon>mail</mat-icon>Import your email</h4>
+      <a href="/mail/fetch" target="rmm6">Consolidate email</a> from your other email accounts.
+    </div>
+    
+    <div>
+      <h4><mat-icon>people</mat-icon>Import your contacts</h4>
+      Import all your <a routerLink="/contacts">contacts</a> from other email services.
+    </div>
+    
+    <div> 
+      <h4><mat-icon>domain</mat-icon>Set up Email and Domain Hosting</h4>
+      <a routerLink="/domainregistration">Register a new domain</a>, or complete <a href="/mail/account_domain">email hosting</a> setup.
+    </div>
+    
+    <div> 
+      <h4><mat-icon>security</mat-icon>Secure and manage your account</h4>
+      Set up <a href="/mail/account_security" target="rmm6">security measures</a> and manage your services.
+    </div>
+    
+    <div> 
+      <h4><mat-icon>settings</mat-icon>Configure your account</h4>
+      Change <a href="/mail/account" target="rmm6">settings</a> and make Runbox work the way you want.
+    </div>
+    
+    <div>
+      <h4><mat-icon>devices</mat-icon>Use an email program</h4>
+      Find out how to use your Runbox account with an <a href="https://help.runbox.com/email-programs/">email program</a> or app.
+    </div>
+    
+    <div>
+      <h4><mat-icon>card_membership</mat-icon>Subscribe or upgrade</h4>
+      <a routerLink="/account/components">Take full advantage of Runbox</a> with extra accounts and other add-ons.
+    </div>
+    
+    <div>
+      <h4><mat-icon>help</mat-icon>Learn more about Runbox</h4>
+      Find <a href="https://help.runbox.com/">documentation</a>, get <a href="https://support.runbox.com">support</a>, and learn about all the <a href="https://help.runbox.com/runbox-7-webmail-new-features/">Runbox 7 features</a>.
+    </div>
+  </div>
+  <p>Note: You can always return to this Welcome Desk by clicking the Welcome link in the top left corner.</p>
+</div>

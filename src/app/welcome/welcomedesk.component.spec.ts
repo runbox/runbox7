@@ -19,38 +19,21 @@
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ContactDetailsComponent } from './contact-details.component';
-import { ContactsAppModule } from '../contacts-app.module';
-import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { StorageService } from '../../storage.service';
-import { MatDialogModule } from '@angular/material/dialog';
-import { RouterTestingModule } from '@angular/router/testing';
-import { of } from 'rxjs';
+import { WelcomeDeskComponent } from './welcomedesk.component';
 
-describe('ContactDetailsComponent', () => {
-  let component: ContactDetailsComponent;
-  let fixture: ComponentFixture<ContactDetailsComponent>;
+describe('WelcomeDeskComponent', () => {
+  let component: WelcomeDeskComponent;
+  let fixture: ComponentFixture<WelcomeDeskComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ ContactsAppModule,
-          MatDialogModule,
-          RouterTestingModule.withRoutes([]) ],
-      providers: [
-        StorageService,
-        { provide: RunboxWebmailAPI, useValue: {
-          // Mocking empty responses from RMMAPI
-          me: of({ uid: 44 }),
-          getAllContacts: () => of([]),
-          getContactsSettings: () => of({})
-        }},
-      ]
+      declarations: [ WelcomeDeskComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ContactDetailsComponent);
+    fixture = TestBed.createComponent(WelcomeDeskComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

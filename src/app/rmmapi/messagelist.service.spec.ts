@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { MessageListService } from './messagelist.service';
-import { RunboxWebmailAPI, FolderCountEntry } from './rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 
 import { of, Subject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -28,7 +28,7 @@ describe('MessageListService', () => {
         const msglistservice = new MessageListService(
             {
                 messageFlagChangeSubject: new Subject(),
-                getFolderCount: () => {
+                getFolderList: () => {
                     return new Observable(observer => {
                         setTimeout(() =>
                             observer.next([
@@ -39,7 +39,7 @@ describe('MessageListService', () => {
                             [3692894, 0, 2, 'spam', 'CustomSpamFolderName', 'CustomSpamFolderName', 0],
                             [3692895, 3, 239, 'trash', 'Trash', 'Trash', 0],
                             [3693665, 0, 6, 'user', 'EmailPrivacyTester', 'EmailPrivacyTester', 0]
-                        ].map(entry => new FolderCountEntry(
+                        ].map(entry => new FolderListEntry(
                             entry[0] as number,
                             entry[1] as number,
                             entry[2] as number,
@@ -54,7 +54,7 @@ describe('MessageListService', () => {
         );
 
         expect(msglistservice.spamFolderName).toBe('Spam');
-        msglistservice.folderCountSubject.pipe(
+        msglistservice.folderListSubject.pipe(
             filter(folders =>
                 folders && folders.length > 0)
                 ).subscribe(() => {

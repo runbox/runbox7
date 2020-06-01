@@ -594,6 +594,12 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     text-decoration: underline;
 }
 
+/* Welcome Desk */
+.welcomedesk a {
+    color: mat-color($rmm-default-primary);
+    text-decoration: underline;
+}
+
 /* Folders */
 
 .mailFolder {
@@ -877,10 +883,16 @@ compose .mat-standard-chip {
 /* Contacts */
 
 .multiContactActions {
+    display: flex;
+    flex-flow: column;
     position: fixed;
     bottom: 50px;
     right: 50px;
     z-index: 10;
+}
+
+.multiContactActions button {
+    margin-top: 10px;
 }
 
 .contact-details-row {
