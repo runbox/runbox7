@@ -3,3 +3,14 @@
     border: 1px solid #949494;
     padding: 10px;
 }
+.draftPreview {
+    max-height: 100px;
+    overflow: hidden;
+
+    span {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
