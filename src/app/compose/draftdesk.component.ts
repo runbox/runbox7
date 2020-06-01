@@ -29,7 +29,8 @@ const MAX_DRAFTS_IN_VIEW = 10;
 @Component({
     moduleId: 'angular2/app/compose/',
     templateUrl: 'draftdesk.component.html',
-    providers: [RecipientsService]
+    providers: [RecipientsService],
+    styleUrls: ['draftdesk.component.scss']
 })
 export class DraftDeskComponent implements OnInit, AfterViewInit {
     public draftModelsInView: DraftFormModel[];
