@@ -99,7 +99,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   conversationSearchText: string;
 
-  lastSelectedRowIndex: number;
+  openedRowIndex: number;
   selectedRowId: number;
   openedRowId: number;
   searchtextfieldfocused = false;
@@ -185,14 +185,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (this.singlemailviewer.messageId) {
         if (evt.code === 'ArrowUp') {
-          const newRowIndex = this.lastSelectedRowIndex - 1;
+          const newRowIndex = this.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
-          const newRowIndex = this.lastSelectedRowIndex + 1;
+          const newRowIndex = this.openedRowIndex + 1;
           if (newRowIndex < this.canvastable.rows.length) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
             this.canvastable.hasChanges = true;
@@ -646,7 +646,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (!rowContent) {
       return;
     }
-    this.lastSelectedRowIndex = rowIndex;
     let selectedRowId;
     if (this.showingSearchResults) {
       selectedRowId = rowContent[0];
@@ -691,6 +690,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // selectedRow will change when we click on other checkboxes, this one
       // stays attached to the opened email
       this.openedRowId = this.selectedRowId;
+      this.openedRowIndex = rowIndex;
+
       if (this.showingSearchResults) {
         this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.openedRowId, 3);
         this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.openedRowId);
@@ -775,7 +776,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
-  //  this.clearSelection();
+    this.openedRowId = null;
   }
 
   searchTextFieldFocus() {
@@ -817,6 +818,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.openedRowId = null;
         ProgressDialog.close();
       });
   }
@@ -836,6 +838,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.openedRowId = null;
       }
     });
   }
