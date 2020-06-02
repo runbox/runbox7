@@ -172,8 +172,12 @@ mat-grid-tile.tableTitle {
 .themePaletteBackground {
     color: mat-color($rmm-default-background);
 }
+
+.themePaletteLighterGray {
+    color: #eeeeee;
+}
 .themePaletteLightGray {
-    color: #eee;
+    color: #f4f4f4;
 }
 .themePaletteDarkGray {
     color: #949494;

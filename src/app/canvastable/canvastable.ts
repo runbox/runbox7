@@ -52,6 +52,7 @@ const getCSSClassProperty = (className, propertyName) => {
 export interface CanvasTableSelectListener {
   rowSelected(rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void;
   isSelectedRow(rowObj: any): boolean;
+  isOpenedRow(rowObj: any): boolean;
   isBoldRow(rowObj: any): boolean;
 }
 
@@ -187,13 +188,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.recalculateColumnSections();
       this.calculateColumnFooterSums();
       this.hasSortColumns = columns.filter(col => col.sortColumn !== null).length > 0;
-      this.hasChanges = true;
-    }
+      this.hasChanges = true;    }
   }
 
   // Colors retrieved from css classes
   textColorLink: string = getCSSClassProperty('themePalettePrimary', 'color');
   selectedRowColor: string = getCSSClassProperty('themePaletteAccentLighter', 'color');
+  openedRowColor: string = getCSSClassProperty('themePaletteLighterGray', 'color');
   hoverRowColor: string = getCSSClassProperty('themePaletteLightGray', 'color');
   textColor: string = getCSSClassProperty('themePaletteBlack', 'color');
 
@@ -1044,11 +1045,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
         const isBoldRow = this.selectListener.isBoldRow(rowobj);
         const isSelectedRow = this.selectListener.isSelectedRow(rowobj);
+        const isOpenedRow = this.selectListener.isOpenedRow(rowobj);
         if (this.hoverRowIndex === rowIndex) {
           rowBgColor = this.hoverRowColor;
         }
         if (isSelectedRow) {
           rowBgColor = this.selectedRowColor;
+        }
+        if (isOpenedRow) {
+          rowBgColor = this.openedRowColor;
         }
 
         this.ctx.fillStyle = rowBgColor;

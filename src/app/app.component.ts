@@ -99,8 +99,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   conversationSearchText: string;
 
-  lastSelectedRowIndex: number;
+  openedRowIndex: number;
   selectedRowId: number;
+  openedRowId: number;
   searchtextfieldfocused = false;
 
   showMultipleSearchFields = false;
@@ -182,16 +183,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.snackBar = snackBar;
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
-      if (Object.keys(this.selectedRowIds).length === 1 && this.singlemailviewer.messageId) {
+      if (this.singlemailviewer.messageId) {
         if (evt.code === 'ArrowUp') {
-          const newRowIndex = this.lastSelectedRowIndex - 1;
+          const newRowIndex = this.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
-          const newRowIndex = this.lastSelectedRowIndex + 1;
+          const newRowIndex = this.openedRowIndex + 1;
           if (newRowIndex < this.canvastable.rows.length) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
             this.canvastable.hasChanges = true;
@@ -577,6 +578,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       .subscribe(() => {
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+          this.singlemailviewer.close();
+        }
       });
   }
 
@@ -622,6 +626,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.selectedRowIds[selectedRowId] === true;
   }
 
+  public isOpenedRow(rowObj: any): boolean {
+    let openedRowId;
+    if (this.showingSearchResults) {
+      openedRowId = rowObj[0];
+    } else {
+      const msg: MessageInfo = rowObj;
+      openedRowId = msg.id;
+    }
+    return this.openedRowId === openedRowId;
+  }
+
   public clearSelection() {
     this.selectedRowId = null;
     this.selectedRowIds = {};
@@ -631,7 +646,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (!rowContent) {
       return;
     }
-    this.lastSelectedRowIndex = rowIndex;
     let selectedRowId;
     if (this.showingSearchResults) {
       selectedRowId = rowContent[0];
@@ -642,58 +656,72 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       selectedRowId = msg.id;
     }
 
+    // multiSelect just means do these, nothing else:
+    // multiSelect is true if we're applying rowSelect in a loop
+    this.selectedRowId = selectedRowId;
 
-    if (!multiSelect && columnIndex > 0) {
+    // flip sense of selected row (deleted below if now false)
+    if (columnIndex >= -1) {
+      this.selectedRowIds[this.selectedRowId] = !this.selectedRowIds[this.selectedRowId];
+    }
+    if (multiSelect) {
+      // MS is a special snowflake:
+      this.selectedRowIds[this.selectedRowId] = true;
+      return;
+    }
+
+    // click anywhere on a row right of the checkbox, reset the selected rows
+    // as we want to open the email instead
+    if (columnIndex > 0) {
       this.selectedRowIds = {};
     }
 
     // columnIndex == -1 if drag & drop
-    if (!multiSelect && columnIndex > -1 && this.selectedRowIds[selectedRowId]) {
+    // columnIndex == 0 is the checkbox
+    // we're removing this one from the selected list (sense reversed
+    // above, but we only remove when not in multiSelect mode)
+    if (columnIndex === 0 && !this.selectedRowIds[this.selectedRowId]) {
+      this.selectedRowId = null;
       delete this.selectedRowIds[selectedRowId];
-      selectedRowId = Object.keys(this.selectedRowIds).find((k) => this.selectedRowIds[k]);
-      if (selectedRowId) {
-        this.selectedRowId = parseInt(selectedRowId, 10);
-      } else {
-        this.selectedRowId = null;
-      }
-
-    } else {
-      this.selectedRowId = selectedRowId;
-      this.selectedRowIds[this.selectedRowId] = true;
-
-      if (!multiSelect && columnIndex > 1) {
-        if (this.showingSearchResults) {
-          this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.selectedRowId, 3);
-          this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.selectedRowId);
-        } else if (this.showingWebSocketSearchResults) {
-          const msg = (rowContent as WebSocketSearchMailRow);
-          this.singlemailviewer.messageId = msg.id;
-          this.singlemailviewer.expectedMessageSize = msg.size;
-        } else {
-          const msg: MessageInfo = rowContent;
-          this.singlemailviewer.messageId = msg.id;
-          this.singlemailviewer.expectedMessageSize = msg.size;
-        }
-
-        if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
-          this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
-          localStorage.setItem('messageSubjectDragTipShown', 'true');
-        }
-        if (this.viewmode === 'conversations' && rowContent[2] !== '1') {
-          this.viewmode = 'singleconversation';
-          this.resetColumns();
-          this.clearSelection();
-
-          const conversationId =
-            this.searchService.api.getStringValue(rowContent[0], 1)
-              .replace(/[^0-9A-Z]/g, '_');
-
-          this.conversationSearchText = 'conversation:' + conversationId + '..' + conversationId;
-          this.updateSearch(true);
-        }
-      }
     }
 
+    // If we clicked right of the checkbox, we wanted to open the email:
+    if (columnIndex > 0) {
+      // selectedRow will change when we click on other checkboxes, this one
+      // stays attached to the opened email
+      this.openedRowId = this.selectedRowId;
+      this.openedRowIndex = rowIndex;
+
+      if (this.showingSearchResults) {
+        this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.openedRowId, 3);
+        this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.openedRowId);
+      } else if (this.showingWebSocketSearchResults) {
+        const msg = (rowContent as WebSocketSearchMailRow);
+        this.singlemailviewer.messageId = msg.id;
+        this.singlemailviewer.expectedMessageSize = msg.size;
+      } else {
+        const msg: MessageInfo = rowContent;
+        this.singlemailviewer.messageId = msg.id;
+        this.singlemailviewer.expectedMessageSize = msg.size;
+      }
+
+      if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
+        this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
+        localStorage.setItem('messageSubjectDragTipShown', 'true');
+      }
+      if (this.viewmode === 'conversations' && rowContent[2] !== '1') {
+        this.viewmode = 'singleconversation';
+        this.resetColumns();
+        this.clearSelection();
+
+        const conversationId =
+          this.searchService.api.getStringValue(rowContent[0], 1)
+          .replace(/[^0-9A-Z]/g, '_');
+
+        this.conversationSearchText = 'conversation:' + conversationId + '..' + conversationId;
+        this.updateSearch(true);
+      }
+    }
   }
 
   updateTime() {
@@ -748,7 +776,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
-    this.clearSelection();
+    this.openedRowId = null;
   }
 
   searchTextFieldFocus() {
@@ -790,6 +818,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.openedRowId = null;
         ProgressDialog.close();
       });
   }
@@ -809,6 +838,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.openedRowId = null;
       }
     });
   }
