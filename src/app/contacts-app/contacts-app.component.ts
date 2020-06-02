@@ -18,16 +18,19 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, ViewChild } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 
-import { Contact } from './contact';
+import { Contact, ContactKind, GroupMember } from './contact';
 import { ContactsService } from './contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
-import { VcfImportDialogComponent } from './vcf-import-dialog.component';
+import { GroupPickerDialogComponent } from './group-picker-dialog-component';
+import { VcfImportDialogComponent, VcfImportDialogResult } from './vcf-import-dialog.component';
+
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
@@ -49,6 +52,7 @@ export class ContactsAppComponent {
 
     categories  = [];
     categoryFilter = 'RUNBOX:ALL';
+    hasGroups = false;
     searchTerm  = '';
 
     sideMenuOpened = true;
@@ -56,7 +60,7 @@ export class ContactsAppComponent {
     @ViewChild('vcfUploadInput') vcfUploadInput: any;
 
     constructor(
-        private contactsservice: ContactsService,
+        public  contactsservice: ContactsService,
         private dialog:          MatDialog,
         private http:            HttpClient,
         public  mobileQuery:     MobileQueryService,
@@ -65,9 +69,10 @@ export class ContactsAppComponent {
         private snackBar:        MatSnackBar
     ) {
         console.log('Contacts.app: waiting for backend contacts...');
-        this.contactsservice.contactsSubject.subscribe(c => {
+        this.contactsservice.contactsSubject.subscribe(contacts => {
             console.log('Contacts.app: got the contacts!');
-            this.contacts = c;
+            this.contacts = contacts;
+            this.hasGroups = !!this.contacts.find(c => c.kind === ContactKind.GROUP);
             this.filterContacts();
         });
 
@@ -109,21 +114,35 @@ export class ContactsAppComponent {
         });
     }
 
-    deleteSelected(): void {
-        const toDelete = [];
-        for (const id of Object.keys(this.selectedIDs)) {
-            if (this.selectedIDs[id]) {
-                toDelete.push(id);
-            }
+    addSelectedToGroup(): void {
+        const toAdd = this.contacts.filter(c => this.selectedIDs[c.id]);
+
+        if (toAdd.find(c => c.kind === ContactKind.GROUP)) {
+            this.snackBar.open('Groups cannot be added to groups', 'Ok', {
+                duration: 5000,
+            });
+            return;
         }
 
+        const dialogRef = this.dialog.open(GroupPickerDialogComponent, {
+            data: { groups: this.contacts.filter(c => c.kind === ContactKind.GROUP) }
+        });
+        dialogRef.afterClosed().subscribe(group => {
+            if (group) {
+                this.addContactsToGroup(group, toAdd);
+                this.resetSelection();
+            }
+        });
+    }
+
+    deleteSelected(): void {
+        const toDelete = this.contacts.filter(c => this.selectedIDs[c.id]);
         this.contacts = this.contacts.filter(c => !this.selectedIDs[c.id]);
         this.filterContacts();
-        this.selectedIDs = {};
-        this.selectedCount = 0;
+        this.resetSelection();
 
         this.contactsservice.deleteMultiple(toDelete).then(_ => {
-            this.showNotification(`Deleted ${toDelete.length} contacts}`);
+            this.showNotification(`Deleted ${toDelete.length} contacts`);
             this.contactsservice.reload();
         });
     }
@@ -175,22 +194,53 @@ export class ContactsAppComponent {
     }
 
     processVcfImport(vcf: string) {
-        this.contactsservice.importContacts(vcf).subscribe(contacts => {
-            const dialogRef = this.dialog.open(VcfImportDialogComponent, {
-                data: { contacts: contacts, categories: this.categories }
-            });
-            dialogRef.afterClosed().subscribe(result => {
-                if (!result) {
-                    return;
+        let contacts: Contact[];
+        try {
+            contacts = Contact.fromVcf(vcf);
+        } catch {
+            this.showError('Error parsing contacts: is it a proper VCF file?');
+            return;
+        }
+        const dialogRef = this.dialog.open(VcfImportDialogComponent, {
+            data: {
+                contacts: contacts,
+                categories: this.categories,
+                groups: this.contacts.filter(c => c.kind === ContactKind.GROUP)
+            }
+        });
+        dialogRef.afterClosed().subscribe((result: VcfImportDialogResult) => {
+            if (!result) {
+                return;
+            }
+            for (const c of contacts) {
+                // Assign an uuid unless it already has one.
+                // Without it we won't be able to add them to groups if requested
+                if (!c.id) {
+                    c.id = uuidv4().toUpperCase();
                 }
-                for (const c of contacts) {
-                    if (result['category']) {
-                        c.categories.push(result['category']);
+                // Check if contact already present:
+                const foundContact = this.contacts.find(contact => contact.id === c.id);
+                if (foundContact) {
+                    this.showNotification('Contact already exists, not importing: ' + c.id);
+                } else {
+                    if (result.stripCategories) {
+                        c.categories = [];
+                    }
+                    if (result.newCategory) {
+                        c.categories = c.categories.concat(result.newCategory);
                     }
                     this.contactsservice.saveContact(c);
                 }
-            });
+            }
+            if (result.addToGroup) {
+                this.addContactsToGroup(result.addToGroup, contacts);
+            }
         });
+    }
+
+    resetSelection(): void {
+        this.selectedIDs = {};
+        this.selectedCount = 0;
     }
 
     selectAll(): void {
@@ -206,10 +256,13 @@ export class ContactsAppComponent {
         });
     }
 
-    showError(e: HttpErrorResponse): void {
+    showError(e: any): void {
         let message = '';
+        console.log('Showing error:', e);
 
-        if (e.error.error) {
+        if (typeof e === 'string') {
+            message = e;
+        } else if (e.error.error) {
             message = e.error.error;
         } else if (e.status === 500) {
             message = 'Internal server error';
@@ -229,13 +282,31 @@ export class ContactsAppComponent {
             let firstname_order: number;
             let lastname_order: number;
 
+            // Show groups first.
+            // Once we get a separate UI elements for them it won't be necessary,
+            // but before that's in this will still improve things.
+            if (a.kind !== b.kind) {
+                if (a.kind === ContactKind.GROUP) {
+                    return -1;
+                }
+                if (b.kind === ContactKind.GROUP) {
+                    return 1;
+                }
+
+                // if they're different kinds but neither is a group
+                // then we'll sort them as regular contacts below
+            } else if (a.kind === ContactKind.GROUP) {
+                // they're both groups, so they don't have first and last names anyway
+                return a.full_name.localeCompare(b.full_name);
+            }
+
             // all this complexity is so that the null values are always treated
             // as last if they were alphabetically last
             if (a.first_name === b.first_name) {
                 firstname_order = 0;
-            } else if (a.first_name === null) {
+            } else if (!a.first_name) {
                 firstname_order = 1;
-            } else if (b.first_name === null) {
+            } else if (!b.first_name) {
                 firstname_order = -1;
             } else {
                 firstname_order = a.first_name.localeCompare(b.first_name);
@@ -243,9 +314,9 @@ export class ContactsAppComponent {
 
             if (a.last_name === b.last_name) {
                 lastname_order = 0;
-            } else if (a.last_name === null) {
+            } else if (!a.last_name) {
                 lastname_order = 1;
-            } else if (b.last_name === null) {
+            } else if (!b.last_name) {
                 lastname_order = -1;
             } else {
                 lastname_order = a.last_name.localeCompare(b.last_name);
@@ -268,4 +339,22 @@ export class ContactsAppComponent {
             }
         });
     }
+
+    dragStarted(ev: DragEvent, contact: Contact) {
+        if (contact.kind === ContactKind.GROUP) {
+            // this prevents the drag from happening
+            ev.preventDefault();
+        } else {
+            ev.dataTransfer.setData('contact', contact.id);
+        }
+    }
+
+    private addContactsToGroup(group: Contact, members: Contact[]): void {
+        const newMembers = members.filter(
+            nm => !group.members.find(gm => gm.uuid === nm.id)
+        ).map(c => GroupMember.fromUUID(c.id));
+        group.members = group.members.concat(newMembers);
+        this.contactsservice.saveContact(group);
+    }
+
 }

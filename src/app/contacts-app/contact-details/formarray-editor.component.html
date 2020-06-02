@@ -11,41 +11,13 @@
     <div [formGroup]="inputFG" *ngIf="!hidden">
         <div [formArrayName]="faName" *ngFor="let elem of faObj.controls; let i=index">
             <div class="contact-details-row" [formGroupName]="i">
-                <mat-form-field *ngFor="let type of elem.get('types').controls; let j=index">
-                    <mat-select placeholder="Type" [formControl]="type">
-                        <mat-option> None </mat-option>
-                        <!-- I'd rather now have these hardcoded, but you can't really ngFor-generate them for now:
-                             they hang up the browser for some reason. Someone's SA:
-                             https://stackoverflow.com/questions/54954934/nested-forms-and-control-vs-value-help-needed
-                        -->
-                        <div *ngIf="faName === 'emails'">
-                            <mat-option value="home"> Personal </mat-option>
-                            <mat-option value="work"> Work     </mat-option>
-                        </div>
-
-                        <div *ngIf="faName === 'related'">
-                            <mat-option value="child">  Child  </mat-option>
-                            <mat-option value="spouse"> Spouse </mat-option>
-                        </div>
-
-                        <div *ngIf="faName === 'phones'">
-                            <mat-option value="home"> Home </mat-option>
-                            <mat-option value="work"> Work </mat-option>
-                            <mat-option value="cell"> Cell </mat-option>
-                            <mat-option value="fax">  Fax  </mat-option>
-                        </div>
-
-                        <div *ngIf="faName === 'urls'">
-                            <mat-option value="personal"> Personal </mat-option>
-                            <mat-option value="work">     Work     </mat-option>
-                        </div>
-
-                        <div *ngIf="faName === 'addresses'">
-                            <mat-option value="home"> Home </mat-option>
-                            <mat-option value="work"> Work </mat-option>
-                        </div>
-                    </mat-select>
-                </mat-form-field>
+                <app-contact-details-multivalue-editor
+                    [inputFC]="elem.get('types')"
+                    [defaultOptions]="defaultTypesFor[faName] || []"
+                    label="Types"
+                    noValuesLabel="No types"
+                    newValueLabel="New type"
+                ></app-contact-details-multivalue-editor>
                 <ng-container *ngIf="layout === 'simple'">
                     <mat-form-field>
                         <input matInput formControlName="value" [placeholder]="valuePlaceholder">
@@ -61,7 +33,7 @@
                         </a>
                     </div>
                     <div class="mat-form-field">
-                        <a mat-button (click)="removeAt(i)" *ngIf="editable">
+                        <a mat-button (click)="removeAt(i)">
                             <mat-icon>delete</mat-icon> {{ deleteDescription }}
                         </a>
                     </div>
@@ -77,7 +49,7 @@
                             <input matInput formControlName="city" placeholder="City">
                         </mat-form-field>
                         <div class="mat-form-field">
-                            <a mat-button (click)="removeAt(i)" *ngIf="editable">
+                            <a mat-button (click)="removeAt(i)">
                                 <mat-icon>delete</mat-icon> {{ deleteDescription }}
                             </a>
                         </div>
@@ -98,7 +70,7 @@
         </div>
 
         <div>
-            <a mat-button (click)="newElementClicked.emit()" *ngIf="editable">
+            <a mat-button (click)="newElementClicked.emit()">
                 <mat-icon>add</mat-icon> {{ addNewDescription }}
             </a>
         </div>

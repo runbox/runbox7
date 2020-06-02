@@ -24,7 +24,7 @@ import { MoveMessageDialogComponent } from './movemessage.action';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
-import { RunboxWebmailAPI, FolderCountEntry } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
 import { Observable } from 'rxjs/Observable';
 import { SearchService } from '../xapian/searchservice';
 import { Router } from '@angular/router';
@@ -47,9 +47,9 @@ export class TestComponent implements OnInit {
 }
 
 export class MockRunboxWebmailAPI {
-    public getFolderCount(): Observable<any> {
+    public getFolderList(): Observable<any> {
         return new Observable((observer) =>
-            observer.next([new FolderCountEntry(234, 3, 3, 'user', 'Blabla', '/', 0)])
+            observer.next([new FolderListEntry(234, 3, 3, 'user', 'Blabla', '/', 0)])
         );
     }
 
@@ -107,7 +107,7 @@ describe('MoveMessageAction', () => {
         tick();
         fixture.detectChanges();
 
-        const folders = dialogRef.componentInstance.folderCountEntries;
+        const folders = dialogRef.componentInstance.folderListEntries;
         expect(folders.length).toBe(1);
         expect(folders[0].folderId).toBe(234);
         expect(folders[0].folderName).toBe('Blabla');

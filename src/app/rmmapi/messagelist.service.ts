@@ -17,20 +17,32 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {throwError as observableThrowError,  BehaviorSubject ,  Observable } from 'rxjs';
+import {throwError as observableThrowError,  BehaviorSubject ,  Observable, ReplaySubject } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { RunboxWebmailAPI, FolderCountEntry } from './rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
 import { MessageInfo } from '../xapian/messageinfo';
 import { AppComponent } from '../app.component';
 import { CanvasTableColumn } from '../canvastable/canvastable';
 import { MessageTableRowTool } from '../messagetable/messagetablerow';
-import { catchError, map, filter } from 'rxjs/operators';
+import { catchError, map, filter, take } from 'rxjs/operators';
+
+export class FolderMessageCountEntry {
+    constructor(
+        public unread: number,
+        public total:  number,
+    ) { }
+}
+
+export interface FolderMessageCountMap {
+    [folderPath: string]: FolderMessageCountEntry;
+}
 
 @Injectable()
 export class MessageListService {
     messagesInViewSubject: BehaviorSubject<MessageInfo[]> = new BehaviorSubject([]);
-    folderCountSubject: BehaviorSubject<FolderCountEntry[]> = new BehaviorSubject([]);
+    folderListSubject: BehaviorSubject<FolderListEntry[]> = new BehaviorSubject([]);
+    folderMessageCountSubject: ReplaySubject<FolderMessageCountMap> = new ReplaySubject(1);
     folders: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     currentFolder = 'Inbox';
@@ -42,14 +54,16 @@ export class MessageListService {
     spamFolderName = 'Spam';
 
     public fetchInProgress = false;
+    // Initialized "manually" by SearchService.
+    // Can't be depedency-injected because of a circular dependency
     public searchservice: SearchService;
 
     constructor(
         public rmmapi: RunboxWebmailAPI
     ) {
-        this.refreshFolderCount();
+        this.refreshFolderList().then(folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders)));
 
-        this.folderCountSubject.subscribe((foldercounts) =>
+        this.folderListSubject.subscribe((foldercounts) =>
             this.folders.next(
                 foldercounts.map((fld) => [fld.folderName, fld.totalMessages,
                     fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
@@ -68,7 +82,7 @@ export class MessageListService {
                 if (msgFlagChange.flaggedFlag === true || msgFlagChange.flaggedFlag === false) {
                     this.messagesById[msgFlagChange.id].flaggedFlag = msgFlagChange.flaggedFlag;
                 }
-                this.refreshFolderCount();
+                this.refreshFolderCounts();
             });
     }
 
@@ -84,19 +98,48 @@ export class MessageListService {
         }
     }
 
+    private getFolderCountsFor(folders: FolderListEntry[]): FolderMessageCountMap {
+        const folderCounts = {};
+        for (const f of folders) {
+            folderCounts[f.folderPath] = new FolderMessageCountEntry(
+                f.newMessages,
+                f.totalMessages,
+            );
+        }
+        return folderCounts;
+    }
 
-    public refreshFolderCount() {
-        this.rmmapi.getFolderCount().subscribe((folders) => {
-            const trashfolder = folders.find(folder => folder.folderType === 'trash');
-            if (trashfolder) {
-                this.trashFolderName = trashfolder.folderName;
-            }
-            const spamfolder = folders.find(folder => folder.folderType === 'spam');
-            if (spamfolder) {
-                this.spamFolderName = spamfolder.folderName;
-            }
+    public refreshFolderCounts() {
+        if (this.searchservice.localSearchActivated) {
+            this.folderListSubject.pipe(take(1)).subscribe((folders) => {
+                const folderCounts = {};
+                for (const path of folders.map(f => f.folderPath)) {
+                    folderCounts[path] = this.searchservice.getMessageCountsForFolder(path);
+                }
+                this.folderMessageCountSubject.next(folderCounts);
+            });
+        } else {
+            this.refreshFolderList().then(
+                folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders))
+            );
+        }
+    }
 
-            this.folderCountSubject.next(folders);
+    public refreshFolderList(): Promise<FolderListEntry[]> {
+        return new Promise((resolve, _) => {
+            this.rmmapi.getFolderList().subscribe((folders) => {
+                const trashfolder = folders.find(folder => folder.folderType === 'trash');
+                if (trashfolder) {
+                    this.trashFolderName = trashfolder.folderName;
+                }
+                const spamfolder = folders.find(folder => folder.folderType === 'spam');
+                if (spamfolder) {
+                    this.spamFolderName = spamfolder.folderName;
+                }
+
+                this.folderListSubject.next(folders);
+                resolve(folders);
+            });
         });
     }
 
@@ -163,7 +206,7 @@ export class MessageListService {
 
         if (hasChanges) {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
-            this.refreshFolderCount();
+            this.refreshFolderList();
         }
     }
 
