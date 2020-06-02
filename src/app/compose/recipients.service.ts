@@ -63,7 +63,6 @@ export class RecipientsService {
                     }
 
                     contact.emails.forEach(email => {
-                        const recipientString = `"${contact.first_and_last_name()}" <${email.value}>`;
                         recipientsMap[email.value] = Recipient.fromContact(contact, email.value);
                     });
 
@@ -75,7 +74,7 @@ export class RecipientsService {
                     });
                 });
 
-                const result = Object.keys(recipientsMap).map(mailaddr => recipientsMap[mailaddr]);
+                const result = Object.values(recipientsMap);
 
                 for (const category of Object.keys(categories)) {
                     result.unshift(Recipient.fromCategory(category, categories[category]));
