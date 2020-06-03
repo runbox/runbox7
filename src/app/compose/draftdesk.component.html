@@ -1,6 +1,6 @@
-<div style="position: absolute; top: 64px; bottom: 0px; left: 0px; right: 0px; display: flex; flex-wrap: wrap; padding: 0 10px 10px 0;">
-    <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft [style.width]="draft.editing ? '100%' : 'auto'" *ngFor="let draftModel of draftModelsInView"></compose>
-    <div *ngIf="hasMoreDrafts" style="width: 180px; height: 180px; text-align: center; padding-top: 80px">            
+<div class="draftdesk-container">
+    <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView"></compose>
+    <div *ngIf="hasMoreDrafts" class="has-more-drafts">            
         <button mat-icon-button mat-tooltip="Show more" (click)="showMore()" style="transform: scale(4,4);">
             <mat-icon>more_horiz</mat-icon>
         </button>        
