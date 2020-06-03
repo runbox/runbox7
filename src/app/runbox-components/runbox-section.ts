@@ -59,11 +59,11 @@ import { RMM } from '../rmm';
     `],
     template: `
     <div class="app-runbox-section">
-        <div style="background: #e1eeff; padding: 15px; martin-top: 15px;"
+        <div style="background: #e1eeff; padding: 15px;"
             [ngStyle]="{'background-color': sizes[size].background}"
             *ngIf="is_header_open"
             ><ng-content select="[runbox-section-header]" style="margin-top: 20px;"></ng-content></div>
-        <ng-content select="[runbox-section-content]" style="margin-top: 20px;"></ng-content>
+        <ng-content select="[runbox-section-content]" style="margin: 20px 0 0 20px;"></ng-content>
     </div>
     `
 })

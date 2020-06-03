@@ -34,7 +34,7 @@ export class AccountSecurityService {
         },
         'dovecot-imap' : {
             name : 'IMAP',
-            description : 'IMAP service for email programs/apps.'
+            description : 'IMAP service for email programs/apps that synchronizes all your email.'
         },
         'dovecot-pop' : {
             name : 'POP',
