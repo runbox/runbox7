@@ -86,8 +86,8 @@ export class RecipientsService {
 
                 contact.emails.forEach(email => {
                     this.recipientsUpdating.push({
-                        'origin':'contacts',
-                        'uniqueKey':email.value,
+                        'origin': 'contacts',
+                        'uniqueKey': email.value,
                         'recipient': Recipient.fromContact(contact, email.value)
                     });
                 });
@@ -102,15 +102,15 @@ export class RecipientsService {
 
             for (const category of Object.keys(categories)) {
                 this.recipientsUpdating.push({
-                    'origin':'contacts',
-                    'uniqueKey':category,
+                    'origin': 'contacts',
+                    'uniqueKey': category,
                     'recipient': Recipient.fromCategory(category, categories[category])});
             }
 
             Promise.all(
                 groups.map(g => this.recipientFromGroup(g))
-            ).then((groups) => {
-                this.updateRecipients(groups);
+            ).then((updateGroups) => {
+                this.updateRecipients(updateGroups);
             }).catch(
                 () => this.recipients.next([])
             ).finally(() => {
@@ -120,7 +120,7 @@ export class RecipientsService {
     }
 
     private updateRecipients(groups: Recipient[] = []) {
-        const uniqueRecipients: {[uniqueKey:string]: Recipient} = {};
+        const uniqueRecipients: {[uniqueKey: string]: Recipient} = {};
         this.recipientsUpdating.forEach(entry => {
             uniqueRecipients[entry['uniqueKey']] = entry['recipient']
         });
