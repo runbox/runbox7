@@ -31,8 +31,6 @@ export class RecipientsService {
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
     // Need to be able to update from 2 different subscriptions
     recipientsUpdating: { origin: string, uniqueKey: string, recipient: Recipient }[] = [];
-    // Managing access to the above list
-    isUpdating = false;
 
     constructor(
         searchService: SearchService,
@@ -40,11 +38,6 @@ export class RecipientsService {
     ) {
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
             if (hasSearchIndex) {
-                // Can this ever get wedged?
-                if (this.isUpdating) {
-                    return;
-                }
-                this.isUpdating = true;
                 this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== 'search');
 
                 // Get all recipient terms from search index
@@ -65,15 +58,10 @@ export class RecipientsService {
 //                        searchRecipients[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
                     });
                 this.updateRecipients();
-                this.isUpdating = false;
             }
         });
 
         contactsService.contactsSubject.subscribe(contacts => {
-            if (this.isUpdating) {
-                return;
-            }
-            this.isUpdating = true;
             this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== 'contacts');
 
             const categories = {};
@@ -113,9 +101,7 @@ export class RecipientsService {
                 this.updateRecipients(updateGroups);
             }).catch(
                 () => this.recipients.next([])
-            ).finally(() => {
-                this.isUpdating = false;
-            });
+            );
         });
     }
 
