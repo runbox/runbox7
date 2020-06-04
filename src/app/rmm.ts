@@ -20,19 +20,23 @@ import { Injectable } from '@angular/core';
 import { timeout } from 'rxjs/operators';
 import { UserAgent } from './rmm/useragent';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Email } from './rmm/email';
 import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
 @Injectable({
     providedIn: 'root',
 })
+
 export class RMM {
     public ua: UserAgent;
     public profile: Profile;
     public alias: Alias;
     public me: Me;
+    public email: Email;
     public runbox_domain: RunboxDomain;
     constructor(
         public http: HttpClient,
@@ -43,6 +47,7 @@ export class RMM {
         this.alias = new Alias(this);
         this.me = new Me(this);
         this.runbox_domain = new RunboxDomain(this);
+        this.email = new Email(this);
     }
 
     public show_error ( message, action ) {
