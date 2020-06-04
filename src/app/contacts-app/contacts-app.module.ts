@@ -103,7 +103,6 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     VcfImportDialogComponent,
   ],
   providers: [
-    ContactsService,
   ],
   bootstrap: []
 })
