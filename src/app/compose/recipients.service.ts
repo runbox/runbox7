@@ -122,7 +122,10 @@ export class RecipientsService {
     private updateRecipients(groups: Recipient[] = []) {
         const uniqueRecipients: {[uniqueKey: string]: Recipient} = {};
         this.recipientsUpdating.forEach(entry => {
-            uniqueRecipients[entry['uniqueKey']] = entry['recipient']
+            if (!uniqueRecipients[entry['uniqueKey']] ||
+                entry['origin'] === 'searchindex') {
+                uniqueRecipients[entry['uniqueKey']] = entry['recipient'];
+            }
         });
         this.recipients.next(Object.values(uniqueRecipients).concat(groups));
     }
