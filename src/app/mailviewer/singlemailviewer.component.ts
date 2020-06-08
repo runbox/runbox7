@@ -142,21 +142,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
       this.height = 0;
       this.messageId = null;
+
+      if (this.onClose) {
+        this.onClose.emit(actionstring);
+      }
     };
 
     if (actionstring === 'goToDraftDesk') {
-      this.router.navigate(['/compose']).then(() => {
-        doClose();
-      }
-      );
+      this.router.navigate(['/compose']).then(() => doClose());
     } else {
       doClose();
     }
-
-    if (this.onClose) {
-      this.onClose.emit(actionstring);
-    }
-
   }
 
   public get messageId() {

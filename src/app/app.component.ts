@@ -798,6 +798,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   singleMailViewerClosed(action: string): void {
     this.openedRowId = null;
+    this.updateUrlFragment();
   }
 
   searchTextFieldFocus() {
@@ -1098,6 +1099,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   private updateUrlFragment(): void {
+    if (this.router.url.match('^/[^#]')) {
+      // we're not actually on mailviewer, so don't try to be smart
+      return;
+    }
     let fragment = this.messagelistservice.currentFolder;
     if (this.singlemailviewer.messageId) {
       fragment += `:${this.singlemailviewer.messageId}`;

@@ -15,11 +15,13 @@ describe('Interacting with mailviewer', () => {
         cy.wait(1000); // should be long enough for the canvas to appear
         canvas().click({ x: 400, y: 300 });
 
-        cy.hash().should('be', '#Inbox:9');
+        cy.hash().should('equal', '#Inbox:9');
         cy.go('back');
         cy.hash().should('not.contain', 'Inbox:9');
         cy.go('forward');
-        cy.hash().should('be', '#Inbox:9');
+        cy.hash().should('equal', '#Inbox:9');
+        cy.get('button[mattooltip="Close"]').click();
+        cy.hash().should('equal', '#Inbox');
     });
 
     it('can reply to an email with no "To"', () => {
