@@ -1,42 +1,6 @@
-<style>
-    mat-form-field {
-        width: 100%;
-    }
-    .dropzonehighlight {
-        border: #155D97 dashed 5px;
-        border-radius: 20px;
-        height: 100px;
-        text-align: center;
-        padding-top: 30px;
-    }
-    .overdropzone {
-        border: #5D9715 solid 5px;        
-    }
-    #useHTML div.mat-checkbox-inner-container {
-        margin-right: 4px !important;
-    }
-    #sendMail .mat-icon {
-        font-size: 36px;
-    }
-    button {
-        float: right !important;
-    }
-    #dropZoneText {
-        margin: 10px 0;
-    }
-    #deleteAttachment {
-        height: 16px;
-        line-height: 16px;
-    }
-    #deleteAttachment mat-icon {
-        margin-top: -5px;
-        font-size: 20px;
-    }
-
-</style>
-<mat-card [ngClass]="{'draftPreview': !editing}" [formGroup]="formGroup">
-    <mat-card-actions style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; margin-right: 5px;">
-        <div style="flex-grow: 1; padding-left: 15px; font-size: 24px;">
+<mat-card [ngClass]="{'draftPreview': !editing}" class="draft-card" [formGroup]="formGroup">
+    <mat-card-actions class="draft-actions">
+        <div class="draft-title">
             {{model.subject ? model.subject : "New message"}}
         </div>
         <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
