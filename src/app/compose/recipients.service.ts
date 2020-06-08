@@ -26,11 +26,17 @@ import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
 import { Recipient } from './recipient';
 
+enum RecipientOrigin {
+    Search = 'search',
+    Contacts = 'contacts',
+}
+
 @Injectable()
 export class RecipientsService {
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
     // Need to be able to update from 2 different subscriptions
-    recipientsUpdating: { origin: string, uniqueKey: string, recipient: Recipient }[] = [];
+    recipientsUpdating: { origin: RecipientOrigin, uniqueKey: string, recipient: Recipient }[] = [];
+
 
     constructor(
         searchService: SearchService,
@@ -38,7 +44,7 @@ export class RecipientsService {
     ) {
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
             if (hasSearchIndex) {
-                this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== 'search');
+                this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Search);
 
                 // Get all recipient terms from search index
                 window['termlistresult'] = [];
@@ -51,7 +57,7 @@ export class RecipientsService {
                     .map(recipient => MailAddressInfo.parse(recipient)[0])
                     .forEach(recipient => {
                         this.recipientsUpdating.push({
-                            'origin': 'search',
+                            'origin': RecipientOrigin.Search,
                             'uniqueKey': recipient.address,
                             'recipient': Recipient.fromSearchIndex(recipient.nameAndAddress)
                         });
@@ -62,7 +68,7 @@ export class RecipientsService {
         });
 
         contactsService.contactsSubject.subscribe(contacts => {
-            this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== 'contacts');
+            this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Contacts);
 
             const categories = {};
             const groups     = [];
@@ -74,7 +80,7 @@ export class RecipientsService {
 
                 contact.emails.forEach(email => {
                     this.recipientsUpdating.push({
-                        'origin': 'contacts',
+                        'origin': RecipientOrigin.Contacts,
                         'uniqueKey': email.value,
                         'recipient': Recipient.fromContact(contact, email.value)
                     });
@@ -90,7 +96,7 @@ export class RecipientsService {
 
             for (const category of Object.keys(categories)) {
                 this.recipientsUpdating.push({
-                    'origin': 'contacts',
+                    'origin': RecipientOrigin.Contacts,
                     'uniqueKey': category,
                     'recipient': Recipient.fromCategory(category, categories[category])});
             }
@@ -109,7 +115,7 @@ export class RecipientsService {
         const uniqueRecipients: {[uniqueKey: string]: Recipient} = {};
         this.recipientsUpdating.forEach(entry => {
             if (!uniqueRecipients[entry['uniqueKey']] ||
-                entry['origin'] === 'searchindex') {
+                entry['origin'] === RecipientOrigin.Contacts) {
                 uniqueRecipients[entry['uniqueKey']] = entry['recipient'];
             }
         });
