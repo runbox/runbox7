@@ -59,11 +59,14 @@ import { RMM } from '../rmm';
     `],
     template: `
     <div class="app-runbox-section">
-        <div style="background: #e1eeff; padding: 15px; martin-top: 15px;"
-            [ngStyle]="{'background-color': sizes[size].background}"
+        <div style="background: #e1eeff; padding: 15px;"
+            [ngStyle]="{'background': heading_sizes[size].background}"
             *ngIf="is_header_open"
-            ><ng-content select="[runbox-section-header]" style="margin-top: 20px;"></ng-content></div>
-        <ng-content select="[runbox-section-content]" style="margin-top: 20px;"></ng-content>
+            ><ng-content select="[runbox-section-header]"></ng-content>
+	</div>
+	<div [ngStyle]="{'margin': section_sizes[size].margin}">
+            <ng-content select="[runbox-section-content]"></ng-content>
+	</div>
     </div>
     `
 })
@@ -72,12 +75,31 @@ export class RunboxSectionComponent {
   @Input() is_header_open = true;
   @Input() size = 'h1';
   private dialog_ref: any;
-  public sizes = {
+  public section_sizes = {
     h1: {
-        background: '#e1eeff'
     },
     h2: {
+        margin: '0 10px 50px 10px',
+    },
+    h3: {
+        margin: '0 10px 50px 10px',
+    },
+    h4: {
+        margin: '0 10px 50px 10px',
+    },
+    h5: {
+        margin: '0 10px 50px 10px',
+    },
+    h6: {
+        margin: '0 10px 50px 10px',
+    },
+  };
+  public heading_sizes = {
+    h1: {
         background: '#CAE1FF'
+    },
+    h2: {
+        background: '#e1eeff'
     },
     h3: {
         background: '#9CC6FE'

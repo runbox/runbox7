@@ -76,8 +76,18 @@ h3 {
     font-size: 24px;
 }
 
+h3.runbox-section-header {
+    display: inline;
+    margin: 0px;
+}
+
 h4 {
     font-size: 20px;
+}
+
+h4.runbox-section-header {
+    display: inline;
+    margin: 0px;
 }
 
 h5 {
@@ -88,6 +98,14 @@ th {
    font-size: 16px;
 }
 
+ul.square-list {
+    padding-left: 10px !important;
+}
+
+ul.square-list li {
+    list-style-type: square;
+    margin-left: 5px;
+}
 
 /* Generic MD styles */
 
@@ -135,11 +153,12 @@ mat-grid-tile.tableTitle {
 .contentButton {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
-    background: mat-color($rmm-default-highlight);
+    background: white;
     padding: 5px 10px 3px 10px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
+    font-size: 16px;
 }
 
 .primaryContentButton {
@@ -964,7 +983,7 @@ app-calendar-event-editor-dialog p {
         background: mat-color($rmm-default-accent);
 }
 
-/* runbox-components */
+/* Runbox components */
 
 .dev.runbox-components .nice_green_timer {
     color: #0F0;
@@ -1003,8 +1022,6 @@ app-calendar-event-editor-dialog p {
 .dev.runbox-components .nice_green_timer .timeunit.seconds::after { 
     content: "s";
 }
-
-
 
 .dev.runbox-components .nice_blue_timer {
     color: #00F;
@@ -1058,3 +1075,12 @@ app-calendar-event-editor-dialog p {
   justify-content: center;
   justify-items: center;
 }
+
+.app-runbox-section {
+    margin-bottom: 50px;
+}
+
+runbox-section-header mat-slide-toggle {
+    display: inline;
+}
+
