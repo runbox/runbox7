@@ -153,11 +153,12 @@ mat-grid-tile.tableTitle {
 .contentButton {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
-    background: mat-color($rmm-default-highlight);
+    background: white;
     padding: 5px 10px 3px 10px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
+    font-size: 16px;
 }
 
 .primaryContentButton {

@@ -34,11 +34,11 @@ export class AccountSecurityService {
         },
         'dovecot-imap' : {
             name : 'IMAP',
-            description : 'IMAP service for email programs/apps that synchronizes all your email.'
+            description : 'IMAP is used with email programs/apps to synchronize all  email in an account.'
         },
         'dovecot-pop' : {
             name : 'POP',
-            description : 'POP service, used instead of IMAP if you only want to download email from Inbox.'
+            description : 'POP can be used with email programs/apps to only download email from one folder.'
         },
         kmpop3d : {
             name : 'POP (kmpop3d)',
@@ -47,15 +47,15 @@ export class AccountSecurityService {
         },
         submission : {
             name : 'SMTP',
-            description : 'SMTP lets you send email with an email program.'
+            description : 'SMTP is used with email programs/apps for sending outgoing email.'
         },
         ftp : {
             name : 'FTP',
-            description : 'FTP can be used to transfer files to/from the server.'
+            description : 'FTP can be used with programs/apps to transfer files to/from your Files area.'
         },
         webdav : {
             name : 'WebDAV',
-            description : 'WebDAV is used to log in to CalDAV (calendar) and CardDAV (contacts).'
+            description : 'WebDAV is used with programs/apps to synchronize contacts (CardDAV) and calendars (CalDAV).'
         },
     };
 
