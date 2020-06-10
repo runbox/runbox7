@@ -1,19 +1,18 @@
 /// <reference types="cypress" />
 
 describe('Composing emails', () => {
-    function composeNew() {
-        cy.visit('/compose?new=true');
-        cy.closeWelcomeDialog();
-    }
+    beforeEach(() => {
+        localStorage.setItem('localSearchPromptDisplayed221', 'true');
+    });
 
     it('should display draft card', () => {
-        composeNew();
+        cy.visit('/compose?new=true');
         cy.get('mat-card-actions div').should('contain', 'New message');
         cy.focused().should('have.attr', 'placeholder', 'To');
     });
 
     it('should update action bar text to subject', () => {
-        composeNew();
+        cy.visit('/compose?new=true');
 
         cy.get('mat-card-actions div').should('contain', 'New message');
         cy.get('input[placeholder="Subject"]').type('Email about Subject X');
@@ -21,7 +20,7 @@ describe('Composing emails', () => {
     });
 
     it('should complain on invalid email address', () => {
-        composeNew();
+        cy.visit('/compose?new=true');
 
         cy.get('mailrecipient-input input').type('invalidaddress{enter}');
         cy.get('mailrecipient-input mat-error').should('contain', 'Please enter a valid email address');
@@ -31,9 +30,7 @@ describe('Composing emails', () => {
     });
 
     it('should open reply draft with HTML editor', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
-        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
+        cy.visit('/#Inbox:1');
         cy.get('single-mail-viewer').should('exist');
         cy.get('mat-checkbox[mattooltip="Toggle HTML view"]').click();
         cy.contains('Manually toggle HTML').click();
@@ -44,7 +41,7 @@ describe('Composing emails', () => {
     });
 
     it('emailing a contact should not use their nickname', () => {
-        composeNew();
+        cy.visit('/compose?new=true');
         cy.get('mailrecipient-input input').clear().type('postpat');
         // autocompletion should show the nickname...
         cy.get('mat-option:contains(Postpat)').click();
@@ -54,7 +51,6 @@ describe('Composing emails', () => {
 
     it('closing a newly composed email should return where we started', () => {
         cy.visit('/compose');
-        cy.closeWelcomeDialog();
         cy.visit('/compose?new=true');
         
         cy.get('button[mattooltip="Close draft"').click();
@@ -65,8 +61,7 @@ describe('Composing emails', () => {
     });
 
     it('closing a new reply should return to inbox', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
+        cy.visit('/#Inbox:1');
         cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
         cy.get('single-mail-viewer').should('exist');
         cy.get('button[mattooltip="Reply"]').click();
@@ -105,9 +100,7 @@ describe('Composing emails', () => {
     });
 
     it('should find the same address in original "To" and our "From" field in Reply', () => {
-        cy.visit('/');
-        cy.closeWelcomeDialog();
-        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 360 });
+        cy.visit('/#Inbox:12');
         cy.get('single-mail-viewer').should('exist');
         const address = 'testmail@testmail.com';
         cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
