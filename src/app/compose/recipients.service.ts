@@ -25,17 +25,25 @@ import { ContactKind, Contact } from '../contacts-app/contact';
 import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
 import { Recipient } from './recipient';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import * as moment from 'moment';
 
 @Injectable()
 export class RecipientsService {
+    ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
+    recentlyUsed: ReplaySubject<Recipient[]> = new ReplaySubject(1);
 
     constructor(
-        searchService: SearchService,
-        private contactsService: ContactsService
+        private searchService: SearchService,
+        private contactsService: ContactsService,
+        rmmapi: RunboxWebmailAPI,
     ) {
-        searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
+        rmmapi.getFromAddress().subscribe(
+            froms => this.ownAddresses.next(new Set(froms.map(f => f.email)))
+        );
 
+        searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
             const recipientsMap: {[email: string]: Recipient} = {};
             if (hasSearchIndex) {
                 // Get all recipient terms from search index
@@ -51,6 +59,7 @@ export class RecipientsService {
                         recipientsMap[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
                     });
 
+                this.updateRecentlyUsed();
             }
 
             contactsService.contactsSubject.subscribe(contacts => {
@@ -89,6 +98,46 @@ export class RecipientsService {
                     () => this.recipients.next(result)
                 );
             });
+        });
+    }
+
+    private updateRecentlyUsed() {
+        const startDate = moment().subtract(90, 'days');
+        const endDate = moment().add(1, 'day');
+        const latestEmails = this.searchService.getMessagesInTimeRange(startDate.toDate(), endDate.toDate(), 'Sent');
+        const popularRecipients: { [email: string]: number } = {};
+
+        for (const id of latestEmails) {
+            const message = this.searchService.getDocData(id);
+            for (const recipient of message.recipients) {
+                if (!isValidEmail(recipient)) {
+                    continue;
+                }
+
+                const email = MailAddressInfo.parse(recipient)[0].address;
+                if (popularRecipients[email]) {
+                    popularRecipients[email]++;
+                } else {
+                    popularRecipients[email] = 1;
+                }
+            }
+        }
+
+        this.ownAddresses.subscribe(own => {
+            this.recentlyUsed.next(
+                Object.entries(
+                    popularRecipients
+                ).filter(
+                    // not us, and used at least thrice
+                    // TODO: fine-tune this number so that we end up
+                    // with not too many and not foo few addresses -- perhaps iteratively?
+                    x => !own.has(x[0]) && x[1] >= 3
+                ).sort(
+                    (a, b) => b[1] - a[1]
+                ).map(
+                    a => new Recipient([a[0]])
+                )
+            );
         });
     }
 

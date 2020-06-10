@@ -25,6 +25,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
+import { MailAddressInfo } from '../xapian/messageinfo';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
 
@@ -41,6 +42,12 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
     searchTextFormControl: FormControl = new FormControl();
     recipientsList: string[] = [];
+
+    // here we keep the suggestions we get from RecipientsService
+    suggestedRecipients: Recipient[] = [];
+    // and here we keep suggestedRecipients but filtered
+    // to not include the recipients already picked
+    filteredSuggestions: Recipient[] = [];
 
     separatorKeysCodes = [COMMA, ENTER];
 
@@ -79,6 +86,11 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
             }
             );
         });
+
+        recipientservice.recentlyUsed.subscribe(suggestions => {
+            this.suggestedRecipients = suggestions;
+            this.updateSuggestions();
+        });
     }
 
     ngOnInit() {
@@ -95,6 +107,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
     notifyChangeListener() {
         this.updateRecipient.emit(this.recipientsList.join(','));
+        this.updateSuggestions();
     }
 
     removeRecipient(ndx: number) {
@@ -162,5 +175,14 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
         }
 
         this.addedFromAutoComplete = false;
+    }
+
+    /// updates the displayed `suggestedRecipients`
+    /// making sure it doesn't contain any existing recipients
+    updateSuggestions() {
+        const keyOf = (addr: string) => MailAddressInfo.parse(addr)[0].address;
+        this.filteredSuggestions = this.suggestedRecipients.filter(
+            s => !this.recipientsList.find(r => keyOf(r) === keyOf(s.toString()))
+        );
     }
 }

@@ -822,6 +822,15 @@ mat-expansion-panel {
     min-width: 50px !important;
 }
 
+.recipientSuggestionList {
+    display: flex;
+    align-items: center;
+}
+
+.recipientSuggestionList div {
+    padding: 5px;
+}
+
 /* Styles to decrease vertical spacing on Compose */
 
 compose .mat-card-actions {

@@ -87,6 +87,10 @@ export class MockSearchService {
         this.initSubject.next(true);
         this.initSubject.complete();
     }
+
+    getMessagesInTimeRange(_start: Date, _end: Date, _folder?: string) {
+        return [];
+    }
 }
 
 export class ContactsServiceMock {
@@ -110,6 +114,7 @@ export class ContactsServiceMock {
 
 export class RunboxWebMailAPIMock {
     public me = of({ uid: 33 });
+    public getFromAddress = () => of([]);
 }
 
 describe('RecipientsService', () => {

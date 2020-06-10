@@ -681,6 +681,20 @@ export class SearchService {
       );
   }
 
+  /// Get message IDs of all indexed messages in a given time range -- [inclusive, exclusive)
+  getMessagesInTimeRange(start: Date, end: Date, folder?: string): number[] {
+    const toRangeString = (dt: Date) => dt.toISOString().substr(0, 10).replace(/-/g, '');
+    let query = `date:${toRangeString(start)}..${toRangeString(end)}`;
+    if (folder) {
+      query += ` folder:"${folder}"`;
+    }
+
+    this.api.setStringValueRange(2, 'date:');
+    return this.api.sortedXapianQuery(
+      query, 2, 1, 0, 1024, -1
+    ).map((pair: number[]) => pair[0]);
+  }
+
   /**
    * Polling loop (every 10th sec)
    */
