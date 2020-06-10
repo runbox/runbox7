@@ -57,7 +57,7 @@ export class SearchIndexDocumentData {
   id: string;
   from: string;
   subject: string;
-  recipients: string;
+  recipients: string[];
   textcontent: string;
   folder?: string;
   flagged?: boolean;
@@ -1152,7 +1152,7 @@ export class SearchService {
             id: docdataparts[0],
             from: docdataparts[1],
             subject: docdataparts[2],
-            recipients: '',
+            recipients: [],
             textcontent: null
           };
 
@@ -1180,11 +1180,7 @@ export class SearchService {
                   this.currentDocData.attachment = true;
                 } else if (s.indexOf('XRECIPIENT') === 0) {
                   const recipient = s.substring('XRECIPIENT:'.length);
-                  if (this.currentDocData.recipients) {
-                    this.currentDocData.recipients += (', ' + recipient);
-                  } else {
-                    this.currentDocData.recipients = recipient;
-                  }
+                  this.currentDocData.recipients.push(recipient);
                 }
               });
           this.currentXapianDocId = docid;
@@ -1220,7 +1216,7 @@ export class SearchService {
             (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
               name: 'To',
               sortColumn: null,
-              getValue: (rowobj): string => this.getDocData(rowobj[0]).recipients,
+              getValue: (rowobj): string => this.getDocData(rowobj[0]).recipients.join(', '),
             } :
             {
               name: 'From',
