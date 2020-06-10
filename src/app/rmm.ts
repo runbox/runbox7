@@ -24,6 +24,7 @@ import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
+import { AccountSecurity } from './rmm/account-security';
 import { MatSnackBar } from '@angular/material/snack-bar';
 @Injectable({
     providedIn: 'root',
@@ -34,6 +35,7 @@ export class RMM {
     public alias: Alias;
     public me: Me;
     public runbox_domain: RunboxDomain;
+    public account_security: AccountSecurity;
     constructor(
         public http: HttpClient,
         public snackBar: MatSnackBar,
@@ -43,6 +45,7 @@ export class RMM {
         this.alias = new Alias(this);
         this.me = new Me(this);
         this.runbox_domain = new RunboxDomain(this);
+        this.account_security = new AccountSecurity(this);
     }
 
     public show_error ( message, action ) {
