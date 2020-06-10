@@ -131,7 +131,8 @@ describe('RecipientsService', () => {
     it('Should get recipients from contacts', async () => {
         const recipientsService = injector.get(RecipientsService);
 
-        const recipients = await recipientsService.recipients.pipe(take(1)).toPromise();
+        // Take 2 as searchindex+contacts service are separate updates
+        const recipients = await recipientsService.recipients.pipe(take(2)).toPromise();
         console.log(recipients);
 
         expect(window['termlistresult'].length).toBe(5);

@@ -26,18 +26,26 @@ import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
 import { Recipient } from './recipient';
 
+enum RecipientOrigin {
+    Search = 'search',
+    Contacts = 'contacts',
+}
+
 @Injectable()
 export class RecipientsService {
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
+    // Need to be able to update from 2 different subscriptions
+    recipientsUpdating: { origin: RecipientOrigin, uniqueKey: string, recipient: Recipient }[] = [];
+
 
     constructor(
         searchService: SearchService,
         private contactsService: ContactsService
     ) {
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
-
-            const recipientsMap: {[email: string]: Recipient} = {};
             if (hasSearchIndex) {
+                this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Search);
+
                 // Get all recipient terms from search index
                 window['termlistresult'] = [];
                 searchService.api.termlist('XRECIPIENT:');
@@ -48,48 +56,70 @@ export class RecipientsService {
                     .filter(recipient => isValidEmail(recipient))
                     .map(recipient => MailAddressInfo.parse(recipient)[0])
                     .forEach(recipient => {
-                        recipientsMap[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
+                        this.recipientsUpdating.push({
+                            'origin': RecipientOrigin.Search,
+                            'uniqueKey': recipient.address,
+                            'recipient': Recipient.fromSearchIndex(recipient.nameAndAddress)
+                        });
+//                        searchRecipients[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
                     });
-
+                this.updateRecipients();
             }
+        });
 
-            contactsService.contactsSubject.subscribe(contacts => {
-                const categories = {};
-                const groups     = [];
-                contacts.forEach(contact => {
-                    if (contact.kind === ContactKind.GROUP) {
-                        groups.push(contact);
-                        return;
-                    }
+        contactsService.contactsSubject.subscribe(contacts => {
+            this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Contacts);
 
-                    contact.emails.forEach(email => {
-                        const recipientString = `"${contact.first_and_last_name()}" <${email.value}>`;
-                        recipientsMap[email.value] = Recipient.fromContact(contact, email.value);
-                    });
+            const categories = {};
+            const groups     = [];
+            contacts.forEach(contact => {
+                if (contact.kind === ContactKind.GROUP) {
+                    groups.push(contact);
+                    return;
+                }
 
-                    contact.categories.forEach(category => {
-                        if (!categories[category]) {
-                            categories[category] = [];
-                        }
-                        categories[category].push(contact);
+                contact.emails.forEach(email => {
+                    this.recipientsUpdating.push({
+                        'origin': RecipientOrigin.Contacts,
+                        'uniqueKey': email.value,
+                        'recipient': Recipient.fromContact(contact, email.value)
                     });
                 });
 
-                const result = Object.keys(recipientsMap).map(mailaddr => recipientsMap[mailaddr]);
-
-                for (const category of Object.keys(categories)) {
-                    result.unshift(Recipient.fromCategory(category, categories[category]));
-                }
-
-                Promise.all(
-                    groups.map(g => this.recipientFromGroup(g))
-                ).then(
-                    recipients => this.recipients.next(result.concat(recipients))
-                ).catch(
-                    () => this.recipients.next(result)
-                );
+                contact.categories.forEach(category => {
+                    if (!categories[category]) {
+                        categories[category] = [];
+                    }
+                    categories[category].push(contact);
+                });
             });
+
+            for (const category of Object.keys(categories)) {
+                this.recipientsUpdating.push({
+                    'origin': RecipientOrigin.Contacts,
+                    'uniqueKey': category,
+                    'recipient': Recipient.fromCategory(category, categories[category])});
+            }
+
+            Promise.all(
+                groups.map(g => this.recipientFromGroup(g))
+            ).then((updateGroups) => {
+                this.updateRecipients(updateGroups);
+            }).catch(
+                () => this.recipients.next([])
+            );
         });
+    }
+
+    private updateRecipients(groups: Recipient[] = []) {
+        const uniqueRecipients: {[uniqueKey: string]: Recipient} = {};
+        this.recipientsUpdating.forEach(entry => {
+            if (!uniqueRecipients[entry['uniqueKey']] ||
+                entry['origin'] === RecipientOrigin.Contacts) {
+                uniqueRecipients[entry['uniqueKey']] = entry['recipient'];
+            }
+        });
+        this.recipients.next(Object.values(uniqueRecipients).concat(groups));
     }
 
     private recipientFromGroup(group: Contact): Promise<Recipient> {
