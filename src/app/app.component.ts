@@ -188,6 +188,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           const newRowIndex = this.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
+            this.canvastable.scrollUp();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
@@ -195,6 +196,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           const newRowIndex = this.openedRowIndex + 1;
           if (newRowIndex < this.canvastable.rows.length) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
+            this.canvastable.scrollDown();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
