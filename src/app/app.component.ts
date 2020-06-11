@@ -30,7 +30,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, ActivatedRoute } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
@@ -144,6 +144,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public snackBar: MatSnackBar,
     public dialog: MatDialog,
     private router: Router,
+    private route: ActivatedRoute,
     public progressService: ProgressService,
     private mdIconRegistry: MatIconRegistry,
     private http: HttpClient,
@@ -157,21 +158,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
-    private _hotkeysService: HotkeysService) {
-
-      this._hotkeysService.add(new Hotkey(['j', 'k'],
-          (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-              if (combo === 'k') {
-                  this.canvastable.scrollUp();
-                  combo = null;
-              }
-              if (combo === 'j') {
-                  this.canvastable.scrollDown();
-              }
-              const e: ExtendedKeyboardEvent = event;
-              e.returnValue = false;
-              return e;
-          }));
+    private hotkeysService: HotkeysService
+  ) {
+    this.hotkeysService.add(
+        new Hotkey(['j', 'k'],
+        (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+            if (combo === 'k') {
+                this.canvastable.scrollUp();
+                combo = null;
+            }
+            if (combo === 'j') {
+                this.canvastable.scrollDown();
+            }
+            const e: ExtendedKeyboardEvent = event;
+            e.returnValue = false;
+            return e;
+        })
+    );
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
     this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
@@ -188,6 +191,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           const newRowIndex = this.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
+            this.canvastable.scrollUp();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
@@ -195,6 +199,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           const newRowIndex = this.openedRowIndex + 1;
           if (newRowIndex < this.canvastable.rows.length) {
             this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
+            this.canvastable.scrollDown();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
@@ -242,7 +247,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
-
   }
 
   ngOnDestroy() {
@@ -334,6 +338,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // Start with the sidenav open if window is wide enough
     setTimeout(() => this.mobileQueryListener(), 100);
+
+    this.route.fragment.subscribe(
+      fragment => {
+        if (!fragment) {
+          this.messagelistservice.setCurrentFolder('Inbox');
+          this.singlemailviewer.close();
+          return;
+        }
+
+        const parts = fragment.split(':');
+        this.switchToFolder(parts[0]);
+        if (parts.length === 2) {
+          this.singlemailviewer.messageId = parseInt(parts[1], 10);
+        } else {
+          this.singlemailviewer.close();
+        }
+      }
+    );
 
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
@@ -692,18 +714,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.openedRowId = this.selectedRowId;
       this.openedRowIndex = rowIndex;
 
+      let messageId: number;
       if (this.showingSearchResults) {
-        this.singlemailviewer.expectedMessageSize = this.searchService.api.getNumericValue(this.openedRowId, 3);
-        this.singlemailviewer.messageId = this.searchService.getMessageIdFromDocId(this.openedRowId);
+        messageId = this.searchService.getMessageIdFromDocId(this.openedRowId);
       } else if (this.showingWebSocketSearchResults) {
         const msg = (rowContent as WebSocketSearchMailRow);
-        this.singlemailviewer.messageId = msg.id;
-        this.singlemailviewer.expectedMessageSize = msg.size;
+        messageId = msg.id;
       } else {
         const msg: MessageInfo = rowContent;
-        this.singlemailviewer.messageId = msg.id;
-        this.singlemailviewer.expectedMessageSize = msg.size;
+        messageId = msg.id;
       }
+
+      this.singlemailviewer.messageId = messageId;
+      this.updateUrlFragment();
 
       if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
@@ -777,6 +800,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   singleMailViewerClosed(action: string): void {
     this.openedRowId = null;
+    this.updateUrlFragment();
   }
 
   searchTextFieldFocus() {
@@ -859,14 +883,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
+    this.singlemailviewer.close();
+    this.switchToFolder(folder);
+    this.updateUrlFragment();
+  }
+
+  private switchToFolder(folder: string): void {
     let doResetColumns = false;
     if (folder !== this.selectedFolder) {
       this.clearSelection();
-      if (folder.indexOf('Sent') === 0 || this.selectedFolder.indexOf('Sent') === 0) {
+      if (folder.startsWith('Sent') || this.selectedFolder.startsWith('Sent')) {
         doResetColumns = true;
       }
     }
-    this.singlemailviewer.close();
     this.selectedFolder = folder;
 
     this.messagelistservice.messagesInViewSubject
@@ -1069,6 +1098,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
       })
     ).subscribe();
+  }
+
+  private updateUrlFragment(): void {
+    if (this.router.url.match('^/[^#]')) {
+      // we're not actually on mailviewer, so don't try to be smart
+      return;
+    }
+    let fragment = this.messagelistservice.currentFolder;
+    if (this.singlemailviewer.messageId) {
+      fragment += `:${this.singlemailviewer.messageId}`;
+    }
+    this.router.navigate(['/'], { fragment });
   }
 }
 

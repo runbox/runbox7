@@ -295,9 +295,10 @@ export class RunboxWebmailAPI {
             if (res.status === 'error') {
                 if (res.errors && res.errors.length) {
                     const error_msg = res.errors.map((key) => {
-                        return this.rblocale.translate(key);
+                        return this.rblocale.translate(key).replace('_', ' ');
                     }).join('. ');
-                    this.snackBar.open(error_msg, 'Dismiss');
+                    const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
+                    this.snackBar.open(error_formatted, 'Dismiss');
                 } else {
                     this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
                 }
