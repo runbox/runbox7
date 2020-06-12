@@ -32,6 +32,13 @@ export class FolderMessageCountEntry {
         public unread: number,
         public total:  number,
     ) { }
+
+    static of(folder: FolderListEntry) {
+        return new this(
+            folder.newMessages,
+            folder.totalMessages,
+        );
+    }
 }
 
 export interface FolderMessageCountMap {
@@ -101,20 +108,24 @@ export class MessageListService {
     private getFolderCountsFor(folders: FolderListEntry[]): FolderMessageCountMap {
         const folderCounts = {};
         for (const f of folders) {
-            folderCounts[f.folderPath] = new FolderMessageCountEntry(
-                f.newMessages,
-                f.totalMessages,
-            );
+            folderCounts[f.folderPath] = FolderMessageCountEntry.of(f);
         }
         return folderCounts;
     }
 
     public refreshFolderCounts() {
         if (this.searchservice.localSearchActivated) {
+            const xapianFolders = new Set(this.searchservice.api.listFolders().map(f => f[0].replace(/\./g, '/')));
+
             this.folderListSubject.pipe(take(1)).subscribe((folders) => {
                 const folderCounts = {};
-                for (const path of folders.map(f => f.folderPath)) {
-                    folderCounts[path] = this.searchservice.getMessageCountsForFolder(path);
+                for (const folder of folders) {
+                    const path = folder.folderPath;
+                    if (xapianFolders.has(path)) {
+                        folderCounts[path] = this.searchservice.getMessageCountsForFolder(path);
+                    } else {
+                        folderCounts[path] = FolderMessageCountEntry.of(folder);
+                    }
                 }
                 this.folderMessageCountSubject.next(folderCounts);
             });
