@@ -160,12 +160,11 @@ export class RecipientsService {
                 Object.entries(
                     popularRecipients
                 ).filter(
-                    // not us, and used at least thrice
-                    // TODO: fine-tune this number so that we end up
-                    // with not too many and not foo few addresses -- perhaps iteratively?
-                    x => !own.has(x[0]) && x[1] >= 3
+                    x => !own.has(x[0])
                 ).sort(
                     (a, b) => b[1] - a[1]
+                ).slice(
+                    0, 5
                 ).map(
                     a => new Recipient([a[0]])
                 )
