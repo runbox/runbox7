@@ -3,7 +3,7 @@
         <mat-chip *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
                 [removable]="true" 
                 (removed)="removeRecipient(ndx)">        
-                {{recipient}}
+                {{recipient.nameAndAddress}}
                 <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
         <input #searchTextInput [formControl]="searchTextFormControl" [placeholder]="placeholder" 

@@ -17,6 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { MailAddressInfo } from '../xapian/messageinfo';
+
 const EMAIL_REGEXP =
     // tslint:disable-next-line:max-line-length
     /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
@@ -45,4 +47,15 @@ export function isValidEmailList(emailList: string) {
         return false;
     }
     return emailList.split(',').every((recipient => isValidEmail(recipient)));
+}
+
+/**
+ * Validate each email in the array, return true if all are valid
+ * @param emailList
+ */
+export function isValidEmailArray(emailList: MailAddressInfo[]) {
+    if (!emailList) {
+        return false;
+    }
+    return emailList.every((recipient => isValidEmail(recipient.address)));
 }
