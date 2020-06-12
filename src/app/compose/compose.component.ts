@@ -34,7 +34,8 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
-import { isValidEmailList } from './emailvalidator';
+import { isValidEmailList, isValidEmailArray } from './emailvalidator';
+import { MailAddressInfo } from '../xapian/messageinfo';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -198,6 +199,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
     }
 
+    // where event is hopefully a MailAddressInfo[]
+    public onUpdateRecipient(field: string, event) {
+        this.model[field] = event;
+        const recipientString = event.map((recipient) => recipient.nameAndAddress).join(',');
+        this.formGroup.controls[field].setValue(recipientString);
+    }
+
     public hideDropZone() {
         this.draggingOverDropZone = false;
         this.showDropZone = false;
@@ -305,7 +313,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                             : null;
                     }
                     if (result.headers.to) {
-                        model.to = result.headers.to.text;
+                        model.to = result.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+                        // model.to = result.headers.to.text;
                     }
                     if (result.headers.cc) {
                         model.cc = result.headers.cc.text;
@@ -456,7 +465,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public submit(send: boolean = false) {
         if (send) {
             let validemails = false;
-            validemails = isValidEmailList(this.formGroup.value.to);
+            validemails = isValidEmailArray(this.model.to);
             if (!validemails) {
                 this.saveErrorMessage = 'Cannot send email: TO field contains invalid email addresses';
             }
@@ -484,7 +493,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.model.from = this.formGroup.value.from;
         this.model.bcc = this.formGroup.value.bcc;
         this.model.cc = this.formGroup.value.cc;
-        this.model.to = this.formGroup.value.to;
+        // now model.to is an MAI list, and formGroup.value.to is a string
+        // (See MRI notifyChangeListener)
+        // We updated it in onUpdateRecipient
+        // this.model.to = this.formGroup.value.to;
         this.model.subject = this.formGroup.value.subject;
         this.model.msg_body = this.formGroup.value.msg_body;
         this.model.useHTML = this.formGroup.value.useHTML;
@@ -551,7 +563,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     username: me.username,
                     from: from && from.id ? from.name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
-                    to: this.model.to,
+                    to: this.model.to.map((recipient) => recipient.nameAndAddress).join(','),
                     cc: this.model.cc,
                     bcc: this.model.bcc,
                     subject: this.model.subject,

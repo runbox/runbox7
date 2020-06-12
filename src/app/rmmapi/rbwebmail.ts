@@ -478,7 +478,7 @@ export class RunboxWebmailAPI {
             params.append('mid', '' + draftModel.mid);
             params.append('msg_body', draftModel.msg_body);
             params.append('from', draftModel.from);
-            params.append('to', draftModel.to);
+            params.append('to', draftModel.to.map((recipient) => recipient.nameAndAddress).join(','));
             if (draftModel.cc) {
                 params.append('cc', draftModel.cc);
             }

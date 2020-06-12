@@ -41,7 +41,8 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: FormControl = new FormControl();
-    recipientsList: string[] = [];
+    // recipientsList: string[] = [];
+    recipientsList: MailAddressInfo[];
 
     // here we keep the suggestions we get from RecipientsService
     suggestedRecipients: Recipient[] = [];
@@ -54,11 +55,11 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     addedFromAutoComplete = false;
     invalidemail = false;
 
-    @Input() recipients: string;
+    @Input() recipients: MailAddressInfo[];
     @Input() placeholder: string;
     @Input() initialfocus = false;
 
-    @Output() updateRecipient: EventEmitter<string> = new EventEmitter();
+    @Output() updateRecipient: EventEmitter<MailAddressInfo[]> = new EventEmitter();
 
     @ViewChild('searchTextInput') searchTextInput: ElementRef;
     @ViewChild('auto') auto: MatAutocomplete;
@@ -94,9 +95,8 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        this.recipientsList = this.recipients ?
-            this.recipients.split(',').map((recipient) => recipient.trim()) :
-            [];
+        // now a list of MailAddressInfo objects
+        this.recipientsList = this.recipients ? this.recipients : [];
     }
 
     ngAfterViewInit() {
@@ -106,7 +106,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
     notifyChangeListener() {
-        this.updateRecipient.emit(this.recipientsList.join(','));
+        this.updateRecipient.emit(this.recipientsList);
         this.updateSuggestions();
     }
 
@@ -134,8 +134,9 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
             });
         }
 
+        // FIXME: If we could push/concat an array we could skip this loop:
         for (const r of recipient.toStringList()) {
-            this.recipientsList.push(r);
+            this.recipientsList.push(MailAddressInfo.parse(r)[0]);
         }
 
         this.notifyChangeListener();
@@ -150,7 +151,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
             this.invalidemail = false;
 
             if (value) {
-                this.recipientsList.push(value);
+                this.recipientsList.push(MailAddressInfo.parse(value)[0]);
                 this.notifyChangeListener();
                 input.value = '';
             }
@@ -168,7 +169,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
         if (value && this.searchTextFormControl.valid && !this.addedFromAutoComplete) {
             this.invalidemail = false;
-            this.recipientsList.push(value);
+            this.recipientsList.push(MailAddressInfo.parse(value)[0]);
             this.notifyChangeListener();
         } else if (!this.addedFromAutoComplete && !this.searchTextFormControl.valid) {
             this.invalidemail = true;
@@ -182,7 +183,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     updateSuggestions() {
         const keyOf = (addr: string) => MailAddressInfo.parse(addr)[0].address;
         this.filteredSuggestions = this.suggestedRecipients.filter(
-            s => !this.recipientsList.find(r => keyOf(r) === keyOf(s.toString()))
+            s => !this.recipientsList.find(r => keyOf(r.address) === keyOf(s.toString()))
         );
     }
 }

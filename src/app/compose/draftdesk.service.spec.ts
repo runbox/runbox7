@@ -54,7 +54,7 @@ describe('DraftDesk', () => {
         , true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
-        expect(draft.to).toBe('Test1<test1@runbox.com>');
+        expect(draft.to[0].nameAndAddress).toBe('Test1<test1@runbox.com>');
         expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
         draft = DraftFormModel.reply({
@@ -66,7 +66,7 @@ describe('DraftDesk', () => {
 
                 ,
                 to:
-                    MailAddressInfo.parse(draft.to)
+                    MailAddressInfo.parse(draft.to[0].nameAndAddress)
                 ,
                 date: new Date(2017, 6, 2),
                 subject: draft.subject,
@@ -77,7 +77,7 @@ describe('DraftDesk', () => {
         , true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
-        expect(draft.to).toBe('test2@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('test2@runbox.com');
         expect(draft.msg_body).toBe(`\n2017-07-02 00:00 ${timezoneOffsetString} test2@runbox.com:\n` +
                                     '> \n' +
                                     `> 2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n` +

@@ -20,7 +20,7 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo } from '../xapian/messageinfo';
+import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 import {RMM} from '../rmm';
@@ -41,7 +41,7 @@ export class DraftFormModel {
 
     from: string = null;
     mid: number = (DraftFormModel.newDraftCount--);
-    to: string = null;
+    to: MailAddressInfo[] = [];
     cc: string = null;
     bcc: string = null;
     subject: string = null;
@@ -58,7 +58,7 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.from = fromAddress.email;
         ret.mid = draftId;
-        ret.to = to;
+        ret.to = to ? MailAddressInfo.parse(to) : null;
         ret.subject = subject;
         if (preview) {
             // We create an element here because we want the plain text
@@ -75,8 +75,13 @@ export class DraftFormModel {
         ret.reply_to_id = mailObj.mid;
         ret.in_reply_to = mailObj.headers['message-id'];
 
-        const sender: string = mailObj.from.map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-            addr.address : addr.name + '<' + addr.address + '>').join(',');
+        // list of MailAddressInfo objects:
+        const sender: MailAddressInfo[] = mailObj.from.map((addr) => {
+            const ma = new MailAddressInfo(addr.name, addr.address);
+            return ma;
+        });
+         // const sender: string = mailObj.from.map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
+         //     addr.address : addr.name + '<' + addr.address + '>').join(',');
         ret.to = sender;
 
         if (mailObj.headers['reply-to']) {
