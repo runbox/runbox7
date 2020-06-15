@@ -60,7 +60,7 @@ import { RMM } from '../rmm';
     `],
     template: `
     <div class="app-runbox-container">
-        <mat-sidenav-container class="" style="padding: 10px;">
+        <mat-sidenav-container class="" style="padding: 0 20px;">
             <mat-sidenav mode="side" [opened]="sidebar_opened">
             </mat-sidenav>
             <mat-sidenav-content>
