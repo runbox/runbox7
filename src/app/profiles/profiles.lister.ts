@@ -175,6 +175,21 @@ import {RMM} from '../rmm';
                         <mat-grid-tile
                             colspan="12"
                             rowspan="1"
+                            *ngIf="
+                                rmm.profile.profiles
+                                && rmm.profile.profiles.is_not_owner_alias
+                                && rmm.profile.profiles.is_not_owner_alias[item.profile.id]
+                            "
+                            >
+                            <div
+                                style="text-align: left; width: 100%; margin-left: 5px;"
+                                >
+                                You are not the owner of this alias. Changes will not be saved.
+                            </div>
+                        </mat-grid-tile>
+                        <mat-grid-tile
+                            colspan="12"
+                            rowspan="1"
                             *ngIf="item.profile.reference_type == 'preference' && item.profile.reference.status === 1"
                             >
                             <div
