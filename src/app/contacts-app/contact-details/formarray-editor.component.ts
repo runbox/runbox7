@@ -60,5 +60,6 @@ export class FormArrayEditorComponent implements OnInit {
 
     removeAt(i: number): void {
         this.faObj.removeAt(i);
+        this.faObj.markAsDirty();
     }
 }
