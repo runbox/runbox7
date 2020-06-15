@@ -23,8 +23,8 @@ import { MailAddressInfo } from '../xapian/messageinfo';
 
 
 describe('DraftDesk', () => {
-    it('Reply', (done) => {
-        console.log('Reply test');
+    it('Reply: Address with object', (done) => {
+        console.log('Reply test: Address with object');
         const mailDate = new Date(2017, 6, 1);
 
         const timezoneOffset: number = mailDate.getTimezoneOffset();
@@ -57,21 +57,33 @@ describe('DraftDesk', () => {
         expect(draft.to[0].nameAndAddress).toBe('Test1<test1@runbox.com>');
         expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} Test1<test1@runbox.com>:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
-        draft = DraftFormModel.reply({
+        done();
+    });
+    it('Reply: Address with MAI', (done) => {
+        console.log('Reply test: Address with MAI');
+        const mailDate = new Date(2017, 6, 1);
+
+        const timezoneOffset: number = mailDate.getTimezoneOffset();
+
+        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
+            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
+            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
+
+        let draft = DraftFormModel.reply({
                 headers: {
                     'message-id': 'themessageid112414',
                 },
                 from:
-                    MailAddressInfo.parse(draft.from)
+                    MailAddressInfo.parse('Test2<test2@runbox.com>')
 
                 ,
                 to:
-                    MailAddressInfo.parse(draft.to[0].nameAndAddress)
+                    MailAddressInfo.parse('Test1<test1@runbox.com>')
                 ,
                 date: new Date(2017, 6, 2),
-                subject: draft.subject,
-                text: draft.msg_body,
-                rawtext: draft.msg_body
+                subject: 'Test subject',
+                text: 'blabla\nabcde',
+                rawtext: '<p>blabla</p><p>abcde</p>'
             }
             , [ FromAddress.fromEmailAddress('test1@runbox.com') ]
         , true, false);
