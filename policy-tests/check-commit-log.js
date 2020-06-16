@@ -6,6 +6,7 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
         if (!line) {
             continue;
         }
+        console.log(`Commit log checker checking line '${line}'...`);
         if (line.match(/^Merge branch/)) {
             continue;
         }
