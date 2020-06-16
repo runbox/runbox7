@@ -6,6 +6,9 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
         if (!line) {
             continue;
         }
+        if (line.match(/^Merge branch/)) {
+            continue;
+        }
         const hash = line.split(' ', 1)[0];
         if (hash.startsWith('04d6bdf')) {
             continue;
