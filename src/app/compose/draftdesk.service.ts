@@ -84,6 +84,7 @@ export class DraftFormModel {
          //     addr.address : addr.name + '<' + addr.address + '>').join(',');
         ret.to = sender;
 
+        // FIXME: No tests for this, also needs to be an MAI now
         if (mailObj.headers['reply-to']) {
             ret.to = mailObj.headers['reply-to'].text;
         }
@@ -94,9 +95,10 @@ export class DraftFormModel {
                 .filter((addr) =>
                     froms.find(fromObj => fromObj.email === addr.address) ? false : true
                 )
-                .map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-                    addr.address : addr.name + '<' + addr.address + '>')
-                .join(',');
+                .map((addr) => {
+                    const ma = new MailAddressInfo(addr.name, addr.address);
+                    return ma;
+                });
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
@@ -117,7 +119,7 @@ export class DraftFormModel {
 
         if (!useHTML && mailObj.rawtext) {
             ret.msg_body = '\n' + mailDate.toISOString().substr(0, 'yyyy-MM-ddTHH:mm'.length).replace('T', ' ') + ' ' +
-                timezoneOffsetString + ' ' + sender + ':\n' +
+                timezoneOffsetString + ' ' + sender[0].nameAndAddress + ':\n' +
                 mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
         } else if (!useHTML && !mailObj.rawtext) {
             ret.msg_body = '';
