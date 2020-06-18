@@ -27,6 +27,7 @@ import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
+import { MailAddressInfo } from '../xapian/messageinfo';
 
 const COMMA = 188;
 
