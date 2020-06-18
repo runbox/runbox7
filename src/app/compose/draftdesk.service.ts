@@ -42,8 +42,8 @@ export class DraftFormModel {
     from: string = null;
     mid: number = (DraftFormModel.newDraftCount--);
     to: MailAddressInfo[] = [];
-    cc: string = null;
-    bcc: string = null;
+    cc: MailAddressInfo[] = [];
+    bcc: MailAddressInfo[] = [];
     subject: string = null;
     msg_body = '';
     preview: string;
@@ -102,8 +102,10 @@ export class DraftFormModel {
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
-                    .map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-                        addr.address : addr.name + '<' + addr.address + '>').join(',');
+                    .map((addr) => {
+                    const ma = new MailAddressInfo(addr.name, addr.address);
+                    return ma;
+                });
             }
         }
         ret.setFromForResponse(mailObj, froms);

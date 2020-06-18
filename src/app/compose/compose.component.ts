@@ -317,10 +317,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         // model.to = result.headers.to.text;
                     }
                     if (result.headers.cc) {
-                        model.cc = result.headers.cc.text;
+                        model.cc = result.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
                     }
                     if (result.headers.bcc) {
-                        model.bcc = result.headers.bcc.text;
+                        model.bcc = result.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
                     }
 
                     model.subject = result.headers.subject;
@@ -469,14 +469,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             if (!validemails) {
                 this.saveErrorMessage = 'Cannot send email: TO field contains invalid email addresses';
             }
-            if (validemails && this.formGroup.value.cc) {
-                validemails = isValidEmailList(this.formGroup.value.cc);
+            if (validemails && this.model.cc.length > 0) {
+                validemails = isValidEmailArray(this.model.cc);
                 if (!validemails) {
                     this.saveErrorMessage = 'Cannot send email: CC field contains invalid email addresses';
                 }
             }
-            if (validemails && this.formGroup.value.bcc) {
-                validemails = isValidEmailList(this.formGroup.value.bcc);
+            if (validemails && this.model.bcc.length > 0) {
+                validemails = isValidEmailArray(this.model.bcc);
                 if (!validemails) {
                     this.saveErrorMessage = 'Cannot send email: BCC field contains invalid email addresses';
                 }
@@ -491,12 +491,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.dialogService.openProgressDialog();
         }
         this.model.from = this.formGroup.value.from;
-        this.model.bcc = this.formGroup.value.bcc;
-        this.model.cc = this.formGroup.value.cc;
-        // now model.to is an MAI list, and formGroup.value.to is a string
-        // (See MRI notifyChangeListener)
-        // We updated it in onUpdateRecipient
-        // this.model.to = this.formGroup.value.to;
         this.model.subject = this.formGroup.value.subject;
         this.model.msg_body = this.formGroup.value.msg_body;
         this.model.useHTML = this.formGroup.value.useHTML;
@@ -564,8 +558,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     from: from && from.id ? from.name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
                     to: this.model.to.map((recipient) => recipient.nameAndAddress).join(','),
-                    cc: this.model.cc,
-                    bcc: this.model.bcc,
+                    cc: this.model.cc.map((recipient) => recipient.nameAndAddress).join(','),
+                    bcc: this.model.bcc.map((recipient) => recipient.nameAndAddress).join(','),
                     subject: this.model.subject,
                     msg_body: this.model.msg_body,
                     in_reply_to: this.model.in_reply_to,
