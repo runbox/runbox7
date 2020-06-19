@@ -889,13 +889,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   private switchToFolder(folder: string): void {
-    let doResetColumns = false;
-    if (folder !== this.selectedFolder) {
-      this.clearSelection();
-      if (folder.startsWith('Sent') || this.selectedFolder.startsWith('Sent')) {
-        doResetColumns = true;
-      }
+    if (folder === this.selectedFolder) {
+        return;
     }
+
+    this.clearSelection();
+
+    let doResetColumns = false;
+    if (folder.startsWith('Sent') || this.selectedFolder.startsWith('Sent')) {
+      doResetColumns = true;
+    }
+
     this.selectedFolder = folder;
 
     this.messagelistservice.messagesInViewSubject
