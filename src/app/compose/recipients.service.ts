@@ -48,7 +48,8 @@ export class RecipientsService {
         rmmapi: RunboxWebmailAPI,
     ) {
         rmmapi.getFromAddress().subscribe(
-            froms => this.ownAddresses.next(new Set(froms.map(f => f.email)))
+            froms => this.ownAddresses.next(new Set(froms.map(f => f.email))),
+            _err  => this.ownAddresses.next(new Set([])),
         );
 
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {

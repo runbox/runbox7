@@ -23,7 +23,6 @@ import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../xapian/messageinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
-import {RMM} from '../rmm';
 
 export class ForwardedAttachment {
     constructor(
@@ -185,22 +184,16 @@ export class DraftDeskService {
     draftsRefreshed: AsyncSubject<boolean> = new AsyncSubject();
     froms: FromAddress[] = [];
 
-    constructor(
-        public rmm: RMM,
-        public rmmapi: RunboxWebmailAPI) {
-            this.refreshDrafts()
-                .subscribe(() => {
-                    this.draftsRefreshed.next(true);
-                    this.draftsRefreshed.complete();
-                });
+    constructor(public rmmapi: RunboxWebmailAPI) {
+        this.refreshDrafts().subscribe(() => {
+            this.draftsRefreshed.next(true);
+            this.draftsRefreshed.complete();
+        });
     }
 
     public refreshFroms(): Observable<FromAddress[]> {
-        return this.rmm.profile.load_verified().pipe(
-            map((reply) => {
-                this.froms = this.rmm.profile.from_addresses;
-                return this.froms;
-            })
+        return this.rmmapi.getFromAddress().pipe(
+            map(froms => this.froms = froms)
         );
     }
 

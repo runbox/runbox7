@@ -422,9 +422,8 @@ export class RunboxWebmailAPI {
     }
 
     public getFromAddress(): Observable<FromAddress[]> {
-        return this.rmm.profile.load_verified().pipe(
-            map((http_res) => {
-            const res = http_res;
+        return this.http.get('/rest/v1/profiles/verified').pipe(
+            map((res: any) => {
                 const results = [];
                 Object.keys(res['result']).forEach( (k) => {
                     res['result'][k].forEach( (item) => {
