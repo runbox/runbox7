@@ -58,7 +58,7 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.from = fromAddress.email;
         ret.mid = draftId;
-        ret.to = to ? MailAddressInfo.parse(to) : null;
+        ret.to = to ? MailAddressInfo.parse(to) : [];
         ret.subject = subject;
         if (preview) {
             // We create an element here because we want the plain text
@@ -80,13 +80,11 @@ export class DraftFormModel {
             const ma = new MailAddressInfo(addr.name, addr.address);
             return ma;
         });
-         // const sender: string = mailObj.from.map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-         //     addr.address : addr.name + '<' + addr.address + '>').join(',');
         ret.to = sender;
 
-        // FIXME: No tests for this, also needs to be an MAI now
         if (mailObj.headers['reply-to']) {
-            ret.to = mailObj.headers['reply-to'].text;
+            const addr = mailObj.headers['reply-to'].value;
+            ret.to = [new MailAddressInfo(addr.name, addr.address)];
         }
 
         if (all) {

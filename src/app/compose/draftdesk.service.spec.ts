@@ -61,6 +61,51 @@ describe('DraftDesk', () => {
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
+    it('Reply: Address with object, single reply-to', (done) => {
+        console.log('Reply test: Address with object, single reply-to');
+        const mailDate = new Date(2017, 6, 1);
+
+        const timezoneOffset: number = mailDate.getTimezoneOffset();
+
+        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
+            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
+            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
+
+        // fromObj, identities, all (t/f), html (t/f)
+        const draft = DraftFormModel.reply({
+                headers: {
+                    'message-id': 'themessageid12123abcdef',
+                    'reply-to': {
+                        'text': 'Reply-To <reply-to@runbox.com>',
+                        'value': {
+                            'name': 'Reply-To',
+                            'address': 'reply-to@runbox.com'
+                        }
+                    }
+                },
+                from: [
+                    {address: 'from@runbox.com', name: 'From'}
+                ]
+                ,
+                to: [
+                    {address: 'to@runbox.com', name: 'To'}
+                ],
+                date: mailDate,
+                subject: 'Test subject',
+                text: 'blabla\nabcde',
+                rawtext: 'blabla\nabcde',
+                html: '<p>blabla</p><p>abcde</p>'
+            }
+            , [ FromAddress.fromEmailAddress('to@runbox.com')]
+        , false, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.from).toBe('to@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
+        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
     it('Reply: Address with object, reply to all', (done) => {
         console.log('Reply test: Address with object, reply to all');
         const mailDate = new Date(2017, 6, 1);
