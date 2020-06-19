@@ -642,6 +642,19 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
+    recipientDragged(ev: DragEvent, recipient: Recipient) {
+        ev.dataTransfer.setData('recipient', recipient.toString());
+    }
+
+    recipientDropped(ev: DragEvent, target: string) {
+        const addressLine = ev.dataTransfer.getData('recipient');
+
+        const newMAI = MailAddressInfo.parse(addressLine);
+        const newRecipients = this.model[target].concat(newMAI);
+
+        this.onUpdateRecipient(target, newRecipients);
+    }
+
     /// updates the displayed `suggestedRecipients`
     /// making sure it doesn't contain any existing recipients
     updateSuggestions() {
