@@ -650,6 +650,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         this.filteredSuggestions = this.suggestedRecipients.filter(
             s => !currentrecipients.find(r => r.address === keyOf(s.toString()))
-        );
+        ).slice(0, 5);
     }
 }

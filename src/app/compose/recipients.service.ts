@@ -164,8 +164,6 @@ export class RecipientsService {
                     x => !own.has(x[0])
                 ).sort(
                     (a, b) => b[1] - a[1]
-                ).slice(
-                    0, 5
                 ).map(
                     a => new Recipient([a[0]])
                 )
