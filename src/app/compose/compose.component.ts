@@ -35,6 +35,9 @@ import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { isValidEmailList } from './emailvalidator';
+import { Recipient } from './recipient';
+import { RecipientsService } from './recipients.service';
+import { MailAddressInfo } from '../lib.module';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -73,6 +76,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     shouldReturnToPreviousPage = false;
 
+    // here we keep the suggestions we get from RecipientsService
+    suggestedRecipients: Recipient[] = [];
+    // and here we keep suggestedRecipients but filtered
+    // to not include the recipients already picked
+    filteredSuggestions: Recipient[] = [];
+
+
     public formGroup: FormGroup;
 
     @Input() model: DraftFormModel = new DraftFormModel();
@@ -85,10 +95,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private http: HttpClient,
         private formBuilder: FormBuilder,
         private location: Location,
-        private dialogService: DialogService
+        private dialogService: DialogService,
+        recipientservice: RecipientsService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
+
+        recipientservice.recentlyUsed.subscribe(suggestions => {
+            this.suggestedRecipients = suggestions;
+            this.updateSuggestions();
+        });
     }
 
     ngOnInit() {
@@ -116,7 +132,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
-                this.model.preview = DraftFormModel.trimmedPreview(msgObj.text.text)
+                this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''
             );
         }
 
@@ -159,6 +175,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                 }
             });
+
+        this.formGroup.valueChanges.subscribe(_ => this.updateSuggestions());
     }
 
     ngAfterViewInit() {
@@ -201,6 +219,21 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public hideDropZone() {
         this.draggingOverDropZone = false;
         this.showDropZone = false;
+    }
+
+    addRecipientFromSuggestions(recipient: Recipient) {
+        // TODO once GH-643 is in, remove the split/join
+        let current = this.formGroup.controls.to.value;
+        // console.log("Adding from suggestions. Current control state:", current);
+        if (current) {
+            current = current.split(', ');
+        } else {
+            current = [];
+        }
+
+        current.push(recipient.toString());
+
+        this.formGroup.controls.to.setValue(current.join(', '));
     }
 
     public attachFilesClicked() {
@@ -610,5 +643,25 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    /// updates the displayed `suggestedRecipients`
+    /// making sure it doesn't contain any existing recipients
+    updateSuggestions() {
+        const keyOf = (addr: string) => MailAddressInfo.parse(addr)[0].address;
+        const currentrecipients: Recipient[] = [];
+        // TODO remove the split once castaway's changes are in
+        for (const fc of [this.formGroup.controls.to, this.formGroup.controls.cc, this.formGroup.controls.bcc]) {
+            if (!fc.value) {
+                continue;
+            }
+            for (const r of fc.value.split(', ')) {
+                currentrecipients.push(r);
+            }
+        }
+        // console.log("currentrecipients when updating suggestions:", currentrecipients);
+        this.filteredSuggestions = this.suggestedRecipients.filter(
+            s => !currentrecipients.find(r => keyOf(r.toString()) === keyOf(s.toString()))
+        );
     }
 }

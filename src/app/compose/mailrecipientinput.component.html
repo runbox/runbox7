@@ -26,9 +26,3 @@
         {{ recipient.name }}
     </mat-option>
 </mat-autocomplete>
-<div class="recipientSuggestionList" *ngIf="suggestedRecipients.length > 0">
-    <div> Recently used: </div>
-    <div *ngFor="let recipient of filteredSuggestions">
-        <mat-chip (click)="addRecipientFromAutoComplete(recipient)"> {{ recipient }} </mat-chip>
-    </div>
-</div>

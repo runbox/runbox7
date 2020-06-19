@@ -46,6 +46,12 @@
             <button mat-button *ngIf="editing && formGroup.value.cc===null" (click)="formGroup.controls.cc.setValue('')" id="buttonCC">CC</button>
             <button mat-button *ngIf="editing && formGroup.value.bcc===null" (click)="formGroup.controls.bcc.setValue('')" id="buttonBCC">BCC</button>
         </div>
+        <div class="recipientSuggestionList" *ngIf="suggestedRecipients.length > 0">
+            <div> Recently used: </div>
+            <div *ngFor="let recipient of filteredSuggestions">
+                <mat-chip (click)="addRecipientFromSuggestions(recipient)"> {{ recipient }} </mat-chip>
+            </div>
+        </div>
         <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient">
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (updateRecipient)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
             <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
