@@ -45,7 +45,7 @@
         <div runbox-section-content>
           <p>This is the Two-Factor Authentication (2FA) configuration screen, where you can configure the various options for enabling and using 2FA.</p>
           <p>We recommended that you create an <strong>Unlock Code</strong> when enabling 2FA. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
-          <p style="margin: 0 5%"><em><strong>Note:</strong> For security reasons, enabling 2FA will disable your account password for non-web services. These include IMAP, POP, and SMTP (for email programs), FTP (for file transfer programs), and CalDAV (for calendar programs). Therefore you will need to set up App Passwords for these services if you want to continue using them.</em></p>
+          <p style="margin: 0 5%"><em><strong>Note:</strong> For security reasons, enabling 2FA will disable your account password for non-web services. These include IMAP, POP, SMTP, FTP, CalDAV, and CardDAV services that may be used with progams or apps on your device. Therefore you will need to set up App Passwords for these services if you want to continue using them.</em></p>
 	  <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Two-Factor_Authentication" target="help">Two-Factor Authentication Help</a>.</p>
         </div>
       </app-runbox-section>
@@ -306,9 +306,9 @@
           <h3 class="runbox-section-header">App passwords</h3>
         </div>
         <div runbox-section-content>
-          <p>Here you can create passwords for specific applications or devices.</p>
+          <p>Here you can create app passwords for specific applications or devices. App passwords are strong passwords that replace your account password for each service.</p>
           <p>The main advantage of using app specific passwords is that you can use different passwords on each app or device. If you happen to lose a device you can immediately disable the password used by that device.</p>
-          <p>App passwords work for all non-web services such as IMAP, POP, SMTP, FTP, and WebDAV. For example, create one password for 'Outlook on my MacBook Pro', and another password for 'My Android email client'.</p>
+          <p>App passwords work for all non-web services such as IMAP, POP, SMTP, FTP, CalDAV, and CardDAV. For example, create one password for 'Outlook on my MacBook Pro', and another password for 'My Android email client'.</p>
 	  <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#App_Passwords" target="help">App Passwords Help</a>.</p>
           <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.app_pass.results">
             <mat-grid-tile><h4>Name</h4></mat-grid-tile>
