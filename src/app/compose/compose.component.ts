@@ -59,6 +59,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     editor: any = null;
     editorId: string;
     editorContent: string;
+    hasCC = false;
+    hasBCC = false;
     public showDropZone = false;
     public draggingOverDropZone = false;
     public editing = false;
@@ -219,6 +221,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // where event is hopefully a MailAddressInfo[]
     public onUpdateRecipient(field: string, event) {
         this.model[field] = event;
+        if (field === 'cc' && event.length === 0) {
+            this.hasCC = false;
+        }
+        if (field === 'bcc' && event.length === 0) {
+            this.hasBCC = false;
+        }
+        // Leaving this for now as it triggers auto-save
         const recipientString = event.map((recipient) => recipient.nameAndAddress).join(',');
         this.formGroup.controls[field].setValue(recipientString);
     }
@@ -338,13 +347,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                     if (result.headers.to) {
                         model.to = result.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                        // model.to = result.headers.to.text;
                     }
                     if (result.headers.cc) {
                         model.cc = result.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+                        this.hasCC = true;
                     }
                     if (result.headers.bcc) {
                         model.bcc = result.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+                        this.hasBCC = true;
                     }
 
                     model.subject = result.headers.subject;

@@ -41,7 +41,6 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: FormControl = new FormControl();
-    // recipientsList: string[] = [];
     recipientsList: MailAddressInfo[];
 
     separatorKeysCodes = [COMMA, ENTER];

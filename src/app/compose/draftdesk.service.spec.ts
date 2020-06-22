@@ -23,36 +23,34 @@ import { MailAddressInfo } from '../xapian/messageinfo';
 
 
 describe('DraftDesk', () => {
+    const mailDate = new Date(2017, 6, 1);
+    const timezoneOffset: number = mailDate.getTimezoneOffset();
+    const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
+        ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
+        ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
+
     it('Reply: Address with object, single reply', (done) => {
         console.log('Reply test: Address with object, single reply');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         // fromObj, identities, all (t/f), html (t/f)
         const draft = DraftFormModel.reply({
-                headers: {
-                    'message-id': 'themessageid12123abcdef',
-                },
-                from: [
-                    {address: 'from@runbox.com', name: 'From'}
-                ]
-                ,
-                to: [
-                    {address: 'to@runbox.com', name: 'To'}
-                ],
-                date: mailDate,
-                subject: 'Test subject',
-                text: 'blabla\nabcde',
-                rawtext: 'blabla\nabcde',
-                html: '<p>blabla</p><p>abcde</p>'
-            }
-            , [ FromAddress.fromEmailAddress('to@runbox.com')]
-        , false, false);
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        false, false);
 
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
@@ -63,41 +61,33 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with object, single reply-to', (done) => {
         console.log('Reply test: Address with object, single reply-to');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         // fromObj, identities, all (t/f), html (t/f)
         const draft = DraftFormModel.reply({
-                headers: {
-                    'message-id': 'themessageid12123abcdef',
-                    'reply-to': {
-                        'text': 'Reply-To <reply-to@runbox.com>',
-                        'value': {
-                            'name': 'Reply-To',
-                            'address': 'reply-to@runbox.com'
-                        }
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+                'reply-to': {
+                    'text': 'Reply-To <reply-to@runbox.com>',
+                    'value': {
+                        'name': 'Reply-To',
+                        'address': 'reply-to@runbox.com'
                     }
-                },
-                from: [
-                    {address: 'from@runbox.com', name: 'From'}
-                ]
-                ,
-                to: [
-                    {address: 'to@runbox.com', name: 'To'}
-                ],
-                date: mailDate,
-                subject: 'Test subject',
-                text: 'blabla\nabcde',
-                rawtext: 'blabla\nabcde',
-                html: '<p>blabla</p><p>abcde</p>'
-            }
-            , [ FromAddress.fromEmailAddress('to@runbox.com')]
-        , false, false);
+                }
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        false, false);
 
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
@@ -108,33 +98,25 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with object, reply to all', (done) => {
         console.log('Reply test: Address with object, reply to all');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         const draft = DraftFormModel.reply({
-                headers: {
-                    'message-id': 'themessageid12123abcdef',
-                },
-                from: [
-                    {address: 'from@runbox.com', name: 'From'}
-                ]
-                ,
-                to: [
-                    {address: 'to@runbox.com', name: 'To'}
-                ],
-                date: mailDate,
-                subject: 'Test subject',
-                text: 'blabla\nabcde',
-                rawtext: 'blabla\nabcde',
-                html: '<p>blabla</p><p>abcde</p>'
-            }
-            , [ FromAddress.fromEmailAddress('to@runbox.com')]
-        , true, false);
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
@@ -145,32 +127,24 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with MAI', (done) => {
         console.log('Reply test: Address with MAI');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         const draft = DraftFormModel.reply({
-                headers: {
-                    'message-id': 'themessageid112414',
-                },
-                from:
-                    MailAddressInfo.parse('"From" <from@runbox.com>')
+            headers: {
+                'message-id': 'themessageid112414',
+            },
+            from:
+            MailAddressInfo.parse('"From" <from@runbox.com>')
 
-                ,
-                to:
-                    MailAddressInfo.parse('To<to@runbox.com>')
-                ,
-                date: new Date(2017, 6, 1),
-                subject: 'Test subject',
-                text: 'blabla\nabcde',
-                rawtext: 'blabla\nabcde'
-            }
-            , [ FromAddress.fromEmailAddress('to@runbox.com') ]
-        , true, false);
+            ,
+            to:
+            MailAddressInfo.parse('To<to@runbox.com>')
+            ,
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com') ],
+        true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
@@ -181,60 +155,51 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with MAI, reply to reply', (done) => {
         console.log('Reply test: Address with MAI, reply to reply');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         const draft = DraftFormModel.reply({
             headers: {
                 'message-id': 'themessageid112414',
             },
             from:
-                MailAddressInfo.parse('from@runbox.com')
+            MailAddressInfo.parse('from@runbox.com')
 
             ,
             to:
-                MailAddressInfo.parse('To<to@runbox.com>')
+            MailAddressInfo.parse('To<to@runbox.com>')
             ,
-            date: new Date(2017, 6, 1),
+            date: mailDate,
             subject: 'Test subject',
             text: 'blabla\nabcde',
             rawtext: 'blabla\nabcde'
-        }
-        , [ FromAddress.fromEmailAddress('to@runbox.com') ]
-        , true, false);
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com') ],
+        true, false);
 
-        console.log(draft);
         const replydraft = DraftFormModel.reply({
             headers: {
                 'message-id': 'themessageid112414',
             },
             from:
-                MailAddressInfo.parse(draft.from)
+            MailAddressInfo.parse(draft.from)
 
             ,
             to:
-                MailAddressInfo.parse(draft.to[0].nameAndAddress)
+            MailAddressInfo.parse(draft.to[0].nameAndAddress)
             ,
             date: new Date(2017, 6, 2),
             subject: draft.subject,
             text: draft.msg_body,
             rawtext: draft.msg_body
-        }
-        , [ FromAddress.fromEmailAddress('from@runbox.com') ]
-        , false, false);
+        },
+        [ FromAddress.fromEmailAddress('from@runbox.com') ],
+        false, false);
 
         expect(replydraft.subject).toBe('Re: Test subject');
         expect(replydraft.from).toBe('from@runbox.com');
         expect(replydraft.to[0].nameAndAddress).toBe('to@runbox.com');
         expect(replydraft.msg_body).toBe(`\n2017-07-02 00:00 ${timezoneOffsetString} to@runbox.com:\n` +
-                                    '> \n' +
-                                    `> 2017-07-01 00:00 ${timezoneOffsetString} from@runbox.com:\n` +
-                                    '>> blabla\n>> abcde');
+                                         '> \n' +
+                                         `> 2017-07-01 00:00 ${timezoneOffsetString} from@runbox.com:\n` +
+                                         '>> blabla\n>> abcde');
         expect(replydraft.isUnsaved()).toBe(true);
         done();
     });
@@ -243,7 +208,7 @@ describe('DraftDesk', () => {
         console.log('Create test');
         // compose?new=true
         let draft = DraftFormModel.create(
-            -1,
+                -1,
             FromAddress.fromEmailAddress('to@runbox.com'),
             null,
             '');
@@ -251,7 +216,7 @@ describe('DraftDesk', () => {
 
         // Link on contact page:
         draft = DraftFormModel.create(
-            -1,
+                -1,
             FromAddress.fromEmailAddress('to@runbox.com'),
             '"Test Runbox" <to@runbox.com>',
             '');

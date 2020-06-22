@@ -45,19 +45,19 @@
         </span>        
         <div style="display: flex;" class="fieldRecipient">
             <mailrecipient-input *ngIf="editing" style="flex-grow: 1"
-                [initialfocus] = "formGroup.value.to ? false : true"
+                [initialfocus]="model.to.length === 0"
                 placeholder="To"
                 [recipients]="model.to"
                 (updateRecipient)="onUpdateRecipient('to', $event)"
                 (drop)="recipientDropped($event, 'to')"
             ></mailrecipient-input>
-            <button mat-button *ngIf="editing && formGroup.value.cc===null"
-                (click)="formGroup.controls.cc.setValue('')"
+            <button mat-button *ngIf="editing && !hasCC"
+                (click)="hasCC = true"
                 (drop)="recipientDropped($event, 'cc')"
                 id="buttonCC"
             > CC </button>
-            <button mat-button *ngIf="editing && formGroup.value.bcc===null"
-                (click)="formGroup.controls.bcc.setValue('')"
+            <button mat-button *ngIf="editing && !hasBCC"
+                (click)="hasBCC = true"
                 (drop)="recipientDropped($event, 'bcc')"
                 id="buttonBCC"
             > BCC </button>
@@ -72,7 +72,7 @@
                 > {{ recipient }} </mat-chip>
             </div>
         </div>
-        <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient" (drop)="recipientDropped($event, 'cc')">
+        <div style="display: flex;" *ngIf="editing && hasCC" class="fieldRecipient" (drop)="recipientDropped($event, 'cc')">
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
                 placeholder="CC"
                 [recipients]="model.cc"
@@ -80,7 +80,7 @@
             ></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
         </div>
-        <div style="display: flex;" *ngIf="editing && formGroup.value.bcc!==null" class="fieldRecipient" (drop)="recipientDropped($event, 'bcc')">
+        <div style="display: flex;" *ngIf="editing && hasBCC" class="fieldRecipient" (drop)="recipientDropped($event, 'bcc')">
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
                 placeholder="BCC"
                 [recipients]="model.bcc"

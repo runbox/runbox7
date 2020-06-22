@@ -76,8 +76,7 @@ export class DraftFormModel {
 
         // list of MailAddressInfo objects:
         const sender: MailAddressInfo[] = mailObj.from.map((addr) => {
-            const ma = new MailAddressInfo(addr.name, addr.address);
-            return ma;
+            return new MailAddressInfo(addr.name, addr.address);
         });
         ret.to = sender;
 
@@ -90,19 +89,17 @@ export class DraftFormModel {
             ret.to = mailObj.from.concat(
                 mailObj.to)
                 .filter((addr) =>
-                    froms.find(fromObj => fromObj.email === addr.address) ? false : true
-                )
+                        froms.find(fromObj => fromObj.email === addr.address) ? false : true
+                       )
                 .map((addr) => {
-                    const ma = new MailAddressInfo(addr.name, addr.address);
-                    return ma;
+                    return new MailAddressInfo(addr.name, addr.address);
                 });
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
                     .map((addr) => {
-                    const ma = new MailAddressInfo(addr.name, addr.address);
-                    return ma;
-                });
+                        return new MailAddressInfo(addr.name, addr.address);
+                    });
             }
         }
         ret.setFromForResponse(mailObj, froms);
