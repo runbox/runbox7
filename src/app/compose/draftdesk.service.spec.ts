@@ -23,16 +23,14 @@ import { MailAddressInfo } from '../xapian/messageinfo';
 
 
 describe('DraftDesk', () => {
+    const mailDate = new Date(2017, 6, 1);
+    const timezoneOffset: number = mailDate.getTimezoneOffset();
+    const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
+        ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
+        ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
+
     it('Reply: Address with object, single reply', (done) => {
         console.log('Reply test: Address with object, single reply');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         // fromObj, identities, all (t/f), html (t/f)
         const draft = DraftFormModel.reply({
             headers: {
@@ -63,14 +61,6 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with object, single reply-to', (done) => {
         console.log('Reply test: Address with object, single reply-to');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         // fromObj, identities, all (t/f), html (t/f)
         const draft = DraftFormModel.reply({
             headers: {
@@ -108,14 +98,6 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with object, reply to all', (done) => {
         console.log('Reply test: Address with object, reply to all');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         const draft = DraftFormModel.reply({
             headers: {
                 'message-id': 'themessageid12123abcdef',
@@ -145,14 +127,6 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with MAI', (done) => {
         console.log('Reply test: Address with MAI');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         const draft = DraftFormModel.reply({
             headers: {
                 'message-id': 'themessageid112414',
@@ -164,7 +138,7 @@ describe('DraftDesk', () => {
             to:
             MailAddressInfo.parse('To<to@runbox.com>')
             ,
-            date: new Date(2017, 6, 1),
+            date: mailDate,
             subject: 'Test subject',
             text: 'blabla\nabcde',
             rawtext: 'blabla\nabcde'
@@ -181,14 +155,6 @@ describe('DraftDesk', () => {
     });
     it('Reply: Address with MAI, reply to reply', (done) => {
         console.log('Reply test: Address with MAI, reply to reply');
-        const mailDate = new Date(2017, 6, 1);
-
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
-
         const draft = DraftFormModel.reply({
             headers: {
                 'message-id': 'themessageid112414',
@@ -200,7 +166,7 @@ describe('DraftDesk', () => {
             to:
             MailAddressInfo.parse('To<to@runbox.com>')
             ,
-            date: new Date(2017, 6, 1),
+            date: mailDate,
             subject: 'Test subject',
             text: 'blabla\nabcde',
             rawtext: 'blabla\nabcde'
