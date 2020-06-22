@@ -20,7 +20,7 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo } from '../xapian/messageinfo';
+import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 import {RMM} from '../rmm';
@@ -41,9 +41,9 @@ export class DraftFormModel {
 
     from: string = null;
     mid: number = (DraftFormModel.newDraftCount--);
-    to: string = null;
-    cc: string = null;
-    bcc: string = null;
+    to: MailAddressInfo[] = [];
+    cc: MailAddressInfo[] = [];
+    bcc: MailAddressInfo[] = [];
     subject: string = null;
     msg_body = '';
     preview: string;
@@ -58,7 +58,7 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.from = fromAddress.email;
         ret.mid = draftId;
-        ret.to = to;
+        ret.to = to ? MailAddressInfo.parse(to) : [];
         ret.subject = subject;
         if (preview) {
             // We create an element here because we want the plain text
@@ -75,28 +75,32 @@ export class DraftFormModel {
         ret.reply_to_id = mailObj.mid;
         ret.in_reply_to = mailObj.headers['message-id'];
 
-        const sender: string = mailObj.from.map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-            addr.address : addr.name + '<' + addr.address + '>').join(',');
+        // list of MailAddressInfo objects:
+        const sender: MailAddressInfo[] = mailObj.from.map((addr) => {
+            return new MailAddressInfo(addr.name, addr.address);
+        });
         ret.to = sender;
 
         if (mailObj.headers['reply-to']) {
-            ret.to = mailObj.headers['reply-to'].text;
+            const addr = mailObj.headers['reply-to'].value;
+            ret.to = [new MailAddressInfo(addr.name, addr.address)];
         }
 
         if (all) {
             ret.to = mailObj.from.concat(
                 mailObj.to)
                 .filter((addr) =>
-                    froms.find(fromObj => fromObj.email === addr.address) ? false : true
-                )
-                .map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-                    addr.address : addr.name + '<' + addr.address + '>')
-                .join(',');
+                        froms.find(fromObj => fromObj.email === addr.address) ? false : true
+                       )
+                .map((addr) => {
+                    return new MailAddressInfo(addr.name, addr.address);
+                });
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
-                    .map((addr) => !addr.name || addr.address.indexOf(addr.name + '@') === 0 ?
-                        addr.address : addr.name + '<' + addr.address + '>').join(',');
+                    .map((addr) => {
+                        return new MailAddressInfo(addr.name, addr.address);
+                    });
             }
         }
         ret.setFromForResponse(mailObj, froms);
@@ -112,7 +116,7 @@ export class DraftFormModel {
 
         if (!useHTML && mailObj.rawtext) {
             ret.msg_body = '\n' + mailDate.toISOString().substr(0, 'yyyy-MM-ddTHH:mm'.length).replace('T', ' ') + ' ' +
-                timezoneOffsetString + ' ' + sender + ':\n' +
+                timezoneOffsetString + ' ' + sender[0].nameAndAddress + ':\n' +
                 mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
         } else if (!useHTML && !mailObj.rawtext) {
             ret.msg_body = '';

@@ -27,6 +27,7 @@ import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
+import { MailAddressInfo } from '../xapian/messageinfo';
 
 const COMMA = 188;
 
@@ -40,18 +41,18 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: FormControl = new FormControl();
-    recipientsList: string[] = [];
+    recipientsList: MailAddressInfo[];
 
     separatorKeysCodes = [COMMA, ENTER];
 
     addedFromAutoComplete = false;
     invalidemail = false;
 
-    @Input() recipients: string;
+    @Input() recipients: MailAddressInfo[];
     @Input() placeholder: string;
     @Input() initialfocus = false;
 
-    @Output() updateRecipient: EventEmitter<string> = new EventEmitter();
+    @Output() updateRecipient: EventEmitter<MailAddressInfo[]> = new EventEmitter();
 
     @ViewChild('searchTextInput') searchTextInput: ElementRef;
     @ViewChild('auto') auto: MatAutocomplete;
@@ -82,9 +83,8 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        this.recipientsList = this.recipients ?
-            this.recipients.split(',').map((recipient) => recipient.trim()) :
-            [];
+        // now a list of MailAddressInfo objects
+        this.recipientsList = this.recipients ? this.recipients : [];
     }
 
     ngAfterViewInit() {
@@ -94,7 +94,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
     notifyChangeListener() {
-        this.updateRecipient.emit(this.recipientsList.join(','));
+        this.updateRecipient.emit(this.recipientsList);
     }
 
     removeRecipient(ndx: number) {
@@ -121,8 +121,9 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
             });
         }
 
+        // FIXME: If we could push/concat an array we could skip this loop:
         for (const r of recipient.toStringList()) {
-            this.recipientsList.push(r);
+            this.recipientsList.push(MailAddressInfo.parse(r)[0]);
         }
 
         this.notifyChangeListener();
@@ -137,7 +138,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
             this.invalidemail = false;
 
             if (value) {
-                this.recipientsList.push(value);
+                this.recipientsList.push(MailAddressInfo.parse(value)[0]);
                 this.notifyChangeListener();
                 input.value = '';
             }
@@ -155,7 +156,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
 
         if (value && this.searchTextFormControl.valid && !this.addedFromAutoComplete) {
             this.invalidemail = false;
-            this.recipientsList.push(value);
+            this.recipientsList.push(MailAddressInfo.parse(value)[0]);
             this.notifyChangeListener();
         } else if (!this.addedFromAutoComplete && !this.searchTextFormControl.valid) {
             this.invalidemail = true;

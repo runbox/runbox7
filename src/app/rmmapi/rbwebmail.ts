@@ -478,12 +478,12 @@ export class RunboxWebmailAPI {
             params.append('mid', '' + draftModel.mid);
             params.append('msg_body', draftModel.msg_body);
             params.append('from', draftModel.from);
-            params.append('to', draftModel.to);
+            params.append('to', draftModel.to.map((recipient) => recipient.nameAndAddress).join(','));
             if (draftModel.cc) {
-                params.append('cc', draftModel.cc);
+                params.append('cc', draftModel.cc.map((recipient) => recipient.nameAndAddress).join(','));
             }
             if (draftModel.bcc) {
-                params.append('bcc', draftModel.bcc);
+                params.append('bcc', draftModel.bcc.map((recipient) => recipient.nameAndAddress).join(','));
             }
             if (draftModel.subject) {
                 params.append('subject', draftModel.subject);

@@ -39,20 +39,22 @@
             </mat-select>
         </mat-form-field>
         <span *ngIf="!editing">
-            {{model.to}}
+            <span *ngFor="let t of model.to">
+                {{t.nameAndAddress}}
+            </span>
         </span>        
         <div style="display: flex;" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (updateRecipient)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
-            <button mat-button *ngIf="editing && formGroup.value.cc===null" (click)="formGroup.controls.cc.setValue('')" id="buttonCC">CC</button>
-            <button mat-button *ngIf="editing && formGroup.value.bcc===null" (click)="formGroup.controls.bcc.setValue('')" id="buttonBCC">BCC</button>
+            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "model.to.length>0 ? false : true" placeholder="To" [recipients]="model.to" (updateRecipient)="onUpdateRecipient('to',$event)"></mailrecipient-input>
+            <button mat-button *ngIf="editing && !hasCC" (click)="hasCC=true" id="buttonCC">CC</button>
+            <button mat-button *ngIf="editing && !hasBCC" (click)="hasBCC=true" id="buttonBCC">BCC</button>
         </div>
-        <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (updateRecipient)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
-            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
+        <div style="display: flex;" *ngIf="editing && hasCC" class="fieldRecipient">
+            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="model.cc" (updateRecipient)="onUpdateRecipient('cc',$event)"></mailrecipient-input>
+            <button mat-icon-button (click)="onUpdateRecipient('cc',[])"><mat-icon>close</mat-icon></button>              
         </div>
-        <div style="display: flex;" *ngIf="editing && formGroup.value.bcc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (updateRecipient)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
-            <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon>close</mat-icon></button>
+        <div style="display: flex;" *ngIf="editing && hasBCC" class="fieldRecipient">
+            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="model.bcc" (updateRecipient)="onUpdateRecipient('bcc',$event)"></mailrecipient-input>
+            <button mat-icon-button (click)="onUpdateRecipient('bcc',[])"><mat-icon>close</mat-icon></button>
         </div>
     </mat-card-subtitle>    
     <mat-card-content>       
