@@ -37,7 +37,7 @@ import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetabl
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
 import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI, FolderListEntry } from './rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
@@ -532,15 +532,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
 
+    const value = 0;
     const args = {
         flag: {
             name: 'seen_flag',
-            value: 0
+            value: value
         },
         ids: messageIds
     };
 
     this.rmm.email.update(args).subscribe(() => {
+        messageIds.forEach( (id) => {
+            this.rmmapi.messageFlagChangeSubject.next(
+                new MessageFlagChange(id, null, value ? true : false)
+            );
+        } );
         this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
@@ -556,16 +562,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-
+    const value = 0;
     const args = {
         flag: {
             name: 'flagged_flag',
-            value: 0
+            value: value
         },
         ids: messageIds
     };
 
     this.rmm.email.update(args).subscribe(() => {
+        messageIds.forEach( (id) => {
+            this.rmmapi.messageFlagChangeSubject.next(
+                new MessageFlagChange(id, null, value ? true : false)
+                );
+        } );
         this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
