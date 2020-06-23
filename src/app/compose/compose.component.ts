@@ -221,11 +221,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // where event is hopefully a MailAddressInfo[]
     public onUpdateRecipient(field: string, event) {
         this.model[field] = event;
-        if (field === 'cc' && event.length === 0) {
-            this.hasCC = false;
+        if (field === 'cc') {
+            this.hasCC = event.length !== 0;
         }
-        if (field === 'bcc' && event.length === 0) {
-            this.hasBCC = false;
+        if (field === 'bcc') {
+            this.hasBCC = event.length !== 0;
         }
         // Leaving this for now as it triggers auto-save
         const recipientString = event.map((recipient) => recipient.nameAndAddress).join(',');
