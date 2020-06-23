@@ -69,7 +69,9 @@
                     (click)="addRecipientFromSuggestions(recipient)"
                     draggable="true"
                     (dragstart)="recipientDragged($event, recipient)"
-                > {{ recipient }} </mat-chip>
+                >
+                    {{ recipient.nameAndAddress }}
+                </mat-chip>
             </div>
         </div>
         <div style="display: flex;" *ngIf="editing && hasCC" class="fieldRecipient" (drop)="recipientDropped($event, 'cc')">

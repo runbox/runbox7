@@ -681,7 +681,7 @@ export class SearchService {
       );
   }
 
-  /// Get message IDs of all indexed messages in a given time range -- [inclusive, exclusive)
+  /// Get message IDs of all indexed messages in a given time range -- [inclusive, exclusive), newest first
   getMessagesInTimeRange(start: Date, end: Date, folder?: string): number[] {
     const toRangeString = (dt: Date) => dt.toISOString().substr(0, 10).replace(/-/g, '');
     let query = `date:${toRangeString(start)}..${toRangeString(end)}`;

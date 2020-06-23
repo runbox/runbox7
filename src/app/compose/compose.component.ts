@@ -34,7 +34,6 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
-import { Recipient } from './recipient';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
@@ -79,10 +78,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     shouldReturnToPreviousPage = false;
 
     // here we keep the suggestions we get from RecipientsService
-    suggestedRecipients: Recipient[] = [];
+    suggestedRecipients: MailAddressInfo[] = [];
     // and here we keep suggestedRecipients but filtered
     // to not include the recipients already picked
-    filteredSuggestions: Recipient[] = [];
+    filteredSuggestions: MailAddressInfo[] = [];
 
 
     public formGroup: FormGroup;
@@ -237,9 +236,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.showDropZone = false;
     }
 
-    addRecipientFromSuggestions(recipient: Recipient) {
-        const newMAI = MailAddressInfo.parse(recipient.toString());
-        const newRecipients = this.model.to.concat(newMAI);
+    addRecipientFromSuggestions(recipient: MailAddressInfo) {
+        const newRecipients = this.model.to.concat(recipient);
 
         this.onUpdateRecipient('to', newRecipients);
     }
@@ -652,8 +650,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    recipientDragged(ev: DragEvent, recipient: Recipient) {
-        ev.dataTransfer.setData('recipient', recipient.toString());
+    recipientDragged(ev: DragEvent, recipient: MailAddressInfo) {
+        ev.dataTransfer.setData('recipient', recipient.nameAndAddress);
     }
 
     recipientDropped(ev: DragEvent, target: string) {
@@ -668,11 +666,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     /// updates the displayed `suggestedRecipients`
     /// making sure it doesn't contain any existing recipients
     updateSuggestions() {
-        const keyOf = (addr: string) => MailAddressInfo.parse(addr)[0].address;
         const currentrecipients: MailAddressInfo[] = [].concat(this.model.to).concat(this.model.cc).concat(this.model.bcc);
 
         this.filteredSuggestions = this.suggestedRecipients.filter(
-            s => !currentrecipients.find(r => r.address === keyOf(s.toString()))
+            s => !currentrecipients.find(r => r.address === s.address)
         ).slice(0, 5);
     }
 }

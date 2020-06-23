@@ -37,7 +37,7 @@ enum RecipientOrigin {
 export class RecipientsService {
     ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
-    recentlyUsed: ReplaySubject<Recipient[]> = new ReplaySubject(1);
+    recentlyUsed: ReplaySubject<MailAddressInfo[]> = new ReplaySubject(1);
 
     // Need to be able to update from 2 different subscriptions
     recipientsUpdating: { origin: RecipientOrigin, uniqueKey: string, recipient: Recipient }[] = [];
@@ -139,6 +139,7 @@ export class RecipientsService {
         const endDate = moment().add(1, 'day');
         const latestEmails = this.searchService.getMessagesInTimeRange(startDate.toDate(), endDate.toDate(), 'Sent');
         const popularRecipients: { [email: string]: number } = {};
+        const addressInfoByEmail: { [email: string]: MailAddressInfo } = {};
 
         for (const id of latestEmails) {
             const message = this.searchService.getDocData(id);
@@ -147,11 +148,17 @@ export class RecipientsService {
                     continue;
                 }
 
-                const email = MailAddressInfo.parse(recipient)[0].address;
+                const mai = MailAddressInfo.parse(recipient)[0];
+                const email = mai.address;
                 if (popularRecipients[email]) {
                     popularRecipients[email]++;
                 } else {
                     popularRecipients[email] = 1;
+                }
+
+                // newest known name wins
+                if (!addressInfoByEmail[email] || !addressInfoByEmail[email].name) {
+                    addressInfoByEmail[email] = mai;
                 }
             }
         }
@@ -165,7 +172,7 @@ export class RecipientsService {
                 ).sort(
                     (a, b) => b[1] - a[1]
                 ).map(
-                    a => new Recipient([a[0]])
+                    a => addressInfoByEmail[a[0]]
                 )
             );
         });
