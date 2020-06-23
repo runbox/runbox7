@@ -541,12 +541,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         ids: messageIds
     };
 
+    messageIds.forEach( (id) => {
+        this.rmmapi.messageFlagChangeSubject.next(
+            new MessageFlagChange(id, null, value ? true : false)
+        );
+    } );
     this.rmm.email.update(args).subscribe(() => {
-        messageIds.forEach( (id) => {
-            this.rmmapi.messageFlagChangeSubject.next(
-                new MessageFlagChange(id, null, value ? true : false)
-            );
-        } );
         this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
@@ -571,12 +571,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         ids: messageIds
     };
 
+    messageIds.forEach( (id) => {
+        this.rmmapi.messageFlagChangeSubject.next(
+            new MessageFlagChange(id, null, value ? true : false)
+            );
+    } );
     this.rmm.email.update(args).subscribe(() => {
-        messageIds.forEach( (id) => {
-            this.rmmapi.messageFlagChangeSubject.next(
-                new MessageFlagChange(id, null, value ? true : false)
-                );
-        } );
         this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
