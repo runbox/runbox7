@@ -22,40 +22,50 @@ import { MailAddressInfo } from '../common/mailaddressinfo';
 describe('MailAddressInfo', () => {
     it('Construct with name and email', () => {
         const ma = new MailAddressInfo('Test', 'test1@runbox.com');
-        // expect(ma.name).toBe('Test');
-        // expect(ma.address).toBe('test1@runbox.com');
+        expect(ma.name).toBe('Test');
+        expect(ma.address).toBe('test1@runbox.com');
         expect(ma.nameAndAddress).toBe('"Test" <test1@runbox.com>');
     });
     it('Parse single email address', () => {
         const ma = MailAddressInfo.parse('test1@runbox.com');
-        // expect(ma.name).toBe(null);
-        // expect(ma.address).toBe('test1@runbox.com');
+        expect(ma[0].name).toBe(null);
+        expect(ma[0].address).toBe('test1@runbox.com');
         expect(ma[0].nameAndAddress).toBe('test1@runbox.com');
     });
     it('Parse full single address', () => {
         const ma = MailAddressInfo.parse('"Test" <test1@runbox.com>');
-        // expect(ma.name).toBe('Test');
-        // expect(ma.address).toBe('test1@runbox.com');
+        expect(ma[0].name).toBe('Test');
+        expect(ma[0].address).toBe('test1@runbox.com');
         expect(ma[0].nameAndAddress).toBe('"Test" <test1@runbox.com>');
     });
     it('Parse full single address, no quotes', () => {
         const ma = MailAddressInfo.parse('Test <test1@runbox.com>');
-        // expect(ma.name).toBe('Test');
-        // expect(ma.address).toBe('test1@runbox.com');
+        expect(ma[0].name).toBe('Test');
+        expect(ma[0].address).toBe('test1@runbox.com');
         expect(ma[0].nameAndAddress).toBe('"Test" <test1@runbox.com>');
     });
     it('Parse address list', () => {
         const ma_list = MailAddressInfo.parse('test1@runbox.com,test2@runbox.com');
+        expect(ma_list[0].name).toBe(null);
+        expect(ma_list[0].address).toBe('test1@runbox.com');
         expect(ma_list[0].nameAndAddress).toBe('test1@runbox.com');
+        expect(ma_list[1].name).toBe(null);
+        expect(ma_list[1].address).toBe('test2@runbox.com');
         expect(ma_list[1].nameAndAddress).toBe('test2@runbox.com');
     });
     it('Parse empty names address', () => {
         const ma_list = MailAddressInfo.parse('"" <test1@runbox.com>');
+        expect(ma_list[0].name).toBe('');
+        expect(ma_list[0].address).toBe('test1@runbox.com');
         expect(ma_list[0].nameAndAddress).toBe('test1@runbox.com');
     });
     it('Parse full address list', () => {
         const ma_list = MailAddressInfo.parse('"Test1" <test1@runbox.com>, "Test2" <test2@runbox.com>');
+        expect(ma_list[0].name).toBe('Test1');
+        expect(ma_list[0].address).toBe('test1@runbox.com');
         expect(ma_list[0].nameAndAddress).toBe('"Test1" <test1@runbox.com>');
+        expect(ma_list[1].name).toBe('Test2');
+        expect(ma_list[1].address).toBe('test2@runbox.com');
         expect(ma_list[1].nameAndAddress).toBe('"Test2" <test2@runbox.com>');
     });
 });

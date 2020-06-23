@@ -19,7 +19,17 @@ describe('Composing emails', () => {
         cy.get('mat-card-actions div').should('contain', 'Subject X');
     });
 
-    it('should complain on invalid email address', () => {
+    it('should complain on invalid email address, blur', () => {
+        cy.visit('/compose?new=true');
+
+        cy.get('mailrecipient-input input').type('invalidaddress').blur();
+        cy.get('mailrecipient-input mat-error').should('contain', 'Please enter a valid email address');
+
+        cy.get('mailrecipient-input input').clear().type('test@example.com').blur();
+        cy.get('mailrecipient-input mat-error').should('not.exist');
+    });
+
+    it('should complain on invalid email address, enter', () => {
         cy.visit('/compose?new=true');
 
         cy.get('mailrecipient-input input').type('invalidaddress{enter}');

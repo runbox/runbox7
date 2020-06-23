@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 export class MailAddressInfo {
-  nameAndAddress: string;
+    nameAndAddress: string;
 
     constructor(public name: string, public address: string) {
         this.nameAndAddress = name ? `"${name}" <${address}>` : address;
