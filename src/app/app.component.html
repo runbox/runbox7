@@ -35,6 +35,12 @@
       <mat-divider></mat-divider>
     </mat-nav-list>
 
+    <app-popular-recipients
+        (recipientClicked)="searchFor($event)"
+    ></app-popular-recipients>
+
+    <mat-divider></mat-divider>
+
     <rmm-folderlist #folderListComponent
         [folders]="displayedFolders"
         [folderMessageCounts]="messagelistservice.folderMessageCountSubject"
