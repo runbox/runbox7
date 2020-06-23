@@ -52,12 +52,13 @@ export class MailAddressInfo {
                         ret.push(new MailAddressInfo(name, addr));
                         addr = null;
                         name = null;
+                        lastStart = n + 1;
                     }
                     break;
                 case '<':
                     if (!namePart) {
                         addrPart = true;
-                        if (!name) {
+                        if (name == null) {
                             name = mailaddr.substring(lastStart, n).trim();
                         }
                         lastStart = n + 1;
