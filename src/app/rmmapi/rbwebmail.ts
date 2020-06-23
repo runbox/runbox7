@@ -21,7 +21,8 @@ import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
+import { MessageInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from './../common/mailaddressinfo';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
