@@ -100,9 +100,9 @@ describe('Composing emails', () => {
     });
 
     it('should find the same address in original "To" and our "From" field in Reply', () => {
-//        console.log('Visit /');
-//        cy.visit('/');
-//        console.log('Visit #12');
+        console.log('Visit /');
+        cy.visit('/');
+        console.log('Visit #12');
         cy.visit('/#Inbox:12');
         cy.get('single-mail-viewer').should('exist');
         const address = 'testmail@testmail.com';
