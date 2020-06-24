@@ -347,9 +347,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           return;
         }
 
+        console.log('Split fragment');
         const parts = fragment.split(':');
         this.switchToFolder(parts[0]);
         if (parts.length === 2) {
+          console.log('Loading message: ' + parts[1]);
           this.singlemailviewer.messageId = parseInt(parts[1], 10);
         } else {
           this.singlemailviewer.close();
