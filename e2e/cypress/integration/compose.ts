@@ -30,6 +30,7 @@ describe('Composing emails', () => {
     });
 
     it('should open reply draft with HTML editor', () => {
+        cy.visit('/');
         cy.visit('/#Inbox:1');
         cy.get('single-mail-viewer').should('exist');
         cy.get('mat-checkbox[mattooltip="Toggle HTML view"]').click();
@@ -61,6 +62,7 @@ describe('Composing emails', () => {
     });
 
     it('closing a new reply should return to inbox', () => {
+        cy.visit('/');
         cy.visit('/#Inbox:1');
         cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
         cy.get('single-mail-viewer').should('exist');
@@ -100,9 +102,8 @@ describe('Composing emails', () => {
     });
 
     it('should find the same address in original "To" and our "From" field in Reply', () => {
-        console.log('Visit /');
         cy.visit('/');
-        console.log('Visit #12');
+        cy.visit('/');
         cy.visit('/#Inbox:12');
         cy.get('single-mail-viewer').should('exist');
         const address = 'testmail@testmail.com';
