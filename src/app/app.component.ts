@@ -160,6 +160,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private swPush: SwPush,
     private hotkeysService: HotkeysService
   ) {
+    console.log('app.component.ts constructor start');
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
         (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
@@ -247,12 +248,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
+    console.log('app.component.ts constructor end');
   }
 
   ngOnDestroy() {
     this.mobileQuery.removeListener(this.mobileQueryListener);
   }
   ngDoCheck(): void {
+    console.log('DoCheck start');
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
       (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
 
@@ -267,9 +270,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     } else {
       this.dynamicSearchFieldPlaceHolder = null;
     }
+    console.log('DoCheck end');
   }
 
   ngOnInit(): void {
+    console.log('DoInit start');
     this.canvastable = this.canvastablecontainer.canvastable;
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
@@ -318,9 +323,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.viewmode = viewModeSetting;
       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
     }
+    console.log('DoInit end');
   }
 
   ngAfterViewInit() {
+    console.log('AfterViewInit start');
     this.searchService.searchResultsSubject.subscribe(() =>
       this.updateSearch(true, true));
 
@@ -397,6 +404,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
 
       this.subscribeToNotifications();
+    console.log('AfterViewInit end');
   }
 
   subscribeToNotifications() {
