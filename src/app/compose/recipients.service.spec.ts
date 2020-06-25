@@ -23,7 +23,7 @@ import { ContactsService } from '../contacts-app/contacts.service';
 import { Injector } from '@angular/core';
 import { SearchService } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
-import { AsyncSubject, of } from 'rxjs';
+import { AsyncSubject, of, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { XapianAPI } from '../xapian/rmmxapianapi';
 import { xapianLoadedSubject } from '../xapian/xapianwebloader';
@@ -38,6 +38,7 @@ let testcounter = 1;
 
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();
+    searchResultsSubject = new Subject<void>();
     mockedRecentMessages: number[] = [];
     mockedRecipients: { [messageId: number]: { recipients: string[] } } = {};
 
@@ -93,6 +94,7 @@ export class MockSearchService {
 
         this.initSubject.next(true);
         this.initSubject.complete();
+        this.searchResultsSubject.next();
     }
 
     getMessagesInTimeRange(_start: Date, _end: Date, _folder?: string) {
