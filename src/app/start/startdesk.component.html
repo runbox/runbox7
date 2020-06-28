@@ -1,14 +1,19 @@
 <style>
   div.start {
-      margin: 75px 0 0 50px;
+      margin: 75px 0 0 20px;
   }
 
   div.start mat-card {
       float: left;
-      width: 45%
+      width: 43%
+  }
+  div.start mat-card {
+      margin: 0 20px 20px 0;
+      height: 250px;
+      padding: 20px;
   }
   div.start mat-card div {
-      margin: 20px 0;
+      margin: 10px 0;
   }
   div.start mat-card h3 mat-icon {
       font-size: 1.4em;
@@ -16,37 +21,38 @@
       margin-right: 20px;
   }
   .start_chart {
-      font-size: 2em;
+      font-size: 3em;
+      height: auto;
   }
 </style>
 
 <div class="start">
-  <h1>Runbox Start Desk</h1>
+  <h1>Runbox Dash Desk</h1>
   <mat-card class="mat-card">
     <h3><mat-icon>email</mat-icon>Email highlights</h3>
-    <div>New messages: Inbox, Business, School <mat-icon class="start_chart">show_chart</mat-icon></div>
-    <div>New replies</div>
-    <div>Important messages (main contacts)</div>
+    <div>New messages: <u>Inbox</u>, <u>Friends</u>, <u>Enemies</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
+    <div>New replies: <u>Inbox</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1);">show_chart</mat-icon></div>
+    <div>Important messages: <u>Gandalf</u>, <u>Bilbo</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
   </mat-card>
   
   <mat-card class="mat-card">
     <h3><mat-icon>people</mat-icon>Contact highlights</h3>
-    <div>Email from new senders</div>
-    <div>Email from known contacts</div>
-    <div>New contacts (received vCards)</div>
+    <div>Email from new senders: <u>Saruman</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1);">show_chart</mat-icon></div>
+    <div>Email from known contacts: <u>Gandalf</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
+    <div>New contacts (received vCards): <u>Gollum</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
   </mat-card>
 
   <mat-card class="mat-card">
     <h3><mat-icon>date_range</mat-icon>Calendar highlights</h3>
-    <div>New events</div>
-    <div>Events today</div>
-    <div>Events this week</div>
+    <div>New events: <u>Destroy Ring</u> <mat-icon class="start_chart" style="color: red">timeline</mat-icon></div>
+    <div>Today: <u>Have 2nd Breakfast</u> <mat-icon class="start_chart">linear_scale</mat-icon></div>
+    <div>This week: <u>Meet at Weathertop</u>, <u>Escape Nazgul</u> <mat-icon class="start_chart" style="color: red">timeline</mat-icon></div>
   </mat-card>
 
   <mat-card class="mat-card">
     <h3><mat-icon>assignment</mat-icon>Task highlights</h3>
-    <div>Due tasks</div>
-    <div>Tasks in progress</div>
-    <div>Upcoming tasks</div>
+    <div>Due tasks: <u>Form Fellowship</u> <mat-icon class="start_chart">insert_chart</mat-icon></div>
+    <div>In progress: <u>Hang with Elves</u>, <u>Evade Sauron</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
+    <div>Upcoming: <u>Destroy One Ring</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
   </mat-card>
 </div>
