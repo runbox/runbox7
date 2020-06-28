@@ -1,3 +1,7 @@
+mat-form-field {
+    margin: 0 10px;
+}
+    
 #totp_instructions, #totp_example {
     float: left;
     width: 48%;
