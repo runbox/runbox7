@@ -884,6 +884,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
+    this.searchFor('');
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }
