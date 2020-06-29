@@ -818,19 +818,6 @@ mat-expansion-panel {
     }
 }
 
-#buttonCC, #buttonBCC {
-    min-width: 50px !important;
-}
-
-.recipientSuggestionList {
-    display: flex;
-    align-items: center;
-}
-
-.recipientSuggestionList div {
-    padding: 5px;
-}
-
 /* Styles to decrease vertical spacing on Compose */
 
 compose .mat-card-actions {
@@ -856,10 +843,8 @@ compose input.mat-chip-input {
 }
 
 compose .mat-standard-chip {
-    bottom: 6px !important;
     padding: 5px 10px !important;
 }
-
 
 /* Dom reg */
 
