@@ -881,6 +881,16 @@ compose .mat-standard-chip {
     margin-top: 10px;
 }
 
+.contactListControls {
+    height: 60px !important;
+    padding-top: 10px !important;
+}
+
+.selectedGroupLabel {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
 .contact-details-row {
     display: flex;
     flex-wrap: wrap;

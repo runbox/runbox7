@@ -41,6 +41,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ContactsAppComponent } from './contacts-app.component';
 import { ContactButtonComponent } from './contact-button.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
+import { ContactListComponent } from './contact-list.component';
 import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
@@ -53,6 +54,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ContactsAppComponent,
     ContactButtonComponent,
     ContactDetailsComponent,
+    ContactListComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
     FormArrayEditorComponent,

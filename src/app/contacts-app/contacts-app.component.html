@@ -102,98 +102,13 @@
         <div [class]="appLayout">
             <div class="contactList">
                 <mat-nav-list dense>
-                    <mat-list-item class="contactListControls">
-                        <mat-form-field>
-                            <mat-label> Search </mat-label>
-                            <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
-                            <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
-                                <mat-icon>close</mat-icon>
-                            </button>
-                        </mat-form-field>
-                    </mat-list-item>
-
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                More filtering options
-                            </mat-panel-title>
-                        </mat-expansion-panel-header>
-
-                        <mat-list-item  class="contactListControls">
-                            <mat-form-field>
-                                <mat-label> Show categories </mat-label>
-                                <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
-                                    <mat-option value="RUNBOX:ALL">
-                                        All categories
-                                    </mat-option>
-                                    <mat-option *ngFor="let category of categories" [value]="'USER:' + category">
-                                        {{ category }}
-                                    </mat-option>
-                                    <mat-option value="RUNBOX:NONE">
-                                        Uncategorized contacts
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-list-item>
-
-                        <mat-list-item class="contactListControls">
-                            <mat-form-field>
-                                <mat-label> Sort by </mat-label>
-                                <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
-                                    <mat-option value="firstname+"> First name, ascending  </mat-option>
-                                    <mat-option value="firstname-"> First name, descending </mat-option>
-                                    <mat-option value="lastname+">  Last name, ascending   </mat-option>
-                                    <mat-option value="lastname-">  Last name, descending  </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-list-item>
-                    </mat-expansion-panel>
-
-                    <mat-list-item>
-                        <mat-checkbox
-                            [(ngModel)]="selectingMultiple"
-                            (change)="onSelectMultipleChange()"
-                        >
-                        Select multiple
-                        </mat-checkbox>
-
-                        <button mat-button *ngIf="selectingMultiple" (click)="selectAll()">
-                            Select all visible
-                        </button>
-                    </mat-list-item>
-
-                    <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact)">
-                        <mat-checkbox
-                            [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
-                            [(ngModel)]="selectedIDs[contact.id]"
-                            (change)="onContactChecked()"
-                        >
-                            &nbsp;&nbsp;&nbsp;
-                        </mat-checkbox>
-
-                        <mat-icon
-                            *ngIf="contactsservice.settings.showDragHelpers"
-                            draggable="true"
-                            (dragstart)="dragStarted($event, contact)">
-                            drag_handle
-                        </mat-icon>
-
-                        <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
-                            <h4 mat-line>
-                                <app-contact-button [contact]="contact"></app-contact-button>
-                            </h4>
-                        </a>
-
-                        <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
-                            *ngIf="contact.primary_email()"
-                            routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
-                          <mat-icon color="primary">email</mat-icon>
-                        </a>
-                    </mat-list-item>
-
-                    <mat-list-item *ngIf="shownContacts.length != contacts.length">
-                        {{ contacts.length - shownContacts.length }} others in other categories
-                    </mat-list-item>
+                    <app-contact-list #contactList
+                        [contacts]="shownContacts"
+                        [categories]="categories"
+                        [allowDragging]="true"
+                        [showDragHelpers]="contactsservice.settings.showDragHelpers"
+                        (selectionUpdated)="onContactsSelected($event)"
+                    ></app-contact-list>
 
                     <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
                         <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
