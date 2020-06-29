@@ -28,6 +28,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
@@ -44,7 +45,6 @@ import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { MultiValueEditorComponent } from './contact-details/multivalue-editor.component';
-import { ContactsService } from './contacts.service';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
@@ -67,6 +67,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     MatButtonModule,
     MatCheckboxModule,
     MatDialogModule,
+    MatExpansionModule,
     MatIconModule,
     MatInputModule,
     MatListModule,

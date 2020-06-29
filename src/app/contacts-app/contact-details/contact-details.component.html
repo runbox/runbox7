@@ -188,7 +188,7 @@
 
         <mat-toolbar style="position: fixed; bottom: 0;">
             <a mat-button (click)="save()">Save changes</a>
-            <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
+            <a mat-button (click)="rollback()" *ngIf="contact.id && !mobileQuery.matches">Discard changes</a>
             <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
         </mat-toolbar>
     </form>

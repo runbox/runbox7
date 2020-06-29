@@ -22,12 +22,12 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
 import { ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
+import { MobileQueryService } from '../../mobile-query.service';
 
 @Component({
     selector: 'app-contact-details',
@@ -57,7 +57,7 @@ export class ContactDetailsComponent {
 
     constructor(
         public dialog: MatDialog,
-        public rmmapi: RunboxWebmailAPI,
+        public mobileQuery: MobileQueryService,
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,

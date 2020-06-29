@@ -1,3 +1,16 @@
+<style>
+    .twoColumns {
+        display: flex;
+    }
+
+    .showList div:nth-child(2) {
+        display: none;
+    }
+
+    .showDetails div:nth-child(1) {
+        display: none;
+    }
+</style>
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu
         [opened]="sideMenuOpened"
@@ -15,7 +28,7 @@
                 </button>
             </mat-list-item>
             <mat-list-item>
-                <button mat-button routerLink="/contacts/new_group">
+                <button mat-button routerLink="/contacts/new_group" (click)="shownGroup = null">
                     <mat-icon> group_add </mat-icon> New group
                 </button>
             </mat-list-item>
@@ -31,105 +44,28 @@
                 </a>
             </mat-list-item>
 
-            <mat-list-item  class="contactListControls">
-                <mat-form-field>
-                    <mat-label> Show categories </mat-label>
-                    <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
-                        <mat-option value="RUNBOX:ALL">
-                            All categories
-                        </mat-option>
-                        <mat-option *ngFor="let category of categories" [value]="'USER:' + category">
-                            {{ category }}
-                        </mat-option>
-                        <mat-option value="RUNBOX:NONE">
-                            Uncategorized contacts
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </mat-list-item>
-
-            <mat-list-item class="contactListControls">
-                <mat-form-field>
-                    <mat-label> Sort by </mat-label>
-                    <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
-                        <mat-option value="firstname+"> First name, ascending  </mat-option>
-                        <mat-option value="firstname-"> First name, descending </mat-option>
-                        <mat-option value="lastname+">  Last name, ascending   </mat-option>
-                        <mat-option value="lastname-">  Last name, descending  </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </mat-list-item>
-
-            <mat-list-item class="contactListControls">
-                <mat-form-field>
-                    <mat-label> Search </mat-label>
-                    <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
-                    <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                </mat-form-field>
-            </mat-list-item>
-            <!--
-            <mat-list-item *ngIf="groupFilter.substr(0, 4) === 'USER'">
-                <a mat-button>
-                  <mat-icon color="primary">email</mat-icon> Email this group
-                </a>
-            </mat-list-item>
-            -->
+            <mat-divider></mat-divider>
 
             <mat-list-item>
-                <mat-checkbox
-                    [(ngModel)]="selectingMultiple"
-                    (change)="onSelectMultipleChange()"
-                >
-                Select multiple
-                </mat-checkbox>
-
-                <button mat-button *ngIf="selectingMultiple" (click)="selectAll()">
-                    Select all visible
-                </button>
-            </mat-list-item>
-
-            <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact)">
-                <mat-checkbox
-                    [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
-                    [(ngModel)]="selectedIDs[contact.id]"
-                    (change)="onContactChecked()"
-                >
-                    &nbsp;&nbsp;&nbsp;
-                </mat-checkbox>
-
-                <mat-icon
-                    *ngIf="contactsservice.settings.showDragHelpers"
-                    draggable="true"
-                    (dragstart)="dragStarted($event, contact)">
-                    drag_handle
-                </mat-icon>
-
-                <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
-                    <h4 mat-line>
-                        <app-contact-button [contact]="contact"></app-contact-button>
-                    </h4>
-                </a>
-
-                <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
-                    *ngIf="contact.primary_email()"
-                    routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
-                  <mat-icon color="primary">email</mat-icon>
+                <a mat-button routerLink="/contacts/" matTooltip="Show all contacts">
+                    <mat-icon> group </mat-icon>
+                    <span [ngClass]="!shownGroup ? 'selectedGroupLabel' : ''">
+                        Show all contacts
+                    </span>
                 </a>
             </mat-list-item>
 
-            <mat-list-item *ngIf="shownContacts.length != contacts.length">
-                {{ contacts.length - shownContacts.length }} others in other categories
-            </mat-list-item>
-
-            <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
-                <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
+            <mat-list-item *ngFor="let group of groups" (drop)="dropContactTo(group, $event)">
+                <a mat-button routerLink="/contacts/{{ group.id }}" matTooltip="View details">
+                    <span [ngClass]="(shownGroup ? shownGroup.id : null) === group.id ? 'selectedGroupLabel' : ''">
+                        <app-contact-button [contact]="group"></app-contact-button>
+                    </span>
+                </a>
             </mat-list-item>
         </mat-nav-list>
 
         <div class="multiContactActions" *ngIf="selectedCount > 0">
-            <button mat-fab *ngIf="hasGroups"
+            <button mat-fab *ngIf="groups.length > 0"
                 matTooltip="Add these contacts to a group"
                 (click)="addSelectedToGroup()"
             >
@@ -145,13 +81,128 @@
         </div>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar style="display: flex">
+        <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
+
+            <span *ngIf="!showingDetails">
+                <span *ngIf="shownGroup; else showingAll">
+                    Showing group <button mat-stroked-button (click)="showDetails(true)"> {{ shownGroup.display_name() }} </button>
+                </span>
+                <ng-template #showingAll>
+                    Showing all contacts
+                </ng-template>
+            </span>
+
+            <button mat-icon-button *ngIf="showingDetails" (click)="closeDetails()">
+                <mat-icon> close </mat-icon>
+            </button>
         </mat-toolbar>
-        <router-outlet
-            
-        ></router-outlet>
+        <div [class]="appLayout">
+            <div class="contactList">
+                <mat-nav-list dense>
+                    <mat-list-item class="contactListControls">
+                        <mat-form-field>
+                            <mat-label> Search </mat-label>
+                            <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
+                            <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </mat-form-field>
+                    </mat-list-item>
+
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                More filtering options
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <mat-list-item  class="contactListControls">
+                            <mat-form-field>
+                                <mat-label> Show categories </mat-label>
+                                <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
+                                    <mat-option value="RUNBOX:ALL">
+                                        All categories
+                                    </mat-option>
+                                    <mat-option *ngFor="let category of categories" [value]="'USER:' + category">
+                                        {{ category }}
+                                    </mat-option>
+                                    <mat-option value="RUNBOX:NONE">
+                                        Uncategorized contacts
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-list-item>
+
+                        <mat-list-item class="contactListControls">
+                            <mat-form-field>
+                                <mat-label> Sort by </mat-label>
+                                <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
+                                    <mat-option value="firstname+"> First name, ascending  </mat-option>
+                                    <mat-option value="firstname-"> First name, descending </mat-option>
+                                    <mat-option value="lastname+">  Last name, ascending   </mat-option>
+                                    <mat-option value="lastname-">  Last name, descending  </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-list-item>
+                    </mat-expansion-panel>
+
+                    <mat-list-item>
+                        <mat-checkbox
+                            [(ngModel)]="selectingMultiple"
+                            (change)="onSelectMultipleChange()"
+                        >
+                        Select multiple
+                        </mat-checkbox>
+
+                        <button mat-button *ngIf="selectingMultiple" (click)="selectAll()">
+                            Select all visible
+                        </button>
+                    </mat-list-item>
+
+                    <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact)">
+                        <mat-checkbox
+                            [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
+                            [(ngModel)]="selectedIDs[contact.id]"
+                            (change)="onContactChecked()"
+                        >
+                            &nbsp;&nbsp;&nbsp;
+                        </mat-checkbox>
+
+                        <mat-icon
+                            *ngIf="contactsservice.settings.showDragHelpers"
+                            draggable="true"
+                            (dragstart)="dragStarted($event, contact)">
+                            drag_handle
+                        </mat-icon>
+
+                        <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
+                            <h4 mat-line>
+                                <app-contact-button [contact]="contact"></app-contact-button>
+                            </h4>
+                        </a>
+
+                        <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
+                            *ngIf="contact.primary_email()"
+                            routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
+                          <mat-icon color="primary">email</mat-icon>
+                        </a>
+                    </mat-list-item>
+
+                    <mat-list-item *ngIf="shownContacts.length != contacts.length">
+                        {{ contacts.length - shownContacts.length }} others in other categories
+                    </mat-list-item>
+
+                    <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
+                        <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
+                    </mat-list-item>
+                </mat-nav-list>
+            </div>
+            <div class="contactDetails">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
