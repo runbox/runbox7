@@ -218,6 +218,8 @@ export class MessageListService {
         if (hasChanges) {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
             this.refreshFolderList();
+            console.log('New/Moved messages, updating folder counts');
+            this.refreshFolderCounts();
         }
     }
 
