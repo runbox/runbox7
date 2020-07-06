@@ -19,6 +19,9 @@ describe('Login', () => {
     function expectWebmail() {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
         cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
+        cy.get('confirm-dialog .mat-dialog-actions button').contains('cancel').click().should(() => {
+            expect(localStorage.getItem('localSearchPromptDisplayed221')).to.equal('true');
+        });
     }
 
     it('should log in', () => {

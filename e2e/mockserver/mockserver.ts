@@ -155,6 +155,19 @@ export class MockServer {
                     message_obj.result.headers['cc'] = to;
                     message_obj.result.headers['subject'] = "No 'To', just 'CC'";
                 }
+                if (mailid === '12') {
+                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+                    message_obj.result.headers['to'].value[0].address = "TESTMAIL@TESTMAIL.COM";
+                    message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
+                    message_obj.result.headers['subject'] = "Default from fix test";
+                }
+                if (mailid === '13') {
+                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+                    const to = message_obj.result.headers['to'];
+                    delete message_obj.result.headers['to'];
+                    message_obj.result.headers['cc'] = to;
+                    message_obj.result.headers['subject'] = "";
+                }
 
                 if (requesturl.endsWith('/html')) {
                     response.end(message_obj.result.text.html);
@@ -187,7 +200,7 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
-                case '/rest/v1/addresses_contact/sync':
+                case '/rest/v1/contacts/sync':
                     response.end(JSON.stringify(
                         {
                             status: 'success',
@@ -195,6 +208,7 @@ export class MockServer {
                                 newToken: 'e2e-1',
                                 added: this.contacts(),
                                 removed: [],
+                                to_migrate: 0,
                             }
                         }
                     ));
@@ -292,6 +306,16 @@ export class MockServer {
         // id=11: email with no "To"
         inboxlines.push(`11	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>	No 'To', just 'CC'	709	n	 `);
+
+        // id=12: email with capitalized "To" email
+        inboxlines.push(`12	1548071423	1547830044	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
+
+        // id=13: email with no "To" or Subject
+        inboxlines.push(`13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>		709	n	 `);
+
+
         return inboxlines.join('\n');
     }
 
@@ -546,6 +570,22 @@ export class MockServer {
                             }
                         }
                     }
+                    }, {
+                        'profile': {
+                            'smtp_username': null,
+                            'email': 'testmail@testmail.com',
+                            'reference_type': 'aliases',
+                            'id': 16457,
+                            'smtp_port': null,
+                            'smtp_address': null,
+                            'is_smtp_enabled': 0,
+                            'signature': null,
+                            'reference': {},
+                            'name': 'John Doe',
+                            'smtp_password': null,
+                            'from_name': 'John Doe',
+                            'type': 'aliases'
+                        }
                     }],
                     'others': [{
                         'profile': {
@@ -617,60 +657,11 @@ export class MockServer {
 
     contacts(): any[] {
         return [
-            {
-                'nickname' : 'Postpat',
-                'first_name' : 'Patrick',
-                'addresses' : [
-                    {
-                        'types' : [
-                            'home'
-                        ],
-                        'value' : {
-                            'street' : ' home street',
-                            'po_box' : ' ',
-                            'country' : 'Home country',
-                            'extended' : ' ',
-                            'city' : 'home city',
-                            'post_code' : 'home code',
-                            'region' : 'home region'
-                        }
-                    },
-                    {
-                        'value' : {
-                            'city' : 'work city',
-                            'post_code' : 'work code',
-                            'region' : 'work region',
-                            'extended' : ' ',
-                            'country' : 'work country',
-                            'street' : 'work street',
-                            'po_box' : ' '
-                        },
-                        'types' : [
-                            'work'
-                        ]
-                    }
-                ],
-                'categories' : [],
-                'urls' : [],
-                'last_name' : 'Postcode',
-                'id' : 'ID-MR-POSTCODE',
-                'birthday' : '',
-                'company' : 'Post Office #42',
-                'fullname' : 'Patrick Postcode',
-                'phones' : [
-                    {
-                        'types' : [
-                            'work'
-                        ],
-                        'value' : '333333333'
-                    }
-                ],
-                'emails' : [{ 'types': ['work'], 'value': 'patrick@post.no' }],
-                'department' : null,
-                'note' : '',
-                'show_as' : null,
-                'related' : []
-            }
+            [
+                "/contacts/ID-MR-POSTCODE.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
+                + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
+            ]
         ];
     }
 }

@@ -21,6 +21,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
+import { RunboxCommonModule } from '../common/common.module';
 import { RouterModule } from '@angular/router';
 
 import { MatBadgeModule } from '@angular/material/badge';
@@ -37,22 +38,26 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ContactsAppComponent } from './contacts-app.component';
+import { ContactButtonComponent } from './contact-button.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
 import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
+import { MultiValueEditorComponent } from './contact-details/multivalue-editor.component';
 import { ContactsService } from './contacts.service';
-import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
-import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
+import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @NgModule({
   declarations: [
     ContactsAppComponent,
+    ContactButtonComponent,
     ContactDetailsComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
     FormArrayEditorComponent,
+    GroupPickerDialogComponent,
+    MultiValueEditorComponent,
     VcfImportDialogComponent,
   ],
   imports: [
@@ -71,6 +76,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     MatToolbarModule,
     MatTooltipModule,
     MenuModule,
+    RunboxCommonModule,
     ReactiveFormsModule,
     RouterModule.forChild([
       {
@@ -97,7 +103,6 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     VcfImportDialogComponent,
   ],
   providers: [
-    ContactsService,
   ],
   bootstrap: []
 })

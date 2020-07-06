@@ -80,10 +80,22 @@
     background-color: #f0f0f0;
 }
 
+.notificationContainer {
+    text-align: center;
+    background-color: hsl(37, 100%, 95%); /*lavenderblush papayawhip*/
+    padding: 0.2em 0;
+}
+
 .inMessageNotification {
-    font-size: 12px;
+    font-size: 13px;
     font-style: italic;
-    color: #bbb;
+    color: rgb(131, 131, 131);
+}
+
+#iframe {
+    border: 0;
+    height: 0px;
+    width: 100%;
 }
 
 .menuradiobutton {

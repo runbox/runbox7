@@ -11,6 +11,10 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
             continue;
         }
         const message = line.substr(hash.length + 1);
+        // --no-merges is not quite working as advertised
+        if (message.match(/^Merge branch/)) {
+            continue;
+        }
         const match = message.match(/([^\(]+)\(([^\)]+)\): .+/);
         if (!match) {
             throw `Commit message for ${hash} doesn't have the correct format\n` +

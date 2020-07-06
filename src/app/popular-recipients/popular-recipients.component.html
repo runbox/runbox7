@@ -1,0 +1,17 @@
+<mat-expansion-panel
+    [expanded]="expanded"
+    [ngStyle]="{'display': recipients.length ? 'block' : 'none'}"
+>
+    <mat-expansion-panel-header>
+        <mat-icon> contact_mail </mat-icon>
+        <span class="headerText"> Popular recipients </span>
+    </mat-expansion-panel-header>
+
+    <mat-nav-list dense>
+        <mat-list-item *ngFor="let recipient of recipients"
+            (click)="recipientClicked.emit(recipient.address)"
+        >
+            {{ recipient.name }} ({{ recipient.address }})
+        </mat-list-item>
+    </mat-nav-list>
+</mat-expansion-panel>

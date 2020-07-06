@@ -38,6 +38,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
@@ -56,8 +57,9 @@ import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { StartDeskModule } from './start/startdesk.module';
 import { StartDeskComponent } from './start/startdesk.component';
+import { WelcomeDeskComponent } from './welcome/welcomedesk.component';
+import { WelcomeDeskModule } from './welcome/welcomedesk.module';
 import { AccountAppModule } from './account-app/account-app.module';
-import { AccountAppComponent } from './account-app/account-app.component';
 import { ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MobileQueryService } from './mobile-query.service';
@@ -76,6 +78,7 @@ import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
+import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -102,6 +105,10 @@ const routes: Routes = [
             path: 'start',
             component: StartDeskComponent
           },
+          {
+            path: 'welcome',
+            component: WelcomeDeskComponent
+          }
         ]
       },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
@@ -123,10 +130,12 @@ const routes: Routes = [
     CanvasTableModule,
     ComposeModule,
     StartDeskModule,
+    WelcomeDeskModule,
     FolderModule,
     MatSnackBarModule,
     MatIconModule,
     MatDialogModule,
+    MatExpansionModule,
     MatListModule,
     MatMenuModule,
     MatCardModule, MatInputModule,
@@ -155,7 +164,8 @@ const routes: Routes = [
     HotkeyModule.forRoot()
   ],
   declarations: [MainContainerComponent, AppComponent,
-    MoveMessageDialogComponent
+    MoveMessageDialogComponent,
+    PopularRecipientsComponent
     ],
   providers: [ProgressService,
     MessageListService,

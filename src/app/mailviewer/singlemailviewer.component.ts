@@ -47,6 +47,7 @@ import { loadLocalMailParser } from './mailparser';
 
 const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
+const resizerHeightKey = 'rmm7resizerheight';
 
 @Component({
   template: `
@@ -106,7 +107,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public mailContentHTML: string = null;
   public htmlObjectURL: SafeUrl = null;
-  public expectedMessageSize: number;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
@@ -142,27 +142,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
       this.height = 0;
       this.messageId = null;
+
+      if (this.onClose) {
+        this.onClose.emit(actionstring);
+      }
     };
 
     if (actionstring === 'goToDraftDesk') {
-      this.router.navigate(['/compose']).then(() => {
-        doClose();
-      }
-      );
+      this.router.navigate(['/compose']).then(() => doClose());
     } else {
       doClose();
     }
-
-    if (this.onClose) {
-      this.onClose.emit(actionstring);
-    }
-
-  }
-
-  public shouldPreviewSmallVersion(): boolean {
-    // Only preview small version of messages if more than  30kb
-    // return this.expectedMessageSize>30*1024;
-    return false; // Always download full message
   }
 
   public get messageId() {
@@ -172,6 +162,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
+    this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
   }
 
   public ngAfterViewInit() {
@@ -424,9 +415,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   adjustIframeHTMLHeight() {
     if (this.htmliframe) {
-      this.htmliframe.nativeElement.height = this.htmliframe.nativeElement.contentWindow.document.body
-        .scrollHeight + 20;
-      ProgressDialog.close();
+      const iframe = document.getElementById('iframe');
+      const newHeight = this.htmliframe.nativeElement.contentWindow.document.body.scrollHeight;
+      iframe.style.cssText = `height: ${newHeight + 20}px !important`;
     }
   }
 
@@ -551,10 +542,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (this.messageContents) {
           this.messageContents.nativeElement.scroll(0, 0);
         }
-        if (this.previousHeight) {
-          this.resizer.resizePixels(this.previousHeight);
-        } else {
-          this.resizer.resizePercentage(50);
+        // Only care about the horizontal pane height in horizontal mode
+        if (this.adjustableHeight) {
+          if (this.previousHeight) {
+            this.resizer.resizePixels(this.previousHeight);
+          } else {
+            this.resizer.resizePercentage(50);
+          }
         }
       }, 0);
     }
@@ -565,6 +559,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.height = height;
     if (height > 0) {
       this.previousHeight = height;
+      localStorage.setItem(resizerHeightKey, height.toString());
     }
   }
 

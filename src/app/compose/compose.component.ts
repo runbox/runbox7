@@ -34,7 +34,9 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
-import { isValidEmailList } from './emailvalidator';
+import { RecipientsService } from './recipients.service';
+import { isValidEmailArray } from './emailvalidator';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -56,6 +58,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     editor: any = null;
     editorId: string;
     editorContent: string;
+    hasCC = false;
+    hasBCC = false;
     public showDropZone = false;
     public draggingOverDropZone = false;
     public editing = false;
@@ -73,6 +77,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     shouldReturnToPreviousPage = false;
 
+    // here we keep the suggestions we get from RecipientsService
+    suggestedRecipients: MailAddressInfo[] = [];
+    // and here we keep suggestedRecipients but filtered
+    // to not include the recipients already picked
+    filteredSuggestions: MailAddressInfo[] = [];
+
+
     public formGroup: FormGroup;
 
     @Input() model: DraftFormModel = new DraftFormModel();
@@ -85,10 +96,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private http: HttpClient,
         private formBuilder: FormBuilder,
         private location: Location,
-        private dialogService: DialogService
+        private dialogService: DialogService,
+        recipientservice: RecipientsService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
+
+        recipientservice.recentlyUsed.subscribe(suggestions => {
+            this.suggestedRecipients = suggestions;
+            this.updateSuggestions();
+        });
     }
 
     ngOnInit() {
@@ -116,7 +133,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
-                this.model.preview = DraftFormModel.trimmedPreview(msgObj.text.text)
+                this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''
             );
         }
 
@@ -159,6 +176,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                 }
             });
+
+        this.formGroup.valueChanges.subscribe(_ => this.updateSuggestions());
     }
 
     ngAfterViewInit() {
@@ -198,9 +217,29 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
     }
 
+    // where event is hopefully a MailAddressInfo[]
+    public onUpdateRecipient(field: string, event) {
+        this.model[field] = event;
+        if (field === 'cc') {
+            this.hasCC = event.length !== 0;
+        }
+        if (field === 'bcc') {
+            this.hasBCC = event.length !== 0;
+        }
+        // Leaving this for now as it triggers auto-save
+        const recipientString = event.map((recipient) => recipient.nameAndAddress).join(',');
+        this.formGroup.controls[field].setValue(recipientString);
+    }
+
     public hideDropZone() {
         this.draggingOverDropZone = false;
         this.showDropZone = false;
+    }
+
+    addRecipientFromSuggestions(recipient: MailAddressInfo) {
+        const newRecipients = this.model.to.concat(recipient);
+
+        this.onUpdateRecipient('to', newRecipients);
     }
 
     public attachFilesClicked() {
@@ -305,13 +344,15 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                             : null;
                     }
                     if (result.headers.to) {
-                        model.to = result.headers.to.text;
+                        model.to = result.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
                     }
                     if (result.headers.cc) {
-                        model.cc = result.headers.cc.text;
+                        model.cc = result.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+                        this.hasCC = true;
                     }
                     if (result.headers.bcc) {
-                        model.bcc = result.headers.bcc.text;
+                        model.bcc = result.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+                        this.hasBCC = true;
                     }
 
                     model.subject = result.headers.subject;
@@ -456,18 +497,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public submit(send: boolean = false) {
         if (send) {
             let validemails = false;
-            validemails = isValidEmailList(this.formGroup.value.to);
+            validemails = isValidEmailArray(this.model.to);
             if (!validemails) {
                 this.saveErrorMessage = 'Cannot send email: TO field contains invalid email addresses';
             }
-            if (validemails && this.formGroup.value.cc) {
-                validemails = isValidEmailList(this.formGroup.value.cc);
+            if (validemails && this.model.cc.length > 0) {
+                validemails = isValidEmailArray(this.model.cc);
                 if (!validemails) {
                     this.saveErrorMessage = 'Cannot send email: CC field contains invalid email addresses';
                 }
             }
-            if (validemails && this.formGroup.value.bcc) {
-                validemails = isValidEmailList(this.formGroup.value.bcc);
+            if (validemails && this.model.bcc.length > 0) {
+                validemails = isValidEmailArray(this.model.bcc);
                 if (!validemails) {
                     this.saveErrorMessage = 'Cannot send email: BCC field contains invalid email addresses';
                 }
@@ -482,9 +523,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.dialogService.openProgressDialog();
         }
         this.model.from = this.formGroup.value.from;
-        this.model.bcc = this.formGroup.value.bcc;
-        this.model.cc = this.formGroup.value.cc;
-        this.model.to = this.formGroup.value.to;
         this.model.subject = this.formGroup.value.subject;
         this.model.msg_body = this.formGroup.value.msg_body;
         this.model.useHTML = this.formGroup.value.useHTML;
@@ -551,9 +589,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     username: me.username,
                     from: from && from.id ? from.name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
-                    to: this.model.to,
-                    cc: this.model.cc,
-                    bcc: this.model.bcc,
+                    to: this.model.to.map((recipient) => recipient.nameAndAddress).join(','),
+                    cc: this.model.cc.map((recipient) => recipient.nameAndAddress).join(','),
+                    bcc: this.model.bcc.map((recipient) => recipient.nameAndAddress).join(','),
                     subject: this.model.subject,
                     msg_body: this.model.msg_body,
                     in_reply_to: this.model.in_reply_to,
@@ -610,5 +648,28 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    recipientDragged(ev: DragEvent, recipient: MailAddressInfo) {
+        ev.dataTransfer.setData('recipient', recipient.nameAndAddress);
+    }
+
+    recipientDropped(ev: DragEvent, target: string) {
+        const addressLine = ev.dataTransfer.getData('recipient');
+
+        const newMAI = MailAddressInfo.parse(addressLine);
+        const newRecipients = this.model[target].concat(newMAI);
+
+        this.onUpdateRecipient(target, newRecipients);
+    }
+
+    /// updates the displayed `suggestedRecipients`
+    /// making sure it doesn't contain any existing recipients
+    updateSuggestions() {
+        const currentrecipients: MailAddressInfo[] = [].concat(this.model.to).concat(this.model.cc).concat(this.model.bcc);
+
+        this.filteredSuggestions = this.suggestedRecipients.filter(
+            s => !currentrecipients.find(r => r.address === s.address)
+        ).slice(0, 5);
     }
 }

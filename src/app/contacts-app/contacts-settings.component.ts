@@ -18,68 +18,34 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { ContactsService } from './contacts.service';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-contacts-settings',
     templateUrl: './contacts-settings.component.html',
 })
 export class ContactsSettingsComponent {
-
-    migrationPending = false;
-    settingsLoaded   = false;
-    settings:  any   = {};
+    syncSettings = new Subject<any>();
+    oldContacts: number;
 
     constructor(
-        private contactsservice: ContactsService
+        public  contactsservice: ContactsService,
+        private rmmapi: RunboxWebmailAPI,
     ) {
-        this.contactsservice.isMigrationPending().subscribe(
-            job_id => {
-                console.log('Migration pendingness:', job_id);
-                this.migrationPending = !!job_id;
-                if (this.migrationPending) {
-                    this.watchMigrationResult();
-                }
-            }
-        );
-        this.contactsservice.settingsSubject.subscribe(settings => {
+        this.rmmapi.getContactsSettings().subscribe(settings => {
+            const syncSettings = {};
             // tslint:disable-next-line:forin
             for (const key in settings) {
-                this.settings[key] = settings[key];
+                syncSettings[key] = settings[key];
             }
-            this.settingsLoaded = true;
+            this.syncSettings.next(syncSettings);
+            this.syncSettings.complete();
         });
 
-        this.contactsservice.contactsSubject.subscribe(c => {
-            this.settings.old_contacts_count = 0;
-            for (const contact of c) {
-                if (contact.rmm_backed) {
-                    this.settings.old_contacts_count++;
-                }
-            }
+        this.contactsservice.contactsSubject.subscribe(_ => {
+            this.oldContacts = this.contactsservice.migratingContacts;
         });
-    }
-
-    watchMigrationResult(): void {
-        this.contactsservice.migrationResult.subscribe(
-            result => {
-                const status = +result;
-                if (status === 0) {
-                    this.contactsservice.reload().then(() => {
-                        this.migrationPending = false;
-                    });
-                }
-            }
-        );
-    }
-
-    migrateContacts(): void {
-        this.migrationPending = true;
-        this.contactsservice.migrateContacts().subscribe(
-            status => {
-                this.migrationPending = true;
-                this.watchMigrationResult();
-            }
-        );
     }
 }

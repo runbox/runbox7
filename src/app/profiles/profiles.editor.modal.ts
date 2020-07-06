@@ -477,6 +477,8 @@ export class ProfilesEditorModalComponent {
                 this.rmm.profile.load();
                 this.close();
                 return;
+            } else if ( reply['status'] === 'error' ) {
+                this.show_error(reply['errors'].join(' '), 'Dismiss');
             }
             this.is_busy = false;
         });

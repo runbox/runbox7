@@ -4,65 +4,110 @@
 
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <span *ngIf="contact.show_as_company()">
-            <mat-icon> business </mat-icon>
+        <mat-icon> {{ contactIcon }} </mat-icon>
+        <span *ngIf="contact.display_name(); else defaultName">
+            {{ contact.display_name() }}
         </span>
-        {{ contact.display_name() || "New contact" }}'s details
+        <ng-template #defaultName>
+            <span [ngSwitch]="contact.kind">
+                <span *ngSwitchCase="kind.GROUP"> New group   </span>
+                <span *ngSwitchDefault>           New contact </span>
+            </span>
+        </ng-template>
+        's details
     </h2>
     <form [formGroup]="contactForm">
         <h3> Basic information </h3>
-        <div class="contact-details-row">
+        <div *ngIf="contact.kind !== kind.INVIDIDUAL">
             <mat-form-field>
-                <input matInput formControlName="nickname" placeholder="Nickname">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput formControlName="first_name" placeholder="First name">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput formControlName="last_name" placeholder="Last Name">
-            </mat-form-field>
-            <mat-form-field *ngIf="newCategoryPromptShown">
-                <input matInput #newCategoryInput placeholder="New category"
-                      [(ngModel)]="newCategoryValue" [ngModelOptions]="{standalone: true}">
-                <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
-                <button matSuffix mat-icon-button (click)="newCategoryPromptShown = false">
-                    <mat-icon>cancel</mat-icon>
-                </button>
-                <button matSuffix mat-icon-button (click)="confirmNewCategory()">
-                    <mat-icon>check</mat-icon>
-                </button>
-            </mat-form-field>
-            <mat-form-field *ngIf="!newCategoryPromptShown">
-                <mat-label> Categories </mat-label>
-                <mat-select formControlName="categories" placeholder="No categories" multiple>
-                    <mat-select-trigger>
-                        <span *ngIf="contactForm.get('categories').value; else no_categories">
-                            {{ contactForm.get('categories').value }}
-                        </span>
-                        <ng-template #no_categories>
-                            No categories
-                        </ng-template>
-                    </mat-select-trigger>
-                    <mat-option *ngFor="let category of categories" [value]="category"> {{ category }} </mat-option>
-                    <mat-option (click)="showNewCategoryPrompt()"> Add a new category... </mat-option>
-                </mat-select>
+                <input matInput formControlName="full_name" placeholder="Name">
             </mat-form-field>
         </div>
-        <div class="contact-details-row">
-            <mat-form-field>
-                <input matInput formControlName="company" placeholder="Company">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput formControlName="department" placeholder="Department">
-            </mat-form-field>
-        </div>
-        <div class="contact-details-row">
-            <mat-form-field>
-                <input matInput formControlName="birthday" placeholder="Birthday">
-            </mat-form-field>
+        <div *ngIf="contact.kind === kind.INVIDIDUAL">
+            <div class="contact-details-row">
+                <mat-form-field>
+                    <input matInput formControlName="nickname" placeholder="Nickname">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput formControlName="first_name" placeholder="First name">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput formControlName="last_name" placeholder="Last Name">
+                </mat-form-field>
+                <app-contact-details-multivalue-editor
+                    [inputFC]="contactForm.get('categories')"
+                    [defaultOptions]="categories"
+                    label="Categories"
+                    noValuesLabel="No categories"
+                    newValueLabel="New category"
+                ></app-contact-details-multivalue-editor>
+            </div>
+            <div class="contact-details-row">
+                <mat-form-field>
+                    <input matInput formControlName="company" placeholder="Company">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput formControlName="department" placeholder="Department">
+                </mat-form-field>
+            </div>
+            <div class="contact-details-row">
+                <mat-form-field>
+                    <input matInput formControlName="birthday" placeholder="Birthday">
+                </mat-form-field>
+            </div>
         </div>
         <div class="contact-details-row">
             <textarea matInput formControlName="note" placeholder="Notes"> </textarea>
+        </div>
+
+        <div *ngIf="contact.kind === kind.GROUP">
+            <h3> Members </h3>
+
+            <div
+                (drop)="addMember($event)"
+                [ngStyle]="{ 'border':  (loadedGroupMembers.length === 0 || contactIsDragged) ? '2px dotted' : '',
+                             'padding': (loadedGroupMembers.length === 0 || contactIsDragged) ? '' : '2px' }"
+            >
+                <div *ngFor="let member of loadedGroupMembers; index as idx">
+
+                    <div *ngIf="member | async as member"
+                        draggable=true
+                        (dragstart)="memberDragged($event, idx)"
+                    >
+                        <div *ngIf="member instanceof Contact; else not_contact">
+                            <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
+                                      draggable="true" (dragstart)="memberDragged($event, idx)">
+                                drag_handle
+                            </mat-icon>
+                            <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
+                                <app-contact-button [contact]="member"></app-contact-button>
+                            </button>
+                        </div>
+                        <ng-template #not_contact>
+                            {{ member.value }}
+                        </ng-template>
+                    </div>
+                </div>
+
+                <div *ngIf="loadedGroupMembers.length === 0; else small_instruction" style="padding: 25px;">
+                    Drag and drop contacts here to add them to this group. <br>
+                    Trouble dragging contacts? Enable drag handles in <a routerLink="/contacts/settings">settings</a>.
+                </div>
+                <ng-template #small_instruction>
+                    <div style="font-size: small; color: #bbb; padding: 10px;">
+                        Drag and drop contacts to add to or remove from this group. <br>
+                        Trouble dragging contacts? Enable drag handles in settings.
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <div
+            *ngIf="memberIsDragged"
+            (drop)="memberDropped($event)"
+            style="padding: 25px; border: 2px dotted;"
+        >
+            <mat-icon> delete </mat-icon> Drop group member here to remove it from the group
         </div>
 
         <app-contact-details-fa-viewer
@@ -73,7 +118,6 @@
             faName="emails"
             (newElementClicked)="newEmail()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="E-mail address"
             deleteDescription="Delete this address"
@@ -91,7 +135,6 @@
             faName="phones"
             (newElementClicked)="newPhone()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="Phone number"
             deleteDescription="Delete this phone number"
@@ -106,7 +149,6 @@
             faName="urls"
             (newElementClicked)="newUrl()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="Website address"
             deleteDescription="Delete this address"
@@ -124,7 +166,6 @@
             faName="addresses"
             (newElementClicked)="newAdr()"
             layout="complex"
-            editable="!contact.rmm_backed"
 
             deleteDescription="Delete this address"
             addNewDescription="Add a new address"
@@ -138,7 +179,6 @@
             faName="related"
             (newElementClicked)="newRelative()"
             layout="simple"
-            editable="!contact.rmm_backed"
 
             valuePlaceholder="Name"
             deleteDescription="Delete this relative"
@@ -147,14 +187,9 @@
         </app-contact-details-fa-viewer>
 
         <mat-toolbar style="position: fixed; bottom: 0;">
-            <div *ngIf="contact.rmm_backed">
-                <a mat-button (click)="edit_rmm6()">Edit this contact (in old webmail)</a>
-            </div>
-            <div *ngIf="!contact.rmm_backed">
-                <a mat-button (click)="save()">Save changes</a>
-                <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
-                <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
-            </div>
+            <a mat-button (click)="save()">Save changes</a>
+            <a mat-button (click)="rollback()" *ngIf="contact.id">Discard changes</a>
+            <a mat-button (click)="delete()" *ngIf="contact.id">Delete this contact</a>
         </mat-toolbar>
     </form>
 </div>

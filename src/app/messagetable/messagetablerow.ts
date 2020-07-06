@@ -28,7 +28,7 @@ export class MessageTableRowTool {
         const timezoneadjustedJSONDateString = mailTime.toJSON();
 
         const currentDateString: string = new Date().toJSON().substr(0, datelen);
-        if (timezoneadjustedJSONDateString.substr(0, datelen) === currentDateString) {
+        if (timezoneadjustedJSONDateString.substr(0, datelen) >= currentDateString) {
             return timezoneadjustedJSONDateString.substr(datelen + 1, 5);
         } else {
             return timezoneadjustedJSONDateString.substr(0, datelen);

@@ -10,7 +10,7 @@
 
       <div id="sidenavGreeting">
         <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
-	<p id="sidenavGreetingContent">Welcome to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
+	<p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
       </div>
 
       <mat-divider></mat-divider>
@@ -35,7 +35,24 @@
       <mat-divider></mat-divider>
     </mat-nav-list>
 
-    <rmm-folderlist #folderListComponent (folderSelected)="selectFolder($event)" (droppedToFolder)="dropToFolder($event)"></rmm-folderlist>
+    <app-popular-recipients
+        (recipientClicked)="searchFor($event)"
+    ></app-popular-recipients>
+
+    <mat-divider></mat-divider>
+
+    <rmm-folderlist #folderListComponent
+        [folders]="displayedFolders"
+        [folderMessageCounts]="messagelistservice.folderMessageCountSubject"
+        (folderSelected)="selectFolder($event)"
+        (droppedToFolder)="dropToFolder($event)"
+        (emptyTrash)="emptyTrash($event)"
+        (emptySpam)="emptySpam($event)"
+        (createFolder)="createFolder($event)"
+        (deleteFolder)="deleteFolder($event)"
+        (moveFolder)="moveFolder($event)"
+        (renameFolder)="renameFolder($event)"
+    ></rmm-folderlist>
 
     <mat-divider></mat-divider>
 
@@ -96,14 +113,14 @@
           *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
           [currentFolder]="selectedFolder"
           (close)="showMultipleSearchFields = false"
-          (searchexpression)="searchFieldKeyUp($event)">
+          (searchexpression)="searchFor($event)">
         </app-multiple-search-fields-input>
         <mat-form-field id="searchField" style="flex-grow: 1" floatLabel="auto"
           *ngIf="searchService.downloadProgress===null">
           <input matInput #searchInputField type="text"
             (focus)="searchTextFieldFocus()"
             (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
-            [value]="searchText" (keyup)="searchFieldKeyUp($event.target.value)" />
+            [value]="searchText" (keyup)="searchFor($event.target.value)" />
             <!-- <app-search-expression-builder
               [searchInputField]="searchInputField"
               [currentFolder]="selectedFolder"
@@ -118,7 +135,7 @@
           <button *ngIf="searchText!==''"
             mat-icon-button
             matSuffix
-              (click)="searchFieldKeyUp('')"
+              (click)="searchFor('')"
               matTooltip="Clear search">
             <mat-icon>clear</mat-icon>
           </button>
@@ -138,6 +155,7 @@
                   *ngIf="canvastable"
                   [(ngModel)]="canvastable.showContentTextPreview"
                   matLine
+                  (change)="saveContentPreviewSetting()"
                   (click)="$event.stopPropagation()"
                   class="tableViewOptionsMenuElement"
                 >
@@ -150,6 +168,7 @@
                   matLine
                   (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
                   (click)="$event.stopPropagation()"
+                  [disabled]="unreadMessagesOnlyCheckbox"
                   class="tableViewOptionsMenuElement"
                 >
                   <mat-icon class="tableViewOptionsMenuElement" matTooltip="Threaded conversation view">view_list</mat-icon>
@@ -220,7 +239,7 @@
   <router-outlet (activate)="hasChildRouterOutlet=true" (deactivate)="hasChildRouterOutlet=false"></router-outlet>
 </mat-sidenav-container>
 
-<div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && !singlemailviewer.messageId">
+<div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations">
   <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" (click)="moveToFolder()">
     <mat-icon>folder</mat-icon>
   </button>

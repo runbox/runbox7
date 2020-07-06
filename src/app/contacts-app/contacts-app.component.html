@@ -10,9 +10,14 @@
         <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
         <mat-nav-list dense>
             <mat-list-item>
-                <a mat-button routerLink="/contacts/new">
-                    <mat-icon> add </mat-icon> New contact
-                </a>
+                <button mat-button routerLink="/contacts/new">
+                    <mat-icon> person_add </mat-icon> New contact
+                </button>
+            </mat-list-item>
+            <mat-list-item>
+                <button mat-button routerLink="/contacts/new_group">
+                    <mat-icon> group_add </mat-icon> New group
+                </button>
             </mat-list-item>
             <mat-list-item>
                 <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
@@ -85,7 +90,7 @@
                 </button>
             </mat-list-item>
 
-            <mat-list-item *ngFor="let contact of shownContacts">
+            <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact)">
                 <mat-checkbox
                     [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
                     [(ngModel)]="selectedIDs[contact.id]"
@@ -94,14 +99,19 @@
                     &nbsp;&nbsp;&nbsp;
                 </mat-checkbox>
 
+                <mat-icon
+                    *ngIf="contactsservice.settings.showDragHelpers"
+                    draggable="true"
+                    (dragstart)="dragStarted($event, contact)">
+                    drag_handle
+                </mat-icon>
+
                 <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
                     <h4 mat-line>
-                        <span *ngIf="contact.show_as_company()">
-                            <mat-icon> business </mat-icon>
-                        </span>
-                        {{ contact.display_name() || "Unnamed contact"  }}
+                        <app-contact-button [contact]="contact"></app-contact-button>
                     </h4>
                 </a>
+
                 <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
                     *ngIf="contact.primary_email()"
                     routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
@@ -112,9 +122,20 @@
             <mat-list-item *ngIf="shownContacts.length != contacts.length">
                 {{ contacts.length - shownContacts.length }} others in other categories
             </mat-list-item>
+
+            <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
+                <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
+            </mat-list-item>
         </mat-nav-list>
 
         <div class="multiContactActions" *ngIf="selectedCount > 0">
+            <button mat-fab *ngIf="hasGroups"
+                matTooltip="Add these contacts to a group"
+                (click)="addSelectedToGroup()"
+            >
+                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before"> group_add </mat-icon>
+            </button>
+
             <button mat-fab
                 matTooltip="Delete these contacts"
                 (click)="deleteSelected()"

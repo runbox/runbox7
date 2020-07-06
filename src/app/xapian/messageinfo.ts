@@ -18,68 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { XapianAPI } from './rmmxapianapi';
-
-export class MailAddressInfo {
-    public nameAndAddress;
-
-    constructor(public name: string, public address: string) {
-        this.nameAndAddress = name ? `"${name}" <${address}>` : address;
-    }
-
-    public static parse(mailaddr: string): MailAddressInfo[] {
-        const ret: MailAddressInfo[] = [];
-        let namePart = false;
-        let addrPart = false;
-        let lastStart = 0;
-        let name: string = null;
-        let addr: string = null;
-        for (let n = 0; n < mailaddr.length; n++) {
-            const ch = mailaddr.charAt(n);
-
-            switch (ch) {
-                case '"':
-                    namePart = !namePart;
-
-                    if (namePart) {
-                        lastStart = n + 1;
-                    } else {
-                        name = mailaddr.substring(lastStart, n).trim();
-                    }
-                    break;
-                case ',':
-                    if (!namePart) {
-                        if (!addr) {
-                            addr = mailaddr.substring(lastStart, n).trim();
-                        }
-                        ret.push(new MailAddressInfo(name, addr));
-                        addr = null;
-                        name = null;
-                    }
-                    break;
-                case '<':
-                    if (!namePart) {
-                        addrPart = true;
-                        if (!name) {
-                            name = mailaddr.substring(lastStart, n).trim();
-                        }
-                        lastStart = n + 1;
-                    }
-                    break;
-                case '>':
-                    if (!namePart) {
-                        addrPart = false;
-                        addr = mailaddr.substring(lastStart, n).trim();
-                    }
-                    break;
-            }
-        }
-        if (!addr) {
-            addr = mailaddr.substring(lastStart, mailaddr.length).trim();
-        }
-        ret.push(new MailAddressInfo(name, addr));
-        return ret;
-    }
-}
+import { MailAddressInfo } from './../common/mailaddressinfo';
 
 export class MessageInfo {
     deletedFlag: boolean;

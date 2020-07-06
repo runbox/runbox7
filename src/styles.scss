@@ -172,8 +172,12 @@ mat-grid-tile.tableTitle {
 .themePaletteBackground {
     color: mat-color($rmm-default-background);
 }
+
+.themePaletteLighterGray {
+    color: #eeeeee;
+}
 .themePaletteLightGray {
-    color: #eee;
+    color: #f4f4f4;
 }
 .themePaletteDarkGray {
     color: #949494;
@@ -281,28 +285,37 @@ div.loginScreen #loginArea {
     flex-flow: column;
     align-items: center;
     justify-content: center;
+    padding: 10px;
 }
 
-div.loginScreen #loginOptions {
-    font-size: 14px;
-    margin: 0 0 10px 0;
-}
-
-div.loginScreen #loginButton {
-    width: 100px;
+div.loginScreen {
+    #loginOptions {
+        font-size: 13px;
+        display: flex;
+    }
+    #loginButton {
+        width: 100px;
+        margin: 1em;
+    }
+    .login-checkbox {
+        padding: 0 5px;
+    }
+    .mat-checkbox-layout {
+        display: flex;
+        align-items: center;
+    }
+    .mat-checkbox-inner-container {
+        margin: 0 5px;
+        height: 13px;
+        width: 13px;
+    }
 }
 
 .login_error_html {
-    margin: 5px;
     min-height: 20px;
-    border: 1px solid #F00;
-    padding: 5px;
+    padding: 0 10px 0.7em;
     color: #f00;
-}
-
-div.loginScreen .login_error_html {
-    margin: 10px 0 0 0;
-    padding: 5px 10px;
+    font-size: 14px;
 }
 
 div.loginScreen .login_error_html p {
@@ -331,12 +344,12 @@ div.loginScreen mat-button-toggle button {
     border-right: 1px solid #949494;
 }
 
-div.loginScreen #createAccount {
-    margin: 10px 0 10px 0;
+div.loginScreen .login-link {
+    margin: 0 0 5px;
     font-size: 14px;
 }
 
-div.loginScreen #createAccount a {
+div.loginScreen .login-link a {
     color: mat-color($rmm-default-primary);
 }
 
@@ -445,13 +458,13 @@ mat-sidenav-container {
     width: 100% !important;
 }
 
-@media(min-width: 1024px) {
+@media(min-width: 1025px) {
     mat-sidenav-container {
 	    top: 65px !important;
     }
 }
 
-@media(max-width: 1023px) {
+@media(max-width: 1024px) {
     mat-sidenav-container {
 	    top: 0px !important;
     }
@@ -467,13 +480,13 @@ mat-sidenav-container {
     height: 70px !important;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
     .sidenavMainMenu {
 	    display: none;
     }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
     #mainMenu {
 	    display: none;
     }
@@ -568,19 +581,25 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     height: auto;
 }
 
-@media(min-width: 1024px) {
+@media(min-width: 1025px) {
     #composeButton, #draftsButton {
 	    display: block;
     }
 }
 
-@media(max-width: 1023px) {
+@media(max-width: 1024px) {
     #composeButton, #draftsButton {
 	    display: none;
     }
 }
 
 .mat-nav-list a.textLink {
+    color: mat-color($rmm-default-primary);
+    text-decoration: underline;
+}
+
+/* Welcome Desk */
+.welcomedesk a {
     color: mat-color($rmm-default-primary);
     text-decoration: underline;
 }
@@ -785,40 +804,18 @@ mat-expansion-panel {
     padding: 0 10px 30px 10px !important;
 }
 
-    
-/* Draft Desk */
-
-compose {
-    margin: 10px 0 0 10px;
-}
-
-compose .draftPreview {
-    height: 150px;
-}
-
-#editDraftIcon {
-    height: 20px;
-    line-height: 20px;
-    vertical-align: top;
-}
-
-
 /* Compose */
 
-@media(min-width: 1024px) {
+@media(min-width: 1025px) {
     compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
     width: 45vw !important;
     }
 }
 
-@media(max-width: 1023px) and (min-width: 376px) {
+@media(max-width: 1024px) and (min-width: 376px) {
     compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
     width: 66vw !important;
     }
-}
-
-#buttonCC, #buttonBCC {
-    min-width: 50px !important;
 }
 
 /* Styles to decrease vertical spacing on Compose */
@@ -826,10 +823,6 @@ compose .draftPreview {
 compose .mat-card-actions {
     padding: 0 !important;
     margin-bottom: 8px !important;
-}
-
-compose .mat-form-field-wrapper {
-    padding-bottom: 8px !important;
 }
 
 compose .mat-form-field-underline, compose input.mat-chip-input {
@@ -850,10 +843,8 @@ compose input.mat-chip-input {
 }
 
 compose .mat-standard-chip {
-    bottom: 6px !important;
     padding: 5px 10px !important;
 }
-
 
 /* Dom reg */
 
@@ -872,10 +863,16 @@ compose .mat-standard-chip {
 /* Contacts */
 
 .multiContactActions {
+    display: flex;
+    flex-flow: column;
     position: fixed;
     bottom: 50px;
     right: 50px;
     z-index: 10;
+}
+
+.multiContactActions button {
+    margin-top: 10px;
 }
 
 .contact-details-row {
@@ -894,7 +891,7 @@ app-calendar-app-component mat-nav-list button {
     padding: 0 !important;
 }
 
-@media(min-width: 1024px) {
+@media(min-width: 1025px) {
     .calendarToolbarButton {
         margin: 0.5em !important;
     }
@@ -906,7 +903,7 @@ app-calendar-app-component mat-nav-list button {
     margin: 0 0.5em;
 }
 
-@media(min-width: 1024px) {
+@media(min-width: 1025px) {
     .calendarTitle {
         margin: 0 1em;
     }

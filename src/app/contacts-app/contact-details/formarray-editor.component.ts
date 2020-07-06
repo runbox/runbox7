@@ -29,8 +29,7 @@ export class FormArrayEditorComponent implements OnInit {
     @Input() faName:  string;
     @Input() layout:  string; // 'simple' or 'complex'
 
-    @Input() editable: boolean;
-    @Input() hidden  = true;
+    @Input() hidden   = true;
 
     @Input() title:             string;
     @Input() valuePlaceholder:  string;
@@ -44,6 +43,14 @@ export class FormArrayEditorComponent implements OnInit {
 
     faObj: FormArray;
 
+    defaultTypesFor = {
+        emails:    ['home', 'work'],
+        related:   ['child', 'spouse'],
+        phones:    ['home', 'work', 'cell', 'fax'],
+        urls:      ['personal', 'work'],
+        addresses: ['home', 'work'],
+    };
+
     constructor() {
     }
 
@@ -54,11 +61,4 @@ export class FormArrayEditorComponent implements OnInit {
     removeAt(i: number): void {
         this.faObj.removeAt(i);
     }
-
-    /* unused as of now
-    addType(i: number): void {
-        const types  = this.faObj.at(i).get('types') as FormArray;
-        types.push(this.fb.control(''));
-    }
-    */
 }
