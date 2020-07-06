@@ -255,7 +255,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.mobileQuery.removeListener(this.mobileQueryListener);
   }
   ngDoCheck(): void {
-    console.log('DoCheck start');
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
       (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
 
@@ -270,7 +269,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     } else {
       this.dynamicSearchFieldPlaceHolder = null;
     }
-    console.log('DoCheck end');
   }
 
   ngOnInit(): void {
