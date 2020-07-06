@@ -131,6 +131,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
                 }
             }
+            if (this.model.cc.length > 0) {
+                this.hasCC = true;
+            }
+            if (this.model.bcc.length > 0) {
+                this.hasBCC = true;
+            }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
                 this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''
