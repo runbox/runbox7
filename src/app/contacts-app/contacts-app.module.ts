@@ -46,6 +46,7 @@ import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { MultiValueEditorComponent } from './contact-details/multivalue-editor.component';
+import { ContactPickerDialogComponent } from './contact-picker-dialog.component';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
@@ -57,6 +58,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ContactListComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
+    ContactPickerDialogComponent,
     FormArrayEditorComponent,
     GroupPickerDialogComponent,
     MultiValueEditorComponent,

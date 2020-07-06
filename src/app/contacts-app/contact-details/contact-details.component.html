@@ -71,10 +71,11 @@
                 <div *ngFor="let member of loadedGroupMembers; index as idx">
 
                     <div *ngIf="member | async as member"
+                        style="display: flex; justify-content: space-between;"
                         draggable=true
                         (dragstart)="memberDragged($event, idx)"
                     >
-                        <div *ngIf="member instanceof Contact; else not_contact">
+                        <span *ngIf="member instanceof Contact; else not_contact">
                             <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
                                       draggable="true" (dragstart)="memberDragged($event, idx)">
                                 drag_handle
@@ -82,23 +83,36 @@
                             <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
                                 <app-contact-button [contact]="member"></app-contact-button>
                             </button>
-                        </div>
+                        </span>
                         <ng-template #not_contact>
                             {{ member.value }}
                         </ng-template>
+
+                        <button mat-icon-button *ngIf="mobileQuery.matches" (click)="removeGroupMember(idx)">
+                            <mat-icon> delete </mat-icon>
+                        </button>
                     </div>
                 </div>
 
-                <div *ngIf="loadedGroupMembers.length === 0; else small_instruction" style="padding: 25px;">
-                    Drag and drop contacts here to add them to this group. <br>
-                    Trouble dragging contacts? Enable drag handles in <a routerLink="/contacts/settings">settings</a>.
-                </div>
-                <ng-template #small_instruction>
-                    <div style="font-size: small; color: #bbb; padding: 10px;">
-                        Drag and drop contacts to add to or remove from this group. <br>
-                        Trouble dragging contacts? Enable drag handles in settings.
+                <button mat-button
+                    [ngStyle]="{ 'margin': loadedGroupMembers.length ? '0px' : '10px' }"
+                    (click)="askForMoreMembers()"
+                >
+                    <mat-icon> add </mat-icon> Add more contacts
+                </button>
+
+                <div *ngIf="!mobileQuery.matches">
+                    <div *ngIf="loadedGroupMembers.length === 0; else small_instruction" style="padding: 25px;">
+                        Drag and drop contacts here to add them to this group. <br>
+                        Trouble dragging contacts? Enable drag handles in <a routerLink="/contacts/settings">settings</a>.
                     </div>
-                </ng-template>
+                    <ng-template #small_instruction>
+                        <div style="font-size: small; color: #bbb; padding: 10px;">
+                            Drag and drop contacts to add to or remove from this group. <br>
+                            Trouble dragging contacts? Enable drag handles in settings.
+                        </div>
+                    </ng-template>
+                </div>
             </div>
         </div>
 
