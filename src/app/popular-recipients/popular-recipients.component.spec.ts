@@ -25,7 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { PopularRecipientsComponent } from './popular-recipients.component';
 import { RecipientsService } from '../compose/recipients.service';
-import { MailAddressInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 import { of } from 'rxjs';
 
