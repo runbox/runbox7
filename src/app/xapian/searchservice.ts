@@ -1004,7 +1004,6 @@ export class SearchService {
         console.error('Failed updating with new changes (will retry in 10 secs)', err);
       }
       this.notifyOnNewMessages = true;
-      this.messagelistservice.refreshFolderCounts();
       this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
     }
 
