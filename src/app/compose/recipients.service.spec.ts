@@ -1,19 +1,5 @@
-import { TestBed } from '@angular/core/testing';
-import { RecipientsService } from './recipients.service';
-import { ContactsService } from '../contacts-app/contacts.service';
-import { Injector } from '@angular/core';
-import { SearchService } from '../xapian/searchservice';
-import { StorageService } from '../storage.service';
-import { AsyncSubject, Observable, of } from 'rxjs';
-import { take } from 'rxjs/operators';
-import { XapianAPI } from '../xapian/rmmxapianapi';
-import { xapianLoadedSubject } from '../xapian/xapianwebloader';
-import { Contact } from '../contacts-app/contact';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { MailAddressInfo } from '../xapian/messageinfo';
-
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -31,11 +17,31 @@ import { MailAddressInfo } from '../xapian/messageinfo';
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { TestBed } from '@angular/core/testing';
+import { RecipientsService } from './recipients.service';
+import { ContactsService } from '../contacts-app/contacts.service';
+import { Injector } from '@angular/core';
+import { SearchService } from '../xapian/searchservice';
+import { StorageService } from '../storage.service';
+import { AsyncSubject, of, Subject } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { XapianAPI } from '../xapian/rmmxapianapi';
+import { xapianLoadedSubject } from '../xapian/xapianwebloader';
+import { Contact } from '../contacts-app/contact';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { MailAddressInfo } from '../xapian/messageinfo';
+
 declare var FS;
 declare var MEMFS;
 
+let testcounter = 1;
+
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();
+    searchResultsSubject = new Subject<void>();
+    mockedRecentMessages: number[] = [];
+    mockedRecipients: { [messageId: number]: { recipients: string[] } } = {};
+
     api: XapianAPI;
 
     constructor() {
@@ -47,13 +53,15 @@ export class MockSearchService {
 
         this.api = new XapianAPI();
 
-        const dirname = 'testdir';
+        testcounter++;
+
+        const dirname = 'testdir' + testcounter;
 
         FS.mkdir(dirname);
         FS.mount(MEMFS, {}, '/' + dirname);
         FS.chdir('/' + dirname);
 
-        this.api.initXapianIndex('testindex');
+        this.api.initXapianIndex('testindex' + testcounter);
         let docid = 1;
         const addMailToIndex = (from: MailAddressInfo, recipients: MailAddressInfo[]) => this.api.addSortableEmailToXapianIndex(
             'Q' + (docid++) ,
@@ -86,6 +94,15 @@ export class MockSearchService {
 
         this.initSubject.next(true);
         this.initSubject.complete();
+        this.searchResultsSubject.next();
+    }
+
+    getMessagesInTimeRange(_start: Date, _end: Date, _folder?: string) {
+        return this.mockedRecentMessages;
+    }
+
+    getDocData(id: number) {
+        return this.mockedRecipients[id];
     }
 }
 
@@ -110,6 +127,7 @@ export class ContactsServiceMock {
 
 export class RunboxWebMailAPIMock {
     public me = of({ uid: 33 });
+    public getFromAddress = () => of(['testuser@runbox.com']);
 }
 
 describe('RecipientsService', () => {
@@ -127,6 +145,8 @@ describe('RecipientsService', () => {
         });
         injector = TestBed.get(Injector);
     });
+
+    afterEach(() => FS.chdir('/'));
 
     it('Should get recipients from contacts', async () => {
         const recipientsService = injector.get(RecipientsService);
@@ -146,7 +166,21 @@ describe('RecipientsService', () => {
         expect(recipients.find(r => r.toString().indexOf('test5@example.com') > -1).toString())
             .toBe('"TEST5" <test5@example.com>');
         console.log('All expectations met');
-        FS.chdir('/');
+    });
 
+    it('Should suggest recent recipients', async () => {
+        const searchMock: MockSearchService = <MockSearchService><unknown>injector.get(SearchService);
+
+        searchMock.mockedRecentMessages = [101, 102];
+        searchMock.mockedRecipients = {
+            101: { recipients: ['paul@company.com']    },
+            102: { recipients: ['susan@elsewhere.net'] },
+            103: { recipients: ['testuser@runbox.com'] }, // own address should be skipped
+        };
+
+        const recipientsService: RecipientsService = injector.get(RecipientsService);
+        const suggested = await recipientsService.recentlyUsed.pipe(take(1)).toPromise();
+
+        expect(suggested.length).toBe(2);
     });
 });

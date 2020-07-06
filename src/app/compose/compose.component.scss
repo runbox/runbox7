@@ -1,5 +1,6 @@
 #messageTextArea textarea {
-    width: 97%;
+    box-sizing: border-box;
+    width: 100%;
     border: 1px solid #949494;
     padding: 10px;
 }
@@ -10,16 +11,15 @@
 
 .draft-title {
     flex-grow: 1;
-    padding-left: 15px;
     font-size: 24px;
+    padding-right: 30px;
 }
 
 .draft-actions {
+    margin: 0;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-end;
-    margin-right: 5px;
+    flex-wrap: wrap;
 }
 
 .draftPreview {
@@ -50,18 +50,6 @@ mat-form-field {
     border: #5d9715 solid 5px;
 }
 
-#useHTML div.mat-checkbox-inner-container {
-    margin-right: 4px !important;
-}
-
-#sendMail .mat-icon {
-    font-size: 36px;
-}
-
-button {
-    float: right !important;
-}
-
 #dropZoneText {
     margin: 10px 0;
 }
@@ -74,4 +62,113 @@ button {
 #deleteAttachment mat-icon {
     margin-top: -5px;
     font-size: 20px;
+}
+
+#fieldFrom {
+    overflow: hidden;
+}
+
+.fieldRecipient {
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    flex-direction: row;
+    box-sizing: border-box;
+
+    #fieldTo {
+        min-width: 70%;
+        flex-grow: 1;
+    }
+
+    button {
+        padding: 0;
+        margin: 0;
+        min-width: 45px;
+        justify-self: flex-end;
+        align-self: flex-start;
+        margin-top: 10px;
+    }
+}
+
+.recipientSuggestionContainer {
+    span {
+        font-size: 12.5px;
+    }
+
+    .recipientSuggestionList {
+        display: flex;
+        overflow: auto;
+        white-space: nowrap;
+
+        .suggestionItem {
+            align-items: center;
+            padding-right: 5px;
+        }
+
+        div {
+            padding: 5px 0 15px;
+        }
+    }
+}
+
+.draft-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+
+    button {
+        width: 50px;
+    }
+
+    #attachDesktop { order: 1 }
+    #trashDraft { order: 2 }
+    #cancelDraft { order: 3 }
+    #closeDraft { order: 4 }
+    #saveDraft { order: 5 }
+    #sendMail { order: 6 }
+
+    @media only screen and (min-width: 769px) {
+        #attachMobile {
+            display: none;
+        }
+        #useHTML {
+            justify-content: flex-end;
+            padding: 5px 0;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #attachDesktop {
+            display: none;
+        }
+        #useHTML {
+            flex-grow: 1;
+        }
+    }
+}
+
+.attachment { 
+    padding-top: 5px;
+    display: flex;
+    width: 100%;
+    
+    a {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    button {
+        align-self: center;
+    }
+}
+
+#attachments {
+    display: flex; 
+    flex-wrap: wrap; 
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: rgba(0, 0, 0, 0.54);
 }

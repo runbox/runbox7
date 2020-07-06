@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, EventEmitter, Output, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { MatAutocomplete } from '@angular/material/autocomplete';
@@ -37,7 +37,7 @@ const COMMA = 188;
     selector: 'mailrecipient-input',
     templateUrl: 'mailrecipientinput.component.html'
 })
-export class MailRecipientInputComponent implements OnInit, AfterViewInit {
+export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: FormControl = new FormControl();
@@ -82,7 +82,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
         });
     }
 
-    ngOnInit() {
+    ngOnChanges() {
         // now a list of MailAddressInfo objects
         this.recipientsList = this.recipients ? this.recipients : [];
     }

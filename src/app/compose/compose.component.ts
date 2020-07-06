@@ -34,7 +34,8 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
-import { isValidEmailList, isValidEmailArray } from './emailvalidator';
+import { RecipientsService } from './recipients.service';
+import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../xapian/messageinfo';
 
 declare const tinymce: any;
@@ -76,6 +77,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     shouldReturnToPreviousPage = false;
 
+    // here we keep the suggestions we get from RecipientsService
+    suggestedRecipients: MailAddressInfo[] = [];
+    // and here we keep suggestedRecipients but filtered
+    // to not include the recipients already picked
+    filteredSuggestions: MailAddressInfo[] = [];
+
+
     public formGroup: FormGroup;
 
     @Input() model: DraftFormModel = new DraftFormModel();
@@ -88,10 +96,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private http: HttpClient,
         private formBuilder: FormBuilder,
         private location: Location,
-        private dialogService: DialogService
+        private dialogService: DialogService,
+        recipientservice: RecipientsService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
+
+        recipientservice.recentlyUsed.subscribe(suggestions => {
+            this.suggestedRecipients = suggestions;
+            this.updateSuggestions();
+        });
     }
 
     ngOnInit() {
@@ -119,7 +133,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
-                this.model.preview = DraftFormModel.trimmedPreview(msgObj.text.text)
+                this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''
             );
         }
 
@@ -162,6 +176,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                 }
             });
+
+        this.formGroup.valueChanges.subscribe(_ => this.updateSuggestions());
     }
 
     ngAfterViewInit() {
@@ -204,11 +220,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // where event is hopefully a MailAddressInfo[]
     public onUpdateRecipient(field: string, event) {
         this.model[field] = event;
-        if (field === 'cc' && event.length === 0) {
-            this.hasCC = false;
+        if (field === 'cc') {
+            this.hasCC = event.length !== 0;
         }
-        if (field === 'bcc' && event.length === 0) {
-            this.hasBCC = false;
+        if (field === 'bcc') {
+            this.hasBCC = event.length !== 0;
         }
         // Leaving this for now as it triggers auto-save
         const recipientString = event.map((recipient) => recipient.nameAndAddress).join(',');
@@ -218,6 +234,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public hideDropZone() {
         this.draggingOverDropZone = false;
         this.showDropZone = false;
+    }
+
+    addRecipientFromSuggestions(recipient: MailAddressInfo) {
+        const newRecipients = this.model.to.concat(recipient);
+
+        this.onUpdateRecipient('to', newRecipients);
     }
 
     public attachFilesClicked() {
@@ -626,5 +648,28 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    recipientDragged(ev: DragEvent, recipient: MailAddressInfo) {
+        ev.dataTransfer.setData('recipient', recipient.nameAndAddress);
+    }
+
+    recipientDropped(ev: DragEvent, target: string) {
+        const addressLine = ev.dataTransfer.getData('recipient');
+
+        const newMAI = MailAddressInfo.parse(addressLine);
+        const newRecipients = this.model[target].concat(newMAI);
+
+        this.onUpdateRecipient(target, newRecipients);
+    }
+
+    /// updates the displayed `suggestedRecipients`
+    /// making sure it doesn't contain any existing recipients
+    updateSuggestions() {
+        const currentrecipients: MailAddressInfo[] = [].concat(this.model.to).concat(this.model.cc).concat(this.model.bcc);
+
+        this.filteredSuggestions = this.suggestedRecipients.filter(
+            s => !currentrecipients.find(r => r.address === s.address)
+        ).slice(0, 5);
     }
 }
