@@ -117,12 +117,37 @@ mat-form-field {
     justify-content: flex-end;
     flex-grow: 1;
 
-    #trashDraft { order: 1 }
-    #closeDraft { order: 2 }
-    #saveDraft { order: 3 }
-    #sendMail { order: 4 }
-    #useHTML { flex-grow: 1 }
+    button {
+        width: 50px;
+    }
+
+    #attachDesktop { order: 1 }
+    #trashDraft { order: 2 }
+    #cancelDraft { order: 3 }
+    #closeDraft { order: 4 }
+    #saveDraft { order: 5 }
+    #sendMail { order: 6 }
+
+    @media only screen and (min-width: 769px) {
+        #attachMobile {
+            display: none;
+        }
+        #useHTML {
+            justify-content: flex-end;
+            padding: 5px 0;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #attachDesktop {
+            display: none;
+        }
+        #useHTML {
+            flex-grow: 1;
+        }
+    }
 }
+
 .attachment { 
     padding-top: 5px;
     display: flex;

@@ -4,7 +4,10 @@
             {{model.subject ? model.subject : "New message"}}
         </div>
         <div class="draft-buttons">
-           <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" id="saveDraft" (click)="submit()">
+            <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachDesktop" (click)="attachFilesClicked()">
+                <mat-icon>attachment</mat-icon>
+            </button>
+            <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" id="saveDraft" (click)="submit()">
                 <mat-icon *ngIf="saved">cloud_done</mat-icon>
                 <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
                 <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
@@ -15,7 +18,7 @@
             <button *ngIf="editing" mat-icon-button matTooltip="Close draft" id="closeDraft" (click)="close()">
                 <mat-icon>close</mat-icon>
             </button>
-            <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
+            <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" id="cancelDraft" (click)="cancelDraft()">
                 <mat-icon>delete</mat-icon>
             </button>
             <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
@@ -126,7 +129,7 @@
         <div [hidden]="!editing">
             <div class="draft-buttons">
                 <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
-                <button *ngIf="editing" mat-icon-button matTooltip="Attach files" (click)="attachFilesClicked()">
+                <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachMobile" (click)="attachFilesClicked()">
                     <mat-icon>attachment</mat-icon>
                 </button>
                 <input #attachmentFileUploadInput type="file" [hidden]="true" multiple (change)="onFilesSelected($event)" />
