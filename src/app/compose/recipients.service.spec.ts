@@ -29,7 +29,7 @@ import { XapianAPI } from '../xapian/rmmxapianapi';
 import { xapianLoadedSubject } from '../xapian/xapianwebloader';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { MailAddressInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 declare var FS;
 declare var MEMFS;

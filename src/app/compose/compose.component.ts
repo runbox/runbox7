@@ -36,7 +36,7 @@ import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
-import { MailAddressInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 declare const tinymce: any;
 declare const MailParser;

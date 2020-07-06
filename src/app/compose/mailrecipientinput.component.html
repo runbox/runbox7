@@ -11,12 +11,11 @@
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"                
                 [matChipInputAddOnBlur]="false"
                 (blur)="addRecipientFromBlur()"
-                (matChipInputTokenEnd)="addRecipient($event)" 
+                (matChipInputTokenEnd)="addRecipientFromEnter($event)" 
                 [matAutocomplete]="auto" style="flex-grow: 1" 
                 type="email"
-                email
             />
-        <mat-error *ngIf="invalidemail && !searchTextFormControl.valid">
+        <mat-error *ngIf="invalidemail">
             Please enter a valid email address
         </mat-error>        
     </mat-chip-list>

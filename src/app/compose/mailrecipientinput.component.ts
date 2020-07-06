@@ -27,7 +27,8 @@ import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
-import { MailAddressInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
+import { isValidEmailArray } from './emailvalidator';
 
 const COMMA = 188;
 
@@ -103,7 +104,6 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
         this.invalidemail = false;
     }
 
-
     addRecipientFromAutoComplete(recipient: Recipient) {
         this.invalidemail = false;
         this.addedFromAutoComplete = true;
@@ -134,34 +134,45 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
         const input = this.searchTextInput.nativeElement;
         const value = (input.value || '').trim();
 
-        if (!this.auto.isOpen && this.searchTextFormControl.valid) {
-            this.invalidemail = false;
+        if (this.auto.isOpen || this.addedFromAutoComplete) {
+            return;
+        }
+        if (value) {
+            this.addRecipient(input);
+            this.addedFromAutoComplete = false;
+            return;
+        }
+        this.invalidemail = false;
+    }
 
-            if (value) {
-                this.recipientsList.push(MailAddressInfo.parse(value)[0]);
-                this.notifyChangeListener();
-                input.value = '';
-            }
-        } else if (value && !this.searchTextFormControl.valid) {
+    addRecipientFromEnter(event: MatChipInputEvent) {
+        const input = event.input;
+        const value = (input.value || '').trim();
+
+        if (this.addedFromAutoComplete) {
+            return;
+        }
+        if (value) {
+            this.addRecipient(input);
+            this.addedFromAutoComplete = false;
+            return;
+        }
+        this.invalidemail = false;
+    }
+
+    addRecipient(input) {
+        const value = input.value;
+        // Parse input into email-like things:
+        const parsedEmails = MailAddressInfo.parse(value);
+
+        // Then validate the parts
+        if (!isValidEmailArray(parsedEmails)) {
             this.invalidemail = true;
         } else {
             this.invalidemail = false;
-        }
-    }
-
-    addRecipient(event: MatChipInputEvent) {
-        const input = event.input;
-        const value = input.value;
-        input.value = '';
-
-        if (value && this.searchTextFormControl.valid && !this.addedFromAutoComplete) {
-            this.invalidemail = false;
-            this.recipientsList.push(MailAddressInfo.parse(value)[0]);
+            this.recipientsList = this.recipientsList.concat(parsedEmails);
+            input.value = '';
             this.notifyChangeListener();
-        } else if (!this.addedFromAutoComplete && !this.searchTextFormControl.valid) {
-            this.invalidemail = true;
         }
-
-        this.addedFromAutoComplete = false;
     }
 }
