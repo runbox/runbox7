@@ -5,7 +5,16 @@ describe('Composing emails', () => {
         localStorage.setItem('localSearchPromptDisplayed221', 'true');
     });
 
-    it('should display draft card', () => {
+    it('should find the same address in original "To" and our "From" field in Reply', () => {
+        cy.visit('/#Inbox:12');
+        cy.get('single-mail-viewer').should('exist');
+        const address = 'testmail@testmail.com';
+        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
+        cy.get('button[mattooltip="Reply"]').click();
+        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
+    });
+
+  it('should display draft card', () => {
         cy.visit('/compose?new=true');
         cy.get('mat-card-actions div').should('contain', 'New message');
         cy.focused().should('have.attr', 'placeholder', 'To');
@@ -30,7 +39,6 @@ describe('Composing emails', () => {
     });
 
     it('should open reply draft with HTML editor', () => {
-        cy.visit('/');
         cy.visit('/#Inbox:1');
         cy.get('single-mail-viewer').should('exist');
         cy.get('mat-checkbox[mattooltip="Toggle HTML view"]').click();
@@ -62,7 +70,6 @@ describe('Composing emails', () => {
     });
 
     it('closing a new reply should return to inbox', () => {
-        cy.visit('/');
         cy.visit('/#Inbox:1');
         cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
         cy.get('single-mail-viewer').should('exist');
@@ -101,14 +108,4 @@ describe('Composing emails', () => {
         }); 
     });
 
-    it('should find the same address in original "To" and our "From" field in Reply', () => {
-        cy.visit('/');
-        cy.visit('/');
-        cy.visit('/#Inbox:12');
-        cy.get('single-mail-viewer').should('exist');
-        const address = 'testmail@testmail.com';
-        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
-        cy.get('button[mattooltip="Reply"]').click();
-        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
-    });
 });
