@@ -49,6 +49,8 @@ const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
 
+const TOOLBAR_BUTTON_WIDTH = 40;
+
 @Component({
   template: `
       <h3 mat-dialog-title>Really show HTML version?</h3>
@@ -178,8 +180,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.toolbarButtonContainer) {
       const toolbarwidth = (this.toolbarButtonContainer.nativeElement as HTMLDivElement).clientWidth;
       this.morebuttonindex = Math.floor(
-        toolbarwidth / 40
-      ) - 2;
+        toolbarwidth / TOOLBAR_BUTTON_WIDTH
+      ) - 1;
       this.attachmentAreaCols = Math.floor(toolbarwidth / 200) + 1;
     }
   }
