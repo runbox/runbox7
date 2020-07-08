@@ -102,7 +102,6 @@
 	  <div style="clear: both"></div>
 
           <div id="totp-steps">
-	    <form class="form">
 	      <div>
 		<p>
 		  1. Click [Generate key] to generate a new TOTP key.
@@ -120,8 +119,8 @@
 		</p>
 		<p>
 		  <span><strong>Label:</strong></span>
-                  <mat-form-field>
-                    <input matInput name="totp_label" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="Label" readonly [value]="'Runbox: ' + rmm.me.data.username" *ngIf="rmm.me.data">
+                  <mat-form-field  *ngIf="rmm.me.data">
+                    <input matInput name="totp_label" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="Label" readonly [value]="'Runbox: ' + rmm.me.data.username">
                   </mat-form-field>
 		</p>
               </div>
@@ -152,7 +151,6 @@
 		  5. If the code is correct, Two-Factor Authenetication with TOTP will be enabled for your account.
 		</p>
               </div>
-	    </form>
 	  </div>
 	</div>
       </app-runbox-section>
@@ -188,7 +186,6 @@
           <h4 class="runbox-section-header">Trusted Browsers</h4>
         </div>
         <div runbox-section-content>
-	  <form class="form">
             <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
             <p>
 	      <span>Browser name: </span>
@@ -227,7 +224,6 @@
 		</mat-grid-tile>
               </div>
             </mat-grid-list>
-	  </form>
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
@@ -346,7 +342,6 @@
           <h4 class="runbox-section-header">New app password</h4>
         </div>
         <div runbox-section-content>
-	  <form class="form">
             <p>
               <span><strong>App password name:</strong></span>
               <mat-form-field>
@@ -355,7 +350,6 @@
               <span><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_app_pass_new_disabled || rmm.account_security.app_pass.is_busy" (click)="app_pass_create()">Submit</button></span>
               <span>Use a name so you will know which device you are using this app password on.</span>
             </p>
-	  </form>
         </div>
       </app-runbox-section>
     </mat-tab>
@@ -375,7 +369,6 @@
           <h4 class="runbox-section-header">Last logins</h4>
         </div>
         <div runbox-section-content id="last-logins">
-	  <form class="form">
             <div>
               <mat-form-field>
 		<mat-label>Service</mat-label>
@@ -457,7 +450,6 @@
 		</div>
               </mat-grid-list>
             </div>
-	  </form>
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
@@ -465,7 +457,6 @@
           <h4 class="runbox-section-header">Access Control List</h4>
         </div>
         <div runbox-section-content>
-	  <form class="form">
             <p>
               The IPs and IP ranges below indicate one or more IP addresses allowed or denied access to your account. Allowed IPs have higher priority than Denied IPs. Therefore you can allow an IP from within a range that you have otherwise denied.
             </p>
@@ -506,7 +497,6 @@
 		</div>
               </mat-grid-list>
             </div>
-	  </form>
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
@@ -514,7 +504,6 @@
           <h4 class="runbox-section-header">Manage IPs</h4>
         </div>
         <div runbox-section-content id="manage-ips">
-	  <form class="form">
             <p>
               Enter one specific IP (e.g. 1.2.3.4) or an IP range (e.g. 1-24.2.3.4-55 or 200.*.*.*), then choose Allow or Deny. Currently supports IPv4 only.
             </p>
@@ -541,7 +530,6 @@
               <input matInput name="acl_manage_ip_label" placeholder="E.g. Home IP" [(ngModel)]="acl_manage_ip_label">
             </mat-form-field>
             <span><button mat-raised-button class="primaryContentButton" (click)="acl_create_rule()" [disabled]="rmm.account_security.acl.is_busy">Submit</button></span>
-	  </form>
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
