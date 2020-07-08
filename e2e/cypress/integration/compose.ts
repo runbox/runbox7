@@ -5,15 +5,6 @@ describe('Composing emails', () => {
         localStorage.setItem('localSearchPromptDisplayed221', 'true');
     });
 
-    it('should find the same address in original "To" and our "From" field in Reply', () => {
-        cy.visit('/#Inbox:12');
-        cy.get('single-mail-viewer').should('exist');
-        const address = 'testmail@testmail.com';
-        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
-        cy.get('button[mattooltip="Reply"]').click();
-        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
-    });
-
   it('should display draft card', () => {
         cy.visit('/compose?new=true');
         cy.get('mat-card-actions div').should('contain', 'New message');
@@ -67,6 +58,15 @@ describe('Composing emails', () => {
             expect(loc.pathname).to.eq('/compose');
             expect(loc.search).to.eq('');
         });
+    });
+
+    it('should find the same address in original "To" and our "From" field in Reply', () => {
+        cy.visit('/#Inbox:12');
+        cy.get('single-mail-viewer').should('exist');
+        const address = 'testmail@testmail.com';
+        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
+        cy.get('button[mattooltip="Reply"]').click();
+        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
     });
 
     it('closing a new reply should return to inbox', () => {
