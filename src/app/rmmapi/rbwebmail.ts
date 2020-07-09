@@ -488,6 +488,9 @@ export class RunboxWebmailAPI {
             if (draftModel.subject) {
                 params.append('subject', draftModel.subject);
             }
+            if (draftModel.reply_to) {
+                params.append('rmm7_reply_to', draftModel.reply_to);
+            }
             if (draftModel.in_reply_to) {
                 params.append('in_reply_to', draftModel.in_reply_to);
             }
