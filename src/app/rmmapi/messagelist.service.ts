@@ -121,8 +121,11 @@ export class MessageListService {
                 const folderCounts = {};
                 for (const folder of folders) {
                     const path = folder.folderPath;
+
                     if (xapianFolders.has(path)) {
-                        folderCounts[path] = this.searchservice.getMessageCountsForFolder(path);
+                        const res = this.searchservice.api.getFolderMessageCounts(folder.folderName);
+
+                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
                     } else {
                         folderCounts[path] = FolderMessageCountEntry.of(folder);
                     }
