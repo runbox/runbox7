@@ -1,3 +1,7 @@
+@import '../../../node_modules/@angular/material/theming';
+
+$rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
+
 #messageTextArea textarea {
     box-sizing: border-box;
     width: 100%;
@@ -103,6 +107,10 @@ mat-form-field {
         .suggestionItem {
             align-items: center;
             padding-right: 5px;
+
+            mat-chip {
+                background-color: mat-color($rmm-default-accent, 50);
+            }
         }
 
         div {
