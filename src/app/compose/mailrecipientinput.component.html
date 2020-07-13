@@ -1,6 +1,7 @@
 <mat-form-field style="width: 100%" floatPlaceholder="auto">
     <mat-chip-list #chipList>
         <mat-chip *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
+                style="background-color: #e3f2fd;"
                 [removable]="true" 
                 (removed)="removeRecipient(ndx)">        
                 {{recipient.nameAndAddress}}
