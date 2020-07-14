@@ -46,6 +46,8 @@ import { MessageActions } from './messageactions';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageListService } from '../rmmapi/messagelist.service';
+import { AvatarBarComponent } from './avatar-bar.component';
+import { AvatarService } from './avatar.service';
 
 describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
@@ -72,12 +74,13 @@ describe('SingleMailViewerComponent', () => {
         MatExpansionModule,
         RouterTestingModule
       ],
-      declarations: [ContactCardComponent, SingleMailViewerComponent],
+      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
       providers: [
         MobileQueryService,
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: HttpClient, useValue: {} },
         { provide: RunboxWebmailAPI, useValue: {
+          getFromAddress() { return of([]); },
           getMessageContents(messageId: number): Observable<MessageContents> {
             console.log('Get message contents for', messageId);
             return of({
@@ -108,9 +111,14 @@ describe('SingleMailViewerComponent', () => {
             });
           }
         } },
+        { provide: AvatarService, useValue: {
+            avatarUrlFor(_email: string) {
+              return Promise.resolve(null);
+            }
+        } },
         { provide: ContactsService, useValue: {
-            lookupContact(email: string) {
-              return new Promise((resolve, reject) => resolve(null));
+            lookupContact(_email: string) {
+              return Promise.resolve(null);
             }
         } },
         { provide: ProgressService, useValue: {} }

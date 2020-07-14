@@ -61,6 +61,7 @@
     "rxjs": "^6.5.5",
     "rxjs-compat": "^6.5.5",
     "tinymce": "^5.2.2",
+    "ts-md5": "^1.2.7",
     "zone.js": "^0.10.3"
   },
   "devDependencies": {

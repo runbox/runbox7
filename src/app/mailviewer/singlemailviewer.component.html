@@ -170,6 +170,7 @@
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
       <mat-expansion-panel-header title="Toggle message headers">
 	      <mat-panel-title>
+          <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>        
       </mat-expansion-panel-header>

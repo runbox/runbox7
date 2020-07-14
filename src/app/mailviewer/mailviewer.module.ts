@@ -34,7 +34,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
+import { AvatarBarComponent } from './avatar-bar.component';
 import { ContactCardComponent } from './contactcard.component';
+import { AvatarService } from './avatar.service';
 export { SingleMailViewerComponent } from './singlemailviewer.component';
 
 @NgModule({
@@ -59,9 +61,13 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         SingleMailViewerComponent
     ],
     declarations: [
+        AvatarBarComponent,
         ContactCardComponent,
         SingleMailViewerComponent,
         ShowHTMLDialogComponent
+    ],
+    providers: [
+        AvatarService,
     ],
     entryComponents: [
         ShowHTMLDialogComponent
