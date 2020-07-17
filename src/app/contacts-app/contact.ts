@@ -462,6 +462,19 @@ export class Contact {
         }
     }
 
+    get photo(): string {
+        const prop = this.component.getFirstProperty('photo');
+        if (prop) {
+            if (prop.type === 'binary') {
+                return `data:image/${prop.getParameter('type')};base64,${prop.getFirstValue()}`;
+            } else {
+                console.log(`NYI photo type: ${prop.type}`);
+            }
+        } else {
+            return null;
+        }
+    }
+
     toDict(): any {
         return {
             full_name:  this.full_name,
@@ -479,6 +492,7 @@ export class Contact {
             addresses:  this.addresses.map(a => a.toDict()),
             related:    this.related,
             members:    this.members.map(m => m.prop.toJSON()),
+            photo:      this.photo,
         };
     }
 

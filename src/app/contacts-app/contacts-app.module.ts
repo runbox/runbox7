@@ -30,6 +30,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -70,6 +71,7 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatMenuModule,
     MatRadioModule,
     MatSelectModule,
     MatSidenavModule,

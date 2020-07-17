@@ -4,17 +4,46 @@
 
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <mat-icon> {{ contactIcon }} </mat-icon>
-        <span *ngIf="contact.display_name(); else defaultName">
-            {{ contact.display_name() }}
+        <span class="contactDetailsPicture">
+            <img
+                *ngIf="contactPhotoURI; else uploadPicture"
+                class="contactDetailsPicture"
+                [src]="contactPhotoURI"
+                [matMenuTriggerFor]="pictureMenu"
+            >
+            <ng-template #uploadPicture>
+                <button mat-stroked-button>
+                    <mat-icon> portrait </mat-icon>
+                    <br> Upload picture
+                </button>
+            </ng-template>
+            <mat-menu #pictureMenu="matMenu">
+                <button mat-menu-item *ngIf="contactPhotoSource" disabled>
+                    <mat-icon>cloud</mat-icon>
+                    <span>From {{ contactPhotoSource }}</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon>publish</mat-icon>
+                    <span>Replace</span>
+                </button>
+                <button mat-menu-item *ngIf="!contactPhotoSource">
+                    <mat-icon>delete</mat-icon>
+                    <span>Remove</span>
+                </button>
+            </mat-menu>
         </span>
-        <ng-template #defaultName>
-            <span [ngSwitch]="contact.kind">
-                <span *ngSwitchCase="kind.GROUP"> New group   </span>
-                <span *ngSwitchDefault>           New contact </span>
+        <span class="contactDetailsName">
+            <mat-icon> {{ contactIcon }} </mat-icon>
+            <span *ngIf="contact.display_name(); else defaultName">
+                {{ contact.display_name() }}
             </span>
-        </ng-template>
-        's details
+            <ng-template #defaultName>
+                <span [ngSwitch]="contact.kind">
+                    <span *ngSwitchCase="kind.GROUP"> New group   </span>
+                    <span *ngSwitchDefault>           New contact </span>
+                </span>
+            </ng-template>
+        </span>
     </h2>
     <form [formGroup]="contactForm">
         <h3> Basic information </h3>

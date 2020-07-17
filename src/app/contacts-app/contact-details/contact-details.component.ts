@@ -28,6 +28,7 @@ import { ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
+import { AvatarService } from '../../mailviewer/avatar.service';
 
 @Component({
     selector: 'app-contact-details',
@@ -46,6 +47,8 @@ export class ContactDetailsComponent {
     groupMembers: GroupMember[] = [];
     // GroupMember or resolved Contact
     loadedGroupMembers = [];
+    contactPhotoURI: string;
+    contactPhotoSource: string;
 
     // needed so that templates can refer to enum values through `kind.GROUP` etc
     kind = ContactKind;
@@ -58,6 +61,7 @@ export class ContactDetailsComponent {
     constructor(
         public dialog: MatDialog,
         public rmmapi: RunboxWebmailAPI,
+        private avatarservice: AvatarService,
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,
@@ -156,6 +160,15 @@ export class ContactDetailsComponent {
 
         this.groupMembers = this.contact.members;
         this.loadGroupMembers();
+
+        this.contactPhotoURI = this.contact.photo;
+        this.contactPhotoSource = null;
+        if (!this.contactPhotoURI) {
+            this.avatarservice.avatarUrlFor(this.contact.primary_email()).then(url => {
+                this.contactPhotoURI = url;
+                this.contactPhotoSource = url.match(/(:\/\/?)([^\/]+)/)[2];
+            });
+        }
     }
 
     loadGroupMembers(): void {
