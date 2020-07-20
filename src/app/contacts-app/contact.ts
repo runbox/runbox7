@@ -466,12 +466,37 @@ export class Contact {
         const prop = this.component.getFirstProperty('photo');
         if (prop) {
             if (prop.type === 'binary') {
-                return `data:image/${prop.getParameter('type')};base64,${prop.getFirstValue()}`;
+                const blob = prop.getFirstValue();
+                if (blob.startsWith('data:')) {
+                    return blob;
+                }
+                return `data:image/${prop.getParameter('type')};base64,${blob}`;
             } else {
                 console.log(`NYI photo type: ${prop.type}`);
             }
         } else {
             return null;
+        }
+    }
+
+    set photo(uri: string) {
+        if (this.component.hasProperty('photo')) {
+            this.component.removeAllProperties('photo');
+        }
+        if (!uri) {
+            return;
+        }
+        if (uri.startsWith('data:')) {
+            // specialcased since parsers apparently have problems with a comma in the URI
+            const match = uri.match(/^data:image\/([a-zA-Z]*);base64,(.*)$/);
+            const prop = new ICAL.Property('photo');
+            prop.resetType('binary');
+            prop.setParameter('encoding', 'b');
+            prop.setParameter('type', match[1]);
+            prop.setValue(match[2]);
+            this.component.addProperty(prop);
+        } else {
+            this.component.addPropertyWithValue('photo', uri);
         }
     }
 

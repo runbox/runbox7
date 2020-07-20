@@ -17,14 +17,14 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
-import { ConfirmDialog } from '../../dialog/dialog.module';
+import { ErrorDialog, ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
@@ -39,6 +39,8 @@ export class ContactDetailsComponent {
 
     @Output() contactSaved = new EventEmitter<Contact>();
     @Output() contactDeleted = new EventEmitter<Contact>();
+
+    @ViewChild('picUploadInput') picUploadInput: any;
 
     contactForm = this.createForm();
 
@@ -161,10 +163,15 @@ export class ContactDetailsComponent {
         this.groupMembers = this.contact.members;
         this.loadGroupMembers();
 
-        this.contactPhotoURI = this.contact.photo;
+        this.loadContactPhoto(this.contact.photo);
+    }
+
+    loadContactPhoto(uri: string): void {
+        this.contactPhotoURI = uri;
         this.contactPhotoSource = null;
-        if (!this.contactPhotoURI) {
+        if (!this.contactPhotoURI && this.contact.primary_email()) {
             this.avatarservice.avatarUrlFor(this.contact.primary_email()).then(url => {
+                if (!url) { return; }
                 this.contactPhotoURI = url;
                 this.contactPhotoSource = url.match(/(:\/\/?)([^\/]+)/)[2];
             });
@@ -303,5 +310,40 @@ export class ContactDetailsComponent {
         this.groupMembers = this.groupMembers.filter((_, i) => i !== index);
         this.loadGroupMembers();
         this.memberIsDragged = false;
+    }
+
+    onPicUploaded(uploadEvent: any) {
+        const file = uploadEvent.target.files[0];
+
+        const mimeType = file.type;
+        if (!mimeType.match('image/(jpeg|gif|png|webp)')) {
+            this.dialog.open(ErrorDialog, { data: {
+                message: 'Invalid image type: use jpeg, gif, png or webp'
+            } });
+            return;
+        }
+
+        const fr = new FileReader();
+        fr.onload = (ev: any) => {
+            if ((<string>fr.result).length > 256*1024) {
+                // TODO: Or we could resize+compress it ourselves with a canvas:
+                // https://github.com/eyalc4/ts-image-resizer
+                this.dialog.open(ErrorDialog, { data: {
+                    message: 'Image is too big: please use something smaller than 256KB'
+                } });
+                return;
+            }
+            this.loadContactPhoto(this.contact.photo = <string>fr.result);
+        };
+
+        fr.readAsDataURL(file);
+    }
+
+    removePhoto() {
+        this.loadContactPhoto(this.contact.photo = undefined);
+    }
+
+    showUploadDialog() {
+        this.picUploadInput.nativeElement.click();
     }
 }

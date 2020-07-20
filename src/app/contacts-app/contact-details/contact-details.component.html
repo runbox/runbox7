@@ -2,6 +2,13 @@
     Select a contact to view or edit its details
 </div>
 
+<input #picUploadInput
+    type="file"
+    accept="image/png, image/jpeg, image/gif, image/webp"
+    [hidden]="true"
+    (change)="onPicUploaded($event)"
+/>
+
 <div class="mainTextContent" *ngIf="contact">
     <h2>
         <span class="contactDetailsPicture">
@@ -12,7 +19,7 @@
                 [matMenuTriggerFor]="pictureMenu"
             >
             <ng-template #uploadPicture>
-                <button mat-stroked-button>
+                <button mat-stroked-button (click)="showUploadDialog()">
                     <mat-icon> portrait </mat-icon>
                     <br> Upload picture
                 </button>
@@ -22,11 +29,11 @@
                     <mat-icon>cloud</mat-icon>
                     <span>From {{ contactPhotoSource }}</span>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item (click)="showUploadDialog()">
                     <mat-icon>publish</mat-icon>
                     <span>Replace</span>
                 </button>
-                <button mat-menu-item *ngIf="!contactPhotoSource">
+                <button mat-menu-item *ngIf="!contactPhotoSource" (click)="removePhoto()">
                     <mat-icon>delete</mat-icon>
                     <span>Remove</span>
                 </button>
