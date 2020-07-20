@@ -36,7 +36,6 @@ import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemail
 import { ResizerModule } from '../directives/resizer.module';
 import { AvatarBarComponent } from './avatar-bar.component';
 import { ContactCardComponent } from './contactcard.component';
-import { AvatarService } from './avatar.service';
 export { SingleMailViewerComponent } from './singlemailviewer.component';
 
 @NgModule({
@@ -65,9 +64,6 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         ContactCardComponent,
         SingleMailViewerComponent,
         ShowHTMLDialogComponent
-    ],
-    providers: [
-        AvatarService,
     ],
     entryComponents: [
         ShowHTMLDialogComponent

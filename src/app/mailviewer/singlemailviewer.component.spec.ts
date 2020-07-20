@@ -47,7 +47,6 @@ import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { AvatarBarComponent } from './avatar-bar.component';
-import { AvatarService } from './avatar.service';
 
 describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
@@ -111,12 +110,10 @@ describe('SingleMailViewerComponent', () => {
             });
           }
         } },
-        { provide: AvatarService, useValue: {
-            avatarUrlFor(_email: string) {
-              return Promise.resolve(null);
-            }
-        } },
         { provide: ContactsService, useValue: {
+            lookupAvatar(_email: string) {
+              return Promise.resolve(null);
+            },
             lookupContact(_email: string) {
               return Promise.resolve(null);
             }

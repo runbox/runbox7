@@ -467,7 +467,8 @@ export class Contact {
         if (prop) {
             if (prop.type === 'binary') {
                 const blob = prop.getFirstValue();
-                if (blob.startsWith('data:')) {
+                if (!blob) { return null; }
+                if (blob.toString().startsWith('data:')) {
                     return blob;
                 }
                 return `data:image/${prop.getParameter('type')};base64,${blob}`;

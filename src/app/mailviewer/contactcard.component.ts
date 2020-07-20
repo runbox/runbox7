@@ -22,7 +22,6 @@ import { Router } from '@angular/router';
 
 import { Contact } from '../contacts-app/contact';
 import { ContactsService } from '../contacts-app/contacts.service';
-import {AvatarService} from './avatar.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -48,7 +47,6 @@ export class ContactCardComponent implements OnChanges {
     avatarUrl: string;
 
     constructor(
-        private avatarservice: AvatarService,
         private router: Router,
         private contactsservice: ContactsService,
     ) {
@@ -59,7 +57,7 @@ export class ContactCardComponent implements OnChanges {
         this.contactsEntry = this.avatarUrl = null;
 
         this.contactsservice.lookupContact(this.contact.address).then(c => this.contactsEntry = c);
-        this.avatarservice.avatarUrlFor(this.contact.address).then(url => this.avatarUrl = url);
+        this.contactsservice.lookupAvatar(this.contact.address).then(url => this.avatarUrl = url);
     }
 
     clicked() {

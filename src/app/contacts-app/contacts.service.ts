@@ -26,6 +26,7 @@ import { Subject, ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+import { Md5 } from 'ts-md5/dist/md5';
 
 export class Settings {
     get showDragHelpers(): boolean {
@@ -36,6 +37,12 @@ export class Settings {
         localStorage.setItem('contacts.showDragHelpers', value ? '1' : '');
     }
 }
+
+interface AvatarCacheEntry {
+    url:       string|null;
+    timestamp: number;
+}
+
 
 @Injectable()
 export class ContactsService implements OnDestroy {
@@ -51,6 +58,23 @@ export class ContactsService implements OnDestroy {
     syncIntervalSeconds = 180;
     syncToken: string;
     lastUpdate: moment.Moment;
+
+    /* This caches avatar URLs, or `null`s in their absence.
+     * Mostly useful for avatars not available in Contacts,
+     * and loaded from external services like gravatar.
+     *
+     * Putting (gr)avatar URLs in <img src's> will cache them nicely,
+     * except if they 404d last time around
+     * (which will realistically happen most of the time).
+     *
+     * 404d avatars will get re-requested every single time,
+     * wasting time and bandwidth for more and more useless 404s.
+     * To avoid this, we cache the fact that they don't exist
+     * (storing `null` in `avatarCache`) so that various components
+     * know that there's no need to create <img> at all,
+     * and no useless requests will be performed.
+     */
+    avatarCache: { [email: string]: AvatarCacheEntry } = {};
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
@@ -69,10 +93,26 @@ export class ContactsService implements OnDestroy {
             }, this.syncIntervalSeconds * 1000);
             this.reload();
         });
+
+        storage.get('avatarCache').then(cache => {
+            if (cache) {
+                this.avatarCache = cache;
+            }
+        });
     }
 
     apiErrorHandler(e: HttpErrorResponse): void {
         this.errorLog.next(e);
+    }
+
+    private cacheAvatarUrl(email: string, url: string) {
+        this.avatarCache[email] = { url, timestamp: (new Date()).getTime() };
+        this.storage.set('avatarCache', this.avatarCache);
+    }
+
+    private trashAvatarCacheFor(email: string) {
+        this.avatarCache[email] = null;
+        this.storage.set('avatarCache', this.avatarCache);
     }
 
     ngOnDestroy() {
@@ -90,6 +130,7 @@ export class ContactsService implements OnDestroy {
             }
             for (const e of c.emails) {
                 byEmail[e.value] = c;
+                this.trashAvatarCacheFor(e.value);
             }
         }
         this.contactCategories.next(Object.keys(categories));
@@ -192,6 +233,30 @@ export class ContactsService implements OnDestroy {
 
     deleteMultiple(contacts: Contact[]): Promise<void[]> {
         return Promise.all(contacts.map(c => this.deleteContact(c)));
+    }
+
+    // returns an URL or null if no avatar is available
+    async lookupAvatar(email: string): Promise<string> {
+        // TODO: skip if timestamp too old
+        if (this.avatarCache[email]) {
+            return Promise.resolve(this.avatarCache[email].url);
+        }
+
+        const contact = await this.lookupContact(email);
+        const photoUrl = contact ? contact.photo : null;
+        if (photoUrl) {
+            this.cacheAvatarUrl(email, photoUrl);
+            return Promise.resolve(photoUrl);
+        }
+
+        const hash = Md5.hashStr(email.toLowerCase());
+        const url = 'https://gravatar.com/avatar/' + hash + '?d=404';
+
+        return fetch(url).then(response => {
+            const resolvedUrl = response.ok ? url : null;
+            this.cacheAvatarUrl(email, resolvedUrl);
+            return Promise.resolve(this.avatarCache[email].url);
+        });
     }
 
     lookupContact(email: string): Promise<Contact> {

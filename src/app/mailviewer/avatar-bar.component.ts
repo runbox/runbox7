@@ -18,10 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, OnInit } from '@angular/core';
-import { AvatarService } from './avatar.service';
 import { ReplaySubject} from 'rxjs';
-import { RunboxWebmailAPI } from 'app/rmmapi/rbwebmail';
 import { take } from 'rxjs/operators';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { ContactsService } from '../contacts-app/contacts.service';
 
 @Component({
     selector: 'app-avatar-bar',
@@ -64,7 +64,7 @@ export class AvatarBarComponent implements OnInit {
     ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
 
     constructor(
-        private avatarservice: AvatarService,
+        private contactsservice: ContactsService,
         private rmmapi: RunboxWebmailAPI,
     ) {
     }
@@ -88,7 +88,7 @@ export class AvatarBarComponent implements OnInit {
         const urlLookups = emails.filter(
             email => email && !own.has(email.toLowerCase())
         ).map(
-            email => this.avatarservice.avatarUrlFor(email)
+            email => this.contactsservice.lookupAvatar(email)
         );
 
         Promise.all(urlLookups).then((urls: string[]) => {

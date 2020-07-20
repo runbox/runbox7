@@ -28,7 +28,6 @@ import { ErrorDialog, ConfirmDialog } from '../../dialog/dialog.module';
 
 import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
-import { AvatarService } from '../../mailviewer/avatar.service';
 
 @Component({
     selector: 'app-contact-details',
@@ -63,7 +62,6 @@ export class ContactDetailsComponent {
     constructor(
         public dialog: MatDialog,
         public rmmapi: RunboxWebmailAPI,
-        private avatarservice: AvatarService,
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,
@@ -170,10 +168,13 @@ export class ContactDetailsComponent {
         this.contactPhotoURI = uri;
         this.contactPhotoSource = null;
         if (!this.contactPhotoURI && this.contact.primary_email()) {
-            this.avatarservice.avatarUrlFor(this.contact.primary_email()).then(url => {
+            this.contactsservice.lookupAvatar(this.contact.primary_email()).then(url => {
                 if (!url) { return; }
                 this.contactPhotoURI = url;
-                this.contactPhotoSource = url.match(/(:\/\/?)([^\/]+)/)[2];
+                const sourceMatch = url.match(/(:\/\/?)([^\/]+)/);
+                if (sourceMatch) {
+                    this.contactPhotoSource = sourceMatch[2];
+                }
             });
         }
     }
@@ -325,7 +326,7 @@ export class ContactDetailsComponent {
 
         const fr = new FileReader();
         fr.onload = (ev: any) => {
-            if ((<string>fr.result).length > 256*1024) {
+            if ((<string>fr.result).length > (256 * 1024)) {
                 // TODO: Or we could resize+compress it ourselves with a canvas:
                 // https://github.com/eyalc4/ts-image-resizer
                 this.dialog.open(ErrorDialog, { data: {
