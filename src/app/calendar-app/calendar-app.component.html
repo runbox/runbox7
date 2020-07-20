@@ -111,44 +111,46 @@
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
 
-            <mat-divider></mat-divider>
-
             <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
                 <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
             </div>
 
-            <mat-list-item>
-                <button id="addEventButton" mat-button (click)="addEvent()">
-                    <mat-icon>add</mat-icon> Add event
-                </button>
+            <mat-list-item id="addEventButton" mat-button (click)="addEvent()" class="calendarMenuButton">
+                <mat-icon mat-list-icon>add</mat-icon>
+                <p mat-line>Add event</p>
             </mat-list-item>
-            <mat-list-item>
+
+            <mat-list-item (click)="importEventClicked()" class="calendarMenuButton">
                 <input #icsUploadInput type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
-                <button mat-button (click)="importEventClicked()">
-                    <mat-icon>import_export</mat-icon> Import event
-                </button>
+                <mat-icon mat-list-icon>import_export</mat-icon>
+                <p mat-line>Import event</p>
             </mat-list-item>
-            <mat-list-item>
-                <button mat-button (click)="openSettings()">
-                    <mat-icon>settings</mat-icon> Settings
-                </button>
+
+            <mat-list-item mat-button (click)="openSettings()" class="calendarMenuButton">
+                <mat-icon mat-list-icon>settings</mat-icon>
+                <p mat-line>Settings</p>
             </mat-list-item>
-            <mat-list-item>
-                <h4> Calendars </h4>
-                <button mat-icon-button (click)="showAddCalendarDialog()">
-                    <mat-icon> add </mat-icon>
+
+            <mat-divider></mat-divider>
+
+            <div class="calendarsSideHeader">
+                <span>Calendars</span>
+                <button mat-icon-button id="createCalendarButton" matTooltip="New calendar..." (click)="showAddCalendarDialog()">
+                    <mat-icon>add</mat-icon>
                 </button>
-            </mat-list-item>
+            </div>
+
             <mat-list-item *ngIf="calendars.length === 0">
                 Loading calendars...
             </mat-list-item>
+
             <mat-list-item class="calendarListItem" *ngFor="let calendar of calendars">
-                <mat-icon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
+                <mat-icon mat-list-icon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
                     label
                 </mat-icon>
-                <button mat-button>
+                <p mat-line>
                     {{ calendar.displayname || calendar.id }}
-                </button>
+                </p>
                 <button mat-icon-button class="calendarToggleButton"
                     matTooltip="Show/hide this calendar"
                     (click)="toggleCalendar(calendar.id)"
@@ -165,25 +167,23 @@
 
             <mat-divider></mat-divider>
 
-            <mat-list-item>
-                <button mat-button
-                    (click)="calendarservice.syncCaldav(true)"
-                >
-                    <mat-icon mat-list-icon> refresh </mat-icon> Synchronize calendars
-                </button>
+            <mat-list-item (click)="calendarservice.syncCaldav(true)" class="calendarMenuButton">
+                <mat-icon mat-list-icon>refresh</mat-icon> 
+                <p mat-line>Synchronize calendars</p>
             </mat-list-item>
 
-            <mat-list-item *ngIf="calendarservice.lastUpdate">
+            <mat-list-item *ngIf="calendarservice.lastUpdate" class="updateInfo">
                 Last update: {{ calendarservice.lastUpdate.fromNow() }}
             </mat-list-item>
 
             <mat-divider></mat-divider>
 
-            <mat-list-item *ngFor="let activity of activityList" style="display: flex;">
+            <mat-list-item *ngFor="let activity of activityList" style="display: flex;" class="updateInfo">
                 <mat-spinner diameter="15"></mat-spinner> {{ activity }}
             </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
+
     <mat-sidenav-content>
         <mat-toolbar>
             <button mat-icon-button (click)="sidemenu.toggle()">
