@@ -898,6 +898,19 @@ compose .mat-standard-chip {
     padding: 5px;
 }
 
+contacts-app-root .twoColumns {
+    height: 100%;
+
+    .contactList {
+        overflow: auto;
+    }
+
+    .contactDetails {
+        overflow: auto;
+        flex-grow: 2;
+    }
+}
+
 /* Calendar */
 
 app-calendar-app-component mat-nav-list button {
