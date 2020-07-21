@@ -20,6 +20,7 @@
 import { StorageService } from './storage.service';
 import { RunboxWebmailAPI, RunboxMe } from './rmmapi/rbwebmail';
 import { of } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 describe('StorageService', () => {
     const me_1 = { me: of({ uid: 1 }) } as RunboxWebmailAPI;
@@ -61,5 +62,46 @@ describe('StorageService', () => {
         await user1.set('test-key', { foo: { bar: ['baz', 42] } });
         const testVal = await user1.get('test-key');
         expect(testVal.foo.bar[1]).toBe(42, 'object get serialized and deserialized correctly');
+    });
+
+    it('should notify listeners about value changes', async () => {
+        const user1 = new StorageService(me_1);
+
+        function runAsyncTasks() {
+            // hopefully anyway :)
+            return new Promise(r => setTimeout(() => r(), 0));
+        }
+
+        user1.set('notify-key', undefined);
+        await runAsyncTasks();
+        const listener1 = [];
+
+        // listener is notified about existing state ASAP
+        user1.getSubject('notify-key').subscribe(val => listener1.push(val));
+        await runAsyncTasks();
+
+        expect(listener1.length).toBe(1);
+        expect(listener1[0]).toBe(undefined);
+
+        user1.set('notify-key', true);
+        await runAsyncTasks();
+        expect(listener1.length).toBe(2);
+        expect(listener1[1]).toBe(true);
+
+        // old users don't get re-notified on new users
+        const listener2 = [];
+        user1.getSubject('notify-key').subscribe(val => listener2.push(val));
+        await runAsyncTasks();
+        expect(listener1.length).toBe(2);
+        expect(listener2.length).toBe(1);
+        expect(listener2[0]).toBe(true);
+
+        // both listeners get notified when a new value is set
+        await user1.set('notify-key', false);
+        await runAsyncTasks();
+        expect(listener1.length).toBe(3);
+        expect(listener2.length).toBe(2);
+        expect(listener1[2]).toBe(false);
+        expect(listener2[1]).toBe(false);
     });
 });
