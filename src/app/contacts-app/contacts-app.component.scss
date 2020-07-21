@@ -1,0 +1,22 @@
+.contactListControls {
+    height: 60px !important;
+    padding-top: 10px !important;
+
+    &:hover {
+        background-color: #fff;
+        cursor: default;
+    }
+
+    &:active {
+        background-color: #fff;
+    }
+}
+
+.contactListButton {
+    mat-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px !important;
+    }
+}
