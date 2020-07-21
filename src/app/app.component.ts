@@ -57,7 +57,9 @@ import { ProgressService } from './http/progress.service';
 import { RMM } from './rmm';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
-import {Hotkey, HotkeysService} from 'angular2-hotkeys';
+import { Hotkey, HotkeysService } from 'angular2-hotkeys';
+import { StorageService } from './storage.service';
+import { AppSettings, defaultAppSettings } from './app-settings';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -113,6 +115,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerRightSideWidth = '40%';
   allowMailViewerOrientationChange = true;
 
+  webmailSettings: AppSettings = defaultAppSettings();
+
   buildtimestampstring = BUILD_TIMESTAMP;
 
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
@@ -158,7 +162,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
-    private hotkeysService: HotkeysService
+    private hotkeysService: HotkeysService,
+    private storageService: StorageService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -244,6 +249,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
               .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
     };
+
+    this.storageService.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
+      settings => this.webmailSettings = settings
+    );
 
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
@@ -1112,6 +1121,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       fragment += `:${this.singlemailviewer.messageId}`;
     }
     this.router.navigate(['/'], { fragment });
+  }
+
+  public onSettingsChanged(): void {
+    this.storageService.set('webmailSettings', this.webmailSettings);
   }
 }
 

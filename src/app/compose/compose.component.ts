@@ -31,12 +31,14 @@ import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { debounceTime, mergeMap } from 'rxjs/operators';
+import { debounceTime, mergeMap, filter } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { AppSettings, defaultAppSettings } from '../app-settings';
+import { StorageService } from '../storage.service';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -83,6 +85,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // to not include the recipients already picked
     filteredSuggestions: MailAddressInfo[] = [];
 
+    webmailSettings: AppSettings = defaultAppSettings();
 
     public formGroup: FormGroup;
 
@@ -98,6 +101,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private location: Location,
         private dialogService: DialogService,
         recipientservice: RecipientsService,
+        private storageService: StorageService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -106,6 +110,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.suggestedRecipients = suggestions;
             this.updateSuggestions();
         });
+
+        this.storageService.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
+            settings => this.webmailSettings = settings
+        );
     }
 
     ngOnInit() {
