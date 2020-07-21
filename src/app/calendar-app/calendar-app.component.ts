@@ -68,6 +68,7 @@ import '../sentry';
 @Component({
     selector: 'app-calendar-app-component',
     templateUrl: './calendar-app.component.html',
+    styleUrls: ['calendar-app.component.scss'],
     providers: [
         { provide: CalendarEventTitleFormatter, useClass: EventTitleFormatter }
     ],
