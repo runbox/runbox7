@@ -153,7 +153,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private ngZone: NgZone,
     public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
-    private draftDeskService: DraftDeskService,
+    public draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
