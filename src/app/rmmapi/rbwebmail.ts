@@ -21,7 +21,8 @@ import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
+import { MessageInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from './../common/mailaddressinfo';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
@@ -422,9 +423,8 @@ export class RunboxWebmailAPI {
     }
 
     public getFromAddress(): Observable<FromAddress[]> {
-        return this.rmm.profile.load_verified().pipe(
-            map((http_res) => {
-            const res = http_res;
+        return this.http.get('/rest/v1/profiles/verified').pipe(
+            map((res: any) => {
                 const results = [];
                 Object.keys(res['result']).forEach( (k) => {
                     res['result'][k].forEach( (item) => {

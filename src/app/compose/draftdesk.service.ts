@@ -20,10 +20,10 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
+import { MessageInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
-import {RMM} from '../rmm';
 
 export class ForwardedAttachment {
     constructor(
@@ -76,25 +76,29 @@ export class DraftFormModel {
         ret.in_reply_to = mailObj.headers['message-id'];
 
         // list of MailAddressInfo objects:
+        // sender always used for body string
         const sender: MailAddressInfo[] = mailObj.from.map((addr) => {
             return new MailAddressInfo(addr.name, addr.address);
         });
-        ret.to = sender;
 
+        // Reply to either the sender or the reply-to header:
         if (mailObj.headers['reply-to']) {
-            const addr = mailObj.headers['reply-to'].value;
-            ret.to = [new MailAddressInfo(addr.name, addr.address)];
+            const replies = mailObj.headers['reply-to'].value;
+            ret.to = replies.map((addr) => new MailAddressInfo(addr.name, addr.address));
+        } else {
+            ret.to = sender;
         }
 
+        // If all, also add all the other To/CC folks:
         if (all) {
-            ret.to = mailObj.from.concat(
-                mailObj.to)
+            ret.to = ret.to.concat(mailObj.to
                 .filter((addr) =>
                         froms.find(fromObj => fromObj.email === addr.address) ? false : true
                        )
                 .map((addr) => {
                     return new MailAddressInfo(addr.name, addr.address);
-                });
+                })
+            );
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
@@ -189,22 +193,16 @@ export class DraftDeskService {
     draftsRefreshed: AsyncSubject<boolean> = new AsyncSubject();
     froms: FromAddress[] = [];
 
-    constructor(
-        public rmm: RMM,
-        public rmmapi: RunboxWebmailAPI) {
-            this.refreshDrafts()
-                .subscribe(() => {
-                    this.draftsRefreshed.next(true);
-                    this.draftsRefreshed.complete();
-                });
+    constructor(public rmmapi: RunboxWebmailAPI) {
+        this.refreshDrafts().subscribe(() => {
+            this.draftsRefreshed.next(true);
+            this.draftsRefreshed.complete();
+        });
     }
 
     public refreshFroms(): Observable<FromAddress[]> {
-        return this.rmm.profile.load_verified().pipe(
-            map((reply) => {
-                this.froms = this.rmm.profile.from_addresses;
-                return this.froms;
-            })
+        return this.rmmapi.getFromAddress().pipe(
+            map(froms => this.froms = froms)
         );
     }
 

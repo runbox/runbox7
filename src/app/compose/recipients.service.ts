@@ -23,8 +23,10 @@ import { SearchService } from '../xapian/searchservice';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { ContactKind, Contact } from '../contacts-app/contact';
 import { isValidEmail } from './emailvalidator';
-import { MailAddressInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 import { Recipient } from './recipient';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import * as moment from 'moment';
 
 enum RecipientOrigin {
     Search = 'search',
@@ -33,15 +35,23 @@ enum RecipientOrigin {
 
 @Injectable()
 export class RecipientsService {
+    ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
     recipients: ReplaySubject<Recipient[]> = new ReplaySubject();
+    recentlyUsed: ReplaySubject<MailAddressInfo[]> = new ReplaySubject(1);
+
     // Need to be able to update from 2 different subscriptions
     recipientsUpdating: { origin: RecipientOrigin, uniqueKey: string, recipient: Recipient }[] = [];
 
-
     constructor(
-        searchService: SearchService,
-        private contactsService: ContactsService
+        private searchService: SearchService,
+        private contactsService: ContactsService,
+        rmmapi: RunboxWebmailAPI,
     ) {
+        rmmapi.getFromAddress().subscribe(
+            froms => this.ownAddresses.next(new Set(froms.map(f => f.email))),
+            _err  => this.ownAddresses.next(new Set([])),
+        );
+
         searchService.initSubject.subscribe((hasSearchIndex: boolean) => {
             if (hasSearchIndex) {
                 this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Search);
@@ -63,9 +73,13 @@ export class RecipientsService {
                         });
 //                        searchRecipients[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
                     });
+
+                this.updateRecentlyUsed();
                 this.updateRecipients();
             }
         });
+
+        searchService.searchResultsSubject.subscribe(() => this.updateRecentlyUsed());
 
         contactsService.contactsSubject.subscribe(contacts => {
             this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Contacts);
@@ -120,6 +134,50 @@ export class RecipientsService {
             }
         });
         this.recipients.next(Object.values(uniqueRecipients).concat(groups));
+    }
+
+    private updateRecentlyUsed() {
+        const startDate = moment().subtract(90, 'days');
+        const endDate = moment().add(1, 'day');
+        const latestEmails = this.searchService.getMessagesInTimeRange(startDate.toDate(), endDate.toDate(), 'Sent');
+        const popularRecipients: { [email: string]: number } = {};
+        const addressInfoByEmail: { [email: string]: MailAddressInfo } = {};
+
+        for (const id of latestEmails) {
+            const message = this.searchService.getDocData(id);
+            for (const recipient of message.recipients) {
+                if (!isValidEmail(recipient)) {
+                    continue;
+                }
+
+                const mai = MailAddressInfo.parse(recipient)[0];
+                const email = mai.address;
+                if (popularRecipients[email]) {
+                    popularRecipients[email]++;
+                } else {
+                    popularRecipients[email] = 1;
+                }
+
+                // newest known name wins
+                if (!addressInfoByEmail[email] || !addressInfoByEmail[email].name) {
+                    addressInfoByEmail[email] = mai;
+                }
+            }
+        }
+
+        this.ownAddresses.subscribe(own => {
+            this.recentlyUsed.next(
+                Object.entries(
+                    popularRecipients
+                ).filter(
+                    x => !own.has(x[0])
+                ).sort(
+                    (a, b) => b[1] - a[1]
+                ).map(
+                    a => addressInfoByEmail[a[0]]
+                )
+            );
+        });
     }
 
     private recipientFromGroup(group: Contact): Promise<Recipient> {

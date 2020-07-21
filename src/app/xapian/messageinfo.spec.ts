@@ -17,7 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { MessageInfo, IndexingTools, MailAddressInfo } from './messageinfo';
+import { MessageInfo, IndexingTools } from './messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 import { XapianAPI } from './rmmxapianapi';
 
 describe('MessageInfo', () => {

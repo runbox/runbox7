@@ -37,7 +37,7 @@ import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetabl
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './xapian/messageinfo';
 import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI, FolderListEntry } from './rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
@@ -532,28 +532,27 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
 
-    from(messageIds.map(mid =>
-        this.searchService.rmmapi.getMessageFields(mid)
-        .pipe(
-            mergeMap((fields) =>
-              this.searchService.rmmapi.markSeen(mid,
-                fields.seen_flag === 1 ? 0 : 1)
-            )
-          )
-      ))
-      .pipe(
-        mergeMap(markFlaggedObservable =>
-            markFlaggedObservable.pipe(take(1)),
-                1 // One at the time (no concurrent flagging operations)
-        ),
-        bufferCount(messageIds.length)
-      )
-      .subscribe(() => {
+    const value = 0;
+    const args = {
+        flag: {
+            name: 'seen_flag',
+            value: value
+        },
+        ids: messageIds
+    };
+
+    messageIds.forEach( (id) => {
+        this.rmmapi.messageFlagChangeSubject.next(
+            new MessageFlagChange(id, null, value ? true : false)
+        );
+    } );
+    this.rmm.email.update(args).subscribe(() => {
+        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
         snackBarRef.dismiss();
-      });
+    });
   }
 
   public toggleFlagged() {
@@ -563,29 +562,27 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
+    const value = 0;
+    const args = {
+        flag: {
+            name: 'flagged_flag',
+            value: value
+        },
+        ids: messageIds
+    };
 
-    from(messageIds.map(mid =>
-        this.searchService.rmmapi.getMessageFields(mid)
-        .pipe(
-            mergeMap((fields) =>
-              this.searchService.rmmapi.markFlagged(mid,
-                fields.flagged_flag === 1 ? 0 : 1)
-            )
-          )
-      ))
-      .pipe(
-        mergeMap(markFlaggedObservable =>
-            markFlaggedObservable.pipe(take(1)),
-                1 // One at the time (no concurrent flagging operations)
-        ),
-        bufferCount(messageIds.length)
-      )
-      .subscribe(() => {
+    messageIds.forEach( (id) => {
+        this.rmmapi.messageFlagChangeSubject.next(
+            new MessageFlagChange(id, null, value ? true : false)
+            );
+    } );
+    this.rmm.email.update(args).subscribe(() => {
+        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
         snackBarRef.dismiss();
-      });
+    });
   }
 
   public trashMessages() {
@@ -763,7 +760,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     setTimeout(() => this.updateTime(), 1000);
   }
 
-  searchFieldKeyUp(text) {
+  searchFor(text) {
     if (text !== this.searchText) {
       this.searchText = text;
       if (this.usewebsocketsearch) {
@@ -884,6 +881,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
+    this.searchFor('');
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }
