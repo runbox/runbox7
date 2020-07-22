@@ -861,16 +861,35 @@ compose .mat-standard-chip {
     padding: 5px;
 }
 
-contacts-app-root .twoColumns {
-    height: 100%;
+contacts-app-root {
+    .twoColumns {
+        display: grid;
+        grid-template-columns: 1fr 4fr;
+        height: 100%;
 
-    .contactList {
-        overflow: auto;
+        .contactList {
+            overflow: auto;
+        }
+
+        .contactDetails {
+            overflow: auto;
+        }
     }
 
-    .contactDetails {
-        overflow: auto;
-        flex-grow: 2;
+    .showList {
+        display: block;
+
+        .contactDetails {
+            display: none;
+        }
+    }
+
+    .showDetails {
+        display: block;
+
+        .contactList {
+            display: none;
+        }
     }
 }
 
