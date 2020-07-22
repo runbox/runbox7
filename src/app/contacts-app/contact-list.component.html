@@ -1,6 +1,6 @@
 <ng-container>
     <mat-list-item class="contactListControls">
-        <mat-form-field>
+        <mat-form-field mat-line>
             <mat-label> Search </mat-label>
             <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
             <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
@@ -17,7 +17,7 @@
         </mat-expansion-panel-header>
 
         <mat-list-item class="contactListControls" *ngIf="categories.length > 0">
-            <mat-form-field>
+            <mat-form-field mat-line>
                 <mat-label> Show categories </mat-label>
                 <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
                     <mat-option value="RUNBOX:ALL">
@@ -34,7 +34,7 @@
         </mat-list-item>
 
         <mat-list-item class="contactListControls">
-            <mat-form-field>
+            <mat-form-field mat-line>
                 <mat-label> Sort by </mat-label>
                 <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
                     <mat-option value="firstname+"> First name, ascending  </mat-option>
@@ -84,6 +84,8 @@
                 <app-contact-button [contact]="contact"></app-contact-button>
             </p>
         </a>
+
+        <span style="flex-grow: 1"></span>
 
         <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
             *ngIf="contact.primary_email()"
