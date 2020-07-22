@@ -70,7 +70,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   moduleId: 'angular2/app/',
   // tslint:disable-next-line:component-selector
   selector: 'app',
-  styleUrls: ['app.component.css'],
+  styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck, OnDestroy {
@@ -153,7 +153,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private ngZone: NgZone,
     public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
-    private draftDeskService: DraftDeskService,
+    public draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,

@@ -20,47 +20,48 @@
         id="sideMenu"
         style="width: 330px"
     >
-        <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
         <mat-nav-list dense>
-            <mat-list-item>
-                <button mat-button routerLink="/contacts/new">
-                    <mat-icon> person_add </mat-icon> New contact
-                </button>
+            <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+
+            <mat-list-item routerLink="/contacts/new" class="contactListButton">
+                <mat-icon mat-list-icon>person_add</mat-icon>
+                <p mat-line>New contact</p>
             </mat-list-item>
-            <mat-list-item>
-                <button mat-button routerLink="/contacts/new_group" (click)="shownGroup = null">
-                    <mat-icon> group_add </mat-icon> New group
-                </button>
+            <mat-list-item routerLink="/contacts/new_group" class="contactListButton" (click)="shownGroup = null">
+                <mat-icon mat-list-icon>group_add</mat-icon>
+                <p mat-line>New group</p>
             </mat-list-item>
-            <mat-list-item>
+
+            <mat-list-item (click)="importVcfClicked()" class="contactListButton">
                 <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
-                <button mat-button (click)="importVcfClicked()">
-                    <mat-icon>import_export</mat-icon> Import contacts
-                </button>
+                <mat-icon mat-list-icon>import_export</mat-icon>
+                <p mat-line>Import contacts</p>
             </mat-list-item>
-            <mat-list-item>
-                <a mat-button routerLink="/contacts/settings">
-                    <mat-icon> settings </mat-icon> Settings
-                </a>
+
+            <mat-list-item routerLink="/contacts/settings" class="contactListButton">
+                <mat-icon mat-list-icon>settings</mat-icon>
+                <p mat-line>Settings</p>
             </mat-list-item>
 
             <mat-divider></mat-divider>
 
-            <mat-list-item>
-                <a mat-button routerLink="/contacts/" matTooltip="Show all contacts">
-                    <mat-icon> group </mat-icon>
-                    <span [ngClass]="!shownGroup ? 'selectedGroupLabel' : ''">
-                        Show all contacts
-                    </span>
-                </a>
+            <mat-list-item routerLink="/contacts/" class="contactListButton" [ngClass]="!shownGroup ? 'selectedFolder' : ''">
+                <mat-icon mat-list-icon> group </mat-icon>
+                <p mat-line>
+                    Show all contacts
+                </p>
             </mat-list-item>
 
-            <mat-list-item *ngFor="let group of groups" (drop)="dropContactTo(group, $event)">
-                <a mat-button routerLink="/contacts/{{ group.id }}" matTooltip="View details">
-                    <span [ngClass]="(shownGroup ? shownGroup.id : null) === group.id ? 'selectedGroupLabel' : ''">
-                        <app-contact-button [contact]="group"></app-contact-button>
-                    </span>
-                </a>
+            <mat-list-item *ngFor="let group of groups"
+                class="contactListButton"
+                [ngClass]="(shownGroup ? shownGroup.id : null) === group.id ? 'selectedFolder' : ''"
+                (drop)="dropContactTo(group, $event)"
+                routerLink="/contacts/{{ group.id }}"
+            >
+                <mat-icon mat-list-icon> group </mat-icon>
+                <p mat-line>
+                    {{ group.display_name() }}
+                </p>
             </mat-list-item>
         </mat-nav-list>
 

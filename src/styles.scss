@@ -732,43 +732,6 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     color: mat-color($rmm-default-primary);
 }
 
-
-/* Context tool buttons */
-
-.contextToolButtons {
-    margin-right: 16px;
-}
-
-.contextToolButtons button {
-    margin-right: 0px !important;
-}
-
-@media(max-width: 812px) {
-    .contextToolButtons {
-	top: 90px !important;
-    }
-}
-
-@media(min-width: 813px) {
-    .contextToolButtons {
-	top: 150px !important;
-    }
-}
-
-@media(max-width: 812px) {
-    .contextToolButtons button {
-	width: 45px !important;
-	height: 45px !important;
-    }
-    .contextToolButtons .mat-button-wrapper {
-	padding-top: 11px !important;
-    }
-    .contextToolButtons button mat-icon {
-	font-size: 24px !important;
-    }
-}
-
-
 /* Read screen */
 
 .noMessageSelectedNotification {
