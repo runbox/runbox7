@@ -1,0 +1,33 @@
+.calendarsSideHeader {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+
+    span {
+        padding: 16px;
+        flex-grow: 1;
+    }
+}
+
+.calendarMenuButton {
+    mat-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px !important;
+    }
+}
+
+.updateInfo {
+    &:hover {
+        background-color: #fff;
+        cursor: default;
+    }
+}
+
+#addCalendarButton {
+    font-weight: bold !important;
+    p {
+        padding: 16px;
+    }
+}

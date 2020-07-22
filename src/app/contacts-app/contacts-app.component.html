@@ -7,32 +7,35 @@
         id="sideMenu"
         style="width: 330px"
     >
-        <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
         <mat-nav-list dense>
-            <mat-list-item>
-                <button mat-button routerLink="/contacts/new">
-                    <mat-icon> person_add </mat-icon> New contact
-                </button>
-            </mat-list-item>
-            <mat-list-item>
-                <button mat-button routerLink="/contacts/new_group">
-                    <mat-icon> group_add </mat-icon> New group
-                </button>
-            </mat-list-item>
-            <mat-list-item>
-                <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
-                <button mat-button (click)="importVcfClicked()">
-                    <mat-icon>import_export</mat-icon> Import contacts
-                </button>
-            </mat-list-item>
-            <mat-list-item>
-                <a mat-button routerLink="/contacts/settings">
-                    <mat-icon> settings </mat-icon> Settings
-                </a>
+            <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+
+            <mat-list-item routerLink="/contacts/new" class="contactListButton">
+                <mat-icon mat-list-icon>person_add</mat-icon>
+                <p mat-line>New contact</p>
             </mat-list-item>
 
-            <mat-list-item  class="contactListControls">
-                <mat-form-field>
+            <mat-list-item routerLink="/contacts/new_group" class="contactListButton">
+                <mat-icon mat-list-icon>group_add</mat-icon>
+                <p mat-line>New group</p>
+            </mat-list-item>
+
+            <mat-list-item (click)="importVcfClicked()" class="contactListButton">
+                <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
+                <mat-icon mat-list-icon>import_export</mat-icon>
+                <p mat-line>Import contacts</p>
+            </mat-list-item>
+
+            <mat-list-item routerLink="/contacts/settings" class="contactListButton">
+                <mat-icon mat-list-icon>settings</mat-icon>
+                <p mat-line>Settings</p>
+            </mat-list-item>
+
+            <mat-divider></mat-divider>
+
+            <mat-list>
+            <mat-list-item class="contactListControls">
+                <mat-form-field mat-line>
                     <mat-label> Show categories </mat-label>
                     <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
                         <mat-option value="RUNBOX:ALL">
@@ -49,7 +52,7 @@
             </mat-list-item>
 
             <mat-list-item class="contactListControls">
-                <mat-form-field>
+                <mat-form-field mat-line>
                     <mat-label> Sort by </mat-label>
                     <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
                         <mat-option value="firstname+"> First name, ascending  </mat-option>
@@ -61,7 +64,7 @@
             </mat-list-item>
 
             <mat-list-item class="contactListControls">
-                <mat-form-field>
+                <mat-form-field mat-line>
                     <mat-label> Search </mat-label>
                     <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
                     <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
@@ -77,18 +80,21 @@
             </mat-list-item>
             -->
 
-            <mat-list-item>
-                <mat-checkbox
-                    [(ngModel)]="selectingMultiple"
-                    (change)="onSelectMultipleChange()"
-                >
-                Select multiple
-                </mat-checkbox>
+                <mat-list-item>
+                    <mat-checkbox mat-line
+                        [(ngModel)]="selectingMultiple"
+                        (change)="onSelectMultipleChange()"
+                    >
+                    Select multiple
+                    </mat-checkbox>
+                </mat-list-item>
 
-                <button mat-button *ngIf="selectingMultiple" (click)="selectAll()">
-                    Select all visible
-                </button>
-            </mat-list-item>
+                <mat-list-item mat-line mat-button *ngIf="selectingMultiple" (click)="selectAll()">
+                    <mat-checkbox mat-line>
+                        Select all visible
+                    </mat-checkbox>
+                </mat-list-item>
+            </mat-list>
 
             <mat-list-item *ngFor="let contact of shownContacts" (dragstart)="dragStarted($event, contact)">
                 <mat-checkbox
