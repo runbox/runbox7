@@ -75,7 +75,7 @@
                         draggable=true
                         (dragstart)="memberDragged($event, idx)"
                     >
-                        <span *ngIf="member instanceof Contact; else not_contact">
+                        <span *ngIf="member.id; else not_contact">
                             <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
                                       draggable="true" (dragstart)="memberDragged($event, idx)">
                                 drag_handle
