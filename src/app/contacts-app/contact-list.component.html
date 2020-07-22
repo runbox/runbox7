@@ -94,6 +94,13 @@
         </a>
     </mat-list-item>
 
+    <mat-list-item *ngIf="contacts.length === 0" class="contactListButton contactListHint">
+        <mat-icon mat-list-icon> info </mat-icon>
+        <p mat-line>
+            your contacts will be visible here
+        </p>
+    </mat-list-item>
+
     <mat-list-item *ngIf="shownContacts.length != contacts.length">
         and {{ contacts.length - shownContacts.length }} filtered out
     </mat-list-item>
