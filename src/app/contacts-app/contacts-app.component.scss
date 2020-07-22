@@ -1,3 +1,46 @@
+.twoColumns {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    height: 100%;
+
+    .contactList {
+        overflow: auto;
+    }
+
+    .contactDetails {
+        overflow: auto;
+    }
+}
+
+.showList {
+    display: block;
+
+    .contactDetails {
+        display: none;
+    }
+}
+
+.showDetails {
+    display: block;
+
+    .contactList {
+        display: none;
+    }
+}
+
+.multiContactActions {
+    display: flex;
+    flex-flow: column;
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 10;
+}
+
+.multiContactActions button {
+    margin-top: 10px;
+}
+
 .contactListControls {
     height: 60px !important;
     padding-top: 10px !important;
@@ -10,6 +53,20 @@
     &:active {
         background-color: #fff;
     }
+}
+
+.selectedGroupLabel {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.contact-details-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.contact-details-row .mat-form-field {
+    padding: 5px;
 }
 
 .contactListButton {

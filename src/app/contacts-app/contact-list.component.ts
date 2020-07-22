@@ -24,6 +24,7 @@ type SelectionEvent = Set<string>;
 
 @Component({
     selector: 'app-contact-list',
+    styleUrls: ['contacts-app.component.scss'],
     templateUrl: './contact-list.component.html'
 })
 export class ContactListComponent {
