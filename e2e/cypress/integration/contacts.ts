@@ -19,7 +19,7 @@ describe('Display contact details', () => {
 
         // we should be able to summon the sidebar menu and choose a group
         cy.get('mat-toolbar button:contains("menu")').click();
-        cy.get('mat-sidenav app-contact-button').should('contain', 'Group #1').click();
+        cy.get('mat-sidenav mat-list-item:contains(Group #1)').click();
         cy.get('mat-toolbar').should('contain', 'Showing group');
         cy.url().should('match', /id-group1$/);
 
@@ -43,7 +43,7 @@ describe('Display contact details', () => {
 
         // we should be able to go back to all contacts
         cy.get('mat-toolbar button:contains("menu")').click();
-        cy.get('mat-sidenav .mat-button:contains("Show all contacts")').click();
+        cy.get('mat-sidenav mat-list-item:contains("Show all contacts")').click();
         cy.url().should('match', /contacts\/?$/);
         cy.get('mat-toolbar').should('contain', 'Showing all contacts');
         cy.get('div.contactList app-contact-button').should('have.length', 2);

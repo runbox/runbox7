@@ -181,6 +181,20 @@ export class MockServer {
                 response.end(JSON.stringify(this.receipt()));
                 return;
             }
+            if (requesturl.startsWith('/rest/v1/contacts/sync')) {
+                response.end(JSON.stringify(
+                    {
+                        status: 'success',
+                        result: {
+                            newToken: `e2e-${new Date()}`,
+                            added: this.contacts(),
+                            removed: [],
+                            to_migrate: 0,
+                        }
+                    }
+                ));
+                return;
+            }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
@@ -199,19 +213,6 @@ export class MockServer {
                                 ));
                         }
                         }, 1000);
-                    break;
-                case '/rest/v1/contacts/sync':
-                    response.end(JSON.stringify(
-                        {
-                            status: 'success',
-                            result: {
-                                newToken: 'e2e-1',
-                                added: this.contacts(),
-                                removed: [],
-                                to_migrate: 0,
-                            }
-                        }
-                    ));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
