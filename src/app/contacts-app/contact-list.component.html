@@ -62,6 +62,7 @@
     <mat-list-item *ngFor="let contact of shownContacts"
         routerLink="/contacts/{{ contact.id }}"
         class="contactListButton"
+        draggable="true"
         (dragstart)="dragStarted($event, contact)"
     >
         <mat-checkbox
