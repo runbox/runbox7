@@ -770,6 +770,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   searchFor(text) {
+    if (!this.selectedFolder) {
+        // resetSearch=false, to make sure selectFolder doesn't call us back
+        this.selectFolder('Inbox', false);
+    }
     if (text !== this.searchText) {
       this.searchText = text;
       if (this.usewebsocketsearch) {
@@ -892,12 +896,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  selectFolder(folder: string): void {
+  selectFolder(folder: string, resetSearch = true): void {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
-    this.searchFor('');
+    if (resetSearch) {
+      this.searchFor('');
+    }
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }
