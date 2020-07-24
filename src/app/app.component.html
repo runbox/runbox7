@@ -8,9 +8,28 @@
     <mat-nav-list dense>      
       <app-sidenav-menu (closeMenu)="sidemenu.close()"></app-sidenav-menu>
 
-      <div id="sidenavGreeting">
-        <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
-	<p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
+      <mat-menu #settingsMenu="matMenu" xPosition="before">
+          <mat-list>
+              <mat-list-item>
+                <mat-checkbox
+                  [(ngModel)]="webmailSettings.showPopularRecipients"
+                  (change)="onSettingsChanged()"
+                  (click)="$event.stopPropagation()"
+                > Show popular recipients </mat-checkbox>
+              </mat-list-item>
+          </mat-list>
+      </mat-menu>
+
+      <div style="display: flex;">
+        <div id="sidenavGreeting">
+            <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
+            <p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
+        </div>
+        <div>
+            <button mat-icon-button [matMenuTriggerFor]="settingsMenu" matTooltip="Show webmail settings">
+                <mat-icon> settings_applications </mat-icon>
+            </button>
+        </div>
       </div>
 
       <mat-divider></mat-divider>
@@ -38,6 +57,7 @@
     </mat-nav-list>
 
     <app-popular-recipients
+        [ngStyle]="{ 'display': webmailSettings.showPopularRecipients ? 'block' : 'none' }"
         (recipientClicked)="searchFor($event)"
     ></app-popular-recipients>
 

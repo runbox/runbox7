@@ -62,7 +62,10 @@
                 id="buttonBCC"
             > BCC </button>
         </div>
-        <div class="recipientSuggestionContainer" *ngIf="suggestedRecipients.length > 0 && editing">
+        <div class="recipientSuggestionContainer"
+           [ngStyle]="{ 'display': webmailSettings.showPopularRecipients ? 'block' : 'none' }"
+           *ngIf="suggestedRecipients.length > 0 && editing"
+        >
             <span>Recently used</span>
             <div class="recipientSuggestionList">
                 <div *ngFor="let recipient of filteredSuggestions" class="suggestionItem">
