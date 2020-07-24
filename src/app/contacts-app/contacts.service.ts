@@ -23,10 +23,11 @@ import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, ReplaySubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, filter } from 'rxjs/operators';
 import * as moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { Md5 } from 'ts-md5/dist/md5';
+import { AppSettings } from '../app-settings';
 
 export class Settings {
     get showDragHelpers(): boolean {
@@ -43,6 +44,68 @@ interface AvatarCacheEntry {
     timestamp: number;
 }
 
+/* This caches avatar URLs, or `null`s in their absence.
+ * Mostly useful for avatars not available in Contacts,
+ * and loaded from external services like gravatar.
+ *
+ * Putting (gr)avatar URLs in <img src's> will cache them nicely,
+ * except if they 404d last time around
+ * (which will realistically happen most of the time).
+ *
+ * 404d avatars will get re-requested every single time,
+ * wasting time and bandwidth for more and more useless 404s.
+ * To avoid this, we cache the fact that they don't exist
+ * (storing `null` in `avatarCache`) so that various components
+ * know that there's no need to create <img> at all,
+ * and no useless requests will be performed.
+ */
+class AvatarCache {
+    changed = new Subject<void>();
+
+    constructor(
+        public source: AppSettings.AvatarSource,
+        private entries: { [email: string]: AvatarCacheEntry },
+    ) { }
+
+    static empty(): AvatarCache {
+        return new AvatarCache(AppSettings.AvatarSource.NONE, {});
+    }
+
+    load(cache: any) {
+        if (cache) {
+            this.source = cache['source']; this.entries = cache['entries'];
+        }
+    }
+
+    toStorable(): any {
+        return {
+            source: this.source,
+            entries: this.entries,
+        };
+    }
+
+    add(email: string, url: string) {
+        this.entries[email] = { url, timestamp: (new Date()).getTime() };
+        this.changed.next();
+    }
+
+    get(email: string): string {
+        if (this.entries[email]) {
+            // TODO skip if too old
+            return this.entries[email].url;
+        }
+        return null;
+    }
+
+    trash(email: string = null) {
+        if (email) {
+            this.entries[email] = null;
+        } else {
+            this.entries = {};
+        }
+        this.changed.next();
+    }
+}
 
 @Injectable()
 export class ContactsService implements OnDestroy {
@@ -53,28 +116,14 @@ export class ContactsService implements OnDestroy {
     errorLog           = new Subject<HttpErrorResponse>();
     migratingContacts  = 0;
 
+    appSettings: AppSettings = AppSettings.getDefaults();
     settings = new Settings();
     syncInterval: any;
     syncIntervalSeconds = 180;
     syncToken: string;
     lastUpdate: moment.Moment;
 
-    /* This caches avatar URLs, or `null`s in their absence.
-     * Mostly useful for avatars not available in Contacts,
-     * and loaded from external services like gravatar.
-     *
-     * Putting (gr)avatar URLs in <img src's> will cache them nicely,
-     * except if they 404d last time around
-     * (which will realistically happen most of the time).
-     *
-     * 404d avatars will get re-requested every single time,
-     * wasting time and bandwidth for more and more useless 404s.
-     * To avoid this, we cache the fact that they don't exist
-     * (storing `null` in `avatarCache`) so that various components
-     * know that there's no need to create <img> at all,
-     * and no useless requests will be performed.
-     */
-    avatarCache: { [email: string]: AvatarCacheEntry } = {};
+    avatarCache: AvatarCache = AvatarCache.empty();
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
@@ -95,9 +144,16 @@ export class ContactsService implements OnDestroy {
         });
 
         storage.get('avatarCache').then(cache => {
-            if (cache) {
-                this.avatarCache = cache;
-            }
+            this.avatarCache.load(cache);
+            this.avatarCache.changed.subscribe(() => storage.set('avatarCache', this.avatarCache.toStorable()));
+            storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
+                settings => {
+                    this.appSettings = AppSettings.load(settings);
+                    if (this.avatarCache.source !== this.appSettings.avatars) {
+                        this.avatarCache.trash();
+                    }
+                }
+            );
         });
     }
 
@@ -105,15 +161,6 @@ export class ContactsService implements OnDestroy {
         this.errorLog.next(e);
     }
 
-    private cacheAvatarUrl(email: string, url: string) {
-        this.avatarCache[email] = { url, timestamp: (new Date()).getTime() };
-        this.storage.set('avatarCache', this.avatarCache);
-    }
-
-    private trashAvatarCacheFor(email: string) {
-        this.avatarCache[email] = null;
-        this.storage.set('avatarCache', this.avatarCache);
-    }
 
     ngOnDestroy() {
         clearInterval(this.syncInterval);
@@ -130,7 +177,7 @@ export class ContactsService implements OnDestroy {
             }
             for (const e of c.emails) {
                 byEmail[e.value] = c;
-                this.trashAvatarCacheFor(e.value);
+                this.avatarCache.trash(e.value);
             }
         }
         this.contactCategories.next(Object.keys(categories));
@@ -237,16 +284,23 @@ export class ContactsService implements OnDestroy {
 
     // returns an URL or null if no avatar is available
     async lookupAvatar(email: string): Promise<string> {
-        // TODO: skip if timestamp too old
-        if (this.avatarCache[email]) {
-            return Promise.resolve(this.avatarCache[email].url);
+        if (this.appSettings.avatars === AppSettings.AvatarSource.NONE) {
+            return Promise.resolve(null);
+        }
+
+        if (this.avatarCache.get(email)) {
+            return Promise.resolve(this.avatarCache.get(email));
         }
 
         const contact = await this.lookupContact(email);
         const photoUrl = contact ? contact.photo : null;
         if (photoUrl) {
-            this.cacheAvatarUrl(email, photoUrl);
+            this.avatarCache.add(email, photoUrl);
             return Promise.resolve(photoUrl);
+        }
+
+        if (this.appSettings.avatars === AppSettings.AvatarSource.LOCAL) {
+            return Promise.resolve(null);
         }
 
         const hash = Md5.hashStr(email.toLowerCase());
@@ -254,8 +308,8 @@ export class ContactsService implements OnDestroy {
 
         return fetch(url).then(response => {
             const resolvedUrl = response.ok ? url : null;
-            this.cacheAvatarUrl(email, resolvedUrl);
-            return Promise.resolve(this.avatarCache[email].url);
+            this.avatarCache.add(email, resolvedUrl);
+            return Promise.resolve(resolvedUrl);
         });
     }
 

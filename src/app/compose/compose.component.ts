@@ -37,7 +37,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-import { AppSettings, defaultAppSettings } from '../app-settings';
+import { AppSettings } from '../app-settings';
 import { StorageService } from '../storage.service';
 
 declare const tinymce: any;
@@ -85,7 +85,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // to not include the recipients already picked
     filteredSuggestions: MailAddressInfo[] = [];
 
-    webmailSettings: AppSettings = defaultAppSettings();
+    webmailSettings: AppSettings = AppSettings.getDefaults();
 
     public formGroup: FormGroup;
 
@@ -112,7 +112,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
 
         this.storageService.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
-            settings => this.webmailSettings = settings
+            settings => this.webmailSettings = AppSettings.load(settings)
         );
     }
 

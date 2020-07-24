@@ -59,7 +59,7 @@ import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { StorageService } from './storage.service';
-import { AppSettings, defaultAppSettings } from './app-settings';
+import { AppSettings } from './app-settings';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -115,7 +115,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerRightSideWidth = '40%';
   allowMailViewerOrientationChange = true;
 
-  webmailSettings: AppSettings = defaultAppSettings();
+  webmailSettings: AppSettings = AppSettings.getDefaults();
+  AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
   buildtimestampstring = BUILD_TIMESTAMP;
 
@@ -251,7 +252,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     };
 
     this.storageService.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
-      settings => this.webmailSettings = settings
+      settings => this.webmailSettings = AppSettings.load(settings)
     );
 
     this.mobileQuery.addListener(this.mobileQueryListener);

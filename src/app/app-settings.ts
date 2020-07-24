@@ -19,10 +19,24 @@
 
 export interface AppSettings {
     showPopularRecipients: boolean;
+    avatars: AppSettings.AvatarSource;
 }
 
-export function defaultAppSettings(): AppSettings {
-    return {
-        showPopularRecipients: true,
-    };
+export namespace AppSettings {
+    export enum AvatarSource {
+        NONE   = 'none',
+        LOCAL  = 'local',
+        REMOTE = 'remote',
+    }
+
+    export function getDefaults(): AppSettings {
+        return {
+            avatars: AvatarSource.LOCAL,
+            showPopularRecipients: true,
+        };
+    }
+
+    export function load(stored: any): AppSettings {
+        return Object.assign(getDefaults(), stored);
+    }
 }

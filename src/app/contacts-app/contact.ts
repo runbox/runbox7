@@ -468,12 +468,12 @@ export class Contact {
             if (prop.type === 'binary') {
                 const blob = prop.getFirstValue();
                 if (!blob) { return null; }
-                if (blob.toString().startsWith('data:')) {
+                if (blob.toString().match(/^(data:|https?:)/)) {
                     return blob;
                 }
                 return `data:image/${prop.getParameter('type')};base64,${blob}`;
             } else {
-                console.log(`NYI photo type: ${prop.type}`);
+                return prop.getFirstValue();
             }
         } else {
             return null;
