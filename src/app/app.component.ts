@@ -78,8 +78,9 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck, OnDestroy {
   selectedRowIds: { [key: number]: boolean } = {};
   showSelectOperations: boolean;
+  showSelectMarkOpMenu: boolean;
 
-  lastSearchText: string;
+  lastSearchText = '';
   searchText = '';
   dataReady: boolean;
 
@@ -540,6 +541,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.selectedRowId = null;
         snackBarRef.dismiss();
       });
+  }
+
+  public openMarkOpMenu() {
+    this.showSelectMarkOpMenu = true;
+  }
+
+  public closeMarkOpMenu() {
+    this.showSelectMarkOpMenu = false;
   }
 
   public toggleRead() {
