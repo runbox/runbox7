@@ -23,13 +23,9 @@ import { Contact } from './contact';
         selector: 'app-contact-button',
         template: `
 <span>
-    <span *ngIf="contact.show_as_company(); else show_kind">
-        <mat-icon> business </mat-icon>
-    </span>
+    <mat-icon *ngIf="contact.show_as_company(); else show_kind"> business </mat-icon>
     <ng-template #show_kind>
-        <span *ngIf="contact.kind === 'group'">
-            <mat-icon> group </mat-icon>
-        </span>
+        <mat-icon *ngIf="contact.kind === 'group'"> group </mat-icon>
     </ng-template>
     {{ contact.display_name() || "Unnamed contact"  }}
 </span>

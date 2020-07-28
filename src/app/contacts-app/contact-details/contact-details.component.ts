@@ -22,12 +22,13 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
-import { ConfirmDialog } from '../../dialog/dialog.module';
+import { filter, take } from 'rxjs/operators';
 
-import { filter } from 'rxjs/operators';
+import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
 import { ContactsService } from '../contacts.service';
+import { MobileQueryService } from '../../mobile-query.service';
+import { ConfirmDialog } from '../../dialog/dialog.module';
+import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
 
 @Component({
     selector: 'app-contact-details',
@@ -57,7 +58,7 @@ export class ContactDetailsComponent {
 
     constructor(
         public dialog: MatDialog,
-        public rmmapi: RunboxWebmailAPI,
+        public mobileQuery: MobileQueryService,
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,
@@ -279,6 +280,33 @@ export class ContactDetailsComponent {
         }
     }
 
+    async askForMoreMembers(): Promise<void> {
+        let contacts = await this.contactsservice.contactsSubject.pipe(take(1)).toPromise();
+        contacts = contacts.filter(c => {
+            if (c.kind !== ContactKind.INVIDIDUAL) {
+                return false;
+            }
+            if (this.groupMembers.find(gm => gm.uuid === c.id)) {
+                return false;
+            }
+            return true;
+        });
+        const dialog = this.dialog.open(ContactPickerDialogComponent, { data: {
+            contacts,
+            title: 'Add members to ' + this.contact.full_name
+        }});
+        dialog.afterClosed().pipe(
+            filter(res => res)
+        ).subscribe(res => {
+            for (const id of res.selectedContacts) {
+                if (!this.groupMembers.find(g => g.uuid === id)) {
+                    this.groupMembers.push(GroupMember.fromUUID(id));
+                }
+            }
+            this.loadGroupMembers();
+        });
+    }
+
     memberDragged(ev: DragEvent, index: number) {
         ev.dataTransfer.setData('memberIdx', '' + index);
         this.memberIsDragged = true;
@@ -287,8 +315,12 @@ export class ContactDetailsComponent {
     memberDropped(ev: DragEvent) {
         // if we were dragging something else, then `index` will eval to NaN and won't break anything
         const index = parseInt(ev.dataTransfer.getData('memberIdx'), 10);
+        this.memberIsDragged = false;
+        this.removeGroupMember(index);
+    }
+
+    removeGroupMember(index: number): void {
         this.groupMembers = this.groupMembers.filter((_, i) => i !== index);
         this.loadGroupMembers();
-        this.memberIsDragged = false;
     }
 }
