@@ -41,12 +41,12 @@
           <mat-icon color="primary">drafts</mat-icon></a>
       </div>
 
-      <mat-list-item (click)="compose();" id="composeButton">
+      <mat-list-item (click)="compose();" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
         <mat-icon mat-list-icon class="folderIconStandard">edit</mat-icon>
         <p mat-line class="folderName">Compose</p>
       </mat-list-item>
 
-      <mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : selectedFolder == 'Drafts'}">
+      <mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
         <mat-icon mat-list-icon class="folderIconStandard">drafts</mat-icon>
         <p mat-line class="folderName">Drafts</p>
         <span style="flex-grow: 1"></span>
@@ -66,6 +66,7 @@
     <rmm-folderlist #folderListComponent
         [folders]="displayedFolders"
         [folderMessageCounts]="messagelistservice.folderMessageCountSubject"
+        [selectedFolder]="selectedFolder"
         (folderSelected)="selectFolder($event)"
         (droppedToFolder)="dropToFolder($event)"
         (emptyTrash)="emptyTrash($event)"
@@ -282,7 +283,7 @@
           <mat-icon>report_off</mat-icon>
       </button>
     </div>
-  <router-outlet (activate)="hasChildRouterOutlet=true" (deactivate)="hasChildRouterOutlet=false"></router-outlet>
+  <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
 </mat-sidenav-container>
 
 <div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"

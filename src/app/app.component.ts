@@ -30,7 +30,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { Router, RouterOutlet, ActivatedRoute } from '@angular/router';
+import { Router, RouterOutlet, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
@@ -96,6 +96,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   displayedFolders = new Observable<FolderListEntry[]>();
   selectedFolder = 'Inbox';
+  composeSelected: boolean;
+  draftsSelected: boolean;
 
   timeOfDay: string;
 
@@ -365,6 +367,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
       }
     );
+
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.composeSelected = this.router.url === '/compose?new=true';
+      this.draftsSelected = this.router.url === '/compose';
+    });
 
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
@@ -770,6 +779,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   searchFor(text) {
+    if (!this.selectedFolder) {
+        // resetSearch=false, to make sure selectFolder doesn't call us back
+        this.selectFolder('Inbox', false);
+    }
     if (text !== this.searchText) {
       this.searchText = text;
       if (this.usewebsocketsearch) {
@@ -791,6 +804,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.updateSearch(true);
 
+  }
+
+  public childRouteActivated(yes: boolean): void {
+    this.hasChildRouterOutlet = yes;
+    if (yes) {
+      this.selectedFolder = null;
+    }
   }
 
   public downloadIndexFromServer() {
@@ -885,12 +905,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  selectFolder(folder: string): void {
+  selectFolder(folder: string, resetSearch = true): void {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
-    this.searchFor('');
+    if (resetSearch) {
+      this.searchFor('');
+    }
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }
@@ -903,7 +925,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.clearSelection();
 
     let doResetColumns = false;
-    if (folder.startsWith('Sent') || this.selectedFolder.startsWith('Sent')) {
+    if (folder.startsWith('Sent') || this.selectedFolder?.startsWith('Sent')) {
       doResetColumns = true;
     }
 
