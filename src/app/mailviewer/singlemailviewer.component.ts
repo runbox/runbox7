@@ -83,7 +83,7 @@ export class ShowHTMLDialogComponent {
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
   static rememberHTMLChosenForMessagesIds: { [messageId: number]: boolean } = {};
 
-  _messageId; // Message id or filename
+  _messageId = null; // Message id or filename
 
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
