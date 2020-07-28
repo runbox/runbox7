@@ -107,10 +107,6 @@ mat-form-field {
         .suggestionItem {
             align-items: center;
             padding-right: 5px;
-
-            mat-chip {
-                background-color: mat-color($rmm-default-accent, 50);
-            }
         }
 
         div {
