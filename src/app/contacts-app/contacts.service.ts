@@ -19,6 +19,7 @@
 
 import { ContactSyncResult, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { StorageService } from '../storage.service';
+import { BackgroundActivityService } from '../common/background-activity.service';
 import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
@@ -37,6 +38,12 @@ export class Settings {
     set showDragHelpers(value: boolean) {
         localStorage.setItem('contacts.showDragHelpers', value ? '1' : '');
     }
+}
+
+enum Activity {
+    RefreshingContacts = 'Synchronizing contacts',
+    SavingContact      = 'Saving contact',
+    DeletingContact    = 'Deleting contact',
 }
 
 interface AvatarCacheEntry {
@@ -123,6 +130,7 @@ export class ContactsService implements OnDestroy {
     lastUpdate: moment.Moment;
 
     avatarCache: AvatarCache = AvatarCache.empty();
+    activities = new BackgroundActivityService<Activity>();
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
@@ -184,7 +192,9 @@ export class ContactsService implements OnDestroy {
     }
 
     reload(): Promise<void> {
-        return new Promise((resolve, reject) => {
+        this.activities.begin(Activity.RefreshingContacts);
+
+        const promise = new Promise<void>((resolve, reject) => {
             this.rmmapi.syncContacts(this.syncToken).subscribe(
                 (syncResult: ContactSyncResult) => {
                     this.migratingContacts = syncResult.toMigrate;
@@ -224,6 +234,10 @@ export class ContactsService implements OnDestroy {
                 }
             );
         });
+
+        promise.finally(() => this.activities.end(Activity.RefreshingContacts));
+
+        return promise;
     }
 
     saveCache(contacts: Contact[]): void {
@@ -235,7 +249,9 @@ export class ContactsService implements OnDestroy {
     }
 
     saveContact(contact: Contact): Promise<string> {
-        return new Promise((resolve, reject) => {
+        this.activities.begin(Activity.SavingContact);
+
+        const promise = new Promise<string>((resolve, reject) => {
             if (contact.url) {
                 console.log('Modifying contact', contact.id);
                 this.rmmapi.modifyContact(contact).subscribe(() => {
@@ -261,11 +277,16 @@ export class ContactsService implements OnDestroy {
                 });
             }
         });
+
+        promise.finally(() => this.activities.end(Activity.SavingContact));
+
+        return promise;
     }
 
     deleteContact(contact: Contact): Promise<void> {
-        console.log('Contact.service deleting', contact.url);
-        return new Promise<void>((resolve, reject) => {
+        this.activities.begin(Activity.DeletingContact);
+
+        const promise = new Promise<void>((resolve, reject) => {
             this.rmmapi.deleteContact(contact).subscribe(() => {
                 this.reload().then(() => resolve());
             }, e => {
@@ -273,6 +294,10 @@ export class ContactsService implements OnDestroy {
                 reject();
             });
         });
+
+        promise.finally(() => this.activities.end(Activity.DeletingContact));
+
+        return promise;
     }
 
     deleteMultiple(contacts: Contact[]): Promise<void[]> {
