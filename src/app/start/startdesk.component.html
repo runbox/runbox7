@@ -1,21 +1,51 @@
 <style>
-  div.start {
-      margin: 75px 0 0 20px;
+  #startdesk {
+      position: relative;
+      margin: 64px 20px 100px 30px;
   }
-
-  div.start mat-card {
+  #heading {
+      display: flex;
+  }
+  #title {
+      display: flex;
+      flex-grow: 1;
+  }
+  #panelControls {
+      display: flex;
+      flex-grow: 1;
+      justify-content: flex-end;
+      align-items: center;
+  }
+  #panelControls mat-icon {
+      vertical-align: bottom;
+      line-height: 24px;
+  }
+  #panelControlSmall {
+      font-size: 16px;
+      width: 16px;
+      height: auto;
+  }
+  #panelControlMedium {
+      font-size: 24px;
+      width: 24px;
+      height: auto;
+  }
+  #panelControlLarge {
+      font-size: 40px;
+      width: 40px;
+      height: auto;
+  }
+  #startdesk mat-card {
       float: left;
-      width: 43%
-  }
-  div.start mat-card {
       margin: 0 20px 20px 0;
+      width: 43%;
       height: 250px;
       padding: 20px;
   }
-  div.start mat-card div {
+  #startdesk mat-card div {
       margin: 10px 0;
   }
-  div.start mat-card h3 mat-icon {
+  #startdesk mat-card h3 mat-icon {
       font-size: 1.4em;
       height: 1em;
       margin-right: 20px;
@@ -24,35 +54,112 @@
       font-size: 3em;
       height: auto;
   }
+  #startdesk #dashdeskOverviewContainer {
+      display: block;
+      width: 100%;
+  }
+  #startdesk #dashdeskOverview {
+      width: 93%;
+      height: auto;
+  }
+  #startdesk .overviewEntry {
+      display: flex;
+  }
+  #startdesk .contact {
+      display: flex;
+      flex-grow: 1;
+      font-weight: bold;
+  }
+  #startdesk .contact h4 {
+      margin: 10px 0;
+  }
+  #startdesk .subject {
+      display: flex;
+      flex-grow: 4;
+  }
+  #startdesk .subject ul {
+	margin: 0;
+  }
+  #startdesk .subject li {
+	list-style-type: square;
+  }
 </style>
 
-<div class="start">
-  <h1>Runbox Dash Desk</h1>
-  <mat-card class="mat-card">
-    <h3><mat-icon>email</mat-icon>Email highlights</h3>
-    <div>New messages: <u>Inbox</u>, <u>Friends</u>, <u>Enemies</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
-    <div>New replies: <u>Inbox</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1);">show_chart</mat-icon></div>
-    <div>Important messages: <u>Gandalf</u>, <u>Bilbo</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
-  </mat-card>
+<div id="startdesk">
+  <div id="heading">
+    <div id="title">
+      <h1>Runbox Dash Desk</h1>
+    </div>
+    <div id="panelControls">
+      Panel size:&nbsp;
+      <mat-icon id="panelControlSmall">check_box_outline_blank</mat-icon>
+      <mat-icon id="panelControlMedium">check_box_outline_blank</mat-icon>
+      <mat-icon id="panelControlLarge">check_box_outline_blank</mat-icon>
+    </div>
+  </div>
+
+  <div id="dashdeskOverviewContainer">
+    <mat-card id="dashdeskOverview" class="mat-card">
+      <h3><mat-icon>blur_on</mat-icon>Communication overview</h3>
+      <div class="overviewEntry">
+	<div class="contact"><h4>Gandalf</h4></div>
+	<div class="subject">
+	  <ul>
+	    <li>Look out for someone named Strider</li>
+	    <li>How 'bout them Nazgul</li>
+	    <li>Be careful with the Palantir!</li>
+	  </ul>
+	</div>
+      </div>
+      <div class="overviewEntry">
+	<div class="contact"><h4>Bilbo</h4></div>
+	<div class="subject">
+	  <ul>
+	    <li>Do you have my ring??</li>
+	    <li>About that Red Book</li>
+	  </ul>
+	</div>
+      </div>
+      <div class="overviewEntry">
+	<div class="contact"><h4>Facebook</h4></div>
+	<div class="subject">
+	  <ul>
+	    <li>Gollum is a new friend suggestion for you</li>
+	    <li>Samwise posted in Fellowship</li>
+	    <li>Tom Boombadil posted a new photo</li>
+	  </ul>
+	</div>
+      </div>
+    </mat-card>
+  </div>
   
-  <mat-card class="mat-card">
-    <h3><mat-icon>people</mat-icon>Contact highlights</h3>
-    <div>Email from new senders: <u>Saruman</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1);">show_chart</mat-icon></div>
-    <div>Email from known contacts: <u>Gandalf</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
-    <div>New contacts (received vCards): <u>Gollum</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
-  </mat-card>
-
-  <mat-card class="mat-card">
-    <h3><mat-icon>date_range</mat-icon>Calendar highlights</h3>
-    <div>New events: <u>Destroy Ring</u> <mat-icon class="start_chart" style="color: red">timeline</mat-icon></div>
-    <div>Today: <u>Have 2nd Breakfast</u> <mat-icon class="start_chart">linear_scale</mat-icon></div>
-    <div>This week: <u>Meet at Weathertop</u>, <u>Escape Nazgul</u> <mat-icon class="start_chart" style="color: red">timeline</mat-icon></div>
-  </mat-card>
-
-  <mat-card class="mat-card">
-    <h3><mat-icon>assignment</mat-icon>Task highlights</h3>
-    <div>Due tasks: <u>Form Fellowship</u> <mat-icon class="start_chart">insert_chart</mat-icon></div>
-    <div>In progress: <u>Hang with Elves</u>, <u>Evade Sauron</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
-    <div>Upcoming: <u>Destroy One Ring</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
-  </mat-card>
+  <div id="dashdeskSections">
+    <mat-card class="mat-card">
+      <h3><mat-icon>email</mat-icon>Email highlights</h3>
+      <div>New messages: <u>Inbox</u>, <u>Friends</u>, <u>Enemies</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
+      <div>New replies: <u>Inbox</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1);">show_chart</mat-icon></div>
+      <div>Important messages: <u>Gandalf</u>, <u>Bilbo</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
+    </mat-card>
+    
+    <mat-card class="mat-card">
+      <h3><mat-icon>people</mat-icon>Contact highlights</h3>
+      <div>Email from new senders: <u>Saruman</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1);">show_chart</mat-icon></div>
+      <div>Email from known contacts: <u>Gandalf</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
+      <div>New contacts (received vCards): <u>Gollum</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
+    </mat-card>
+    
+    <mat-card class="mat-card">
+      <h3><mat-icon>date_range</mat-icon>Calendar highlights</h3>
+      <div>New events: <u>Destroy Ring</u> <mat-icon class="start_chart" style="color: red">timeline</mat-icon></div>
+      <div>Today: <u>Have 2nd Breakfast</u> <mat-icon class="start_chart">linear_scale</mat-icon></div>
+      <div>This week: <u>Meet at Weathertop</u>, <u>Escape Nazgul</u> <mat-icon class="start_chart" style="color: red">timeline</mat-icon></div>
+    </mat-card>
+    
+    <mat-card class="mat-card">
+      <h3><mat-icon>assignment</mat-icon>Task highlights</h3>
+      <div>Due tasks: <u>Form Fellowship</u> <mat-icon class="start_chart">insert_chart</mat-icon></div>
+      <div>In progress: <u>Hang with Elves</u>, <u>Evade Sauron</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
+      <div>Upcoming: <u>Destroy One Ring</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
+    </mat-card>
+  </div>
 </div>
