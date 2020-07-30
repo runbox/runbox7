@@ -66,8 +66,6 @@ export class RenameFolderEvent {
     styleUrls: ['folderlist.component.css']
 })
 export class FolderListComponent implements OnChanges {
-    selectedFolder = 'Inbox';
-
     dropFolderId: number;
     dropPosition = DropPosition;
     dropAboveOrBelowOrInside: DropPosition = DropPosition.NONE;
@@ -75,6 +73,7 @@ export class FolderListComponent implements OnChanges {
 
     @Input() folders: Observable<FolderListEntry[]>;
     @Input() folderMessageCounts: Observable<FolderMessageCountMap>;
+    @Input() selectedFolder: string;
 
     @Output() droppedToFolder = new EventEmitter<number>();
     @Output() folderSelected  = new EventEmitter<string>();
@@ -99,12 +98,10 @@ export class FolderListComponent implements OnChanges {
             new Hotkey(['g+i', 'g+t'],
             (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
                 if (combo === 'g+i') {
-                    this.clearSelection();
                     this.selectFolder('Inbox');
                     combo = null;
                 }
                 if (combo === 'g+t') {
-                    this.clearSelection();
                     this.selectFolder('Sent');
                     combo = null;
                 }
@@ -261,14 +258,7 @@ export class FolderListComponent implements OnChanges {
         this.dropAboveOrBelowOrInside = DropPosition.NONE;
     }
 
-    clearSelection() {
-        this.selectedFolder = null;
-    }
-
     selectFolder(folder: string): void {
-        if (folder !== this.selectedFolder) {
-            this.selectedFolder = folder;
-        }
         this.folderSelected.next(folder);
     }
 

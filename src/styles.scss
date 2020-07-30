@@ -827,57 +827,6 @@ compose .mat-standard-chip {
     margin-top: 35px;
 }
 
-/* Contacts */
-
-.multiContactActions {
-    display: flex;
-    flex-flow: column;
-    position: fixed;
-    bottom: 50px;
-    right: 50px;
-    z-index: 10;
-}
-
-.multiContactActions button {
-    margin-top: 10px;
-}
-
-.contact-details-row {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.contact-details-row .mat-form-field {
-    padding: 5px;
-}
-
-.mainTextContent h2 {
-    display: flex;
-    align-items: center;
-}
-
-.contactDetailsPicture {
-    display: inline-block;
-    width: 120px;
-    height: 120px;
-    border-radius: 120px;
-    object-fit: contain;
-}
-
-.contactDetailsPicture button {
-    width: 120px;
-    height: 120px;
-    border-radius: 120px;
-}
-
-.contactDetailsPicture mat-icon {
-    transform: scale(2);
-}
-
-.contactDetailsName {
-    padding-left: 20px;
-}
-
 /* Calendar */
 
 app-calendar-app-component mat-nav-list button {

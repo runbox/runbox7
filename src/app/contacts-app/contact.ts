@@ -33,7 +33,7 @@ export class GroupMember {
 
     // this will be non-null if an lookup-able URI is present
     get uuid(): string {
-        return this.scheme === 'urn:uuid' ? this.value : null;
+        return this.scheme === 'urn:uuid' ? this.value.toLowerCase() : null;
     }
 
     get name(): string {

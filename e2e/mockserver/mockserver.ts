@@ -181,6 +181,20 @@ export class MockServer {
                 response.end(JSON.stringify(this.receipt()));
                 return;
             }
+            if (requesturl.startsWith('/rest/v1/contacts/sync')) {
+                response.end(JSON.stringify(
+                    {
+                        status: 'success',
+                        result: {
+                            newToken: `e2e-${new Date()}`,
+                            added: this.contacts(),
+                            removed: [],
+                            to_migrate: 0,
+                        }
+                    }
+                ));
+                return;
+            }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
@@ -199,19 +213,6 @@ export class MockServer {
                                 ));
                         }
                         }, 1000);
-                    break;
-                case '/rest/v1/contacts/sync':
-                    response.end(JSON.stringify(
-                        {
-                            status: 'success',
-                            result: {
-                                newToken: 'e2e-1',
-                                added: this.contacts(),
-                                removed: [],
-                                to_migrate: 0,
-                            }
-                        }
-                    ));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
@@ -661,7 +662,15 @@ export class MockServer {
                 "/contacts/ID-MR-POSTCODE.vcf",
                 "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
                 + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
-            ]
+            ],
+            [
+                "/contacts/ID-GROUP1.vcf",
+                "BEGIN:VCARD\nVERSION:4.0\nUID:ID-GROUP1\nKIND:GROUP\nFN:Group #1\nMEMBER:urn:uuid:ID-GROUP1-MEMBER1\nEND:VCARD",
+            ],
+            [
+                "/contacts/ID-GROUP1-MEMBER1.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
+            ],
         ];
     }
 }

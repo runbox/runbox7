@@ -22,40 +22,44 @@ import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router, NavigationEnd } from '@angular/router';
 
 import { Contact, ContactKind, GroupMember } from './contact';
+import { ContactListComponent } from './contact-list.component';
 import { ContactsService } from './contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent, VcfImportDialogResult } from './vcf-import-dialog.component';
 
 import { v4 as uuidv4 } from 'uuid';
+import { take } from 'rxjs/operators';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
     // tslint:disable-next-line:component-selector
     selector: 'contacts-app-root',
-    styleUrls: ['./contacts-app.component.scss'],
+    styleUrls: ['contacts-app.component.scss'],
     templateUrl: './contacts-app.component.html'
 })
 export class ContactsAppComponent {
     title = 'Contacts';
     contacts: Contact[] = [];
+    groups: Contact[] = [];
     shownContacts: Contact[] = [];
-    selectedContact: Contact;
-    sortMethod = 'lastname+';
 
-    selectingMultiple = false;
+    shownGroup: Contact = null;
+    showingDetails = false;
+
+    selectedContacts: Set<string> = new Set();
     selectedCount = 0;
-    selectedIDs = {};
 
     categories  = [];
-    categoryFilter = 'RUNBOX:ALL';
-    hasGroups = false;
-    searchTerm  = '';
+
+    appLayout = 'twoColumns';
 
     sideMenuOpened = true;
+
+    @ViewChild(ContactListComponent) contactList: ContactListComponent;
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
     @ViewChild('vcfUploadInput') vcfUploadInput: any;
 
@@ -72,7 +76,11 @@ export class ContactsAppComponent {
         this.contactsservice.contactsSubject.subscribe(contacts => {
             console.log('Contacts.app: got the contacts!');
             this.contacts = contacts;
-            this.hasGroups = !!this.contacts.find(c => c.kind === ContactKind.GROUP);
+            this.groups = this.contacts.filter(
+                c => c.kind === ContactKind.GROUP
+            ).sort(
+                (a, b) => a.full_name.localeCompare(b.full_name)
+            );
             this.filterContacts();
         });
 
@@ -103,6 +111,8 @@ export class ContactsAppComponent {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => {
             this.sideMenuOpened = !mobile;
+
+            this.determineLayout();
         });
 
         router.events.subscribe(event => {
@@ -110,12 +120,35 @@ export class ContactsAppComponent {
                 if (mobileQuery.matches) {
                     this.sideMenu.close();
                 }
+            } else if (event instanceof NavigationEnd) {
+                const url = router.parseUrl(router.url);
+                const childPath = url.root.children.primary.segments[1]?.path;
+                if (childPath) {
+                    this.showingDetails = true;
+                    // we can't use this.groups, since at the point this fires they may not be loaded yet
+                    this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
+                        const group = contacts.filter(c => c.kind === ContactKind.GROUP).find(g => g.id === childPath);
+                        if (group) {
+                            this.shownGroup = group;
+                            this.showingDetails = false;
+                        }
+                    });
+                    // for details-only view, when we want the toolbar to be visible too
+                    document.getElementById('contactsPageTop').scrollIntoView(true);
+                    // for 3-column view, when the toolbar is always visible anyway
+                    document.getElementById('detailsPageTop').scrollIntoView(true);
+                } else {
+                    this.showingDetails = false;
+                    this.shownGroup = null;
+                }
+                this.filterContacts();
+                this.determineLayout();
             }
         });
     }
 
     addSelectedToGroup(): void {
-        const toAdd = this.contacts.filter(c => this.selectedIDs[c.id]);
+        const toAdd = this.contacts.filter(c => this.selectedContacts.has(c.id));
 
         if (toAdd.find(c => c.kind === ContactKind.GROUP)) {
             this.snackBar.open('Groups cannot be added to groups', 'Ok', {
@@ -130,16 +163,25 @@ export class ContactsAppComponent {
         dialogRef.afterClosed().subscribe(group => {
             if (group) {
                 this.addContactsToGroup(group, toAdd);
-                this.resetSelection();
+                this.contactList.resetSelection();
             }
         });
     }
 
+    closeDetails(): void {
+        this.showDetails(false);
+        if (this.shownGroup) {
+            this.router.navigate(['/contacts', this.shownGroup.id]);
+        } else {
+            this.router.navigate(['/contacts']);
+        }
+    }
+
     deleteSelected(): void {
-        const toDelete = this.contacts.filter(c => this.selectedIDs[c.id]);
-        this.contacts = this.contacts.filter(c => !this.selectedIDs[c.id]);
+        const toDelete = this.contacts.filter(c => this.selectedContacts.has(c.id));
+        this.contacts = this.contacts.filter(c => !this.selectedContacts.has(c.id));
         this.filterContacts();
-        this.resetSelection();
+        this.contactList.resetSelection();
 
         this.contactsservice.deleteMultiple(toDelete).then(_ => {
             this.showNotification(`Deleted ${toDelete.length} contacts`);
@@ -147,38 +189,41 @@ export class ContactsAppComponent {
         });
     }
 
+    determineLayout(): void {
+        if (!this.mobileQuery.matches) {
+            this.appLayout = 'twoColumns';
+        } else {
+            if (this.showingDetails) {
+                this.appLayout = 'showDetails';
+            } else {
+                this.appLayout = 'showList';
+            }
+        }
+    }
+
     filterContacts(): void {
         this.shownContacts = this.contacts.filter(c => {
-            if (this.categoryFilter === 'RUNBOX:ALL') {
-                return true;
-            }
-            if (this.categoryFilter === 'RUNBOX:NONE' && c.categories.length === 0) {
-                return true;
+            if (c.kind === ContactKind.GROUP) {
+                return false;
             }
 
-            const target = this.categoryFilter.substr(5); // strip 'USER:'
+            if (this.shownGroup) {
+                if (!this.shownGroup.members.find(gm => gm.uuid === c.id)) {
+                    return false;
+                }
+            }
 
-            return c.categories.find(g => g === target);
-        }).filter(c => {
-            return c.display_name() && (c.display_name().toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1);
+            return true;
         });
-        this.sortContacts();
     }
 
     importVcfClicked(): void {
         this.vcfUploadInput.nativeElement.click();
     }
 
-    onContactChecked(): void {
-        this.selectedCount = Object.values(this.selectedIDs).filter(x => x).length;
-    }
-
-    onSelectMultipleChange(): void {
-        if (!this.selectingMultiple) {
-            // uncheck all contacts if we're switching this off to prevent confusing leftovers
-            this.selectedIDs = {};
-            this.selectedCount = 0;
-        }
+    onContactsSelected(selection: Set<string>) {
+        this.selectedContacts = selection;
+        this.selectedCount = selection.size;
     }
 
     onVcfUploaded(uploadEvent: any) {
@@ -238,16 +283,9 @@ export class ContactsAppComponent {
         });
     }
 
-    resetSelection(): void {
-        this.selectedIDs = {};
-        this.selectedCount = 0;
-    }
-
-    selectAll(): void {
-        for (const c of this.shownContacts) {
-            this.selectedIDs[c.id] = true;
-        }
-        this.onContactChecked();
+    showDetails(yes: boolean): void {
+        this.showingDetails = yes;
+        this.determineLayout();
     }
 
     showNotification(message: string, action = 'Dismiss'): void {
@@ -277,75 +315,14 @@ export class ContactsAppComponent {
         }
     }
 
-    sortContacts(): void {
-        this.shownContacts.sort((a, b) => {
-            let firstname_order: number;
-            let lastname_order: number;
-
-            // Show groups first.
-            // Once we get a separate UI elements for them it won't be necessary,
-            // but before that's in this will still improve things.
-            if (a.kind !== b.kind) {
-                if (a.kind === ContactKind.GROUP) {
-                    return -1;
-                }
-                if (b.kind === ContactKind.GROUP) {
-                    return 1;
-                }
-
-                // if they're different kinds but neither is a group
-                // then we'll sort them as regular contacts below
-            } else if (a.kind === ContactKind.GROUP) {
-                // they're both groups, so they don't have first and last names anyway
-                return a.full_name.localeCompare(b.full_name);
-            }
-
-            // all this complexity is so that the null values are always treated
-            // as last if they were alphabetically last
-            if (a.first_name === b.first_name) {
-                firstname_order = 0;
-            } else if (!a.first_name) {
-                firstname_order = 1;
-            } else if (!b.first_name) {
-                firstname_order = -1;
-            } else {
-                firstname_order = a.first_name.localeCompare(b.first_name);
-            }
-
-            if (a.last_name === b.last_name) {
-                lastname_order = 0;
-            } else if (!a.last_name) {
-                lastname_order = 1;
-            } else if (!b.last_name) {
-                lastname_order = -1;
-            } else {
-                lastname_order = a.last_name.localeCompare(b.last_name);
-            }
-
-            if (this.sortMethod === 'lastname+') {
-                return lastname_order || firstname_order;
-            }
-
-            if (this.sortMethod === 'lastname-') {
-                return (1 - lastname_order) || (1 - firstname_order);
-            }
-
-            if (this.sortMethod === 'firstname+') {
-                return firstname_order || lastname_order;
-            }
-
-            if (this.sortMethod === 'firstname-') {
-                return (1 - firstname_order) || (1 - lastname_order);
-            }
-        });
-    }
-
-    dragStarted(ev: DragEvent, contact: Contact) {
-        if (contact.kind === ContactKind.GROUP) {
-            // this prevents the drag from happening
-            ev.preventDefault();
-        } else {
-            ev.dataTransfer.setData('contact', contact.id);
+    dropContactTo(group: Contact, ev: DragEvent) {
+        const id = ev.dataTransfer.getData('contact');
+        if (!id) {
+            return;
+        }
+        const target = this.contacts.find(c => c.id === id);
+        if (target) {
+            this.addContactsToGroup(group, [target]);
         }
     }
 
@@ -356,5 +333,4 @@ export class ContactsAppComponent {
         group.members = group.members.concat(newMembers);
         this.contactsservice.saveContact(group);
     }
-
 }

@@ -61,6 +61,7 @@ describe('FolderListComponent', () => {
 
     it('folderReorderingDrop', async () => {
         const comp = new FolderListComponent(null, hotkeyMock);
+        comp.selectedFolder = 'Inbox';
         comp.folders = new BehaviorSubject([
             new FolderListEntry(1, 50, 40, 'inbox', 'folder1', 'folder2', 0),
             new FolderListEntry(2, 50, 40, 'user', 'folder2', 'folder2', 0),
@@ -232,6 +233,7 @@ describe('FolderListComponent', () => {
 
     it('should create new folder in root', async () => {
         const comp = new FolderListComponent(dialog, hotkeyMock);
+        comp.selectedFolder = 'Inbox';
         const folders = [
             new FolderListEntry(1, 50, 40, 'inbox', 'folder1', 'folder2', 0),
             new FolderListEntry(2, 50, 40, 'user', 'folder2', 'folder2', 0),

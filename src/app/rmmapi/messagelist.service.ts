@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {throwError as observableThrowError,  BehaviorSubject ,  Observable, ReplaySubject } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
@@ -70,16 +71,6 @@ export class MessageListService {
     ) {
         this.refreshFolderList().then(folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders)));
 
-        this.folderListSubject.subscribe((foldercounts) =>
-            this.folders.next(
-                foldercounts.map((fld) => [fld.folderName, fld.totalMessages,
-                    fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
-                    , false, // Folder is not in local index but we're showing from the database here so don't mark as grey
-                fld.folderId
-                ]
-                ))
-        );
-
         rmmapi.messageFlagChangeSubject.pipe(
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
             ).subscribe((msgFlagChange) => {
@@ -129,29 +120,41 @@ export class MessageListService {
                 }
                 this.folderMessageCountSubject.next(folderCounts);
             });
-        } else {
-            this.refreshFolderList().then(
-                folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders))
-            );
         }
     }
 
     public refreshFolderList(): Promise<FolderListEntry[]> {
         return new Promise((resolve, _) => {
-            this.rmmapi.getFolderList().subscribe((folders) => {
-                const trashfolder = folders.find(folder => folder.folderType === 'trash');
-                if (trashfolder) {
-                    this.trashFolderName = trashfolder.folderName;
-                }
-                const spamfolder = folders.find(folder => folder.folderType === 'spam');
-                if (spamfolder) {
-                    this.spamFolderName = spamfolder.folderName;
-                }
+            this.rmmapi.getFolderList()
+                .pipe(distinctUntilChanged((prev, curr) =>
+                     prev.length === curr.length
+                     && prev.map(f => f.folderId).join('') === curr.map(f => f.folderId).join('')))
+                .subscribe((folders) => {
+                    const trashfolder = folders.find(folder => folder.folderType === 'trash');
+                    if (trashfolder) {
+                        this.trashFolderName = trashfolder.folderName;
+                    }
+                    const spamfolder = folders.find(folder => folder.folderType === 'spam');
+                    if (spamfolder) {
+                        this.spamFolderName = spamfolder.folderName;
+                    }
 
-                this.folderListSubject.next(folders);
+                    this.folderListSubject.next(folders);
+                    // Moved from constructor (subscribing to our own
+                    // subjects seems silly)
+                    // Xapian counts:
+                    this.refreshFolderCounts();
+                    // API counts:
+                    this.folders.next(
+                        folders.map((fld) => [fld.folderName, fld.totalMessages,
+                            fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
+                            , false, // Folder is not in local index but we're showing from the database here so don't mark as grey
+                            fld.folderId
+                        ]
+               ));
                 resolve(folders);
             });
-        });
+       });
     }
 
     public requestMoreData(currentlimit: number) {
@@ -218,8 +221,6 @@ export class MessageListService {
         if (hasChanges) {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
             this.refreshFolderList();
-            console.log('New/Moved messages, updating folder counts');
-            this.refreshFolderCounts();
         }
     }
 
