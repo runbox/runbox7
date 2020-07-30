@@ -2,11 +2,40 @@
     <app-runbox-loading text="Loading sync settings..."></app-runbox-loading>
 </ng-template>
 
+<style>
+    mat-radio-group {
+        display: flex;
+        flex-direction: column;
+    }
+    mat-radio-button {
+        margin: 5px;
+    }
+</style>
+
 <div class="mainTextContent">
     <div>
         <h3> General settings </h3>
-        <mat-checkbox [(ngModel)]="contactsservice.settings.showDragHelpers"> Show drag helpers </mat-checkbox>
-        <p style="font-size: small;"> Enable this if you have trouble dragging contacts on your browser </p>
+        <div>
+            <mat-checkbox [(ngModel)]="contactsservice.settings.showDragHelpers"> Show drag helpers </mat-checkbox>
+            <p style="font-size: small;"> Enable this if you have trouble dragging contacts on your browser </p>
+        </div>
+        <div>
+            <h4> Avatars (contact pictures) </h4>
+            <mat-radio-group
+                [(ngModel)]="appSettings.avatars"
+                (change)="onSettingsChanged()"
+            >
+                <mat-radio-button [value]="AvatarSource.REMOTE">
+                    Load from external services (like <a href="https://gravatar.com">gravatar.com</a>)
+                </mat-radio-button>
+                <mat-radio-button [value]="AvatarSource.LOCAL">
+                    Only show pictures stored locally
+                </mat-radio-button>
+                <mat-radio-button [value]="AvatarSource.NONE">
+                    Disable completely
+                </mat-radio-button>
+            </mat-radio-group>
+        </div>
     </div>
     <div *ngIf="syncSettings | async as sync; else syncLoading">
         <h3> Your CardDAV settings </h3>
