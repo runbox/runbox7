@@ -21,7 +21,11 @@
                 [matMenuTriggerFor]="pictureMenu"
             >
             <ng-template #uploadPicture>
-                <button mat-stroked-button (click)="showUploadDialog()">
+                <button mat-stroked-button
+                    matTooltip="Consider enabling remote avatars in settings"
+                    [matTooltipDisabled]="appSettings.avatars == AvatarSource.REMOTE"
+                    (click)="showUploadDialog()"
+                >
                     <mat-icon> portrait </mat-icon>
                     <br> Upload picture
                 </button>
