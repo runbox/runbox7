@@ -93,6 +93,7 @@
     height: 120px;
     border-radius: 120px;
     object-fit: contain;
+    padding-right: 20px;
 }
 
 .contactDetailsPicture button {
@@ -103,8 +104,4 @@
 
 .contactDetailsPicture mat-icon {
     transform: scale(2);
-}
-
-.contactDetailsName {
-    padding-left: 20px;
 }

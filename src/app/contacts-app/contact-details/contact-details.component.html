@@ -13,7 +13,7 @@
 
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <span class="contactDetailsPicture">
+        <span class="contactDetailsPicture" *ngIf="appSettings.avatars != AvatarSource.NONE">
             <img
                 *ngIf="contactPhotoURI; else uploadPicture"
                 class="contactDetailsPicture"

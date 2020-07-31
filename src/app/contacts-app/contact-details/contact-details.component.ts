@@ -29,6 +29,8 @@ import { filter, take } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
 import { MobileQueryService } from '../../mobile-query.service';
 import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
+import { StorageService } from '../../storage.service';
+import { AppSettings } from '../../app-settings';
 
 @Component({
     selector: 'app-contact-details',
@@ -61,6 +63,9 @@ export class ContactDetailsComponent {
     contactIsDragged = false;
     memberIsDragged  = false;
 
+    appSettings: AppSettings = AppSettings.getDefaults();
+    AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
+
     constructor(
         public dialog: MatDialog,
         public mobileQuery: MobileQueryService,
@@ -68,7 +73,8 @@ export class ContactDetailsComponent {
         private router: Router,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
-        private contactsservice: ContactsService
+        private contactsservice: ContactsService,
+        storage: StorageService,
     ) {
         this.contactForm = this.createForm();
 
@@ -87,6 +93,10 @@ export class ContactDetailsComponent {
 
         document.addEventListener('dragstart', (ev) => this.contactIsDragged = !!ev.dataTransfer.getData('contact'));
         document.addEventListener('dragend',   ()   => this.contactIsDragged = this.memberIsDragged = false);
+
+        storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
+            settings => this.appSettings = AppSettings.load(settings)
+        );
     }
 
     private contactDiffersFrom(other: Contact): boolean {
