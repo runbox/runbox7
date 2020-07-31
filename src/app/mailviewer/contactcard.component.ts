@@ -22,6 +22,7 @@ import { Router } from '@angular/router';
 
 import { Contact } from '../contacts-app/contact';
 import { ContactsService } from '../contacts-app/contacts.service';
+import { AppSettingsService } from '../app-settings';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -47,17 +48,21 @@ export class ContactCardComponent implements OnChanges {
     avatarUrl: string;
 
     constructor(
+        settingsService: AppSettingsService,
         private router: Router,
         private contactsservice: ContactsService,
     ) {
+        settingsService.settingsSubject.subscribe(_ => this.ngOnChanges());
     }
 
     ngOnChanges() {
         // reset these first, so that we don't display anything outdated while things are loading
         this.contactsEntry = this.avatarUrl = null;
 
-        this.contactsservice.lookupContact(this.contact.address).then(c => this.contactsEntry = c);
-        this.contactsservice.lookupAvatar(this.contact.address).then(url => this.avatarUrl = url);
+        if (this.contact) {
+            this.contactsservice.lookupContact(this.contact.address).then(c => this.contactsEntry = c);
+            this.contactsservice.lookupAvatar(this.contact.address).then(url => this.avatarUrl = url);
+        }
     }
 
     clicked() {

@@ -40,6 +40,7 @@ import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { ProgressService } from '../http/progress.service';
+import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ContactCardComponent } from './contactcard.component';
 import { MessageActions } from './messageactions';
@@ -76,9 +77,11 @@ describe('SingleMailViewerComponent', () => {
       declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
       providers: [
         MobileQueryService,
+        StorageService,
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: HttpClient, useValue: {} },
         { provide: RunboxWebmailAPI, useValue: {
+          me: of({ uid: 9876 }),
           getFromAddress() { return of([]); },
           getMessageContents(messageId: number): Observable<MessageContents> {
             console.log('Get message contents for', messageId);
