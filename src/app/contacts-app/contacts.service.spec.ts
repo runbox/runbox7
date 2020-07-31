@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { AppSettingsService } from '../app-settings';
 import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
@@ -37,7 +38,7 @@ describe('ContactsService', () => {
     it('should allow looking up avatars according to settings', async () => {
         const storage = new StorageService(rmmapi);
         storage.set('webmailSettings', { avatars: 'remote' });
-        const sut = new ContactsService(rmmapi, storage);
+        const sut = new ContactsService(rmmapi, new AppSettingsService(storage), storage);
         await new Promise(resolve => setTimeout(resolve, 0));
 
         // grab gravatar if there's no local picture

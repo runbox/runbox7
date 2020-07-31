@@ -23,11 +23,11 @@ import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, ReplaySubject } from 'rxjs';
-import { take, filter } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { Md5 } from 'ts-md5/dist/md5';
-import { AppSettings } from '../app-settings';
+import { AppSettings, AppSettingsService } from '../app-settings';
 
 export class Settings {
     get showDragHelpers(): boolean {
@@ -116,7 +116,6 @@ export class ContactsService implements OnDestroy {
     errorLog           = new Subject<HttpErrorResponse>();
     migratingContacts  = 0;
 
-    appSettings: AppSettings = AppSettings.getDefaults();
     settings = new Settings();
     syncInterval: any;
     syncIntervalSeconds = 180;
@@ -127,6 +126,7 @@ export class ContactsService implements OnDestroy {
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
+        private settingsService: AppSettingsService,
         private storage: StorageService,
     ) {
         storage.get('contactsCache').then(cache => {
@@ -146,14 +146,11 @@ export class ContactsService implements OnDestroy {
         storage.get('avatarCache').then(cache => {
             this.avatarCache.load(cache);
             this.avatarCache.changed.subscribe(() => storage.set('avatarCache', this.avatarCache.toStorable()));
-            storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
-                settings => {
-                    this.appSettings = AppSettings.load(settings);
-                    if (this.avatarCache.source !== this.appSettings.avatars) {
-                        this.avatarCache.trash();
-                    }
+            this.settingsService.settingsSubject.subscribe(settings => {
+                if (this.avatarCache.source !== settings.avatars) {
+                    this.avatarCache.trash();
                 }
-            );
+            });
         });
     }
 
@@ -284,7 +281,7 @@ export class ContactsService implements OnDestroy {
 
     // returns an URL or null if no avatar is available
     async lookupAvatar(email: string): Promise<string> {
-        if (this.appSettings.avatars === AppSettings.AvatarSource.NONE) {
+        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.NONE) {
             return Promise.resolve(null);
         }
 
@@ -299,7 +296,7 @@ export class ContactsService implements OnDestroy {
             return Promise.resolve(photoUrl);
         }
 
-        if (this.appSettings.avatars === AppSettings.AvatarSource.LOCAL) {
+        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.LOCAL) {
             return Promise.resolve(null);
         }
 

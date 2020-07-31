@@ -22,8 +22,8 @@
         <div>
             <h4> Avatars (contact pictures) </h4>
             <mat-radio-group
-                [(ngModel)]="appSettings.avatars"
-                (change)="onSettingsChanged()"
+                [(ngModel)]="settingsService.settings.avatars"
+                (change)="settingsService.store()"
             >
                 <mat-radio-button [value]="AvatarSource.REMOTE">
                     Load from external services (like <a href="https://gravatar.com">gravatar.com</a>)

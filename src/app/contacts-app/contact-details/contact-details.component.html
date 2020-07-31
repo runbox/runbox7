@@ -13,7 +13,7 @@
 
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <span class="contactDetailsPicture" *ngIf="appSettings.avatars != AvatarSource.NONE">
+        <span class="contactDetailsPicture" *ngIf="settingsService.settings.avatars != AvatarSource.NONE">
             <img
                 *ngIf="contactPhotoURI; else uploadPicture"
                 class="contactDetailsPicture"
@@ -23,7 +23,7 @@
             <ng-template #uploadPicture>
                 <button mat-stroked-button
                     matTooltip="Consider enabling remote avatars in settings"
-                    [matTooltipDisabled]="appSettings.avatars == AvatarSource.REMOTE"
+                    [matTooltipDisabled]="settingsService.settings.avatars == AvatarSource.REMOTE"
                     (click)="showUploadDialog()"
                 >
                     <mat-icon> portrait </mat-icon>

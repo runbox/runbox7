@@ -12,8 +12,8 @@
           <mat-list>
               <mat-list-item>
                 <mat-checkbox
-                  [(ngModel)]="webmailSettings.showPopularRecipients"
-                  (change)="onSettingsChanged()"
+                  [(ngModel)]="settingsService.settings.showPopularRecipients"
+                  (change)="settingsService.store()"
                   (click)="$event.stopPropagation()"
                 > Show popular recipients </mat-checkbox>
               </mat-list-item>
@@ -21,9 +21,9 @@
                 <mat-form-field>
                   <mat-label> Avatars </mat-label>
                   <mat-select
-                    [(ngModel)]="webmailSettings.avatars"
+                    [(ngModel)]="settingsService.settings.avatars"
                     (click)="$event.stopPropagation()"
-                    (selectionChange)="onSettingsChanged()"
+                    (selectionChange)="settingsService.store()"
                   >
                     <mat-option [value]="AvatarSource.REMOTE"> Load from external services </mat-option>
                     <mat-option [value]="AvatarSource.LOCAL">  Only from Contacts </mat-option>
@@ -71,7 +71,7 @@
     </mat-nav-list>
 
     <app-popular-recipients
-        [ngStyle]="{ 'display': webmailSettings.showPopularRecipients ? 'block' : 'none' }"
+        [ngStyle]="{ 'display': settingsService.settings.showPopularRecipients ? 'block' : 'none' }"
         (recipientClicked)="searchFor($event)"
     ></app-popular-recipients>
 
