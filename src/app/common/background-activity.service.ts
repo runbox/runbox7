@@ -17,29 +17,36 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Subject, Observable } from 'rxjs';
+import { Subject } from 'rxjs';
+
+// a glorified fraction
+export type ActivityProgress = [number, number];
 
 // not @Injectable on purpose: each app/service is expected to have its own,
 // implemented with its own relevant type
 export class BackgroundActivityService<ActivityType> {
-    activitySet     = new Set<ActivityType>();
-    activitySubject = new Subject<ActivityType[]>();
+    activityMap = new Map<ActivityType, ActivityProgress>();
+    observable  = new Subject<Map<ActivityType, ActivityProgress>>();
 
-    get observable(): Observable<ActivityType[]> {
-        return this.activitySubject;
-    }
-
-    private notify() {
-        this.activitySubject.next(Array.from(this.activitySet.values()));
-    }
-
-    public begin(activity: ActivityType) {
-        this.activitySet.add(activity);
-        this.notify();
+    public begin(activity: ActivityType, parts = 1) {
+        const existingProgress = this.activityMap.get(activity);
+        if (existingProgress) {
+            existingProgress[1] += parts;
+            this.activityMap.set(activity, existingProgress);
+        } else {
+            this.activityMap.set(activity, [0, parts]);
+        }
+        this.observable.next(this.activityMap);
     }
 
     public end(activity: ActivityType) {
-        this.activitySet.delete(activity);
-        this.notify();
+        const progress = this.activityMap.get(activity);
+        progress[0]++;
+        if (progress[0] === progress[1]) {
+            this.activityMap.delete(activity);
+        } else {
+            this.activityMap.set(activity, progress);
+        }
+        this.observable.next(this.activityMap);
     }
 }

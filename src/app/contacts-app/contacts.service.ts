@@ -44,6 +44,7 @@ enum Activity {
     RefreshingContacts = 'Synchronizing contacts',
     SavingContact      = 'Saving contact',
     DeletingContact    = 'Deleting contact',
+    DeletingContacts   = 'Deleting contacts',
 }
 
 interface AvatarCacheEntry {
@@ -286,22 +287,20 @@ export class ContactsService implements OnDestroy {
     deleteContact(contact: Contact): Promise<void> {
         this.activities.begin(Activity.DeletingContact);
 
-        const promise = new Promise<void>((resolve, reject) => {
-            this.rmmapi.deleteContact(contact).subscribe(() => {
-                this.reload().then(() => resolve());
-            }, e => {
-                this.apiErrorHandler(e);
-                reject();
-            });
-        });
-
+        const promise = this.deleteContactSilently(contact);
         promise.finally(() => this.activities.end(Activity.DeletingContact));
+        promise.then(() => this.reload());
 
         return promise;
     }
 
-    deleteMultiple(contacts: Contact[]): Promise<void[]> {
-        return Promise.all(contacts.map(c => this.deleteContact(c)));
+    deleteMultiple(contacts: Contact[]): Promise<void> {
+        this.activities.begin(Activity.DeletingContacts, contacts.length);
+        return Promise.all(
+            contacts.map(c => this.deleteContactSilently(c).finally(
+                () => this.activities.end(Activity.DeletingContacts)
+            ))
+        ).then(() => this.reload());
     }
 
     // returns an URL or null if no avatar is available
@@ -353,6 +352,17 @@ export class ContactsService implements OnDestroy {
                     }
                 }
                 resolve(null);
+            });
+        });
+    }
+
+    private deleteContactSilently(contact: Contact): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.rmmapi.deleteContact(contact).subscribe(() => {
+                resolve();
+            }, e => {
+                this.apiErrorHandler(e);
+                reject();
             });
         });
     }

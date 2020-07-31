@@ -19,25 +19,34 @@
 
 import { Component, Input, OnChanges } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ActivityProgress } from './background-activity.service';
 
 @Component({
     selector: 'app-activity-indicator',
     template: `
-    <div *ngIf="activities | async as activities">
-        <app-runbox-loading *ngFor="let activity of activities"
-            [text]="activity"
-            size="tiny"
-        ></app-runbox-loading>
-    </div>
+<div>
+    <app-runbox-loading *ngFor="let activity of shownActivities"
+        [text]="activity"
+        size="tiny"
+    ></app-runbox-loading>
+</div>
     `,
 })
 export class BackgroundActivityIndicatorComponent implements OnChanges {
-    @Input() activities: Observable<Set<any>>;
+    @Input() activities: Observable<Map<any, ActivityProgress>>;
+
+    shownActivities: string[] = [];
 
     ngOnChanges() {
-        console.log('new activity tracker registered:', this.activities);
-        this.activities.subscribe(foo => {
-            console.log('some activities running:', foo);
+        this.activities.subscribe(activityMap => {
+            this.shownActivities = [];
+            activityMap.forEach((progress: ActivityProgress, activity: any) => {
+                let description = activity.toString();
+                if (progress[1] !== 1) {
+                    description += ` ${progress[0] + 1}/${progress[1]}`;
+                }
+                this.shownActivities.push(description);
+            });
         });
     }
 }

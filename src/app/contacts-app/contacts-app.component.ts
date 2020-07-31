@@ -185,7 +185,6 @@ export class ContactsAppComponent {
 
         this.contactsservice.deleteMultiple(toDelete).then(_ => {
             this.showNotification(`Deleted ${toDelete.length} contacts`);
-            this.contactsservice.reload();
         });
     }
 
