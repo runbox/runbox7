@@ -24,17 +24,17 @@
                     </mat-form-field>
                     <div class="mat-form-field" *ngIf="actionIcon === 'link'">
                         <a mat-button href="{{ elem.value.value }}">
-                            <mat-icon>{{ actionIcon }} </mat-icon> {{ actionDescription }}
+                            <mat-icon svgIcon="{{ actionIcon }}"> </mat-icon> {{ actionDescription }}
                         </a>
                     </div>
                     <div class="mat-form-field" *ngIf="actionIcon === 'email'">
                         <a mat-button routerLink="/compose" [queryParams]="{to: elem.value.value }">
-                            <mat-icon>{{ actionIcon }}</mat-icon> {{ actionDescription }}
+                            <mat-icon svgIcon="{{ actionIcon }}"></mat-icon> {{ actionDescription }}
                         </a>
                     </div>
                     <div class="mat-form-field">
                         <a mat-button (click)="removeAt(i)">
-                            <mat-icon>delete</mat-icon> {{ deleteDescription }}
+                            <mat-icon svgIcon="delete"></mat-icon> {{ deleteDescription }}
                         </a>
                     </div>
                 </ng-container>
@@ -50,7 +50,7 @@
                         </mat-form-field>
                         <div class="mat-form-field">
                             <a mat-button (click)="removeAt(i)">
-                                <mat-icon>delete</mat-icon> {{ deleteDescription }}
+                                <mat-icon svgIcon="delete"></mat-icon> {{ deleteDescription }}
                             </a>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
 
         <div>
             <a mat-button (click)="newElementClicked.emit()">
-                <mat-icon>add</mat-icon> {{ addNewDescription }}
+                <mat-icon svgIcon="plus"></mat-icon> {{ addNewDescription }}
             </a>
         </div>
     </div>

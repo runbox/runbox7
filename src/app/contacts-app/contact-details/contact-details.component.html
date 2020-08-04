@@ -26,27 +26,27 @@
                     [matTooltipDisabled]="settingsService.settings.avatars == AvatarSource.REMOTE"
                     (click)="showUploadDialog()"
                 >
-                    <mat-icon> portrait </mat-icon>
+                    <mat-icon svgIcon="account-box-outline"></mat-icon>
                     <br> Upload picture
                 </button>
             </ng-template>
             <mat-menu #pictureMenu="matMenu">
                 <button mat-menu-item *ngIf="contactPhotoSource" disabled>
-                    <mat-icon>cloud</mat-icon>
+                    <mat-icon svgIcon="cloud"></mat-icon>
                     <span>From {{ contactPhotoSource }}</span>
                 </button>
                 <button mat-menu-item (click)="showUploadDialog()">
-                    <mat-icon>publish</mat-icon>
+                    <mat-icon svgIcon="publish"></mat-icon>
                     <span>Replace</span>
                 </button>
                 <button mat-menu-item *ngIf="!contactPhotoSource" (click)="removePhoto()">
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="delete"></mat-icon>
                     <span>Remove</span>
                 </button>
             </mat-menu>
         </span>
         <span class="contactDetailsName">
-            <mat-icon> {{ contactIcon }} </mat-icon>
+            <mat-icon svgIcon="{{ contactIcon }}"> </mat-icon>
             <span *ngIf="contact.display_name(); else defaultName">
                 {{ contact.display_name() }}
             </span>
@@ -119,8 +119,7 @@
                     >
                         <span *ngIf="member.id; else not_contact">
                             <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
-                                      draggable="true" (dragstart)="memberDragged($event, idx)">
-                                drag_handle
+                                      draggable="true" (dragstart)="memberDragged($event, idx)" svgIcon="drag">
                             </mat-icon>
                             <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
                                 <app-contact-button [contact]="member"></app-contact-button>
@@ -131,7 +130,7 @@
                         </ng-template>
 
                         <button mat-icon-button *ngIf="mobileQuery.matches" (click)="removeGroupMember(idx)">
-                            <mat-icon> delete </mat-icon>
+                            <mat-icon svgIcon="delete"> </mat-icon>
                         </button>
                     </div>
                 </div>
@@ -140,7 +139,7 @@
                     [ngStyle]="{ 'margin': loadedGroupMembers.length ? '0px' : '10px' }"
                     (click)="askForMoreMembers()"
                 >
-                    <mat-icon> add </mat-icon> Add more contacts
+                    <mat-icon svgIcon="plus"></mat-icon> Add more contacts
                 </button>
 
                 <div *ngIf="!mobileQuery.matches">
@@ -163,7 +162,7 @@
             (drop)="memberDropped($event)"
             style="padding: 25px; border: 2px dotted;"
         >
-            <mat-icon> delete </mat-icon> Drop group member here to remove it from the group
+            <mat-icon svgIcon="delete"> </mat-icon> Drop group member here to remove it from the group
         </div>
 
         <app-contact-details-fa-viewer

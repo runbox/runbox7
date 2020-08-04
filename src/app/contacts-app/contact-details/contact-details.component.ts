@@ -157,11 +157,11 @@ export class ContactDetailsComponent {
         this.contactForm.patchValue(this.contact.toDict());
 
         if (this.contact.show_as_company()) {
-            this.contactIcon = 'business';
+            this.contactIcon = 'domain';
         } else if (this.contact.kind === ContactKind.GROUP) {
-            this.contactIcon = 'group';
+            this.contactIcon = 'account-multiple';
         } else {
-            this.contactIcon = 'person';
+            this.contactIcon = 'account';
         }
 
         this.groupMembers = this.contact.members;

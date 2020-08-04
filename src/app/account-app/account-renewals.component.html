@@ -70,7 +70,7 @@
         <td mat-cell *matCellDef="let p">
             <span *ngIf="p.can_renew; else renewNA">
                 <button mat-button (click)="renew(p)" *ngIf="!p.ordered" class="contentButton">
-                    Renew <mat-icon> shopping_cart </mat-icon>
+                    Renew <mat-icon svgIcon="cart"></mat-icon>
                 </button>
                 <span *ngIf="p.ordered">
                     Added to shopping cart
