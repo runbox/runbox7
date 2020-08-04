@@ -36,6 +36,7 @@ export class DevComponent implements AfterViewInit { panelOpenState = false;
   selected_component;
   values_runbox_list;
   dialog_ref: any;
+  child_timer: any = {};
 
   ngAfterViewInit() {
   }

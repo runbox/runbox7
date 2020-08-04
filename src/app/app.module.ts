@@ -36,6 +36,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -49,6 +50,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
@@ -77,6 +79,7 @@ import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
+
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -112,6 +115,7 @@ const routes: Routes = [
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
+      { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
     ]
   },
   { path: 'login', component: LoginComponent }
@@ -121,6 +125,7 @@ const routes: Routes = [
   imports: [BrowserModule, FormsModule,
     HttpClientModule,
     HttpClientJsonpModule,
+    MatTabsModule,
     CanvasTableModule,
     ComposeModule,
     WelcomeDeskModule,
@@ -151,10 +156,13 @@ const routes: Routes = [
     UpdateAlertModule,
     LoginLogoutModule,
     SearchExpressionBuilderModule,
+    MatSlideToggleModule,
     MultipleSearchFieldsInputModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()
+  ],
+  exports: [
   ],
   declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent,
