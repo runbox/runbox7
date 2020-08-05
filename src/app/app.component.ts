@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -74,7 +74,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   selectedRowIds: { [key: number]: boolean } = {};
   showSelectOperations: boolean;
 
@@ -125,6 +125,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
   @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
+
+  sideMenuOpened = true;
 
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
@@ -228,36 +230,29 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
 
-    // Mobile media query for screen width
-
-    this.mobileQueryListener = () => {
-      // Open sidenav if screen is wide enough and it was closed
+    this.sideMenuOpened = !mobileQuery.matches;
+    this.mobileQuery.changed.subscribe(onMobile => {
+      this.sideMenuOpened = !onMobile;
       changeDetectorRef.detectChanges();
-      if (!this.mobileQuery.matches && !this.sidemenu.opened) {
-        this.sidemenu.open();
+
+      if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '35%';
-      } else if (this.mobileQuery.matches && this.sidemenu.opened) {
-        this.sidemenu.close();
       }
 
-      if (this.mobileQuery.matches) {
+      if (onMobile) {
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = localStorage
               .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
-    };
+    });
 
-    this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
   }
 
-  ngOnDestroy() {
-    this.mobileQuery.removeListener(this.mobileQueryListener);
-  }
   ngDoCheck(): void {
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
       (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
@@ -341,9 +336,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         setTimeout(() => this.afterLoadIndex(), 0);
       }
     });
-
-    // Start with the sidenav open if window is wide enough
-    setTimeout(() => this.mobileQueryListener(), 100);
 
     this.route.fragment.subscribe(
       fragment => {
