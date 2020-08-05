@@ -1,90 +1,3 @@
-<style>
-  #startdesk {
-      position: relative;
-      margin: 64px 20px 100px 30px;
-  }
-  #heading {
-      display: flex;
-  }
-  #title {
-      display: flex;
-      flex-grow: 1;
-  }
-  #panelControls {
-      display: flex;
-      flex-grow: 1;
-      justify-content: flex-end;
-      align-items: center;
-  }
-  #panelControls mat-icon {
-      vertical-align: bottom;
-      line-height: 24px;
-  }
-  #panelControlSmall {
-      font-size: 16px;
-      width: 16px;
-      height: auto;
-  }
-  #panelControlMedium {
-      font-size: 24px;
-      width: 24px;
-      height: auto;
-  }
-  #panelControlLarge {
-      font-size: 40px;
-      width: 40px;
-      height: auto;
-  }
-  #startdesk mat-card {
-      float: left;
-      margin: 0 20px 20px 0;
-      width: 43%;
-      height: 250px;
-      padding: 20px;
-  }
-  #startdesk mat-card div {
-      margin: 10px 0;
-  }
-  #startdesk mat-card h3 mat-icon {
-      font-size: 1.4em;
-      height: 1em;
-      margin-right: 20px;
-  }
-  .start_chart {
-      font-size: 3em;
-      height: auto;
-  }
-  #startdesk #dashdeskOverviewContainer {
-      display: block;
-      width: 100%;
-  }
-  #startdesk #dashdeskOverview {
-      width: 93%;
-      height: auto;
-  }
-  #startdesk .overviewEntry {
-      display: flex;
-  }
-  #startdesk .contact {
-      display: flex;
-      flex-grow: 1;
-      font-weight: bold;
-  }
-  #startdesk .contact h4 {
-      margin: 10px 0;
-  }
-  #startdesk .subject {
-      display: flex;
-      flex-grow: 4;
-  }
-  #startdesk .subject ul {
-	margin: 0;
-  }
-  #startdesk .subject li {
-	list-style-type: square;
-  }
-</style>
-
 <div id="startdesk">
   <div id="heading">
     <div id="title">
@@ -101,8 +14,9 @@
   <div id="dashdeskOverviewContainer">
     <mat-card id="dashdeskOverview" class="mat-card">
       <h3><mat-icon>blur_on</mat-icon>Communication overview</h3>
+      <h4>Frequent senders today</h4>
       <div class="overviewEntry">
-	<div class="contact"><h4>Gandalf</h4></div>
+	<div class="contact"><mat-icon>person</mat-icon> <h4>Gandalf</h4></div>
 	<div class="subject">
 	  <ul>
 	    <li>Look out for someone named Strider</li>
@@ -112,21 +26,24 @@
 	</div>
       </div>
       <div class="overviewEntry">
-	<div class="contact"><h4>Bilbo</h4></div>
+	<div class="contact"><mat-icon>person</mat-icon> <h4>Bilbo</h4></div>
 	<div class="subject">
 	  <ul>
-	    <li>Do you have my ring??</li>
-	    <li>About that Red Book</li>
+	    <li>Second Breakfast</li>
+	    <li>Regarding that Red Book...</li>
+	    <li>Do you have my ring???</li>
+	    <li>Show 2 more...</li>
 	  </ul>
 	</div>
       </div>
       <div class="overviewEntry">
-	<div class="contact"><h4>Facebook</h4></div>
+	<div class="contact"><mat-icon>business</mat-icon> <h4>Facebook</h4></div>
 	<div class="subject">
 	  <ul>
 	    <li>Gollum is a new friend suggestion for you</li>
 	    <li>Samwise posted in Fellowship</li>
 	    <li>Tom Boombadil posted a new photo</li>
+	    <li>Show 123 more...</li>
 	  </ul>
 	</div>
       </div>
