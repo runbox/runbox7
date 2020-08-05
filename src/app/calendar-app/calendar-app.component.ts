@@ -93,7 +93,6 @@ export class CalendarAppComponent implements OnDestroy {
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
     @ViewChild('icsUploadInput') icsUploadInput: any;
 
-    activityList = [];
     calendars: RunboxCalendar[] = [];
     calendarVisibility = {};
 
@@ -152,14 +151,6 @@ export class CalendarAppComponent implements OnDestroy {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => {
             this.sideMenuOpened = !mobile;
-            this.cdr.markForCheck();
-        });
-
-        this.calendarservice.activitySubject.subscribe(activityset => {
-            this.activityList = [];
-            activityset.forEach(activity => {
-                this.activityList.push(activity.toString());
-            });
             this.cdr.markForCheck();
         });
     }

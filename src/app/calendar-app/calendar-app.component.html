@@ -178,8 +178,10 @@
 
             <mat-divider></mat-divider>
 
-            <mat-list-item *ngFor="let activity of activityList" style="display: flex;" class="updateInfo">
-                <mat-spinner diameter="15"></mat-spinner> {{ activity }}
+            <mat-list-item>
+                <app-activity-indicator
+                    [activities]="calendarservice.activities.observable"
+                ></app-activity-indicator>
             </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
