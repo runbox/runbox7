@@ -1,70 +1,33 @@
-<style>
-    mat-form-field {
-        width: 100%;
-    }
-    .dropzonehighlight {
-        border: #155D97 dashed 5px;
-        border-radius: 20px;
-        height: 100px;
-        text-align: center;
-        padding-top: 30px;
-    }
-    .overdropzone {
-        border: #5D9715 solid 5px;        
-    }
-    #useHTML div.mat-checkbox-inner-container {
-        margin-right: 4px !important;
-    }
-    #sendMail .mat-icon {
-        font-size: 36px;
-    }
-    button {
-        float: right !important;
-    }
-    #dropZoneText {
-        margin: 10px 0;
-    }
-    #deleteAttachment {
-        height: 16px;
-        line-height: 16px;
-    }
-    #deleteAttachment mat-icon {
-        margin-top: -5px;
-        font-size: 20px;
-    }
-
-</style>
-<mat-card [ngClass]="{'draftPreview': !editing}" [formGroup]="formGroup">
-    <mat-card-actions style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; margin-right: 5px;">
-        <div style="flex-grow: 1; padding-left: 15px; font-size: 24px;">
+<mat-card [ngClass]="{'draftPreview': !editing}" class="draft-card" [formGroup]="formGroup">
+    <mat-card-actions class="draft-actions">
+        <div class="draft-title">
             {{model.subject ? model.subject : "New message"}}
         </div>
-        <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
-        <button *ngIf="editing" mat-icon-button matTooltip="Attach files" (click)="attachFilesClicked()">
-            <mat-icon>attachment</mat-icon>
-        </button>
-        <input #attachmentFileUploadInput type="file" [hidden]="true" multiple (change)="onFilesSelected($event)" />
-        
-        <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" (click)="submit()">
-            <mat-icon *ngIf="saved">cloud_done</mat-icon>
-            <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
-            <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
-        </button>
-        <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to trash" (click)="trashDraft()">
-            <mat-icon>delete</mat-icon>
-        </button>
-        <button *ngIf="editing" mat-icon-button matTooltip="Close draft" (click)="close()">
-            <mat-icon>close</mat-icon>
-        </button>
-        <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" (click)="cancelDraft()">
-            <mat-icon>delete</mat-icon>
-        </button>
-        <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
-            <mat-icon>edit</mat-icon>
-        </button>                 
-        <button *ngIf="editing" mat-icon-button matTooltip="Send mail" (click)="submit(true)" id="sendMail">
-            <mat-icon>send</mat-icon>
-        </button>
+        <div class="draft-buttons">
+            <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachDesktop" (click)="attachFilesClicked()">
+                <mat-icon>attachment</mat-icon>
+            </button>
+            <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" id="saveDraft" (click)="submit()">
+                <mat-icon *ngIf="saved">cloud_done</mat-icon>
+                <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
+                <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
+            </button>
+            <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to trash" id="trashDraft" (click)="trashDraft()">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button *ngIf="editing" mat-icon-button matTooltip="Close draft" id="closeDraft" (click)="close()">
+                <mat-icon>close</mat-icon>
+            </button>
+            <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" id="cancelDraft" (click)="cancelDraft()">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
+                <mat-icon>edit</mat-icon>
+            </button>                 
+            <button *ngIf="editing" mat-icon-button matTooltip="Send mail" (click)="submit(true)" id="sendMail">
+                <mat-icon>send</mat-icon>
+            </button>
+        </div>
     </mat-card-actions>        
     <mat-card-subtitle>                
         <mat-form-field floatPlaceholder="always" *ngIf="editing" style="width: 100%" id="fieldFrom">
@@ -75,19 +38,61 @@
             </mat-select>
         </mat-form-field>
         <span *ngIf="!editing">
-            {{model.to}}
+            <span *ngFor="let t of model.to">
+                {{t.nameAndAddress}}
+            </span>
         </span>        
-        <div style="display: flex;" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="flex-grow: 1" [initialfocus] = "formGroup.value.to ? false : true" placeholder="To" [recipients]="formGroup.value.to" (updateRecipient)="formGroup.controls.to.setValue($event)"></mailrecipient-input>
-            <button mat-button *ngIf="editing && formGroup.value.cc===null" (click)="formGroup.controls.cc.setValue('')" id="buttonCC">CC</button>
-            <button mat-button *ngIf="editing && formGroup.value.bcc===null" (click)="formGroup.controls.bcc.setValue('')" id="buttonBCC">BCC</button>
+        <div class="fieldRecipient">
+            <mailrecipient-input *ngIf="editing" style="flex-grow: 1"
+                [initialfocus]="model.to.length === 0"
+                placeholder="To"
+                [recipients]="model.to"
+                (updateRecipient)="onUpdateRecipient('to', $event)"
+                (drop)="recipientDropped($event, 'to')"
+                id="fieldTo"
+            ></mailrecipient-input>
+            <button mat-button *ngIf="editing && !hasCC"
+                (click)="hasCC = true"
+                (drop)="recipientDropped($event, 'cc')"
+                id="buttonCC"
+            > CC </button>
+            <button mat-button *ngIf="editing && !hasBCC"
+                (click)="hasBCC = true"
+                (drop)="recipientDropped($event, 'bcc')"
+                id="buttonBCC"
+            > BCC </button>
         </div>
-        <div style="display: flex;" *ngIf="editing && formGroup.value.cc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1" placeholder="CC" [recipients]="formGroup.value.cc" (updateRecipient)="formGroup.controls.cc.setValue($event)"></mailrecipient-input>                            
+        <div class="recipientSuggestionContainer"
+           [ngStyle]="{ 'display': settingsService.settings.showPopularRecipients ? 'block' : 'none' }"
+           *ngIf="suggestedRecipients.length > 0 && editing"
+        >
+            <span>Recently used</span>
+            <div class="recipientSuggestionList">
+                <div *ngFor="let recipient of filteredSuggestions" class="suggestionItem">
+                    <mat-chip class="themePaletteLightGray" 
+                        (click)="addRecipientFromSuggestions(recipient)"
+                        draggable="true"
+                        (dragstart)="recipientDragged($event, recipient)"
+                    >
+                        {{ recipient.nameAndAddress }}
+                    </mat-chip>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex;" *ngIf="editing && hasCC" class="fieldRecipient" (drop)="recipientDropped($event, 'cc')">
+            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
+                placeholder="CC"
+                [recipients]="model.cc"
+                (updateRecipient)="onUpdateRecipient('cc', $event)"
+            ></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
         </div>
-        <div style="display: flex;" *ngIf="editing && formGroup.value.bcc!==null" class="fieldRecipient">
-            <mailrecipient-input *ngIf="editing"  style="width: auto; flex-grow: 1" placeholder="BCC" [recipients]="formGroup.value.bcc" (updateRecipient)="formGroup.controls.bcc.setValue($event)"></mailrecipient-input>
+        <div style="display: flex;" *ngIf="editing && hasBCC" class="fieldRecipient" (drop)="recipientDropped($event, 'bcc')">
+            <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
+                placeholder="BCC"
+                [recipients]="model.bcc"
+                (updateRecipient)="onUpdateRecipient('bcc', $event)"
+            ></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon>close</mat-icon></button>
         </div>
     </mat-card-subtitle>    
@@ -111,9 +116,9 @@
                 </div>
             </mat-card-content>
         </section>
-        <section *ngIf="editing && model.attachments && model.attachments.length>0" style="display: flex; flex-wrap: wrap; margin-top: 10px;">
+        <section *ngIf="editing && model.attachments && model.attachments.length>0" id="attachments">
 	  Attachments:&nbsp;
-          <div *ngFor="let attachment of model.attachments; let i=index">
+          <div class="attachment" *ngFor="let attachment of model.attachments; let i=index">
             <ng-container *ngIf="attachment.file_url!=='UTF-8Q'">
               <a [href]="'/ajax/download_draft_attachment?filename='+attachment.file" target="_blank">{{displayWithoutRBWUL(attachment.file)}} ({{attachment.size}})</a>
               <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon>delete</mat-icon></button>
@@ -124,7 +129,14 @@
             {{this.model.preview}}
         </span>
             
-        <div [hidden]="!editing">            
+        <div [hidden]="!editing">
+            <div class="draft-buttons">
+                <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
+                <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachMobile" (click)="attachFilesClicked()">
+                    <mat-icon>attachment</mat-icon>
+                </button>
+                <input #attachmentFileUploadInput type="file" [hidden]="true" multiple (change)="onFilesSelected($event)" />
+            </div>
           <textarea style="
 			   width: 100%;
 			   height: 300px;

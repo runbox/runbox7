@@ -131,7 +131,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
                                     <input matInput placeholder="Email"
                                         [ngStyle]="get_form_field_style()"
                                         name="email"
-                                        [readonly]="( data.profile && data.profile.type == 'aliases' )"
+                                        [readonly]="( data.profile && ( data.profile.type == 'aliases' || data.profile.type == 'main' ) )"
                                         [(ngModel)]="data.profile.email"
                                         (ngModelChange)="onchange_field('email')"
                                         >
@@ -477,6 +477,8 @@ export class ProfilesEditorModalComponent {
                 this.rmm.profile.load();
                 this.close();
                 return;
+            } else if ( reply['status'] === 'error' ) {
+                this.show_error(reply['errors'].join(' '), 'Dismiss');
             }
             this.is_busy = false;
         });

@@ -1,0 +1,107 @@
+.twoColumns {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    height: 100%;
+
+    .contactList {
+        overflow: auto;
+    }
+
+    .contactDetails {
+        overflow: auto;
+    }
+}
+
+.showList {
+    display: block;
+
+    .contactDetails {
+        display: none;
+    }
+}
+
+.showDetails {
+    display: block;
+
+    .contactList {
+        display: none;
+    }
+}
+
+.multiContactActions {
+    display: flex;
+    flex-flow: column;
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 10;
+}
+
+.multiContactActions button {
+    margin-top: 10px;
+}
+
+.contactListControls {
+    height: 60px !important;
+    padding-top: 10px !important;
+
+    &:hover {
+        background-color: #fff;
+        cursor: default;
+    }
+
+    &:active {
+        background-color: #fff;
+    }
+}
+
+.selectedGroupLabel {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.contact-details-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.contact-details-row .mat-form-field {
+    padding: 5px;
+}
+
+.contactListButton {
+    mat-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px !important;
+    }
+}
+
+.contactListHint p {
+    font-size: small !important;
+}
+
+.mainTextContent h2 {
+    display: flex;
+    align-items: center;
+}
+
+.contactDetailsPicture {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    border-radius: 120px;
+    object-fit: contain;
+    padding-right: 20px;
+}
+
+.contactDetailsPicture button {
+    width: 120px;
+    height: 120px;
+    border-radius: 120px;
+}
+
+.contactDetailsPicture mat-icon {
+    transform: scale(2);
+}

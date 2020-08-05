@@ -38,12 +38,14 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -54,8 +56,9 @@ import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
+import { WelcomeDeskComponent } from './welcome/welcomedesk.component';
+import { WelcomeDeskModule } from './welcome/welcomedesk.module';
 import { AccountAppModule } from './account-app/account-app.module';
-import { AccountAppComponent } from './account-app/account-app.component';
 import { ProgressService } from './http/progress.service';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MobileQueryService } from './mobile-query.service';
@@ -74,6 +77,7 @@ import { MultipleSearchFieldsInputModule } from './xapian/multiple-search-fields
 import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
+import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -95,6 +99,10 @@ const routes: Routes = [
           {
             path: 'compose',
             component: DraftDeskComponent
+          },
+          {
+            path: 'welcome',
+            component: WelcomeDeskComponent
           }
         ]
       },
@@ -116,10 +124,12 @@ const routes: Routes = [
     HttpClientJsonpModule,
     CanvasTableModule,
     ComposeModule,
+    WelcomeDeskModule,
     FolderModule,
     MatSnackBarModule,
     MatIconModule,
     MatDialogModule,
+    MatExpansionModule,
     MatListModule,
     MatMenuModule,
     MatCardModule, MatInputModule,
@@ -131,6 +141,7 @@ const routes: Routes = [
     MatButtonModule,
     MatButtonToggleModule,
     MatProgressBarModule,
+    MatSelectModule,
     MatSidenavModule,
     BrowserAnimationsModule,
     LocalSearchIndexModule,
@@ -148,7 +159,8 @@ const routes: Routes = [
     HotkeyModule.forRoot()
   ],
   declarations: [MainContainerComponent, AppComponent,
-    MoveMessageDialogComponent
+    MoveMessageDialogComponent,
+    PopularRecipientsComponent
     ],
   providers: [ProgressService,
     MessageListService,

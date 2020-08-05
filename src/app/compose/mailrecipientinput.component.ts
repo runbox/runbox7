@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, EventEmitter, Output, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { MatAutocomplete } from '@angular/material/autocomplete';
@@ -27,6 +27,8 @@ import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
+import { MailAddressInfo } from '../common/mailaddressinfo';
+import { isValidEmailArray } from './emailvalidator';
 
 const COMMA = 188;
 
@@ -36,22 +38,22 @@ const COMMA = 188;
     selector: 'mailrecipient-input',
     templateUrl: 'mailrecipientinput.component.html'
 })
-export class MailRecipientInputComponent implements OnInit, AfterViewInit {
+export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: FormControl = new FormControl();
-    recipientsList: string[] = [];
+    recipientsList: MailAddressInfo[];
 
     separatorKeysCodes = [COMMA, ENTER];
 
     addedFromAutoComplete = false;
     invalidemail = false;
 
-    @Input() recipients: string;
+    @Input() recipients: MailAddressInfo[];
     @Input() placeholder: string;
     @Input() initialfocus = false;
 
-    @Output() updateRecipient: EventEmitter<string> = new EventEmitter();
+    @Output() updateRecipient: EventEmitter<MailAddressInfo[]> = new EventEmitter();
 
     @ViewChild('searchTextInput') searchTextInput: ElementRef;
     @ViewChild('auto') auto: MatAutocomplete;
@@ -81,10 +83,9 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
         });
     }
 
-    ngOnInit() {
-        this.recipientsList = this.recipients ?
-            this.recipients.split(',').map((recipient) => recipient.trim()) :
-            [];
+    ngOnChanges() {
+        // now a list of MailAddressInfo objects
+        this.recipientsList = this.recipients ? this.recipients : [];
     }
 
     ngAfterViewInit() {
@@ -94,7 +95,7 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
     }
 
     notifyChangeListener() {
-        this.updateRecipient.emit(this.recipientsList.join(','));
+        this.updateRecipient.emit(this.recipientsList);
     }
 
     removeRecipient(ndx: number) {
@@ -102,7 +103,6 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
         this.notifyChangeListener();
         this.invalidemail = false;
     }
-
 
     addRecipientFromAutoComplete(recipient: Recipient) {
         this.invalidemail = false;
@@ -121,8 +121,9 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
             });
         }
 
+        // FIXME: If we could push/concat an array we could skip this loop:
         for (const r of recipient.toStringList()) {
-            this.recipientsList.push(r);
+            this.recipientsList.push(MailAddressInfo.parse(r)[0]);
         }
 
         this.notifyChangeListener();
@@ -133,34 +134,45 @@ export class MailRecipientInputComponent implements OnInit, AfterViewInit {
         const input = this.searchTextInput.nativeElement;
         const value = (input.value || '').trim();
 
-        if (!this.auto.isOpen && this.searchTextFormControl.valid) {
-            this.invalidemail = false;
+        if (this.auto.isOpen || this.addedFromAutoComplete) {
+            return;
+        }
+        if (value) {
+            this.addRecipient(input);
+            this.addedFromAutoComplete = false;
+            return;
+        }
+        this.invalidemail = false;
+    }
 
-            if (value) {
-                this.recipientsList.push(value);
-                this.notifyChangeListener();
-                input.value = '';
-            }
-        } else if (value && !this.searchTextFormControl.valid) {
+    addRecipientFromEnter(event: MatChipInputEvent) {
+        const input = event.input;
+        const value = (input.value || '').trim();
+
+        if (this.addedFromAutoComplete) {
+            return;
+        }
+        if (value) {
+            this.addRecipient(input);
+            this.addedFromAutoComplete = false;
+            return;
+        }
+        this.invalidemail = false;
+    }
+
+    addRecipient(input) {
+        const value = input.value;
+        // Parse input into email-like things:
+        const parsedEmails = MailAddressInfo.parse(value);
+
+        // Then validate the parts
+        if (!isValidEmailArray(parsedEmails)) {
             this.invalidemail = true;
         } else {
             this.invalidemail = false;
-        }
-    }
-
-    addRecipient(event: MatChipInputEvent) {
-        const input = event.input;
-        const value = input.value;
-        input.value = '';
-
-        if (value && this.searchTextFormControl.valid && !this.addedFromAutoComplete) {
-            this.invalidemail = false;
-            this.recipientsList.push(value);
+            this.recipientsList = this.recipientsList.concat(parsedEmails);
+            input.value = '';
             this.notifyChangeListener();
-        } else if (!this.addedFromAutoComplete && !this.searchTextFormControl.valid) {
-            this.invalidemail = true;
         }
-
-        this.addedFromAutoComplete = false;
     }
 }

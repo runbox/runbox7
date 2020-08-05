@@ -49,6 +49,8 @@ const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
 
+const TOOLBAR_BUTTON_WIDTH = 40;
+
 @Component({
   template: `
       <h3 mat-dialog-title>Really show HTML version?</h3>
@@ -81,7 +83,7 @@ export class ShowHTMLDialogComponent {
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
   static rememberHTMLChosenForMessagesIds: { [messageId: number]: boolean } = {};
 
-  _messageId; // Message id or filename
+  _messageId = null; // Message id or filename
 
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
@@ -107,7 +109,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public mailContentHTML: string = null;
   public htmlObjectURL: SafeUrl = null;
-  public expectedMessageSize: number;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
@@ -143,27 +144,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
       this.height = 0;
       this.messageId = null;
+
+      if (this.onClose) {
+        this.onClose.emit(actionstring);
+      }
     };
 
     if (actionstring === 'goToDraftDesk') {
-      this.router.navigate(['/compose']).then(() => {
-        doClose();
-      }
-      );
+      this.router.navigate(['/compose']).then(() => doClose());
     } else {
       doClose();
     }
-
-    if (this.onClose) {
-      this.onClose.emit(actionstring);
-    }
-
-  }
-
-  public shouldPreviewSmallVersion(): boolean {
-    // Only preview small version of messages if more than  30kb
-    // return this.expectedMessageSize>30*1024;
-    return false; // Always download full message
   }
 
   public get messageId() {
@@ -189,8 +180,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.toolbarButtonContainer) {
       const toolbarwidth = (this.toolbarButtonContainer.nativeElement as HTMLDivElement).clientWidth;
       this.morebuttonindex = Math.floor(
-        toolbarwidth / 40
-      ) - 2;
+        toolbarwidth / TOOLBAR_BUTTON_WIDTH
+      ) - 1;
       this.attachmentAreaCols = Math.floor(toolbarwidth / 200) + 1;
     }
   }
@@ -426,9 +417,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   adjustIframeHTMLHeight() {
     if (this.htmliframe) {
-      this.htmliframe.nativeElement.height = this.htmliframe.nativeElement.contentWindow.document.body
-        .scrollHeight + 20;
-      ProgressDialog.close();
+      const iframe = document.getElementById('iframe');
+      const newHeight = this.htmliframe.nativeElement.contentWindow.document.body.scrollHeight;
+      iframe.style.cssText = `height: ${newHeight + 20}px !important`;
     }
   }
 
@@ -553,10 +544,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (this.messageContents) {
           this.messageContents.nativeElement.scroll(0, 0);
         }
-        if (this.previousHeight) {
-          this.resizer.resizePixels(this.previousHeight);
-        } else {
-          this.resizer.resizePercentage(50);
+        // Only care about the horizontal pane height in horizontal mode
+        if (this.adjustableHeight) {
+          if (this.previousHeight) {
+            this.resizer.resizePixels(this.previousHeight);
+          } else {
+            this.resizer.resizePercentage(50);
+          }
         }
       }, 0);
     }

@@ -161,6 +161,13 @@ export class MockServer {
                     message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
                     message_obj.result.headers['subject'] = "Default from fix test";
                 }
+                if (mailid === '13') {
+                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+                    const to = message_obj.result.headers['to'];
+                    delete message_obj.result.headers['to'];
+                    message_obj.result.headers['cc'] = to;
+                    message_obj.result.headers['subject'] = "";
+                }
 
                 if (requesturl.endsWith('/html')) {
                     response.end(message_obj.result.text.html);
@@ -172,6 +179,20 @@ export class MockServer {
             const receiptendpoint = requesturl.match('/\/rest\/v1\/account_product\/receipt\/([0-9]+)');
             if (receiptendpoint) {
                 response.end(JSON.stringify(this.receipt()));
+                return;
+            }
+            if (requesturl.startsWith('/rest/v1/contacts/sync')) {
+                response.end(JSON.stringify(
+                    {
+                        status: 'success',
+                        result: {
+                            newToken: `e2e-${new Date()}`,
+                            added: this.contacts(),
+                            removed: [],
+                            to_migrate: 0,
+                        }
+                    }
+                ));
                 return;
             }
             switch (requesturl) {
@@ -192,18 +213,6 @@ export class MockServer {
                                 ));
                         }
                         }, 1000);
-                    break;
-                case '/rest/v1/addresses_contact/sync':
-                    response.end(JSON.stringify(
-                        {
-                            status: 'success',
-                            result: {
-                                newToken: 'e2e-1',
-                                added: this.contacts(),
-                                removed: [],
-                            }
-                        }
-                    ));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
@@ -300,8 +309,14 @@ export class MockServer {
                 `Test2<test2@lalala.no>	No 'To', just 'CC'	709	n	 `);
 
         // id=12: email with capitalized "To" email
-        inboxlines.push(`12	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+        inboxlines.push(`12	1548071423	1547830044	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
+
+        // id=13: email with no "To" or Subject
+        inboxlines.push(`13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>		709	n	 `);
+
+
         return inboxlines.join('\n');
     }
 
@@ -643,60 +658,19 @@ export class MockServer {
 
     contacts(): any[] {
         return [
-            {
-                'nickname' : 'Postpat',
-                'first_name' : 'Patrick',
-                'addresses' : [
-                    {
-                        'types' : [
-                            'home'
-                        ],
-                        'value' : {
-                            'street' : ' home street',
-                            'po_box' : ' ',
-                            'country' : 'Home country',
-                            'extended' : ' ',
-                            'city' : 'home city',
-                            'post_code' : 'home code',
-                            'region' : 'home region'
-                        }
-                    },
-                    {
-                        'value' : {
-                            'city' : 'work city',
-                            'post_code' : 'work code',
-                            'region' : 'work region',
-                            'extended' : ' ',
-                            'country' : 'work country',
-                            'street' : 'work street',
-                            'po_box' : ' '
-                        },
-                        'types' : [
-                            'work'
-                        ]
-                    }
-                ],
-                'categories' : [],
-                'urls' : [],
-                'last_name' : 'Postcode',
-                'id' : 'ID-MR-POSTCODE',
-                'birthday' : '',
-                'company' : 'Post Office #42',
-                'fullname' : 'Patrick Postcode',
-                'phones' : [
-                    {
-                        'types' : [
-                            'work'
-                        ],
-                        'value' : '333333333'
-                    }
-                ],
-                'emails' : [{ 'types': ['work'], 'value': 'patrick@post.no' }],
-                'department' : null,
-                'note' : '',
-                'show_as' : null,
-                'related' : []
-            }
+            [
+                "/contacts/ID-MR-POSTCODE.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
+                + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
+            ],
+            [
+                "/contacts/ID-GROUP1.vcf",
+                "BEGIN:VCARD\nVERSION:4.0\nUID:ID-GROUP1\nKIND:GROUP\nFN:Group #1\nMEMBER:urn:uuid:ID-GROUP1-MEMBER1\nEND:VCARD",
+            ],
+            [
+                "/contacts/ID-GROUP1-MEMBER1.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
+            ],
         ];
     }
 }

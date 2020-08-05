@@ -1,0 +1,21 @@
+.draftdesk-container {
+    position: absolute;
+    top: 64px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 15px;
+}
+
+@media only screen and (max-width: 768px) {
+    .draftdesk-container {
+        padding: 0;
+    }
+}
+
+.more-drafts {
+    width: 180px;
+    height: 180px;
+    text-align: center;
+    padding-top: 80px;
+}

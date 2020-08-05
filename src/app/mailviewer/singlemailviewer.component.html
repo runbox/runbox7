@@ -170,6 +170,7 @@
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
       <mat-expansion-panel-header title="Toggle message headers">
 	      <mat-panel-title>
+          <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>        
       </mat-expansion-panel-header>
@@ -256,40 +257,42 @@
         </button>
       </span>
     </div>
-    <div *ngIf="showHTML && htmlObjectURL">
-      <div style="text-align: center">
-	      <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
-      </div>
-      <iframe
-	        #htmliframe 
-         [src]="htmlObjectURL" 
-         (load)="adjustIframeHTMLHeight()"
-	        style="border: none; width: 100%"
-	        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-	    >
-      </iframe>
-    </div>
 
     <!-- We have an HTML message -->
     <div *ngIf="showHTML && !htmlObjectURL">
-      <div style="text-align: center">
+      <div class="notificationContainer">
 	<span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
       </div>
       <div [innerHTML]="mailContentHTML"></div>
     </div>
 
+    <div *ngIf="showHTML && htmlObjectURL" class="notificationContainer">
+      <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
+    </div>
+
     <!-- We have an HTML message, but no text version and the user has not chosen to show HTML -->
-    <div *ngIf="mailContentHTML && !showHTML && mailObj.text === 'undefined'" style="text-align: center">
+    <div *ngIf="mailContentHTML && !showHTML && mailObj.text === 'undefined'" class="notificationContainer">
       <span class="inMessageNotification">No text version of this message is available. Please click the HTML button to view the HTML version.</span>
     </div>
 
     <!-- We have an empty message -->
-    <div *ngIf="!mailContentHTML && !showHTML && mailObj.text === 'undefined'" style="text-align: center" id="messageContent">
+    <div *ngIf="!mailContentHTML && !showHTML && mailObj.text === 'undefined'" class="notificationContainer" id="messageContent">
       <span class="inMessageNotification">This message has no content.</span>
     </div>      
 
     <!-- We have a plain text message or the user has chosen to show text -->
     <div *ngIf="!showHTML && mailObj.text !== 'undefined'" id="messageContent" style="white-space: pre-wrap" [innerHTML]='mailObj.text'>
+    </div>
+    
+    <div *ngIf="mailContentHTML && showHTML && htmlObjectURL" class="iframe-container">
+      <iframe
+	        #htmliframe 
+          [src]="htmlObjectURL" 
+          (load)="adjustIframeHTMLHeight()"
+          sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" 
+          id="iframe"
+	    >
+      </iframe>
     </div>      
 
     <mat-card *ngIf="mailObj.attachments && mailObj.attachments.length>0">

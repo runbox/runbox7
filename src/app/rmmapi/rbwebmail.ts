@@ -21,7 +21,8 @@ import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { MessageInfo, MailAddressInfo } from '../xapian/messageinfo';
+import { MessageInfo } from '../xapian/messageinfo';
+import { MailAddressInfo } from './../common/mailaddressinfo';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
@@ -52,7 +53,7 @@ export class MessageFields {
     to: string;
 }
 
-export class FolderCountEntry {
+export class FolderListEntry {
     isExpandable?: boolean;
     priority?: number; // for sorting order
 
@@ -82,6 +83,7 @@ export class ContactSyncResult {
         public newSyncToken: string,
         public added:        Contact[],
         public removed:      string[],
+        public toMigrate:    number,
     ) { }
 }
 
@@ -295,9 +297,10 @@ export class RunboxWebmailAPI {
             if (res.status === 'error') {
                 if (res.errors && res.errors.length) {
                     const error_msg = res.errors.map((key) => {
-                        return this.rblocale.translate(key);
+                        return this.rblocale.translate(key).replace('_', ' ');
                     }).join('. ');
-                    this.snackBar.open(error_msg, 'Dismiss');
+                    const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
+                    this.snackBar.open(error_formatted, 'Dismiss');
                 } else {
                     this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
                 }
@@ -344,13 +347,13 @@ export class RunboxWebmailAPI {
         return req.pipe(map((res: any) => res.status === 'success'));
     }
 
-    getFolderCount(): Observable<Array<FolderCountEntry>> {
+    getFolderList(): Observable<Array<FolderListEntry>> {
         let folderLevel = 0;
         let depth = 0;
         const flattenFolders = folders => {
             folderLevel++;
             const flattenedFolders = folders.map(folder => {
-                const folderCountEntry = new FolderCountEntry(
+                const folderListEntry = new FolderListEntry(
                     parseInt(folder.id, 10),
                     folder.msg_new,
                     folder.total,
@@ -359,10 +362,10 @@ export class RunboxWebmailAPI {
                     folder.folder,
                     folderLevel - 1
                 );
-                folderCountEntry.priority = folder.priority;
+                folderListEntry.priority = folder.priority;
 
                 return folder.subfolders.length > 0 ?
-                    [folderCountEntry].concat(flattenFolders(folder.subfolders)) : folderCountEntry;
+                    [folderListEntry].concat(flattenFolders(folder.subfolders)) : folderListEntry;
 
             });
             if (folderLevel > depth) {
@@ -421,9 +424,8 @@ export class RunboxWebmailAPI {
     }
 
     public getFromAddress(): Observable<FromAddress[]> {
-        return this.rmm.profile.load_verified().pipe(
-            map((http_res) => {
-            const res = http_res;
+        return this.http.get('/rest/v1/profiles/verified').pipe(
+            map((res: any) => {
                 const results = [];
                 Object.keys(res['result']).forEach( (k) => {
                     res['result'][k].forEach( (item) => {
@@ -477,15 +479,18 @@ export class RunboxWebmailAPI {
             params.append('mid', '' + draftModel.mid);
             params.append('msg_body', draftModel.msg_body);
             params.append('from', draftModel.from);
-            params.append('to', draftModel.to);
+            params.append('to', draftModel.to.map((recipient) => recipient.nameAndAddress).join(','));
             if (draftModel.cc) {
-                params.append('cc', draftModel.cc);
+                params.append('cc', draftModel.cc.map((recipient) => recipient.nameAndAddress).join(','));
             }
             if (draftModel.bcc) {
-                params.append('bcc', draftModel.bcc);
+                params.append('bcc', draftModel.bcc.map((recipient) => recipient.nameAndAddress).join(','));
             }
             if (draftModel.subject) {
                 params.append('subject', draftModel.subject);
+            }
+            if (draftModel.reply_to) {
+                params.append('reply_to', draftModel.reply_to);
             }
             if (draftModel.in_reply_to) {
                 params.append('in_reply_to', draftModel.in_reply_to);
@@ -523,59 +528,39 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public getAllContacts(): Observable<Contact[]> {
-        return this.http.get<any>('/rest/v1/addresses_contact').pipe(
-            map((res: HttpResponse<any>) => res['result']['addresses_contacts']),
-            map((contacts: any[]) =>
-                contacts.map((contact) => new Contact(contact))
-            )
-        );
-    }
-
-    public addNewContact(c: Contact): Observable<Contact> {
-        return this.http.put('/rest/v1/addresses_contact', c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])));
-    }
-
-    public modifyContact(c: Contact): Observable<Contact> {
-        return this.http.post('/rest/v1/addresses_contact/' + c.id, c).pipe(
-            map((res: HttpResponse<any>) => new Contact(res['contact'])));
-    }
-
-    public deleteContact(contact_id: string): Observable<any> {
-        return this.http.delete('/rest/v1/addresses_contact/' + contact_id).pipe(
-            map((res: HttpResponse<any>) => res)
-        );
-    }
-
-    public isMigrationPending(jobID?: number): Observable<any> {
-        const suffix = jobID ? ('/' + jobID) : '';
-        return this.http.get('/rest/v1/addresses_contact/migrate' + suffix, {}).pipe(
+    public addNewContact(c: Contact): Observable<string> {
+        return this.http.put('/rest/v1/contacts/by_href/', {
+            uuid: c.id,
+            vcf: c.vcard()
+        }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }
 
-    public migrateContacts(): Observable<any> {
-        return this.http.post('/rest/v1/addresses_contact/migrate', {}).pipe(
-            map((res: HttpResponse<any>) => res)
+    public modifyContact(c: Contact): Observable<Contact> {
+        return this.http.post('/rest/v1/contacts/by_href/' + btoa(c.url), {
+            href: c.url,
+            vcf:  c.vcard(),
+        }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
         );
     }
 
-    public importContacts(vcf: string): Observable<Contact[]> {
-        return this.http.put('/rest/v1/addresses_contact/vcf', { vcf: vcf }).pipe(
-            map((res: HttpResponse<any>) => res['result']['contacts']),
-            map((contacts: any[]) => contacts.map((contact) => new Contact(contact)))
+    public deleteContact(contact: Contact): Observable<any> {
+        return this.http.delete('/rest/v1/contacts/by_href/' + btoa(contact.url)).pipe(
+            map((res: HttpResponse<any>) => res)
         );
     }
 
     public syncContacts(syncToken?: string): Observable<ContactSyncResult> {
         const path = syncToken ? ('/' + btoa(syncToken)) : '';
-        return this.http.get<any>('/rest/v1/addresses_contact/sync' + path).pipe(
+        return this.http.get<any>('/rest/v1/contacts/sync' + path).pipe(
             map((res: HttpResponse<any>) => res['result']),
             map((result: any) => new ContactSyncResult(
                 result.newToken,
-                result.added.map((contact: any) => new Contact(contact)),
+                result.added.map((c: any) => Contact.fromVcard(c[0], c[1])),
                 result.removed,
+                result.to_migrate,
             )),
         );
     }

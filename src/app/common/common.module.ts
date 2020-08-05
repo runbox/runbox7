@@ -23,6 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 
 import { RunboxLoadingComponent } from './loading.component';
+import { BackgroundActivityIndicatorComponent } from './background-activity-indicator.component';
 
 @NgModule({
     imports: [
@@ -31,9 +32,11 @@ import { RunboxLoadingComponent } from './loading.component';
         MatProgressSpinnerModule,
     ],
     declarations: [
+        BackgroundActivityIndicatorComponent,
         RunboxLoadingComponent,
     ],
     exports: [
+        BackgroundActivityIndicatorComponent,
         RunboxLoadingComponent,
     ]
 })

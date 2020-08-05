@@ -17,19 +17,23 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
-import { Contact } from '../contact';
-import { ConfirmDialog } from '../../dialog/dialog.module';
-
+import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
+import { ErrorDialog, ConfirmDialog } from '../../dialog/dialog.module';
 import { filter, take } from 'rxjs/operators';
+
 import { ContactsService } from '../contacts.service';
+import { MobileQueryService } from '../../mobile-query.service';
+import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
+import { AppSettings, AppSettingsService } from '../../app-settings';
 
 @Component({
     selector: 'app-contact-details',
+    styleUrls: ['../contacts-app.component.scss'],
     templateUrl: './contact-details.component.html',
 })
 export class ContactDetailsComponent {
@@ -38,21 +42,37 @@ export class ContactDetailsComponent {
     @Output() contactSaved = new EventEmitter<Contact>();
     @Output() contactDeleted = new EventEmitter<Contact>();
 
+    @ViewChild('picUploadInput') picUploadInput: any;
+
     contactForm = this.createForm();
 
     categories = [];
 
-    newCategoryPromptShown = false;
-    newCategoryValue = '';
-    @ViewChild('newCategoryInput') newCategoryElement: ElementRef;
+    groupMembers: GroupMember[] = [];
+    // GroupMember or resolved Contact
+    loadedGroupMembers = [];
+    contactPhotoURI: string;
+    contactPhotoSource: string;
+
+    // needed so that templates can refer to enum values through `kind.GROUP` etc
+    kind = ContactKind;
+
+    contactIcon: string;
+
+    contactIsDragged = false;
+    memberIsDragged  = false;
+
+    AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
     constructor(
         public dialog: MatDialog,
-        public rmmapi: RunboxWebmailAPI,
+        public mobileQuery: MobileQueryService,
+        public settingsService: AppSettingsService,
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,
-        private contactsservice: ContactsService
+        private snackBar: MatSnackBar,
+        private contactsservice: ContactsService,
     ) {
         this.contactForm = this.createForm();
 
@@ -60,18 +80,34 @@ export class ContactDetailsComponent {
             const contactid = params.id;
             if (contactid === 'new') {
                 this.route.queryParams.subscribe(queryParams => this.loadNewContact(queryParams));
+            } else if (contactid === 'new_group') {
+                this.loadNewGroup();
             } else if (contactid) {
                 this.loadExistingContact(contactid);
             }
         });
 
         contactsservice.contactCategories.subscribe(categories => this.categories = categories);
+
+        document.addEventListener('dragstart', (ev) => this.contactIsDragged = !!ev.dataTransfer.getData('contact'));
+        document.addEventListener('dragend',   ()   => this.contactIsDragged = this.memberIsDragged = false);
+    }
+
+    private contactDiffersFrom(other: Contact): boolean {
+        return JSON.stringify(this.contact.toDict()) !== JSON.stringify(other.toDict());
     }
 
     loadExistingContact(id: string): void {
-        this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
-            this.contact = contacts.find(c => c.id === id);
-            if (this.contact) {
+        this.contactsservice.contactsSubject.subscribe(contacts => {
+            const contact = contacts.find(c => c.id === id);
+            if (!contact) {
+                // we may have been displaying something that was just deleted
+                this.router.navigateByUrl('/contacts');
+            } else if (!this.contact || this.contactDiffersFrom(contact)) { // don't reload the form if current contact hasn't changed
+                this.contact = contact;
+                // TODO: maybe theck if the form is dirty,
+                // and if it is, ask before reloading
+                console.log('contact changed, (re)loading contact form');
                 this.loadContactForm();
             }
         });
@@ -101,12 +137,14 @@ export class ContactDetailsComponent {
         this.loadContactForm();
     }
 
-    loadContactForm(): void {
-        // need to prevent ReactiveForms from shitting themvelses on null arrays
-        if (this.contact.emails === null) {
-            this.contact.emails = [];
-        }
+    loadNewGroup(): void {
+        this.contact = new Contact({
+            kind: ContactKind.GROUP,
+        });
+        this.loadContactForm();
+    }
 
+    loadContactForm(): void {
         // prepare room in the form for all the emails, addresses etc
         this.initializeFormArray('emails',    () => this.createEmailFG());
         this.initializeFormArray('addresses', () => this.createAdrFG());
@@ -116,20 +154,51 @@ export class ContactDetailsComponent {
         this.initializeFormArray('phones',    () => this.createEmailFG());
         this.initializeFormArray('related',   () => this.createEmailFG());
 
-        if (this.contact.rmm_backed === true) {
-            console.log('Disabling edits for', this.contact.display_name());
-            this.contactForm.disable();
+        this.contactForm.patchValue(this.contact.toDict());
+
+        if (this.contact.show_as_company()) {
+            this.contactIcon = 'business';
+        } else if (this.contact.kind === ContactKind.GROUP) {
+            this.contactIcon = 'group';
         } else {
-            console.log('Enabling edits for', this.contact.display_name());
-            this.contactForm.enable();
+            this.contactIcon = 'person';
         }
 
-        this.contactForm.patchValue(this.contact);
+        this.groupMembers = this.contact.members;
+        this.loadGroupMembers();
+
+        this.loadContactPhoto(this.contact.photo);
+    }
+
+    loadContactPhoto(uri: string): void {
+        this.contactPhotoURI = uri;
+        this.contactPhotoSource = null;
+        if (!this.contactPhotoURI && this.contact.primary_email()) {
+            this.contactsservice.lookupAvatar(this.contact.primary_email()).then(url => {
+                if (!url) { return; }
+                this.contactPhotoURI = url;
+                const sourceMatch = url.match(/(:\/\/?)([^\/]+)/);
+                if (sourceMatch) {
+                    this.contactPhotoSource = sourceMatch[2];
+                }
+            });
+        }
+    }
+
+    loadGroupMembers(): void {
+        this.loadedGroupMembers = this.groupMembers.map(member => {
+            if (member.uuid) {
+                return this.contactsservice.lookupByUUID(member.uuid).then(c => c || member);
+            } else {
+                return Promise.resolve(member);
+            }
+        });
     }
 
     createForm(): FormGroup {
         return this.fb.group({
             id:         this.fb.control(''),
+            full_name:  this.fb.control(''),
             nickname:   this.fb.control(''),
             first_name: this.fb.control(''),
             last_name:  this.fb.control(''),
@@ -153,30 +222,19 @@ export class ContactDetailsComponent {
         for (let i = 0; i < this.contact[property].length; i++) {
             const formGroup = formGroupCreator();
             formArray.push(formGroup);
-
-            // also fixup empty types for the same reason as above
-            const e = this.contact[property][i];
-            if (e.types === null) {
-                e.types = [''];
-            }
-
-            for (let j = 0; j < e.types.length; j++) {
-                const typesFA = formGroup.get('types') as FormArray;
-                typesFA.push(this.fb.control(null));
-            }
         }
     }
 
     createEmailFG(types = []): FormGroup {
         return this.fb.group({
-            types: this.fb.array(types),
+            types: this.fb.control(types),
             value: this.fb.control(''),
         });
     }
 
     createAdrFG(types = []): FormGroup {
         return this.fb.group({
-            types: this.fb.array(types),
+            types: this.fb.control(types),
             value: this.fb.group({
                 street:      this.fb.control(''),
                 city:        this.fb.control(''),
@@ -192,20 +250,36 @@ export class ContactDetailsComponent {
         fa.push(fg);
     }
 
-    newEmail():    void { this.addFGtoFA(this.createEmailFG(['']), 'emails');    }
-    newAdr():      void { this.addFGtoFA(this.createAdrFG(['']),   'addresses'); }
-    newPhone():    void { this.addFGtoFA(this.createEmailFG(['']), 'phones');    }
-    newUrl():      void { this.addFGtoFA(this.createEmailFG(['']), 'urls');      }
-    newRelative(): void { this.addFGtoFA(this.createEmailFG(['']), 'related');   }
+    newEmail():    void { this.addFGtoFA(this.createEmailFG([]), 'emails');    }
+    newAdr():      void { this.addFGtoFA(this.createAdrFG([]),   'addresses'); }
+    newPhone():    void { this.addFGtoFA(this.createEmailFG([]), 'phones');    }
+    newUrl():      void { this.addFGtoFA(this.createEmailFG([]), 'urls');      }
+    newRelative(): void { this.addFGtoFA(this.createEmailFG([]), 'related');   }
 
     save(): void {
-        this.contact = new Contact(this.contactForm.value);
+        for (const name of Object.keys(this.contactForm.controls)) {
+            const ctl = this.contactForm.get(name);
+            if (ctl.dirty) {
+                let value = ctl.value;
+                if (name === 'addresses') {
+                    value = value.map(
+                        (entry: any) => new Address(entry.types, AddressDetails.fromDict(entry.value))
+                    );
+                }
+                this.contact[name] = value;
+            }
+        }
+        if (this.contact.kind === ContactKind.GROUP) {
+            this.contact.members = this.groupMembers;
+        }
         console.log('Saving contact:', this.contact);
-        this.contactsservice.saveContact(this.contact);
+        this.contactsservice.saveContact(this.contact).then(
+            id => this.router.navigateByUrl('/contacts/' + id)
+        ).catch(err => this.snackBar.open(err.message, 'Ok'));
     }
 
     rollback(): void {
-        this.router.navigateByUrl('/contacts/' + this.contact.id);
+        this.loadContactForm();
     }
 
     delete(): void {
@@ -218,40 +292,96 @@ export class ContactDetailsComponent {
         confirmDialog.afterClosed().pipe(
             filter(res => res === true)
         ).subscribe(() => {
-            this.contactsservice.deleteContact(this.contact.id).then(() => {
-                this.router.navigateByUrl('/contacts/');
+            this.contactsservice.deleteContact(this.contact).then(() => {
+                this.router.navigateByUrl('/contacts');
             });
         });
     }
 
-    edit_rmm6(): void {
-        const return_url = '/contacts/' + this.contact.id;
-        window.open(
-            '/mail/addresses_contacts?edit=1' +
-            '&cid=' + this.contact.get_rmm_id() +
-            '&return_url=' + return_url,
-            '_blank'
-        );
+    addMember(ev: DragEvent) {
+        const id = ev.dataTransfer.getData('contact');
+        if (id && !this.groupMembers.find(g => g.uuid === id)) {
+            this.groupMembers.push(GroupMember.fromUUID(id));
+            this.loadGroupMembers();
+        }
     }
 
-    showNewCategoryPrompt(): void {
-        // clear the newly added 'undefined' from categories input
-        let categories = this.contactForm.get('categories').value;
-        categories = categories.filter(c => c);
-        this.contactForm.get('categories').setValue(categories);
-
-        this.newCategoryPromptShown = true;
-        setTimeout(() => this.newCategoryElement.nativeElement.focus());
+    async askForMoreMembers(): Promise<void> {
+        let contacts = await this.contactsservice.contactsSubject.pipe(take(1)).toPromise();
+        contacts = contacts.filter(c => {
+            if (c.kind !== ContactKind.INVIDIDUAL) {
+                return false;
+            }
+            if (this.groupMembers.find(gm => gm.uuid === c.id)) {
+                return false;
+            }
+            return true;
+        });
+        const dialog = this.dialog.open(ContactPickerDialogComponent, { data: {
+            contacts,
+            title: 'Add members to ' + this.contact.full_name
+        }});
+        dialog.afterClosed().pipe(
+            filter(res => res)
+        ).subscribe(res => {
+            for (const id of res.selectedContacts) {
+                if (!this.groupMembers.find(g => g.uuid === id)) {
+                    this.groupMembers.push(GroupMember.fromUUID(id));
+                }
+            }
+            this.loadGroupMembers();
+        });
     }
 
-    confirmNewCategory(): void {
-        this.categories.push(this.newCategoryValue);
+    memberDragged(ev: DragEvent, index: number) {
+        ev.dataTransfer.setData('memberIdx', '' + index);
+        this.memberIsDragged = true;
+    }
 
-        const categories = this.contactForm.get('categories').value;
-        categories.push(this.newCategoryValue);
-        this.contactForm.get('categories').setValue(categories);
+    memberDropped(ev: DragEvent) {
+        // if we were dragging something else, then `index` will eval to NaN and won't break anything
+        const index = parseInt(ev.dataTransfer.getData('memberIdx'), 10);
+        this.memberIsDragged = false;
+        this.removeGroupMember(index);
+    }
 
-        this.newCategoryValue = '';
-        this.newCategoryPromptShown = false;
+    removeGroupMember(index: number): void {
+        this.groupMembers = this.groupMembers.filter((_, i) => i !== index);
+        this.loadGroupMembers();
+    }
+
+    onPicUploaded(uploadEvent: any) {
+        const file = uploadEvent.target.files[0];
+
+        const mimeType = file.type;
+        if (!mimeType.match('image/(jpeg|gif|png|webp)')) {
+            this.dialog.open(ErrorDialog, { data: {
+                message: 'Invalid image type: use jpeg, gif, png or webp'
+            } });
+            return;
+        }
+
+        const fr = new FileReader();
+        fr.onload = (ev: any) => {
+            if ((<string>fr.result).length > (256 * 1024)) {
+                // TODO: Or we could resize+compress it ourselves with a canvas:
+                // https://github.com/eyalc4/ts-image-resizer
+                this.dialog.open(ErrorDialog, { data: {
+                    message: 'Image is too big: please use something smaller than 256KB'
+                } });
+                return;
+            }
+            this.loadContactPhoto(this.contact.photo = <string>fr.result);
+        };
+
+        fr.readAsDataURL(file);
+    }
+
+    removePhoto() {
+        this.loadContactPhoto(this.contact.photo = undefined);
+    }
+
+    showUploadDialog() {
+        this.picUploadInput.nativeElement.click();
     }
 }

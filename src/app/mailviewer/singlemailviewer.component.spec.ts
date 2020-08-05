@@ -40,12 +40,14 @@ import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { ProgressService } from '../http/progress.service';
+import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ContactCardComponent } from './contactcard.component';
 import { MessageActions } from './messageactions';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageListService } from '../rmmapi/messagelist.service';
+import { AvatarBarComponent } from './avatar-bar.component';
 
 describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
@@ -72,12 +74,15 @@ describe('SingleMailViewerComponent', () => {
         MatExpansionModule,
         RouterTestingModule
       ],
-      declarations: [ContactCardComponent, SingleMailViewerComponent],
+      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
       providers: [
         MobileQueryService,
+        StorageService,
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: HttpClient, useValue: {} },
         { provide: RunboxWebmailAPI, useValue: {
+          me: of({ uid: 9876 }),
+          getFromAddress() { return of([]); },
           getMessageContents(messageId: number): Observable<MessageContents> {
             console.log('Get message contents for', messageId);
             return of({
@@ -109,8 +114,11 @@ describe('SingleMailViewerComponent', () => {
           }
         } },
         { provide: ContactsService, useValue: {
-            lookupContact(email: string) {
-              return new Promise((resolve, reject) => resolve(null));
+            lookupAvatar(_email: string) {
+              return Promise.resolve(null);
+            },
+            lookupContact(_email: string) {
+              return Promise.resolve(null);
             }
         } },
         { provide: ProgressService, useValue: {} }

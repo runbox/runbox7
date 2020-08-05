@@ -1,9 +1,10 @@
 <mat-form-field style="width: 100%" floatPlaceholder="auto">
     <mat-chip-list #chipList>
         <mat-chip *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
+                style="background-color: #e3f2fd;"
                 [removable]="true" 
                 (removed)="removeRecipient(ndx)">        
-                {{recipient}}
+                {{recipient.nameAndAddress}}
                 <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
         <input #searchTextInput [formControl]="searchTextFormControl" [placeholder]="placeholder" 
@@ -11,12 +12,11 @@
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"                
                 [matChipInputAddOnBlur]="false"
                 (blur)="addRecipientFromBlur()"
-                (matChipInputTokenEnd)="addRecipient($event)" 
+                (matChipInputTokenEnd)="addRecipientFromEnter($event)" 
                 [matAutocomplete]="auto" style="flex-grow: 1" 
                 type="email"
-                email
             />
-        <mat-error *ngIf="invalidemail && !searchTextFormControl.valid">
+        <mat-error *ngIf="invalidemail">
             Please enter a valid email address
         </mat-error>        
     </mat-chip-list>

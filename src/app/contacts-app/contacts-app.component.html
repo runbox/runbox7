@@ -7,114 +7,74 @@
         id="sideMenu"
         style="width: 330px"
     >
-        <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
         <mat-nav-list dense>
-            <mat-list-item>
-                <a mat-button routerLink="/contacts/new">
-                    <mat-icon> add </mat-icon> New contact
-                </a>
+            <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+
+            <mat-list-item routerLink="/contacts/new" class="contactListButton">
+                <mat-icon mat-list-icon>person_add</mat-icon>
+                <p mat-line>New contact</p>
             </mat-list-item>
-            <mat-list-item>
+            <mat-list-item routerLink="/contacts/new_group" class="contactListButton" (click)="shownGroup = null">
+                <mat-icon mat-list-icon>group_add</mat-icon>
+                <p mat-line>New group</p>
+            </mat-list-item>
+
+            <mat-list-item (click)="importVcfClicked()" class="contactListButton">
                 <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
-                <button mat-button (click)="importVcfClicked()">
-                    <mat-icon>import_export</mat-icon> Import contacts
-                </button>
-            </mat-list-item>
-            <mat-list-item>
-                <a mat-button routerLink="/contacts/settings">
-                    <mat-icon> settings </mat-icon> Settings
-                </a>
+                <mat-icon mat-list-icon>import_export</mat-icon>
+                <p mat-line>Import contacts</p>
             </mat-list-item>
 
-            <mat-list-item  class="contactListControls">
-                <mat-form-field>
-                    <mat-label> Show categories </mat-label>
-                    <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
-                        <mat-option value="RUNBOX:ALL">
-                            All categories
-                        </mat-option>
-                        <mat-option *ngFor="let category of categories" [value]="'USER:' + category">
-                            {{ category }}
-                        </mat-option>
-                        <mat-option value="RUNBOX:NONE">
-                            Uncategorized contacts
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+            <mat-list-item routerLink="/contacts/settings" class="contactListButton">
+                <mat-icon mat-list-icon>settings</mat-icon>
+                <p mat-line>Settings</p>
             </mat-list-item>
 
-            <mat-list-item class="contactListControls">
-                <mat-form-field>
-                    <mat-label> Sort by </mat-label>
-                    <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
-                        <mat-option value="firstname+"> First name, ascending  </mat-option>
-                        <mat-option value="firstname-"> First name, descending </mat-option>
-                        <mat-option value="lastname+">  Last name, ascending   </mat-option>
-                        <mat-option value="lastname-">  Last name, descending  </mat-option>
-                    </mat-select>
-                </mat-form-field>
+            <mat-divider></mat-divider>
+
+            <mat-list-item routerLink="/contacts/" class="contactListButton" [ngClass]="!shownGroup ? 'selectedFolder' : ''">
+                <mat-icon mat-list-icon> group </mat-icon>
+                <p mat-line>
+                    Show all contacts
+                </p>
             </mat-list-item>
 
-            <mat-list-item class="contactListControls">
-                <mat-form-field>
-                    <mat-label> Search </mat-label>
-                    <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
-                    <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                </mat-form-field>
+            <mat-list-item *ngFor="let group of groups"
+                class="contactListButton"
+                [ngClass]="(shownGroup ? shownGroup.id : null) === group.id ? 'selectedFolder' : ''"
+                (drop)="dropContactTo(group, $event)"
+                routerLink="/contacts/{{ group.id }}"
+            >
+                <mat-icon mat-list-icon> group </mat-icon>
+                <p mat-line>
+                    {{ group.display_name() }}
+                </p>
             </mat-list-item>
-            <!--
-            <mat-list-item *ngIf="groupFilter.substr(0, 4) === 'USER'">
-                <a mat-button>
-                  <mat-icon color="primary">email</mat-icon> Email this group
-                </a>
+
+            <mat-list-item *ngIf="groups.length === 0" class="contactListButton contactListHint">
+                <mat-icon mat-list-icon> info </mat-icon>
+                <p mat-line>
+                    your groups will be visible here
+                </p>
             </mat-list-item>
-            -->
+
+            <mat-divider></mat-divider>
 
             <mat-list-item>
-                <mat-checkbox
-                    [(ngModel)]="selectingMultiple"
-                    (change)="onSelectMultipleChange()"
-                >
-                Select multiple
-                </mat-checkbox>
-
-                <button mat-button *ngIf="selectingMultiple" (click)="selectAll()">
-                    Select all visible
-                </button>
-            </mat-list-item>
-
-            <mat-list-item *ngFor="let contact of shownContacts">
-                <mat-checkbox
-                    [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
-                    [(ngModel)]="selectedIDs[contact.id]"
-                    (change)="onContactChecked()"
-                >
-                    &nbsp;&nbsp;&nbsp;
-                </mat-checkbox>
-
-                <a routerLink="/contacts/{{ contact.id }}" matTooltip="View details">
-                    <h4 mat-line>
-                        <span *ngIf="contact.show_as_company()">
-                            <mat-icon> business </mat-icon>
-                        </span>
-                        {{ contact.display_name() || "Unnamed contact"  }}
-                    </h4>
-                </a>
-                <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
-                    *ngIf="contact.primary_email()"
-                    routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
-                  <mat-icon color="primary">email</mat-icon>
-                </a>
-            </mat-list-item>
-
-            <mat-list-item *ngIf="shownContacts.length != contacts.length">
-                {{ contacts.length - shownContacts.length }} others in other categories
+                <app-activity-indicator
+                    [activities]="contactsservice.activities.observable"
+                ></app-activity-indicator>
             </mat-list-item>
         </mat-nav-list>
 
         <div class="multiContactActions" *ngIf="selectedCount > 0">
+            <button mat-fab *ngIf="groups.length > 0"
+                matTooltip="Add these contacts to a group"
+                (click)="addSelectedToGroup()"
+            >
+                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before"> group_add </mat-icon>
+            </button>
+
             <button mat-fab
                 matTooltip="Delete these contacts"
                 (click)="deleteSelected()"
@@ -124,13 +84,44 @@
         </div>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar style="display: flex">
+        <div id="contactsPageTop"></div>
+        <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
+
+            <span *ngIf="!showingDetails">
+                <span *ngIf="shownGroup; else showingAll">
+                    Showing group <button mat-stroked-button (click)="showDetails(true)"> {{ shownGroup.display_name() }} </button>
+                </span>
+                <ng-template #showingAll>
+                    Showing all contacts
+                </ng-template>
+            </span>
+
+            <button mat-icon-button *ngIf="showingDetails" (click)="closeDetails()">
+                <mat-icon> close </mat-icon>
+            </button>
         </mat-toolbar>
-        <router-outlet
-            
-        ></router-outlet>
+        <div [class]="appLayout">
+            <div class="contactList">
+                <mat-nav-list dense>
+                    <app-contact-list #contactList
+                        [contacts]="shownContacts"
+                        [categories]="categories"
+                        [allowDragging]="true"
+                        [showDragHelpers]="contactsservice.settings.showDragHelpers"
+                        (selectionUpdated)="onContactsSelected($event)"
+                    ></app-contact-list>
+
+                    <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
+                        <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
+                    </mat-list-item>
+                </mat-nav-list>
+            </div>
+            <div class="contactDetails">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

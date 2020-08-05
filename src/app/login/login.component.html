@@ -27,20 +27,23 @@
 	</mat-form-field>
 	<mat-form-field>
           <input matInput placeholder="Password" type="password" name="password" ngModel />
-	</mat-form-field>
+  </mat-form-field>
+  <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	<div id="loginOptions">
-	  <mat-checkbox name="is_keep_logged" style="align-self: flex-start;" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox><br />
-	  <mat-checkbox name="is_use_rmm6" id="useRmm6" style="align-self: flex-start;" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
+	  <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox><br />
+	  <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
 	</div>
 	<button mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
-	<div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	<p *ngIf='accountExpired' class='login_error_html'>
           Your account has expired. <br>
           Go to <a routerLink="/account/components">Account Products</a> to reopen it now!
 	</p>
-	<div id="createAccount">
+	<div id="createAccount" class="login-link">
 	  <a href="/signup?runbox7=1">Create new account</a>
-	</div>
+  </div>
+  <div *ngIf='login_error_html' class="login-link" id='forgotPassword'>
+    <a href="/pw_reset">Forgot password</a>
+  </div>
 	<div id="progressBar">
 	  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 	</div>

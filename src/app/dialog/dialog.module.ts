@@ -31,6 +31,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
 import { HttpClientModule } from '@angular/common/http';
+import { ErrorDialog } from './error-dialog.component';
 import { InfoDialog, InfoParams } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
 import { SimpleInputDialog } from './simpleinput.dialog';
@@ -40,6 +41,7 @@ import { DialogService } from './dialog.service';
 export { ConfirmDialog } from './confirmdialog.component';
 export { SimpleInputDialog, SimpleInputDialogParams } from './simpleinput.dialog';
 export { InfoDialog, InfoParams } from './info.dialog';
+export { ErrorDialog } from './error-dialog.component';
 export { ProgressDialog } from './progress.dialog';
 
 @NgModule({
@@ -58,13 +60,13 @@ export { ProgressDialog } from './progress.dialog';
     exports: [
     ],
     declarations: [
-        InfoDialog, ProgressDialog, ConfirmDialog,
+        ErrorDialog, InfoDialog, ProgressDialog, ConfirmDialog,
         SimpleInputDialog, ProgressSnackbarComponent
     ],
     providers: [
         DialogService
     ],
-    entryComponents: [InfoDialog, ProgressDialog, SimpleInputDialog, ConfirmDialog, ProgressSnackbarComponent]
+    entryComponents: [ErrorDialog, InfoDialog, ProgressDialog, SimpleInputDialog, ConfirmDialog, ProgressSnackbarComponent]
 })
 export class DialogModule {
 

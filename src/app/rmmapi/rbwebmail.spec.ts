@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { FolderCountEntry, RunboxWebmailAPI } from './rbwebmail';
+import { FolderListEntry, RunboxWebmailAPI } from './rbwebmail';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -215,24 +215,24 @@ describe('RBWebMail', () => {
         };
 
         const rmmapi = TestBed.get(RunboxWebmailAPI);
-        const folderCountPromise = rmmapi.getFolderCount().toPromise();
+        const folderListPromise = rmmapi.getFolderList().toPromise();
         const httpTestingController = TestBed.get(HttpTestingController);
         const req = httpTestingController.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 
-        const folders = await folderCountPromise;
+        const folders = await folderListPromise;
         expect(folders.length).toBe(7);
         expect(folders.find(
-            (f: FolderCountEntry) => f.folderPath === 'HTML'
+            (f: FolderListEntry) => f.folderPath === 'HTML'
         ).folderLevel).toBe(0);
         expect(folders.find(
-            (f: FolderCountEntry) => f.folderPath === 'HTML/lalala'
+            (f: FolderListEntry) => f.folderPath === 'HTML/lalala'
         ).folderLevel).toBe(1);
         expect(folders.find(
-            (f: FolderCountEntry) => f.folderPath === 'HTML/lalala/Tester'
+            (f: FolderListEntry) => f.folderPath === 'HTML/lalala/Tester'
         ).folderLevel).toBe(2);
         expect(folders.find(
-            (f: FolderCountEntry) => f.folderPath === 'HTML/lalala/hohohohahaha/subtest'
+            (f: FolderListEntry) => f.folderPath === 'HTML/lalala/hohohohahaha/subtest'
         ).folderLevel).toBe(3);
     });
 
@@ -604,12 +604,12 @@ describe('RBWebMail', () => {
         };
 
         const rmmapi = TestBed.get(RunboxWebmailAPI);
-        const folderCountPromise = rmmapi.getFolderCount().toPromise();
+        const folderListPromise = rmmapi.getFolderList().toPromise();
         const httpTestingController = TestBed.get(HttpTestingController);
         const req = httpTestingController.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 
-        const folders = await folderCountPromise;
+        const folders = await folderListPromise;
         expect(folders[0].folderId).toBe(3692896);
         expect(folders.length).toBe(22);
         expect(folders.findIndex(folder => folder.folderPath === 'HTML')).toBe(10);

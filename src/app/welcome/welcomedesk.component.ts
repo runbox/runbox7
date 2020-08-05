@@ -17,26 +17,18 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed, async } from '@angular/core/testing';
-import { ContactsAppComponent } from './contacts-app.component';
-import { ContactsAppModule } from './contacts-app.module';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { RouterTestingModule } from '@angular/router/testing';
-import { of, Observable } from 'rxjs';
-import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 
-describe('ContactsAppComponent', () => {
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        ContactsAppModule,
-        RouterTestingModule.withRoutes([])
-      ],
-      providers: [
-        { provide: RunboxWebmailAPI, useValue: {
-            syncContacts: (_): Observable<any> => of({added: []}) }
-        }
-      ]
-    }).compileComponents();
-  }));
-});
+@Component({
+  selector: 'app-welcome',
+  templateUrl: './welcomedesk.component.html',
+  styleUrls: ['./welcomedesk.component.scss']
+})
+export class WelcomeDeskComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}

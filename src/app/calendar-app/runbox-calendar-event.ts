@@ -102,11 +102,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
             return undefined;
         }
 
-        // GH-252 workaround until https://github.com/mattlewis92/angular-calendar/issues/1192 solves it better :)
-        if (this.dtend.diff(this.dtstart, 'minutes') < 30) {
-            return moment(this.dtstart).add(30, 'minutes').toDate();
-        }
-
         const shownEnd = moment(this.dtend);
         if (this.allDay) {
             shownEnd.subtract(1, 'days');
