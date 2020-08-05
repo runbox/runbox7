@@ -544,6 +544,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const from = this.draftDeskservice.froms.find(
             (f) => this.model.from === f.nameAndAddress);
 
+        if (from.reply_to !== null && from.reply_to.length > 0) {
+            this.model.reply_to = from.reply_to;
+        }
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
@@ -604,6 +607,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     msg_body: this.model.msg_body,
                     in_reply_to: this.model.in_reply_to,
                     reply_to_id: this.model.reply_to_id,
+                    reply_to: this.model.reply_to,
                     tags: [],
                     ctype: this.model.useHTML ? 'html' : null,
                     save: send ? 'Send' : 'Save',
