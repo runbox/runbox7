@@ -23,7 +23,7 @@ import { SearchService } from '../xapian/searchservice';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { ContactKind, Contact } from '../contacts-app/contact';
 import { isValidEmail } from './emailvalidator';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import { Recipient } from './recipient';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import * as moment from 'moment';

@@ -17,8 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { XapianAPI } from './rmmxapianapi';
-import { MessageInfo, IndexingTools } from './messageinfo';
+import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { MessageInfo, IndexingTools } from 'runbox-searchindex/messageinfo';
 import { Subject } from 'rxjs';
 
 declare var IDBFS;
