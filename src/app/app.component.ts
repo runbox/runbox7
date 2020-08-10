@@ -77,8 +77,9 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck, OnDestroy {
   selectedRowIds: { [key: number]: boolean } = {};
   showSelectOperations: boolean;
+  showSelectMarkOpMenu: boolean;
 
-  lastSearchText: string;
+  lastSearchText = '';
   searchText = '';
   dataReady: boolean;
 
@@ -537,7 +538,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       });
   }
 
-  public toggleRead() {
+  public openMarkOpMenu() {
+    this.showSelectMarkOpMenu = true;
+  }
+
+  public closeMarkOpMenu() {
+    this.showSelectMarkOpMenu = false;
+  }
+
+  public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
@@ -545,57 +554,46 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
 
-    const value = 0;
     const args = {
-        flag: {
-            name: 'seen_flag',
-            value: value
-        },
-        ids: messageIds
+      flag: {
+        name: 'seen_flag',
+        value: status ? 1 : 0,
+      },
+      ids: messageIds
     };
 
-    messageIds.forEach( (id) => {
-        this.rmmapi.messageFlagChangeSubject.next(
-            new MessageFlagChange(id, null, value ? true : false)
-        );
-    } );
     this.rmm.email.update(args).subscribe(() => {
-        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
   }
 
-  public toggleFlagged() {
+  public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-    const value = 0;
     const args = {
-        flag: {
-            name: 'flagged_flag',
-            value: value
-        },
-        ids: messageIds
+      flag: {
+        name: 'flagged_flag',
+        value: status ? 1 : 0,
+      },
+      ids: messageIds
     };
 
-    messageIds.forEach( (id) => {
-        this.rmmapi.messageFlagChangeSubject.next(
-            new MessageFlagChange(id, null, value ? true : false)
-            );
-    } );
     this.rmm.email.update(args).subscribe(() => {
-        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
+
   }
 
   public trashMessages() {
@@ -917,6 +915,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         return;
     }
 
+    console.log('Change selectedFolder');
     this.clearSelection();
 
     let doResetColumns = false;
@@ -972,6 +971,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.autoAdjustColumnWidths();
   }
 
+  // FIXME: Why do we run this when searchText is empty?
   updateSearch(always?: boolean, noscroll?: boolean) {
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       return;

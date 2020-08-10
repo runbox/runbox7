@@ -277,18 +277,15 @@
 
   </div>
 
-  <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations">
+  <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
       <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" (click)="moveToFolder()">
           <mat-icon svgIcon="folder"></mat-icon>
       </button>
       <button mat-fab matTooltip="Move&nbsp;to&nbsp;Trash" (click)="trashMessages()">
           <mat-icon svgIcon="delete"></mat-icon>
       </button>
-      <button mat-fab matTooltip="Toggle unread" (click)="toggleRead()">
-          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
-      </button>
-      <button mat-fab matTooltip="Toggle flag" (click)="toggleFlagged()">
-          <mat-icon svgIcon="flag"></mat-icon>
+      <button mat-fab matTooltip="Mark as ..." (click)="openMarkOpMenu()">
+          <mat-icon svgIcon="playlist-check"></mat-icon>
       </button>
       <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-fab matTooltip="Report spam" (click)="trainSpam({is_spam:1})">
           <mat-icon svgIcon="alert-octagon"></mat-icon>
@@ -297,7 +294,25 @@
           <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
       </button>
     </div>
-  <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
+
+    <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
+      <button mat-fab matTooltip="Mark unread" (click)="setReadStatus(false)">
+          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
+      </button>
+      <button mat-fab matTooltip="Mark read" (click)="setReadStatus(true)">
+          <mat-icon svgIcon="email-check"></mat-icon>
+      </button>
+      <button mat-fab matTooltip="Set flag" (click)="setFlaggedStatus(true)">
+          <mat-icon svgIcon="flag"></mat-icon>
+      </button>
+      <button mat-fab matTooltip="Unset flag" (click)="setFlaggedStatus(false)">
+          <mat-icon svgIcon="flag-outline"></mat-icon>
+      </button>
+      <button mat-fab matTooltip="Back" (click)="closeMarkOpMenu()">
+          <mat-icon svgIcon="keyboard-backspace"></mat-icon>
+      </button>
+    </div>
+<router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
 </mat-sidenav-container>
 
 <div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"

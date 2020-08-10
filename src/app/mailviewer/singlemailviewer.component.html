@@ -22,9 +22,14 @@
       <button *ngIf="morebuttonindex>4" mat-icon-button matTooltip="Forward" (click)="messageActionsHandler.forward(showHTML)">
         <mat-icon svgIcon="forward"></mat-icon>          
       </button>
-      <button *ngIf="morebuttonindex>5" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
+      <ng-container *ngIf="morebuttonindex>5">
+        <button *ngIf="mailObj && mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
         <mat-icon svgIcon="email-mark-as-unread"></mat-icon>          
-      </button>
+        </button>
+        <button *ngIf="mailObj && mailObj.seen_flag===0" mat-icon-button matTooltip="Mark read" (click)="messageActionsHandler.markSeen(1)">
+        <mat-icon svgIcon="email-check"></mat-icon>          
+        </button>
+       </ng-container>
       <ng-container *ngIf="morebuttonindex>6">
         <button mat-icon-button *ngIf="mailObj && mailObj.flagged_flag===0" matTooltip="Flag" (click)="messageActionsHandler.flag()">
           <mat-icon svgIcon="flag"></mat-icon>            
