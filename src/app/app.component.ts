@@ -564,6 +564,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.rmm.email.update(args).subscribe(() => {
         this.searchService.updateIndexWithNewChanges();
+        if (!this.searchService.localSearchActivated) {
+          messageIds.forEach( (id) => {
+               this.rmmapi.messageFlagChangeSubject.next(
+                   new MessageFlagChange(id, status, null)
+               );
+          } );
+        }
         this.selectedRowIds = {};
         this.selectedRowId = null;
         this.showSelectMarkOpMenu = false;
@@ -588,6 +595,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.rmm.email.update(args).subscribe(() => {
         this.searchService.updateIndexWithNewChanges();
+         if (!this.searchService.localSearchActivated) {
+           messageIds.forEach( (id) => {
+             this.rmmapi.messageFlagChangeSubject.next(
+               new MessageFlagChange(id, null, status)
+             );
+           } );
+         }
         this.selectedRowIds = {};
         this.selectedRowId = null;
         this.showSelectMarkOpMenu = false;

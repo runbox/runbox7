@@ -80,7 +80,8 @@ export class MessageListService {
                 if (msgFlagChange.flaggedFlag === true || msgFlagChange.flaggedFlag === false) {
                     this.messagesById[msgFlagChange.id].flaggedFlag = msgFlagChange.flaggedFlag;
                 }
-                this.refreshFolderCounts();
+                // update both remote + local counts
+                this.refreshFolderList().then(folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders)));
             });
     }
 
