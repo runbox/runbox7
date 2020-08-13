@@ -71,8 +71,8 @@ export class RecipientsService {
                             'uniqueKey': recipient.address,
                             'recipient': Recipient.fromSearchIndex(recipient.nameAndAddress)
                         });
-//                        searchRecipients[recipient.address] = Recipient.fromSearchIndex(recipient.nameAndAddress);
                     });
+                console.debug(this.recipientsUpdating.length, 'recipients loaded from search index');
 
                 this.updateRecentlyUsed();
                 this.updateRecipients();
@@ -123,6 +123,8 @@ export class RecipientsService {
                 () => this.recipients.next([])
             );
         });
+
+        this.recipients.subscribe(recipients => console.debug(recipients.length, 'recipients ready to use'));
     }
 
     private updateRecipients(groups: Recipient[] = []) {
