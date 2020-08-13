@@ -10,7 +10,7 @@
       <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move to folder..." (click)="messageActionsHandler.moveToFolder()">
         <mat-icon>folder</mat-icon>          
       </button>      
-      <button *ngIf="morebuttonindex>1" mat-icon-button matTooltip="Move to Trash" (click)="messageActionsHandler.trashMessage()">
+      <button *ngIf="morebuttonindex>1" mat-icon-button matTooltip="Move to Trash" (click)="messageActionsHandler.deleteMessage()">
         <mat-icon>delete</mat-icon>
       </button>
       <button *ngIf="morebuttonindex>2" mat-icon-button matTooltip="Reply" (click)="messageActionsHandler.reply(showHTML)">
@@ -77,7 +77,7 @@
           <mat-icon>folder</mat-icon>  
           <span>Move to folder</span>        
         </button>
-        <button *ngIf="morebuttonindex<2" mat-menu-item (click)="messageActionsHandler.trashMessage()">
+        <button *ngIf="morebuttonindex<2" mat-menu-item (click)="messageActionsHandler.deleteMessage()">
           <mat-icon>delete</mat-icon>
           <span>Move to Trash</span>
         </button>    
