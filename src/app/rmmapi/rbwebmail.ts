@@ -757,4 +757,10 @@ export class RunboxWebmailAPI {
             map((res: HttpResponse<any>) => res)
         );
     }
+
+    getProductDomain(apid: number): Observable<string> {
+        return this.http.get('/rest/v1/account_product/product_domain/' + apid).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
 }
