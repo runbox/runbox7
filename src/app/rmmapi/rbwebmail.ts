@@ -145,7 +145,6 @@ export class MessageFlagChange {
 
 @Injectable()
 export class RunboxWebmailAPI {
-
     public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 10000;
 
     public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
@@ -389,7 +388,7 @@ export class RunboxWebmailAPI {
         return this.http.post('/rest/v1/spam/', JSON.stringify(params));
     }
 
-    public trashMessages(messageIds: number[]): Observable<any> {
+    public deleteMessages(messageIds: number[]): Observable<any> {
         const ids = messageIds.join(',');
         return this.http.delete(`/rest/v1/email/${ids}`);
     }

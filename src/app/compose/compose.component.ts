@@ -31,14 +31,13 @@ import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { debounceTime, mergeMap, filter } from 'rxjs/operators';
+import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-import { AppSettings, AppSettingsService } from '../app-settings';
-import { StorageService } from '../storage.service';
+import { AppSettingsService } from '../app-settings';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -430,7 +429,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public trashDraft() {
         const snackBarRef = this.snackBar.open('Deleting');
-        this.rmmapi.trashMessages([this.model.mid]).subscribe(() => {
+        this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
             this.exitIfNeeded();
