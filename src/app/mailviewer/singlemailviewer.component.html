@@ -171,7 +171,7 @@
         </mat-panel-title>        
       </mat-expansion-panel-header>
       <div style="position: absolute; right: 3px;">
-        <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-vertical"></mat-icon></button>
+        <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
         <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-vertical"></mat-icon></button>
       </div>
       <ng-container *ngIf="!showAllHeaders">
