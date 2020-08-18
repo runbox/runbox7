@@ -23,7 +23,7 @@
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
 	</div>
 	<mat-form-field>
-          <input matInput placeholder="Username" name="username" autofocus ngModel />
+          <input matInput placeholder="Username" name="username" type="email" inputmode="email" autofocus ngModel />
 	</mat-form-field>
 	<mat-form-field>
           <input matInput placeholder="Password" type="password" name="password" ngModel />
@@ -68,7 +68,7 @@
               <p>Please enter your TOTP code.</p>
               <br />
               <mat-form-field>
-		<input matInput placeholder="Timed one-time password" name="totp" id="totp"  ngModel />
+		<input matInput placeholder="Timed one-time password" name="totp" id="totp" inputmode="numeric" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
@@ -78,7 +78,7 @@
               <p>Please enter your OTP code.</p>
               <br />
               <mat-form-field>
-		<input matInput placeholder="One-time password" name="otp" id="otp" ngModel />
+		<input matInput placeholder="One-time password" name="otp" id="otp" inputmode="numeric" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
