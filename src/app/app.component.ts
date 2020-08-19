@@ -474,7 +474,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, trashFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', trashFolderName);
   }
@@ -486,7 +486,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', spamFolderName);
   }
@@ -596,7 +596,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
-  public trashMessages() {
+  public deleteMessages() {
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
@@ -604,7 +604,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.searchService.deleteMessages(messageIds);
-    this.searchService.rmmapi.trashMessages(messageIds)
+    this.searchService.rmmapi.deleteMessages(messageIds)
       .subscribe(() => {
         this.selectedRowIds = {};
         this.selectedRowId = null;

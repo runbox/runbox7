@@ -429,7 +429,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public trashDraft() {
         const snackBarRef = this.snackBar.open('Deleting');
-        this.rmmapi.trashMessages([this.model.mid]).subscribe(() => {
+        this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
             this.exitIfNeeded();

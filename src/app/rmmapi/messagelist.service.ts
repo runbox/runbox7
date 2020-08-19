@@ -71,7 +71,7 @@ export class MessageListService {
     constructor(
         public rmmapi: RunboxWebmailAPI
     ) {
-        this.refreshFolderList().then(folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders)));
+        this.refreshFolderList();
 
         rmmapi.messageFlagChangeSubject.pipe(
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
@@ -156,7 +156,11 @@ export class MessageListService {
                             , false, // Folder is not in local index but we're showing from the database here so don't mark as grey
                             fld.folderId
                         ]
-               ));
+                    ));
+                    // Local counts
+                    this.folderMessageCountSubject.next(
+                        this.getFolderCountsFor(folders)
+                    );
                 resolve(folders);
             });
        });

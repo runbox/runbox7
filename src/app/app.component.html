@@ -73,7 +73,11 @@
     <app-popular-recipients
         [ngStyle]="{ 'display': settingsService.settings.showPopularRecipients ? 'block' : 'none' }"
         (recipientClicked)="searchFor($event)"
-    ></app-popular-recipients>
+    >
+        <mat-list-item *ngIf="!dataReady" (click)="downloadIndexFromServer()">
+            Synchronize index in order to use this feature
+        </mat-list-item>
+    </app-popular-recipients>
 
     <mat-divider></mat-divider>
 
@@ -281,8 +285,15 @@
       <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" (click)="moveToFolder()">
           <mat-icon>folder</mat-icon>
       </button>
-      <button mat-fab matTooltip="Move&nbsp;to&nbsp;Trash" (click)="trashMessages()">
-          <mat-icon>delete</mat-icon>
+      <button mat-fab (click)="deleteMessages()"
+        [matTooltip]="selectedFolder !== this.messagelistservice.trashFolderName ? 'Move to Trash' : 'Delete permanently'"
+      >
+        <mat-icon *ngIf="selectedFolder !== this.messagelistservice.trashFolderName; else deletePermanently">
+            delete
+        </mat-icon>
+        <ng-template #deletePermanently>
+          <mat-icon> delete_forever </mat-icon>
+        </ng-template>
       </button>
       <button mat-fab matTooltip="Toggle unread" (click)="toggleRead()">
           <mat-icon>markunread</mat-icon>

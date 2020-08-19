@@ -135,7 +135,7 @@ describe('SingleMailViewerComponent', () => {
       moveToFolder() {
         throw new Error('Method not implemented.');
       }
-      trashMessage() {
+      deleteMessage() {
         throw new Error('Method not implemented.');
       }
       flag() {
