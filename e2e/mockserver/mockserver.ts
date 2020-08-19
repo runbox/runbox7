@@ -226,6 +226,12 @@ export class MockServer {
                 case '/rest/v1/account_product/available':
                     response.end(JSON.stringify(this.availableProducts()));
                     break;
+                case '/rest/v1/account_product/active':
+                    response.end(JSON.stringify(this.activeProducts()));
+                    break;
+                case '/rest/v1/account_product/product_domain/1234':
+                    response.end(JSON.stringify(this.productDomain1234()));
+                    break;
                 case '/rest/v1/account_product/cart':
                     response.end(JSON.stringify(this.availableProducts()));
                     break;
@@ -352,6 +358,32 @@ export class MockServer {
                 'gender': null, 'has_sub_accounts': 1, 'need2pay': 'n',
                 'paid': 'n', 'country': null
             }
+        };
+    }
+
+    activeProducts() {
+        return {
+            'status': 'success',
+            'result': [
+                {
+                    "apid":         1234,
+                    "subtype":      "domain",
+                    "type":         "addon",
+                    "active_from":  "2019-11-11T10:31:26",
+                    "active_until": "2029-11-11T10:31:26",
+                    "name":         "register .INC 10 year(s)",
+                    "pid":          3456,
+                    "active":       true,
+                    "quantity":     1
+                }
+            ],
+        };
+    }
+
+    productDomain1234() {
+        return {
+            'status': 'success',
+            'result': 'monsters.inc',
         };
     }
 
