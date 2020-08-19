@@ -29,10 +29,6 @@ import {
   ElementRef,
   TemplateRef,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-runbox-slide-toggle',
@@ -53,10 +49,7 @@ import { RMM } from '../rmm';
 
 export class RunboxSlideToggleComponent {
   @Input() is_checked = true;
-  private dialog_ref: any;
-  constructor(public dialog: MatDialog,
-    public rmm: RMM,
-  ) {
+  constructor() {
   }
   toggle () {
     this.is_checked = this.is_checked ? false : true;
