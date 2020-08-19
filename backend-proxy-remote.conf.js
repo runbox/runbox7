@@ -1,5 +1,5 @@
 let backendhostname = process.env.RUNBOX7_ANGULAR_BACKEND_HOST;
-let backendhostsecure = false;
+let backendhostsecure = true;
 if(backendhostname) 
     {
     // If we're using a custom (development) backend, turn off security checking to avoid certificate errors:
