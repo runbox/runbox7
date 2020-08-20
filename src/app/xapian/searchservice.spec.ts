@@ -26,7 +26,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { MessageListService } from '../rmmapi/messagelist.service';
-import { XapianAPI } from './rmmxapianapi';
+import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
 
 declare var FS;

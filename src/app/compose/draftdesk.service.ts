@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo } from '../xapian/messageinfo';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 

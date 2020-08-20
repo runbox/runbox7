@@ -18,11 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable, NgZone } from '@angular/core';
-import { Router } from '@angular/router';
-import { Observable ,  of, from ,  Subject ,  AsyncSubject } from 'rxjs';
+import { Observable, of, Subject, AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { MessageInfo } from '../xapian/messageinfo';
-import { MailAddressInfo } from './../common/mailaddressinfo';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
@@ -31,13 +30,10 @@ import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, map, mergeMap, tap, bufferCount } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { ProgressDialog } from '../dialog/dialog.module';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
-import { ProgressSnackbarComponent } from '../dialog/progresssnackbar.component';
-import { Profile } from '../profiles/profile';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
 
