@@ -1,0 +1,96 @@
+<style>
+#jitsiContainer {
+    margin: auto;
+    height: 100%;
+}
+
+#meetingForm {
+    flex-direction: column;
+    width: 50%;
+    margin: auto;
+}
+
+.avatarImg {
+    height: 32px;
+    border-radius: 32px;
+}
+</style>
+
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu
+        [opened]="sideMenuOpened"
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        id="sideMenu"
+        style="width: 330px"
+    >
+        <mat-nav-list dense>
+            <app-sidenav-menu (closeMenu)="sideMenuOpened = false"></app-sidenav-menu>
+
+            <mat-list-item class="contactListButton">
+                <mat-icon mat-list-icon>person_add</mat-icon>
+                <p mat-line> Invite someone! </p>
+            </mat-list-item>
+            <mat-list-item class="contactListButton">
+                <mat-icon mat-list-icon>person_add</mat-icon>
+                <p mat-line> Or something </p>
+            </mat-list-item>
+            <mat-list-item class="contactListButton">
+                <mat-icon mat-list-icon>person_add</mat-icon>
+                <p mat-line> I'm not your mom </p>
+            </mat-list-item>
+
+            <mat-divider></mat-divider>
+
+            <mat-list-item *ngFor="let member of activeMeeting?.participants">
+                <span *ngIf="member.avatarUrl; else icon">
+                    <img class="avatarImg" [src]="member.avatarUrl">
+                </span>
+                <mat-icon mat-list-icon #icon> pets </mat-icon>
+                <p mat-line> {{ member.displayName }} </p>
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar>
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+
+            <span *ngIf="activeMeeting" style="display: flex; width: 100%;">
+                <strong> {{ activeMeeting.name }} </strong>
+                <!--<span *ngIf="activeMeeting.createDate"> ({{ activeMeeting.createDate }}) </span>-->
+                <span style="flex-grow: 1"></span>
+                <button mat-raised-button color="link" (click)="copyMeetingCode()">
+                    <mat-icon> content_copy </mat-icon> Copy meeting code
+                </button>
+                <button mat-raised-button color="warn" (click)="leaveMeeting()"> Leave </button>
+            </span>
+        </mat-toolbar>
+
+        <div id="jitsiContainer" [ngStyle]="{'display': jitsiAPI ? 'block' : 'none'}">
+        </div>
+
+        <div id="meetingForm" [ngStyle]="{'display': jitsiAPI ? 'none' : 'flex'}">
+            <mat-form-field>
+                <input matInput [(ngModel)]="form.yourName" placeholder="Your name">
+            </mat-form-field>
+            <mat-form-field>
+                <input matInput [(ngModel)]="form.yourEmail" placeholder="Visible email address">
+            </mat-form-field>
+
+            <h4> Create a new meeting </h4>
+            <mat-form-field>
+                <input matInput [(ngModel)]="form.meetingName" placeholder="Meeting name">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="createMeeting()"> Start a meeting </button>
+
+            <h4> Or join an existing one </h4>
+            <mat-form-field>
+                <input matInput [(ngModel)]="form.meetingCode" placeholder="Meeting code">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="joinMeeting(form.meetingCode)"> Join meeting </button>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

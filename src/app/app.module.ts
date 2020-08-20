@@ -128,6 +128,7 @@ const routes: Routes = [
       { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
+      { path: 'onscreen',           loadChildren: './onscreen/onscreen.module#OnscreenModule' },
       { path: 'identities',         redirectTo: '/account/identities' },
       { path: 'account-security',   redirectTo: '/account/security'   },
     ]
