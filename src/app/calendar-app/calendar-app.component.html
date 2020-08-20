@@ -6,7 +6,7 @@
             </span>
             <div style="display: flex; flex-direction: column;">
                 <div class="add-new-event">
-                    <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);"> add_circle </mat-icon> </button>
+                    <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);" svgIcon="plus-circle"> </mat-icon> </button>
                 </div>
                 <button mat-button class="calendarMonthDayEvent"
                     *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
@@ -65,8 +65,7 @@
         [(viewDate)]="viewDate"
         (viewDateChange)="activeDayIsOpen = false"
     >
-        <mat-icon *ngIf="mobileQuery.matches; else desktopPrevious">
-            navigate_before
+        <mat-icon *ngIf="mobileQuery.matches; else desktopPrevious" svgIcon="chevron-left">
         </mat-icon>
         <ng-template #desktopPrevious>
             Previous
@@ -84,8 +83,7 @@
         [(viewDate)]="viewDate"
         (viewDateChange)="activeDayIsOpen = false"
     >
-        <mat-icon *ngIf="mobileQuery.matches; else desktopNext">
-            navigate_next
+        <mat-icon *ngIf="mobileQuery.matches; else desktopNext" svgIcon="chevron-right">
         </mat-icon>
         <ng-template #desktopNext>
             Next
@@ -116,18 +114,18 @@
             </div>
 
             <mat-list-item id="addEventButton" mat-button (click)="addEvent()" class="calendarMenuButton">
-                <mat-icon mat-list-icon>add</mat-icon>
+                <mat-icon mat-list-icon svgIcon="plus"></mat-icon>
                 <p mat-line>Add event</p>
             </mat-list-item>
 
             <mat-list-item (click)="importEventClicked()" class="calendarMenuButton">
                 <input #icsUploadInput type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
-                <mat-icon mat-list-icon>import_export</mat-icon>
+                <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
                 <p mat-line>Import event</p>
             </mat-list-item>
 
             <mat-list-item mat-button (click)="openSettings()" class="calendarMenuButton">
-                <mat-icon mat-list-icon>settings</mat-icon>
+                <mat-icon mat-list-icon svgIcon="cog"></mat-icon>
                 <p mat-line>Settings</p>
             </mat-list-item>
 
@@ -136,7 +134,7 @@
             <div class="calendarsSideHeader">
                 <span>Calendars</span>
                 <button mat-icon-button id="createCalendarButton" matTooltip="New calendar..." (click)="showAddCalendarDialog()">
-                    <mat-icon>add</mat-icon>
+                    <mat-icon svgIcon="plus"></mat-icon>
                 </button>
             </div>
 
@@ -145,8 +143,7 @@
             </mat-list-item>
 
             <mat-list-item class="calendarListItem" *ngFor="let calendar of calendars">
-                <mat-icon mat-list-icon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }">
-                    label
+                <mat-icon mat-list-icon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }" svgIcon="label">
                 </mat-icon>
                 <p mat-line>
                     {{ calendar.displayname || calendar.id }}
@@ -155,20 +152,20 @@
                     matTooltip="Show/hide this calendar"
                     (click)="toggleCalendar(calendar.id)"
                 >
-                    <mat-icon> {{ calendarVisibility[calendar.id] ? 'visibility' : 'visibility_off' }} </mat-icon>
+                    <mat-icon svgIcon="{{ calendarVisibility[calendar.id] ? 'eye' : 'eye-off' }}"> </mat-icon>
                 </button>
                 <button mat-icon-button class="calendarEditButton"
                     matTooltip="Edit this calendar"
                     (click)="editCalendar(calendar.id)"
                 >
-                    <mat-icon> edit </mat-icon>
+                    <mat-icon svgIcon="pencil"></mat-icon>
                 </button>
             </mat-list-item>
 
             <mat-divider></mat-divider>
 
             <mat-list-item (click)="calendarservice.syncCaldav(true)" class="calendarMenuButton">
-                <mat-icon mat-list-icon>refresh</mat-icon> 
+                <mat-icon mat-list-icon svgIcon="refresh"></mat-icon> 
                 <p mat-line>Synchronize calendars</p>
             </mat-list-item>
 
@@ -178,8 +175,10 @@
 
             <mat-divider></mat-divider>
 
-            <mat-list-item *ngFor="let activity of activityList" style="display: flex;" class="updateInfo">
-                <mat-spinner diameter="15"></mat-spinner> {{ activity }}
+            <mat-list-item>
+                <app-activity-indicator
+                    [activities]="calendarservice.activities.observable"
+                ></app-activity-indicator>
             </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
@@ -187,7 +186,7 @@
     <mat-sidenav-content>
         <mat-toolbar>
             <button mat-icon-button (click)="sidemenu.toggle()">
-                <mat-icon>menu</mat-icon>
+                <mat-icon svgIcon="menu"></mat-icon>
             </button>
 
             <div *ngIf="!mobileQuery.matches; else mobileHeader">

@@ -64,11 +64,11 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
             <mat-divider [vertical]="true" style='border-color: transparent; flex: max-content;'></mat-divider>
 
             <button *ngIf="is_update && data.profile.type != 'main'" mat-icon-button [matMenuTriggerFor]="modal_menu" class='modal_menu'>
-                <mat-icon color="warn">more_vert</mat-icon>
+                <mat-icon color="warn" svgIcon="dots-vertical"></mat-icon>
             </button>
             <mat-menu #modal_menu="matMenu" xPosition="before">
                 <button mat-menu-item (click)="delete()">
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="delete"></mat-icon>
                     <span>Delete</span>
                 </button>
             </mat-menu>
@@ -131,7 +131,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
                                     <input matInput placeholder="Email"
                                         [ngStyle]="get_form_field_style()"
                                         name="email"
-                                        [readonly]="( data.profile && data.profile.type == 'aliases' )"
+                                        [readonly]="( data.profile && ( data.profile.type == 'aliases' || data.profile.type == 'main' ) )"
                                         [(ngModel)]="data.profile.email"
                                         (ngModelChange)="onchange_field('email')"
                                         >

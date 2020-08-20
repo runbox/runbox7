@@ -12,10 +12,24 @@
           <mat-list>
               <mat-list-item>
                 <mat-checkbox
-                  [(ngModel)]="webmailSettings.showPopularRecipients"
-                  (change)="onSettingsChanged()"
+                  [(ngModel)]="settingsService.settings.showPopularRecipients"
+                  (change)="settingsService.store()"
                   (click)="$event.stopPropagation()"
                 > Show popular recipients </mat-checkbox>
+              </mat-list-item>
+              <mat-list-item>
+                <mat-form-field>
+                  <mat-label> Avatars </mat-label>
+                  <mat-select
+                    [(ngModel)]="settingsService.settings.avatars"
+                    (click)="$event.stopPropagation()"
+                    (selectionChange)="settingsService.store()"
+                  >
+                    <mat-option [value]="AvatarSource.REMOTE"> Load from external services </mat-option>
+                    <mat-option [value]="AvatarSource.LOCAL">  Only from Contacts </mat-option>
+                    <mat-option [value]="AvatarSource.NONE">   Disabled </mat-option>
+                  </mat-select>
+                </mat-form-field>
               </mat-list-item>
           </mat-list>
       </mat-menu>
@@ -27,7 +41,7 @@
         </div>
         <div>
             <button mat-icon-button [matMenuTriggerFor]="settingsMenu" matTooltip="Show webmail settings">
-                <mat-icon> settings_applications </mat-icon>
+                <mat-icon svgIcon="cog"></mat-icon>
             </button>
         </div>
       </div>
@@ -36,18 +50,18 @@
 
       <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
         <a mat-button (click)="compose();" matTooltip="Compose">
-          <mat-icon color="primary">edit</mat-icon></a>
+          <mat-icon  svgIcon="pencil" color="primary"></mat-icon></a>
         <a mat-button (click)="drafts();" matTooltip="Drafts">
-          <mat-icon color="primary">drafts</mat-icon></a>
+          <mat-icon svgIcon="email-open" color="primary"></mat-icon></a>
       </div>
 
       <mat-list-item (click)="compose();" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
-        <mat-icon mat-list-icon class="folderIconStandard">edit</mat-icon>
+        <mat-icon mat-list-icon  svgIcon="pencil" class="folderIconStandard"></mat-icon>
         <p mat-line class="folderName">Compose</p>
       </mat-list-item>
 
       <mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
-        <mat-icon mat-list-icon class="folderIconStandard">drafts</mat-icon>
+        <mat-icon mat-list-icon  svgIcon="email-open" class="folderIconStandard"></mat-icon>
         <p mat-line class="folderName">Drafts</p>
         <span style="flex-grow: 1"></span>
         <span class="foldersidebarcount" style="margin-right: 24px"> {{ draftDeskService.draftModels.length }} </span>
@@ -57,7 +71,7 @@
     </mat-nav-list>
 
     <app-popular-recipients
-        [ngStyle]="{ 'display': webmailSettings.showPopularRecipients ? 'block' : 'none' }"
+        [ngStyle]="{ 'display': settingsService.settings.showPopularRecipients ? 'block' : 'none' }"
         (recipientClicked)="searchFor($event)"
     ></app-popular-recipients>
 
@@ -83,14 +97,14 @@
       <mat-list-item
         (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">
-          <mat-icon mat-list-icon>sync_disabled</mat-icon>
+          <mat-icon  svgIcon="sync-off" mat-list-icon></mat-icon>
           <p mat-line>Stop index synchronization</p>
       </mat-list-item>
     </mat-nav-list>
 
     <mat-nav-list *ngIf="(xapianLoaded | async) && !dataReady && searchService.downloadProgress===null">
       <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
-        <mat-icon mat-list-icon>sync</mat-icon>
+        <mat-icon  svgIcon="sync" mat-list-icon></mat-icon>
         <p mat-line>Synchronize index</p>
       </mat-list-item>
     </mat-nav-list>
@@ -128,7 +142,7 @@
   <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
     <mat-toolbar style="display: flex">
       <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
-          <mat-icon>menu</mat-icon>
+          <mat-icon svgIcon="menu"></mat-icon>
       </button>
 
       <ng-container *ngIf="!hasChildRouterOutlet">
@@ -153,20 +167,20 @@
             matSuffix
             (click)="showMultipleSearchFields = true"
             matTooltip="Multiple search fields">
-            <mat-icon>build</mat-icon>
+            <mat-icon svgIcon="wrench"></mat-icon>
           </button>
           <button *ngIf="searchText!==''"
             mat-icon-button
             matSuffix
               (click)="searchFor('')"
               matTooltip="Clear search">
-            <mat-icon>clear</mat-icon>
+            <mat-icon svgIcon="close"></mat-icon>
           </button>
         </mat-form-field>
 
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
           matTooltip="Back to conversations list">
-          <mat-icon>arrow_back</mat-icon>
+          <mat-icon svgIcon="arrow-left"></mat-icon>
         </button>
 
         <mat-menu #tableViewOptionsMenu="matMenu">
@@ -182,7 +196,7 @@
                   (click)="$event.stopPropagation()"
                   class="tableViewOptionsMenuElement"
                 >
-                  <mat-icon class="tableViewOptionsMenuElement" matTooltip="Inline message previews">format_align_right</mat-icon>
+                  <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
                   Inline previews
                 </mat-checkbox>
               </mat-list-item>
@@ -194,7 +208,7 @@
                   [disabled]="unreadMessagesOnlyCheckbox"
                   class="tableViewOptionsMenuElement"
                 >
-                  <mat-icon class="tableViewOptionsMenuElement" matTooltip="Threaded conversation view">view_list</mat-icon>
+                  <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" matTooltip="Threaded conversation view"></mat-icon>
                   Threaded view
                 </mat-checkbox>
               </mat-list-item>
@@ -206,7 +220,7 @@
                   [disabled]="viewmode==='conversations'"
                   class="tableViewOptionsMenuElement"
                 >
-                  <mat-icon class="tableViewOptionsMenuElement" matTooltip="Unread messages only">markunread</mat-icon>
+                  <mat-icon  svgIcon="email-mark-as-unread" class="tableViewOptionsMenuElement" matTooltip="Unread messages only"></mat-icon>
                   Unread only
                 </mat-checkbox>
               </mat-list-item>
@@ -218,14 +232,14 @@
                 (change)="saveMessagePaneSetting()"
                 (click)="$event.stopPropagation()"
               >
-                <mat-icon class="tableViewOptionsMenuElement" matTooltip="Keep preview pane open">chrome_reader_mode</mat-icon>
+                <mat-icon  svgIcon="book-open" class="tableViewOptionsMenuElement" matTooltip="Keep preview pane open"></mat-icon>
                 Keep preview pane open
               </mat-checkbox>
             </mat-list-item>
           </mat-list>
         </mat-menu>
         <button mat-icon-button [matMenuTriggerFor]="tableViewOptionsMenu" matTooltip="Show view options">
-          <mat-icon>more_vert</mat-icon>
+          <mat-icon svgIcon="dots-vertical"></mat-icon>
         </button>
       </ng-container>
       <div *ngIf="searchService.downloadProgress!==null" id="syncMessage">
@@ -265,37 +279,37 @@
 
   <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
       <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" (click)="moveToFolder()">
-          <mat-icon>folder</mat-icon>
+          <mat-icon svgIcon="folder"></mat-icon>
       </button>
       <button mat-fab matTooltip="Move&nbsp;to&nbsp;Trash" (click)="trashMessages()">
-          <mat-icon>delete</mat-icon>
+          <mat-icon svgIcon="delete"></mat-icon>
       </button>
       <button mat-fab matTooltip="Mark as ..." (click)="openMarkOpMenu()">
-          <mat-icon>playlist_add_check</mat-icon>
+          <mat-icon svgIcon="playlist-check"></mat-icon>
       </button>
       <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-fab matTooltip="Report spam" (click)="trainSpam({is_spam:1})">
-          <mat-icon>report</mat-icon>
+          <mat-icon svgIcon="alert-octagon"></mat-icon>
       </button>
       <button mat-fab *ngIf="selectedFolder===messagelistservice.spamFolderName" matTooltip="Not spam" (click)="trainSpam({is_spam:0})">
-          <mat-icon>report_off</mat-icon>
+          <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
       </button>
     </div>
 
     <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
-      <button mat-fab matTooltip="Mark unread" (click)="toggleRead()">
-          <mat-icon>mark_email_unread</mat-icon>
+      <button mat-fab matTooltip="Mark unread" (click)="setReadStatus(false)">
+          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
       </button>
-      <button mat-fab matTooltip="Mark read" (click)="toggleRead()">
-          <mat-icon>mark_email_read</mat-icon>
+      <button mat-fab matTooltip="Mark read" (click)="setReadStatus(true)">
+          <mat-icon svgIcon="email-check"></mat-icon>
       </button>
-      <button mat-fab matTooltip="Set flag" (click)="toggleFlagged()">
-          <mat-icon>flag</mat-icon>
+      <button mat-fab matTooltip="Set flag" (click)="setFlaggedStatus(true)">
+          <mat-icon svgIcon="flag"></mat-icon>
       </button>
-      <button mat-fab matTooltip="Unset flag" (click)="toggleFlagged()">
-          <mat-icon>outlined_flag</mat-icon>
+      <button mat-fab matTooltip="Unset flag" (click)="setFlaggedStatus(false)">
+          <mat-icon svgIcon="flag-outline"></mat-icon>
       </button>
       <button mat-fab matTooltip="Back" (click)="closeMarkOpMenu()">
-          <mat-icon>keyboard_backspace</mat-icon>
+          <mat-icon svgIcon="keyboard-backspace"></mat-icon>
       </button>
     </div>
 <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>

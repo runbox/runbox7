@@ -29,10 +29,10 @@ import { FormControl } from '@angular/forms';
               [(ngModel)]="newValue" [ngModelOptions]="{standalone: true}">
         <!-- <mat-hint align="start"> Press Enter to confirm </mat-hint> -->
         <button matSuffix mat-icon-button (click)="promptShown = false">
-            <mat-icon>cancel</mat-icon>
+            <mat-icon svgIcon="cancel"></mat-icon>
         </button>
         <button matSuffix mat-icon-button (click)="confirmValue()">
-            <mat-icon>check</mat-icon>
+            <mat-icon svgIcon="check"></mat-icon>
         </button>
     </mat-form-field>
     <mat-form-field *ngIf="!promptShown">

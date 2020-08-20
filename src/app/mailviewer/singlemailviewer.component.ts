@@ -191,15 +191,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   attachmentIconFromContentType(contentType: string) {
     if (contentType.indexOf('pdf') > -1) {
-      return 'picture_as_pdf';
+      return 'pdf-box';
     } else if (contentType.indexOf('audio') > -1) {
-      return 'audiotrack';
+      return 'volume-high';
     } else if (contentType.indexOf('text/calendar') > -1) {
-      return 'event';
+      return 'calendar';
     } else if (contentType.indexOf('text/vcard') > -1) {
-      return 'contacts';
+      return 'account-multiple';
     } else if (contentType.indexOf('text') > -1) {
-      return 'text_format';
+      return 'text-box';
     } else {
       return 'attachment';
     }

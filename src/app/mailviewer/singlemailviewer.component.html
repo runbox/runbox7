@@ -8,26 +8,31 @@
     <!-- Message preview toolbar -->
     <div style="flex-grow: 1; overflow: hidden" #toolbarButtonContainer>      
       <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move to folder..." (click)="messageActionsHandler.moveToFolder()">
-        <mat-icon>folder</mat-icon>          
+        <mat-icon svgIcon="folder"></mat-icon>          
       </button>      
       <button *ngIf="morebuttonindex>1" mat-icon-button matTooltip="Move to Trash" (click)="messageActionsHandler.trashMessage()">
-        <mat-icon>delete</mat-icon>
+        <mat-icon svgIcon="delete"></mat-icon>
       </button>
       <button *ngIf="morebuttonindex>2" mat-icon-button matTooltip="Reply" (click)="messageActionsHandler.reply(showHTML)">
-	      <mat-icon>reply</mat-icon>
+	      <mat-icon svgIcon="reply"></mat-icon>
       </button>
       <button *ngIf="morebuttonindex>3" mat-icon-button matTooltip="Reply to all" (click)="messageActionsHandler.replyToAll(showHTML)">
-        <mat-icon>reply_all</mat-icon>          
+        <mat-icon svgIcon="reply-all"></mat-icon>          
       </button>
       <button *ngIf="morebuttonindex>4" mat-icon-button matTooltip="Forward" (click)="messageActionsHandler.forward(showHTML)">
-        <mat-icon>forward</mat-icon>          
+        <mat-icon svgIcon="forward"></mat-icon>          
       </button>
-      <button *ngIf="morebuttonindex>5" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
-        <mat-icon>markunread</mat-icon>          
-      </button>
+      <ng-container *ngIf="morebuttonindex>5">
+        <button *ngIf="mailObj && mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
+        <mat-icon svgIcon="email-mark-as-unread"></mat-icon>          
+        </button>
+        <button *ngIf="mailObj && mailObj.seen_flag===0" mat-icon-button matTooltip="Mark read" (click)="messageActionsHandler.markSeen(1)">
+        <mat-icon svgIcon="email-check"></mat-icon>          
+        </button>
+       </ng-container>
       <ng-container *ngIf="morebuttonindex>6">
         <button mat-icon-button *ngIf="mailObj && mailObj.flagged_flag===0" matTooltip="Flag" (click)="messageActionsHandler.flag()">
-          <mat-icon>flag</mat-icon>            
+          <mat-icon svgIcon="flag"></mat-icon>            
         </button>
         <button *ngIf="mailObj && mailObj.flagged_flag===1" mat-icon-button matTooltip="Remove flag" (click)="messageActionsHandler.unflag()">
   	  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mat-icon">
@@ -94,75 +99,66 @@
           <span>Forward</span>
         </button>
         <button *ngIf="morebuttonindex<6" mat-menu-item (click)="messageActionsHandler.markSeen(0)">
-          <mat-icon>markunread</mat-icon>
+          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
           <span>Mark unread</span>          
         </button>
         <ng-container *ngIf="morebuttonindex<7">
           <button mat-menu-item *ngIf="mailObj && mailObj.flagged_flag===0" (click)="messageActionsHandler.flag()">
-            <mat-icon>flag</mat-icon>  
+            <mat-icon svgIcon="flag"></mat-icon>  
             <span>Flag</span>          
           </button>
           <button *ngIf="mailObj && mailObj.flagged_flag===1" mat-menu-item (click)="messageActionsHandler.unflag()" tooltip="Remove flag">
-	    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mat-icon">
-	      <path d="M14 6l-1-2H5v17h2v-7h5l1 2h7V6h-6zm4 8h-4l-1-2H7V6h5l1 2h5v6z"/>
-	      <path fill="none" d="M0 0h24v24H0z"/>
-	    </svg>
+            <mat-icon svgIcon="flag-outline"></mat-icon>  
             <span>Remove flag</span>
           </button>
         </ng-container>
         <ng-container *ngIf="morebuttonindex<8">
           <button mat-menu-item *ngIf="folder!=='Spam'" (click)="messageActionsHandler.trainSpam({is_spam:1})">
-            <mat-icon>report</mat-icon>          
+            <mat-icon svgIcon="alert-octagon"></mat-icon>          
             <span>Report spam</span>
           </button>    
           <button mat-menu-item *ngIf="folder==='Spam'" (click)="messageActionsHandler.trainSpam({is_spam:0})">
-            <mat-icon>report_off</mat-icon>  
+            <mat-icon svgIcon="alert-octagon-outline"></mat-icon>  
             <span>Not spam</span>
           </button>            
         </ng-container>
         <a *ngIf="morebuttonindex<9" mat-menu-item
           [href]="'/rest/v1/email/'+messageId+'/raw'" target="_blank">
-          <mat-icon>code</mat-icon>          
+          <mat-icon svgIcon="code-tags"></mat-icon>          
           <span>View source</span>
         </a>
         <button mat-menu-item *ngIf="mailContentHTML && morebuttonindex<10" [matMenuTriggerFor]="htmlSettingsMenu">
-          <mat-icon>settings</mat-icon>
+          <mat-icon svgIcon="cog"></mat-icon>
           <span>HTML settings</span>
         </button>        
 	<a *ngIf="mailContentHTML && morebuttonindex<11" mat-menu-item
           [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
-          <mat-icon>warning</mat-icon>
+          <mat-icon svgIcon="alert"></mat-icon>
 	  <span>Original HTML</span> 
 	</a>
       </mat-menu>
     </div>
 
     <button mat-icon-button matTooltip="Print message (Please consider the environment before printing this email)" (click)="print()" id="buttonPrint">
-      <mat-icon>print</mat-icon>    
+      <mat-icon svgIcon="printer"></mat-icon>    
     </button>    
     <button mat-icon-button matTooltip="Horizontal preview" *ngIf="!adjustableHeight"
       (click)="changeOrientation('horizontal')">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="mat-icon" viewBox="0 0 24 24">
-        <path fill="none" d="M0 0h24v24H0V0z"/>
-        <path d="M3 19h18v-6H3v6zm0-8h18V9H3v2zm0-6v2h18V5H3z"/>
-      </svg>
+      <mat-icon svgIcon="view-split-horizontal"></mat-icon>
     </button>
     <button mat-icon-button matTooltip="Vertical preview" *ngIf="adjustableHeight && showVerticalSplitButton" 
       (click)="changeOrientation('vertical')">
-      <svg xmlns="http://www.w3.org/2000/svg" class="mat-icon" width="24" height="24" viewBox="0 0 24 24">
-        <path fill="none" d="M0 0h24v24H0V0z"/>
-        <path d="M3 15h8v-2H3v2zm0 4h8v-2H3v2zm0-8h8V9H3v2zm0-6v2h8V5H3zm10 0h8v14h-8V5z"/>
-      </svg>
+      <mat-icon svgIcon="view-split-vertical"></mat-icon>
     </button>
     <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===false" (click)="resizer.resizePercentage(100)" matTooltip="Full height">
-      <mat-icon class="messageHeightIcon">arrow_drop_up</mat-icon>
+      <mat-icon class="messageHeightIcon" svgIcon="arrow-up-drop-circle"></mat-icon>
     </button>
     <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===true" (click)="resizer.resizePercentage(50)" matTooltip="Half height">
-      <mat-icon class="messageHeightIcon">arrow_drop_down</mat-icon>
+      <mat-icon class="messageHeightIcon" svgIcon="arrow-down-drop-circle"></mat-icon>
     </button>
     
     <button mat-icon-button (click)="close()" matTooltip="Close">
-      <mat-icon>close</mat-icon>
+      <mat-icon svgIcon="close"></mat-icon>
     </button>
     
   </mat-toolbar>
@@ -170,12 +166,13 @@
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
       <mat-expansion-panel-header title="Toggle message headers">
 	      <mat-panel-title>
+          <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>        
       </mat-expansion-panel-header>
       <div style="position: absolute; right: 3px;">
-        <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon>unfold_more</mat-icon></button>
-        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon>unfold_less</mat-icon></button>
+        <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
+        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-vertical"></mat-icon></button>
       </div>
       <ng-container *ngIf="!showAllHeaders">
         <div class="messageHeaderRow">
@@ -252,7 +249,7 @@
         </mat-checkbox>
         <button mat-icon-button color="warn" (click)="showHTMLWarningDialog()" 
           matTooltip="Only show HTML from trusted senders" style="margin-right: 5px">
-          <mat-icon color="warn">warning</mat-icon>
+          <mat-icon color="warn" svgIcon="alert"></mat-icon>
         </button>
       </span>
     </div>
@@ -295,7 +292,7 @@
     </div>      
 
     <mat-card *ngIf="mailObj.attachments && mailObj.attachments.length>0">
-      <mat-card-title><mat-icon>attachment</mat-icon>Attachments</mat-card-title>
+      <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
       <mat-card-content>        
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile 
@@ -306,18 +303,17 @@
                   [src]="att.thumbnailURL" />                
               </ng-container>
               <ng-template #attachment_icon>
-                <mat-icon matListAvatar 
-                  >{{attachmentIconFromContentType(att.contentType)}}</mat-icon>                                
+                <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>                                
               </ng-template>              
               <mat-grid-tile-footer style="display: flex; text-align: center">
                   <span>{{att.filename}}</span>                      
                   <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
                     matTooltip="Decrypt message"
                     (click)="decryptAttachment(i);$event.stopPropagation()"
-                  ><mat-icon>lock_open</mat-icon></button>
+                  ><mat-icon svgIcon="lock-open"></mat-icon></button>
                   <button mat-icon-button
                     (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
-                  ><mat-icon>cloud_download</mat-icon></button>
+                  ><mat-icon svgIcon="cloud-download"></mat-icon></button>
               </mat-grid-tile-footer>
           </mat-grid-tile>            
         </mat-grid-list>

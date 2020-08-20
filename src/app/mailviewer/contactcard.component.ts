@@ -17,42 +17,52 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Contact } from '../contacts-app/contact';
 import { ContactsService } from '../contacts-app/contacts.service';
+import { AppSettingsService } from '../app-settings';
 
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'rmm7-contact-card',
     template: `
-        <a [ngStyle]="style" (click)="clicked()"
-           [matTooltip]="contactsEntry ? 'Show contact' : 'Add to contacts'">
+        <a [ngStyle]="{ 'border-bottom': (contactsEntry ? '1px solid' : '1px dashed') }"
+            (click)="clicked()"
+            [matTooltip]="contactsEntry ? 'Show contact' : 'Add to contacts'"
+        >
+            <img *ngIf="avatarUrl"
+              style="height: 16px; border-radius: 8px;"
+              [src]="avatarUrl" alt=""
+            >
             {{contact.name}} &lt;{{contact.address}}&gt;
-            <mat-icon *ngIf="contactsEntry">  person     </mat-icon>
-            <mat-icon *ngIf="!contactsEntry"> person_add </mat-icon>
+            <mat-icon *ngIf="contactsEntry" svgIcon="account"></mat-icon>
+            <mat-icon *ngIf="!contactsEntry" svgIcon="account-plus"></mat-icon>
         </a>
     `,
 })
-export class ContactCardComponent implements OnInit {
+export class ContactCardComponent implements OnChanges {
     @Input() contact: any;
     contactsEntry: Contact;
-    style = { 'border-bottom': '1px dashed' };
+    avatarUrl: string;
 
     constructor(
+        settingsService: AppSettingsService,
         private router: Router,
         private contactsservice: ContactsService,
     ) {
+        settingsService.settingsSubject.subscribe(_ => this.ngOnChanges());
     }
 
-    ngOnInit() {
-        this.contactsservice.lookupContact(this.contact.address).then(c => {
-            if (c) {
-                this.contactsEntry = c;
-                this.style['border-bottom'] = '1px solid';
-            }
-        });
+    ngOnChanges() {
+        // reset these first, so that we don't display anything outdated while things are loading
+        this.contactsEntry = this.avatarUrl = null;
+
+        if (this.contact) {
+            this.contactsservice.lookupContact(this.contact.address).then(c => this.contactsEntry = c);
+            this.contactsservice.lookupAvatar(this.contact.address).then(url => this.avatarUrl = url);
+        }
     }
 
     clicked() {

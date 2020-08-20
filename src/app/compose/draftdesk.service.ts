@@ -44,6 +44,7 @@ export class DraftFormModel {
     to: MailAddressInfo[] = [];
     cc: MailAddressInfo[] = [];
     bcc: MailAddressInfo[] = [];
+    reply_to: string = null;
     subject: string = null;
     msg_body = '';
     preview: string;

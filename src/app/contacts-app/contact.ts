@@ -462,6 +462,45 @@ export class Contact {
         }
     }
 
+    get photo(): string {
+        const prop = this.component.getFirstProperty('photo');
+        if (prop) {
+            if (prop.type === 'binary') {
+                const blob = prop.getFirstValue();
+                if (!blob) { return null; }
+                if (blob.toString().match(/^(data:|https?:)/)) {
+                    return blob;
+                }
+                return `data:image/${prop.getParameter('type')};base64,${blob}`;
+            } else {
+                return prop.getFirstValue();
+            }
+        } else {
+            return null;
+        }
+    }
+
+    set photo(uri: string) {
+        if (this.component.hasProperty('photo')) {
+            this.component.removeAllProperties('photo');
+        }
+        if (!uri) {
+            return;
+        }
+        if (uri.startsWith('data:')) {
+            // specialcased since parsers apparently have problems with a comma in the URI
+            const match = uri.match(/^data:image\/([a-zA-Z]*);base64,(.*)$/);
+            const prop = new ICAL.Property('photo');
+            prop.resetType('binary');
+            prop.setParameter('encoding', 'b');
+            prop.setParameter('type', match[1]);
+            prop.setValue(match[2]);
+            this.component.addProperty(prop);
+        } else {
+            this.component.addPropertyWithValue('photo', uri);
+        }
+    }
+
     toDict(): any {
         return {
             full_name:  this.full_name,
@@ -479,6 +518,7 @@ export class Contact {
             addresses:  this.addresses.map(a => a.toDict()),
             related:    this.related,
             members:    this.members.map(m => m.prop.toJSON()),
+            photo:      this.photo,
         };
     }
 

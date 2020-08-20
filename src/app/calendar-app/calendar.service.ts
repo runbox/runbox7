@@ -21,6 +21,7 @@ import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { StorageService } from '../storage.service';
+import { BackgroundActivityService } from '../common/background-activity.service';
 
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -54,8 +55,7 @@ export class CalendarService implements OnDestroy {
     eventSubject    = new ReplaySubject<RunboxCalendarEvent[]>(1);
     errorLog        = new Subject<HttpErrorResponse>();
 
-    activitySet     = new Set<Activity>();
-    activitySubject = new Subject<Set<Activity>>();
+    activities = new BackgroundActivityService<Activity>();
 
     constructor(
         private rmmapi:  RunboxWebmailAPI,
@@ -72,7 +72,7 @@ export class CalendarService implements OnDestroy {
                 storage.set('caldavCache', undefined);
                 return;
             }
-            this.beginActivity(Activity.LoadingCache);
+            this.activities.begin(Activity.LoadingCache);
             console.log('Loading calendars/events from local cache');
             this.calendars = cache['calendars'].map((c: any) => new RunboxCalendar(c));
             for (const cal of this.calendars) {
@@ -81,7 +81,7 @@ export class CalendarService implements OnDestroy {
             this.calendarSubject.next(this.calendars);
             this.events = cache['events'].map((e: any) => new RunboxCalendarEvent(e.id, e.jcal));
             this.eventSubject.next(this.events);
-            this.endActivity(Activity.LoadingCache);
+            this.activities.end(Activity.LoadingCache);
         });
 
         this.calendarSubject.subscribe(cals => {
@@ -119,35 +119,35 @@ export class CalendarService implements OnDestroy {
 
     addCalendar(calendar: RunboxCalendar): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.beginActivity(Activity.CreatingCalendar);
+            this.activities.begin(Activity.CreatingCalendar);
             this.rmmapi.addCalendar(calendar).subscribe(() => {
                 console.log('Calendar created!');
                 this.calendars.push(calendar);
                 this.calendarSubject.next(this.calendars);
                 resolve();
-                this.endActivity(Activity.CreatingCalendar);
+                this.activities.end(Activity.CreatingCalendar);
             }, e => {
                 this.apiErrorHandler(e);
                 reject();
-                this.endActivity(Activity.CreatingCalendar);
+                this.activities.end(Activity.CreatingCalendar);
             });
         });
     }
 
     addEvent(event: RunboxCalendarEvent): Promise<string> {
         return new Promise((resolve, reject) => {
-            this.beginActivity(Activity.CreatingEvent);
+            this.activities.begin(Activity.CreatingEvent);
             this.rmmapi.addCalendarEvent(event).subscribe(res => {
                 console.log('Event created:', res);
                 event.id = res.id;
                 this.events.push(event);
                 this.eventSubject.next(this.events);
                 resolve(event.id);
-                this.endActivity(Activity.CreatingEvent);
+                this.activities.end(Activity.CreatingEvent);
             }, e => {
                 this.apiErrorHandler(e);
                 reject(e);
-                this.endActivity(Activity.CreatingEvent);
+                this.activities.end(Activity.CreatingEvent);
             });
         });
     }
@@ -156,14 +156,8 @@ export class CalendarService implements OnDestroy {
         this.errorLog.next(e);
     }
 
-    beginActivity(activity: Activity): void {
-        console.log('Starting activity', activity.toString());
-        this.activitySet.add(activity);
-        this.activitySubject.next(this.activitySet);
-    }
-
     deleteCalendar(id: string) {
-        this.beginActivity(Activity.DeletingCalendar);
+        this.activities.begin(Activity.DeletingCalendar);
         this.rmmapi.deleteCalendar(id).subscribe(() => {
             console.log('Calendar deleted:', id);
             const idx = this.calendars.findIndex(c => c.id === id);
@@ -174,44 +168,38 @@ export class CalendarService implements OnDestroy {
 
             this.calendarSubject.next(this.calendars);
             this.eventSubject.next(this.events);
-            this.endActivity(Activity.DeletingCalendar);
+            this.activities.end(Activity.DeletingCalendar);
         }, e => {
             this.apiErrorHandler(e);
-            this.endActivity(Activity.DeletingCalendar);
+            this.activities.end(Activity.DeletingCalendar);
         });
     }
 
     deleteEvent(id: string) {
-        this.beginActivity(Activity.DeletingEvent);
+        this.activities.begin(Activity.DeletingEvent);
         this.rmmapi.deleteCalendarEvent(id).subscribe(res => {
             console.log('Event deleted:', res);
             const idx = this.events.findIndex(e => e.id === id);
             this.events.splice(idx, 1);
             this.eventSubject.next(this.events);
-            this.endActivity(Activity.DeletingEvent);
+            this.activities.end(Activity.DeletingEvent);
         }, e => {
             this.apiErrorHandler(e);
-            this.endActivity(Activity.DeletingEvent);
+            this.activities.end(Activity.DeletingEvent);
         });
     }
 
-    endActivity(activity: Activity): void {
-        console.log('Ending activity', activity.toString());
-        this.activitySet.delete(activity);
-        this.activitySubject.next(this.activitySet);
-    }
-
     modifyCalendar(calendar: RunboxCalendar) {
-        this.beginActivity(Activity.EditingCalendar);
+        this.activities.begin(Activity.EditingCalendar);
         this.rmmapi.modifyCalendar(calendar).subscribe(() => {
             console.log('Calendar edited:', calendar['id']);
             const idx = this.calendars.findIndex(c => c.id === calendar['id']);
             this.calendars.splice(idx, 1, calendar);
             this.calendarSubject.next(this.calendars);
-            this.endActivity(Activity.EditingCalendar);
+            this.activities.end(Activity.EditingCalendar);
         }, e => {
             this.apiErrorHandler(e);
-            this.endActivity(Activity.EditingCalendar);
+            this.activities.end(Activity.EditingCalendar);
         });
     }
 
@@ -227,15 +215,15 @@ export class CalendarService implements OnDestroy {
             });
         } else {
             // simple case: just modify the event in place
-            this.beginActivity(Activity.EditingEvent);
+            this.activities.begin(Activity.EditingEvent);
             this.rmmapi.modifyCalendarEvent(event as RunboxCalendarEvent).subscribe(_ => {
                 const idx = this.events.findIndex(c => c.id === event.id);
                 this.events.splice(idx, 1, event);
                 this.eventSubject.next(this.events);
-                this.endActivity(Activity.EditingEvent);
+                this.activities.end(Activity.EditingEvent);
             }, e => {
                 this.apiErrorHandler(e);
-                this.endActivity(Activity.EditingEvent);
+                this.activities.end(Activity.EditingEvent);
             });
         }
     }
@@ -251,14 +239,14 @@ export class CalendarService implements OnDestroy {
 
     reloadEvents() {
         console.log('Fetching events');
-        this.beginActivity(Activity.RefreshingEvents);
+        this.activities.begin(Activity.RefreshingEvents);
         this.rmmapi.getCalendarEvents().subscribe(events => {
             this.events = events.map((e: any) => RunboxCalendarEvent.fromIcal(e.id, e.ical));
             this.eventSubject.next(this.events);
-            this.endActivity(Activity.RefreshingEvents);
+            this.activities.end(Activity.RefreshingEvents);
         }, e => {
             this.apiErrorHandler(e);
-            this.endActivity(Activity.RefreshingEvents);
+            this.activities.end(Activity.RefreshingEvents);
         });
     }
 
@@ -283,15 +271,15 @@ export class CalendarService implements OnDestroy {
             this.syncTokens = {};
         }
         console.log('Fetching calendars');
-        this.beginActivity(Activity.RefreshingCalendars);
+        this.activities.begin(Activity.RefreshingCalendars);
         this.rmmapi.getCalendars().subscribe(calendars => {
             this.calendars = calendars;
             console.log('Calendars loaded:', calendars);
             this.calendarSubject.next(calendars);
-            this.endActivity(Activity.RefreshingCalendars);
+            this.activities.end(Activity.RefreshingCalendars);
         }, e => {
             this.apiErrorHandler(e);
-            this.endActivity(Activity.RefreshingCalendars);
+            this.activities.end(Activity.RefreshingCalendars);
         });
     }
 }

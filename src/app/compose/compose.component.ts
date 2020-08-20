@@ -37,7 +37,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-import { AppSettings, defaultAppSettings } from '../app-settings';
+import { AppSettings, AppSettingsService } from '../app-settings';
 import { StorageService } from '../storage.service';
 
 declare const tinymce: any;
@@ -85,8 +85,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // to not include the recipients already picked
     filteredSuggestions: MailAddressInfo[] = [];
 
-    webmailSettings: AppSettings = defaultAppSettings();
-
     public formGroup: FormGroup;
 
     @Input() model: DraftFormModel = new DraftFormModel();
@@ -101,7 +99,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private location: Location,
         private dialogService: DialogService,
         recipientservice: RecipientsService,
-        private storageService: StorageService,
+        public settingsService: AppSettingsService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -110,10 +108,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.suggestedRecipients = suggestions;
             this.updateSuggestions();
         });
-
-        this.storageService.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
-            settings => this.webmailSettings = settings
-        );
     }
 
     ngOnInit() {
@@ -550,6 +544,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const from = this.draftDeskservice.froms.find(
             (f) => this.model.from === f.nameAndAddress);
 
+        if (from.reply_to !== null && from.reply_to.length > 0) {
+            this.model.reply_to = from.reply_to;
+        }
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
@@ -610,6 +607,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     msg_body: this.model.msg_body,
                     in_reply_to: this.model.in_reply_to,
                     reply_to_id: this.model.reply_to_id,
+                    reply_to: this.model.reply_to,
                     tags: [],
                     ctype: this.model.useHTML ? 'html' : null,
                     save: send ? 'Send' : 'Save',

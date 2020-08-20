@@ -271,4 +271,16 @@ END:VCARD`);
 
         expect(sut.vcard().toLowerCase()).toContain('bday;value=text:yesterday');
     });
+
+    it('can set photo to a data uri', () => {
+        let sut = new Contact({});
+        sut.nickname = 'Mr Photographed';
+
+        const uri = 'data:image/jpeg;base64,/9j/4AAQ';
+
+        sut.photo = uri;
+
+        sut = Contact.fromVcard(null, sut.vcard());
+        expect(sut.photo).toBe(uri);
+    });
 });

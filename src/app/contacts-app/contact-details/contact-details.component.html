@@ -4,19 +4,59 @@
     Select a contact to view or edit its details
 </div>
 
+<input #picUploadInput
+    type="file"
+    accept="image/png, image/jpeg, image/gif, image/webp"
+    [hidden]="true"
+    (change)="onPicUploaded($event)"
+/>
+
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <mat-icon> {{ contactIcon }} </mat-icon>
-        <span *ngIf="contact.display_name(); else defaultName">
-            {{ contact.display_name() }}
+        <span class="contactDetailsPicture" *ngIf="settingsService.settings.avatars != AvatarSource.NONE">
+            <img
+                *ngIf="contactPhotoURI; else uploadPicture"
+                class="contactDetailsPicture"
+                [src]="contactPhotoURI"
+                [matMenuTriggerFor]="pictureMenu"
+            >
+            <ng-template #uploadPicture>
+                <button mat-stroked-button
+                    matTooltip="Consider enabling remote avatars in settings"
+                    [matTooltipDisabled]="settingsService.settings.avatars == AvatarSource.REMOTE"
+                    (click)="showUploadDialog()"
+                >
+                    <mat-icon svgIcon="account-box-outline"></mat-icon>
+                    <br> Upload picture
+                </button>
+            </ng-template>
+            <mat-menu #pictureMenu="matMenu">
+                <button mat-menu-item *ngIf="contactPhotoSource" disabled>
+                    <mat-icon svgIcon="cloud"></mat-icon>
+                    <span>From {{ contactPhotoSource }}</span>
+                </button>
+                <button mat-menu-item (click)="showUploadDialog()">
+                    <mat-icon svgIcon="publish"></mat-icon>
+                    <span>Replace</span>
+                </button>
+                <button mat-menu-item *ngIf="!contactPhotoSource" (click)="removePhoto()">
+                    <mat-icon svgIcon="delete"></mat-icon>
+                    <span>Remove</span>
+                </button>
+            </mat-menu>
         </span>
-        <ng-template #defaultName>
-            <span [ngSwitch]="contact.kind">
-                <span *ngSwitchCase="kind.GROUP"> New group   </span>
-                <span *ngSwitchDefault>           New contact </span>
+        <span class="contactDetailsName">
+            <mat-icon svgIcon="{{ contactIcon }}"> </mat-icon>
+            <span *ngIf="contact.display_name(); else defaultName">
+                {{ contact.display_name() }}
             </span>
-        </ng-template>
-        's details
+            <ng-template #defaultName>
+                <span [ngSwitch]="contact.kind">
+                    <span *ngSwitchCase="kind.GROUP"> New group   </span>
+                    <span *ngSwitchDefault>           New contact </span>
+                </span>
+            </ng-template>
+        </span>
     </h2>
     <form [formGroup]="contactForm">
         <h3> Basic information </h3>
@@ -79,8 +119,7 @@
                     >
                         <span *ngIf="member.id; else not_contact">
                             <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
-                                      draggable="true" (dragstart)="memberDragged($event, idx)">
-                                drag_handle
+                                      draggable="true" (dragstart)="memberDragged($event, idx)" svgIcon="drag">
                             </mat-icon>
                             <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
                                 <app-contact-button [contact]="member"></app-contact-button>
@@ -91,7 +130,7 @@
                         </ng-template>
 
                         <button mat-icon-button *ngIf="mobileQuery.matches" (click)="removeGroupMember(idx)">
-                            <mat-icon> delete </mat-icon>
+                            <mat-icon svgIcon="delete"> </mat-icon>
                         </button>
                     </div>
                 </div>
@@ -100,7 +139,7 @@
                     [ngStyle]="{ 'margin': loadedGroupMembers.length ? '0px' : '10px' }"
                     (click)="askForMoreMembers()"
                 >
-                    <mat-icon> add </mat-icon> Add more contacts
+                    <mat-icon svgIcon="plus"></mat-icon> Add more contacts
                 </button>
 
                 <div *ngIf="!mobileQuery.matches">
@@ -123,7 +162,7 @@
             (drop)="memberDropped($event)"
             style="padding: 25px; border: 2px dotted;"
         >
-            <mat-icon> delete </mat-icon> Drop group member here to remove it from the group
+            <mat-icon svgIcon="delete"> </mat-icon> Drop group member here to remove it from the group
         </div>
 
         <app-contact-details-fa-viewer

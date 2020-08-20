@@ -11,29 +11,29 @@
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
 
             <mat-list-item routerLink="/contacts/new" class="contactListButton">
-                <mat-icon mat-list-icon>person_add</mat-icon>
+                <mat-icon mat-list-icon svgIcon="account-plus"></mat-icon>
                 <p mat-line>New contact</p>
             </mat-list-item>
             <mat-list-item routerLink="/contacts/new_group" class="contactListButton" (click)="shownGroup = null">
-                <mat-icon mat-list-icon>group_add</mat-icon>
+                <mat-icon mat-list-icon svgIcon="account-multiple-plus"></mat-icon>
                 <p mat-line>New group</p>
             </mat-list-item>
 
             <mat-list-item (click)="importVcfClicked()" class="contactListButton">
                 <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
-                <mat-icon mat-list-icon>import_export</mat-icon>
+                <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
                 <p mat-line>Import contacts</p>
             </mat-list-item>
 
             <mat-list-item routerLink="/contacts/settings" class="contactListButton">
-                <mat-icon mat-list-icon>settings</mat-icon>
+                <mat-icon mat-list-icon svgIcon="cog"></mat-icon>
                 <p mat-line>Settings</p>
             </mat-list-item>
 
             <mat-divider></mat-divider>
 
             <mat-list-item routerLink="/contacts/" class="contactListButton" [ngClass]="!shownGroup ? 'selectedFolder' : ''">
-                <mat-icon mat-list-icon> group </mat-icon>
+                <mat-icon mat-list-icon svgIcon="account-multiple"></mat-icon>
                 <p mat-line>
                     Show all contacts
                 </p>
@@ -45,17 +45,25 @@
                 (drop)="dropContactTo(group, $event)"
                 routerLink="/contacts/{{ group.id }}"
             >
-                <mat-icon mat-list-icon> group </mat-icon>
+                <mat-icon mat-list-icon svgIcon="account-multiple"></mat-icon>
                 <p mat-line>
                     {{ group.display_name() }}
                 </p>
             </mat-list-item>
 
             <mat-list-item *ngIf="groups.length === 0" class="contactListButton contactListHint">
-                <mat-icon mat-list-icon> info </mat-icon>
+                <mat-icon mat-list-icon svgIcon="information"></mat-icon>
                 <p mat-line>
                     your groups will be visible here
                 </p>
+            </mat-list-item>
+
+            <mat-divider></mat-divider>
+
+            <mat-list-item>
+                <app-activity-indicator
+                    [activities]="contactsservice.activities.observable"
+                ></app-activity-indicator>
             </mat-list-item>
         </mat-nav-list>
 
@@ -64,14 +72,14 @@
                 matTooltip="Add these contacts to a group"
                 (click)="addSelectedToGroup()"
             >
-                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before"> group_add </mat-icon>
+                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before" svgIcon="account-multiple-plus"></mat-icon>
             </button>
 
             <button mat-fab
                 matTooltip="Delete these contacts"
                 (click)="deleteSelected()"
             >
-                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before"> delete </mat-icon>
+                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before" svgIcon="delete"></mat-icon>
             </button>
         </div>
     </mat-sidenav>
@@ -79,7 +87,7 @@
         <div id="contactsPageTop"></div>
         <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
             <button mat-icon-button (click)="sidemenu.toggle()">
-                <mat-icon>menu</mat-icon>
+                <mat-icon svgIcon="menu"></mat-icon>
             </button>
 
             <span *ngIf="!showingDetails">
@@ -92,7 +100,7 @@
             </span>
 
             <button mat-icon-button *ngIf="showingDetails" (click)="closeDetails()">
-                <mat-icon> close </mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         </mat-toolbar>
         <div [class]="appLayout">

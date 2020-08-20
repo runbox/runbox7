@@ -1,7 +1,7 @@
 <div style="display: flex">
   <span mat-subheader style="flex-grow: 1">Folders</span>
   <button mat-icon-button id="createFolderButton" matTooltip="Create folder..." (click)="addFolder()">
-    <mat-icon>add</mat-icon>
+    <mat-icon svgIcon="plus"></mat-icon>
   </button>
 </div>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
@@ -24,16 +24,15 @@
                 [attr.aria-label]="'toggle ' + node.folderName"
                 [disabled]="!node.isExpandable"
                 >
-          <mat-icon class="mat-icon-rtl-mirror" *ngIf="node.isExpandable">
-            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+          <mat-icon class="mat-icon-rtl-mirror" *ngIf="node.isExpandable" svgIcon="{{treeControl.isExpanded(node) ? 'chevron-down' : 'chevron-right'}}">
           </mat-icon>
         </button>
-        <mat-icon *ngIf="node.folderType=='inbox'" mat-list-icon class="folderIconStandard">move_to_inbox</mat-icon>
-        <mat-icon *ngIf="node.folderType=='sent'" mat-list-icon class="folderIconStandard">send</mat-icon>
-        <mat-icon *ngIf="node.folderType=='spam'" mat-list-icon class="folderIconStandard">do_not_disturb</mat-icon>
-        <mat-icon *ngIf="node.folderType=='templates'" mat-list-icon class="folderIconStandard">description</mat-icon>
-        <mat-icon *ngIf="node.folderType=='trash'" mat-list-icon class="folderIconStandard">delete</mat-icon>
-        <mat-icon *ngIf="node.folderType=='user'" mat-list-icon class="folderIconUser">folder</mat-icon>
+        <mat-icon *ngIf="node.folderType=='inbox'" mat-list-icon class="folderIconStandard" svgIcon="inbox-arrow-down"></mat-icon>
+        <mat-icon *ngIf="node.folderType=='sent'" mat-list-icon class="folderIconStandard" svgIcon="send"></mat-icon>
+        <mat-icon *ngIf="node.folderType=='spam'" mat-list-icon class="folderIconStandard" svgIcon="cancel"></mat-icon>
+        <mat-icon *ngIf="node.folderType=='templates'" mat-list-icon class="folderIconStandard" svgIcon="file-document"></mat-icon>
+        <mat-icon *ngIf="node.folderType=='trash'" mat-list-icon class="folderIconStandard" svgIcon="delete"></mat-icon>
+        <mat-icon *ngIf="node.folderType=='user'" mat-list-icon class="folderIconUser" svgIcon="folder"></mat-icon>
         <div style="margin-left: 5px;" 
               draggable="true"
               (dragstart)="dragFolderStart($event, node.folderId)">
@@ -64,48 +63,48 @@
           <ng-container *ngSwitchCase="'user'">
             <mat-menu #folderActionsMenu="matMenu">
               <button mat-menu-item (click)="renameFolderDialog(node)">
-                <mat-icon color="primary">border_color</mat-icon>
+                <mat-icon  svgIcon="pencil" color="primary"></mat-icon>
                 <span>Rename</span>
               </button>
               <button mat-menu-item (click)="addSubFolderDialog(node)">
-                <mat-icon color="primary">create_new_folder</mat-icon>
+                <mat-icon  svgIcon="folder-plus" color="primary"></mat-icon>
                 <span>New Subfolder</span>
               </button>
               <button mat-menu-item (click)="deleteFolderDialog(node)">
-                <mat-icon color="primary">delete</mat-icon>
+                <mat-icon  svgIcon="delete" color="primary"></mat-icon>
                 <span>Delete</span>
               </button>
             </mat-menu>
             <button mat-icon-button
               (click)="$event.stopPropagation()"
               [matMenuTriggerFor]="folderActionsMenu" matTooltip="Folder actions">
-              <mat-icon>more_vert</mat-icon>
+              <mat-icon svgIcon="dots-vertical"></mat-icon>
             </button>              
           </ng-container>  
           <ng-container *ngSwitchCase="'trash'">
             <mat-menu #trashFolderActionsMenu="matMenu">
               <button mat-menu-item (click)="emptyTrash.next(node.folderName)">
-                <mat-icon>clear_all</mat-icon>
+                <mat-icon svgIcon="notification-clear-all"></mat-icon>
                 <span>Empty trash</span>              
               </button>
             </mat-menu>
             <button mat-icon-button
               (click)="$event.stopPropagation()"
               [matMenuTriggerFor]="trashFolderActionsMenu" matTooltip="Folder actions">
-              <mat-icon>more_vert</mat-icon>
+              <mat-icon svgIcon="dots-vertical"></mat-icon>
             </button>          
           </ng-container>
           <ng-container *ngSwitchCase="'spam'">
             <mat-menu #trashFolderActionsMenu="matMenu">
               <button mat-menu-item (click)="emptySpam.next(node.folderName)">
-                <mat-icon>clear_all</mat-icon>
+                <mat-icon svgIcon="notification-clear-all"></mat-icon>
                 <span>Move all to trash</span>              
               </button>
             </mat-menu>
             <button mat-icon-button
               (click)="$event.stopPropagation()"
               [matMenuTriggerFor]="trashFolderActionsMenu" matTooltip="Folder actions">
-              <mat-icon>more_vert</mat-icon>
+              <mat-icon svgIcon="dots-vertical"></mat-icon>
             </button>          
           </ng-container>
           <ng-container *ngSwitchDefault>

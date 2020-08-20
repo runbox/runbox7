@@ -19,8 +19,10 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { AppSettings, AppSettingsService } from '../app-settings';
 import { ContactsService } from './contacts.service';
 import { Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-contacts-settings',
@@ -28,10 +30,14 @@ import { Subject } from 'rxjs';
 })
 export class ContactsSettingsComponent {
     syncSettings = new Subject<any>();
+    appSettings: AppSettings = AppSettings.getDefaults();
     oldContacts: number;
 
+    AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
+
     constructor(
-        public  contactsservice: ContactsService,
+        public contactsservice: ContactsService,
+        public settingsService: AppSettingsService,
         private rmmapi: RunboxWebmailAPI,
     ) {
         this.rmmapi.getContactsSettings().subscribe(settings => {

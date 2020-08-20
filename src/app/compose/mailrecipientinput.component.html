@@ -5,7 +5,7 @@
                 [removable]="true" 
                 (removed)="removeRecipient(ndx)">        
                 {{recipient.nameAndAddress}}
-                <mat-icon matChipRemove>cancel</mat-icon>
+                <mat-icon matChipRemove svgIcon="close"></mat-icon>
         </mat-chip>
         <input #searchTextInput [formControl]="searchTextFormControl" [placeholder]="placeholder" 
                 [matChipInputFor]="chipList"

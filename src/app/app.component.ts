@@ -58,8 +58,7 @@ import { RMM } from './rmm';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
-import { StorageService } from './storage.service';
-import { AppSettings, defaultAppSettings } from './app-settings';
+import { AppSettings, AppSettingsService } from './app-settings';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -118,7 +117,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerRightSideWidth = '40%';
   allowMailViewerOrientationChange = true;
 
-  webmailSettings: AppSettings = defaultAppSettings();
+  AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
   buildtimestampstring = BUILD_TIMESTAMP;
 
@@ -166,7 +165,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
-    private storageService: StorageService,
+    public settingsService: AppSettingsService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -252,10 +251,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
               .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
     };
-
-    this.storageService.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
-      settings => this.webmailSettings = settings
-    );
 
     this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
@@ -551,7 +546,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.showSelectMarkOpMenu = false;
   }
 
-  public toggleRead() {
+  public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
@@ -559,57 +554,60 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
 
-    const value = 0;
     const args = {
-        flag: {
-            name: 'seen_flag',
-            value: value
-        },
-        ids: messageIds
+      flag: {
+        name: 'seen_flag',
+        value: status ? 1 : 0,
+      },
+      ids: messageIds
     };
 
-    messageIds.forEach( (id) => {
-        this.rmmapi.messageFlagChangeSubject.next(
-            new MessageFlagChange(id, null, value ? true : false)
-        );
-    } );
     this.rmm.email.update(args).subscribe(() => {
-        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
+        if (!this.searchService.localSearchActivated) {
+          messageIds.forEach( (id) => {
+               this.rmmapi.messageFlagChangeSubject.next(
+                   new MessageFlagChange(id, status, null)
+               );
+          } );
+        }
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
   }
 
-  public toggleFlagged() {
+  public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-    const value = 0;
     const args = {
-        flag: {
-            name: 'flagged_flag',
-            value: value
-        },
-        ids: messageIds
+      flag: {
+        name: 'flagged_flag',
+        value: status ? 1 : 0,
+      },
+      ids: messageIds
     };
 
-    messageIds.forEach( (id) => {
-        this.rmmapi.messageFlagChangeSubject.next(
-            new MessageFlagChange(id, null, value ? true : false)
-            );
-    } );
     this.rmm.email.update(args).subscribe(() => {
-        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
+         if (!this.searchService.localSearchActivated) {
+           messageIds.forEach( (id) => {
+             this.rmmapi.messageFlagChangeSubject.next(
+               new MessageFlagChange(id, null, status)
+             );
+           } );
+         }
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
+
   }
 
   public trashMessages() {
@@ -931,6 +929,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         return;
     }
 
+    console.log('Change selectedFolder');
     this.clearSelection();
 
     let doResetColumns = false;
@@ -986,6 +985,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.autoAdjustColumnWidths();
   }
 
+  // FIXME: Why do we run this when searchText is empty?
   updateSearch(always?: boolean, noscroll?: boolean) {
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       return;
@@ -1152,10 +1152,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       fragment += `:${this.singlemailviewer.messageId}`;
     }
     this.router.navigate(['/'], { fragment });
-  }
-
-  public onSettingsChanged(): void {
-    this.storageService.set('webmailSettings', this.webmailSettings);
   }
 }
 

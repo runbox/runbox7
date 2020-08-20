@@ -17,12 +17,49 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { StorageService } from './storage.service';
+import { filter } from 'rxjs/operators';
+
 export interface AppSettings {
     showPopularRecipients: boolean;
+    avatars: AppSettings.AvatarSource;
 }
 
-export function defaultAppSettings(): AppSettings {
-    return {
-        showPopularRecipients: true,
-    };
+export namespace AppSettings {
+    export enum AvatarSource {
+        NONE   = 'none',
+        LOCAL  = 'local',
+        REMOTE = 'remote',
+    }
+
+    export function getDefaults(): AppSettings {
+        return {
+            avatars: AvatarSource.LOCAL,
+            showPopularRecipients: true,
+        };
+    }
+
+    export function load(stored: any): AppSettings {
+        return Object.assign(getDefaults(), stored);
+    }
+}
+
+@Injectable({ providedIn: 'root' })
+export class AppSettingsService {
+    settings: AppSettings = AppSettings.getDefaults();
+    settingsSubject: BehaviorSubject<AppSettings> = new BehaviorSubject(AppSettings.getDefaults());
+
+    constructor(private storage: StorageService) {
+        this.storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
+            (settings: any) => this.settingsSubject.next(
+                this.settings = AppSettings.load(settings)
+            )
+        );
+    }
+
+    public store(): void {
+        this.storage.set('webmailSettings', this.settings);
+    }
 }

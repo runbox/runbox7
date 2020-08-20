@@ -38,7 +38,7 @@ export class InfoParams {
         </mat-dialog-content>
         <mat-dialog-actions style="display: flex">
             <p style="flex-grow: 1"></p>
-            <button mat-icon-button mat-dialog-close><mat-icon>done</mat-icon></button>
+            <button mat-icon-button mat-dialog-close><mat-icon svgIcon="check"></mat-icon></button>
         </mat-dialog-actions>`
 })
 // tslint:disable-next-line:component-class-suffix
