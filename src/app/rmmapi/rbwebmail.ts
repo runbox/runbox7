@@ -40,6 +40,7 @@ import { ProgressSnackbarComponent } from '../dialog/progresssnackbar.component'
 import { Profile } from '../profiles/profile';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
+import * as moment from 'moment';
 
 export class MessageFields {
     id: number;
@@ -111,6 +112,30 @@ export class RunboxMe {
     public subscription: number;
     public is_trial: boolean;
     public uses_own_domain: boolean;
+
+    constructor(instanceData?: RunboxMe) {
+        if (instanceData) {
+            this.deserialize(instanceData);
+        }
+    }
+
+    private deserialize(instanceData: RunboxMe) {
+        const keys = Object.keys(instanceData);
+
+        for (const key of keys) {
+            if (instanceData.hasOwnProperty(key)) {
+                this[key] = instanceData[key];
+            }
+        }
+    }
+
+    getCreatedMoment(): moment.Moment {
+      return moment(this.user_created, 'X');
+    }
+    newerThan(duration: number): boolean {
+        const now = moment();
+        return this.getCreatedMoment().diff(now) < duration;
+    }
 }
 
 export class MessageTextpart {
@@ -171,7 +196,7 @@ export class RunboxWebmailAPI {
                 map((res: any) => {
                     res.uid = parseInt(res.uid, 10);
                     res.disk_used = res.quotas ? parseInt(res.quotas.disk_used, 10) : null;
-                    return res;
+                    return new RunboxMe(res);
                 })
             ).subscribe((me: RunboxMe) => {
                 this.me.next(me);

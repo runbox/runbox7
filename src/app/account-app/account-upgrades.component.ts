@@ -17,11 +17,11 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 import { RunboxTimerComponent } from './runbox-timer';
@@ -39,10 +39,13 @@ export class AccountUpgradesComponent implements OnInit {
 
     trial_with_own_domain = false;
     currency: string;
+    limitedTimeOffer = false;
+    limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
 
     email_hosting_product: Product;
     bought_micro = false;
     bought_email_hosting = false;
+    @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
     constructor(
         public  cart:            CartService,
@@ -56,6 +59,7 @@ export class AccountUpgradesComponent implements OnInit {
         this.rmmapi.me.subscribe(me => {
             this.trial_with_own_domain = me.is_trial && me.uses_own_domain;
             this.currency = me.currency;
+            this.limitedTimeOffer = me.newerThan(this.limited_time_offer_age);
         });
 
         this.paymentsservice.products.subscribe(products => {
@@ -63,11 +67,11 @@ export class AccountUpgradesComponent implements OnInit {
             this.subscriptions.next(subs_all);
             this.email_hosting_product = products.find(p => p.pid === this.cart.EMAIL_HOSTING_PID);
 
-	    const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
+            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
             this.subs_regular.next(subs_regular);
             this.subs_regular.complete();
-	    
-	    const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
+
+            const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
             this.subs_special.next(subs_special);
             this.subs_special.complete();
 
@@ -87,5 +91,8 @@ export class AccountUpgradesComponent implements OnInit {
                 }
             });
         });
+    }
+    runboxTimerFinished(): void {
+        this.limitedTimeOffer = false;
     }
 }

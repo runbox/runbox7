@@ -18,41 +18,17 @@
 // ---------- END RUNBOX LICENSE ----------
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import {
-  SecurityContext,
   Component,
   OnInit,
-  Input,
-  Output,
-  EventEmitter,
-  NgZone,
-  ViewChild,
-  AfterViewInit,
   ContentChild,
   ElementRef,
-  TemplateRef,
+  Input,
+  Output,
+  EventEmitter
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AsyncSubject } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {
-  MatCardModule,
-  MatCheckboxModule,
-  MatDialogModule,
-  MatExpansionModule,
-  MatInputModule,
-  MatListModule,
-  MatPaginatorModule,
-  MatProgressBarModule,
-  MatProgressSpinnerModule,
-  MatSelectModule,
-  MatTableModule,
-  MatTabsModule,
-  MatChipsModule,
-  MatDialog,
-  MatPaginator,
-  MatGridListModule,
-} from '@angular/material';
-import { AsyncSubject, Observable, Subject } from 'rxjs';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import * as moment from 'moment';
 
 @Component({
@@ -62,12 +38,12 @@ import * as moment from 'moment';
     template: `
         <ng-container><span #ref><ng-content select="[custom_template]"></ng-content></span></ng-container>
         <ng-container *ngIf="ref.childNodes.length == 0">
-            <span class="timeunit years" *ngIf="years">{{years}} years,</span>
-            <span class="timeunit months" *ngIf="months"> {{months}} months,</span>
-            <span class="timeunit days" *ngIf="days"> {{days}} days,</span>
-            <span class="timeunit hours"> {{hours}} hours,</span>
-            <span class="timeunit minutes"> {{minutes}} minutes, and </span>
-            <span class="timeunit seconds"> {{seconds}} seconds</span>
+            <span class="timeunit years" *ngIf="runningDuration.years() > 0">{{runningDuration.years()}} years,</span>
+            <span class="timeunit months" *ngIf="runningDuration.months() > 0"> {{runningDuration.months()}} months,</span>
+            <span class="timeunit days" *ngIf="runningDuration.days() > 0"> {{runningDuration.days()}} days,</span>
+            <span class="timeunit hours"> {{runningDuration.hours()}} hours,</span>
+            <span class="timeunit minutes"> {{runningDuration.minutes()}} minutes, and </span>
+            <span class="timeunit seconds"> {{runningDuration.seconds()}} seconds</span>
         </ng-container>
     `
 })
@@ -75,40 +51,33 @@ import * as moment from 'moment';
 export class RunboxTimerComponent implements OnInit {
   @ContentChild('custom_template', { static: false }) custom_template: ElementRef;
 
-  user_created = new AsyncSubject<string>();
+  @Input() user_created: moment.Moment;
+  @Input() timer_length: number;
+
+  // tslint:disable-next-line:no-output-on-prefix
+  @Output() onFinished: EventEmitter<boolean> = new EventEmitter();
+  runningDuration: moment.Duration;
 
   constructor(
       public dialog: MatDialog,
       public ref: ElementRef,
       private rmmapi: RunboxWebmailAPI,
   ) {
-
+      setTimeout(() => this.recalculate_date(), 1000);
   }
 
   ngOnInit() {
-      this.recalculate_date();
-      this.rmmapi.me.subscribe(me => {
-          let user_created = me.user_created;
-      });
+      console.log('oninit runbox-timer');
   }
 
   recalculate_date () {
+      const now = moment();
+      const running_for = this.timer_length - now.diff(this.user_created);
 
-      console.log('HABA');
-
-      let now = moment();
-      // let tomorrow = moment().add(1, 'days');
-      // tomorrow.subtract(7654, 'seconds'); // for a little variety ;)
-
-      let expiration = moment(this.user_created); // Need this from API
-      let duration = moment.duration(expiration.diff(now));
-      let limitedTimeOffer = (duration > 0 ? duration : null);
-      
-      console.log(`
-        days:    ${duration.days()}
-        hours:   ${duration.hours()}
-        minutes: ${duration.minutes()}
-        seconds: ${duration.seconds()}
-      `.trim());
+      this.runningDuration = moment.duration(running_for);
+      if (running_for <= 0 && this.onFinished) {
+          this.onFinished.emit();
+      }
+      setTimeout(() => this.recalculate_date(), 1000);
   }
 }

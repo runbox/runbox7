@@ -61,12 +61,12 @@ mat-icon.limitedTimeOffer {
       {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
     </p>
 
-    <div *ngIf="(limitedTimeOffer)" class="limitedTimeOffer">
+    <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0"><mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star</mat-icon></h2>
       <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra generous today!</h3>
       <h4 style="margin: 20px 0 0 0">Subscribe within 24 hours of signing up and get</h4>
       <h1 style="margin: 10px 0 0 0">1 extra year for free!</h1>
-      <p>This offer expires in <app-runbox-timer class="timer"></app-runbox-timer></p>
+      <p>This offer expires in <app-runbox-timer class="timer" [user_created]="me.getCreatedMoment()" [timer_length]="limited_time_offer_age" (onFinished)="runboxTimerFinished()"></app-runbox-timer></p>
     </div>
 
     <div id="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
