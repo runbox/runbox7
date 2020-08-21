@@ -1,15 +1,21 @@
 .twoColumns {
     display: grid;
-    grid-template-columns: 1fr 4fr;
+    grid-template-columns: min-content auto;
     height: 100%;
 
     .contactList {
-        overflow: auto;
+        min-width: 200px;
+        max-width: 350px;
+        border-right: 1px solid #e0e0e0;
     }
 
     .contactDetails {
         overflow: auto;
     }
+}
+
+.contactName {
+    overflow: hidden;
 }
 
 .showList {
@@ -104,4 +110,10 @@
 
 .contactDetailsPicture mat-icon {
     transform: scale(2);
+}
+
+.contactList {
+    .mat-icon {
+        margin: 0 !important;
+    }
 }
