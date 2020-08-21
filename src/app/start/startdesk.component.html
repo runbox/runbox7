@@ -12,11 +12,13 @@
   </div>
 
   <div id="dashdeskOverviewContainer">
-    <mat-card id="dashdeskOverview" class="mat-card">
+    <mat-card class="mat-card dashdeskOverview">
       <h3><mat-icon>blur_on</mat-icon>Communication overview</h3>
-      <h4>Frequent senders today</h4>
-      <div class="overviewEntry">
-	<div class="contact"><mat-icon>person</mat-icon> <h4>Gandalf</h4></div>
+      <h4>Activity highlights today</h4>
+      <mat-card class="mat-card">
+	<div class="contact"><mat-icon>person</mat-icon> <h4>Gandalf</h4>
+	  <div class="messages">3 messages today</div>
+	</div>
 	<div class="subject">
 	  <ul>
 	    <li>Look out for someone named Strider</li>
@@ -24,9 +26,11 @@
 	    <li>Be careful with the Palantir!</li>
 	  </ul>
 	</div>
-      </div>
-      <div class="overviewEntry">
-	<div class="contact"><mat-icon>person</mat-icon> <h4>Bilbo</h4></div>
+      </mat-card>
+      <mat-card class="mat-card dashdeskOverview">
+	<div class="contact"><mat-icon>person</mat-icon> <h4>Bilbo</h4>
+	  <div class="messages">5 messages today</div>
+	</div>
 	<div class="subject">
 	  <ul>
 	    <li>Second Breakfast</li>
@@ -35,9 +39,11 @@
 	    <li>Show 2 more...</li>
 	  </ul>
 	</div>
-      </div>
-      <div class="overviewEntry">
-	<div class="contact"><mat-icon>business</mat-icon> <h4>Facebook</h4></div>
+      </mat-card>
+      <mat-card class="mat-card dashdeskOverview">
+	<div class="contact"><mat-icon>business</mat-icon> <h4>Facebook</h4>
+	  <div class="messages">126 messages today</div>
+	</div>
 	<div class="subject">
 	  <ul>
 	    <li>Gollum is a new friend suggestion for you</li>
@@ -46,7 +52,33 @@
 	    <li>Show 123 more...</li>
 	  </ul>
 	</div>
-      </div>
+      </mat-card>
+      <mat-card class="mat-card dashdeskOverview">
+	<div class="contact"><mat-icon>business</mat-icon> <h4>Twitter</h4>
+	  <div class="messages">8 messages today</div>
+	</div>
+	<div class="subject">
+	  <ul>
+	    <li>Runbox Tweeted: Check out our recent updates on our blog...</li>
+	    <li>You have 99 new followers</li>
+	    <li>Google just followed you</li>
+	    <li>Show 5 more...</li>
+	  </ul>
+	</div>
+      </mat-card>
+      <mat-card class="mat-card dashdeskOverview">
+	<div class="contact"><mat-icon>business</mat-icon> <h4>LinkedIn</h4>
+	  <div class="messages">12 messages today</div>
+	</div>
+	<div class="subject">
+	  <ul>
+	    <li>Runbox, please add me to your LinkedIn Network</li>
+	    <li>Amazon's invitation is awaiting your response</li>
+	    <li>Jeff Bezos sent you a new message</li>
+	    <li>Show 9 more...</li>
+	  </ul>
+	</div>
+      </mat-card>
     </mat-card>
   </div>
   
