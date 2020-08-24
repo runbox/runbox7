@@ -57,7 +57,6 @@ import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
 import { StartDeskModule } from './start/startdesk.module';
-import { StartDeskComponent } from './start/startdesk.component';
 import { WelcomeDeskComponent } from './welcome/welcomedesk.component';
 import { WelcomeDeskModule } from './welcome/welcomedesk.module';
 import { AccountAppModule } from './account-app/account-app.module';
@@ -80,6 +79,7 @@ import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
+import { OverviewComponent } from './start/overview.component';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -102,15 +102,15 @@ const routes: Routes = [
             path: 'compose',
             component: DraftDeskComponent
           },
-	  {
-            path: 'start',
-            component: StartDeskComponent
-          },
           {
             path: 'welcome',
             component: WelcomeDeskComponent
           }
         ]
+      },
+      {
+        path: 'start',
+        component: OverviewComponent,
       },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
