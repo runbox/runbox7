@@ -429,6 +429,7 @@ export class RunboxWebmailAPI {
                             reply_to: item.profile.reply_to,
                             name: item.profile.from_name,
                             signature: item.profile.signature,
+                            type: k,
                         });
                         results.push(profile);
                     });
