@@ -109,15 +109,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         if (this.model.isUnsaved()) {
             this.editing = true;
             this.isUnsaved = true;
             this.shouldReturnToPreviousPage = true;
+            this.has_pasted_signature = false;
+
             const from: FromAddress = this.draftDeskservice.froms.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
-            this.has_pasted_signature = false;
             if (!from) {
                 this.model.from = this.draftDeskservice.froms && this.draftDeskservice.froms.length > 0 ?
                     this.draftDeskservice.froms[0].nameAndAddress : '';
