@@ -126,6 +126,10 @@ mat-grid-tile {
     text-align: left;
 }
 
+mat-chip.mat-chip.mat-standard-chip {
+    background-color: #f5f5f5;
+}
+
 /* Generic custom styles */
 
 mat-grid-tile.tableTitle {
@@ -514,7 +518,7 @@ mat-sidenav-container {
 }
 
 #sidenavGreeting {
-    margin: 10px;
+    margin-left: 10px;
 }
 
 #sidenavGreeting p {
@@ -728,43 +732,6 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     color: mat-color($rmm-default-primary);
 }
 
-
-/* Context tool buttons */
-
-.contextToolButtons {
-    margin-right: 16px;
-}
-
-.contextToolButtons button {
-    margin-right: 0px !important;
-}
-
-@media(max-width: 812px) {
-    .contextToolButtons {
-	top: 90px !important;
-    }
-}
-
-@media(min-width: 813px) {
-    .contextToolButtons {
-	top: 150px !important;
-    }
-}
-
-@media(max-width: 812px) {
-    .contextToolButtons button {
-	width: 45px !important;
-	height: 45px !important;
-    }
-    .contextToolButtons .mat-button-wrapper {
-	padding-top: 11px !important;
-    }
-    .contextToolButtons button mat-icon {
-	font-size: 24px !important;
-    }
-}
-
-
 /* Read screen */
 
 .noMessageSelectedNotification {
@@ -858,30 +825,6 @@ compose .mat-standard-chip {
 
 .domreg .default_margintop {
     margin-top: 35px;
-}
-
-/* Contacts */
-
-.multiContactActions {
-    display: flex;
-    flex-flow: column;
-    position: fixed;
-    bottom: 50px;
-    right: 50px;
-    z-index: 10;
-}
-
-.multiContactActions button {
-    margin-top: 10px;
-}
-
-.contact-details-row {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.contact-details-row .mat-form-field {
-    padding: 5px;
 }
 
 /* Calendar */

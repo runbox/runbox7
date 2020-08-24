@@ -36,7 +36,8 @@ import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { AppSettingsService } from '../app-settings';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -83,7 +84,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // to not include the recipients already picked
     filteredSuggestions: MailAddressInfo[] = [];
 
-
     public formGroup: FormGroup;
 
     @Input() model: DraftFormModel = new DraftFormModel();
@@ -98,6 +98,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private location: Location,
         private dialogService: DialogService,
         recipientservice: RecipientsService,
+        public settingsService: AppSettingsService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -130,6 +131,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.signature = from.signature;
                     this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
                 }
+            }
+            if (this.model.cc.length > 0) {
+                this.hasCC = true;
+            }
+            if (this.model.bcc.length > 0) {
+                this.hasBCC = true;
             }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
@@ -422,7 +429,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public trashDraft() {
         const snackBarRef = this.snackBar.open('Deleting');
-        this.rmmapi.trashMessages([this.model.mid]).subscribe(() => {
+        this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
             this.exitIfNeeded();
@@ -536,6 +543,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const from = this.draftDeskservice.froms.find(
             (f) => this.model.from === f.nameAndAddress);
 
+        if (from.reply_to !== null && from.reply_to.length > 0) {
+            this.model.reply_to = from.reply_to;
+        }
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
@@ -596,6 +606,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     msg_body: this.model.msg_body,
                     in_reply_to: this.model.in_reply_to,
                     reply_to_id: this.model.reply_to_id,
+                    reply_to: this.model.reply_to,
                     tags: [],
                     ctype: this.model.useHTML ? 'html' : null,
                     save: send ? 'Send' : 'Save',

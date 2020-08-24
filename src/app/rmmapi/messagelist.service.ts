@@ -17,15 +17,18 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {throwError as observableThrowError,  BehaviorSubject ,  Observable, ReplaySubject } from 'rxjs';
 import { Injectable } from '@angular/core';
+
+import { throwError as observableThrowError, BehaviorSubject, ReplaySubject } from 'rxjs';
+import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operators';
+
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+
 import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
-import { MessageInfo } from '../xapian/messageinfo';
 import { AppComponent } from '../app.component';
 import { CanvasTableColumn } from '../canvastable/canvastable';
 import { MessageTableRowTool } from '../messagetable/messagetablerow';
-import { catchError, map, filter, take } from 'rxjs/operators';
 
 export class FolderMessageCountEntry {
     constructor(
@@ -68,17 +71,7 @@ export class MessageListService {
     constructor(
         public rmmapi: RunboxWebmailAPI
     ) {
-        this.refreshFolderList().then(folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders)));
-
-        this.folderListSubject.subscribe((foldercounts) =>
-            this.folders.next(
-                foldercounts.map((fld) => [fld.folderName, fld.totalMessages,
-                    fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
-                    , false, // Folder is not in local index but we're showing from the database here so don't mark as grey
-                fld.folderId
-                ]
-                ))
-        );
+        this.refreshFolderList();
 
         rmmapi.messageFlagChangeSubject.pipe(
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
@@ -121,37 +114,56 @@ export class MessageListService {
                 const folderCounts = {};
                 for (const folder of folders) {
                     const path = folder.folderPath;
+
                     if (xapianFolders.has(path)) {
-                        folderCounts[path] = this.searchservice.getMessageCountsForFolder(path);
+                        const res = this.searchservice.api.getFolderMessageCounts(folder.folderName);
+
+                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
                     } else {
                         folderCounts[path] = FolderMessageCountEntry.of(folder);
                     }
                 }
                 this.folderMessageCountSubject.next(folderCounts);
             });
-        } else {
-            this.refreshFolderList().then(
-                folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders))
-            );
         }
     }
 
     public refreshFolderList(): Promise<FolderListEntry[]> {
         return new Promise((resolve, _) => {
-            this.rmmapi.getFolderList().subscribe((folders) => {
-                const trashfolder = folders.find(folder => folder.folderType === 'trash');
-                if (trashfolder) {
-                    this.trashFolderName = trashfolder.folderName;
-                }
-                const spamfolder = folders.find(folder => folder.folderType === 'spam');
-                if (spamfolder) {
-                    this.spamFolderName = spamfolder.folderName;
-                }
+            this.rmmapi.getFolderList()
+                .pipe(distinctUntilChanged((prev, curr) =>
+                     prev.length === curr.length
+                     && prev.map(f => f.folderId).join('') === curr.map(f => f.folderId).join('')))
+                .subscribe((folders) => {
+                    const trashfolder = folders.find(folder => folder.folderType === 'trash');
+                    if (trashfolder) {
+                        this.trashFolderName = trashfolder.folderName;
+                    }
+                    const spamfolder = folders.find(folder => folder.folderType === 'spam');
+                    if (spamfolder) {
+                        this.spamFolderName = spamfolder.folderName;
+                    }
 
-                this.folderListSubject.next(folders);
+                    this.folderListSubject.next(folders);
+                    // Moved from constructor (subscribing to our own
+                    // subjects seems silly)
+                    // Xapian counts:
+                    this.refreshFolderCounts();
+                    // API counts:
+                    this.folders.next(
+                        folders.map((fld) => [fld.folderName, fld.totalMessages,
+                            fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
+                            , false, // Folder is not in local index but we're showing from the database here so don't mark as grey
+                            fld.folderId
+                        ]
+                    ));
+                    // Local counts
+                    this.folderMessageCountSubject.next(
+                        this.getFolderCountsFor(folders)
+                    );
                 resolve(folders);
             });
-        });
+       });
     }
 
     public requestMoreData(currentlimit: number) {
@@ -218,8 +230,6 @@ export class MessageListService {
         if (hasChanges) {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
             this.refreshFolderList();
-            console.log('New/Moved messages, updating folder counts');
-            this.refreshFolderCounts();
         }
     }
 

@@ -28,8 +28,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -40,11 +42,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ContactsAppComponent } from './contacts-app.component';
 import { ContactButtonComponent } from './contact-button.component';
 import { ContactDetailsComponent } from './contact-details/contact-details.component';
+import { ContactListComponent } from './contact-list.component';
 import { ContactsSettingsComponent } from './contacts-settings.component';
 import { ContactsWelcomeComponent } from './contacts-welcome.component';
 import { FormArrayEditorComponent } from './contact-details/formarray-editor.component';
 import { MultiValueEditorComponent } from './contact-details/multivalue-editor.component';
-import { ContactsService } from './contacts.service';
+import { ContactPickerDialogComponent } from './contact-picker-dialog.component';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
@@ -53,8 +56,10 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     ContactsAppComponent,
     ContactButtonComponent,
     ContactDetailsComponent,
+    ContactListComponent,
     ContactsSettingsComponent,
     ContactsWelcomeComponent,
+    ContactPickerDialogComponent,
     FormArrayEditorComponent,
     GroupPickerDialogComponent,
     MultiValueEditorComponent,
@@ -67,9 +72,11 @@ import { VcfImportDialogComponent } from './vcf-import-dialog.component';
     MatButtonModule,
     MatCheckboxModule,
     MatDialogModule,
+    MatExpansionModule,
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatMenuModule,
     MatRadioModule,
     MatSelectModule,
     MatSidenavModule,

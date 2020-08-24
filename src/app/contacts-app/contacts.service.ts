@@ -19,6 +19,7 @@
 
 import { ContactSyncResult, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { StorageService } from '../storage.service';
+import { BackgroundActivityService } from '../common/background-activity.service';
 import { Contact } from './contact';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
@@ -26,6 +27,8 @@ import { Subject, ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+import { Md5 } from 'ts-md5/dist/md5';
+import { AppSettings, AppSettingsService } from '../app-settings';
 
 export class Settings {
     get showDragHelpers(): boolean {
@@ -34,6 +37,81 @@ export class Settings {
 
     set showDragHelpers(value: boolean) {
         localStorage.setItem('contacts.showDragHelpers', value ? '1' : '');
+    }
+}
+
+enum Activity {
+    RefreshingContacts = 'Synchronizing contacts',
+    SavingContact      = 'Saving contact',
+    DeletingContact    = 'Deleting contact',
+    DeletingContacts   = 'Deleting contacts',
+}
+
+interface AvatarCacheEntry {
+    url:       string|null;
+    timestamp: number;
+}
+
+/* This caches avatar URLs, or `null`s in their absence.
+ * Mostly useful for avatars not available in Contacts,
+ * and loaded from external services like gravatar.
+ *
+ * Putting (gr)avatar URLs in <img src's> will cache them nicely,
+ * except if they 404d last time around
+ * (which will realistically happen most of the time).
+ *
+ * 404d avatars will get re-requested every single time,
+ * wasting time and bandwidth for more and more useless 404s.
+ * To avoid this, we cache the fact that they don't exist
+ * (storing `null` in `avatarCache`) so that various components
+ * know that there's no need to create <img> at all,
+ * and no useless requests will be performed.
+ */
+class AvatarCache {
+    changed = new Subject<void>();
+
+    constructor(
+        public source: AppSettings.AvatarSource,
+        private entries: { [email: string]: AvatarCacheEntry },
+    ) { }
+
+    static empty(): AvatarCache {
+        return new AvatarCache(AppSettings.AvatarSource.NONE, {});
+    }
+
+    load(cache: any) {
+        if (cache) {
+            this.source = cache['source']; this.entries = cache['entries'];
+        }
+    }
+
+    toStorable(): any {
+        return {
+            source: this.source,
+            entries: this.entries,
+        };
+    }
+
+    add(email: string, url: string) {
+        this.entries[email] = { url, timestamp: (new Date()).getTime() };
+        this.changed.next();
+    }
+
+    get(email: string): string {
+        if (this.entries[email]) {
+            // TODO skip if too old
+            return this.entries[email].url;
+        }
+        return null;
+    }
+
+    trash(email: string = null) {
+        if (email) {
+            this.entries[email] = null;
+        } else {
+            this.entries = {};
+        }
+        this.changed.next();
     }
 }
 
@@ -52,8 +130,12 @@ export class ContactsService implements OnDestroy {
     syncToken: string;
     lastUpdate: moment.Moment;
 
+    avatarCache: AvatarCache = AvatarCache.empty();
+    activities = new BackgroundActivityService<Activity>();
+
     constructor(
         private rmmapi: RunboxWebmailAPI,
+        private settingsService: AppSettingsService,
         private storage: StorageService,
     ) {
         storage.get('contactsCache').then(cache => {
@@ -69,11 +151,22 @@ export class ContactsService implements OnDestroy {
             }, this.syncIntervalSeconds * 1000);
             this.reload();
         });
+
+        storage.get('avatarCache').then(cache => {
+            this.avatarCache.load(cache);
+            this.avatarCache.changed.subscribe(() => storage.set('avatarCache', this.avatarCache.toStorable()));
+            this.settingsService.settingsSubject.subscribe(settings => {
+                if (this.avatarCache.source !== settings.avatars) {
+                    this.avatarCache.trash();
+                }
+            });
+        });
     }
 
     apiErrorHandler(e: HttpErrorResponse): void {
         this.errorLog.next(e);
     }
+
 
     ngOnDestroy() {
         clearInterval(this.syncInterval);
@@ -90,6 +183,7 @@ export class ContactsService implements OnDestroy {
             }
             for (const e of c.emails) {
                 byEmail[e.value] = c;
+                this.avatarCache.trash(e.value);
             }
         }
         this.contactCategories.next(Object.keys(categories));
@@ -99,7 +193,9 @@ export class ContactsService implements OnDestroy {
     }
 
     reload(): Promise<void> {
-        return new Promise((resolve, reject) => {
+        this.activities.begin(Activity.RefreshingContacts);
+
+        const promise = new Promise<void>((resolve, reject) => {
             this.rmmapi.syncContacts(this.syncToken).subscribe(
                 (syncResult: ContactSyncResult) => {
                     this.migratingContacts = syncResult.toMigrate;
@@ -139,6 +235,10 @@ export class ContactsService implements OnDestroy {
                 }
             );
         });
+
+        promise.finally(() => this.activities.end(Activity.RefreshingContacts));
+
+        return promise;
     }
 
     saveCache(contacts: Contact[]): void {
@@ -150,7 +250,9 @@ export class ContactsService implements OnDestroy {
     }
 
     saveContact(contact: Contact): Promise<string> {
-        return new Promise((resolve, reject) => {
+        this.activities.begin(Activity.SavingContact);
+
+        const promise = new Promise<string>((resolve, reject) => {
             if (contact.url) {
                 console.log('Modifying contact', contact.id);
                 this.rmmapi.modifyContact(contact).subscribe(() => {
@@ -176,22 +278,60 @@ export class ContactsService implements OnDestroy {
                 });
             }
         });
+
+        promise.finally(() => this.activities.end(Activity.SavingContact));
+
+        return promise;
     }
 
     deleteContact(contact: Contact): Promise<void> {
-        console.log('Contact.service deleting', contact.url);
-        return new Promise<void>((resolve, reject) => {
-            this.rmmapi.deleteContact(contact).subscribe(() => {
-                this.reload().then(() => resolve());
-            }, e => {
-                this.apiErrorHandler(e);
-                reject();
-            });
-        });
+        this.activities.begin(Activity.DeletingContact);
+
+        const promise = this.deleteContactSilently(contact);
+        promise.finally(() => this.activities.end(Activity.DeletingContact));
+        promise.then(() => this.reload());
+
+        return promise;
     }
 
-    deleteMultiple(contacts: Contact[]): Promise<void[]> {
-        return Promise.all(contacts.map(c => this.deleteContact(c)));
+    deleteMultiple(contacts: Contact[]): Promise<void> {
+        this.activities.begin(Activity.DeletingContacts, contacts.length);
+        return Promise.all(
+            contacts.map(c => this.deleteContactSilently(c).finally(
+                () => this.activities.end(Activity.DeletingContacts)
+            ))
+        ).then(() => this.reload());
+    }
+
+    // returns an URL or null if no avatar is available
+    async lookupAvatar(email: string): Promise<string> {
+        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.NONE) {
+            return Promise.resolve(null);
+        }
+
+        if (this.avatarCache.get(email)) {
+            return Promise.resolve(this.avatarCache.get(email));
+        }
+
+        const contact = await this.lookupContact(email);
+        const photoUrl = contact ? contact.photo : null;
+        if (photoUrl) {
+            this.avatarCache.add(email, photoUrl);
+            return Promise.resolve(photoUrl);
+        }
+
+        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.LOCAL) {
+            return Promise.resolve(null);
+        }
+
+        const hash = Md5.hashStr(email.toLowerCase());
+        const url = 'https://gravatar.com/avatar/' + hash + '?d=404';
+
+        return fetch(url).then(response => {
+            const resolvedUrl = response.ok ? url : null;
+            this.avatarCache.add(email, resolvedUrl);
+            return Promise.resolve(resolvedUrl);
+        });
     }
 
     lookupContact(email: string): Promise<Contact> {
@@ -212,6 +352,17 @@ export class ContactsService implements OnDestroy {
                     }
                 }
                 resolve(null);
+            });
+        });
+    }
+
+    private deleteContactSilently(contact: Contact): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.rmmapi.deleteContact(contact).subscribe(() => {
+                resolve();
+            }, e => {
+                this.apiErrorHandler(e);
+                reject();
             });
         });
     }

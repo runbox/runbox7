@@ -181,6 +181,20 @@ export class MockServer {
                 response.end(JSON.stringify(this.receipt()));
                 return;
             }
+            if (requesturl.startsWith('/rest/v1/contacts/sync')) {
+                response.end(JSON.stringify(
+                    {
+                        status: 'success',
+                        result: {
+                            newToken: `e2e-${new Date()}`,
+                            added: this.contacts(),
+                            removed: [],
+                            to_migrate: 0,
+                        }
+                    }
+                ));
+                return;
+            }
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
@@ -200,19 +214,6 @@ export class MockServer {
                         }
                         }, 1000);
                     break;
-                case '/rest/v1/contacts/sync':
-                    response.end(JSON.stringify(
-                        {
-                            status: 'success',
-                            result: {
-                                newToken: 'e2e-1',
-                                added: this.contacts(),
-                                removed: [],
-                                to_migrate: 0,
-                            }
-                        }
-                    ));
-                    break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
                     break;
@@ -224,6 +225,12 @@ export class MockServer {
                     break;
                 case '/rest/v1/account_product/available':
                     response.end(JSON.stringify(this.availableProducts()));
+                    break;
+                case '/rest/v1/account_product/active':
+                    response.end(JSON.stringify(this.activeProducts()));
+                    break;
+                case '/rest/v1/account_product/product_domain/1234':
+                    response.end(JSON.stringify(this.productDomain1234()));
                     break;
                 case '/rest/v1/account_product/cart':
                     response.end(JSON.stringify(this.availableProducts()));
@@ -351,6 +358,32 @@ export class MockServer {
                 'gender': null, 'has_sub_accounts': 1, 'need2pay': 'n',
                 'paid': 'n', 'country': null
             }
+        };
+    }
+
+    activeProducts() {
+        return {
+            'status': 'success',
+            'result': [
+                {
+                    "apid":         1234,
+                    "subtype":      "domain",
+                    "type":         "addon",
+                    "active_from":  "2019-11-11T10:31:26",
+                    "active_until": "2029-11-11T10:31:26",
+                    "name":         "register .INC 10 year(s)",
+                    "pid":          3456,
+                    "active":       true,
+                    "quantity":     1
+                }
+            ],
+        };
+    }
+
+    productDomain1234() {
+        return {
+            'status': 'success',
+            'result': 'monsters.inc',
         };
     }
 
@@ -661,7 +694,15 @@ export class MockServer {
                 "/contacts/ID-MR-POSTCODE.vcf",
                 "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
                 + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
-            ]
+            ],
+            [
+                "/contacts/ID-GROUP1.vcf",
+                "BEGIN:VCARD\nVERSION:4.0\nUID:ID-GROUP1\nKIND:GROUP\nFN:Group #1\nMEMBER:urn:uuid:ID-GROUP1-MEMBER1\nEND:VCARD",
+            ],
+            [
+                "/contacts/ID-GROUP1-MEMBER1.vcf",
+                "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
+            ],
         ];
     }
 }

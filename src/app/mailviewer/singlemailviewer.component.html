@@ -10,8 +10,17 @@
       <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move to folder..." (click)="messageActionsHandler.moveToFolder()">
         <mat-icon>folder</mat-icon>          
       </button>      
-      <button *ngIf="morebuttonindex>1" mat-icon-button matTooltip="Move to Trash" (click)="messageActionsHandler.trashMessage()">
-        <mat-icon>delete</mat-icon>
+      <button *ngIf="morebuttonindex>1"
+        mat-icon-button
+        [matTooltip]="folder !== this.messagelistservice.trashFolderName ? 'Move to Trash' : 'Delete permanently'"
+        (click)="messageActionsHandler.deleteMessage()"
+      >
+        <mat-icon *ngIf="folder !== this.messagelistservice.trashFolderName; else deletePermanently">
+            delete
+        </mat-icon>
+        <ng-template #deletePermanently>
+          <mat-icon> delete_forever </mat-icon>
+        </ng-template>
       </button>
       <button *ngIf="morebuttonindex>2" mat-icon-button matTooltip="Reply" (click)="messageActionsHandler.reply(showHTML)">
 	      <mat-icon>reply</mat-icon>
@@ -77,9 +86,15 @@
           <mat-icon>folder</mat-icon>  
           <span>Move to folder</span>        
         </button>
-        <button *ngIf="morebuttonindex<2" mat-menu-item (click)="messageActionsHandler.trashMessage()">
-          <mat-icon>delete</mat-icon>
-          <span>Move to Trash</span>
+        <button *ngIf="morebuttonindex<2" mat-menu-item (click)="messageActionsHandler.deleteMessage()">
+          <span *ngIf="folder !== this.messagelistservice.trashFolderName; else deletePermanently2">
+            <mat-icon> delete </mat-icon>
+            Move to Trash
+          </span>
+          <span #deletePermanently2>
+            <mat-icon> delete_forever </mat-icon>
+            Delete permanently
+          </span>
         </button>    
         <button *ngIf="morebuttonindex<3" mat-menu-item (click)="messageActionsHandler.reply(showHTML)">
           <mat-icon>reply</mat-icon>
@@ -170,6 +185,7 @@
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
       <mat-expansion-panel-header title="Toggle message headers">
 	      <mat-panel-title>
+          <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>        
       </mat-expansion-panel-header>

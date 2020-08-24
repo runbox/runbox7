@@ -19,7 +19,7 @@
 
 import {DraftFormModel} from './draftdesk.service';
 import { FromAddress } from '../rmmapi/from_address';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 
 
 describe('DraftDesk', () => {
@@ -67,10 +67,10 @@ describe('DraftDesk', () => {
                 'message-id': 'themessageid12123abcdef',
                 'reply-to': {
                     'text': 'Reply-To <reply-to@runbox.com>',
-                    'value': {
+                    'value': [{
                         'name': 'Reply-To',
                         'address': 'reply-to@runbox.com'
-                    }
+                    }]
                 }
             },
             from: [
@@ -92,6 +92,49 @@ describe('DraftDesk', () => {
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
+        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Reply: Address with object, reply-to all', (done) => {
+        console.log('Reply test: Address with object, reply-to all');
+        // fromObj, identities, all (t/f), html (t/f)
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+                'reply-to': {
+                    'text': 'Reply-To <reply-to@runbox.com>',
+                    'value': [{
+                        'name': 'Reply-To',
+                        'address': 'reply-to@runbox.com'
+                    }]
+                }
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'},
+                {address: 'to-extra@runbox.com', name: 'To-Extra'}
+            ],
+            cc: [
+                {address: 'cc@runbox.com', name: 'CC'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        true, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.from).toBe('to@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
+        expect(draft.to[1].nameAndAddress).toBe('"To-Extra" <to-extra@runbox.com>');
+        expect(draft.cc[0].nameAndAddress).toBe('"CC" <cc@runbox.com>');
         expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
         done();

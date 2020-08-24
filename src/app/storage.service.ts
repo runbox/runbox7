@@ -19,11 +19,12 @@
 
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { Injectable } from '@angular/core';
-import { AsyncSubject } from 'rxjs';
+import { AsyncSubject, ReplaySubject } from 'rxjs';
 
 @Injectable()
 export class StorageService {
     uid = new AsyncSubject<number>();
+    keySubjects: { [key: string]: ReplaySubject<any> } = {};
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
@@ -44,12 +45,24 @@ export class StorageService {
         return value ? JSON.parse(value) : undefined;
     }
 
+    getSubject(key: string): ReplaySubject<any> {
+        if (!this.keySubjects[key]) {
+            this.keySubjects[key] = new ReplaySubject<any>(1);
+            this.get(key).then(value => this.keySubjects[key].next(value));
+        }
+        return this.keySubjects[key];
+    }
+
     async set(key: string, value: any): Promise<void> {
         if (value === undefined) {
             localStorage.removeItem(await this.userKey(key));
         } else {
             const valueStr = JSON.stringify(value);
             localStorage.setItem(await this.userKey(key), valueStr);
+        }
+        const subject = this.keySubjects[key];
+        if (subject) {
+            subject.next(value);
         }
     }
 }

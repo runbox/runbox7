@@ -27,7 +27,7 @@ import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import { isValidEmailArray } from './emailvalidator';
 
 const COMMA = 188;

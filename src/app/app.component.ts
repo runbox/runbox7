@@ -30,19 +30,17 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { Router, RouterOutlet, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
-import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
 import { MessageListService } from './rmmapi/messagelist.service';
-import { MessageInfo } from './xapian/messageinfo';
-import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
-import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
-import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
+import { ProgressDialog } from './dialog/dialog.module';
+import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
@@ -57,7 +55,8 @@ import { ProgressService } from './http/progress.service';
 import { RMM } from './rmm';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
-import {Hotkey, HotkeysService} from 'angular2-hotkeys';
+import { Hotkey, HotkeysService } from 'angular2-hotkeys';
+import { AppSettings, AppSettingsService } from './app-settings';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -70,7 +69,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   moduleId: 'angular2/app/',
   // tslint:disable-next-line:component-selector
   selector: 'app',
-  styleUrls: ['app.component.css'],
+  styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck, OnDestroy {
@@ -94,6 +93,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   displayedFolders = new Observable<FolderListEntry[]>();
   selectedFolder = 'Inbox';
+  composeSelected: boolean;
+  draftsSelected: boolean;
 
   timeOfDay: string;
 
@@ -112,6 +113,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerOnRightSide = true;
   mailViewerRightSideWidth = '40%';
   allowMailViewerOrientationChange = true;
+
+  AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
   buildtimestampstring = BUILD_TIMESTAMP;
 
@@ -153,12 +156,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private ngZone: NgZone,
     public logoutservice: LogoutService,
     public websocketsearchservice: WebSocketSearchService,
-    private draftDeskService: DraftDeskService,
+    public draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
     changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
-    private hotkeysService: HotkeysService
+    private hotkeysService: HotkeysService,
+    public settingsService: AppSettingsService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -357,6 +361,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     );
 
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.composeSelected = this.router.url === '/compose?new=true';
+      this.draftsSelected = this.router.url === '/compose';
+    });
+
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
         filter(() => !this.canvastable.isScrollInProgress()),
@@ -463,7 +474,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, trashFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', trashFolderName);
   }
@@ -475,7 +486,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', spamFolderName);
   }
@@ -585,7 +596,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
-  public trashMessages() {
+  public deleteMessages() {
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
@@ -593,7 +604,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.searchService.deleteMessages(messageIds);
-    this.searchService.rmmapi.trashMessages(messageIds)
+    this.searchService.rmmapi.deleteMessages(messageIds)
       .subscribe(() => {
         this.selectedRowIds = {};
         this.selectedRowId = null;
@@ -761,6 +772,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   searchFor(text) {
+    if (!this.selectedFolder) {
+        // resetSearch=false, to make sure selectFolder doesn't call us back
+        this.selectFolder('Inbox', false);
+    }
     if (text !== this.searchText) {
       this.searchText = text;
       if (this.usewebsocketsearch) {
@@ -782,6 +797,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.updateSearch(true);
 
+  }
+
+  public childRouteActivated(yes: boolean): void {
+    this.hasChildRouterOutlet = yes;
+    if (yes) {
+      this.selectedFolder = null;
+    }
   }
 
   public downloadIndexFromServer() {
@@ -876,12 +898,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  selectFolder(folder: string): void {
+  selectFolder(folder: string, resetSearch = true): void {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
-    this.searchFor('');
+    if (resetSearch) {
+      this.searchFor('');
+    }
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }
@@ -894,7 +918,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.clearSelection();
 
     let doResetColumns = false;
-    if (folder.startsWith('Sent') || this.selectedFolder.startsWith('Sent')) {
+    if (folder.startsWith('Sent') || this.selectedFolder?.startsWith('Sent')) {
       doResetColumns = true;
     }
 

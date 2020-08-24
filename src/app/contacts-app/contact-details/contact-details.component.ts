@@ -17,20 +17,23 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
-import { ConfirmDialog } from '../../dialog/dialog.module';
+import { ErrorDialog, ConfirmDialog } from '../../dialog/dialog.module';
+import { filter, take } from 'rxjs/operators';
 
-import { filter } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
+import { MobileQueryService } from '../../mobile-query.service';
+import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
+import { AppSettings, AppSettingsService } from '../../app-settings';
 
 @Component({
     selector: 'app-contact-details',
+    styleUrls: ['../contacts-app.component.scss'],
     templateUrl: './contact-details.component.html',
 })
 export class ContactDetailsComponent {
@@ -39,6 +42,8 @@ export class ContactDetailsComponent {
     @Output() contactSaved = new EventEmitter<Contact>();
     @Output() contactDeleted = new EventEmitter<Contact>();
 
+    @ViewChild('picUploadInput') picUploadInput: any;
+
     contactForm = this.createForm();
 
     categories = [];
@@ -46,6 +51,8 @@ export class ContactDetailsComponent {
     groupMembers: GroupMember[] = [];
     // GroupMember or resolved Contact
     loadedGroupMembers = [];
+    contactPhotoURI: string;
+    contactPhotoSource: string;
 
     // needed so that templates can refer to enum values through `kind.GROUP` etc
     kind = ContactKind;
@@ -55,14 +62,17 @@ export class ContactDetailsComponent {
     contactIsDragged = false;
     memberIsDragged  = false;
 
+    AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
+
     constructor(
         public dialog: MatDialog,
-        public rmmapi: RunboxWebmailAPI,
+        public mobileQuery: MobileQueryService,
+        public settingsService: AppSettingsService,
         private fb: FormBuilder,
         private router: Router,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
-        private contactsservice: ContactsService
+        private contactsservice: ContactsService,
     ) {
         this.contactForm = this.createForm();
 
@@ -156,6 +166,23 @@ export class ContactDetailsComponent {
 
         this.groupMembers = this.contact.members;
         this.loadGroupMembers();
+
+        this.loadContactPhoto(this.contact.photo);
+    }
+
+    loadContactPhoto(uri: string): void {
+        this.contactPhotoURI = uri;
+        this.contactPhotoSource = null;
+        if (!this.contactPhotoURI && this.contact.primary_email()) {
+            this.contactsservice.lookupAvatar(this.contact.primary_email()).then(url => {
+                if (!url) { return; }
+                this.contactPhotoURI = url;
+                const sourceMatch = url.match(/(:\/\/?)([^\/]+)/);
+                if (sourceMatch) {
+                    this.contactPhotoSource = sourceMatch[2];
+                }
+            });
+        }
     }
 
     loadGroupMembers(): void {
@@ -279,6 +306,33 @@ export class ContactDetailsComponent {
         }
     }
 
+    async askForMoreMembers(): Promise<void> {
+        let contacts = await this.contactsservice.contactsSubject.pipe(take(1)).toPromise();
+        contacts = contacts.filter(c => {
+            if (c.kind !== ContactKind.INVIDIDUAL) {
+                return false;
+            }
+            if (this.groupMembers.find(gm => gm.uuid === c.id)) {
+                return false;
+            }
+            return true;
+        });
+        const dialog = this.dialog.open(ContactPickerDialogComponent, { data: {
+            contacts,
+            title: 'Add members to ' + this.contact.full_name
+        }});
+        dialog.afterClosed().pipe(
+            filter(res => res)
+        ).subscribe(res => {
+            for (const id of res.selectedContacts) {
+                if (!this.groupMembers.find(g => g.uuid === id)) {
+                    this.groupMembers.push(GroupMember.fromUUID(id));
+                }
+            }
+            this.loadGroupMembers();
+        });
+    }
+
     memberDragged(ev: DragEvent, index: number) {
         ev.dataTransfer.setData('memberIdx', '' + index);
         this.memberIsDragged = true;
@@ -287,8 +341,47 @@ export class ContactDetailsComponent {
     memberDropped(ev: DragEvent) {
         // if we were dragging something else, then `index` will eval to NaN and won't break anything
         const index = parseInt(ev.dataTransfer.getData('memberIdx'), 10);
+        this.memberIsDragged = false;
+        this.removeGroupMember(index);
+    }
+
+    removeGroupMember(index: number): void {
         this.groupMembers = this.groupMembers.filter((_, i) => i !== index);
         this.loadGroupMembers();
-        this.memberIsDragged = false;
+    }
+
+    onPicUploaded(uploadEvent: any) {
+        const file = uploadEvent.target.files[0];
+
+        const mimeType = file.type;
+        if (!mimeType.match('image/(jpeg|gif|png|webp)')) {
+            this.dialog.open(ErrorDialog, { data: {
+                message: 'Invalid image type: use jpeg, gif, png or webp'
+            } });
+            return;
+        }
+
+        const fr = new FileReader();
+        fr.onload = (ev: any) => {
+            if ((<string>fr.result).length > (256 * 1024)) {
+                // TODO: Or we could resize+compress it ourselves with a canvas:
+                // https://github.com/eyalc4/ts-image-resizer
+                this.dialog.open(ErrorDialog, { data: {
+                    message: 'Image is too big: please use something smaller than 256KB'
+                } });
+                return;
+            }
+            this.loadContactPhoto(this.contact.photo = <string>fr.result);
+        };
+
+        fr.readAsDataURL(file);
+    }
+
+    removePhoto() {
+        this.loadContactPhoto(this.contact.photo = undefined);
+    }
+
+    showUploadDialog() {
+        this.picUploadInput.nativeElement.click();
     }
 }

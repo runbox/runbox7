@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo } from '../xapian/messageinfo';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 
@@ -44,6 +44,7 @@ export class DraftFormModel {
     to: MailAddressInfo[] = [];
     cc: MailAddressInfo[] = [];
     bcc: MailAddressInfo[] = [];
+    reply_to: string = null;
     subject: string = null;
     msg_body = '';
     preview: string;
@@ -76,25 +77,29 @@ export class DraftFormModel {
         ret.in_reply_to = mailObj.headers['message-id'];
 
         // list of MailAddressInfo objects:
+        // sender always used for body string
         const sender: MailAddressInfo[] = mailObj.from.map((addr) => {
             return new MailAddressInfo(addr.name, addr.address);
         });
-        ret.to = sender;
 
+        // Reply to either the sender or the reply-to header:
         if (mailObj.headers['reply-to']) {
-            const addr = mailObj.headers['reply-to'].value;
-            ret.to = [new MailAddressInfo(addr.name, addr.address)];
+            const replies = mailObj.headers['reply-to'].value;
+            ret.to = replies.map((addr) => new MailAddressInfo(addr.name, addr.address));
+        } else {
+            ret.to = sender;
         }
 
+        // If all, also add all the other To/CC folks:
         if (all) {
-            ret.to = mailObj.from.concat(
-                mailObj.to)
+            ret.to = ret.to.concat(mailObj.to
                 .filter((addr) =>
                         froms.find(fromObj => fromObj.email === addr.address) ? false : true
                        )
                 .map((addr) => {
                     return new MailAddressInfo(addr.name, addr.address);
-                });
+                })
+            );
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
