@@ -80,6 +80,7 @@ import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
 import { OverviewComponent } from './start/overview.component';
+import { SearchService } from './xapian/searchservice';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -173,6 +174,7 @@ const routes: Routes = [
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    SearchService,
     RMMOfflineService,
     RMM,
     RMMAuthGuardService,

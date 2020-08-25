@@ -1,15 +1,181 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import * as moment from 'moment';
+
+import { Contact } from '../contacts-app/contact';
+import { SearchService, SearchIndexDocumentData } from '../xapian/searchservice';
+import { isValidEmail } from '../compose/emailvalidator';
+import { filter, take } from 'rxjs/operators';
+import { ReplaySubject } from 'rxjs';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+
+interface ContactHilights {
+    icon: string;
+    name: string;
+    contact?: Contact;
+    emails: SearchIndexDocumentData[];
+}
 
 @Component({
-  selector: 'app-start',
-  templateUrl: './startdesk.component.html',
-  styleUrls: ['./startdesk.component.scss']
+    selector: 'app-start',
+    templateUrl: './startdesk.component.html',
+    styleUrls: ['./startdesk.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StartDeskComponent implements OnInit {
+    ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
 
-  constructor() { }
+    regularOverview: ContactHilights[] = [];
+    mailingListOverview: ContactHilights[] = [];
 
-  ngOnInit() {
-  }
+    constructor(
+        private cdr: ChangeDetectorRef,
+        private searchService: SearchService,
+        private rmmapi: RunboxWebmailAPI,
+    ) { }
 
+    ngOnInit() {
+        this.rmmapi.getFromAddress().subscribe(
+            froms => this.ownAddresses.next(new Set(froms.map(f => f.email))),
+            _err  => this.ownAddresses.next(new Set([])),
+        );
+        this.searchService.initSubject.pipe(filter(enabled => enabled)).subscribe(() => this.updateCommsOverview());
+        this.searchService.searchResultsSubject.subscribe(() => this.updateCommsOverview());
+    }
+
+    private async updateCommsOverview(): Promise<void> {
+        const messages = this.searchService.getMessagesInTimeRange(
+            moment().toDate(),
+            null,
+        ).map(id => this.searchService.getDocData(id));
+
+
+        // Ideally, we'll obtain a list of mailing lists from List-ID across the entirety of search index
+        // We don't have that luxury currently, so this hack will have to do
+        const mailingLists = await this.extractMailingLists(messages);
+        const mailingListOf = (msg: SearchIndexDocumentData): string => {
+            const mls = Array.from(mailingLists.values());
+            for (const rec of msg.recipients) {
+                for (const ml of mls) {
+                    if (rec.includes(ml)) {
+                        return ml;
+                    }
+                }
+            }
+            return null;
+        }
+
+        const messagesFromLists = new Map<string, SearchIndexDocumentData[]>();
+        const otherMessages = [];
+        for (const msg of messages) {
+            const ml = mailingListOf(msg);
+            if (ml) {
+                const mlMessages = messagesFromLists.get(ml) || [];
+                mlMessages.push(msg);
+                messagesFromLists.set(ml, mlMessages);
+            } else {
+                otherMessages.push(msg);
+            }
+        }
+
+        const messagesBySender = this.groupMessagesBySender(otherMessages);
+
+        this.regularOverview = Object.keys(messagesBySender).map(
+            sender => {
+                return {
+                    icon:  'person',
+                    name:   sender,
+                    emails: messagesBySender[sender],
+                };
+            }
+        );
+
+        this.mailingListOverview = Array.from(messagesFromLists.keys()).map(
+            ml => {
+                return {
+                    icon:   'list',
+                    name:   ml,
+                    emails: messagesFromLists.get(ml),
+                };
+            }
+        );
+
+        this.cdr.detectChanges();
+    }
+
+    public emailPath(email: SearchIndexDocumentData): string {
+        const folderPath = email.folder.replace(/\./, '/');
+        const id = email.id.slice(1);
+        return `${folderPath}:${id}`;
+    }
+
+    private emailOf(mailAddressLine: string): string {
+        if (isValidEmail(mailAddressLine)) {
+            const mai = MailAddressInfo.parse(mailAddressLine)[0];
+            return mai.address;
+        }
+        return null;
+    }
+
+    private groupMessagesBySender(messages: SearchIndexDocumentData[]): { [email: string]: SearchIndexDocumentData[] } {
+        const messagesBySender: { [email: string]: SearchIndexDocumentData[] } = {};
+        const addressInfoByEmail: { [email: string]: MailAddressInfo } = {};
+
+        for (const message of messages) {
+            let sender: string;
+            if (isValidEmail(message.from)) {
+                const mai = MailAddressInfo.parse(message.from)[0];
+                const email = mai.address;
+
+                // newest known name wins
+                if (!addressInfoByEmail[email] || !addressInfoByEmail[email].name) {
+                    addressInfoByEmail[email] = mai;
+                }
+                sender = email;
+            } else {
+                sender = message.from;
+            }
+
+            if (!messagesBySender[sender]) {
+                messagesBySender[sender] = [];
+            }
+            messagesBySender[sender].push(message);
+        }
+
+        const messagesBySenderNamed: { [email: string]: SearchIndexDocumentData[] } = {};
+        for (const sender of Object.keys(messagesBySender)) {
+            const senderName = addressInfoByEmail[sender]?.name || sender;
+            let senderMessages = messagesBySenderNamed[senderName] || [];
+            senderMessages = senderMessages.concat(messagesBySender[sender]);
+            messagesBySenderNamed[senderName] = senderMessages;
+        }
+
+        return messagesBySenderNamed;
+    }
+
+    private async extractMailingLists(messages: SearchIndexDocumentData[]): Promise<Set<string>> {
+        const possibleMailingLists = new Map<string, number>();
+        const ownAddresses = await this.ownAddresses.pipe(take(1)).toPromise();
+
+        for (const message of messages) {
+            if (!message.recipients.find(r => ownAddresses.has(r))) {
+                for (const recipient of message.recipients) {
+                    const recId = this.emailOf(recipient) || recipient;
+                    let occurences = possibleMailingLists.get(recId) || 0;
+                    occurences++;
+                    possibleMailingLists.set(recId, occurences);
+                }
+            }
+        }
+
+        const mailingLists = new Set<string>();
+        for (const [ml, popularity] of Array.from(possibleMailingLists.entries())) {
+            if (popularity > 1) {
+                mailingLists.add(ml);
+            }
+        }
+
+        return mailingLists;
+    }
 }
