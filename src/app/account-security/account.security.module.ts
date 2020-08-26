@@ -23,62 +23,69 @@ import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
+import { QRCodeModule } from 'angular2-qrcode';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTableModule } from '@angular/material/table';
-import { ProfilesComponent } from './profiles.component';
-import { ProfilesListerComponent } from './profiles.lister';
-import { AliasesListerComponent } from '../aliases/aliases.lister';
-import { ProfilesEditorModalComponent } from './profiles.editor.modal';
-import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
+
+
+import { AccountSecurityComponent, ModalPasswordComponent } from './account.security.component';
+import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 
 @NgModule({
     declarations: [
-      AliasesListerComponent,
-      ProfilesComponent,
-      ProfilesListerComponent,
-      ProfilesEditorModalComponent,
-      AliasesEditorModalComponent,
+      AccountSecurityComponent,
+      ModalPasswordComponent,
     ],
     imports: [
     CommonModule,
-    MatDialogModule,
-    MatGridListModule,
-    MatCheckboxModule,
     FormsModule,
-    MatInputModule,
     MatButtonModule,
     MatCardModule,
-    MatMenuModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatGridListModule,
     MatIconModule,
+    MatInputModule,
+    MatDialogModule,
     MatListModule,
+    MatMenuModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
     MatSidenavModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
-    MatTableModule,
     MenuModule,
-    RouterModule.forChild([ { path: '', component: ProfilesComponent } ]),
+    QRCodeModule,
+    RouterModule.forChild([ { path: '', component: AccountSecurityComponent } ]),
+    RunboxComponentModule,
     ],
     entryComponents: [
-      ProfilesEditorModalComponent,
-      AliasesEditorModalComponent,
+      ModalPasswordComponent,
     ],
     providers: [
     ],
     bootstrap: []
 })
-export class ProfilesModule { }
+export class AccountSecurityModule { }
 
 

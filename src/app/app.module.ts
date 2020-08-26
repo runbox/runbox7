@@ -79,6 +79,7 @@ import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
 
+
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
 
@@ -113,6 +114,7 @@ const routes: Routes = [
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
+      { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
     ]
   },
   { path: 'login', component: LoginComponent }
@@ -157,6 +159,8 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()
+  ],
+  exports: [
   ],
   declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent,
