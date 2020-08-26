@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import * as moment from 'moment';
@@ -9,12 +10,21 @@ import { isValidEmail } from '../compose/emailvalidator';
 import { filter, take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import {MatSelectChange} from '@angular/material/select';
 
 interface ContactHilights {
     icon: string;
     name: string;
     contact?: Contact;
     emails: SearchIndexDocumentData[];
+}
+
+enum TimeSpan {
+    TODAY,
+    YESTERDAY,
+    LAST3,
+    LAST7,
+    CUSTOM,
 }
 
 @Component({
@@ -28,6 +38,15 @@ export class StartDeskComponent implements OnInit {
 
     regularOverview: ContactHilights[] = [];
     mailingListOverview: ContactHilights[] = [];
+
+    TimeSpan = TimeSpan; // exposing enum to the template
+    // TODO: from appsettings or such?
+    unreadOnly = false;
+    timeSpan = TimeSpan.TODAY;
+
+    totalEmailCount = 0;
+    regularEmailCount = 0;
+    mailingListEmailCount = 0;
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -45,11 +64,11 @@ export class StartDeskComponent implements OnInit {
     }
 
     private async updateCommsOverview(): Promise<void> {
+        const dateRange = this.dateRange();
         const messages = this.searchService.getMessagesInTimeRange(
-            moment().toDate(),
-            null,
-        ).map(id => this.searchService.getDocData(id));
-
+            dateRange[0], dateRange[1]
+        ).map(id => this.searchService.getDocData(id)
+        ).filter(msg => !this.unreadOnly || !msg.seen);
 
         // Ideally, we'll obtain a list of mailing lists from List-ID across the entirety of search index
         // We don't have that luxury currently, so this hack will have to do
@@ -100,6 +119,10 @@ export class StartDeskComponent implements OnInit {
                 };
             }
         );
+
+        this.totalEmailCount = messages.length;
+        this.regularEmailCount = otherMessages.length;
+        this.mailingListEmailCount = messages.length - otherMessages.length;
 
         this.cdr.detectChanges();
     }
@@ -177,5 +200,30 @@ export class StartDeskComponent implements OnInit {
         }
 
         return mailingLists;
+    }
+
+    public toggleUnreadOnly(event: MatCheckboxChange) {
+        this.unreadOnly = event.checked;
+        this.updateCommsOverview();
+    }
+
+    public changeTimeSpan(event: MatSelectChange) {
+        this.timeSpan = event.value;
+        this.updateCommsOverview();
+    }
+
+    public dateRange(): Date[] {
+        switch (this.timeSpan) {
+            case TimeSpan.TODAY:
+                return [new Date(), null];
+            case TimeSpan.YESTERDAY:
+                return [moment().subtract(1, 'day').toDate(), new Date()];
+            case TimeSpan.LAST3:
+                return [moment().subtract(2, 'day').toDate(), null];
+            case TimeSpan.LAST7:
+                return [moment().subtract(6, 'day').toDate(), null];
+            case TimeSpan.CUSTOM:
+                return [new Date(), null];
+        }
     }
 }
