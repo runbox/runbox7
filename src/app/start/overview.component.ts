@@ -16,7 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 import { MobileQueryService } from '../mobile-query.service';
 
 @Component({
@@ -24,6 +25,7 @@ import { MobileQueryService } from '../mobile-query.service';
   templateUrl: './overview.component.html',
 })
 export class OverviewComponent {
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
     sideMenuOpened: boolean;
 
     constructor(
