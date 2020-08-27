@@ -1024,3 +1024,8 @@ runbox-section-header mat-slide-toggle {
     display: inline;
 }
 
+canvastable {
+    [draggable] {
+        cursor: pointer;
+    }
+}
