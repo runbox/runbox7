@@ -116,13 +116,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.shouldReturnToPreviousPage = true;
             this.has_pasted_signature = false;
 
-            const from: FromAddress = this.draftDeskservice.froms.find((f) =>
-                f.nameAndAddress === this.model.from || f.email === this.model.from);
+            // prevents us from trying to pick a From before they're fully loaded
+            await this.draftDeskservice.draftsRefreshed.toPromise();
+            const from: FromAddress = this.draftDeskservice.froms.find((f) => f.email === this.model.from);
 
-            if (!from) {
-                this.model.from = this.draftDeskservice.froms && this.draftDeskservice.froms.length > 0 ?
-                    this.draftDeskservice.froms[0].nameAndAddress : '';
-            } else {
+            if (from) {
                 this.model.from = from.nameAndAddress;
                 if ( from.is_signature_html ) {
                     this.model.useHTML = true;
@@ -133,6 +131,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
                 }
             }
+
             if (this.model.cc.length > 0) {
                 this.hasCC = true;
             }
@@ -550,9 +549,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const from = this.draftDeskservice.froms.find(
             (f) => this.model.from === f.nameAndAddress);
 
-        if (from.reply_to !== null && from.reply_to.length > 0) {
+        if (from && from.reply_to !== null && from.reply_to.length > 0) {
             this.model.reply_to = from.reply_to;
         }
+
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
