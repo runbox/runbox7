@@ -125,6 +125,10 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
             component: AccountAppComponent,
             children: [
               {
+                  path: '',
+                  component: AccountComponentsComponent,
+              },
+              {
                   path: 'components',
                   component: AccountComponentsComponent,
               },
