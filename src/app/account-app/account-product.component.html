@@ -13,7 +13,7 @@ mat-card-subtitle {
   <h4 *ngIf="p.subtype === 'special'">Special offer</h4>
     <mat-card-title>
       {{ p.name }}
-      <strong *ngIf="active"> – your current {{ p.type }} </strong>
+      <strong *ngIf="active_sub"> – your current {{ p.type }} </strong>
     </mat-card-title>
     <mat-card-subtitle>
         {{ p.description }}
