@@ -24,7 +24,7 @@
       -webkit-user-select: none;"
       (scroll)="horizScroll($event)"      
       >        
-    <ng-container *ngIf="!canvastable.rowWrapMode">
+    <ng-container>
       <ng-container *ngFor="let col of canvastable.columns; let colIndex = index">
         <button mat-icon-button style="margin-top: -8px; z-index: 10000" *ngIf="col.checkbox"
           (click)="canvastable.selectAllVisibleRows()">
