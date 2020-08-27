@@ -11,10 +11,10 @@ mat-card-subtitle {
 
 <mat-card>
     <mat-card-title>
-        <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
+        <mat-icon *ngIf="p.subtype === 'special'" svgIcon="star-circle"></mat-icon>
         <span *ngIf="p.subtype === 'special'"> Special offer: </span>{{ p.name }}
         <strong *ngIf="active_sub"> – your current subscription </strong>
-        <mat-icon *ngIf="p.subtype === 'special'"> stars </mat-icon>
+        <mat-icon *ngIf="p.subtype === 'special'" svgIcon="star-circle"></mat-icon>
     </mat-card-title>
     <mat-card-subtitle>
         {{ p.description }}
@@ -40,13 +40,13 @@ mat-card-subtitle {
     </mat-card-actions>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
         <button mat-icon-button (click)="less()">
-            <mat-icon> remove_circle_outline </mat-icon>
+            <mat-icon svgIcon="minus-circle-outline"></mat-icon>
         </button>
         <button mat-button>
             {{ quantity }}
         </button>
         <button mat-icon-button (click)="more()">
-            <mat-icon> add_circle_outline </mat-icon>
+            <mat-icon svgIcon="plus-circle-outline"></mat-icon>
         </button>
         <button mat-button (click)="order()" class="contentButton" style="margin-left: 20px !important">
             Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}

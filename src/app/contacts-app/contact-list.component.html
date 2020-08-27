@@ -4,7 +4,7 @@
             <mat-label> Search </mat-label>
             <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
             <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         </mat-form-field>
     </mat-list-item>
@@ -76,8 +76,8 @@
         <mat-icon
             *ngIf="allowDragging && showDragHelpers"
             draggable="true"
-            (dragstart)="dragStarted($event, contact)">
-            drag_handle
+            (dragstart)="dragStarted($event, contact)"
+            svgIcon="drag">
         </mat-icon>
 
         <a class="contactName" matTooltip="View details">
@@ -91,12 +91,12 @@
         <a mat-icon-button class="contactIcon" matTooltip="Email {{ contact.display_name() }}"
             *ngIf="contact.primary_email()"
             routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
-          <mat-icon color="primary">email</mat-icon>
+          <mat-icon color="primary" svgIcon="email"></mat-icon>
         </a>
     </mat-list-item>
 
     <mat-list-item *ngIf="contacts.length === 0" class="contactListButton contactListHint">
-        <mat-icon mat-list-icon> info </mat-icon>
+        <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
         <p mat-line>
             your contacts will be visible here
         </p>

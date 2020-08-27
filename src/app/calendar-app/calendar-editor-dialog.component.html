@@ -16,7 +16,7 @@
         <mat-label> Colour </mat-label>
         <button mat-button (click)="openColorSelector()">
             <span *ngIf="calendar.color; else noColor">
-                <mat-icon [ngStyle]="{ 'color': calendar.color }"> brightness_1 </mat-icon>
+                <mat-icon [ngStyle]="{ 'color': calendar.color }" svgIcon="brightness-1"> </mat-icon>
                 {{ calendar.color }}
             </span>
             <ng-template #noColor>

@@ -5,27 +5,27 @@
         </div>
         <div class="draft-buttons">
             <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachDesktop" (click)="attachFilesClicked()">
-                <mat-icon>attachment</mat-icon>
+                <mat-icon svgIcon="attachment"></mat-icon>
             </button>
             <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" id="saveDraft" (click)="submit()">
-                <mat-icon *ngIf="saved">cloud_done</mat-icon>
-                <mat-icon *ngIf="!saved && !saveErrorMessage">save</mat-icon>
-                <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage">save</mat-icon>
+                <mat-icon *ngIf="saved" svgIcon="cloud-check"></mat-icon>
+                <mat-icon *ngIf="!saved && !saveErrorMessage" svgIcon="content-save"></mat-icon>
+                <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage" svgIcon="content-save-alert"></mat-icon>
             </button>
             <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to trash" id="trashDraft" (click)="trashDraft()">
-                <mat-icon>delete</mat-icon>
+                <mat-icon svgIcon="delete"></mat-icon>
             </button>
             <button *ngIf="editing" mat-icon-button matTooltip="Close draft" id="closeDraft" (click)="close()">
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
             <button *ngIf="editing && isUnsaved" mat-icon-button matTooltip="Cancel draft" id="cancelDraft" (click)="cancelDraft()">
-                <mat-icon>delete</mat-icon>
+                <mat-icon svgIcon="delete"></mat-icon>
             </button>
             <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
-                <mat-icon>edit</mat-icon>
+                <mat-icon svgIcon="pencil"></mat-icon>
             </button>                 
             <button *ngIf="editing" mat-icon-button matTooltip="Send mail" (click)="submit(true)" id="sendMail">
-                <mat-icon>send</mat-icon>
+                <mat-icon svgIcon="send"></mat-icon>
             </button>
         </div>
     </mat-card-actions>        
@@ -85,7 +85,7 @@
                 [recipients]="model.cc"
                 (updateRecipient)="onUpdateRecipient('cc', $event)"
             ></mailrecipient-input>
-            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon>close</mat-icon></button>              
+            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>              
         </div>
         <div style="display: flex;" *ngIf="editing && hasBCC" class="fieldRecipient" (drop)="recipientDropped($event, 'bcc')">
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
@@ -93,7 +93,7 @@
                 [recipients]="model.bcc"
                 (updateRecipient)="onUpdateRecipient('bcc', $event)"
             ></mailrecipient-input>
-            <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon>close</mat-icon></button>
+            <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>
         </div>
     </mat-card-subtitle>    
     <mat-card-content>       
@@ -108,7 +108,7 @@
                >
             </mat-progress-bar>
             <button mat-button *ngIf="uploadprogress !== null" (click)="cancelAttachmentUpload()">
-                <mat-icon>close</mat-icon> Cancel attachment upload
+                <mat-icon svgIcon="close"></mat-icon> Cancel attachment upload
             </button>
             <mat-card-content *ngIf="uploadprogress!=null">
                 <div *ngFor="let file of uploadingFiles">
@@ -121,7 +121,7 @@
           <div class="attachment" *ngFor="let attachment of model.attachments; let i=index">
             <ng-container *ngIf="attachment.file_url!=='UTF-8Q'">
               <a [href]="'/ajax/download_draft_attachment?filename='+attachment.file" target="_blank">{{displayWithoutRBWUL(attachment.file)}} ({{attachment.size}})</a>
-              <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon>delete</mat-icon></button>
+              <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon svgIcon="delete"></mat-icon></button>
             </ng-container>
           </div>      
         </section>      
@@ -133,7 +133,7 @@
             <div class="draft-buttons">
                 <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
                 <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachMobile" (click)="attachFilesClicked()">
-                    <mat-icon>attachment</mat-icon>
+                    <mat-icon svgIcon="attachment"></mat-icon>
                 </button>
                 <input #attachmentFileUploadInput type="file" [hidden]="true" multiple (change)="onFilesSelected($event)" />
             </div>

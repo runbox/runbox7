@@ -3,15 +3,14 @@
 <div mat-dialog-content>
     <p>
         <button mat-icon-button *ngFor="let color of colors" (click)="this.selected = color">
-            <mat-icon [ngStyle]="{ 'color': color }">
-                brightness_1
+            <mat-icon [ngStyle]="{ 'color': color }" svgIcon="brightness-1">
             </mat-icon>
         </button>
     </p>
 
     <p *ngIf="selected">
         Selected colour:
-        <mat-icon [ngStyle]="{ 'color': selected }"> brightness_1 </mat-icon>
+        <mat-icon [ngStyle]="{ 'color': selected }" svgIcon=" brightness-1"> </mat-icon>
         {{ selected }}
     </p>
 </div>

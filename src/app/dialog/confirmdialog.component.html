@@ -6,10 +6,10 @@
   </p>
   <button mat-icon-button 
     [matTooltip]="yesOptionTitle" (click)="dialogRef.close(true)">
-      <mat-icon>done</mat-icon>
+      <mat-icon svgIcon="check"></mat-icon>
   </button>
   <button mat-icon-button 
     (click)="dialogRef.close(false)" [matTooltip]="noOptionTitle">
-    <mat-icon>cancel</mat-icon>
+    <mat-icon svgIcon="cancel"></mat-icon>
   </button>
 </div>

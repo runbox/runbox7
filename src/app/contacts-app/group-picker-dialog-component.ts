@@ -31,7 +31,7 @@ import { Contact } from './contact';
 <div mat-dialog-content>
     <mat-nav-list>
         <mat-list-item *ngFor="let group of groups" (click)="chooseGroup(group)">
-            <mat-icon mat-list-icon> group </mat-icon> {{ group.full_name }}
+            <mat-icon mat-list-icon svgIcon="account-multiple"> </mat-icon> {{ group.full_name }}
         </mat-list-item>
     </mat-nav-list>
 </div>

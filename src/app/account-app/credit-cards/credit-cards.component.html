@@ -22,7 +22,7 @@
 
     <mat-card *ngFor="let cc of creditCards" class="card">
         <mat-card-header>
-            <mat-icon mat-card-avatar> credit_card </mat-icon>
+            <mat-icon mat-card-avatar svgIcon="credit-card"> </mat-icon>
             <mat-card-title>
                 {{ cc.brand }}
                 <span *ngIf="cc.wallet">({{ cc.wallet }})</span>

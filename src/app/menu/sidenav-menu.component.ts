@@ -31,16 +31,16 @@ import { LogoutService } from '../login/logout.service';
         <br />
         <div style="display: flex; justify-content: space-around;">
             <button mat-mini-fab routerLink="/">
-                <mat-icon>email</mat-icon>
+                <mat-icon svgIcon="email"></mat-icon>
             </button>
             <button mat-mini-fab routerLink="/contacts">
-                <mat-icon>people</mat-icon>
+                <mat-icon svgIcon="account-multiple"></mat-icon>
             </button>
             <button mat-mini-fab routerLink="/calendar">
-                <mat-icon>date_range</mat-icon>
+                <mat-icon svgIcon="calendar-range"></mat-icon>
             </button>
             <button mat-mini-fab (click)="logoutservice.logout()">
-                <mat-icon>power_settings_new</mat-icon>
+                <mat-icon svgIcon="power"></mat-icon>
             </button>
         </div>
         <br />

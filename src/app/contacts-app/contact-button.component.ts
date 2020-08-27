@@ -25,7 +25,7 @@ import { Contact } from './contact';
 <span>
     <mat-icon *ngIf="contact.show_as_company(); else show_kind"> business </mat-icon>
     <ng-template #show_kind>
-        <mat-icon *ngIf="contact.kind === 'group'"> group </mat-icon>
+        <mat-icon *ngIf="contact.kind === 'group'" svgIcon="account-multiple"></mat-icon>
     </ng-template>
     {{ contact.display_name() || "Unnamed contact"  }}
 </span>
