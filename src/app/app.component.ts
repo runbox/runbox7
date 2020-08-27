@@ -312,6 +312,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.keepMessagePaneOpen = messagePaneSetting === 'true';
     }
 
+    const mailViewerSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+    if (mailViewerSetting) {
+      this.mailViewerOnRightSide = mailViewerSetting === 'true';
+    }
+
     const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
     if (showUnreadOnly) {
       this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
