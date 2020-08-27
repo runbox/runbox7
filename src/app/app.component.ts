@@ -30,19 +30,17 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { Router, RouterOutlet, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
-import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
 import { MessageListService } from './rmmapi/messagelist.service';
-import { MessageInfo } from './xapian/messageinfo';
-import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
-import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
-import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
+import { ProgressDialog } from './dialog/dialog.module';
+import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
@@ -315,6 +313,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.keepMessagePaneOpen = messagePaneSetting === 'true';
     }
 
+    const mailViewerSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+    if (mailViewerSetting) {
+      this.mailViewerOnRightSide = mailViewerSetting === 'true';
+    }
+
     const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
     if (showUnreadOnly) {
       this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
@@ -477,7 +480,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, trashFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', trashFolderName);
   }
@@ -489,7 +492,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', spamFolderName);
   }
@@ -610,7 +613,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   }
 
-  public trashMessages() {
+  public deleteMessages() {
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
@@ -618,7 +621,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.searchService.deleteMessages(messageIds);
-    this.searchService.rmmapi.trashMessages(messageIds)
+    this.searchService.rmmapi.deleteMessages(messageIds)
       .subscribe(() => {
         this.selectedRowIds = {};
         this.selectedRowId = null;

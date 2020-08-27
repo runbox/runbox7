@@ -16,19 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { NgModule } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -36,49 +37,58 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
-import { ProfilesComponent } from './profiles.component';
-import { ProfilesListerComponent } from './profiles.lister';
-import { AliasesListerComponent } from '../aliases/aliases.lister';
-import { ProfilesEditorModalComponent } from './profiles.editor.modal';
-import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
+import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
+import { RunboxListComponent } from '../runbox-components/runbox-list';
+import { RunboxContainerComponent } from '../runbox-components/runbox-container';
+import { RunboxSectionComponent } from '../runbox-components/runbox-section';
+import { RunboxSlideToggleComponent } from '../runbox-components/runbox-slide-toggle';
+import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
 
 @NgModule({
     declarations: [
-      AliasesListerComponent,
-      ProfilesComponent,
-      ProfilesListerComponent,
-      ProfilesEditorModalComponent,
-      AliasesEditorModalComponent,
+        RunboxIntroComponent,
+        RunboxListComponent,
+        RunboxContainerComponent,
+        RunboxSectionComponent,
+        RunboxSlideToggleComponent,
+        RunboxTimerComponent,
     ],
     imports: [
-    CommonModule,
-    MatDialogModule,
-    MatGridListModule,
-    MatCheckboxModule,
-    FormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    MatMenuModule,
-    MatIconModule,
-    MatListModule,
-    MatProgressBarModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatTableModule,
-    MenuModule,
-    RouterModule.forChild([ { path: '', component: ProfilesComponent } ]),
+        CommonModule,
+        MatGridListModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatInputModule,
+        MatButtonModule,
+        MatCardModule,
+        MatMenuModule,
+        MatIconModule,
+        MatListModule,
+        MatProgressBarModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatTableModule,
+        MenuModule,
+    ],
+    exports: [
+        RunboxIntroComponent,
+        RunboxListComponent,
+        RunboxContainerComponent,
+        RunboxSectionComponent,
+        RunboxSlideToggleComponent,
+        RunboxTimerComponent,
     ],
     entryComponents: [
-      ProfilesEditorModalComponent,
-      AliasesEditorModalComponent,
     ],
     providers: [
     ],
-    bootstrap: []
+    bootstrap: [
+    ]
 })
-export class ProfilesModule { }
+
+export class RunboxComponentModule { }
 
 

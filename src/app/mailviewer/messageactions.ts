@@ -23,7 +23,7 @@ export interface MessageActions {
   mailViewerComponent: SingleMailViewerComponent;
 
   moveToFolder();
-  trashMessage();
+  deleteMessage();
   flag();
   unflag();
   reply(useHTML?: boolean);

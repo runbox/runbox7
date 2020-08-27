@@ -17,26 +17,27 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {Injectable, NgZone} from '@angular/core';
-import { Observable ,  AsyncSubject,  Subject ,  of, from  } from 'rxjs';
-import { XapianAPI } from './rmmxapianapi';
-import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
-import { MessageInfo,
-    IndexingTools } from './messageinfo';
+import { Injectable, NgZone } from '@angular/core';
+import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+
+import { Observable, AsyncSubject, Subject, of, from } from 'rxjs';
+import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
+
+import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { DownloadableSearchIndexMap, DownloadablePartition } from 'runbox-searchindex/downloadablesearchindexmap.class';
+import { MessageInfo, IndexingTools } from 'runbox-searchindex/messageinfo';
+
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CanvasTableColumn} from '../canvastable/canvastable';
 import { AppComponent } from '../app.component';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MessageListService, FolderMessageCountEntry } from '../rmmapi/messagelist.service';
-import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
-import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
-import { DownloadableSearchIndexMap, DownloadablePartition } from './downloadablesearchindexmap.class';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
-import { InfoDialog, InfoParams } from '../dialog/info.dialog';
 
 declare var FS;
 declare var IDBFS;

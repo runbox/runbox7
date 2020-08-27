@@ -9,7 +9,7 @@
         </mat-form-field>
     </mat-list-item>
 
-    <mat-expansion-panel>
+    <mat-expansion-panel class="contactFiltering">
         <mat-expansion-panel-header>
             <mat-panel-title>
                 More filtering options
@@ -46,7 +46,7 @@
         </mat-list-item>
     </mat-expansion-panel>
 
-    <mat-list-item>
+    <mat-list-item class="contactSelect">
         <mat-checkbox
             [(ngModel)]="selectingMultiple"
             (change)="onSelectMultipleChange()"
@@ -80,7 +80,7 @@
             svgIcon="drag">
         </mat-icon>
 
-        <a matTooltip="View details">
+        <a class="contactName" matTooltip="View details">
             <p mat-line>
                 <app-contact-button [contact]="contact"></app-contact-button>
             </p>
@@ -88,7 +88,7 @@
 
         <span style="flex-grow: 1"></span>
 
-        <a mat-icon-button matTooltip="Email {{ contact.display_name() }}"
+        <a mat-icon-button class="contactIcon" matTooltip="Email {{ contact.display_name() }}"
             *ngIf="contact.primary_email()"
             routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
           <mat-icon color="primary" svgIcon="email"></mat-icon>

@@ -41,7 +41,7 @@ export class RMM6MessageActions implements MessageActions {
         }
     }
 
-    trashMessage() {
+    deleteMessage() {
         location.href = '/mail/list?delete_msg=1&message=' + this.mailViewerComponent.messageId;
     }
 

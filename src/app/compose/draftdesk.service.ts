@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo } from '../xapian/messageinfo';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import { Observable, from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 
@@ -50,6 +50,7 @@ export class DraftFormModel {
     preview: string;
     in_reply_to: string;
     reply_to_id: string = null;
+    replying = false;
     tags: string;
     useHTML = false;
     save = 'Save';
@@ -75,6 +76,7 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.reply_to_id = mailObj.mid;
         ret.in_reply_to = mailObj.headers['message-id'];
+        ret.replying = true;
 
         // list of MailAddressInfo objects:
         // sender always used for body string
