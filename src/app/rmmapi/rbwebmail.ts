@@ -28,7 +28,6 @@ import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
@@ -81,11 +80,6 @@ export class ContactSyncResult {
         public removed:      string[],
         public toMigrate:    number,
     ) { }
-}
-
-class FromAddressResponse {
-    public from_addresses: FromAddress[];
-    public status: string;
 }
 
 export class RunboxMe {
@@ -154,7 +148,6 @@ export class RunboxWebmailAPI {
     constructor(
         public snackBar: MatSnackBar,
         private http: HttpClient,
-        private dialog: MatDialog,
         public rmm: RMM,
         private ngZone: NgZone
     ) {

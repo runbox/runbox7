@@ -19,7 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import * as moment from 'moment';
 import { RunboxCalendar } from './runbox-calendar';
@@ -40,7 +40,6 @@ export class ImportDialogComponent {
     extractedCalendar: RunboxCalendar;
 
     constructor(
-        private dialog: MatDialog,
         public dialogRef: MatDialogRef<ImportDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {

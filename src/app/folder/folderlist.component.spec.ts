@@ -21,7 +21,7 @@ import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent }
 import { FolderListEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { BehaviorSubject, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { TestBed, getTestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { take } from 'rxjs/operators';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';

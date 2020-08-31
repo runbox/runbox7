@@ -18,12 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HttpErrorResponse } from '@angular/common/http';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CartService } from './cart.service';
-import { PaymentsService } from './payments.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
@@ -41,10 +38,7 @@ export class BitpayPaymentDialogComponent {
 
     constructor(
         private cart: CartService,
-        private dialog: MatDialog,
         private rmmapi: RunboxWebmailAPI,
-        private paymentsservice: PaymentsService,
-        private router: Router,
         public dialogRef: MatDialogRef<BitpayPaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {

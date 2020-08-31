@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Directive, ElementRef, OnInit, Input, OnDestroy, Renderer2, Output, EventEmitter } from '@angular/core';
+import { Directive, ElementRef, OnInit, Input, Renderer2, Output, EventEmitter } from '@angular/core';
 
 @Directive({
     selector: '[appHorizResizable]' // Attribute selector
@@ -42,8 +42,6 @@ export class HorizResizerDirective implements OnInit {
     ngOnInit(): void {
         if (!this.resizableDisabled) {
             this.el.nativeElement.style['border-top'] = `${this.resizableGrabHeight}px solid darkgrey`;
-
-            const self = this;
 
             const mouseDrag = (evt) => {
                 if (this.inDragRegion(evt) || this.dragging) {

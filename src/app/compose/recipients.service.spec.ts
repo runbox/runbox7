@@ -131,7 +131,7 @@ export class RunboxWebMailAPIMock {
 
 describe('RecipientsService', () => {
     beforeEach(() => {
-        const testingmodule = TestBed.configureTestingModule({
+        TestBed.configureTestingModule({
             imports: [],
             declarations: [ ], // declare the test component
             providers: [RecipientsService, StorageService,

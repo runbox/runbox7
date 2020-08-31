@@ -18,11 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-
-import { RunboxCalendar } from './runbox-calendar';
-import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-calendar-colour-selector-dialog-component',
@@ -61,7 +57,6 @@ export class ColorSelectorDialogComponent {
     selected: string;
 
     constructor(
-        private dialog: MatDialog,
         public dialogRef: MatDialogRef<ColorSelectorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: string[]
     ) {

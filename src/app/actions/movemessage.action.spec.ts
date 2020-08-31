@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, flushMicrotasks } from '@angular/core/testing';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
 import { MoveMessageDialogComponent } from './movemessage.action';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -68,7 +68,7 @@ describe('MoveMessageAction', () => {
     let fixture: ComponentFixture<TestComponent>;
 
     beforeEach(() => {
-        const testingmodule = TestBed.configureTestingModule({
+        TestBed.configureTestingModule({
             imports: [HttpClientModule, MatDialogModule, NoopAnimationsModule],
             declarations: [
                 MoveMessageDialogComponent, TestComponent

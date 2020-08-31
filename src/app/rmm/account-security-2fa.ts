@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { of } from 'rxjs';
 import { RMM } from '../rmm';
 
 export class AccountSecurity2fa {
@@ -141,7 +140,7 @@ export class AccountSecurity2fa {
         qr_code_url.searchParams.set('device', device);
         qr_code_url.searchParams.set('label', this.totp_label);
         qr_code_url.searchParams.set('secret', this.new_totp_code);
-        const qr_code_image = this.generate_qr_code(device, this.app.account_security.tfa.totp_label, this.new_totp_code);
+        this.generate_qr_code(device, this.app.account_security.tfa.totp_label, this.new_totp_code);
     }
 
     generate_totp_code() {
