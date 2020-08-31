@@ -39,7 +39,6 @@ class MatDialogMock {
   }
 
 describe('FolderListComponent', () => {
-    let injector: TestBed;
     let dialog: MatDialog;
     let hotkeyMock: HotkeysService;
 
@@ -54,8 +53,7 @@ describe('FolderListComponent', () => {
             ],
         providers: [RunboxWebmailAPI, { provide: MatDialog, useClass: MatDialogMock }]
         });
-        injector = getTestBed();
-        dialog = injector.get(MatDialog);
+        dialog = TestBed.inject(MatDialog);
         hotkeyMock = { add: _ => null } as HotkeysService;
     });
 

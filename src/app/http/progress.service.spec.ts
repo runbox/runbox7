@@ -32,7 +32,6 @@ import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 
 describe('ProgressService', () => {
-    let injector: TestBed;
     let rmmapiservice: RunboxWebmailAPI;
     let progressService: ProgressService;
     let httpMock: HttpTestingController;
@@ -54,10 +53,9 @@ describe('ProgressService', () => {
             { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
         ]
         });
-        injector = getTestBed();
-        rmmapiservice = injector.get(RunboxWebmailAPI);
-        progressService = injector.get(ProgressService);
-        httpMock = injector.get(HttpTestingController);
+        rmmapiservice = TestBed.inject(RunboxWebmailAPI);
+        progressService = TestBed.inject(ProgressService);
+        httpMock = TestBed.inject(HttpTestingController);
     });
 
     it('should indicate http request activity', async( async() => {

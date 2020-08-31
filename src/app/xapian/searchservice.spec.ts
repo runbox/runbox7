@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { SearchService, XAPIAN_GLASS_WR } from './searchservice';
+import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Injector, Type } from '@angular/core';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -34,7 +34,6 @@ declare var IDBFS;
 
 describe('SearchService', () => {
 
-    let injector: Injector;
     let httpMock: HttpTestingController;
 
     const listEmailFoldersResponse = {
@@ -106,12 +105,11 @@ describe('SearchService', () => {
           ]
         });
 
-        injector = TestBed.get(Injector);
-        httpMock = injector.get(HttpTestingController as Type<HttpTestingController>);
+        httpMock = TestBed.inject(HttpTestingController as Type<HttpTestingController>);
     }));
 
     it('should load searchservice, but no local index', async () => {
-        const searchService = injector.get(SearchService);
+        const searchService = TestBed.inject(SearchService);
         await xapianLoadedSubject.toPromise();
 
         let req = httpMock.expectOne(`/rest/v1/me`);
@@ -127,7 +125,7 @@ describe('SearchService', () => {
 
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        const messageListService = injector.get(MessageListService);
+        const messageListService = TestBed.inject(MessageListService);
         expect(messageListService.trashFolderName).toEqual('Trash');
         expect(messageListService.spamFolderName).toEqual('Spam');
         expect(messageListService.folderListSubject.value.length).toBe(3);
@@ -203,7 +201,7 @@ describe('SearchService', () => {
         Object.keys(IDBFS.dbs).forEach(k => IDBFS.dbs[k].close());
         IDBFS.dbs = {};
 
-        const searchService = injector.get(SearchService);
+        const searchService = TestBed.inject(SearchService);
         let req = httpMock.expectOne(`/rest/v1/me`);
         req.flush( { result: {
                 uid: testuserid
@@ -222,7 +220,7 @@ describe('SearchService', () => {
 
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        const messageListService = injector.get(MessageListService);
+        const messageListService = TestBed.inject(MessageListService);
         expect(messageListService.trashFolderName).toEqual('Trash');
         expect(messageListService.spamFolderName).toEqual('Spam');
         expect(messageListService.folderListSubject.value.length).toBe(3);
