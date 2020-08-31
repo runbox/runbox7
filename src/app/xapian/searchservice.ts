@@ -668,20 +668,6 @@ export class SearchService {
     return querytext;
   }
 
-  getMessageCountsForFolder(folderPath: string): FolderMessageCountEntry {
-      const total = this.api.sortedXapianQuery(
-          this.getFolderQuery('', folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
-      ).length;
-      const unread = this.api.sortedXapianQuery(
-          this.getFolderQuery('', folderPath, true), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
-      ).length;
-
-      return new FolderMessageCountEntry(
-          unread,
-          total,
-      );
-  }
-
   /// Get message IDs of all indexed messages in a given time range -- [inclusive, exclusive), newest first
   getMessagesInTimeRange(start: Date, end: Date, folder?: string): number[] {
     const toRangeString = (dt: Date) => dt.toISOString().substr(0, 10).replace(/-/g, '');
@@ -741,55 +727,37 @@ export class SearchService {
 
           const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
                 .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
+          const folderPath = currentFolder.folderPath;
+          const xapianPath = folderPath.replace(/\//g, '.');
 
-          const indexFolderResults = this.api.sortedXapianQuery(
-              this.getFolderQuery('', currentFolder.folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1);
-
-          const numberOfMessages = indexFolderResults.length;
-          const numberOfUnreadMessages = this.api.sortedXapianQuery(
-                this.getFolderQuery('', currentFolder.folderPath, true), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1).length;
+          // do this once per folder, and only if the folder is actually indexed
           if (
-            numberOfMessages < MAX_DISCREPANCY_CHECK_LIMIT &&
-            currentFolder.totalMessages < MAX_DISCREPANCY_CHECK_LIMIT &&
-            (!this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] ||
-            this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] <= 3) && (
+              this.api.listFolders().find(f => f[0] === xapianPath) &&
+              this.folderCountDiscrepanciesCheckedCount[folderPath] === 0
+          ) {
+            this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
+
+            const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(xapianPath);
+            if (
                 numberOfMessages !== currentFolder.totalMessages ||
                 numberOfUnreadMessages !== currentFolder.newMessages
-              )
             ) {
-            console.log(`number of messages
-                (${numberOfMessages} vs ${currentFolder.totalMessages} and
-                (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
-                  not matching with index for current folder`);
-
-            if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] >= 1) {
-              this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath]++;
-
-              /*if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] === 3) {
-                this.dialog.open(InfoDialog, {data: new InfoParams(
-                  `Message count mismatch in folder ${currentFolder.folderName}`,
-                  `<p>Your local search index is not in sync for folder ${currentFolder.folderName}.
-                  Number of messages are ${numberOfMessages} but the search index has got ${currentFolder.totalMessages} and
-                  ${numberOfUnreadMessages} unread messages vs ${currentFolder.newMessages} in the search index.</p>
-                  <p>An attempt has already been made to correct this automatically without success, so you
-                  should consider downloading a new search index from the server. Click
-                  "Stop Synchronizing" in the left side menu, wait for confirmation, and then you can
-                  reload and click "Start synchronizing" to download a fresh index.</p>
-                  `)
-                });
-              }*/
-            } else {
-              // Only check folder discrepancies once per folder
-              this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] = 1;
+              console.log(`number of messages
+                  (${numberOfMessages} vs ${currentFolder.totalMessages} and
+                  (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
+                    not matching with index for current folder`);
 
               const folderMessages = await this.rmmapi.listAllMessages(0, 0, 0,
                 MAX_DISCREPANCY_CHECK_LIMIT,
-                true, currentFolder.folderPath).toPromise();
+                true, folderPath).toPromise();
               msginfos = msginfos.concat(folderMessages);
 
               const folderMessageIDS: {[messageId: number]: boolean} = {};
               folderMessages.forEach(msg => folderMessageIDS[msg.id] = true);
 
+              const indexFolderResults = this.api.sortedXapianQuery(
+                this.getFolderQuery('', folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
+              );
               indexFolderResults.forEach((searchResultRow: number[]) => {
                   const docdataparts = this.api.getDocumentData(searchResultRow[0]).split('\t');
                   const rmmMessageId = parseInt(docdataparts[0].substring(1), 10);
