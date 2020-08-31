@@ -82,8 +82,8 @@ export class MessageListService {
                 if (msgFlagChange.flaggedFlag === true || msgFlagChange.flaggedFlag === false) {
                     this.messagesById[msgFlagChange.id].flaggedFlag = msgFlagChange.flaggedFlag;
                 }
-                // update both remote + local counts
-                this.refreshFolderList().then(folders => this.folderMessageCountSubject.next(this.getFolderCountsFor(folders)));
+                // update local results ASAP, schedule API results for later
+                this.refreshFolderCounts().then(() => this.refreshFolderList());
             });
     }
 
@@ -99,25 +99,22 @@ export class MessageListService {
         }
     }
 
-    private getFolderCountsFor(folders: FolderListEntry[]): FolderMessageCountMap {
-        const folderCounts = {};
-        for (const f of folders) {
-            folderCounts[f.folderPath] = FolderMessageCountEntry.of(f);
-        }
-        return folderCounts;
-    }
-
-    public refreshFolderCounts() {
-        if (this.searchservice.localSearchActivated) {
-            const xapianFolders = new Set(this.searchservice.api.listFolders().map(f => f[0].replace(/\./g, '/')));
+    public refreshFolderCounts(): Promise<void> {
+        return new Promise((resolve, _) => {
+            const xapianFolders = new Set(
+                this.searchservice.localSearchActivated
+                    ?  this.searchservice.api.listFolders().map(f => f[0])
+                    : []
+            );
 
             this.folderListSubject.pipe(take(1)).subscribe((folders) => {
                 const folderCounts = {};
                 for (const folder of folders) {
                     const path = folder.folderPath;
+                    const xapianPath = path.replace(/\//g, '.');
 
-                    if (xapianFolders.has(path)) {
-                        const res = this.searchservice.api.getFolderMessageCounts(folder.folderName);
+                    if (xapianFolders.has(xapianPath)) {
+                        const res = this.searchservice.api.getFolderMessageCounts(xapianPath);
 
                         folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
                     } else {
@@ -125,8 +122,10 @@ export class MessageListService {
                     }
                 }
                 this.folderMessageCountSubject.next(folderCounts);
+
+                resolve();
             });
-        }
+        });
     }
 
     public refreshFolderList(): Promise<FolderListEntry[]> {
@@ -146,11 +145,8 @@ export class MessageListService {
                     }
 
                     this.folderListSubject.next(folders);
-                    // Moved from constructor (subscribing to our own
-                    // subjects seems silly)
-                    // Xapian counts:
+                    // Will fallback on the folder counters set above for folders not in the search index
                     this.refreshFolderCounts();
-                    // API counts:
                     this.folders.next(
                         folders.map((fld) => [fld.folderName, fld.totalMessages,
                             fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
@@ -158,10 +154,6 @@ export class MessageListService {
                             fld.folderId
                         ]
                     ));
-                    // Local counts
-                    this.folderMessageCountSubject.next(
-                        this.getFolderCountsFor(folders)
-                    );
                 resolve(folders);
             });
        });
