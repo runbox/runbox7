@@ -18,16 +18,16 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, flushMicrotasks } from '@angular/core/testing';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { MoveMessageDialogComponent } from './movemessage.action';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
-import { Observable } from 'rxjs/Observable';
 import { SearchService } from '../xapian/searchservice';
-import { Router } from '@angular/router';
 
 @Component({
     // tslint:disable-next-line:component-selector
