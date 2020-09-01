@@ -28,6 +28,7 @@ import {
   Inject,
   AfterViewInit
 } from '@angular/core';
+
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -35,6 +36,24 @@ import { RMM } from '../rmm';
 import { Location } from '@angular/common';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+
 @Component({
     selector: 'app-profiles-edit',
     styles: [`
@@ -64,11 +83,11 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
             <mat-divider [vertical]="true" style='border-color: transparent; flex: max-content;'></mat-divider>
 
             <button *ngIf="is_update && data.profile.type != 'main'" mat-icon-button [matMenuTriggerFor]="modal_menu" class='modal_menu'>
-                <mat-icon color="warn">more_vert</mat-icon>
+                <mat-icon color="warn" svgIcon="dots-vertical"></mat-icon>
             </button>
             <mat-menu #modal_menu="matMenu" xPosition="before">
                 <button mat-menu-item (click)="delete()">
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="delete"></mat-icon>
                     <span>Delete</span>
                 </button>
             </mat-menu>

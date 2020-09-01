@@ -31,7 +31,7 @@ import { Component, Input } from '@angular/core';
 
         <mat-card-content style="display: flex; justify-content: center;">
             <a mat-stroked-button [routerLink]="routerLink" style="padding: 10px;">
-                <mat-icon style="transform: scale(2);"> {{ icon }} </mat-icon>
+                <mat-icon style="transform: scale(2);" svgIcon="{{ icon }}"> </mat-icon>
             </a>
         </mat-card-content>
     </a>

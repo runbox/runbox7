@@ -138,6 +138,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             if (this.model.bcc.length > 0) {
                 this.hasBCC = true;
             }
+            if (this.model.replying) {
+                setTimeout(() => {
+                    this.messageTextArea.nativeElement.setSelectionRange(0, 0);
+                    this.messageTextArea.nativeElement.focus();
+                });
+            }
         } else {
             this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
                 this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''

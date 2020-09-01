@@ -39,7 +39,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
@@ -82,6 +83,7 @@ import { PopularRecipientsComponent } from './popular-recipients/popular-recipie
 import { OverviewComponent } from './start/overview.component';
 import { SearchService } from './xapian/searchservice';
 
+
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
 
@@ -120,6 +122,7 @@ const routes: Routes = [
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
+      { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
     ]
   },
   { path: 'login', component: LoginComponent }
@@ -166,6 +169,8 @@ const routes: Routes = [
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()
   ],
+  exports: [
+  ],
   declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent,
     PopularRecipientsComponent
@@ -186,5 +191,11 @@ const routes: Routes = [
   bootstrap: [MainContainerComponent],
   entryComponents: [MoveMessageDialogComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor (matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
+    matIconRegistry.addSvgIconSet(
+      domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg')
+    );
+  }
+}
 

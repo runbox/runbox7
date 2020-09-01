@@ -50,6 +50,7 @@ export class DraftFormModel {
     preview: string;
     in_reply_to: string;
     reply_to_id: string = null;
+    replying = false;
     tags: string;
     useHTML = false;
     save = 'Save';
@@ -75,6 +76,7 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.reply_to_id = mailObj.mid;
         ret.in_reply_to = mailObj.headers['message-id'];
+        ret.replying = true;
 
         // list of MailAddressInfo objects:
         // sender always used for body string

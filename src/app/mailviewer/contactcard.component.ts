@@ -37,8 +37,8 @@ import { AppSettingsService } from '../app-settings';
               [src]="avatarUrl" alt=""
             >
             {{contact.name}} &lt;{{contact.address}}&gt;
-            <mat-icon *ngIf="contactsEntry">  person     </mat-icon>
-            <mat-icon *ngIf="!contactsEntry"> person_add </mat-icon>
+            <mat-icon *ngIf="contactsEntry" svgIcon="account"></mat-icon>
+            <mat-icon *ngIf="!contactsEntry" svgIcon="account-plus"></mat-icon>
         </a>
     `,
 })

@@ -28,7 +28,7 @@
       <ng-container *ngFor="let col of canvastable.columns; let colIndex = index">
         <button mat-icon-button style="margin-top: -8px; z-index: 10000" *ngIf="col.checkbox"
           (click)="canvastable.selectAllVisibleRows()">
-            <mat-icon matTooltip="Check all/none visible">select_all</mat-icon>
+            <mat-icon matTooltip="Check all/none visible" svgIcon="select-all"></mat-icon>
         </button>            
         <div
             *ngIf="!col.checkbox"
@@ -57,8 +57,7 @@
             [style.left]="sumWidthsBefore(colIndex)+'px'"
             [style.cursor]="col.sortColumn!==null ? 'pointer' : 'default'"
             >
-            <mat-icon *ngIf="sortColumn===col.sortColumn" style="font-size: 12px;">
-                {{sortDescending ? 'arrow_upward' : 'arrow_downward'}}
+            <mat-icon *ngIf="sortColumn===col.sortColumn" style="font-size: 12px;" svgIcon="{{sortDescending ? 'chevron-up' : 'cheron-down'}}">
             </mat-icon>
             {{col.name}}               
         </div>
@@ -79,7 +78,7 @@
             [style.fontWeight]="sortColumn===col.sortColumn ? 'bold': 'normal'"
             [style.cursor]="col.sortColumn!==null ? 'pointer' : 'default'"
             >
-            <mat-icon *ngIf="sortColumn===col.sortColumn" style="font-size: 12px;">{{sortDescending ? 'arrow_upward' : 'arrow_downward'}}</mat-icon>{{col.name}}          
+            <mat-icon *ngIf="sortColumn===col.sortColumn" style="font-size: 12px;" svgIcon="{{sortDescending ? 'chrevron-up' : 'chevron-down'}}"></mat-icon>{{col.name}}          
         </div>   
       </ng-container>
     </div>

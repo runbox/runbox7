@@ -36,8 +36,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
-
-
 import { ProfilesComponent } from './profiles.component';
 import { ProfilesListerComponent } from './profiles.lister';
 import { AliasesListerComponent } from '../aliases/aliases.lister';
