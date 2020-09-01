@@ -138,6 +138,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianDocCount: number;
   searchResultsCount: number;
 
+  startDeskEnabled = false;
+
   private mobileQueryListener: () => void;
 
   xapianLoaded = xapianLoadedSubject;
@@ -180,6 +182,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             return e;
         })
     );
+    this.hotkeysService.add(
+        new Hotkey(
+            'up up down down left right left right b a',
+            (event: KeyboardEvent): ExtendedKeyboardEvent => {
+                this.router.navigateByUrl('/start');
+                this.snackBar.open('Enjoy the start desk prototype!', 'Thanks!', { duration: 3000 });
+                this.startDeskEnabled = true;
+                localStorage.setItem('rmm7startdeskenabled', 'true');
+                const e: ExtendedKeyboardEvent = event;
+                e.returnValue = false;
+                return e;
+            }
+        ),
+    );
+
+    if (localStorage.getItem('rmm7startdeskenabled') === 'true') {
+        this.startDeskEnabled = true;
+    }
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
     this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));

@@ -57,6 +57,7 @@ import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
+import { StartDeskModule } from './start/startdesk.module';
 import { WelcomeDeskComponent } from './welcome/welcomedesk.component';
 import { WelcomeDeskModule } from './welcome/welcomedesk.module';
 import { AccountAppModule } from './account-app/account-app.module';
@@ -79,6 +80,8 @@ import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
+import { OverviewComponent } from './start/overview.component';
+import { SearchService } from './xapian/searchservice';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -108,6 +111,10 @@ const routes: Routes = [
           }
         ]
       },
+      {
+        path: 'start',
+        component: OverviewComponent,
+      },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
       { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
@@ -127,6 +134,7 @@ const routes: Routes = [
     HttpClientJsonpModule,
     CanvasTableModule,
     ComposeModule,
+    StartDeskModule,
     WelcomeDeskModule,
     FolderModule,
     MatSnackBarModule,
@@ -171,6 +179,7 @@ const routes: Routes = [
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    SearchService,
     RMMOfflineService,
     RMM,
     RMMAuthGuardService,

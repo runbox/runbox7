@@ -38,6 +38,9 @@
         <div id="sidenavGreeting">
             <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
             <p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
+            <p *ngIf="startDeskEnabled">
+                <a routerLink="/start" class="textLink"> Go to the (experimental) start desk </a>
+            </p>
         </div>
         <div>
             <button mat-icon-button [matMenuTriggerFor]="settingsMenu" matTooltip="Show webmail settings">
