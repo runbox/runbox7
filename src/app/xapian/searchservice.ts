@@ -34,7 +34,7 @@ import { CanvasTableColumn} from '../canvastable/canvastable';
 import { AppComponent } from '../app.component';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { ProgressDialog } from '../dialog/progress.dialog';
-import { MessageListService, FolderMessageCountEntry } from '../rmmapi/messagelist.service';
+import { MessageListService } from '../rmmapi/messagelist.service';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
