@@ -18,9 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { StorageService } from './storage.service';
-import { RunboxWebmailAPI, RunboxMe } from './rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { of } from 'rxjs';
-import { filter } from 'rxjs/operators';
 
 describe('StorageService', () => {
     const me_1 = { me: of({ uid: 1 }) } as RunboxWebmailAPI;

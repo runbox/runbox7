@@ -20,7 +20,7 @@
 import { CartService } from './cart.service';
 import { ProductOrder } from './product-order';
 import { StorageService } from '../storage.service';
-import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 

@@ -16,19 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import {
-  SecurityContext,
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  NgZone,
-  ViewChild,
-  AfterViewInit,
-  ContentChild,
-  ElementRef,
-  TemplateRef,
-} from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
     selector: 'app-runbox-slide-toggle',

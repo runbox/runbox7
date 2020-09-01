@@ -23,29 +23,12 @@ create initial keys: POST   /rest/v1/dkim/$domain/keys/create
         replace key: PUT    /rest/v1/dkim/$domain/key/update/$selector -- or selector2
          delete key: DELETE /rest/v1/dkim/$domain/key/remove/$selector -- or selector2
 */
-import { timeout } from 'rxjs/operators';
-import { SecurityContext, Component, Input, Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { ProgressService } from '../http/progress.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ConfirmDialog } from '../dialog/dialog.module';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   moduleId: 'angular2/app/dkim/',
@@ -234,9 +217,9 @@ export class DkimComponent implements AfterViewInit {
   }
 
   constructor(
+    private dialog: MatDialog,
     private http: HttpClient,
-    public snackBar: MatSnackBar,
-    public dialog: MatDialog
+    private snackBar: MatSnackBar,
   ) {
     const domain = window.location.href.match(/domain=([^&]+)/);
     if (domain && domain[1]) {

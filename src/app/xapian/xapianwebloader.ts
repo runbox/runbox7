@@ -303,7 +303,6 @@ function patchIDBFS() {
         },
         removeLocalEntry: function(path, callback) {
         try {
-            var lookup = FS.lookupPath(path);
             var stat = FS.stat(path);
 
             if (FS.isDir(stat.mode)) {
@@ -361,7 +360,6 @@ function patchIDBFS() {
 
             var remove = [];
             Object.keys(dst.entries).forEach(function (key) {
-                var e = dst.entries[key];
                 var e2 = src.entries[key];
                 if (!e2) {
                 remove.push(key);
@@ -373,7 +371,6 @@ function patchIDBFS() {
                 return callback(null);
             }
 
-            var errored = false;
             var completed = 0;
             var db = src.type === 'remote' ? src.db : dst.db;
 

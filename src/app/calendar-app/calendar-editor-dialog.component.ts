@@ -21,7 +21,6 @@ import { Component, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { RunboxCalendar } from './runbox-calendar';
-import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { ColorSelectorDialogComponent } from './color-selector-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 

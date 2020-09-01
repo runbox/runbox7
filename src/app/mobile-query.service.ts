@@ -33,7 +33,7 @@ export class MobileQueryService {
     }
 
     constructor(
-        private media: MediaMatcher,
+        media: MediaMatcher,
     ) {
         this.mobileQuery = media.matchMedia('(max-width: 1024px)');
         // tslint:disable-next-line:deprecation

@@ -19,7 +19,7 @@
 
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PaymentsService } from './payments.service';
@@ -54,7 +54,6 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     @ViewChild('cardCvc') cardCvc:              ElementRef;
 
     constructor(
-        private dialog: MatDialog,
         private paymentsservice: PaymentsService,
         private router: Router,
         public dialogRef: MatDialogRef<StripePaymentDialogComponent>,

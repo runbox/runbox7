@@ -17,9 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Injectable } from '@angular/core';
-import { timeout } from 'rxjs/operators';
 import { UserAgent } from './rmm/useragent';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Email } from './rmm/email';
 import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';

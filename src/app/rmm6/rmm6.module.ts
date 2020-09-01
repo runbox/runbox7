@@ -23,7 +23,7 @@ import { MailViewerModule, SingleMailViewerComponent } from '../mailviewer/mailv
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClient, HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ProgressService } from '../http/progress.service';
 import { DialogModule } from '../dialog/dialog.module';
 import { RMM6MessageActions } from '../mailviewer/rmm6messageactions';

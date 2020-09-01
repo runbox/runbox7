@@ -21,7 +21,7 @@ import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent }
 import { FolderListEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { BehaviorSubject, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { TestBed, getTestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { take } from 'rxjs/operators';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -39,7 +39,6 @@ class MatDialogMock {
   }
 
 describe('FolderListComponent', () => {
-    let injector: TestBed;
     let dialog: MatDialog;
     let hotkeyMock: HotkeysService;
 
@@ -54,8 +53,7 @@ describe('FolderListComponent', () => {
             ],
         providers: [RunboxWebmailAPI, { provide: MatDialog, useClass: MatDialogMock }]
         });
-        injector = getTestBed();
-        dialog = injector.get(MatDialog);
+        dialog = TestBed.inject(MatDialog);
         hotkeyMock = { add: _ => null } as HotkeysService;
     });
 

@@ -22,7 +22,6 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AppSettings, AppSettingsService } from '../app-settings';
 import { ContactsService } from './contacts.service';
 import { Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-contacts-settings',

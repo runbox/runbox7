@@ -16,40 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { timeout } from 'rxjs/operators';
-import { SecurityContext, Component, Input, Output, EventEmitter, NgZone, ViewChild, AfterViewInit, OnInit, Inject } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { ProgressService } from '../http/progress.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, Output, EventEmitter, ViewChild, OnInit, Inject } from '@angular/core';
 
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
-import { RunboxListComponent } from '../runbox-components/runbox-list';
-import { RunboxContainerComponent } from '../runbox-components/runbox-container';
-import { RunboxSectionComponent } from '../runbox-components/runbox-section';
-import { RunboxSlideToggleComponent } from '../runbox-components/runbox-slide-toggle';
-import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { RMM } from '../rmm';
 
 @Component({
@@ -418,7 +390,7 @@ export class AccountSecurityComponent implements OnInit {
 
   ip_always_block(result) {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
-    const req = this.rmm.account_security.acl.update({
+    this.rmm.account_security.acl.update({
       ip: result.ip,
       label: 'Always Block',
       rule: 'deny',

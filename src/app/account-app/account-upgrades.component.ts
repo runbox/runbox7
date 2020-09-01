@@ -24,7 +24,6 @@ import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
-import { ProductOrder } from './product-order';
 import { AsyncSubject } from 'rxjs';
 
 @Component({

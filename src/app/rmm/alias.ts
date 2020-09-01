@@ -95,8 +95,7 @@ export class Alias {
     validate(obj) {
         const req = this.app.ua.http.post('/rest/v1/alias/' + obj.id + '/validate_email/', obj).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
-            const reply = data;
+          _data => {
           },
           error => {
             this.app.show_error('Could not validate aliases.', 'Dismiss');

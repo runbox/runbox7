@@ -16,8 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { timeout, share } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
 declare const tinymce: any;
 

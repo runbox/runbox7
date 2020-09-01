@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Input, OnInit, Output  } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'app-contact-details-fa-viewer',

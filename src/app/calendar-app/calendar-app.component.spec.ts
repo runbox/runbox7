@@ -31,7 +31,7 @@ import { of, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import * as moment from 'moment';
 

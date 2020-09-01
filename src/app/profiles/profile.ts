@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { TestBed, async } from '@angular/core/testing';
 export class Profile {
     id:         number;
     profile:    string;

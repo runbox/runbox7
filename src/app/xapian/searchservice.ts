@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
@@ -146,7 +146,6 @@ export class SearchService {
 
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
-       private ngZone: NgZone,
        private snackbar: MatSnackBar,
        private dialog: MatDialog,
        private messagelistservice: MessageListService) {
@@ -943,8 +942,8 @@ export class SearchService {
                   `${newmessages.length} new email messages` :
                   `New email message`;
               try {
-                // tslint:disable-next-line:no-unused-expression
-                  const notification = new Notification(newMessagesTitle, {
+                  // tslint:disable-next-line:no-unused-expression
+                  new Notification(newMessagesTitle, {
                     body: newmessages[0].from[0].name,
                     icon: 'assets/icons/icon-192x192.png',
                     tag: 'newmessages'
@@ -989,7 +988,6 @@ export class SearchService {
 
     downloadPartitions(): Observable<any> {
       let totalSize;
-      let totalCompressedSize;
       let partitions: DownloadablePartition[];
       let userHasAcceptedDownloadAllPartitions = false;
       return this.httpclient.get('/rest/v1/searchindex/partitions')
@@ -1001,8 +999,6 @@ export class SearchService {
             partitions = searchindexmap.partitions.filter((p, ndx) => ndx > 0);
             totalSize = partitions.reduce((prev, curr) => prev +
               curr.files.reduce((p, c) => c.uncompressedsize + p, 0), 0);
-            totalCompressedSize  = partitions.reduce((prev, curr) => prev +
-              curr.files.reduce((p, c) => c.compressedsize + p, 0), 0);
             if (totalSize === 0) {
               console.log('No extra search index partitions');
               this.updateIndexWithNewChanges();

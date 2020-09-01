@@ -19,7 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Contact, ContactKind } from './contact';
+import { Contact } from './contact';
 import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 
 export interface VcfImportDialogResult {

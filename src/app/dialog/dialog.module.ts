@@ -17,9 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ApplicationRef, ComponentFactoryResolver, Injector,
-    NgModule,
-    NgZone } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -32,7 +30,7 @@ import { FormsModule } from '@angular/forms';
 
 import { HttpClientModule } from '@angular/common/http';
 import { ErrorDialog } from './error-dialog.component';
-import { InfoDialog, InfoParams } from './info.dialog';
+import { InfoDialog } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
 import { SimpleInputDialog } from './simpleinput.dialog';
 import { ConfirmDialog } from './confirmdialog.component';
