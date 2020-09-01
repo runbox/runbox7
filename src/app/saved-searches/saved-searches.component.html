@@ -1,0 +1,20 @@
+<mat-expansion-panel [expanded]="expanded" [ngStyle]="{'display': searches.length > 0 ? 'block' : 'none' }">
+    <mat-expansion-panel-header>
+        <mat-icon> search </mat-icon>
+        <span class="headerText"> Saved searches </span>
+    </mat-expansion-panel-header>
+
+    <mat-nav-list dense>
+        <ng-content></ng-content>
+
+        <mat-list-item *ngFor="let search of searches; let idx = index"
+            (click)="searchClicked.emit(search.query)"
+        >
+            {{ search.name }}
+            <span style="flex-grow: 1"></span>
+            <button mat-icon-button (click)="remove(idx)">
+                <mat-icon> delete </mat-icon>
+            </button>
+        </mat-list-item>
+    </mat-nav-list>
+</mat-expansion-panel>

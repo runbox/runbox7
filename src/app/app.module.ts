@@ -82,6 +82,8 @@ import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
 import { OverviewComponent } from './start/overview.component';
 import { SearchService } from './xapian/searchservice';
+import { SavedSearchesComponent } from './saved-searches/saved-searches.component';
+import { SavedSearchesService } from './saved-searches/saved-searches.service';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -173,8 +175,9 @@ const routes: Routes = [
   ],
   declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent,
-    PopularRecipientsComponent
-    ],
+    PopularRecipientsComponent,
+    SavedSearchesComponent,
+  ],
   providers: [ProgressService,
     MessageListService,
     MobileQueryService,
@@ -184,6 +187,7 @@ const routes: Routes = [
     RMM,
     RMMAuthGuardService,
     ContactsService,
+    SavedSearchesService,
     StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true},
     { provide: ErrorHandler, useClass: SentryErrorHandler },

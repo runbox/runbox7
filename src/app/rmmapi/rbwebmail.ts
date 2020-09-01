@@ -35,6 +35,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
+import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 
 export class MessageFields {
     id: number;
@@ -750,6 +751,18 @@ export class RunboxWebmailAPI {
 
     getProductDomain(apid: number): Observable<string> {
         return this.http.get('/rest/v1/account_product/product_domain/' + apid).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    getSavedSearches(): Observable<SavedSearchStorage> {
+        return this.http.get('/rest/v1/webmail/saved_searches').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    setSavedSearches(savedSearches: SavedSearchStorage): Observable<SavedSearchStorage> {
+        return this.http.post('/rest/v1/webmail/saved_searches', savedSearches).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

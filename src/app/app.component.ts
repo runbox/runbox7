@@ -39,7 +39,7 @@ import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/r
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
-import { ProgressDialog } from './dialog/dialog.module';
+import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
 import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
@@ -57,6 +57,8 @@ import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings, AppSettingsService } from './app-settings';
+import { SavedSearchesService } from './saved-searches/saved-searches.service';
+import { StorageService } from './storage.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -168,6 +170,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
     public settingsService: AppSettingsService,
+    private savedSearchService: SavedSearchesService,
+    private storage: StorageService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -998,6 +1002,25 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable.rowWrapModeWrapColumn = 3;
     this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
     this.autoAdjustColumnWidths();
+  }
+
+  showSaveSearchDialog(): void {
+    const dialog = this.dialog.open(SimpleInputDialog, {
+        data: new SimpleInputDialogParams(
+            'Save search',
+            'Save this search for later',
+            'Your name for this search query',
+            (value: string) => value && value.trim().length > 0
+        )
+    });
+    dialog.afterClosed().pipe(
+        filter(res => res && res.length > 0),
+    ).subscribe(searchName => {
+        this.savedSearchService.add({
+            name: searchName,
+            query: this.searchText,
+        });
+    });
   }
 
   // FIXME: Why do we run this when searchText is empty?

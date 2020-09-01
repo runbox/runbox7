@@ -86,6 +86,10 @@
 
     <mat-divider></mat-divider>
 
+    <app-saved-searches (searchClicked)="searchFor($event)"></app-saved-searches>
+
+    <mat-divider></mat-divider>
+
     <rmm-folderlist #folderListComponent
         [folders]="displayedFolders"
         [folderMessageCounts]="messagelistservice.folderMessageCountSubject"
@@ -171,6 +175,13 @@
               [searchInputField]="searchInputField"
               [currentFolder]="selectedFolder"
               matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
+          <button *ngIf="searchText!==''"
+            mat-icon-button
+            matSuffix
+              (click)="showSaveSearchDialog()"
+              matTooltip="Save search">
+            <mat-icon>save</mat-icon>
+          </button>
           <button *ngIf="!showMultipleSearchFields"
             mat-icon-button
             matSuffix
