@@ -197,33 +197,45 @@ export class DraftDeskService {
     froms: FromAddress[] = [];
 
     constructor(public rmmapi: RunboxWebmailAPI) {
-        this.refreshDrafts().subscribe(() => {
+        this.refreshDrafts().then(() => {
             this.draftsRefreshed.next(true);
             this.draftsRefreshed.complete();
         });
     }
 
-    public refreshFroms(): Observable<FromAddress[]> {
-        return this.rmmapi.getFromAddress().pipe(
-            map(froms => this.froms = froms)
-        );
+    public async refreshFroms(): Promise<FromAddress[]> {
+        const froms = await this.rmmapi.getFromAddress().toPromise();
+        this.froms = froms.sort((a, b) => {
+            if (a.type === 'main') {
+                return -1;
+            } else if (b.type === 'main') {
+                return 1;
+            } else if (a.type === 'aliases') {
+                return -1;
+            } else if (b.type === 'aliases') {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        return froms;
     }
 
-    private refreshDrafts(): Observable<DraftFormModel[]> {
-        return this.refreshFroms().pipe(
-            mergeMap(() => this.rmmapi.listAllMessages(0, 0, 0, 100, true, 'Drafts')),
-            map((msgs) => {
-                this.draftModels =
-                    msgs.map((msgInfo) =>
-                        DraftFormModel.create(msgInfo.id,
-                            this.froms[0],
-                            msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
-                                addr.address : addr.name + '<' + addr.address + '>').join(','),
-                            msgInfo.subject, null)
-                    );
-            }),
-            map(() => this.draftModels)
-        );
+    private async refreshDrafts(): Promise<DraftFormModel[]> {
+        await this.refreshFroms();
+
+        const messages = await this.rmmapi
+            .listAllMessages(0, 0, 0, 100, true, 'Drafts')
+            .toPromise();
+
+        return this.draftModels =
+            messages.map((msgInfo) =>
+                DraftFormModel.create(msgInfo.id,
+                    this.froms[0],
+                    msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
+                        addr.address : addr.name + '<' + addr.address + '>').join(','),
+                    msgInfo.subject, null)
+            );
     }
 
     public deleteDraft(messageId: number) {
