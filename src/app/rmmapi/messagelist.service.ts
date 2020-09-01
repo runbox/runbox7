@@ -53,7 +53,6 @@ export class MessageListService {
     messagesInViewSubject: BehaviorSubject<MessageInfo[]> = new BehaviorSubject([]);
     folderListSubject: BehaviorSubject<FolderListEntry[]> = new BehaviorSubject([]);
     folderMessageCountSubject: ReplaySubject<FolderMessageCountMap> = new ReplaySubject(1);
-    folders: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     currentFolder = 'Inbox';
 
@@ -147,13 +146,6 @@ export class MessageListService {
                     this.folderListSubject.next(folders);
                     // Will fallback on the folder counters set above for folders not in the search index
                     this.refreshFolderCounts();
-                    this.folders.next(
-                        folders.map((fld) => [fld.folderName, fld.totalMessages,
-                            fld.newMessages, fld.folderPath, fld.folderLevel, fld.folderType
-                            , false, // Folder is not in local index but we're showing from the database here so don't mark as grey
-                            fld.folderId
-                        ]
-                    ));
                 resolve(folders);
             });
        });
