@@ -19,7 +19,7 @@
 
 import {DraftFormModel} from './draftdesk.service';
 import { FromAddress } from '../rmmapi/from_address';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 
 describe('DraftDesk', () => {

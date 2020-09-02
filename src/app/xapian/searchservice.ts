@@ -27,7 +27,7 @@ import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/
 
 import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { DownloadableSearchIndexMap, DownloadablePartition } from 'runbox-searchindex/downloadablesearchindexmap.class';
-import { MessageInfo, IndexingTools } from 'runbox-searchindex/messageinfo';
+import { MessageInfo, IndexingTools } from '../common/messageinfo';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CanvasTableColumn} from '../canvastable/canvastable';

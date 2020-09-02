@@ -22,7 +22,7 @@ import { Injectable } from '@angular/core';
 import { throwError as observableThrowError, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operators';
 
-import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MessageInfo } from '../common/messageinfo';
 
 import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';

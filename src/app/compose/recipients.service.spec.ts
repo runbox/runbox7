@@ -28,7 +28,7 @@ import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from '../xapian/xapianwebloader';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 declare var FS;
 declare var MEMFS;

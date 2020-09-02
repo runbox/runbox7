@@ -34,7 +34,7 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { MessageListService } from './rmmapi/messagelist.service';
-import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MessageInfo } from './common/messageinfo';
 import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';

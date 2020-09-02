@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
-import { MessageInfo, IndexingTools } from 'runbox-searchindex/messageinfo';
+import { MessageInfo, IndexingTools } from '../common/messageinfo';
 import { Subject } from 'rxjs';
 
 declare var IDBFS;
