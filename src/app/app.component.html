@@ -1,5 +1,7 @@
 <mat-sidenav-container autosize>
-  <mat-sidenav #sidemenu [mode]="mobileQuery.matches ? 'over' : 'side'"
+  <mat-sidenav #sidemenu
+      [opened]="sideMenuOpened"
+      [mode]="mobileQuery.matches ? 'over' : 'side'"
       [fixedInViewport]="mobileQuery.matches"
       fixedTopGap="0"
       id="sideMenu"
