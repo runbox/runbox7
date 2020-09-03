@@ -44,7 +44,7 @@
           <mat-card class="mat-card dashdeskOverview" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
             <div class="contact">
               <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages today</div>
+              <div class="messages">{{ sender.emails.length }} messages</div>
             </div>
             <div class="subject">
               <ul>
