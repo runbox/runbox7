@@ -97,6 +97,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   selectedFolder = 'Inbox';
   composeSelected: boolean;
   draftsSelected: boolean;
+  overviewSelected: boolean;
 
   timeOfDay: string;
 
@@ -384,6 +385,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     ).subscribe((event: NavigationEnd) => {
       this.composeSelected = this.router.url === '/compose?new=true';
       this.draftsSelected = this.router.url === '/compose';
+      this.overviewSelected = this.router.url === '/overview';
     });
 
     // Download visible messages in the background
@@ -475,6 +477,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.rmmapi.moveFolder(event.sourceId, event.destinationId, event.order).subscribe(
       () => this.messagelistservice.refreshFolderList()
     );
+  }
+
+  public overview() {
+    this.router.navigate(['/overview']);
+    setTimeout(() => {
+        if (this.mobileQuery.matches && this.sidemenu.opened) {
+          this.sidemenu.close();
+        }
+      }, 0);
   }
 
   renameFolder(folder: RenameFolderEvent) {
