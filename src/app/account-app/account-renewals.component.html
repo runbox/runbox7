@@ -78,7 +78,7 @@
             </span>
             <ng-template #renewIfDomain>
                 <button mat-button *ngIf="p.subtype === 'domain'; else renewNA" class="contentButton" (click)="renewDomain(p)">
-                    Renew <mat-icon> open_in_new </mat-icon>
+                    Renew <mat-icon svgIcon="open-in-new"></mat-icon>
                 </button>
             </ng-template>
         </td>
