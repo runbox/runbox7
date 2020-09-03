@@ -372,6 +372,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const parts = fragment.split(':');
         this.switchToFolder(parts[0]);
         if (parts.length === 2) {
+//          this.selectRowByMessageId(parseInt(parts[1], 10));
           this.singlemailviewer.messageId = parseInt(parts[1], 10);
         } else {
           this.singlemailviewer.close();
@@ -699,6 +700,25 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public clearSelection() {
     this.selectedRowId = null;
     this.selectedRowIds = {};
+  }
+
+  public selectRowByMessageId(messageId: number) {
+    const matchingRowIndex = this.canvastable.rows.findIndex(row => {
+      if (this.showingSearchResults) {
+        return messageId === this.searchService.getMessageIdFromDocId(row[0]);
+      } else if (this.showingWebSocketSearchResults) {
+        const msg = (row as WebSocketSearchMailRow);
+        return messageId === msg.id;
+      } else {
+        const msg: MessageInfo = row;
+        return messageId === msg.id;
+      }
+    });
+    if (matchingRowIndex >= -1) {
+      this.rowSelected(matchingRowIndex, 1, this.canvastable.rows[matchingRowIndex], false);
+    } else {
+      this.singlemailviewer.close();
+    }
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, rowContent: any, multiSelect?: boolean) {
