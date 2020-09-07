@@ -17,22 +17,16 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import {
-  SecurityContext,
   Component,
   Input,
-  Output,
-  EventEmitter,
-  NgZone,
-  ViewChild,
-  AfterViewInit,
   ContentChild,
   ElementRef,
   TemplateRef,
 } from '@angular/core';
+
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import {RMM} from '../rmm';
+import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-runbox-list',
@@ -73,7 +67,6 @@ import {RMM} from '../rmm';
 
 export class RunboxListComponent {
   @Input() values: any[];
-  private dialog_ref: any;
   view_mode: any;
   @ContentChild('runbox_list_row_small') runbox_list_row_small: TemplateRef<ElementRef>;
   @ContentChild('runbox_list_row_medium') runbox_list_row_medium: TemplateRef<ElementRef>;

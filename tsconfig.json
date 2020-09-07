@@ -17,6 +17,7 @@
       "dom"
     ],
     "module": "esNext",
+    "noUnusedLocals": true,
     "baseUrl": "./"
   }
 }

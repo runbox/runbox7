@@ -117,7 +117,6 @@ export class DomainRegisterComponent implements AfterViewInit {
     tld_list: false,
   };
   private user_domains = [];
-  private tld;
   public is_agreement_checked = false;
   public is_specific_agreement_checked = false;
   public is_btn_purchase_disabled = false;
@@ -145,7 +144,6 @@ export class DomainRegisterComponent implements AfterViewInit {
   public displayedColumnsDNS = ['name', 'type', 'address', 'ttl', 'action'];
   public dataSourceDNS = new MatTableDataSource<ElementDnsSetting>(this.domain_dns_settings);
 
-  private tlds_available = [];
   public displayedColumnsTld = [
     'tld',
     'period',
@@ -187,16 +185,13 @@ export class DomainRegisterComponent implements AfterViewInit {
   };
 
   public is_data_validated = function () {
-    let is_valid = true;
     // check user accepted agreement
     if (this.agreement_generic && !this.is_agreement_checked) {
-      is_valid = false;
       this.show_error('Please check the agreement checkbox', 'Dismiss');
       return false;
     }
     // check user accepted specific agreement
     if (this.agreement_specific && !this.is_specific_agreement_checked) {
-      is_valid = false;
       this.show_error('Please check the specific agreement checkbox', 'Dismiss');
       return false;
     }
@@ -321,7 +316,6 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public get_generic_docs = function () {
     this.generic_docs = null;
-    const d = this.parse_domain_wanted();
     this.http.post('/rest/v1/domain_registration/enom/tld_docs_generic', {}).pipe(timeout(60000))
       .subscribe(
         (reply: any) => {
@@ -361,7 +355,6 @@ export class DomainRegisterComponent implements AfterViewInit {
     if (docs.type === 'select') {
       // check if the value will require an other field to be filled.
       // loop on each option and check which docs.options contains the value
-      let selected_option;
       const selected_value = docs.value;
       if (docs.field === 'RegistrantCountry') {
         const country = docs.value;
@@ -382,7 +375,6 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.required_by[docs.name] = [];
       for (let i = 0, option; option = docs.options[i++];) {
         if (option.value === selected_value) {
-          selected_option = option;
           if (option.requires && option.requires.length) {
             for (let j = 0, req_field; req_field = option.requires[j++];) {
               this.required_fields[req_field.name] = 1;
@@ -735,7 +727,6 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public btn_renew() {
     this.is_btn_renew_disabled = true;
-    const self = this;
     const renew = {
       domain: this.renew_domain,
       products: [],
@@ -778,7 +769,6 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public btn_purchase_privacy () {
     this.is_btn_renew_disabled = true;
-    const self = this;
     const purchase = {
         domain : this.privacy_domain,
         products : [],

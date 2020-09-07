@@ -16,12 +16,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
+import { Component, Input } from '@angular/core';
 
-/**
- * Code for exporting to the library module (for reuse on the server)
- */
+@Component({
+    selector: 'app-runbox-slide-toggle',
+    styles: [`
+    `],
+    template: `
+    <div class="app-runbox-slide-toggle"
+    >
+        <mat-slide-toggle
+            [(checked)]="is_checked"
+            (toggleChange)="toggle()"
+        >
+        <ng-content></ng-content>
+        </mat-slide-toggle>
+    </div>
+    `
+})
 
-export * from './xapian/downloadablesearchindexmap.class';
-export * from './xapian/messageinfo';
-export * from './messagetable/messagetablerow';
-export * from './xapian/rmmxapianapi';
+export class RunboxSlideToggleComponent {
+  @Input() is_checked = true;
+  constructor() {
+  }
+  toggle () {
+    this.is_checked = this.is_checked ? false : true;
+  }
+}
+

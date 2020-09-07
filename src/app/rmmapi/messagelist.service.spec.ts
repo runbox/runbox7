@@ -18,9 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { MessageListService } from './messagelist.service';
-import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
+import { FolderListEntry } from './rbwebmail';
 
-import { of, Subject, Observable } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 describe('MessageListService', () => {

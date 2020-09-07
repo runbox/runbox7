@@ -17,9 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { filter, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import {
-  SecurityContext, Component, Input, OnInit, Output, EventEmitter, NgZone, ViewChild,
+  SecurityContext, Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ElementRef,
   AfterViewInit,
   DoCheck
@@ -29,11 +29,9 @@ import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatButtonToggle } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
 
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
-import { ProgressService } from '../http/progress.service';
 import { MobileQueryService } from '../mobile-query.service';
 
 import { SafeUrl } from '@angular/platform-browser';
@@ -41,7 +39,6 @@ import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
-import { MediaMatcher } from '@angular/cdk/layout';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 
@@ -124,12 +121,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   folder: string;
 
 
-  constructor(private _ngZone: NgZone,
+  constructor(
     private domSanitizer: DomSanitizer,
     private http: HttpClient,
     public dialog: MatDialog,
     private rbwebmailapi: RunboxWebmailAPI,
-    private progressService: ProgressService,
     public messagelistservice: MessageListService,
     public mobileQuery: MobileQueryService,
     private router: Router,
@@ -191,15 +187,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   attachmentIconFromContentType(contentType: string) {
     if (contentType.indexOf('pdf') > -1) {
-      return 'picture_as_pdf';
+      return 'pdf-box';
     } else if (contentType.indexOf('audio') > -1) {
-      return 'audiotrack';
+      return 'volume-high';
     } else if (contentType.indexOf('text/calendar') > -1) {
-      return 'event';
+      return 'calendar';
     } else if (contentType.indexOf('text/vcard') > -1) {
-      return 'contacts';
+      return 'account-multiple';
     } else if (contentType.indexOf('text') > -1) {
-      return 'text_format';
+      return 'text-box';
     } else {
       return 'attachment';
     }
@@ -275,8 +271,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
         if (res.text.html) {
-          const styles: string[] = [];
-          const MAILVIEWER_STYLE_PREFIX = 'MAILVIEWER_STYLE_';
           const styleFilterRegexp = new RegExp(/(<style[\S\s]*?>[\S\s]*?<\/style>)/ig);
           const rawhtml = '' + res.text.html;
           let filteredhtml = rawhtml;
@@ -284,18 +278,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           filteredhtml = this.domSanitizer.sanitize(SecurityContext.HTML, filteredhtml);
 
           res.html = filteredhtml;
-
-
-          /*
-            // Object URL doesn't work in prod because of content security policy
-
-            this.htmlObjectURL = this.domSanitizer.bypassSecurityTrustResourceUrl(
-            URL.createObjectURL(
-              // If your browser supports sandbox we can show the raw unfiltered HTML
-              new Blob([SUPPORTS_IFRAME_SANDBOX ? rawhtml: filteredhtml],
-                  {type: 'text/html'})
-            )
-          );*/
 
           // Use HTML rest endpoint
           if (SUPPORTS_IFRAME_SANDBOX) {

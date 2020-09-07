@@ -22,7 +22,6 @@ import { Router } from '@angular/router';
 
 import { HttpClient } from '@angular/common/http';
 
-import { Subject, Observable } from 'rxjs';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';

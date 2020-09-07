@@ -17,21 +17,16 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import {
-  SecurityContext,
   Component,
   Input,
   Output,
   EventEmitter,
-  NgZone,
-  ViewChild,
-  AfterViewInit
 } from '@angular/core';
+
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import {ProfilesEditorModalComponent} from './profiles.editor.modal';
-import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
-import {RMM} from '../rmm';
+import { ProfilesEditorModalComponent } from './profiles.editor.modal';
+import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-profiles-lister',

@@ -1,35 +1,39 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
+import { MobileQueryService } from '../mobile-query.service';
 
-export class DownloadablePartitionFile {
-    filename: string;
-    compressedsize: number;
-    uncompressedsize: number;
-    downloaded?: number;
-}
+@Component({
+  selector: 'app-overview',
+  templateUrl: './overview.component.html',
+})
+export class OverviewComponent {
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    sideMenuOpened: boolean;
 
-export class DownloadablePartition {
-    numberOfMessages: number;
-    folder: string;
-    files: DownloadablePartitionFile[];
-}
-
-export class DownloadableSearchIndexMap {
-    partitions: DownloadablePartition[] = [];
+    constructor(
+        public  mobileQuery: MobileQueryService,
+    ) {
+        this.sideMenuOpened = !this.mobileQuery.matches;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.sideMenuOpened = !mobile;
+        });
+    }
 }

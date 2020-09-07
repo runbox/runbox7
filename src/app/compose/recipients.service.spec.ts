@@ -20,16 +20,15 @@
 import { TestBed } from '@angular/core/testing';
 import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
-import { Injector } from '@angular/core';
 import { SearchService } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
 import { AsyncSubject, of, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { XapianAPI } from '../xapian/rmmxapianapi';
+import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from '../xapian/xapianwebloader';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 
 declare var FS;
 declare var MEMFS;
@@ -131,10 +130,8 @@ export class RunboxWebMailAPIMock {
 }
 
 describe('RecipientsService', () => {
-    let injector: Injector;
-
     beforeEach(() => {
-        const testingmodule = TestBed.configureTestingModule({
+        TestBed.configureTestingModule({
             imports: [],
             declarations: [ ], // declare the test component
             providers: [RecipientsService, StorageService,
@@ -143,13 +140,12 @@ describe('RecipientsService', () => {
                 {provide: ContactsService,  useClass: ContactsServiceMock  },
             ]
         });
-        injector = TestBed.get(Injector);
     });
 
     afterEach(() => FS.chdir('/'));
 
     it('Should get recipients from contacts', async () => {
-        const recipientsService = injector.get(RecipientsService);
+        const recipientsService = TestBed.inject(RecipientsService);
 
         // Take 2 as searchindex+contacts service are separate updates
         const recipients = await recipientsService.recipients.pipe(take(2)).toPromise();
@@ -169,7 +165,7 @@ describe('RecipientsService', () => {
     });
 
     it('Should suggest recent recipients', async () => {
-        const searchMock: MockSearchService = <MockSearchService><unknown>injector.get(SearchService);
+        const searchMock: MockSearchService = <MockSearchService><unknown>TestBed.inject(SearchService);
 
         searchMock.mockedRecentMessages = [101, 102];
         searchMock.mockedRecipients = {
@@ -178,7 +174,7 @@ describe('RecipientsService', () => {
             103: { recipients: ['testuser@runbox.com'] }, // own address should be skipped
         };
 
-        const recipientsService: RecipientsService = injector.get(RecipientsService);
+        const recipientsService: RecipientsService = TestBed.inject(RecipientsService);
         const suggested = await recipientsService.recentlyUsed.pipe(take(1)).toPromise();
 
         expect(suggested.length).toBe(2);

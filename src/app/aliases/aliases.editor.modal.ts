@@ -18,20 +18,15 @@
 // ---------- END RUNBOX LICENSE ----------
 import { timeout } from 'rxjs/operators';
 import {
-  SecurityContext,
   Component,
   Input,
-  Output,
-  EventEmitter,
-  NgZone,
-  ViewChild,
   Inject,
-  AfterViewInit
 } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {RMM} from '../rmm';
+import { RMM } from '../rmm';
+
 @Component({
     selector: 'app-aliases-edit',
     styles: [`

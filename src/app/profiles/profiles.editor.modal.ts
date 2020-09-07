@@ -16,25 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { timeout } from 'rxjs/operators';
-import {
-  SecurityContext,
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  NgZone,
-  ViewChild,
-  Inject,
-  AfterViewInit
-} from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, Input, Inject } from '@angular/core';
+
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RMM } from '../rmm';
 import { Location } from '@angular/common';
-import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
+import { DraftDeskService } from '../compose/draftdesk.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
+
 @Component({
     selector: 'app-profiles-edit',
     styles: [`
@@ -64,11 +54,11 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
             <mat-divider [vertical]="true" style='border-color: transparent; flex: max-content;'></mat-divider>
 
             <button *ngIf="is_update && data.profile.type != 'main'" mat-icon-button [matMenuTriggerFor]="modal_menu" class='modal_menu'>
-                <mat-icon color="warn">more_vert</mat-icon>
+                <mat-icon color="warn" svgIcon="dots-vertical"></mat-icon>
             </button>
             <mat-menu #modal_menu="matMenu" xPosition="before">
                 <button mat-menu-item (click)="delete()">
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="delete"></mat-icon>
                     <span>Delete</span>
                 </button>
             </mat-menu>
@@ -385,7 +375,6 @@ export class ProfilesEditorModalComponent {
     public tinymce_plugin: TinyMCEPlugin;
     constructor(
         public rmm: RMM,
-        private http: HttpClient,
         private location: Location,
         public snackBar: MatSnackBar,
         public dialog_ref: MatDialogRef<ProfilesEditorModalComponent>,

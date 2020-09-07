@@ -21,7 +21,6 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CartService } from './cart.service';
-import { PaymentsService } from './payments.service';
 
 @Component({
     selector: 'app-paypal-handler',
@@ -35,7 +34,6 @@ import { PaymentsService } from './payments.service';
 export class PaypalHandlerComponent {
     constructor(
         private cart: CartService,
-        private paymentsservice: PaymentsService,
         private rmmapi: RunboxWebmailAPI,
         private route:  ActivatedRoute,
         private router: Router,

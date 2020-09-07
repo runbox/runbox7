@@ -39,7 +39,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
@@ -56,6 +57,7 @@ import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
+import { StartDeskModule } from './start/startdesk.module';
 import { WelcomeDeskComponent } from './welcome/welcomedesk.component';
 import { WelcomeDeskModule } from './welcome/welcomedesk.module';
 import { AccountAppModule } from './account-app/account-app.module';
@@ -78,6 +80,11 @@ import { LoginLogoutModule } from './login/loginlogout.module';
 import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
+import { OverviewComponent } from './start/overview.component';
+import { SearchService } from './xapian/searchservice';
+import { SavedSearchesComponent } from './saved-searches/saved-searches.component';
+import { SavedSearchesService } from './saved-searches/saved-searches.service';
+
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -106,6 +113,10 @@ const routes: Routes = [
           }
         ]
       },
+      {
+        path: 'start',
+        component: OverviewComponent,
+      },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
       { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
@@ -113,6 +124,7 @@ const routes: Routes = [
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
+      { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
     ]
   },
   { path: 'login', component: LoginComponent }
@@ -124,6 +136,7 @@ const routes: Routes = [
     HttpClientJsonpModule,
     CanvasTableModule,
     ComposeModule,
+    StartDeskModule,
     WelcomeDeskModule,
     FolderModule,
     MatSnackBarModule,
@@ -158,18 +171,23 @@ const routes: Routes = [
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()
   ],
+  exports: [
+  ],
   declarations: [MainContainerComponent, AppComponent,
     MoveMessageDialogComponent,
-    PopularRecipientsComponent
-    ],
+    PopularRecipientsComponent,
+    SavedSearchesComponent,
+  ],
   providers: [ProgressService,
     MessageListService,
     MobileQueryService,
     RunboxWebmailAPI,
+    SearchService,
     RMMOfflineService,
     RMM,
     RMMAuthGuardService,
     ContactsService,
+    SavedSearchesService,
     StorageService,
     { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true},
     { provide: ErrorHandler, useClass: SentryErrorHandler },
@@ -177,5 +195,11 @@ const routes: Routes = [
   bootstrap: [MainContainerComponent],
   entryComponents: [MoveMessageDialogComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor (matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
+    matIconRegistry.addSvgIconSet(
+      domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg')
+    );
+  }
+}
 

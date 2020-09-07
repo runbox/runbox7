@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, CanActivateChild } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 @Injectable()
 export class RMMAuthGuardService implements CanActivate, CanActivateChild {

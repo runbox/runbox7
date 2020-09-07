@@ -11,17 +11,17 @@ app-payment-method {
 
 <div *ngIf="items.length === 0">
     <p>
-        Your shopping cart is currently empty. <mat-icon> sentiment_dissatisfied </mat-icon>
+        Your shopping cart is currently empty. <mat-icon svgIcon="emoticon-sad-outline"> </mat-icon>
     </p>
 
     <p>
         How about you treat yourself to an
         <button mat-button routerLink="/account/upgrades" class="contentButton">
-            <mat-icon> hot_tub </mat-icon> upgrade
+            <mat-icon svgIcon="hot-tub"> </mat-icon> upgrade
         </button>
         or go ahead and
         <button mat-button routerLink="/account/renewals" class="contentButton">
-            <mat-icon> autorenew </mat-icon> renew
+            <mat-icon svgIcon="autorenew"> </mat-icon> renew
         </button>
         some of your products and lock in today's prices?
     </p>
@@ -57,7 +57,7 @@ app-payment-method {
         <th mat-header-cell *matHeaderCellDef> Remove </th>
         <td mat-cell *matCellDef="let p">
             <button mat-icon-button (click)="remove(p)">
-                <mat-icon> remove_circle_outline </mat-icon>
+                <mat-icon svgIcon="minus-circle-outline"> </mat-icon>
             </button>
         </td>
     </ng-container>

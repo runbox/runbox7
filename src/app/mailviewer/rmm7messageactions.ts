@@ -21,7 +21,7 @@ import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MoveMessageDialogComponent } from '../actions/movemessage.action';
 import { SearchService } from '../xapian/searchservice';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessageActions } from './messageactions';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -47,9 +47,9 @@ export class RMM7MessageActions implements MessageActions {
         });
     }
 
-    public trashMessage() {
+    public deleteMessage() {
         this.searchService.deleteMessages([this.mailViewerComponent.messageId]);
-        this.searchService.rmmapi.trashMessages([this.mailViewerComponent.messageId])
+        this.searchService.rmmapi.deleteMessages([this.mailViewerComponent.messageId])
             .subscribe(() => {
                 this.searchService.updateIndexWithNewChanges();
                 this.mailViewerComponent.close();

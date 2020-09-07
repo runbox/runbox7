@@ -1,27 +1,27 @@
 <button mat-icon-button matSuffix [matMenuTriggerFor]="searchExpressionBuildMenu"
     (click)="$event.preventDefault()"
     >
-  <mat-icon>build</mat-icon>
+  <mat-icon svgIcon="wrench"></mat-icon>
 </button>
 <mat-menu #searchExpressionBuildMenu>
   <button mat-menu-item (click)="to()"
-    ><mat-icon>person</mat-icon>
+    ><mat-icon svgIcon="account"></mat-icon>
     <span>To</span>
   </button>
   <button mat-menu-item (click)="from()">
-    <mat-icon>person</mat-icon>
+    <mat-icon svgIcon="account"></mat-icon>
     <span>From</span>
   </button>
   <button mat-menu-item (click)="subject()">
-    <mat-icon>subject</mat-icon>
+    <mat-icon svgIcon="text-subject"></mat-icon>
     <span>Subject</span>
   </button>
   <button mat-menu-item (click)="limitToSelectedFolder()">
-      <mat-icon>folder</mat-icon>
+      <mat-icon svgIcon="folder"></mat-icon>
       <span>Current folder</span>
   </button>
   <button mat-menu-item (click)="picker.open()">
-    <mat-icon>date_range</mat-icon>
+    <mat-icon svgIcon="calendar-range"></mat-icon>
     <span>Year/month/date</span>
   </button>
   <mat-form-field style="width: 0px; height: 0px;">
@@ -34,7 +34,7 @@
       ></mat-datepicker>
   </mat-form-field>
   <a mat-menu-item target="_blank" href="https://help.runbox.com/new-webmail-search/">
-    <mat-icon>help</mat-icon>
+    <mat-icon svgIcon="help-circle"></mat-icon>
     <span>Help</span>
   </a>
   

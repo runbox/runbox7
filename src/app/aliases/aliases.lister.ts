@@ -17,21 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import {
-  SecurityContext,
   Component,
   Input,
   Output,
   EventEmitter,
-  NgZone,
-  ViewChild,
-  AfterViewInit
 } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
-import {RMM} from '../rmm';
+import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
+import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-aliases-lister',

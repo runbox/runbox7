@@ -21,11 +21,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
-import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 import { RunboxTimerComponent } from './runbox-timer';
-import { ProductOrder } from './product-order';
 import { AsyncSubject } from 'rxjs';
 
 @Component({

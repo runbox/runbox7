@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
@@ -37,6 +38,7 @@ export class AccountRenewalsComponent {
     constructor(
         private cart: CartService,
         private rmmapi: RunboxWebmailAPI,
+        private router: Router,
         private snackbar: MatSnackBar,
     ) {
         this.rmmapi.me.subscribe(me => {
@@ -53,7 +55,8 @@ export class AccountRenewalsComponent {
                     p.expires_soon = true;
                 }
 
-                p.can_renew = p.pid !== 1000; // no renewals for trials
+                // no renewals for trials; domains handled separately
+                p.can_renew = (p.pid !== 1000) && (p.subtype !== 'domain');
 
                 return p;
             });
@@ -68,6 +71,17 @@ export class AccountRenewalsComponent {
 
     renew(p: any) {
         this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
+    }
+
+    renewDomain(p: any) {
+        this.rmmapi.getProductDomain(p.apid).subscribe(
+            domain => {
+                this.router.navigateByUrl('/domainregistration?renew_domain=' + domain);
+            },
+            _err => {
+                this.snackbar.open('Failed to determine domain for the product. Try again later or contact Runbox Support', 'Okay');
+            },
+        );
     }
 
     toggleAutorenew(p: any) {

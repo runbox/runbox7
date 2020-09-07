@@ -28,7 +28,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -67,6 +68,7 @@ describe('SingleMailViewerComponent', () => {
         MatDialogModule,
         ResizerModule,
         MatIconModule,
+        MatIconTestingModule,
         MatGridListModule,
         MatToolbarModule,
         MatTooltipModule,
@@ -74,7 +76,7 @@ describe('SingleMailViewerComponent', () => {
         MatExpansionModule,
         RouterTestingModule
       ],
-      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
+      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent, MatIcon],
       providers: [
         MobileQueryService,
         StorageService,
@@ -135,7 +137,7 @@ describe('SingleMailViewerComponent', () => {
       moveToFolder() {
         throw new Error('Method not implemented.');
       }
-      trashMessage() {
+      deleteMessage() {
         throw new Error('Method not implemented.');
       }
       flag() {

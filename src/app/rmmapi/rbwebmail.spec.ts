@@ -36,11 +36,11 @@ describe('RBWebMail', () => {
     });
 
     it('should cache message contents', async () => {
-        const rmmapi = TestBed.get(RunboxWebmailAPI);
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
 
         let messageContentsObservable = rmmapi.getMessageContents(123);
 
-        const httpTestingController = TestBed.get(HttpTestingController);
+        const httpTestingController = TestBed.inject(HttpTestingController);
         let req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
             result: {
@@ -49,7 +49,7 @@ describe('RBWebMail', () => {
             }
         });
 
-        let messageContents = await messageContentsObservable.toPromise();
+        let messageContents = await <any>messageContentsObservable.toPromise();
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test');
 
@@ -214,9 +214,9 @@ describe('RBWebMail', () => {
             }
         };
 
-        const rmmapi = TestBed.get(RunboxWebmailAPI);
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
         const folderListPromise = rmmapi.getFolderList().toPromise();
-        const httpTestingController = TestBed.get(HttpTestingController);
+        const httpTestingController = TestBed.inject(HttpTestingController);
         const req = httpTestingController.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 
@@ -603,9 +603,9 @@ describe('RBWebMail', () => {
             }
         };
 
-        const rmmapi = TestBed.get(RunboxWebmailAPI);
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
         const folderListPromise = rmmapi.getFolderList().toPromise();
-        const httpTestingController = TestBed.get(HttpTestingController);
+        const httpTestingController = TestBed.inject(HttpTestingController);
         const req = httpTestingController.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 

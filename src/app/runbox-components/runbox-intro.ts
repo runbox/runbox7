@@ -16,21 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import {
-  SecurityContext,
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  NgZone,
-  ViewChild,
-  AfterViewInit
-} from '@angular/core';
+import { Component } from '@angular/core';
 
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import {RMM} from '../rmm';
+import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-runbox-intro',
@@ -58,7 +48,6 @@ import {RMM} from '../rmm';
 })
 
 export class RunboxIntroComponent {
-  private dialog_ref: any;
   constructor(public dialog: MatDialog,
     public rmm: RMM,
     public snackBar: MatSnackBar,

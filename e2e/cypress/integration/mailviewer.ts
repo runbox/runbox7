@@ -95,7 +95,7 @@ describe('Interacting with mailviewer', () => {
         // set full height
         var resizerHeight = 0;
         cy.get('button[mattooltip="Full height"]').click().and(() => {
-        // full height 
+        // full height
             resizerHeight = parseInt(localStorage.getItem('rmm7resizerheight'), 10);
         });
         // half height 
@@ -109,5 +109,17 @@ describe('Interacting with mailviewer', () => {
         cy.get('button[mattooltip="Close"]').click().should(() => {
             expect(parseInt(localStorage.getItem('rmm7resizerheight'), 10)).to.equal(resizerHeight);
         });
+    });
+
+    it('Revisit open email in horizontal mode loads it', () => {
+        cy.visit('/#Inbox:11');
+
+        // Switch to horizontal mode
+        cy.get('button[mattooltip="Horizontal preview"]').click();
+
+        // revisit
+        cy.visit('/#Inbox#11');
+        // Half height email pane should still be open
+        cy.get('button[mattooltip="Full height"]').should('exist');
     });
 })

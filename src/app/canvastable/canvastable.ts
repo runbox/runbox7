@@ -23,7 +23,7 @@
 
 
 import {
-  NgModule, Component, QueryList, AfterViewInit,
+  NgModule, Component, AfterViewInit,
   Input, Output, Renderer2,
   ElementRef,
   DoCheck, NgZone, EventEmitter, OnInit, ViewChild
@@ -145,7 +145,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   private fontheight = 16;
   private fontheightSmaller = 13;
   private fontheightSmall = 15;
-  private fontheightLarge = 18;
 
   private scrollbarwidth = 12;
 
@@ -157,7 +156,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   private scrollBarRect: any;
 
   private isTouchZoom = false;
-  private touchdownxy: any;
   private scrollbarDragInProgress = false;
   columnResizeInProgress = false;
   private scrollbarArea = false;
@@ -314,7 +312,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
 
       const canvrect = this.canv.getBoundingClientRect();
-      this.touchdownxy = { x: clientX - canvrect.left, y: clientY - canvrect.top };
       if (checkIfScrollbarArea(clientX, clientY)) {
         this.scrollbarDragInProgress = true;
         this.scrollbarArea = true;
@@ -532,7 +529,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     };
 
     this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
-      this.touchdownxy = undefined;
       this.lastMouseDownEvent = undefined;
       if (this.scrollbarDragInProgress) {
         this.scrollbarDragInProgress = false;
@@ -603,8 +599,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private updateDragImage(selectedRowIndex: number) {
-    const canvrect = this.canv.getBoundingClientRect();
-
     const dragImageYCoords: number[][] = [];
     let dragImageDestY = 0;
 
@@ -704,7 +698,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       if (selectedColIndex > 0) {
         this.canv.style.cursor = 'col-resize';
       } else {
-        this.canv.style.cursor = 'default';
+        this.canv.style.cursor = 'pointer';
       }
       this.visibleColumnSeparatorAlpha = 0;
       this.visibleColumnSeparatorIndex = selectedColIndex;
@@ -762,8 +756,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     if (!this.canv) {
       return;
     }
-
-    const padding = this.colpaddingleft + this.colpaddingright;
 
     const canvasWidth = Math.floor(this.wantedCanvasWidth / window.devicePixelRatio) - this.scrollbarwidth - 2;
 

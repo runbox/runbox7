@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed, async, ComponentFixture, getTestBed, tick, fakeAsync } from '@angular/core/testing';
+import { TestBed, async, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
 import { DialogModule } from './dialog.module';
 import { ProgressSnackbarComponent } from './progresssnackbar.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -29,8 +29,6 @@ import { Component } from '@angular/core';
 }) export class TestAppComponent {}
 
 describe('ProgressService', () => {
-
-    let injector: TestBed;
     let fixture: ComponentFixture<TestAppComponent>;
 
     beforeEach(async(() => {
@@ -40,12 +38,11 @@ describe('ProgressService', () => {
                 DialogModule],
             declarations: [TestAppComponent]
         }).compileComponents();
-        injector = getTestBed();
-        fixture = injector.createComponent(TestAppComponent);
+        fixture = TestBed.createComponent(TestAppComponent);
     }));
 
     it('should see changes in the progress snackbar', fakeAsync(() => {
-        const snackbar: MatSnackBar = injector.get(MatSnackBar);
+        const snackbar: MatSnackBar = TestBed.inject(MatSnackBar);
 
         expect(snackbar.openFromComponent).toBeDefined();
 

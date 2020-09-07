@@ -16,20 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { timeout } from 'rxjs/operators';
-import { SecurityContext, Component, Input, Output, EventEmitter, NgZone, ViewChild, AfterViewInit } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { ProgressService } from '../http/progress.service';
+import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-
-import {AliasesListerComponent} from '../aliases/aliases.lister';
-import {ProfilesListerComponent} from './profiles.lister';
-import {ProfilesEditorModalComponent} from './profiles.editor.modal';
-import {AliasesEditorModalComponent} from '../aliases/aliases.editor.modal';
+import { ProfilesEditorModalComponent } from './profiles.editor.modal';
+import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 import { RMM } from '../rmm';
 
 @Component({

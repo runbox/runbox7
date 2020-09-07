@@ -24,7 +24,6 @@
 import { ComponentRef } from '@angular/core';
 import { RMM6Module } from './rmm6.module';
 import { SingleMailViewerComponent } from '../mailviewer/singlemailviewer.component';
-import { InfoDialog, InfoParams } from '../dialog/info.dialog';
 import { RMM6SearchComponent } from './rmm6search.component';
 import { DomainRegisterComponent } from '../domainregister/domainregister.component';
 
@@ -45,12 +44,6 @@ export class RMM6AngularGateway {
                 .create(this.appmod.injector, [], aelm);
             this.appmod.appref.attachView(component.hostView);
         });
-    }
-
-    private removeChildNodesFromElement(elm: Element) {
-        while (elm.hasChildNodes()) {
-            elm.removeChild(elm.lastChild);
-        }
     }
 
     public openSearch() {

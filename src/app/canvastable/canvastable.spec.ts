@@ -18,8 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { CanvasTableModule, CanvasTableSelectListener, CanvasTableContainerComponent } from './canvastable';
-import { AsyncSubject } from 'rxjs';
+import { CanvasTableModule, CanvasTableContainerComponent } from './canvastable';
 
 describe('canvastable', () => {
     beforeEach(() => {

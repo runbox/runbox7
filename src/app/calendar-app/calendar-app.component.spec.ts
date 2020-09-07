@@ -31,6 +31,8 @@ import { of, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import * as moment from 'moment';
 
 describe('CalendarAppComponent', () => {
@@ -85,7 +87,8 @@ describe('CalendarAppComponent', () => {
                 imports: [
                     NoopAnimationsModule,
                     CalendarAppModule,
-                    RouterTestingModule.withRoutes([])
+                    RouterTestingModule.withRoutes([]),
+                    MatIconTestingModule,
                   ],
                 providers: [
                     MobileQueryService,
@@ -102,6 +105,7 @@ describe('CalendarAppComponent', () => {
                     { provide: LogoutService, useValue: {
                     } },
                 ],
+                declarations: [MatIcon],
             }).compileComponents();
     }));
 

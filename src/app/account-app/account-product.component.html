@@ -39,13 +39,13 @@ mat-card-subtitle {
     </mat-card-actions>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
         <button mat-icon-button (click)="less()">
-            <mat-icon> remove_circle_outline </mat-icon>
+            <mat-icon svgIcon="minus-circle-outline"></mat-icon>
         </button>
         <button mat-button>
             {{ quantity }}
         </button>
         <button mat-icon-button (click)="more()">
-            <mat-icon> add_circle_outline </mat-icon>
+            <mat-icon svgIcon="plus-circle-outline"></mat-icon>
         </button>
         <button mat-button (click)="order()" class="contentButton" style="margin-left: 20px !important">
             Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}

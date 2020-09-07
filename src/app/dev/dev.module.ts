@@ -23,9 +23,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
 import { RouterModule } from '@angular/router';
-
 import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,18 +37,16 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
-
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DevComponent } from './dev.component';
-import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
-import { RunboxListComponent } from '../runbox-components/runbox-list';
+import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 
 @NgModule({
     declarations: [
         DevComponent,
-        RunboxIntroComponent,
-        RunboxListComponent,
     ],
     imports: [
+        RunboxComponentModule,
         CommonModule,
         MatGridListModule,
         MatCheckboxModule,
@@ -63,6 +59,7 @@ import { RunboxListComponent } from '../runbox-components/runbox-list';
         MatListModule,
         MatProgressBarModule,
         MatSelectModule,
+        MatSlideToggleModule,
         MatSidenavModule,
         MatToolbarModule,
         MatTooltipModule,
@@ -72,6 +69,8 @@ import { RunboxListComponent } from '../runbox-components/runbox-list';
             { path: '',                    component: DevComponent },
             { path: ':selected_component', component: DevComponent },
         ])
+    ],
+    exports: [
     ],
     entryComponents: [
     ],

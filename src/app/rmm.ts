@@ -17,14 +17,14 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Injectable } from '@angular/core';
-import { timeout } from 'rxjs/operators';
 import { UserAgent } from './rmm/useragent';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Email } from './rmm/email';
 import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
+import { AccountSecurity } from './rmm/account-security';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
@@ -38,6 +38,7 @@ export class RMM {
     public me: Me;
     public email: Email;
     public runbox_domain: RunboxDomain;
+    public account_security: AccountSecurity;
     constructor(
         public http: HttpClient,
         public snackBar: MatSnackBar,
@@ -48,6 +49,7 @@ export class RMM {
         this.me = new Me(this);
         this.runbox_domain = new RunboxDomain(this);
         this.email = new Email(this);
+        this.account_security = new AccountSecurity(this);
     }
 
     public show_error ( message, action ) {

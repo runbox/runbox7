@@ -17,26 +17,27 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {Injectable, NgZone} from '@angular/core';
-import { Observable ,  AsyncSubject,  Subject ,  of, from  } from 'rxjs';
-import { XapianAPI } from './rmmxapianapi';
-import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
-import { MessageInfo,
-    IndexingTools } from './messageinfo';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+
+import { Observable, AsyncSubject, Subject, of, from } from 'rxjs';
+import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
+
+import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { DownloadableSearchIndexMap, DownloadablePartition } from 'runbox-searchindex/downloadablesearchindexmap.class';
+import { MessageInfo, IndexingTools } from 'runbox-searchindex/messageinfo';
+
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CanvasTableColumn} from '../canvastable/canvastable';
 import { AppComponent } from '../app.component';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ProgressDialog } from '../dialog/progress.dialog';
-import { MessageListService, FolderMessageCountEntry } from '../rmmapi/messagelist.service';
-import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
-import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
+import { MessageListService } from '../rmmapi/messagelist.service';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
-import { DownloadableSearchIndexMap, DownloadablePartition } from './downloadablesearchindexmap.class';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
-import { InfoDialog, InfoParams } from '../dialog/info.dialog';
 
 declare var FS;
 declare var IDBFS;
@@ -74,7 +75,9 @@ export class SearchIndexDocumentUpdate {
   ) {}
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class SearchService {
 
   public api: XapianAPI;
@@ -145,7 +148,6 @@ export class SearchService {
 
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
-       private ngZone: NgZone,
        private snackbar: MatSnackBar,
        private dialog: MatDialog,
        private messagelistservice: MessageListService) {
@@ -667,23 +669,9 @@ export class SearchService {
     return querytext;
   }
 
-  getMessageCountsForFolder(folderPath: string): FolderMessageCountEntry {
-      const total = this.api.sortedXapianQuery(
-          this.getFolderQuery('', folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
-      ).length;
-      const unread = this.api.sortedXapianQuery(
-          this.getFolderQuery('', folderPath, true), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
-      ).length;
-
-      return new FolderMessageCountEntry(
-          unread,
-          total,
-      );
-  }
-
   /// Get message IDs of all indexed messages in a given time range -- [inclusive, exclusive), newest first
   getMessagesInTimeRange(start: Date, end: Date, folder?: string): number[] {
-    const toRangeString = (dt: Date) => dt.toISOString().substr(0, 10).replace(/-/g, '');
+    const toRangeString = (dt: Date) => dt ? dt.toISOString().substr(0, 10).replace(/-/g, '') : '';
     let query = `date:${toRangeString(start)}..${toRangeString(end)}`;
     if (folder) {
       query += ` folder:"${folder}"`;
@@ -740,55 +728,37 @@ export class SearchService {
 
           const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
                 .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
+          const folderPath = currentFolder.folderPath;
+          const xapianPath = folderPath.replace(/\//g, '.');
 
-          const indexFolderResults = this.api.sortedXapianQuery(
-              this.getFolderQuery('', currentFolder.folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1);
-
-          const numberOfMessages = indexFolderResults.length;
-          const numberOfUnreadMessages = this.api.sortedXapianQuery(
-                this.getFolderQuery('', currentFolder.folderPath, true), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1).length;
+          // do this once per folder, and only if the folder is actually indexed
           if (
-            numberOfMessages < MAX_DISCREPANCY_CHECK_LIMIT &&
-            currentFolder.totalMessages < MAX_DISCREPANCY_CHECK_LIMIT &&
-            (!this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] ||
-            this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] <= 3) && (
+              this.api.listFolders().find(f => f[0] === xapianPath) &&
+              this.folderCountDiscrepanciesCheckedCount[folderPath] === 0
+          ) {
+            this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
+
+            const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(xapianPath);
+            if (
                 numberOfMessages !== currentFolder.totalMessages ||
                 numberOfUnreadMessages !== currentFolder.newMessages
-              )
             ) {
-            console.log(`number of messages
-                (${numberOfMessages} vs ${currentFolder.totalMessages} and
-                (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
-                  not matching with index for current folder`);
-
-            if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] >= 1) {
-              this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath]++;
-
-              /*if (this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] === 3) {
-                this.dialog.open(InfoDialog, {data: new InfoParams(
-                  `Message count mismatch in folder ${currentFolder.folderName}`,
-                  `<p>Your local search index is not in sync for folder ${currentFolder.folderName}.
-                  Number of messages are ${numberOfMessages} but the search index has got ${currentFolder.totalMessages} and
-                  ${numberOfUnreadMessages} unread messages vs ${currentFolder.newMessages} in the search index.</p>
-                  <p>An attempt has already been made to correct this automatically without success, so you
-                  should consider downloading a new search index from the server. Click
-                  "Stop Synchronizing" in the left side menu, wait for confirmation, and then you can
-                  reload and click "Start synchronizing" to download a fresh index.</p>
-                  `)
-                });
-              }*/
-            } else {
-              // Only check folder discrepancies once per folder
-              this.folderCountDiscrepanciesCheckedCount[currentFolder.folderPath] = 1;
+              console.log(`number of messages
+                  (${numberOfMessages} vs ${currentFolder.totalMessages} and
+                  (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
+                    not matching with index for current folder`);
 
               const folderMessages = await this.rmmapi.listAllMessages(0, 0, 0,
                 MAX_DISCREPANCY_CHECK_LIMIT,
-                true, currentFolder.folderPath).toPromise();
+                true, folderPath).toPromise();
               msginfos = msginfos.concat(folderMessages);
 
               const folderMessageIDS: {[messageId: number]: boolean} = {};
               folderMessages.forEach(msg => folderMessageIDS[msg.id] = true);
 
+              const indexFolderResults = this.api.sortedXapianQuery(
+                this.getFolderQuery('', folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
+              );
               indexFolderResults.forEach((searchResultRow: number[]) => {
                   const docdataparts = this.api.getDocumentData(searchResultRow[0]).split('\t');
                   const rmmMessageId = parseInt(docdataparts[0].substring(1), 10);
@@ -974,8 +944,8 @@ export class SearchService {
                   `${newmessages.length} new email messages` :
                   `New email message`;
               try {
-                // tslint:disable-next-line:no-unused-expression
-                  const notification = new Notification(newMessagesTitle, {
+                  // tslint:disable-next-line:no-unused-expression
+                  new Notification(newMessagesTitle, {
                     body: newmessages[0].from[0].name,
                     icon: 'assets/icons/icon-192x192.png',
                     tag: 'newmessages'
@@ -1020,7 +990,6 @@ export class SearchService {
 
     downloadPartitions(): Observable<any> {
       let totalSize;
-      let totalCompressedSize;
       let partitions: DownloadablePartition[];
       let userHasAcceptedDownloadAllPartitions = false;
       return this.httpclient.get('/rest/v1/searchindex/partitions')
@@ -1032,8 +1001,6 @@ export class SearchService {
             partitions = searchindexmap.partitions.filter((p, ndx) => ndx > 0);
             totalSize = partitions.reduce((prev, curr) => prev +
               curr.files.reduce((p, c) => c.uncompressedsize + p, 0), 0);
-            totalCompressedSize  = partitions.reduce((prev, curr) => prev +
-              curr.files.reduce((p, c) => c.compressedsize + p, 0), 0);
             if (totalSize === 0) {
               console.log('No extra search index partitions');
               this.updateIndexWithNewChanges();

@@ -27,7 +27,7 @@ export class StorageService {
     keySubjects: { [key: string]: ReplaySubject<any> } = {};
 
     constructor(
-        private rmmapi: RunboxWebmailAPI,
+        rmmapi: RunboxWebmailAPI,
     ) {
         rmmapi.me.subscribe(me => {
             this.uid.next(me.uid);

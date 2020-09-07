@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -30,19 +30,17 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
-import { Router, RouterOutlet, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
-import { MessageTableRow, MessageTableRowTool } from './messagetable/messagetablerow';
 import { MessageListService } from './rmmapi/messagelist.service';
-import { MessageInfo } from './xapian/messageinfo';
-import { InfoDialog, InfoParams } from './dialog/info.dialog';
-import { RunboxMe, RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
+import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
-import { SimpleInputDialog, SimpleInputDialogParams, ProgressDialog } from './dialog/dialog.module';
-import { map, first, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
+import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
+import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
@@ -59,6 +57,7 @@ import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings, AppSettingsService } from './app-settings';
+import { SavedSearchesService } from './saved-searches/saved-searches.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -74,11 +73,12 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   selectedRowIds: { [key: number]: boolean } = {};
   showSelectOperations: boolean;
+  showSelectMarkOpMenu: boolean;
 
-  lastSearchText: string;
+  lastSearchText = '';
   searchText = '';
   dataReady: boolean;
 
@@ -126,6 +126,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
 
+  sideMenuOpened = true;
+
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
 
@@ -139,7 +141,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianDocCount: number;
   searchResultsCount: number;
 
-  private mobileQueryListener: () => void;
+  startDeskEnabled = false;
 
   xapianLoaded = xapianLoadedSubject;
 
@@ -165,6 +167,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
     public settingsService: AppSettingsService,
+    private savedSearchService: SavedSearchesService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -181,6 +184,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             return e;
         })
     );
+    this.hotkeysService.add(
+        new Hotkey(
+            'up up down down left right left right b a',
+            (event: KeyboardEvent): ExtendedKeyboardEvent => {
+                this.router.navigateByUrl('/start');
+                this.snackBar.open('Enjoy the start desk prototype!', 'Thanks!', { duration: 3000 });
+                this.startDeskEnabled = true;
+                localStorage.setItem('rmm7startdeskenabled', 'true');
+                const e: ExtendedKeyboardEvent = event;
+                e.returnValue = false;
+                return e;
+            }
+        ),
+    );
+
+    if (localStorage.getItem('rmm7startdeskenabled') === 'true') {
+        this.startDeskEnabled = true;
+    }
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
     this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
@@ -228,36 +249,29 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
 
-    // Mobile media query for screen width
-
-    this.mobileQueryListener = () => {
-      // Open sidenav if screen is wide enough and it was closed
+    this.sideMenuOpened = !mobileQuery.matches;
+    this.mobileQuery.changed.subscribe(onMobile => {
+      this.sideMenuOpened = !onMobile;
       changeDetectorRef.detectChanges();
-      if (!this.mobileQuery.matches && !this.sidemenu.opened) {
-        this.sidemenu.open();
+
+      if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '35%';
-      } else if (this.mobileQuery.matches && this.sidemenu.opened) {
-        this.sidemenu.close();
       }
 
-      if (this.mobileQuery.matches) {
+      if (onMobile) {
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = localStorage
               .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
-    };
+    });
 
-    this.mobileQuery.addListener(this.mobileQueryListener);
     this.updateTime();
   }
 
-  ngOnDestroy() {
-    this.mobileQuery.removeListener(this.mobileQueryListener);
-  }
   ngDoCheck(): void {
     this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
       (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
@@ -314,6 +328,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.keepMessagePaneOpen = messagePaneSetting === 'true';
     }
 
+    const mailViewerSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+    if (mailViewerSetting) {
+      this.mailViewerOnRightSide = mailViewerSetting === 'true';
+    }
+
     const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
     if (showUnreadOnly) {
       this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
@@ -341,9 +360,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         setTimeout(() => this.afterLoadIndex(), 0);
       }
     });
-
-    // Start with the sidenav open if window is wide enough
-    setTimeout(() => this.mobileQueryListener(), 100);
 
     this.route.fragment.subscribe(
       fragment => {
@@ -476,7 +492,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, trashFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', trashFolderName);
   }
@@ -488,7 +504,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
     ).toPromise();
-    await this.rmmapi.trashMessages(messageLists.map(msg => msg.id)).toPromise();
+    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
     this.messagelistservice.refreshFolderList();
     console.log('Deleted from', spamFolderName);
   }
@@ -537,7 +553,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       });
   }
 
-  public toggleRead() {
+  public openMarkOpMenu() {
+    this.showSelectMarkOpMenu = true;
+  }
+
+  public closeMarkOpMenu() {
+    this.showSelectMarkOpMenu = false;
+  }
+
+  public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
@@ -545,60 +569,63 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
 
-    const value = 0;
     const args = {
-        flag: {
-            name: 'seen_flag',
-            value: value
-        },
-        ids: messageIds
+      flag: {
+        name: 'seen_flag',
+        value: status ? 1 : 0,
+      },
+      ids: messageIds
     };
 
-    messageIds.forEach( (id) => {
-        this.rmmapi.messageFlagChangeSubject.next(
-            new MessageFlagChange(id, null, value ? true : false)
-        );
-    } );
     this.rmm.email.update(args).subscribe(() => {
-        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
+        if (!this.searchService.localSearchActivated) {
+          messageIds.forEach( (id) => {
+               this.rmmapi.messageFlagChangeSubject.next(
+                   new MessageFlagChange(id, status, null)
+               );
+          } );
+        }
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
   }
 
-  public toggleFlagged() {
+  public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
       messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
     }
-    const value = 0;
     const args = {
-        flag: {
-            name: 'flagged_flag',
-            value: value
-        },
-        ids: messageIds
+      flag: {
+        name: 'flagged_flag',
+        value: status ? 1 : 0,
+      },
+      ids: messageIds
     };
 
-    messageIds.forEach( (id) => {
-        this.rmmapi.messageFlagChangeSubject.next(
-            new MessageFlagChange(id, null, value ? true : false)
-            );
-    } );
     this.rmm.email.update(args).subscribe(() => {
-        this.messagelistservice.fetchFolderMessages();
         this.searchService.updateIndexWithNewChanges();
+         if (!this.searchService.localSearchActivated) {
+           messageIds.forEach( (id) => {
+             this.rmmapi.messageFlagChangeSubject.next(
+               new MessageFlagChange(id, null, status)
+             );
+           } );
+         }
         this.selectedRowIds = {};
         this.selectedRowId = null;
+        this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
+
   }
 
-  public trashMessages() {
+  public deleteMessages() {
     let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
 
     if (this.showingSearchResults) {
@@ -606,7 +633,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.searchService.deleteMessages(messageIds);
-    this.searchService.rmmapi.trashMessages(messageIds)
+    this.searchService.rmmapi.deleteMessages(messageIds)
       .subscribe(() => {
         this.selectedRowIds = {};
         this.selectedRowId = null;
@@ -917,6 +944,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         return;
     }
 
+    console.log('Change selectedFolder');
     this.clearSelection();
 
     let doResetColumns = false;
@@ -972,6 +1000,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.autoAdjustColumnWidths();
   }
 
+  showSaveSearchDialog(): void {
+    const dialog = this.dialog.open(SimpleInputDialog, {
+        data: new SimpleInputDialogParams(
+            'Save search',
+            'Save this search for later',
+            'Your name for this search query',
+            (value: string) => value && value.trim().length > 0
+        )
+    });
+    dialog.afterClosed().pipe(
+        filter(res => res && res.length > 0),
+    ).subscribe(searchName => {
+        this.savedSearchService.add({
+            name: searchName,
+            query: this.searchText,
+        });
+    });
+  }
+
+  // FIXME: Why do we run this when searchText is empty?
   updateSearch(always?: boolean, noscroll?: boolean) {
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       return;

@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import {
   Component,
   OnInit,
@@ -27,8 +26,6 @@ import {
   EventEmitter
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AsyncSubject } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import * as moment from 'moment';
 
 @Component({
@@ -61,7 +58,6 @@ export class RunboxTimerComponent implements OnInit {
   constructor(
       public dialog: MatDialog,
       public ref: ElementRef,
-      private rmmapi: RunboxWebmailAPI,
   ) {
       setTimeout(() => this.recalculate_date(), 1000);
   }

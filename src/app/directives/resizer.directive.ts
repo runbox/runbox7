@@ -33,8 +33,6 @@ export class ResizerDirective implements OnInit {
         private el: ElementRef,
         private renderer: Renderer2) {
 
-        const self = this;
-
         const mouseDrag = (evt) => {
             if (!this.dragging) {
                 return;

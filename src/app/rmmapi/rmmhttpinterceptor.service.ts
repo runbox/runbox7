@@ -20,7 +20,7 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpClient } from '@angular/common/http';
 import { Observable,  throwError } from 'rxjs';
-import { catchError, filter, map, finalize } from 'rxjs/operators';
+import { catchError, map, finalize } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 import { RMMAuthGuardService } from './rmmauthguard.service';
 import { RMMOfflineService } from './rmmoffline.service';

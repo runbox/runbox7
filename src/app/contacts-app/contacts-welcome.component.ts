@@ -27,7 +27,7 @@ import { Component } from '@angular/core';
     <p>
         Here you can view and modify your contact list. If it's your first time here,
         you may want to check out the
-        <a routerLink="/contacts/settings" class="contentButton"><mat-icon>settings</mat-icon> Settings </a>
+        <a routerLink="/contacts/settings" class="contentButton"><mat-icon svgIcon="cog"></mat-icon> Settings </a>
         button at the top left corner to migrate your contacts to CardDAV, the storage engine for Runbox 7 Contacts.
     </p>
     <p>
@@ -35,14 +35,14 @@ import { Component } from '@angular/core';
 	See the Settings for more details about that.
     </p>
     <p>
-        The <a routerLink="/contacts/new" class="contentButton"><mat-icon> add </mat-icon>New contact </a>
+        The <a routerLink="/contacts/new" class="contentButton"><mat-icon svgIcon="account-plus"></mat-icon>New contact </a>
         button will allow you to add new contacts to your contact list.
 	Note that they will then be added to CardDAV and will <b>not</b> be visible in Runbox 6.
     </p>
     <p>Eventually all Runbox 6 contacts will be migrated to Runbox 7, and the support for these "old" contacts will be removed.
     </p>
     <p>
-        The contacts on the left have the <mat-icon> email </mat-icon> icon next to them (as long as they have an email address),
+        The contacts on the left have the <mat-icon svgIcon="email"> </mat-icon> icon next to them (as long as they have an email address),
 	and clicking that icon will allow you to instantly write an email to the given contact.
     </p>
     <p>
