@@ -433,13 +433,6 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public getDefaultProfile(): Observable<FromAddress> {
-        return this.http.get('/rest/v1/me/defaultprofile').pipe(
-            map((res: any) =>
-                res.result
-            ));
-    }
-
     public getAliases(): Observable<Alias[]> {
         return this.http.get('/ajax/aliases')
             .pipe(
