@@ -27,7 +27,6 @@ export class MailAddressInfo {
     public static parse(mailaddr: string): MailAddressInfo[] {
         const ret: MailAddressInfo[] = [];
         let namePart = false;
-        let addrPart = false;
         let lastStart = 0;
         let name: string = null;
         let addr: string = null;
@@ -57,7 +56,6 @@ export class MailAddressInfo {
                     break;
                 case '<':
                     if (!namePart) {
-                        addrPart = true;
                         if (name == null) {
                             name = mailaddr.substring(lastStart, n).trim();
                         }
@@ -66,7 +64,6 @@ export class MailAddressInfo {
                     break;
                 case '>':
                     if (!namePart) {
-                        addrPart = false;
                         addr = mailaddr.substring(lastStart, n).trim();
                     }
                     break;

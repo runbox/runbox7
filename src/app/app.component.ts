@@ -35,6 +35,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './common/messageinfo';
+import { MessageList } from './common/messagelist';
 import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
@@ -43,7 +44,7 @@ import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './di
 import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
-import { WebSocketSearchMailRow } from './websocketsearch/websocketsearchmailrow.class';
+import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
 import { from, of, Observable } from 'rxjs';
@@ -58,6 +59,7 @@ import { LogoutService } from './login/logout.service';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings, AppSettingsService } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
+import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -74,7 +76,6 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   templateUrl: 'app.component.html'
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
-  selectedRowIds: { [key: number]: boolean } = {};
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
@@ -101,10 +102,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   timeOfDay: string;
 
   conversationSearchText: string;
-
-  openedRowIndex: number;
-  selectedRowId: number;
-  openedRowId: number;
   searchtextfieldfocused = false;
 
   showMultipleSearchFields = false;
@@ -130,6 +127,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
+
+  fragment = '';
 
   messagelist: Array<MessageInfo> = [];
 
@@ -215,17 +214,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (this.singlemailviewer.messageId) {
         if (evt.code === 'ArrowUp') {
-          const newRowIndex = this.openedRowIndex - 1;
+          // slightly ugly as we need to call *this* rowSelected, not
+          // the cvtable one
+          const newRowIndex = this.canvastable.rows.openedRowIndex - 1;
           if (newRowIndex >= 0) {
-            this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
+            this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollUp();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
-          const newRowIndex = this.openedRowIndex + 1;
-          if (newRowIndex < this.canvastable.rows.length) {
-            this.rowSelected(newRowIndex, 3, this.canvastable.rows[newRowIndex], false);
+          // slightly ugly as we need to call *this* rowSelected, not
+          // the cvtable one
+          const newRowIndex = this.canvastable.rows.openedRowIndex + 1;
+          if (newRowIndex < this.canvastable.rows.rowCount()) {
+            this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollDown();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
@@ -238,15 +241,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.websocketsearchservice.searchresults.subscribe((results) => {
       if (results === null) {
         if (this.showingWebSocketSearchResults) {
-          this.canvastable.columns = this.messagelistservice.getCanvasTableColumns(this);
-          this.canvastable.rows = this.messagelist;
+          this.setMessageDisplay('messagelist', this.messagelist);
           this.showingWebSocketSearchResults = false;
         }
       } else {
-        this.canvastable.columns = this.websocketsearchservice.getCanvasTableColumns(this);
-        this.canvastable.rows = results;
+        this.setMessageDisplay('websocketlist', results);
         this.showingWebSocketSearchResults = true;
       }
+      this.resetColumns();
     });
 
     this.sideMenuOpened = !mobileQuery.matches;
@@ -273,9 +275,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngDoCheck(): void {
-    this.showSelectOperations = Object.keys(this.selectedRowIds).reduce((prev, current) =>
-      (this.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
-
     if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
         this.xapianDocCount
@@ -298,7 +297,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
-        this.canvastable.rows = this.messagelist;
+        this.setMessageDisplay('messagelist', this.messagelist);
         this.canvastable.hasChanges = true;
       }
     });
@@ -366,17 +365,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (!fragment) {
           this.messagelistservice.setCurrentFolder('Inbox');
           this.singlemailviewer.close();
+          this.fragment = '';
           return;
         }
 
-        const parts = fragment.split(':');
-        this.switchToFolder(parts[0]);
-        if (parts.length === 2) {
-//          this.selectRowByMessageId(parseInt(parts[1], 10));
-          this.singlemailviewer.messageId = parseInt(parts[1], 10);
-        } else {
-          this.singlemailviewer.close();
-        }
+        this.fragment = fragment;
       }
     );
 
@@ -395,14 +388,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         mergeMap((rowIndexes) =>
           from(
             rowIndexes
-              .filter(ndx => ndx < this.canvastable.rows.length)
+              .filter(ndx => ndx < this.canvastable.rows.rowCount())
               .map(ndx => {
-                let messageId: number;
-                if (this.showingSearchResults) {
-                  messageId = this.searchService.getMessageIdFromDocId(this.canvastable.rows[ndx][0]);
-                } else {
-                  messageId = this.canvastable.rows[ndx].id;
-                }
+                const messageId = this.canvastable.rows.getRowMessageId(ndx);
                 return of(messageId);
             })
           ).pipe(
@@ -425,6 +413,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
 
       this.subscribeToNotifications();
+  }
+
+  fragmentToMessageId(fragment: string): number {
+    if (fragment === null) {
+      return null;
+    }
+    const parts = fragment.split(':');
+    if (parts.length === 2) {
+      return parseInt(parts[1], 10);
+    }
+    return null;
   }
 
   subscribeToNotifications() {
@@ -530,11 +529,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     const snackBarRef = this.snackBar.open( msg );
-    let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
+    const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    if (this.showingSearchResults) {
-      messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-    }
     this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds})
       .subscribe(data => {
         if ( data.status === 'error' ) {
@@ -548,8 +544,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
       },
       () => {
-        this.selectedRowIds = {};
-        this.selectedRowId = null;
+        this.clearSelection();
         snackBarRef.dismiss();
       });
   }
@@ -564,11 +559,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
-    let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
+    const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    if (this.showingSearchResults) {
-      messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-    }
 
     const args = {
       flag: {
@@ -587,8 +579,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
                );
           } );
         }
-        this.selectedRowIds = {};
-        this.selectedRowId = null;
+        this.clearSelection();
         this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
@@ -596,11 +587,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
-    let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
+    const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    if (this.showingSearchResults) {
-      messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-    }
     const args = {
       flag: {
         name: 'flagged_flag',
@@ -618,8 +606,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
              );
            } );
          }
-        this.selectedRowIds = {};
-        this.selectedRowId = null;
+        this.clearSelection();
         this.showSelectMarkOpMenu = false;
         snackBarRef.dismiss();
     });
@@ -627,17 +614,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public deleteMessages() {
-    let messageIds = Object.keys(this.selectedRowIds).map((rowid) => parseInt(rowid, 10));
-
-    if (this.showingSearchResults) {
-      messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-    }
+    const messageIds = this.canvastable.rows.selectedMessageIds();
 
     this.searchService.deleteMessages(messageIds);
     this.searchService.rmmapi.deleteMessages(messageIds)
       .subscribe(() => {
-        this.selectedRowIds = {};
-        this.selectedRowId = null;
+        this.clearSelection();
         if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
@@ -647,7 +629,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public deleteLocalIndex() {
     this.usewebsocketsearch = true;
     this.canvastable.topindex = 0;
-    this.canvastable.rows = [];
+    this.canvastable.rows = null;
     this.viewmode = 'messages';
     this.dataReady = false;
     this.showingSearchResults = false;
@@ -662,145 +644,89 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
-  public isBoldRow(rowObj: any) {
-    if (this.showingSearchResults) {
-      return this.searchService.getDocData(rowObj[0]).seen ? false : true;
-    } else if (this.showingWebSocketSearchResults) {
-      return !(rowObj as WebSocketSearchMailRow).seen;
-    } else {
-      const msg: MessageInfo = rowObj;
-      return !msg.seenFlag;
+  public setMessageDisplay(displayType: string, ...args) {
+    if (displayType === 'search') {
+      if (this.canvastable.rows instanceof SearchMessageDisplay) {
+        this.canvastable.rows.rows = args[1];
+      } else {
+        this.canvastable.rows = new SearchMessageDisplay(...args);
+      }
     }
-  }
+    if (displayType === 'messagelist') {
+      if (this.canvastable.rows instanceof MessageList) {
+        this.canvastable.rows.rows = args[0];
+      } else {
+        this.canvastable.rows = new MessageList(...args);
+      }
+    }
+    if (displayType === 'websocketlist') {
+      if (this.canvastable.rows instanceof WebSocketSearchMailList) {
+        this.canvastable.rows.rows = args[0];
+      } else {
+        this.canvastable.rows = new WebSocketSearchMailList(...args);
+      }
+    }
 
-  public isSelectedRow(rowObj: any): boolean {
-    let selectedRowId;
-    if (this.showingSearchResults) {
-      selectedRowId = rowObj[0];
-    } else if (this.showingWebSocketSearchResults) {
-      selectedRowId = (rowObj as WebSocketSearchMailRow).id;
-    } else {
-      const msg: MessageInfo = rowObj;
-      selectedRowId = msg.id;
-    }
-    return this.selectedRowIds[selectedRowId] === true;
-  }
+    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
+    // in canvastable, and anyway get CV to just read the columns itself
+    // "this" so we can check selectedFolder (FIXME: improve!)
+    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
+    // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
+    // would that slow things down?
+    this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
-  public isOpenedRow(rowObj: any): boolean {
-    let openedRowId;
-    if (this.showingSearchResults) {
-      openedRowId = rowObj[0];
-    } else {
-      const msg: MessageInfo = rowObj;
-      openedRowId = msg.id;
+    // messages updated, check if we need to select a message from the fragment
+    if (this.fragment !== null && this.fragment.length > 0) {
+      const msgId = this.fragmentToMessageId(this.fragment);
+      if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
+        this.selectRowByMessageId(msgId);
+      }
     }
-    return this.openedRowId === openedRowId;
   }
 
   public clearSelection() {
-    this.selectedRowId = null;
-    this.selectedRowIds = {};
+    this.canvastable.rows.clearSelection();
   }
 
   public selectRowByMessageId(messageId: number) {
-    const matchingRowIndex = this.canvastable.rows.findIndex(row => {
-      if (this.showingSearchResults) {
-        return messageId === this.searchService.getMessageIdFromDocId(row[0]);
-      } else if (this.showingWebSocketSearchResults) {
-        const msg = (row as WebSocketSearchMailRow);
-        return messageId === msg.id;
-      } else {
-        const msg: MessageInfo = row;
-        return messageId === msg.id;
-      }
-    });
+    const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex >= -1) {
-      this.rowSelected(matchingRowIndex, 1, this.canvastable.rows[matchingRowIndex], false);
+      this.rowSelected(matchingRowIndex, 1, false);
     } else {
       this.singlemailviewer.close();
     }
   }
 
-  public rowSelected(rowIndex: number, columnIndex: number, rowContent: any, multiSelect?: boolean) {
-    if (!rowContent) {
-      return;
-    }
-    let selectedRowId;
-    if (this.showingSearchResults) {
-      selectedRowId = rowContent[0];
-    } else if (this.showingWebSocketSearchResults) {
-      selectedRowId = (rowContent as WebSocketSearchMailRow).id;
-    } else {
-      const msg: MessageInfo = rowContent;
-      selectedRowId = msg.id;
-    }
+  public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
+    this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
+    this.showSelectOperations = Object.keys(this.canvastable.rows.selectedRowIds).reduce((prev, current) =>
+      (this.canvastable.rows.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
 
-    // multiSelect just means do these, nothing else:
-    // multiSelect is true if we're applying rowSelect in a loop
-    this.selectedRowId = selectedRowId;
+    if (this.canvastable.rows.hasChanges) {
+      this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
 
-    // flip sense of selected row (deleted below if now false)
-    if (columnIndex >= -1) {
-      this.selectedRowIds[this.selectedRowId] = !this.selectedRowIds[this.selectedRowId];
-    }
-    if (multiSelect) {
-      // MS is a special snowflake:
-      this.selectedRowIds[this.selectedRowId] = true;
-      return;
-    }
-
-    // click anywhere on a row right of the checkbox, reset the selected rows
-    // as we want to open the email instead
-    if (columnIndex > 0) {
-      this.selectedRowIds = {};
-    }
-
-    // columnIndex == -1 if drag & drop
-    // columnIndex == 0 is the checkbox
-    // we're removing this one from the selected list (sense reversed
-    // above, but we only remove when not in multiSelect mode)
-    if (columnIndex === 0 && !this.selectedRowIds[this.selectedRowId]) {
-      this.selectedRowId = null;
-      delete this.selectedRowIds[selectedRowId];
-    }
-
-    // If we clicked right of the checkbox, we wanted to open the email:
-    if (columnIndex > 0) {
-      // selectedRow will change when we click on other checkboxes, this one
-      // stays attached to the opened email
-      this.openedRowId = this.selectedRowId;
-      this.openedRowIndex = rowIndex;
-
-      let messageId: number;
-      if (this.showingSearchResults) {
-        messageId = this.searchService.getMessageIdFromDocId(this.openedRowId);
-      } else if (this.showingWebSocketSearchResults) {
-        const msg = (rowContent as WebSocketSearchMailRow);
-        messageId = msg.id;
-      } else {
-        const msg: MessageInfo = rowContent;
-        messageId = msg.id;
-      }
-
-      this.singlemailviewer.messageId = messageId;
       this.updateUrlFragment();
 
       if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
         localStorage.setItem('messageSubjectDragTipShown', 'true');
       }
-      if (this.viewmode === 'conversations' && rowContent[2] !== '1') {
+      // FIXME: [2] is searchservice specific!
+      if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
         this.resetColumns();
         this.clearSelection();
 
+        // FIXME [0] is searchservice specific!
         const conversationId =
-          this.searchService.api.getStringValue(rowContent[0], 1)
+          this.searchService.api.getStringValue(this.canvastable.rows.getCurrentRow()[0], 1)
           .replace(/[^0-9A-Z]/g, '_');
 
         this.conversationSearchText = 'conversation:' + conversationId + '..' + conversationId;
         this.updateSearch(true);
       }
+
+      this.canvastable.hasChanges = true;
     }
   }
 
@@ -867,7 +793,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
-    this.openedRowId = null;
+    this.canvastable.rows.clearOpenedRow();
     this.updateUrlFragment();
   }
 
@@ -892,11 +818,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   dropToFolder(folderId): void {
-    let messageIds = Object.keys(this.selectedRowIds).map(id =>
-      parseInt(id, 10));
+    const messageIds = this.canvastable.rows.selectedMessageIds();
 
     if (this.showingSearchResults) {
-      messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
       this.messagelistservice.folderListSubject.subscribe(folders => {
         const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
         this.searchService.moveMessagesToFolder(messageIds, folderPath);
@@ -908,29 +832,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.rmmapi.moveToFolder(messageIds
       , folderId).subscribe(() => {
         this.searchService.updateIndexWithNewChanges();
-        this.selectedRowIds = {};
-        this.selectedRowId = null;
-        this.openedRowId = null;
+        this.clearSelection();
+        this.canvastable.rows.clearOpenedRow();
         ProgressDialog.close();
       });
   }
 
   public moveToFolder() {
     const dialogRef: MatDialogRef<MoveMessageDialogComponent> = this.dialog.open(MoveMessageDialogComponent);
-    let messageIds = Object.keys(this.selectedRowIds).map(id =>
-      parseInt(id, 10));
-    if (this.showingSearchResults) {
-      messageIds = messageIds.map((docId) => this.searchService.getMessageIdFromDocId(docId));
-    }
+    const messageIds = this.canvastable.rows.selectedMessageIds();
 
     console.log('selected messages', messageIds);
     dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
         this.searchService.updateIndexWithNewChanges();
-        this.selectedRowIds = {};
-        this.selectedRowId = null;
-        this.openedRowId = null;
+        this.clearSelection();
+        this.canvastable.rows.clearOpenedRow();
       }
     });
   }
@@ -1008,12 +926,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   resetColumns() {
-    if (this.showingSearchResults) {
-      this.canvastable.columns = this.searchService.getCanvasTableColumns(this);
-    } else if (this.showingWebSocketSearchResults) {
-      this.canvastable.columns = this.websocketsearchservice.getCanvasTableColumns(this);
-    } else {
-      this.canvastable.columns = this.messagelistservice.getCanvasTableColumns(this);
+    if (this.canvastable && this.canvastable.rows) {
+      this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
     }
     this.canvastable.rowWrapModeWrapColumn = 3;
     this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
@@ -1064,7 +978,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.resetColumns();
         }
 
-        this.canvastable.rows = this.messagelist;
+        this.setMessageDisplay('messagelist', this.messagelist);
 
         return;
       } else {
@@ -1122,7 +1036,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.xapianDocCount = this.searchService.api.getXapianDocCount();
           this.searchResultsCount = searchResults.length;
           if (searchResults) {
-            this.canvastable.rows = searchResults;
+            this.setMessageDisplay('search', this.searchService, searchResults);
             if (!noscroll) {
               this.canvastable.scrollTop();
             }

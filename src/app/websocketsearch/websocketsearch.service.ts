@@ -19,10 +19,7 @@
 
 import { Injectable } from '@angular/core';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
-import { CanvasTableColumn } from '../canvastable/canvastable';
-import { AppComponent } from '../app.component';
 import { Subject, AsyncSubject } from 'rxjs';
-import { MessageTableRowTool } from '../messagetable/messagetablerow';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { take } from 'rxjs/operators';
 
@@ -145,43 +142,4 @@ export class WebSocketSearchService {
         this.searchInProgress = false;
     }
 
-    public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
-        const columns: CanvasTableColumn[] = [
-            {
-                sortColumn: null,
-                name: '',
-                rowWrapModeHidden: true,
-                getValue: (rowobj): any => app.isSelectedRow(rowobj),
-                checkbox: true,
-            },
-            {
-                name: 'Date',
-                sortColumn: null,
-                rowWrapModeMuted: true,
-                getValue: (rowobj: WebSocketSearchMailRow): string => rowobj.dateTime,
-            },
-            {
-                name: 'From',
-                sortColumn: null,
-                getValue: (rowobj: WebSocketSearchMailRow): string => rowobj.fromName,
-            },
-            {
-                name: 'Subject',
-                sortColumn: null,
-                getValue: (rowobj: WebSocketSearchMailRow): string => rowobj.subject,
-                draggable: true
-                // tooltipText: "Tip: Drag subject to a folder to move message(s)"
-            },
-            {
-                sortColumn: null,
-                name: 'Size',
-                rowWrapModeHidden: true,
-                textAlign: 1,
-                getValue: (rowobj: WebSocketSearchMailRow): number => rowobj.size,
-                getFormattedValue: MessageTableRowTool.formatBytes,
-            }
-        ];
-
-        return columns;
-    }
 }

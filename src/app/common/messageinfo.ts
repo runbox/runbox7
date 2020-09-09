@@ -121,12 +121,8 @@ export class IndexingTools {
 
         let conversationId = msginfo.subject ? msginfo.subject.toUpperCase() : '0';
 
-        const beforeSubjectAbbreviationRemoval = conversationId;
-
         // Remove email subject abbreviation (Re fwd etc)
         conversationId = MessageInfo.getSubjectWithoutAbbreviation(conversationId);
-        const afterSubjectAbbreviationRemoval: string = conversationId;
-
         let recipients = [];
 
         if (msginfo.to) {

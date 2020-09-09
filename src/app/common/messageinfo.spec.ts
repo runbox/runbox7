@@ -19,7 +19,6 @@
 
 import { MessageInfo, IndexingTools } from './messageinfo';
 import { MailAddressInfo } from './mailaddressinfo';
-import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 
 describe('MessageInfo', () => {
     it('testGetSubjectWithoutAbbreviation', () => {
