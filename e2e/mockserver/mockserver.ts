@@ -220,9 +220,6 @@ export class MockServer {
                 case '/rest/v1/profiles/verified':
                     response.end(JSON.stringify(this.profiles_verified()));
                     break;
-                case '/rest/v1/me/defaultprofile':
-                    response.end(JSON.stringify(this.defaultprofile()));
-                    break;
                 case '/rest/v1/account_product/available':
                     response.end(JSON.stringify(this.availableProducts()));
                     break;
@@ -324,17 +321,6 @@ export class MockServer {
 
 
         return inboxlines.join('\n');
-    }
-
-    defaultprofile() {
-        return {
-            'status': 'success', 'result':
-            {
-                'id': 111, 'reply_to': 'test@example.com',
-                'folder': 'Inbox', 'name': 'Test Lastname',
-                'email': 'test@example.com'
-            }
-        };
     }
 
     me() {
