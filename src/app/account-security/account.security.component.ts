@@ -37,12 +37,15 @@ import { RMM } from '../rmm';
             <input matInput placeholder="Account password" name='user_password' type='password'
                 [(ngModel)]="data.password"
                 cdkFocusInitial
-                (keydown.enter)="close()"
+                (keydown.enter)="check_pass()"
             >
           </mat-form-field>
-          <button class="primaryContentButton" mat-raised-button (click)="close()">Continue</button>
+          <button class="primaryContentButton" mat-raised-button (click)="check_pass()">Continue</button>
         </form>
       </div>
+      <p style="color: red;" *ngIf="!is_password_correct">
+        The password is wrong. Please enter the password again.
+      </p>
       <p>
         For security reasions your account password is required to save Account Security settings.
       </p>
@@ -50,13 +53,21 @@ import { RMM } from '../rmm';
   `,
 })
 export class ModalPasswordComponent {
+  is_password_correct = true;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ModalPasswordComponent>,
+    public rmm: RMM,
   ) {
   }
-  close() {
-    this.dialogRef.close(this.data);
+  check_pass() {
+    this.rmm.account_security.check_password(this.data['password']).subscribe( (reply) => {
+        if ( reply['status'] == 'error' && reply['error'] == 'password invalid' ) {
+            this.is_password_correct = false;
+        } else {
+            this.dialogRef.close(this.data);
+        }
+    } )
   }
 }
 
