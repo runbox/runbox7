@@ -62,12 +62,12 @@ export class ModalPasswordComponent {
   }
   check_pass() {
     this.rmm.account_security.check_password(this.data['password']).subscribe( (reply) => {
-        if ( reply['status'] == 'error' && reply['error'] == 'password invalid' ) {
+        if ( reply['status'] === 'error' && reply['error'] === 'password invalid' ) {
             this.is_password_correct = false;
         } else {
             this.dialogRef.close(this.data);
         }
-    } )
+    } );
   }
 }
 
