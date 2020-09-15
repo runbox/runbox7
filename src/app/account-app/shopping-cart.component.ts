@@ -34,7 +34,6 @@ import { Product } from './product';
 
 enum CartError {
     CANT_LOAD_PRODUCTS,
-    NEED_EMAIL_HOSTING,
     NEED_SUB_FOR_ADDON,
 }
 
@@ -171,16 +170,6 @@ export class ShoppingCartComponent implements OnInit {
         const me = await this.rmmapi.me.toPromise();
 
         this.orderError = undefined; // unless we find something else :)
-
-        // needs >micro or email hosting if on trial with own domain
-        if (me.is_trial && me.uses_own_domain) {
-            const bought_micro         = items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
-            const bought_email_hosting = items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
-
-            if (bought_micro && !bought_email_hosting) {
-                this.orderError = CartError.NEED_EMAIL_HOSTING;
-            }
-        }
 
         // cannot buy addon without subscription while on trial
         if (me.is_trial) {
