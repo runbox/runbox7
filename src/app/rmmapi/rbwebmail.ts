@@ -424,6 +424,7 @@ export class RunboxWebmailAPI {
                             name: item.profile.from_name,
                             signature: item.profile.signature,
                             type: k,
+                            priority: item.profile.from_priority,
                         });
                         results.push(profile);
                     });

@@ -218,6 +218,9 @@ export class DraftDeskService {
                 return 0;
             }
         });
+        this.froms = froms.sort((a, b) => {
+            return a.priority - b.priority;
+        });
         return froms;
     }
 

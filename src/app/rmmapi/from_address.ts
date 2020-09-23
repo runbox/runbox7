@@ -26,6 +26,7 @@ export class FromAddress {
     public signature: string;
     public is_signature_html: boolean;
     public type: string;
+    public priority: number;
 
     public nameAndAddress: string;
 
