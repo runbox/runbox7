@@ -31,6 +31,7 @@ describe('Interacting with mailviewer', () => {
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Re: No 'To', just 'CC'");
     });
 
@@ -41,6 +42,7 @@ describe('Interacting with mailviewer', () => {
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Fwd: No 'To', just 'CC'");
     });
 
@@ -51,6 +53,7 @@ describe('Interacting with mailviewer', () => {
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Re: ");
     });
 
@@ -61,6 +64,7 @@ describe('Interacting with mailviewer', () => {
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Fwd: ");
     });
 
