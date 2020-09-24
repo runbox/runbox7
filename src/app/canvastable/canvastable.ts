@@ -1354,7 +1354,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // tslint:disable-next-line:component-selector
   selector: 'canvastablecontainer',
   templateUrl: 'canvastablecontainer.component.html',
-  moduleId: 'angular2/app/canvastable/'
+  moduleId: 'angular2/app/canvastable/',
+  styleUrls: ['canvastablecontainer.component.scss']
 })
 export class CanvasTableContainerComponent implements OnInit {
   colResizeInitialClientX: number;

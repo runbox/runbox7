@@ -57,9 +57,9 @@
             [style.left]="sumWidthsBefore(colIndex)+'px'"
             [style.cursor]="col.sortColumn!==null ? 'pointer' : 'default'"
             >
-            <mat-icon *ngIf="sortColumn===col.sortColumn" style="font-size: 12px;" svgIcon="{{sortDescending ? 'chevron-up' : 'cheron-down'}}">
+            {{col.name}}
+            <mat-icon class="sortIcon" *ngIf="sortColumn===col.sortColumn" svgIcon="{{sortDescending ? 'chevron-up' : 'chevron-down'}}">
             </mat-icon>
-            {{col.name}}               
         </div>
       </ng-container>
     </ng-container>
