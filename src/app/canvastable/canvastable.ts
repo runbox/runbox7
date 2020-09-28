@@ -30,6 +30,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
@@ -72,6 +75,13 @@ export class CanvasTableColumnSection {
     public leftPos: number,
     public backgroundColor: string) {
 
+  }
+}
+
+export namespace CanvasTable {
+  export enum RowSelect {
+    Visible = 'visible',
+    All     = 'all',
   }
 }
 
@@ -208,6 +218,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   @Output() touchscroll = new EventEmitter();
 
   touchScrollSpeedY = 0;
+
+  // Are we selecting all rows, or just the visible ones?
+  public selectWhichRows = CanvasTable.RowSelect.Visible;
 
   constructor(elementRef: ElementRef, private renderer: Renderer2, private _ngZone: NgZone) {
   }
@@ -687,6 +700,30 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public getVisibleRowIndexes(): number[] {
     return new Array(Math.floor(this.maxVisibleRows))
       .fill(0).map((v, n) => Math.round(this.topindex + n));
+  }
+
+  public selectRows() {
+    if (this.selectWhichRows == CanvasTable.RowSelect.Visible) {
+      this.selectAllVisibleRows();
+    } else {
+      this.selectAllRows();
+    }
+  }
+
+  public selectAllRows() {
+    const allSelected = this.rows.reduce((prev, next) =>
+      prev &&
+      (next >= this.rows.length || this.selectListener.isSelectedRow(next))
+      , true);
+    
+    this.rows.forEach((rowobj, rowIndex) =>
+      this.selectListener.rowSelected(
+        rowIndex,
+        0,
+        this.rows[rowIndex],
+        !allSelected
+      )
+    );
   }
 
   public selectAllVisibleRows() {
@@ -1357,6 +1394,10 @@ export class CanvasTableContainerComponent implements OnInit {
   @ViewChild(CanvasTableComponent, { static: true  }) canvastable:        CanvasTableComponent;
   @ViewChild('tablecontainer') tablecontainer:     ElementRef<HTMLDivElement>;
   @ViewChild('tablebodycontainer') tablebodycontainer: ElementRef<HTMLDivElement>;
+  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+
+  RowSelect = CanvasTable.RowSelect;
+  private selectAllTimeout;
 
   constructor(private renderer: Renderer2) {
     const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
@@ -1462,6 +1503,21 @@ export class CanvasTableContainerComponent implements OnInit {
     }
     this.sortToggled.emit({ sortColumn: this.sortColumn, sortDescending: this.sortDescending });
   }
+
+  public mouseOverSelectAll() {
+    this.selectAllTimeout = setTimeout(() => {
+      this.trigger.openMenu();
+    }, 200);
+  }
+
+  public mouseLeftSelectAll() {
+     if (this.selectAllTimeout) {
+      clearTimeout(this.selectAllTimeout);
+       this.trigger.closeMenu();
+      this.selectAllTimeout = null;
+    }
+  }
+
 }
 
 
@@ -1470,6 +1526,9 @@ export class CanvasTableContainerComponent implements OnInit {
     CommonModule,
     MatTooltipModule,
     MatButtonModule,
+    MatMenuModule,
+    MatRadioModule,
+    FormsModule,
     MatIconModule
   ],
   declarations: [CanvasTableComponent, CanvasTableContainerComponent],
