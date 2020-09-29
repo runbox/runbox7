@@ -703,7 +703,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public selectRows() {
-    if (this.selectWhichRows == CanvasTable.RowSelect.Visible) {
+    if (this.selectWhichRows === CanvasTable.RowSelect.Visible) {
       this.selectAllVisibleRows();
     } else {
       this.selectAllRows();
@@ -715,7 +715,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       prev &&
       (next >= this.rows.length || this.selectListener.isSelectedRow(next))
       , true);
-    
+
     this.rows.forEach((rowobj, rowIndex) =>
       this.selectListener.rowSelected(
         rowIndex,
