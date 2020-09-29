@@ -8,7 +8,7 @@
     <mat-menu #accountSubMenu="matMenu" class="mainMenuSub">
       <a mat-button href="/mail/account" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="account"></mat-icon>Account Settings</a><br />
       <a mat-button [routerLink]="['/identities']"><mat-icon svgIcon="border-inside"></mat-icon>Identities</a>
-      <a mat-button href="/app/account-security" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="security"></mat-icon>Account Security</a><br />
+      <a mat-button [routerLink]="['/account-security']"><mat-icon svgIcon="security"></mat-icon>Account Security</a><br />
       <a mat-button routerLink="/account/components"><mat-icon svgIcon="widgets"></mat-icon>Account Products</a><br />
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="accountSubMenu" class="mainMenuSub">
