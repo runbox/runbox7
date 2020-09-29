@@ -40,7 +40,8 @@
                 >
             <mat-icon matTooltip="Check visible/all. Long press for options" svgIcon="select-all"></mat-icon>
         </button>
-        <mat-menu  [matMenuTriggerFor]="selectMenu" #selectMenu="matMenu">
+        <span [matMenuTriggerFor]="selectMenu"></span>
+        <mat-menu #selectMenu="matMenu">
           <mat-radio-group [(ngModel)]="canvastable.selectWhichRows">
             <mat-radio-button [value]="RowSelect.Visible">Visible only</mat-radio-button>
             <mat-radio-button [value]="RowSelect.All">All rows</mat-radio-button>
