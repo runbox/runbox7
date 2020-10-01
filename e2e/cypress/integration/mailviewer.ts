@@ -26,6 +26,7 @@ describe('Interacting with mailviewer', () => {
 
     it('can reply to an email with no "To"', () => {
         cy.visit('/#Inbox:11');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
@@ -37,6 +38,7 @@ describe('Interacting with mailviewer', () => {
 
     it('can forward an email with no "To"', () => {
         cy.visit('/#Inbox:11');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
@@ -48,6 +50,7 @@ describe('Interacting with mailviewer', () => {
 
     it('can reply to an email with no "To" or "Subject"', () => {
         cy.visit('/#Inbox:13');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
@@ -59,6 +62,7 @@ describe('Interacting with mailviewer', () => {
 
     it('can forward an email with no "To" or "Subject"', () => {
         cy.visit('/#Inbox:13');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
