@@ -105,7 +105,6 @@ export class AccountSecurity {
           reply => {
             this.is_busy = false;
             if ( reply['status'] === 'error' ) {
-                this.app.show_error( reply['error'], 'Dismiss' );
                 return;
             }
             return;
