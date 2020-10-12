@@ -83,7 +83,7 @@ export class ShoppingCartComponent implements OnInit {
     ) {
         this.itemsSubject.subscribe(items => this.calculateTotal(items));
         this.itemsSubject.subscribe(items => this.items = items);
-        this.itemsSubject.subscribe(items => this.currency = items[0].product.currency);
+        this.itemsSubject.subscribe(items => this.currency = items.length > 0 ? items[0].product.currency : null);
         this.itemsSubject.subscribe(items => this.checkIfLegal(items));
     }
 
