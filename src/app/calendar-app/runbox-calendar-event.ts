@@ -40,10 +40,29 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // start and end are for display pursposes only,
     // and will be different from dtstart/dtend in
     // recurring events
-    calendar:  string;
+    _calendar:  string;
+    _old_id?:   string;
 
     ical: ICAL.Component;
     event: ICAL.Event;
+
+    // *display* start/end - for reccurrences will not match the ICAL.Event
+    private _dtstart: ICAL.Time;
+    private _dtend: ICAL.Time;
+
+    get calendar(): string {
+        return this._calendar;
+    }
+
+    // Moving an event between calendars = unset id and store old one
+    set calendar(value: string) {
+        if (this.id) {
+            console.log('Changing calendar, has an id');
+            this._old_id = this.id;
+            this.id = null;
+        }
+        this._calendar = value;
+    }
 
     get title(): string {
         return this.event.summary;
@@ -70,24 +89,42 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     get dtstart(): moment.Moment {
-        return this.icalTimeToLocalMoment(this.event.startDate);
+        return this.icalTimeToLocalMoment(this._dtstart);
     }
 
+    // If set on an event with RRULE, updates entire repeated event
+    // to now *start* from this new date
+    // FIXME: Should we prompt for "only this instance" /
+    // "this and future instances" and generate exceptions?
+    // If set on an exception, only changes that exception
     set dtstart(value: moment.Moment) {
         const allDay = this.allDay;
+        this._dtstart = ICAL.Time.fromJSDate(value.toDate());
         this.event.startDate = ICAL.Time.fromJSDate(value.toDate());
+        // FIXME: Now we need to update _dtstart (display time)
+        this._dtstart = this.event.startDate;
+        // FIXME: regenerate all following events!?
+        // Do we just let the save-to-dav / reloadEvents cycle do this for us?
         this.allDay = allDay;
     }
 
     get dtend(): moment.Moment {
-        return this.event.endDate
-            ? this.icalTimeToLocalMoment(this.event.endDate)
+        return this._dtend
+            ? this.icalTimeToLocalMoment(this._dtend)
             : undefined;
     }
 
+    // If set on an event with RRULE, updates entire repeated event
+    // ?? Does this shorten it to one day ? (does it include the date)
+    // If set on an exception, only changes that exception
+    // FIXME: Does this change an ICAL.Time with no date (isDate=true) to
+    // one with a time? (as a side effect that is)
+    // See also set dtstart comments!
     set dtend(value: moment.Moment) {
         const allDay = this.allDay;
+        this._dtend = ICAL.Time.fromJSDate(value.toDate());
         this.event.endDate = value ? ICAL.Time.fromJSDate(value.toDate()) : undefined;
+        this._dtstart = this.event.endDate;
         this.allDay = allDay;
     }
 
@@ -103,6 +140,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         }
 
         const shownEnd = moment(this.dtend);
+        // ICAL event DTEND is exclusive, angular-calendar is inclusive
         if (this.allDay) {
             shownEnd.subtract(1, 'days');
         } else {
@@ -113,7 +151,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     get allDay(): boolean {
         // isDate in ICAL.Event means "has no time"
-        return this.event.startDate.isDate;
+        return this._dtstart.isDate;
     }
 
     // deprecated, we should move away from this eventually
@@ -126,11 +164,16 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return undefined;
     }
 
+    // DAILY, WEEKLY, MONTHLY etc
     get recurringFrequency(): string {
         const recur = this.event.component.getFirstPropertyValue('rrule');
         return recur ? recur.freq : '';
     }
 
+    // FIXME: This will delete any rrule parts from imported events
+    // that rb7's ui doesnt cope with
+    // FIXME: rrule only wants updating on the "main" event, not here if this is an exception event!?
+    // -> dont display the "recurring" select box on exception events?
     set recurringFrequency(frequency: string) {
         this.event.component.removeProperty('rrule');
         if (frequency !== '') {
@@ -139,67 +182,57 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     set allDay(value) {
-        this.event.startDate.isDate = value;
-        if (this.event.endDate) {
-            this.event.endDate.isDate = value;
+        this._dtstart.isDate = value;
+        if (this._dtend) {
+            this._dtend.isDate = value;
         }
         // I know this looks silly, but without this
         // ICAL.Event will not notice the isDate change
         // and the event metadata will still be off
-        this.event.startDate = this.event.startDate;
-        this.event.endDate   = this.event.endDate;
-    }
-
-    static fromIcal(id: string, ical: string): RunboxCalendarEvent {
-        return new this(id, ICAL.parse(ical));
+        // FIXME: where is this set/used?
+        // this.event.startDate = this._dtstart;
+        // this.event.endDate   = this._dtend;
     }
 
     // creates an unnamed event for today
     static newEmpty(): RunboxCalendarEvent {
         return new this(
             undefined,
-            [ 'vcalendar', [], [
-                [ 'vevent',
-                    [
-                        [ 'dtend',   {}, 'date-time', '2019-10-02T14:00:00' ],
-                        [ 'dtstart', {}, 'date-time', '2019-10-02T12:00:00' ],
-                        [ 'summary', {}, 'text', '' ] ],
-                    []
-                ]
-            ] ]
+            new ICAL.Event(new ICAL.Component('vevent')),
+            ICAL.Time.fromData({year: 2019, month: 10, day: 2, hour: 14, minute: 0}),
+            ICAL.Time.fromData({year: 2019, month: 10, day: 2, hour: 14, minute: 0})
         );
     }
 
-    constructor(id: string, jcal: any) {
+    // icalevent = VEVENT object for this instance (main rrule one if recurring)
+    //           = OR VEVENT object for exception event (reccurrence-id, not rrule)
+    // startdate = date/Time of *this instance* of a recurring event/exception
+    // enddate   = date/Time of *this instance* of a recurring event/exception
+    // if non-recurring, then the event/start/end of single item
+    constructor(id: string, icalevent: ICAL.Event, startdate: ICAL.Time, enddate: ICAL.Time) {
         this.id = id;
         if (this.id) {
-            this.calendar = this.id.split('/')[0];
+            this._calendar = this.id.split('/')[0];
         }
 
-        this.ical = new ICAL.Component(jcal);
-        this.event = new ICAL.Event(this.ical.getFirstSubcomponent('vevent'));
-
-        // extract and register all timezones included so that we can use them for conversion later.
-        // Without this, ICAL.Time.convertToZone will not work
-        if (this.ical.getFirstSubcomponent('vtimezone')) {
-            for (const tzComponent of this.ical.getAllSubcomponents('vtimezone')) {
-                const tz = new ICAL.Timezone({
-                    tzid:      tzComponent.getFirstPropertyValue('tzid'),
-                    component: tzComponent,
-                });
-
-                if (!ICAL.TimezoneService.has(tz.tzid)) {
-                    ICAL.TimezoneService.register(tz.tzid, tz);
-                }
-            }
+        // Not sure how we get "no icalevent.component", came up in tests tho
+        if (icalevent.component && icalevent.component.parent) {
+            this.ical = icalevent.component.parent;
+        } else {
+            this.ical = new ICAL.Component('vcalendar');
+            this.ical.addSubcomponent(icalevent.component);
         }
+        this.event = icalevent;
+        // starttime of this particular instance! if recurring, not
+        // necessarily the same as event.dtstart
+        this._dtstart = startdate;
+        this._dtend = enddate;
     }
 
-    clone(): RunboxCalendarEvent {
-        const new_event = RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
-        new_event.color = this.color;
-        return new_event;
-    }
+    // FIXME: do we still need this?
+//    clone(): RunboxCalendarEvent {
+//        return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+//    }
 
     get_overview(): EventOverview[] {
         const events = [];
@@ -231,23 +264,26 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return events;
     }
 
-    recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
-        const copy = this.clone();
-        copy.parent = this;
+    // Was only used by the calendar-app filterEvents function.
+    // now we can filter directly based on the event objects
+    // recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
+    //     const copy = this.clone();
+    //     copy.parent = this;
 
-        let duration: moment.Duration;
-        if (this.dtend) {
-            duration = moment.duration(this.dtend.diff(this.dtstart));
-        }
+    //     let duration: moment.Duration;
+    //     if (this.dtend) {
+    //         duration = moment.duration(this.dtend.diff(this.dtstart));
+    //     }
 
-        copy.dtstart = dt;
-        if (duration) {
-            copy.dtend = copy.dtstart.add(duration);
-        }
+    //     copy.dtstart = dt;
+    //     if (duration) {
+    //         copy.dtend = copy.dtstart.add(duration);
+    //     }
 
-        return copy;
-    }
+    //     return copy;
+    // }
 
+    // ICAL of the entire event (exceptions and all) - assuming it got updated?
     toIcal(): string {
         return this.ical.toString();
     }
@@ -258,11 +294,12 @@ export class RunboxCalendarEvent implements CalendarEvent {
             id:       this.id,
             calendar: this.calendar,
             jcal:     this.ical.toJSON(),
+            ical:     this.toIcal(),
         };
     }
 
     private icalTimeToLocalMoment(time: ICAL.Time): moment.Moment {
-        if (!time.timezone) {
+        if (!time.zone) {
             // assume that the event is in localtime already
             return moment(time.toString());
         } else {

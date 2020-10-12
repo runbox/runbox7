@@ -16,6 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
+import { RunboxCalendarEvent } from './runbox-calendar-event';
+import * as ICAL from 'ical.js';
+import * as moment from 'moment';
 
 export class RunboxCalendar {
     id:           string;
@@ -31,6 +34,7 @@ export class RunboxCalendar {
         this.color       = props['color'] || props['calendar-color'];
         this.syncToken   = props['syncToken'] || props['sync-token'];
     }
+
 
     generateID(): void {
         let id = this.displayname.toLowerCase();

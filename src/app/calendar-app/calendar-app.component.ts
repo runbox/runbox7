@@ -186,36 +186,8 @@ export class CalendarAppComponent implements OnDestroy {
             return;
         }
         this.viewPeriod = viewRender.period;
-        this.filterEvents();
-    }
-
-    calculateRecurringEvents(): void {
-        let start, end: Date;
-        if (this.viewPeriod) {
-            start = this.viewPeriod.start;
-            end   = this.viewPeriod.end;
-        } else {
-            // we must be in overview mode, assume 1 month starting today
-            start = new Date();
-            end   = moment().add(1, 'month').toDate();
-        }
-
-        const events = [];
-
-        for (const e of this.shown_events) {
-            if (!e.rrule) {
-                events.push(e);
-                continue;
-            }
-
-            for (const dt of e.rrule.between(start, end)) {
-                events.push(e.recurrenceAt(moment(dt)));
-            }
-        }
-
-        this.shown_events = events;
-        // needed so that beforeViewRender handler knows that something happened
-        this.cdr.detectChanges();
+        this.calendarservice.updateEventList(this.viewPeriod);
+        // this.filterEvents();
     }
 
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
@@ -246,6 +218,7 @@ export class CalendarAppComponent implements OnDestroy {
         });
     }
 
+    // drag&drop?
     eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
         event.start = newStart;
         event.end = newEnd;
@@ -264,9 +237,10 @@ export class CalendarAppComponent implements OnDestroy {
                     this.shown_events.push(e);
                 }
             }
+            // this.calendarservice.updateRecurringEvents(this.viewPeriod);
         }
 
-        this.calculateRecurringEvents();
+        // this.cdr.detectChanges();
         this.refresh.next();
     }
 
@@ -299,14 +273,12 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     openEvent(event: CalendarEvent): void {
-        let target = event as RunboxCalendarEvent;
+        const target = event as RunboxCalendarEvent;
         console.log('Opening event', target);
-        if (target.parent) {
-            console.log('It is a recurring event, opening the original instance');
-            target = target.parent;
-        }
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
+        // FIXME: why are we cloning?
+//            data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
+            data: { event: target, calendars: this.calendars, settings: this.settings }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
@@ -422,7 +394,8 @@ export class CalendarAppComponent implements OnDestroy {
 
     toggleCalendar(calendar_id: string): void {
         this.calendarVisibility[calendar_id] = !this.calendarVisibility[calendar_id];
-        this.filterEvents();
+        this.calendarservice.updateEventList(this.viewPeriod);
+//        this.filterEvents();
         this.cdr.markForCheck();
     }
 

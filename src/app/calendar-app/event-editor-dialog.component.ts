@@ -111,7 +111,7 @@ export class EventEditorDialogComponent {
             // so let's help it a little
             this.calendarFC.markAsTouched();
             return;
-        } else {
+        } else if (this.event.calendar !== this.calendarFC.value) {
             this.event.calendar = this.calendarFC.value;
         }
 

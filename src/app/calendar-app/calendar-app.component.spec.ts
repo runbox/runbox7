@@ -37,47 +37,48 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import * as moment from 'moment';
+import * as ICAL from 'ical.js';
 
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
     let fixture: ComponentFixture<CalendarAppComponent>;
 
     const simpleEvents = [
-        new RunboxCalendarEvent('test-calendar/event0', ['vcalendar', [], [ [ 'vevent', [
+      new RunboxCalendarEvent('test-calendar/event0', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
-        ]]]]),
-        new RunboxCalendarEvent('test-calendar/event1', ['vcalendar', [], [ [ 'vevent', [
+      ]]]])), ICAL.Time.fromJSDate(new Date()), undefined),
+        new RunboxCalendarEvent('test-calendar/event1', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(14, 'day').toISOString() ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
-        ]]]]),
+        ]]]])), ICAL.Time.fromJSDate(moment().add(1, 'month').add(14, 'day').toDate()), undefined),
     ];
 
     const recurringEvents = [
-        new RunboxCalendarEvent('test-calendar/recurring', ['vcalendar', [], [ [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/recurring', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().date(1).toISOString() ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
             [ 'rrule',   {}, 'text',      'FREQ=WEEKLY'     ],
-        ]]]]),
+        ]]]])), ICAL.Time.fromJSDate(moment().date(1).toDate()), undefined),
     ];
 
     const GH_179_recurring_yearly = [
-        new RunboxCalendarEvent('test-calendar/recurring-yearly', ['vcalendar', [], [ [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/recurring-yearly', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date',  moment().date(5).toISOString().split('T')[0] ],
             [ 'dtend',   {}, 'date',  moment().date(6).toISOString().split('T')[0] ],
             [ 'summary', {}, 'text',  'Yearly event' ],
             [ 'rrule',   {}, 'text',  'FREQ=YEARLY'  ],
-        ]]]]),
+        ]]]])), ICAL.Time.fromJSDate(moment().date(5).toDate()), ICAL.Time.fromJSDate(moment().date(6).toDate())),
     ];
 
     // the test below only makes sense when the event start date is not now()
     const not_today = moment().date() === 2 ? 3 : 2;
 
     const GH_181_setting_recurrence = [
-        new RunboxCalendarEvent('test-calendar/not-recurring-yet', ['vcalendar', [], [ [ 'vevent', [
+        new RunboxCalendarEvent('test-calendar/not-recurring-yet', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment.utc().date(not_today).hour(12).minute(34).toISOString() ],
             [ 'summary', {}, 'text',      'One-shot event' ],
-        ]]]]),
+        ]]]])), ICAL.Time.fromJSDate(moment().utc().date(not_today).hour(12).minute(34).toDate()), undefined),
     ];
 
     const mockData = {

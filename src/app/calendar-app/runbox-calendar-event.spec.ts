@@ -19,17 +19,18 @@
 
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import * as moment from 'moment';
+import * as ICAL from 'ical.js';
 
 describe('RunboxCalendarEvent', () => {
-    it('should be possible to add/remove a recurrence rule', async () => {
+    it('should be possible to add/remove a recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
-            'testcal/testev', ['vcalendar', [], [
+          'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
                 [ 'vevent', [
                     [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
                     [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
                     [ 'summary', {}, 'text',  'One-time event' ],
                 ] ]
-            ]]
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
         );
         sut.recurringFrequency = 'WEEKLY';
         expect(sut.recurringFrequency).toBe('WEEKLY', 'recurrence seems to be set');
@@ -43,5 +44,38 @@ describe('RunboxCalendarEvent', () => {
         sut.recurringFrequency = '';
         expect(sut.recurringFrequency).toBe('', 'recurrence seems to be unset');
         expect(sut.toIcal()).not.toContain('RRULE', 'recurrence seems to be unset');
+    });
+
+    it('should be possible to add a special case to a recurring event', () => {
+        const todayStr = moment().toISOString().split('T')[0];
+        const yesterday = moment().subtract(1, 'day');
+        const sut = new RunboxCalendarEvent(
+            'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  todayStr ],
+                    [ 'dtend',   {}, 'date',  todayStr ],
+                    [ 'summary', {}, 'text',  'Weekly event' ],
+                    [ 'uid',     {}, 'text',  'unittestcase1' ],
+                    [ 'rrule',   {}, 'recur', { 'freq': 'WEEKLY' } ],
+                ] ]
+            ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+        );
+
+      const future = moment().add(1, 'week').add(3, 'day');
+      // FIXME
+        // const events = sut.recurrences(yesterday.toDate(), future.toDate());
+
+        // expect(events.length).toBe(2);
+        // expect(events[0].dtstart.isSame(events[1].dtstart)).toBe(false);
+
+        // alter the one happening next week
+        // const copy = events[1].clone();
+        // copy.title = 'Next weekly occurrence';
+        // sut.addRecurrenceSpecialCase(copy);
+        // console.log("Sut after setting specialcase:", sut.toIcal(), "\n");
+
+        // events = sut.recurrences(yesterday.toDate(), future.toDate());
+        // expect(events[0].title).toBe('Weekly event');
+        // expect(events[1].title).toBe('Next weekly event');
     });
 });
