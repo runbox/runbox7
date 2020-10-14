@@ -22,13 +22,10 @@ import { Injectable } from '@angular/core';
 import { throwError as observableThrowError, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operators';
 
-import { MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MessageInfo } from '../common/messageinfo';
 
 import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
-import { AppComponent } from '../app.component';
-import { CanvasTableColumn } from '../canvastable/canvastable';
-import { MessageTableRowTool } from '../messagetable/messagetablerow';
 
 export class FolderMessageCountEntry {
     constructor(
@@ -255,86 +252,5 @@ export class MessageListService {
                 this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
                 this.fetchInProgress = false;
             });
-    }
-
-    getFromColumnValueForRow(rowobj: MessageInfo): string {
-        return rowobj.from && rowobj.from.length > 0 ?
-            rowobj.from[0].name ? rowobj.from[0].name :
-                rowobj.from[0].address :
-            '';
-    }
-
-    getToColumnValueForRow(rowobj: MessageInfo): string {
-        return rowobj.to && rowobj.to.length > 0 ?
-            rowobj.to[0].name ? rowobj.to[0].name :
-                rowobj.to[0].address :
-            '';
-    }
-
-    public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
-        const columns: CanvasTableColumn[] = [
-            {
-                sortColumn: null,
-                name: '',
-                rowWrapModeHidden: false,
-                getValue: (rowobj: MessageInfo): any => app.isSelectedRow(rowobj),
-                checkbox: true,
-                draggable: true
-            },
-            {
-                name: 'Date',
-                sortColumn: null,
-                rowWrapModeMuted: true,
-                getValue: (rowobj: MessageInfo): string => MessageTableRowTool.formatTimestamp(rowobj.messageDate.toJSON()),
-            },
-            {
-                name: this.currentFolder === 'Sent' ? 'To' : 'From',
-                sortColumn: null,
-                getValue: this.currentFolder === 'Sent' ? this.getToColumnValueForRow : this.getFromColumnValueForRow,
-            },
-            {
-                name: 'Subject',
-                sortColumn: null,
-                getValue: (rowobj: MessageInfo): string => rowobj.subject,
-                draggable: true
-            },
-            {
-                sortColumn: null,
-                name: 'Size',
-                rowWrapModeHidden: true,
-                textAlign: 1,
-                getValue: (rowobj: MessageInfo): number => rowobj.size,
-                getFormattedValue: MessageTableRowTool.formatBytes,
-            },
-            {
-                sortColumn: null,
-                name: '',
-                textAlign: 2,
-                rowWrapModeHidden: true,
-                font: '16px \'Material Icons\'',
-                getValue: (rowobj: MessageInfo): boolean => rowobj.attachment,
-                getFormattedValue: (val) => val ? '\uE226' : ''
-            },
-            {
-                sortColumn: null,
-                name: '',
-                textAlign: 2,
-                rowWrapModeHidden: true,
-                font: '16px \'Material Icons\'',
-                getValue: (rowobj: MessageInfo): boolean => rowobj.answeredFlag,
-                getFormattedValue: (val) => val ? '\uE15E' : ''
-            },
-            {
-                sortColumn: null,
-                name: '',
-                textAlign: 2,
-                rowWrapModeHidden: true,
-                font: '16px \'Material Icons\'',
-                getValue: (rowobj: MessageInfo): boolean => rowobj.flaggedFlag,
-                getFormattedValue: (val) => val ? '\uE153' : ''
-            }
-        ];
-
-        return columns;
     }
 }

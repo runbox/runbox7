@@ -19,6 +19,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { CanvasTableModule, CanvasTableContainerComponent } from './canvastable';
+import { MessageList } from '../common/messagelist';
 
 describe('canvastable', () => {
     beforeEach(() => {
@@ -35,15 +36,6 @@ describe('canvastable', () => {
             rowSelected: (rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void => {
 
             },
-            isSelectedRow: (rowObj: any): boolean => {
-                return false;
-            },
-            isOpenedRow: (rowObj: any): boolean => {
-                return false;
-            },
-            isBoldRow: (rowObj: any): boolean => {
-                return false;
-            }
         };
         fixture.componentInstance.canvastable.columns = [
             {
@@ -60,10 +52,10 @@ describe('canvastable', () => {
                 draggable: true
             },
         ];
-        fixture.componentInstance.canvastable.rows = [
+      fixture.componentInstance.canvastable.rows = new MessageList([
             { col1: 'subject1', col2: 'fld' },
             { col1: 'test', col2: 'hello' }
-        ];
+      ]);
         fixture.componentInstance.canvastable.rowWrapMode = false;
         fixture.detectChanges();
 

@@ -33,6 +33,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
+import { MessageDisplay } from '../common/messagedisplay';
+import { CanvasTableColumn } from './canvastablecolumn';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -50,38 +52,7 @@ const getCSSClassProperty = (className, propertyName) => {
 };
 
 export interface CanvasTableSelectListener {
-  rowSelected(rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void;
-  isSelectedRow(rowObj: any): boolean;
-  isOpenedRow(rowObj: any): boolean;
-  isBoldRow(rowObj: any): boolean;
-}
-
-export interface CanvasTableColumn {
-  name: string;
-  columnSectionName?: string;
-  footerText?: string;
-
-  width?: number;
-  originalWidth?: number;
-  font?: string;
-  backgroundColor?: string;
-  tooltipText?: string | ((rowobj: any) => string);
-  draggable?: boolean;
-  sortColumn: number;
-  excelCellAttributes?: any;
-  rowWrapModeHidden?: boolean;
-  rowWrapModeMuted?: boolean;
-  rowWrapModeChipCounter?: boolean; // E.g. for displaying number of messages in conversation in a "chip"/"badge"
-  checkbox?: boolean; // checkbox for selecting rows
-  textAlign?: number; // default = left, 1 = right, 2 = center
-  getContentPreviewText?: (rowobj: any) => string;
-
-  compareValue?: (a: any, b: any) => number;
-  setValue?: (rowobj: any, val: any) => void;
-  getValue(rowobj: any): any;
-
-  footerSumReduce?(prev: number, curr: number): number;
-  getFormattedValue?(val: any): string;
+  rowSelected(rowIndex: number, colIndex: number, multiSelect?: boolean): void;
 }
 
 export class FloatingTooltip {
@@ -174,7 +145,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
   }
 
-  public _rows: any[] = [];
+  //  public _rows: any[] = [];
+  public _rows: MessageDisplay;
 
   public hasSortColumns = false;
   public _columns: CanvasTableColumn[] = [];
@@ -479,11 +451,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         const colIndex = this.getColIndexByClientX(clientX);
         let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
-        let tooltipText: string | ((rowobj: any) => string) =
+        let tooltipText: string | ((rowIndex: any) => string) =
               this.columns[colIndex] && this.columns[colIndex].tooltipText;
 
-        if (typeof tooltipText === 'function' && this.rows[this.hoverRowIndex]) {
-          tooltipText = tooltipText(this.rows[this.hoverRowIndex]);
+        // FIXME: message display class
+        if (typeof tooltipText === 'function' && this.rows.rowExists(this.hoverRowIndex)) {
+          tooltipText = tooltipText(this.hoverRowIndex);
         }
 
         if (!event.shiftKey && !this.lastMouseDownEvent &&
@@ -563,10 +536,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           // ---- Enforce scroll limit
           if (this.topindex < 0) {
             this.topindex = 0;
-          } else if (this.rows.length < this.maxVisibleRows) {
+          } else if (this.rows.rowCount() < this.maxVisibleRows) {
             this.topindex = 0;
-          } else if (this.topindex + this.maxVisibleRows > this.rows.length) {
-            this.topindex = this.rows.length - this.maxVisibleRows;
+          } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
+            this.topindex = this.rows.rowCount() - this.maxVisibleRows;
           }
           // ---------
 
@@ -602,12 +575,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const dragImageYCoords: number[][] = [];
     let dragImageDestY = 0;
 
-    this.rows
+    // FIXME move to message_display??
+    this.rows.rows
       .forEach((row, ndx) => {
         if (
           ndx >= this.topindex && (ndx - this.topindex) <= (this.canv.height / this.rowheight)
           &&
-          (this.selectListener.isSelectedRow(row) || ndx === selectedRowIndex)
+          (this.rows.isSelectedRow(ndx) || ndx === selectedRowIndex)
         ) {
           const dragImageDataY = Math.floor((ndx - this.topindex) * this.rowheight);
           dragImageYCoords.push([dragImageDataY, dragImageDestY]);
@@ -642,7 +616,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       event.dataTransfer.dropEffect = 'move';
       event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
-      this.selectListener.rowSelected(selectedRowIndex, -1, this.rows[selectedRowIndex]);
+      this.selectListener.rowSelected(selectedRowIndex, -1);
     } else {
       event.preventDefault();
       this.lastMouseDownEvent = event;
@@ -658,7 +632,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public doScrollBarDrag(clientY: number) {
     const canvrect = this.canv.getBoundingClientRect();
-    this.topindex = this.rows.length * ((clientY - canvrect.top) / this.canv.scrollHeight);
+    this.topindex = this.rows.rowCount() * ((clientY - canvrect.top) / this.canv.scrollHeight);
 
     this.enforceScrollLimit();
   }
@@ -720,13 +694,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
     const visibleRowsAlreadySelected = visibleRowIndexes.reduce((prev, next) =>
       prev &&
-      (next >= this.rows.length || this.selectListener.isSelectedRow(this.rows[next]))
+      (next >= this.rows.rowCount() || this.rows.isSelectedRow(next))
       , true);
 
     visibleRowIndexes.forEach(selectedRowIndex =>
       this.selectListener.rowSelected(selectedRowIndex,
         0,
-        this.rows[selectedRowIndex],
         !visibleRowsAlreadySelected)
     );
 
@@ -745,7 +718,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
     this.selectListener.rowSelected(selectedRowIndex,
       this.getColIndexByClientX(clientX),
-      this.rows[selectedRowIndex],
       multiSelect);
 
     this.updateDragImage(selectedRowIndex);
@@ -813,11 +785,11 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
-  public get rows(): any[] {
+  public get rows(): MessageDisplay {
     return this._rows;
   }
 
-  public set rows(rows: any[]) {
+  public set rows(rows: MessageDisplay) {
     if (this._rows !== rows) {
       this._rows = rows;
       this.calculateColumnFooterSums();
@@ -839,7 +811,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.columns.forEach((col) => {
       if (col.footerSumReduce) {
         col.footerText = col.getFormattedValue(
-          this.rows.reduce((prev, row) => col.footerSumReduce(prev, col.getValue(row)), 0)
+          // FIXME: message display class
+          this.rows.rows.reduce((prev, row) => col.footerSumReduce(prev, col.getValue(row)), 0)
         );
       }
     });
@@ -870,12 +843,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   private enforceScrollLimit() {
     if (this.topindex < 0) {
       this.topindex = 0;
-    } else if (this.rows.length < this.maxVisibleRows) {
+    } else if (this.rows.rowCount() < this.maxVisibleRows) {
       this.topindex = 0;
-    } else if (this.topindex + this.maxVisibleRows > this.rows.length) {
-      this.topindex = this.rows.length - this.maxVisibleRows;
+    } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
+      this.topindex = this.rows.rowCount() - this.maxVisibleRows;
       // send max rows hit events (use to fetch more data)
-      this.scrollLimitHit.next(this.rows.length);
+      this.scrollLimitHit.next(this.rows.rowCount());
     }
 
 
@@ -1012,32 +985,32 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       colx += col.width;
     }
 
-    if (this.rows.length < 1) {
+    if (this.rows.rowCount() < 1) {
       return;
     }
 
     // Rows
-    for (let n = this.topindex; n < this.rows.length; n += 1.0) {
+    for (let n = this.topindex; n < this.rows.rowCount(); n += 1.0) {
       const rowIndex = Math.floor(n);
 
-      if (rowIndex > this.rows.length) {
+      if (rowIndex > this.rows.rowCount()) {
         break;
       }
 
-      const rowobj = this.rows[rowIndex];
+//      const rowobj = this.rows[rowIndex];
 
       const halfrowheight = (this.rowheight / 2);
       const rowy = (rowIndex - this.topindex) * this.rowheight;
-      if (rowobj) {
+      if (this.rows.rowExists(rowIndex)) {
         // Clear row area
         // Alternating row colors:
         // let rowBgColor : string = (rowIndex%2===0 ? "#e8e8e8" : "rgba(255,255,255,0.7)");
         // Single row color:
         let rowBgColor = '#fff';
 
-        const isBoldRow = this.selectListener.isBoldRow(rowobj);
-        const isSelectedRow = this.selectListener.isSelectedRow(rowobj);
-        const isOpenedRow = this.selectListener.isOpenedRow(rowobj);
+        const isBoldRow = this.rows.isBoldRow(rowIndex);
+        const isSelectedRow = this.rows.isSelectedRow(rowIndex);
+        const isOpenedRow = this.rows.isOpenedRow(rowIndex);
         if (this.hoverRowIndex === rowIndex) {
           rowBgColor = this.hoverRowColor;
         }
@@ -1061,7 +1034,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         let x = 0;
         for (let colindex = 0; colindex < this.columns.length; colindex++) {
           const col: CanvasTableColumn = this.columns[colindex];
-          let val: any = col.getValue(rowobj);
+          let val: any = col.getValue(rowIndex);
           if (val === 'RETRY') {
             // retry later if value is null
             setTimeout(() => this.hasChanges = true, 2);
@@ -1258,7 +1231,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         const contentTextPreviewColumn = this.columns
           .find(col => col.getContentPreviewText ? true : false);
         if (contentTextPreviewColumn) {
-          const contentPreviewText = contentTextPreviewColumn.getContentPreviewText(rowobj);
+          const contentPreviewText = contentTextPreviewColumn.getContentPreviewText(rowIndex);
           if (contentPreviewText) {
             this.ctx.save();
             this.ctx.fillStyle = this.textColor;
@@ -1306,12 +1279,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
 
     // Scrollbar
-    let scrollbarheight = (this.maxVisibleRows / this.rows.length) * canvheight;
+    let scrollbarheight = (this.maxVisibleRows / this.rows.rowCount()) * canvheight;
     if (scrollbarheight < 20) {
       scrollbarheight = 20;
     }
     const scrollbarpos =
-      (this.topindex / (this.rows.length - this.maxVisibleRows)) * (canvheight - scrollbarheight);
+      (this.topindex / (this.rows.rowCount() - this.maxVisibleRows)) * (canvheight - scrollbarheight);
 
     if (scrollbarheight < canvheight) {
       const scrollbarverticalpadding = 4;

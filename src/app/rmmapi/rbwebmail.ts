@@ -20,8 +20,8 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, of, Subject, AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { MessageInfo } from 'runbox-searchindex/messageinfo';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MessageInfo } from '../common/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
