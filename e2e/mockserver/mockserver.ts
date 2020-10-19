@@ -269,6 +269,9 @@ export class MockServer {
                 case '/rest/v1/me':
                     response.end(JSON.stringify(this.me()));
                     break;
+                case '/rest/v1/filter':
+                    response.end(JSON.stringify(this.filters()));
+                    break;
                 case '/rest/v1/list/deleted_messages':
                     response.end(JSON.stringify({ 'message_ids': [], 'status': 'success' }));
                     break;
@@ -690,5 +693,75 @@ export class MockServer {
                 "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
             ],
         ];
+    }
+
+    filters(): any {
+        return {
+            "result": {
+                "filters": [
+                    {
+                        "active": true,
+                        "action": "t",
+                        "id": 101486365,
+                        "priority": 0,
+                        "location": "1",
+                        "target": "Inbox",
+                        "negated": false,
+                        "string": "from-rule"
+                    },
+                    {
+                        "string": "reply-to-rule",
+                        "active": true,
+                        "action": "t",
+                        "id": 101486367,
+                        "priority": 0,
+                        "location": "4",
+                        "target": "Inbox",
+                        "negated": false
+                    },
+                    {
+                        "negated": false,
+                        "target": "Inbox",
+                        "location": "0",
+                        "priority": 0,
+                        "id": 101486369,
+                        "action": "t",
+                        "active": true,
+                        "string": "to-rule"
+                    },
+                    {
+                        "string": "from-forwarded",
+                        "negated": false,
+                        "priority": 0,
+                        "location": "1",
+                        "target": "target@runbox.com",
+                        "action": "f",
+                        "id": 101486371,
+                        "active": true
+                    },
+                    {
+                        "string": "cc-redirected",
+                        "active": true,
+                        "action": "b",
+                        "id": 101486373,
+                        "priority": 0,
+                        "location": "3",
+                        "target": "target@runbox.com",
+                        "negated": false
+                    },
+                    {
+                        "string": "added-in-rmm7",
+                        "active": true,
+                        "action": "t",
+                        "id": 101486379,
+                        "location": "0",
+                        "priority": null,
+                        "target": "Inbox",
+                        "negated": false
+                    }
+                ]
+            },
+            "status": "success"
+        }
     }
 }

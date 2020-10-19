@@ -1,0 +1,25 @@
+<h1> Filters </h1>
+
+<div *ngIf="filters | async as filters; else loading">
+    <div style="margin: 10px">
+        <button mat-stroked-button (click)="newFilter()">
+            <mat-icon svgIcon="plus-box"></mat-icon> Add new filter
+        </button>
+    </div>
+
+    <app-account-filter-editor
+        [attr.id]="filter.id"
+        *ngFor="let filter of filters"
+        [filter]="filter"
+        (save)="saveFilter(filter, $event)"
+        (delete)="deleteFilter(filter)"
+        (moveUp)="moveFilterUp(filter)"
+        (moveDown)="moveFilterDown(filter)"
+    ></app-account-filter-editor>
+</div>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your filters..."
+    ></app-runbox-loading>
+</ng-template>

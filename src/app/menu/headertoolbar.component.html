@@ -18,7 +18,7 @@
     <mat-menu #managerSubMenu="matMenu" class="mainMenuSub">
       <a mat-button href="/mail/manager" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="briefcase"></mat-icon>Manager</a><br />
       <a mat-button href="/mail/fetch" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="cloud-download"></mat-icon>Retrieve</a><br />
-      <a mat-button href="/mail/rules" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="filter-variant"></mat-icon>Filter</a><br />
+      <a mat-button routerLink="/account/filters"><mat-icon svgIcon="filter-variant"></mat-icon>Filter</a><br />
       <a mat-button href="/mail/access" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="download"></mat-icon>Access</a>
     </mat-menu>
     <button mat-menu-item [matMenuTriggerFor]="managerSubMenu" class="mainMenuSub">

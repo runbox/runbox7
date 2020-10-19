@@ -84,6 +84,17 @@ export class ContactSyncResult {
     ) { }
 }
 
+export interface Filter {
+    id:       number;
+    active:   boolean;
+    location: string;
+    negated:  boolean;
+    str:      string;
+    action:   string;
+    target:   string;
+    priority: number;
+}
+
 export class RunboxMe {
     public uid: number;
     public username: string;
@@ -783,6 +794,34 @@ export class RunboxWebmailAPI {
 
     setSavedSearches(savedSearches: SavedSearchStorage): Observable<SavedSearchStorage> {
         return this.http.post('/rest/v1/webmail/saved_searches', savedSearches).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    getFilters(): Observable<Filter[]> {
+        return this.http.get('/rest/v1/filter').pipe(
+            map((res: HttpResponse<any>) => res['result']['filters'].map((entry: any) => {
+                entry['str'] = entry['string'];
+                delete entry['string'];
+                return entry;
+            }))
+        );
+    }
+
+    saveFilter(f: Filter): Observable<number> {
+        return this.http.post('/rest/v1/filter', { filter: f }).pipe(
+            map((res: HttpResponse<any>) => res['result']['id'])
+        );
+    }
+
+    deleteFilter(f: Filter): Observable<void> {
+        return this.http.delete('/rest/v1/filter/' + f.id).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    reorderFilters(ids: number[]): Observable<void> {
+        return this.http.post('/rest/v1/filter/reorder', { order: ids }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

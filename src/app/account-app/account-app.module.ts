@@ -31,6 +31,8 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
+import { AccountFiltersComponent } from './filters/account-filters.component';
+import { FilterEditorComponent } from './filters/filter-editor.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
@@ -74,6 +76,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     AccountAddonsComponent,
     AccountAppComponent,
     AccountComponentsComponent,
+    AccountFiltersComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
     AccountTransactionsComponent,
@@ -90,6 +93,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     SubAccountRenewalDialogComponent,
     RunboxTimerComponent,
     CreditCardsComponent,
+    FilterEditorComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -172,6 +176,10 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
               {
                   path: 'credit_cards',
                   component: CreditCardsComponent
+              },
+              {
+                  path: 'filters',
+                  component: AccountFiltersComponent
               },
             ]
           }
