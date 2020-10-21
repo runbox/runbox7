@@ -47,6 +47,7 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
+              "tsConfig": "src/tsconfig.app.prod.json",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

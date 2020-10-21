@@ -20,8 +20,8 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, of, Subject, AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { MessageInfo } from 'runbox-searchindex/messageinfo';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MessageInfo } from '../common/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
@@ -424,6 +424,7 @@ export class RunboxWebmailAPI {
                             name: item.profile.from_name,
                             signature: item.profile.signature,
                             type: k,
+                            priority: item.profile.from_priority,
                         });
                         results.push(profile);
                     });
@@ -431,13 +432,6 @@ export class RunboxWebmailAPI {
                 return results;
             })
         );
-    }
-
-    public getDefaultProfile(): Observable<FromAddress> {
-        return this.http.get('/rest/v1/me/defaultprofile').pipe(
-            map((res: any) =>
-                res.result
-            ));
     }
 
     public getAliases(): Observable<Alias[]> {

@@ -36,7 +36,7 @@ import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 import { AppSettingsService } from '../app-settings';
 
 declare const tinymce: any;

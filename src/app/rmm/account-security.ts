@@ -95,17 +95,16 @@ export class AccountSecurity {
         return txt;
     }
 
-    check_password(): Observable<any> {
+    check_password(password): Observable<any> {
         this.is_busy = true;
         const data = {
-            password: this.user_password,
+            password: password,
         };
         const req = this.app.ua.http.post('/ajax/ajax_mfa_check_password', data).pipe(timeout(60000), share());
         req.subscribe(
           reply => {
             this.is_busy = false;
             if ( reply['status'] === 'error' ) {
-                this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
             return;

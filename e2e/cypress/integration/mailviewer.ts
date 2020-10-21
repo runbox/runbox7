@@ -26,41 +26,49 @@ describe('Interacting with mailviewer', () => {
 
     it('can reply to an email with no "To"', () => {
         cy.visit('/#Inbox:11');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Re: No 'To', just 'CC'");
     });
 
     it('can forward an email with no "To"', () => {
         cy.visit('/#Inbox:11');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Fwd: No 'To', just 'CC'");
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
         cy.visit('/#Inbox:13');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Re: ");
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
         cy.visit('/#Inbox:13');
+        cy.wait(1000);
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Fwd: ");
     });
 

@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
-import { MessageInfo } from 'runbox-searchindex/messageinfo';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MessageInfo } from '../common/messageinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 import { from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 
@@ -217,6 +217,9 @@ export class DraftDeskService {
             } else {
                 return 0;
             }
+        });
+        this.froms = froms.sort((a, b) => {
+            return a.priority - b.priority;
         });
         return froms;
     }

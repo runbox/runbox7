@@ -20,6 +20,8 @@
 import { map } from 'rxjs/operators';
 import {
   SecurityContext, Component, Input, OnInit, Output, EventEmitter, ViewChild,
+  ViewChildren,
+  QueryList,
   ElementRef,
   AfterViewInit,
   DoCheck
@@ -96,7 +98,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
   @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
+  @ViewChildren('forwardMessageHeader') messageHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
+  @ViewChildren(HorizResizerDirective) resizerQuery: QueryList<HorizResizerDirective>;
   @ViewChild('toolbarButtonContainer') toolbarButtonContainer: ElementRef;
 
   public downloadProgress: number;
@@ -164,6 +168,30 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   public ngAfterViewInit() {
+    // These two viewchildren queries are needed for loading an email from
+    // a URL fragment:
+
+    // Ensure resizer child is loaded before setting height
+    this.resizerQuery.changes.subscribe((resizer: HorizResizerDirective) => {
+      setTimeout(() => {
+        if (this.adjustableHeight) {
+          if (this.previousHeight) {
+            this.resizer.resizePixels(this.previousHeight);
+          } else {
+            this.resizer.resizePercentage(50);
+          }
+        }
+      }, 0);
+    });
+
+    // messageHeaderHTML loads after message is loaded
+    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTML: ElementRef) => {
+      setTimeout(() => {
+          this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+          this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
+      }, 0);
+    });
+
     this.afterViewInit.emit(this.messageId);
     this.calculateWidthDependentElements();
   }
@@ -356,8 +384,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         }
         setTimeout(() => {
           // If forwarding HTML copy mail header from the visible mail viewer header
-          this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
-          this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
+          if (this.messageHeaderHTML) {
+            this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
+          }
         }, 0
         );
       });
@@ -527,7 +557,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           this.messageContents.nativeElement.scroll(0, 0);
         }
         // Only care about the horizontal pane height in horizontal mode
-        if (this.adjustableHeight) {
+        if (this.adjustableHeight && this.resizer) {
           if (this.previousHeight) {
             this.resizer.resizePixels(this.previousHeight);
           } else {
