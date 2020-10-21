@@ -156,14 +156,6 @@ app-payment-method {
         </a>.
     </div>
 
-    <div *ngIf="orderError === errors.NEED_EMAIL_HOSTING">
-        To use Runbox Micro with your own domain, you need to
-        <button mat-button class="contentButton" (click)="cart.order_email_hosting()">
-            purchase Email Domain addon
-        </button>
-        as well.
-    </div>
-
     <div *ngIf="orderError === errors.NEED_SUB_FOR_ADDON">
         You need to
         <button mat-button class="contentButton" routerLink="/account/upgrades">

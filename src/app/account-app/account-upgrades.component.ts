@@ -32,12 +32,7 @@ import { AsyncSubject } from 'rxjs';
 })
 export class AccountUpgradesComponent implements OnInit {
     subscriptions = new AsyncSubject<Product[]>();
-    trial_with_own_domain = false;
     currency: string;
-
-    email_hosting_product: Product;
-    bought_micro = false;
-    bought_email_hosting = false;
 
     constructor(
         public  cart:            CartService,
@@ -49,21 +44,15 @@ export class AccountUpgradesComponent implements OnInit {
 
     ngOnInit() {
         this.rmmapi.me.subscribe(me => {
-            this.trial_with_own_domain = me.is_trial && me.uses_own_domain;
             this.currency = me.currency;
         });
 
         this.paymentsservice.products.subscribe(products => {
-            this.email_hosting_product = products.find(p => p.pid === this.cart.EMAIL_HOSTING_PID);
-
             const subs = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs);
             this.subscriptions.complete();
 
             this.cart.items.subscribe(items => {
-                this.bought_micro         = !!items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
-                this.bought_email_hosting = !!items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
-
                 const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
 
                 if (ordered_subs.length > 1) {
