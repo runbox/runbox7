@@ -711,16 +711,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public selectAllRows() {
-    const allSelected = this.rows.reduce((prev, next) =>
-      prev &&
-      (next >= this.rows.length || this.selectListener.isSelectedRow(next))
-      , true);
+    const allSelected = this.rows.allSelected();
 
-    this.rows.forEach((rowobj, rowIndex) =>
+    this.rows.rows.forEach((rowobj, rowIndex) =>
       this.selectListener.rowSelected(
         rowIndex,
         0,
-        this.rows[rowIndex],
         !allSelected
       )
     );
