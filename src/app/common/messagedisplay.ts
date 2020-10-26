@@ -40,6 +40,10 @@ export abstract class MessageDisplay {
     return Object.keys(this.selectedRowIds).map((rowIndex) => this.getRowMessageId(parseInt(rowIndex, 10)));
   }
 
+  allSelected(): boolean {
+    return Object.keys(this.selectedRowIds).filter((key) => this.selectedRowIds[key]).length === this.rows.length;
+  }
+
   // public selectPreviousRow() {
   //   const newRowIndex = this.openedRowIndex - 1;
   //   if (newRowIndex >= 0) {
