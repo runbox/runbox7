@@ -59,6 +59,14 @@ export class ShoppingCartComponent implements OnInit {
     // needed so that templates can refer to enum values through `errors.ERROR_CODE`
     errors = CartError;
 
+    // for things that ended up in the cart, but aren't available for purchase:
+    // we'll warn about them and carry on
+    missingProducts: number[] = [];
+
+    get missingProductsString(): string {
+        return this.missingProducts.map(p => '#' + p).join(', ');
+    }
+
     // it's not as elegant, but it's *so much easier*
     // to handle in the template when it's synchronous
     items: CartItem[] = [];
@@ -152,20 +160,21 @@ export class ShoppingCartComponent implements OnInit {
         if (neededPids.length > 0) {
             const extras = await this.rmmapi.getProducts(neededPids).toPromise();
             if (extras.length !== neededPids.length) {
-                throw new Error(`Failed to load products ${neededPids.join(',')} (got: ${JSON.stringify(extras)})`);
+                console.warn(`Failed to load products ${neededPids.join(',')} (got: ${JSON.stringify(extras)})`);
             }
             products = products.concat(extras);
         }
 
+        this.missingProducts = [];
         for (const i of cartItems) {
             const product = products.find(p => p.pid === i.pid);
             if (!product) {
-                throw new Error(`Failed to find product info for PID ${i.pid}`);
+                this.missingProducts.push(i.pid);
             }
             i.product = product;
         }
 
-        return cartItems;
+        return cartItems.filter((i: CartItem) => !!i.product);
     }
 
     async checkIfLegal(items: CartItem[]) {
