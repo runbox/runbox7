@@ -128,7 +128,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   hasChildRouterOutlet: boolean;
   canvastable: CanvasTableComponent;
 
-  fragment = '';
+  fragment: string;
 
   messagelist: Array<MessageInfo> = [];
 
@@ -369,7 +369,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           return;
         }
 
-        this.fragment = fragment;
+        if (fragment !== this.fragment) {
+          this.fragment = fragment;
+          this.selectMessageFromFragment(fragment);
+        }
       }
     );
 
@@ -415,15 +418,29 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.subscribeToNotifications();
   }
 
-  fragmentToMessageId(fragment: string): number {
-    if (fragment === null) {
+  selectMessageFromFragment(fragment: string): void {
+    const fragmentTarget = this.parseFragment(fragment);
+    if (fragmentTarget) {
+      const [folder, msgId] = fragmentTarget;
+      this.switchToFolder(folder);
+      if (msgId === null) {
+        this.singlemailviewer.close();
+      }
+      if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
+        this.selectRowByMessageId(msgId);
+      }
+    }
+  }
+
+  parseFragment(fragment: string): [string, number] {
+    if (!fragment) {
       return null;
     }
     const parts = fragment.split(':');
     if (parts.length === 2) {
-      return parseInt(parts[1], 10);
+      return [parts[0], parseInt(parts[1], 10)];
     }
-    return null;
+    return [fragment, null];
   }
 
   subscribeToNotifications() {
@@ -676,12 +693,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
     // messages updated, check if we need to select a message from the fragment
-    if (this.fragment !== null && this.fragment.length > 0) {
-      const msgId = this.fragmentToMessageId(this.fragment);
-      if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
-        this.selectRowByMessageId(msgId);
-      }
-    }
+    this.selectMessageFromFragment(this.fragment);
   }
 
   public clearSelection() {
@@ -1115,8 +1127,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // we're not actually on mailviewer, so don't try to be smart
       return;
     }
-    let fragment = this.messagelistservice.currentFolder;
-    if (this.singlemailviewer.messageId) {
+    let fragment = this.selectedFolder;
+    if (fragment && this.singlemailviewer?.messageId) {
       fragment += `:${this.singlemailviewer.messageId}`;
     }
     this.router.navigate(['/'], { fragment });
