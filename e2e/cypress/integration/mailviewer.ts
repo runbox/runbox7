@@ -25,8 +25,9 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To"', () => {
-        cy.visit('/#Inbox:11');
+        cy.visit('/');
         cy.wait(1000);
+        cy.visit('/#Inbox:11');
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
@@ -37,8 +38,9 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can forward an email with no "To"', () => {
-        cy.visit('/#Inbox:11');
+        cy.visit('/');
         cy.wait(1000);
+        cy.visit('/#Inbox:11');
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
@@ -49,8 +51,9 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
-        cy.visit('/#Inbox:13');
+        cy.visit('/');
         cy.wait(1000);
+        cy.visit('/#Inbox:13');
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
@@ -61,8 +64,9 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
-        cy.visit('/#Inbox:13');
+        cy.visit('/');
         cy.wait(1000);
+        cy.visit('/#Inbox:13');
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
@@ -73,6 +77,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Make sure we're in vertical mode
@@ -82,6 +88,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Changing viewpane height is stored', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Make sure we're in horizontal mode
@@ -96,6 +104,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Half height reduces stored pane height', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Make sure we're in horizontal mode
@@ -120,6 +130,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Revisit open email in horizontal mode loads it', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Switch to horizontal mode
@@ -132,6 +144,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Can go out of mailviewer and back and still see our email', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:12');
 
         cy.get('div#messageHeaderSubject').contains('Default from fix test');

@@ -40,6 +40,8 @@ describe('Composing emails', () => {
     });
 
     it('should open reply draft with HTML editor', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:1');
         cy.get('single-mail-viewer').should('exist');
         cy.get('mat-checkbox[mattooltip="Toggle HTML view"]').click();
@@ -71,6 +73,8 @@ describe('Composing emails', () => {
     });
 
     it('closing a new reply should return to inbox', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:1');
         cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
         cy.get('single-mail-viewer').should('exist');
