@@ -130,4 +130,13 @@ describe('Interacting with mailviewer', () => {
         // Half height email pane should still be open
         cy.get('button[mattooltip="Full height"]').should('exist');
     });
+
+    it('Can go out of mailviewer and back and still see our email', () => {
+        cy.visit('/#Inbox:12');
+
+        cy.get('div#messageHeaderSubject').contains('Default from fix test');
+        cy.get('#composeButton').click();
+        cy.go('back');
+        cy.get('div#messageHeaderSubject').contains('Default from fix test');
+    });
 })
