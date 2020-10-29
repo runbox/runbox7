@@ -20,6 +20,12 @@
 import { createServer, Server } from 'http';
 import { createWriteStream } from 'fs';
 import { mail_message_obj } from './emailresponse';
+import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { loadXapian } from 'runbox-searchindex/xapian.loader';
+import { IndexingTools, MessageInfo } from 'runbox-searchindex/messageinfo';
+import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+
+declare var FS: any, MEMFS: any;
 
 const logger = createWriteStream('mockserver.log');
 function log(line) {
@@ -39,6 +45,7 @@ export class MockServer {
     ];
 
     events = [];
+    indexPartitions = [];
 
     folders = [
         {
@@ -107,6 +114,10 @@ export class MockServer {
         },
     ];
 
+    constructor() {
+        loadXapian().subscribe(() => this.buildSearchIndex());
+    }
+
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
@@ -140,9 +151,18 @@ export class MockServer {
                 } else if (requesturl.indexOf('folder=Inbox') > -1) {
                     requesturl = '/mail/download_xapian_index?inbox';
                 } else {
-                    requesturl = '/mail/download_xapian_index';
+                    const match = requesturl.match(/fileno=(\d+)/);
+                    if (match) {
+                        const files = ["iamglass","docdata.glass","termlist.glass","postlist.glass"];
+                        const fileno = parseInt(match[1], 10);
+                        const path = './downloadable/' + files[fileno - 1];
+                        console.log(`Uploading ${path}`);
+                        const stat = FS.stat(path);
+                        const bytes = FS.readFile(path, { encoding: 'binary' }, stat.size);
+                        response.end(Buffer.from(bytes));
+                        return;
+                    }
                 }
-
             }
             const emailendpoint = requesturl.match(/\/rest\/v1\/email\/([0-9]+)/);
             if (emailendpoint) {
@@ -260,6 +280,9 @@ export class MockServer {
                 case '/mail/download_xapian_index':
                     response.end('');
                     break;
+                case '/mail/download_xapian_index?exists=check':
+                    response.end(JSON.stringify({ 'exists': true }));
+                    break;
                 case '/mail/download_xapian_index?inbox':
                     response.end(this.inboxcontents());
                     break;
@@ -280,6 +303,9 @@ export class MockServer {
                             'd': 'tLCE5wPUvfJuoDdii82wqcV0tW9xUSoKhi2zGl105cw', 'y': 'n42TE5ayD8JT-Opy9R-JEqiY-10MnPUEwf9uokGTFcs'
                         }
                     ));
+                    break;
+                case '/rest/v1/searchindex/partitions':
+                    response.end(JSON.stringify({ "partitions": this.indexPartitions }));
                     break;
                 default:
                     if (request.url.indexOf('/rest') === 0) {
@@ -690,5 +716,72 @@ export class MockServer {
                 "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
             ],
         ];
+    }
+
+    buildSearchIndex() {
+        FS.mkdir("/work");
+        FS.mount(MEMFS, {},"/work");
+        FS.chdir("/work");
+        const xapian = new XapianAPI();
+        xapian.initXapianIndex('mainpartition');
+        const indexer = new IndexingTools(xapian);
+
+        const lines = this.inboxcontents().split('\n');
+        // copied from rbwebmail.ts -- refactor!
+        lines.map((line) => {
+            const parts = line.split('\t');
+            const from_ = parts[7];
+            const to = parts[8];
+            const fromInfo: MailAddressInfo[] = MailAddressInfo.parse(from_);
+            const toInfo: MailAddressInfo[] = MailAddressInfo.parse(to);
+            const size: number = parseInt(parts[10], 10);
+            const attachment: boolean = parts[11] === 'y';
+            const seenFlag: boolean = parseInt(parts[4], 10) === 1;
+            const answeredFlag: boolean = parseInt(parts[5], 10) === 1;
+            const flaggedFlag: boolean = parseInt(parts[6], 10) === 1;
+
+
+            const ret = new MessageInfo(
+                parseInt(parts[0], 10), // id
+                new Date(), // changed date
+                new Date(), // message date
+                parts[3],                                // folder
+                seenFlag,                                // seen flag
+                answeredFlag,                            // answered flag
+                flaggedFlag,                             // flagged flag
+                fromInfo,                                // from
+                toInfo,                                  // to
+                [],                                      // cc
+                [],                                      // bcc
+                parts[9],                                // subject
+                parts[12],                               // plaintext body
+                size,                                    // size
+                attachment                               // attachment
+            );
+            if (size === -1) {
+                // Size = -1 means deleted flag is set - ref hack in Webmail.pm
+                ret.deletedFlag = true;
+            }
+            return ret;
+        }).forEach(msg => indexer.addMessageToIndex(msg));
+        const docCount = xapian.getXapianDocCount();
+        console.log("Stored", docCount, "documents in xapian database");
+        xapian.commitXapianUpdates();
+        xapian.compactToWritableDatabase('downloadable');
+        xapian.closeXapianDatabase();
+        this.indexPartitions = [{
+            'folder': 'downloadable',
+            files: [],
+            numberOfMessages: docCount,
+        }]
+        FS.readdir('./downloadable').forEach(file => {
+            const path = './downloadable/' + file;
+            const size = FS.stat(path).size;
+            this.indexPartitions[0].files.push({
+                'filename': file,
+                'compressedsize': size,
+                'uncompressedsize': size,
+            });
+        });
     }
 }
