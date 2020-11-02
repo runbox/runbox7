@@ -53,7 +53,7 @@ export class AccountUpgradesComponent implements OnInit {
     ngOnInit() {
         this.rmmapi.me.subscribe(me => {
             this.currency = me.currency;
-            this.limitedTimeOffer = me.newerThan(this.limited_time_offer_age);
+            this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
         });
 
         this.paymentsservice.products.subscribe(products => {
