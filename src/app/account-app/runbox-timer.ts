@@ -59,6 +59,7 @@ export class RunboxTimerComponent implements OnInit {
       public dialog: MatDialog,
       public ref: ElementRef,
   ) {
+      this.recalculate_date();
       setTimeout(() => this.recalculate_date(), 1000);
   }
 
