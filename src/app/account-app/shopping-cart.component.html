@@ -71,6 +71,16 @@ app-payment-method {
     <tr mat-footer-row *matFooterRowDef="['name', 'empty', 'empty', 'total-price', 'empty']">
 </table>
 
+<div *ngIf="missingProducts.length > 0" style="text-align: center;">
+    Some of the products added to your cart ({{ missingProductsString }})
+    are not currently available for purchase. <br>
+    If the product list above is missing something you wanted to renew,
+    contact Runbox Support at
+    <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">
+        support@runbox.com
+    </a>.
+</div>
+
 <div *ngIf="items.length > 0 && orderError === undefined">
     <h2> Payment method </h2>
 
