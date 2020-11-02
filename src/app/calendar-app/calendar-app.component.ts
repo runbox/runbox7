@@ -27,7 +27,7 @@ import {
 
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
