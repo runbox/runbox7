@@ -27,7 +27,7 @@ import {
 
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -281,6 +281,11 @@ export class CalendarAppComponent implements OnDestroy {
         const file = uploadEvent.target.files[0];
         const fr   = new FileReader();
 
+        if (file.type !== 'text/calendar') {
+            this.showError('Error parsing calendar: is it a proper ICS file?');
+            return;
+        }
+
         fr.onload = (ev: any) => {
             const ics = ev.target.result;
             console.log(ics);
@@ -385,13 +390,18 @@ export class CalendarAppComponent implements OnDestroy {
         });
     }
 
-    showError(e: HttpErrorResponse): void {
+    showError(e: any): void {
         let message = '';
+        console.log('Showing error:', e);
 
-        if (e.status === 500) {
+        if (typeof e === 'string') {
+            message = e;
+        } else if (e.error.error) {
+            message = e.error.error;
+        } else if (e.status === 500) {
             message = 'Internal server error';
         } else {
-            console.log('Error ' + e.status +  ': ' + e.message);
+            message = 'Error ' + e.status +  ': ' + e.message;
         }
 
         if (message) {

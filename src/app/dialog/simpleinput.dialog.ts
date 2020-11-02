@@ -40,7 +40,7 @@ export class SimpleInputDialogParams {
             <div [innerHtml]="trustedHtml">
             </div>
             <mat-form-field style="margin-top: 20px;">
-                <input matInput [placeholder]="data.placeholder" [(ngModel)]="inputText" />
+                <input matInput [placeholder]="data.placeholder" (keyup)="sumbitOnEnter($event)" [(ngModel)]="inputText" />
             </mat-form-field>
         </mat-dialog-content>
 
@@ -67,5 +67,11 @@ export class SimpleInputDialog {
 
     yes() {
         this.dialogRef.close(this.inputText);
+    }
+
+    sumbitOnEnter(e) {
+        if (e.keyCode === 13 && this.data.isValidInput(this.inputText)) {
+            this.yes();
+        }
     }
 }

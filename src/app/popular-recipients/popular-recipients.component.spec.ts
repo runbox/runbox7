@@ -26,7 +26,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 import { PopularRecipientsComponent } from './popular-recipients.component';
 import { RecipientsService } from '../compose/recipients.service';
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 import { of } from 'rxjs';
 

@@ -32,19 +32,15 @@ import { AsyncSubject } from 'rxjs';
     templateUrl: './account-upgrades.component.html',
 })
 export class AccountUpgradesComponent implements OnInit {
+    @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
     subscriptions = new AsyncSubject<Product[]>();
     subs_regular = new AsyncSubject<Product[]>();
     subs_special = new AsyncSubject<Product[]>();
 
-    trial_with_own_domain = false;
     currency: string;
     limitedTimeOffer = false;
     limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
 
-    email_hosting_product: Product;
-    bought_micro = false;
-    bought_email_hosting = false;
-    @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
     constructor(
         public  cart:            CartService,
@@ -56,7 +52,6 @@ export class AccountUpgradesComponent implements OnInit {
 
     ngOnInit() {
         this.rmmapi.me.subscribe(me => {
-            this.trial_with_own_domain = me.is_trial && me.uses_own_domain;
             this.currency = me.currency;
             this.limitedTimeOffer = me.newerThan(this.limited_time_offer_age);
         });
@@ -64,7 +59,7 @@ export class AccountUpgradesComponent implements OnInit {
         this.paymentsservice.products.subscribe(products => {
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
-            this.email_hosting_product = products.find(p => p.pid === this.cart.EMAIL_HOSTING_PID);
+            this.subscriptions.complete();
 
             const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
             this.subs_regular.next(subs_regular);
@@ -75,11 +70,7 @@ export class AccountUpgradesComponent implements OnInit {
             this.subs_special.complete();
 
             this.cart.items.subscribe(items => {
-                let ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
-                this.bought_micro         = !!items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
-                this.bought_email_hosting = !!items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
-
-                ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
+                const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
 
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
@@ -91,6 +82,7 @@ export class AccountUpgradesComponent implements OnInit {
             });
         });
     }
+
     runboxTimerFinished(): void {
         this.limitedTimeOffer = false;
     }

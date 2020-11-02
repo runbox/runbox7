@@ -119,7 +119,7 @@
             </mat-list-item>
 
             <mat-list-item (click)="importEventClicked()" class="calendarMenuButton">
-                <input #icsUploadInput type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
+                <input #icsUploadInput accept="text/calendar,.ics" type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
                 <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
                 <p mat-line>Import event</p>
             </mat-list-item>

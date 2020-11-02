@@ -34,7 +34,6 @@ import { Product } from './product';
 
 enum CartError {
     CANT_LOAD_PRODUCTS,
-    NEED_EMAIL_HOSTING,
     NEED_SUB_FOR_ADDON,
 }
 
@@ -60,6 +59,14 @@ export class ShoppingCartComponent implements OnInit {
     // needed so that templates can refer to enum values through `errors.ERROR_CODE`
     errors = CartError;
 
+    // for things that ended up in the cart, but aren't available for purchase:
+    // we'll warn about them and carry on
+    missingProducts: number[] = [];
+
+    get missingProductsString(): string {
+        return this.missingProducts.map(p => '#' + p).join(', ');
+    }
+
     // it's not as elegant, but it's *so much easier*
     // to handle in the template when it's synchronous
     items: CartItem[] = [];
@@ -83,7 +90,7 @@ export class ShoppingCartComponent implements OnInit {
     ) {
         this.itemsSubject.subscribe(items => this.calculateTotal(items));
         this.itemsSubject.subscribe(items => this.items = items);
-        this.itemsSubject.subscribe(items => this.currency = items[0].product.currency);
+        this.itemsSubject.subscribe(items => this.currency = items.length > 0 ? items[0].product.currency : null);
         this.itemsSubject.subscribe(items => this.checkIfLegal(items));
     }
 
@@ -138,49 +145,42 @@ export class ShoppingCartComponent implements OnInit {
 
         let products = await this.paymentsservice.products.toPromise();
 
-        // check if all the products in the cart had their details in the paymentservice
-        // this may not be true if they're coming from the URL for instance,
-        // and in that case we need to fetch them from the API anew
-        const neededPids = [];
+        // Check if all the products in the cart had their details in the paymentservice.
+        // This may not be true if they're coming from the URL for instance,
+        // and in that case we need to fetch them from the API anew.
+        // We'll keep these in a Set so that they don't contain duplicate values.
+        const neededPidsSet = new Set<number>();
         for (const i of cartItems) {
             const product = products.find(p => p.pid === i.pid);
             if (!product) {
-                neededPids.push(i.pid);
+                neededPidsSet.add(i.pid);
             }
         }
+        const neededPids = Array.from(neededPidsSet.values());
         if (neededPids.length > 0) {
             const extras = await this.rmmapi.getProducts(neededPids).toPromise();
             if (extras.length !== neededPids.length) {
-                throw new Error(`Failed to load products ${neededPids.join(',')} (got: ${JSON.stringify(extras)})`);
+                console.warn(`Failed to load products ${neededPids.join(',')} (got: ${JSON.stringify(extras)})`);
             }
             products = products.concat(extras);
         }
 
+        this.missingProducts = [];
         for (const i of cartItems) {
             const product = products.find(p => p.pid === i.pid);
             if (!product) {
-                throw new Error(`Failed to find product info for PID ${i.pid}`);
+                this.missingProducts.push(i.pid);
             }
             i.product = product;
         }
 
-        return cartItems;
+        return cartItems.filter((i: CartItem) => !!i.product);
     }
 
     async checkIfLegal(items: CartItem[]) {
         const me = await this.rmmapi.me.toPromise();
 
         this.orderError = undefined; // unless we find something else :)
-
-        // needs >micro or email hosting if on trial with own domain
-        if (me.is_trial && me.uses_own_domain) {
-            const bought_micro         = items.find(i => i.pid === this.cart.RUNBOX_MICRO_PID);
-            const bought_email_hosting = items.find(i => i.pid === this.cart.EMAIL_HOSTING_PID);
-
-            if (bought_micro && !bought_email_hosting) {
-                this.orderError = CartError.NEED_EMAIL_HOSTING;
-            }
-        }
 
         // cannot buy addon without subscription while on trial
         if (me.is_trial) {

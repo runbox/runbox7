@@ -25,46 +25,60 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To"', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Re: No 'To', just 'CC'");
     });
 
     it('can forward an email with no "To"', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Fwd: No 'To', just 'CC'");
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:13');
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Re: ");
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:13');
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
         });
+        cy.wait(500);
         cy.get('mat-card-actions div').should('contain', "Fwd: ");
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Make sure we're in vertical mode
@@ -74,6 +88,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Changing viewpane height is stored', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Make sure we're in horizontal mode
@@ -88,6 +104,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Half height reduces stored pane height', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Make sure we're in horizontal mode
@@ -112,6 +130,8 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Revisit open email in horizontal mode loads it', () => {
+        cy.visit('/');
+        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         // Switch to horizontal mode
@@ -121,5 +141,16 @@ describe('Interacting with mailviewer', () => {
         cy.visit('/#Inbox#11');
         // Half height email pane should still be open
         cy.get('button[mattooltip="Full height"]').should('exist');
+    });
+
+    it('Can go out of mailviewer and back and still see our email', () => {
+        cy.visit('/');
+        cy.wait(1000);
+        cy.visit('/#Inbox:12');
+
+        cy.get('div#messageHeaderSubject').contains('Default from fix test');
+        cy.get('#composeButton').click();
+        cy.go('back');
+        cy.get('div#messageHeaderSubject').contains('Default from fix test');
     });
 })

@@ -18,6 +18,9 @@
                 <p>
                 If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
                 </p>
+                <p>
+                <strong>Note:</strong> selector2 will become active on our DNS servers three months after you activate DKIM signing.
+                </p>
                 <mat-divider></mat-divider>
                 <div *ngIf="domain && keys && keys.length" style='margin-top: 35px'>
                     <mat-grid-list cols="8" rowHeight="30px" style='' *ngIf="dkim_domain">
