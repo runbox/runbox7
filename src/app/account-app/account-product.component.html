@@ -1,6 +1,6 @@
 <style>
 mat-card {
-    min-height: 18vh;
+    min-height: 20vh;
     padding: 20px;
 }
 mat-card-subtitle {
@@ -10,11 +10,10 @@ mat-card-subtitle {
 </style>
 
 <mat-card>
+  <h4 *ngIf="p.subtype === 'special'">Special offer</h4>
     <mat-card-title>
-        <mat-icon *ngIf="p.subtype === 'special'" svgIcon="star-circle"></mat-icon>
-        <span *ngIf="p.subtype === 'special'"> Special offer: </span>{{ p.name }}
-        <strong *ngIf="active_sub"> – your current subscription </strong>
-        <mat-icon *ngIf="p.subtype === 'special'" svgIcon="star-circle"></mat-icon>
+      {{ p.name }}
+      <strong *ngIf="active_sub"> – your current {{ p.type }} </strong>
     </mat-card-title>
     <mat-card-subtitle>
         {{ p.description }}
@@ -22,15 +21,15 @@ mat-card-subtitle {
     <mat-card-content>
         <ng-content></ng-content>
     </mat-card-content>
-    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="!allow_multiple">
-        <button mat-button *ngIf="!purchased; else unpurchase"
+    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
+        <button style="position: absolute; bottom: 20px;" mat-button *ngIf="!purchased; else unpurchase"
             class="contentButton"
             (click)="order()"
         >
             Purchase for {{ p.price | number:'1.2-2' }} {{ currency }}
         </button>
         <ng-template #unpurchase>
-            <button mat-button
+            <button style="position: absolute; bottom: 20px;" mat-button
                 class="primaryContentButton"
                 (click)="unorder()"
             >

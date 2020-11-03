@@ -45,6 +45,7 @@ import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component'
 import { PaypalBillingAgreementsComponent } from './paypal-billing-agreements.component';
 import { PaypalHandlerComponent } from './paypal-handler.component';
 import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
+import { RunboxTimerComponent } from './runbox-timer';
 
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -84,6 +85,7 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
     ProductComponent,
     ShoppingCartComponent,
     StripePaymentDialogComponent,
+    RunboxTimerComponent,
     CreditCardsComponent,
   ],
   imports: [

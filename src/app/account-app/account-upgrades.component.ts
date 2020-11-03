@@ -17,13 +17,14 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
+import { RunboxTimerComponent } from './runbox-timer';
 import { AsyncSubject } from 'rxjs';
 
 @Component({
@@ -31,8 +32,15 @@ import { AsyncSubject } from 'rxjs';
     templateUrl: './account-upgrades.component.html',
 })
 export class AccountUpgradesComponent implements OnInit {
+    @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
     subscriptions = new AsyncSubject<Product[]>();
+    subs_regular = new AsyncSubject<Product[]>();
+    subs_special = new AsyncSubject<Product[]>();
+
     currency: string;
+    limitedTimeOffer = false;
+    limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
+
 
     constructor(
         public  cart:            CartService,
@@ -45,15 +53,24 @@ export class AccountUpgradesComponent implements OnInit {
     ngOnInit() {
         this.rmmapi.me.subscribe(me => {
             this.currency = me.currency;
+            this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
         });
 
         this.paymentsservice.products.subscribe(products => {
-            const subs = products.filter(p => p.type === 'subscription');
-            this.subscriptions.next(subs);
+            const subs_all = products.filter(p => p.type === 'subscription');
+            this.subscriptions.next(subs_all);
             this.subscriptions.complete();
 
+            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
+            this.subs_regular.next(subs_regular);
+            this.subs_regular.complete();
+
+            const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
+            this.subs_special.next(subs_special);
+            this.subs_special.complete();
+
             this.cart.items.subscribe(items => {
-                const ordered_subs = items.filter(order => subs.find(s => s.pid === order.pid));
+                const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
 
                 if (ordered_subs.length > 1) {
                     ordered_subs.pop(); // the most recently added one wins
@@ -64,5 +81,9 @@ export class AccountUpgradesComponent implements OnInit {
                 }
             });
         });
+    }
+
+    runboxTimerFinished(): void {
+        this.limitedTimeOffer = false;
     }
 }

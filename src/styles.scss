@@ -919,8 +919,22 @@ app-calendar-event-editor-dialog p {
 
 /* Payment */
 
+.limitedTimeOffer {
+    border: 1px solid mat-color($rmm-default-primary);
+    padding: 1%;
+    text-align: center;
+}
+
+.limitedTimeOffer h1 {
+    color: mat-color($rmm-default-foreground);
+}
+
+.limitedTimeOffer h2 {
+    color: mat-color($rmm-default-primary);
+}
+
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
-        background: mat-color($rmm-default-accent);
+    background: mat-color($rmm-default-accent);
 }
 
 /* Runbox components */
