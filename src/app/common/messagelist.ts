@@ -46,14 +46,16 @@ export class MessageList extends MessageDisplay {
 
 
   // columns
-  getFromColumnValueForRow(rowobj: MessageInfo): string {
+  getFromColumnValueForRow(rowIndex: number): string {
+    const rowobj = this.rows[rowIndex];
     return rowobj.from && rowobj.from.length > 0 ?
       rowobj.from[0].name ? rowobj.from[0].name :
       rowobj.from[0].address :
     '';
   }
 
-  getToColumnValueForRow(rowobj: MessageInfo): string {
+  getToColumnValueForRow(rowIndex: number): string {
+    const rowobj = this.rows[rowIndex];
     return rowobj.to && rowobj.to.length > 0 ?
       rowobj.to[0].name ? rowobj.to[0].name :
       rowobj.to[0].address :
@@ -79,7 +81,9 @@ export class MessageList extends MessageDisplay {
       {
         name: app.selectedFolder === 'Sent' ? 'To' : 'From',
         sortColumn: null,
-        getValue: app.selectedFolder === 'Sent' ? this.getToColumnValueForRow : this.getFromColumnValueForRow,
+        getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
+          ? this.getToColumnValueForRow(rowIndex)
+          : this.getFromColumnValueForRow(rowIndex),
       },
       {
         name: 'Subject',
