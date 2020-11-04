@@ -35,6 +35,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
+import * as moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 
 export class MessageFields {
@@ -86,6 +87,7 @@ export class ContactSyncResult {
 export class RunboxMe {
     public uid: number;
     public username: string;
+    public user_created: string;
 
     public first_name: string;
     public last_name: string;
@@ -101,6 +103,30 @@ export class RunboxMe {
     public subscription: number;
     public is_trial: boolean;
     public uses_own_domain: boolean;
+
+    constructor(instanceData?: RunboxMe) {
+        if (instanceData) {
+            this.deserialize(instanceData);
+        }
+    }
+
+    private deserialize(instanceData: RunboxMe) {
+        const keys = Object.keys(instanceData);
+
+        for (const key of keys) {
+            if (instanceData.hasOwnProperty(key)) {
+                this[key] = instanceData[key];
+            }
+        }
+    }
+
+    getCreatedMoment(): moment.Moment {
+      return moment(this.user_created, 'X');
+    }
+    newerThan(duration: number): boolean {
+        const now = moment();
+        return this.getCreatedMoment().diff(now) < duration;
+    }
 }
 
 export class MessageTextpart {
@@ -159,7 +185,7 @@ export class RunboxWebmailAPI {
                 map((res: any) => {
                     res.uid = parseInt(res.uid, 10);
                     res.disk_used = res.quotas ? parseInt(res.quotas.disk_used, 10) : null;
-                    return res;
+                    return new RunboxMe(res);
                 })
             ).subscribe((me: RunboxMe) => {
                 this.me.next(me);

@@ -229,6 +229,11 @@ export class ContactsAppComponent {
         const file = uploadEvent.target.files[0];
         const fr   = new FileReader();
 
+        if (file.type !== 'text/vcard') {
+            this.showError('Error parsing contact: is it a proper VCF file?');
+            return;
+        }
+
         fr.onload = (ev: any) => {
             const vcf = ev.target.result;
             this.processVcfImport(vcf);

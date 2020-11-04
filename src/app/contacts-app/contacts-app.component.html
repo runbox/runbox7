@@ -20,7 +20,7 @@
             </mat-list-item>
 
             <mat-list-item (click)="importVcfClicked()" class="contactListButton">
-                <input #vcfUploadInput type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
+                <input #vcfUploadInput accept="text/vcard,.vcf" type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
                 <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
                 <p mat-line>Import contacts</p>
             </mat-list-item>
