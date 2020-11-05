@@ -237,10 +237,8 @@ export class CalendarAppComponent implements OnDestroy {
                     this.shown_events.push(e);
                 }
             }
-            // this.calendarservice.updateRecurringEvents(this.viewPeriod);
         }
 
-        // this.cdr.detectChanges();
         this.refresh.next();
     }
 
@@ -395,7 +393,6 @@ export class CalendarAppComponent implements OnDestroy {
     toggleCalendar(calendar_id: string): void {
         this.calendarVisibility[calendar_id] = !this.calendarVisibility[calendar_id];
         this.calendarservice.updateEventList(this.viewPeriod);
-//        this.filterEvents();
         this.cdr.markForCheck();
     }
 

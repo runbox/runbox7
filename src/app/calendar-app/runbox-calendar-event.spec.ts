@@ -22,6 +22,16 @@ import * as moment from 'moment';
 import * as ICAL from 'ical.js';
 
 describe('RunboxCalendarEvent', () => {
+    it('should be possible to create a new event', () => {
+        const newEvent = RunboxCalendarEvent.newEmpty();
+        newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
+        newEvent.dtend = moment().date(1).hours(14).seconds(0).milliseconds(0);
+        newEvent.title = 'New Event';
+        newEvent.location = 'Somewhere';
+
+        // test things addEvent calls:
+      expect(newEvent.toIcal()).toMatch(/BEGIN:VEVENT/);
+    });
     it('should be possible to add/remove a recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
           'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [

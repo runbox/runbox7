@@ -23,6 +23,7 @@ import { CalendarService } from './calendar.service';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
+import * as moment from 'moment';
 
 describe('CalendarService', () => {
     let dav_events: any;
@@ -81,6 +82,15 @@ describe('CalendarService', () => {
         clearInterval(sut.syncInterval);
     });
 
+    it('should be able to add a new event', async () => {
+        const newEvent = RunboxCalendarEvent.newEmpty();
+        newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
+        newEvent.dtend = moment().date(1).hours(14).seconds(0).milliseconds(0);
+        newEvent.title = 'New Event';
+        newEvent.location = 'Somewhere';
+        const newId = await sut.addEvent(newEvent);
+        expect(newId).toBeTruthy();
+    });
 
     it('should modify event when asked', async () => {
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
@@ -123,5 +133,250 @@ describe('CalendarService', () => {
             expect(calls.deleteCalendarEvent).toBe(1, '1 event was deleted');
             r();
         }));
+    });
+
+    it('should be possible to  import an .ics file', () => {
+        const rbevents = sut.fromIcal(undefined,
+`BEGIN:VCALENDAR
+X-LOTUS-CHARSET:UTF-8
+VERSION:2.0
+PRODID:-//Lotus Development Corporation//NONSGML Notes 6.0//EN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Eastern
+BEGIN:STANDARD
+DTSTART:19501029T020000
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19500402T020000
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=1SU;BYMONTH=4
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID="Eastern":20210411T090000
+DTEND;TZID="Eastern":20210411T100000
+TRANSP:OPAQUE
+RRULE:FREQ=DAILY;COUNT=5
+DTSTAMP:20210406T201221Z
+SEQUENCE:0
+ATTENDEE;ROLE=CHAIR;PARTSTAT=ACCEPTED;CN="iCal Chair/CoffeeBean"
+ ;RSVP=FALSE:mailto:iCalChair@coffeebean.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION
+ ;CN="iCal Participant/CoffeeBean";RSVP=TRUE
+ :mailto:iCalParticipant@coffeebean.com
+CLASS:PUBLIC
+SUMMARY:5 day daily repeating meeting
+ORGANIZER;CN="iCal Chair/CoffeeBean":mailto:iCalChair@coffeebean.com
+UID:F88157FE01BE8A5C85256FDB006EBCC3-Lotus_Notes_Generated
+END:VEVENT
+END:VCALENDAR
+`, true);
+        // Produces multiple CalendarEvents which refer to the same ICal.Event
+        expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
+        expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
+    });
+
+    it('should be possible to import an .ics file with exceptions', () => {
+        const rbevents = sut.fromIcal(undefined,
+`BEGIN:VCALENDAR
+X-LOTUS-CHARSET:UTF-8
+VERSION:2.0
+PRODID:-//Lotus Development Corporation//NONSGML Notes 6.0//EN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Eastern
+BEGIN:STANDARD
+DTSTART:19501029T020000
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19500402T020000
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=1SU;BYMONTH=4
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID=Eastern:20210425T090000
+DTEND;TZID=Eastern:20210425T100000
+TRANSP:OPAQUE
+RRULE:FREQ=DAILY;COUNT=5
+DTSTAMP:20210406T204303Z
+SEQUENCE:0
+ATTENDEE;ROLE=CHAIR;PARTSTAT=ACCEPTED;CN="iCal Chair/CoffeeBean"
+ ;RSVP=FALSE:mailto:iCalChair@coffeebean.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION
+ ;CN="iCal Participant/CoffeeBean";RSVP=TRUE
+ :mailto:iCalParticipant@coffeebean.com
+CLASS:PUBLIC
+DESCRIPTION;ALTREP="CID:<FFFF__=0ABBE548DFE230F48f9e8a93d@coffeebean.com>":body
+SUMMARY:More complicated stream (5 day recurring)
+ORGANIZER;CN="iCal Chair/CoffeeBean":mailto:iCalChair@coffeebean.com
+UID:7BA1ECA4D58B306C85256FDB0071B664-Lotus_Notes_Generated
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Eastern:20210426T100000
+DTEND;TZID=Eastern:20210426T110000
+TRANSP:OPAQUE
+RDATE;TZID=Eastern;VALUE=PERIOD:20210426T100000/20210426T110000
+RECURRENCE-ID:20210426T130000Z
+DTSTAMP:20210406T205010Z
+COMMENT;ALTREP="CID:<FFFF__=0ABBE548DFE1E66E8f9e8a93d@coffeebean.com>":Reschedule of a single instance's time only (+ 1 hr)
+SEQUENCE:1
+ATTENDEE;ROLE=CHAIR;PARTSTAT=ACCEPTED;CN="iCal Chair/CoffeeBean"
+ ;RSVP=FALSE:mailto:iCalChair@coffeebean.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION
+ ;CN="iCal Participant/CoffeeBean";RSVP=TRUE
+ :mailto:iCalParticipant@coffeebean.com
+CLASS:PUBLIC
+DESCRIPTION;ALTREP="CID:<FFFE__=0ABBE548DFE1E66E8f9e8a93d@coffeebean.com>":body
+SUMMARY:More complicated stream (5 day recurring)
+ORGANIZER;CN="iCal Chair/CoffeeBean":mailto:iCalChair@coffeebean.com
+UID:7BA1ECA4D58B306C85256FDB0071B664-Lotus_Notes_Generated
+END:VEVENT
+END:VCALENDAR
+`, true);
+        // Produces multiple CalendarEvents which refer to the same ICal.Event
+        expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
+        expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
+        expect(rbevents[0].start).toEqual(new Date(2021, 3, 25, 13, 0, 0), 'event 1 start date is 9am');
+        expect(rbevents[1].start).toEqual(new Date(2021, 3, 26, 14, 0, 0), 'event 1 start date is 10am');
+    });
+
+    it('should be possible to import a static (non recurring) event', () => {
+        const rbevents = sut.fromIcal(undefined,
+`BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+PRODID:-//FastMail/1.0/EN
+X-APPLE-CALENDAR-COLOR:#0252D4
+X-WR-CALNAME:Calendar
+X-WR-TIMEZONE:Europe/London
+BEGIN:VTIMEZONE
+TZID:Europe/London
+BEGIN:STANDARD
+DTSTART:19700101T000000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0000
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19700101T000000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0100
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTEND;TZID=Europe/London:20201127T200000
+DTSTAMP:20201027T165951Z
+DTSTART;TZID=Europe/London:20201127T180000
+LOCATION:Home
+SEQUENCE:0
+SUMMARY:Static event
+TRANSP:OPAQUE
+UID:030b96e1-0e35-4725-84c6-2e564107970a
+END:VEVENT
+END:VCALENDAR
+`, true);
+        expect(rbevents.length).toEqual(1, 'Imported one static event');
+    });
+
+    it('should be possible to import/generate an infinitely repeating event', () => {
+        const rbevents = sut.fromIcal(undefined,
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//www.contactoffice.com//NONSGML Calendar//EN
+BEGIN:VTIMEZONE
+TZID:Europe/London
+X-TZINFO:Europe/London[2019c/Partial@9223372036854775807]
+BEGIN:DAYLIGHT
+TZOFFSETTO:+010000
+TZOFFSETFROM:+000000
+TZNAME:Europe/London(DST)
+DTSTART:15320325T010000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETTO:+000000
+TZOFFSETFROM:+010000
+TZNAME:Europe/London(STD)
+DTSTART:19971026T020000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP;VALUE=DATE-TIME:20201015T100822Z
+LAST-MODIFIED:20201015T100519Z
+DTSTART;TZID=Europe/London;VALUE=DATE-TIME:20201012T190000
+DTEND;TZID=Europe/London;VALUE=DATE-TIME:20201012T230000
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=MO
+EXDATE:20240412T180000Z
+DESCRIPTION:In a pub
+SUMMARY:Monday Games
+LOCATION:Somewhere
+UID:com_264201470
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
+`, true);
+        // defaults to 2 months worth of events
+        expect(rbevents.length).toBeGreaterThan(7, 'Got more than 7 weekly events');
+        expect(rbevents.length).toBeLessThan(13, 'Got less than 13 weekly events');
+        expect(rbevents[0].start.getDay()).toEqual(1, 'Generates dates on a Monday');
+    });
+
+    it('should be possible to determine the day/time from the dtstart value', () => {
+        const rbevents = sut.fromIcal(undefined,
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//www.contactoffice.com//NONSGML Calendar//EN
+BEGIN:VTIMEZONE
+TZID:Europe/London
+X-TZINFO:Europe/London[2019c/Partial@9223372036854775807]
+BEGIN:DAYLIGHT
+TZOFFSETTO:+010000
+TZOFFSETFROM:+000000
+TZNAME:Europe/London(DST)
+DTSTART:15320325T010000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETTO:+000000
+TZOFFSETFROM:+010000
+TZNAME:Europe/London(STD)
+DTSTART:19971026T020000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP;VALUE=DATE-TIME:20201015T100822Z
+LAST-MODIFIED:20201015T100519Z
+DTSTART;TZID=Europe/London;VALUE=DATE-TIME:20201012T190000
+DTEND;TZID=Europe/London;VALUE=DATE-TIME:20201012T230000
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+RRULE:FREQ=WEEKLY
+EXDATE:20240412T180000Z
+DESCRIPTION:In a pub
+SUMMARY:Monday Games
+LOCATION:Somewhere
+UID:com_264201470
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
+`, true);
+        // defaults to 2 months worth of events
+        expect(rbevents.length).toBeGreaterThan(7, 'Got more than 7 weekly events');
+        expect(rbevents.length).toBeLessThan(13, 'Got less than 13 weekly events');
+        expect(rbevents[0].start.getDay()).toEqual(1, 'Generates dates on a Monday');
     });
 });

@@ -71,7 +71,7 @@ export class CalendarService implements OnDestroy {
             }
             console.log('Cache version:', cache['version']);
             // tslint:disable-next-line:triple-equals
-            if (cache['version'] != 3) {
+            if (cache['version'] != 4) {
                 console.log('Old cache format found, removing');
                 storage.set('caldavCache', undefined);
                 return;
@@ -87,7 +87,9 @@ export class CalendarService implements OnDestroy {
             this.calendarSubject.next(this.calendars);
             this.eventSubject.next(this.events);
             this.activities.end(Activity.LoadingCache);
-        }).then((_) => this.syncCaldav());
+        }).then(
+            () => this.syncCaldav(),
+        );
 
         this.calendarSubject.subscribe(cals => {
             const updatedCals = [];
@@ -202,7 +204,7 @@ export class CalendarService implements OnDestroy {
         // fixup underspecified rules
         // (or else figure out the nearest one to our start date but ick)
         // clone the recur object to update it:
-        let new_rule = rule_iterator.rule.clone();
+        const new_rule = rule_iterator.rule.clone();
         const event_start = icalevent.startDate;
         if (rule_iterator.rule.freq === 'WEEKLY'
             && !rule_iterator.has_by_data('BYDAY')) {
@@ -249,8 +251,6 @@ export class CalendarService implements OnDestroy {
         }
         // update if changed:
         if (new_rule.toString() !== rule_iterator.rule.toString()) {
-            console.log('new RRULE');
-            console.log(new_rule.toString());
             icalevent.component.updatePropertyWithValue('rrule', new_rule);
         }
 
@@ -360,7 +360,6 @@ export class CalendarService implements OnDestroy {
 
             // improve RRULEs if underspecified (then save!?)
             icalevent = this.fixICALEvent(icalevent);
-            // FIXME: splice changed item back into .icalevents? (in fixICALevent func)
 
             // Now recheck the start_date_ICAL against the known
             // start/end/until dates
@@ -372,7 +371,7 @@ export class CalendarService implements OnDestroy {
                 const calc_end_date = ICAL.Time.fromString(icalevent.component.parent
                     .getFirstPropertyValue('X-RUNBOX-CALCULATED-DTEND')).toJSDate();
                 if (startDate && moment(startDate).isAfter(calc_end_date)) {
-                    console.log('Skipping generation as already ended');
+                    // console.log('Skipping generation as already ended');
                     return;
                 }
                 // on COUNT, generate all

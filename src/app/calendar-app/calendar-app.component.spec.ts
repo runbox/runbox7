@@ -43,46 +43,60 @@ describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
     let fixture: ComponentFixture<CalendarAppComponent>;
 
+    // jCal spec: https://tools.ietf.org/html/rfc7265
     const simpleEvents = [
-      new RunboxCalendarEvent('test-calendar/event0', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().toISOString() ],
+        {'id': 'test-calendar/event0',
+         'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
+             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
+             [ 'dtend',   {}, 'date-time', moment().add(1, 'hour').toISOString() ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
-      ]]]])), ICAL.Time.fromJSDate(new Date()), undefined),
-        new RunboxCalendarEvent('test-calendar/event1', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(14, 'day').toISOString() ],
+         ]]]]).toString(),
+         'calendar': 'test-calendar',
+        },
+        {'id': 'test-calendar/event1',
+         'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
+            [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(1, 'day').add(2, 'hour').toISOString() ],
+             [ 'dtend', {}, 'date-time', moment().add(1, 'month').add(1, 'day').add(3, 'hour').toISOString() ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
-        ]]]])), ICAL.Time.fromJSDate(moment().add(1, 'month').add(14, 'day').toDate()), undefined),
+         ]]]]).toString(),
+         'calendar': 'test-calendar',
+        }
     ];
 
     const recurringEvents = [
-        new RunboxCalendarEvent('test-calendar/recurring', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
+        { 'id': 'test-calendar/recurring',
+          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().date(1).toISOString() ],
+              [ 'dtend', {}, 'date-time', moment().add(1, 'hour').date(1).toISOString() ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
-            [ 'rrule',   {}, 'text',      'FREQ=WEEKLY'     ],
-        ]]]])), ICAL.Time.fromJSDate(moment().date(1).toDate()), undefined),
-    ];
+            [ 'rrule',   {}, 'recur',     {'freq': 'WEEKLY'}     ],
+          ]]]]).toString(),
+          'calendar': 'test-calendar',
+        }];
 
     const GH_179_recurring_yearly = [
-        new RunboxCalendarEvent('test-calendar/recurring-yearly', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
+        { 'id': 'test-calendar/recurring-yearly',
+          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date',  moment().date(5).toISOString().split('T')[0] ],
             [ 'dtend',   {}, 'date',  moment().date(6).toISOString().split('T')[0] ],
             [ 'summary', {}, 'text',  'Yearly event' ],
-            [ 'rrule',   {}, 'text',  'FREQ=YEARLY'  ],
-        ]]]])), ICAL.Time.fromJSDate(moment().date(5).toDate()), ICAL.Time.fromJSDate(moment().date(6).toDate())),
-    ];
-
-    // the test below only makes sense when the event start date is not now()
-    const not_today = moment().date() === 2 ? 3 : 2;
+            [ 'rrule',   {}, 'recur',  {'freq': 'YEARLY'}  ],
+          ]]]]).toString(),
+          'calendar': 'test-calendar',
+        }];
 
     const GH_181_setting_recurrence = [
-        new RunboxCalendarEvent('test-calendar/not-recurring-yet', new ICAL.Event(new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment.utc().date(not_today).hour(12).minute(34).toISOString() ],
-            [ 'summary', {}, 'text',      'One-shot event' ],
-        ]]]])), ICAL.Time.fromJSDate(moment().utc().date(not_today).hour(12).minute(34).toDate()), undefined),
-    ];
+        {'id': 'test-calendar/not-recurring-yet',
+         'ical': new ICAL.Component(['vcalendar', [], [[ 'vevent', [
+             [ 'dtstart', {}, 'date-time', moment.utc().date(1).hour(12).minute(34).toISOString() ],
+             [ 'dtend',   {}, 'date-time', moment.utc().date(1).hour(13).minute(34).toISOString() ],
+             [ 'summary', {}, 'text',      'One-shot event' ],
+         ]]]]).toString(),
+         'calendar': 'test-calendar',
+        }];
 
     const mockData = {
-        calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink' }) ],
+        calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink', syncToken: 'testsync' }) ],
         events:    [] // set in test cases
     };
 
@@ -131,7 +145,7 @@ describe('CalendarAppComponent', () => {
 
     it('should display calendars', () => {
         expect(component).toBeTruthy();
-
+        component.calendarservice.syncCaldav();
         fixture.detectChanges();
 
         expect(component.calendars[0]).toBeDefined();
@@ -145,7 +159,10 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should display events', () => {
-        component.calendarservice.eventSubject.next(simpleEvents);
+        mockData['events'] = simpleEvents;
+        component.calendarservice.syncCaldav(true);
+        // component.calendarservice.eventSubject.next(simpleEvents);
+        fixture.detectChanges();
 
         expect(component.events.length).toBe(2);
 
@@ -159,23 +176,35 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should be possible to hide calendars', () => {
-        component.calendarservice.eventSubject.next(simpleEvents);
+        mockData['events'] = simpleEvents;
+        component.calendarservice.syncCaldav(true);
         fixture.detectChanges();
 
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events[0].innerText).toContain('Test Event #0', 'test event is displayed in the month view');
 
         fixture.debugElement.nativeElement.querySelector('button.calendarToggleButton').click();
+        fixture.detectChanges();
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(0, 'events are gone from the screen');
 
         fixture.debugElement.nativeElement.querySelector('button.calendarToggleButton').click();
+        fixture.detectChanges();
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'events are back on the screen');
     });
 
     it('should display recurring events', () => {
-        component.calendarservice.eventSubject.next(recurringEvents);
+        mockData['events'] = recurringEvents;
+        component.calendarservice.syncCaldav(true);
+
+        // component.calendarservice.icalevents = [
+        //     { id: 'recurring',
+        //       event: recurringEvents[0].event
+        //     },
+        // ];
+        // component.calendarservice.eventSubject.next(recurringEvents);
+        // component.calendarservice.updateEventList();
         fixture.detectChanges();
 
         const shownEventsCount = component.shown_events.length;
@@ -189,28 +218,30 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should not display yearly events as longer than they are (GH-179)', () => {
-        component.calendarservice.eventSubject.next(GH_179_recurring_yearly);
+        mockData['events'] = GH_179_recurring_yearly;
+        component.calendarservice.syncCaldav(true);
         fixture.detectChanges();
 
         const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
-        expect(events.length).toBe(1, 'only one event should be displayed');
+        expect(events.length).toBe(1, 'only one calendar cell should be full');
     });
 
     it('should not break event start date when setting recurrence (GH-181)', () => {
-        component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
+        mockData['events'] = GH_181_setting_recurrence;
+        component.calendarservice.syncCaldav(true);
         fixture.detectChanges();
 
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
 
-        GH_181_setting_recurrence[0].recurringFrequency = 'WEEKLY';
-        component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
+        component.events[0].recurringFrequency = 'WEEKLY';
+        component.calendarservice.updateEventList();
         fixture.detectChanges();
 
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
         const first_occurence = component.shown_events[0].start;
-        expect(first_occurence.getDate()).toBe(not_today, 'day matches');
+        expect(first_occurence.getDate()).toBe(1, 'day matches');
         expect(first_occurence.getHours()).toBe(12, 'hour matches');
         expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
     });
