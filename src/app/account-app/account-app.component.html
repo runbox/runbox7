@@ -1,6 +1,47 @@
 <mat-sidenav-container autosize>
-    <mat-sidenav #sidemenu mode="side"></mat-sidenav>
-    <mat-sidenav-content style="padding-left: 25px; padding-right: 25px;">
+    <mat-sidenav #sidemenu
+        [opened]="sideMenuOpened"
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        id="sideMenu"
+        style="width: 330px"
+    >
+        <mat-nav-list dense>
+            <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+
+            <mat-list-item routerLink="/account-security">
+                <mat-icon mat-list-icon svgIcon="security"></mat-icon>
+                <p mat-line>Account Security</p>
+            </mat-list-item>
+            <mat-list-item routerLink="/account/upgrades">
+                <mat-icon mat-list-icon svgIcon="hot-tub"></mat-icon>
+                <p mat-line> Subscriptions </p>
+            </mat-list-item>
+            <mat-list-item routerLink="/account/addons">
+                <mat-icon mat-list-icon svgIcon="puzzle"></mat-icon>
+                <p mat-line> Add-ons </p>
+            </mat-list-item>
+            <mat-list-item routerLink="/account/renewals">
+                <mat-icon mat-list-icon svgIcon="autorenew"></mat-icon>
+                <p mat-line> Active products </p>
+            </mat-list-item>
+            <mat-list-item routerLink="/account/transactions">
+                <mat-icon mat-list-icon svgIcon="poll-box"></mat-icon>
+                <p mat-line> Transactions </p>
+            </mat-list-item>
+            <mat-list-item routerLink="/account/credit_cards">
+                <mat-icon mat-list-icon svgIcon="credit-card"></mat-icon>
+                <p mat-line> Credit cards </p>
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon svgIcon="menu"></mat-icon>
+            </button>
+        </mat-toolbar>
         <style>
         #shoppingCartButton {
             position: fixed;
@@ -34,8 +75,10 @@
                 </h4>
             </div>
             <ng-template #show_subpages>
-                <router-outlet>
-                </router-outlet>
+                <div style="padding-left: 25px; padding-right: 25px;">
+                    <router-outlet>
+                    </router-outlet>
+                </div>
             </ng-template>
         </div>
     </mat-sidenav-content>

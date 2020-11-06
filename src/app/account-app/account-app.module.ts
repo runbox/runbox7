@@ -34,6 +34,7 @@ import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
+import { AccountWelcomeComponent } from './account-welcome.component';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
 import { CartService } from './cart.service';
 import { ComponentCardComponent } from './component-card.component';
@@ -127,7 +128,7 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
             children: [
               {
                   path: '',
-                  component: AccountComponentsComponent,
+                  component: AccountWelcomeComponent,
               },
               {
                   path: 'components',
