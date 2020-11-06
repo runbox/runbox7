@@ -442,10 +442,10 @@
                     {{ result.created }}
                   </mat-grid-tile>
                   <mat-grid-tile>
-                    {{ result.success }}
+                    {{ result.success === 1 ? 'success' : 'fail' }}
                   </mat-grid-tile>
                   <mat-grid-tile>
-                    <span><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
+                    <span *ngIf="result.success === 0"><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
                   </mat-grid-tile>
 		</div>
               </mat-grid-list>
