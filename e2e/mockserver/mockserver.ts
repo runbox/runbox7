@@ -115,7 +115,7 @@ export class MockServer {
     ];
 
     constructor() {
-        loadXapian().subscribe(() => this.buildSearchIndex());
+        loadXapian(`${process.cwd()}/node_modules/runbox-searchindex/xapianasm.js`).subscribe(() => this.buildSearchIndex());
     }
 
     public start() {

@@ -56,7 +56,7 @@
     "moment-timezone": "^0.5.28",
     "npm": "^6.14.8",
     "rrule": "^2.6.4",
-    "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.0.tgz",
+    "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.1.tgz",
     "rxjs": "^6.5.5",
     "rxjs-compat": "^6.5.5",
     "tinymce": "^5.2.2",
