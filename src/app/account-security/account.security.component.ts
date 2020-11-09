@@ -338,7 +338,7 @@ export class AccountSecurityComponent implements OnInit {
   acl_save() {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
     this.rmm.account_security.acl.update_sub_account({
-        is_overwrite_subaccount_ip_rules: this.acl_overwrite_subaccount_rules,
+        is_overwrite_subaccount_ip_rules: this.rmm.account_security.tfa.settings.is_overwrite_subaccount_ip_rules,
         password: this.rmm.account_security.user_password,
     }).subscribe(( res ) => {
         if ( res.status === 'success' ) {
