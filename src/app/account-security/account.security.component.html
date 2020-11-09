@@ -420,7 +420,9 @@
               <mat-grid-tile><h4>Hostname</h4></mat-grid-tile>
               <mat-grid-tile><h4>Time</h4></mat-grid-tile>
               <mat-grid-tile><h4>Status</h4></mat-grid-tile>
+              <!--
               <mat-grid-tile></mat-grid-tile>
+              -->
             </mat-grid-list>
             <div style='max-height: 500px; overflow-x: scroll;'>
               <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
@@ -444,11 +446,13 @@
                     {{ result.created }}
                   </mat-grid-tile>
                   <mat-grid-tile>
-                    {{ result.success }}
+                    {{ result.success === 1 ? 'success' : 'fail' }}
                   </mat-grid-tile>
+                  <!--
                   <mat-grid-tile>
-                    <span><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
+                    <span *ngIf="result.success === 0"><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
                   </mat-grid-tile>
+                  -->
 		</div>
               </mat-grid-list>
             </div>
