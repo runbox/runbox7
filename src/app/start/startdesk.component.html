@@ -26,6 +26,12 @@
             <mat-option [value]="TimeSpan.CUSTOM"> Custom (NYI) </mat-option>
           </mat-select>
         </mat-form-field>
+        <mat-form-field>
+          <mat-select [(ngModel)]="folder" (selectionChange)="changeFolder($event)">
+            <mat-option [value]=""> Current folder </mat-option>
+            <mat-option [value]=""> All folders </mat-option>
+          </mat-select>
+        </mat-form-field>
         <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
       </div>
       <mat-tab-group>
