@@ -296,6 +296,13 @@
       <app-runbox-section size="h2">
         <div runbox-section-header>
           <h3 class="runbox-section-header">App passwords</h3>
+          <mat-slide-toggle
+            [(ngModel)]="rmm.account_security.tfa.settings.is_app_pass_enabled"
+            (ngModelChange)="app_pass_toggle_main_switch()"
+            style="float: right;"
+            >
+            {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
+          </mat-slide-toggle>
         </div>
         <div runbox-section-content>
           <p>Here you can create app passwords for specific applications or devices. App passwords are strong passwords that replace your account password for each service.</p>
