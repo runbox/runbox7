@@ -265,10 +265,10 @@
           </mat-grid-list>
 
           <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.service.results">
-            <div *ngFor="let service of rmm.account_security.service.services_translation | keyvalue">
-              <div *ngIf="!rmm.account_security.service.services_translation[service.key].hide">
+            <div *ngFor="let service of rmm.account_security.service.services_translation_ordered">
+              <div *ngIf="! service.hide">
                 <mat-grid-tile>
-                  {{ rmm.account_security.service.services_translation[service.key].name }}
+                  {{ service.name }}
                 </mat-grid-tile>
                 <mat-grid-tile>
                   <mat-slide-toggle
@@ -284,7 +284,7 @@
                   </mat-slide-toggle>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" style="justify-content: left">
-                  {{ rmm.account_security.service.services_translation[service.key].description }}
+                  {{ service.description }}
                 </mat-grid-tile>
               </div>
             </div>
@@ -296,6 +296,13 @@
       <app-runbox-section size="h2">
         <div runbox-section-header>
           <h3 class="runbox-section-header">App passwords</h3>
+          <mat-slide-toggle
+            [(ngModel)]="rmm.account_security.tfa.settings.is_app_pass_enabled"
+            (ngModelChange)="app_pass_toggle_main_switch()"
+            style="float: right;"
+            >
+            {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
+          </mat-slide-toggle>
         </div>
         <div runbox-section-content>
           <p>Here you can create app passwords for specific applications or devices. App passwords are strong passwords that replace your account password for each service.</p>
@@ -353,7 +360,8 @@
         </div>
       </app-runbox-section>
     </mat-tab>
-    <mat-tab label="Access Control">
+    <mat-tab label="Last logins">
+    <!--
       <app-runbox-section>
         <div runbox-section-header>
           <h3 class="runbox-section-header">Access Control</h3>
@@ -364,6 +372,7 @@
 	  <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Access_Control" target="help">Access Control Help</a>.</p>
         </div>
       </app-runbox-section>
+    -->
       <app-runbox-section size="h2">
         <div runbox-section-header>
           <h4 class="runbox-section-header">Last logins</h4>
@@ -418,7 +427,9 @@
               <mat-grid-tile><h4>Hostname</h4></mat-grid-tile>
               <mat-grid-tile><h4>Time</h4></mat-grid-tile>
               <mat-grid-tile><h4>Status</h4></mat-grid-tile>
+              <!--
               <mat-grid-tile></mat-grid-tile>
+              -->
             </mat-grid-list>
             <div style='max-height: 500px; overflow-x: scroll;'>
               <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
@@ -442,16 +453,19 @@
                     {{ result.created }}
                   </mat-grid-tile>
                   <mat-grid-tile>
-                    {{ result.success }}
+                    {{ result.success === 1 ? 'success' : 'fail' }}
                   </mat-grid-tile>
+                  <!--
                   <mat-grid-tile>
-                    <span><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
+                    <span *ngIf="result.success === 0"><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
                   </mat-grid-tile>
+                  -->
 		</div>
               </mat-grid-list>
             </div>
         </div>
       </app-runbox-section>
+<!--
       <app-runbox-section size="h2">
         <div runbox-section-header>
           <h4 class="runbox-section-header">Access Control List</h4>
@@ -462,9 +476,9 @@
             </p>
             <mat-form-field>
               <mat-label>Overwrite sub-account IP rules</mat-label>
-              <mat-select name="acl_overwrite_subaccount_rules" ([ngModel])="acl_overwrite_subaccount_rules">
-		<mat-option value="0" selected>No</mat-option>
-		<mat-option value="1">Yes</mat-option>
+              <mat-select name="acl_overwrite_subaccount_rules" [(ngModel)]="rmm.account_security.tfa.settings.is_overwrite_subaccount_ip_rules">
+                <mat-option [value]="false" selected>No</mat-option>
+                <mat-option [value]="true">Yes</mat-option>
               </mat-select>
             </mat-form-field>
             <span><button mat-raised-button class="primaryContentButton" (click)="acl_save()">Save</button></span>
@@ -472,7 +486,6 @@
               Rules are valid for account(s): 
               <span class="usernames" *ngFor="let username of rmm.account_security.acl.results_accounts_affected">{{ username }}&nbsp;</span> 
             </p>
-            <!-- header -->
             <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.acl.results_rules">
               <mat-grid-tile><h4>Rule</h4></mat-grid-tile>
               <mat-grid-tile><h4>IP</h4></mat-grid-tile>
@@ -587,6 +600,7 @@
           </mat-grid-list>
         </div>
       </app-runbox-section>
+-->
     </mat-tab>
     <mat-tab label="Sessions">
       <app-runbox-section>

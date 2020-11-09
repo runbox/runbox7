@@ -298,6 +298,19 @@ export class AccountSecurityComponent implements OnInit {
     });
   }
 
+  app_pass_toggle_main_switch() {
+    if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
+    this.rmm.account_security.app_pass.update({
+        is_enabled: this.rmm.account_security.tfa.settings.is_app_pass_enabled ? 1 : 0,
+        action: 'update_status',
+        password: this.rmm.account_security.user_password,
+    }).subscribe( ( res ) => {
+        if ( res.status === 'error' ) {
+            this.show_error( ( res.error || res.errors.join('') ), 'Dismiss' );
+        }
+    });
+  }
+
   app_pass_toggle(result) {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
     this.rmm.account_security.app_pass.update({
@@ -338,7 +351,7 @@ export class AccountSecurityComponent implements OnInit {
   acl_save() {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
     this.rmm.account_security.acl.update_sub_account({
-        is_overwrite_subaccount_ip_rules: this.acl_overwrite_subaccount_rules,
+        is_overwrite_subaccount_ip_rules: this.rmm.account_security.tfa.settings.is_overwrite_subaccount_ip_rules,
         password: this.rmm.account_security.user_password,
     }).subscribe(( res ) => {
         if ( res.status === 'success' ) {
