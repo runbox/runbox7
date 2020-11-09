@@ -353,7 +353,8 @@
         </div>
       </app-runbox-section>
     </mat-tab>
-    <mat-tab label="Access Control">
+    <mat-tab label="Last logins">
+    <!--
       <app-runbox-section>
         <div runbox-section-header>
           <h3 class="runbox-section-header">Access Control</h3>
@@ -364,6 +365,7 @@
 	  <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Access_Control" target="help">Access Control Help</a>.</p>
         </div>
       </app-runbox-section>
+    -->
       <app-runbox-section size="h2">
         <div runbox-section-header>
           <h4 class="runbox-section-header">Last logins</h4>
@@ -452,6 +454,7 @@
             </div>
         </div>
       </app-runbox-section>
+<!--
       <app-runbox-section size="h2">
         <div runbox-section-header>
           <h4 class="runbox-section-header">Access Control List</h4>
@@ -472,7 +475,6 @@
               Rules are valid for account(s): 
               <span class="usernames" *ngFor="let username of rmm.account_security.acl.results_accounts_affected">{{ username }}&nbsp;</span> 
             </p>
-            <!-- header -->
             <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.acl.results_rules">
               <mat-grid-tile><h4>Rule</h4></mat-grid-tile>
               <mat-grid-tile><h4>IP</h4></mat-grid-tile>
@@ -587,6 +589,7 @@
           </mat-grid-list>
         </div>
       </app-runbox-section>
+-->
     </mat-tab>
     <mat-tab label="Sessions">
       <app-runbox-section>
