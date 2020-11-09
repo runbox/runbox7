@@ -28,6 +28,12 @@
               <mat-option [value]="TimeSpan.CUSTOM"> Custom (NYI) </mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-form-field>
+            <mat-select [(ngModel)]="folder" (selectionChange)="changeFolder($event)">
+              <mat-option [value]=""> Current folder </mat-option>
+              <mat-option [value]=""> All folders </mat-option>
+            </mat-select>
+          </mat-form-field>
 	</div>
 	<div id="unreadOnly">
           <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
@@ -128,5 +134,3 @@
       <div>Upcoming: <u>Destroy One Ring</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
     </mat-card>
   </div> -->
-</div>
-  -->
