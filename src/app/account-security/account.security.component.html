@@ -265,10 +265,10 @@
           </mat-grid-list>
 
           <mat-grid-list cols="4" rowHeight="50px" *ngIf="rmm.account_security.service.results">
-            <div *ngFor="let service of rmm.account_security.service.services_translation | keyvalue">
-              <div *ngIf="!rmm.account_security.service.services_translation[service.key].hide">
+            <div *ngFor="let service of rmm.account_security.service.services_translation_ordered">
+              <div *ngIf="! service.hide">
                 <mat-grid-tile>
-                  {{ rmm.account_security.service.services_translation[service.key].name }}
+                  {{ service.name }}
                 </mat-grid-tile>
                 <mat-grid-tile>
                   <mat-slide-toggle
@@ -284,7 +284,7 @@
                   </mat-slide-toggle>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" style="justify-content: left">
-                  {{ rmm.account_security.service.services_translation[service.key].description }}
+                  {{ service.description }}
                 </mat-grid-tile>
               </div>
             </div>
@@ -476,9 +476,9 @@
             </p>
             <mat-form-field>
               <mat-label>Overwrite sub-account IP rules</mat-label>
-              <mat-select name="acl_overwrite_subaccount_rules" ([ngModel])="acl_overwrite_subaccount_rules">
-		<mat-option value="0" selected>No</mat-option>
-		<mat-option value="1">Yes</mat-option>
+              <mat-select name="acl_overwrite_subaccount_rules" [(ngModel)]="rmm.account_security.tfa.settings.is_overwrite_subaccount_ip_rules">
+                <mat-option [value]="false" selected>No</mat-option>
+                <mat-option [value]="true">Yes</mat-option>
               </mat-select>
             </mat-form-field>
             <span><button mat-raised-button class="primaryContentButton" (click)="acl_save()">Save</button></span>

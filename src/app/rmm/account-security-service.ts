@@ -30,37 +30,53 @@ export class AccountSecurityService {
             name : 'Web',
             description : 'Runbox Webmail. The web interface is essential and can not be disabled.',
             hide: true,
+            priority_in_list: 70,
         },
         'dovecot-imap' : {
             name : 'IMAP',
-            description : 'IMAP is used with email programs/apps to synchronize all  email in an account.'
+            description : 'IMAP is used with email programs/apps to synchronize all  email in an account.',
+            priority_in_list: 102,
         },
         'dovecot-pop' : {
             name : 'POP',
-            description : 'POP can be used with email programs/apps to only download email from one folder.'
+            description : 'POP can be used with email programs/apps to only download email from one folder.',
+            priority_in_list: 99,
         },
         kmpop3d : {
             name : 'POP (kmpop3d)',
             description : 'kmpop3d is the legacy POP server, and is currently being phased out.',
             hide: true,
+            priority_in_list: 100,
         },
         submission : {
             name : 'SMTP',
-            description : 'SMTP is used with email programs/apps for sending outgoing email.'
+            description : 'SMTP is used with email programs/apps for sending outgoing email.',
+            priority_in_list: 80,
         },
         ftp : {
             name : 'FTP',
-            description : 'FTP can be used with programs/apps to transfer files to/from your Files area.'
+            description : 'FTP can be used with programs/apps to transfer files to/from your Files area.',
+            priority_in_list: -100,
         },
         webdav : {
             name : 'WebDAV',
-            description : 'WebDAV is used with programs/apps to synchronize contacts (CardDAV) and calendars (CalDAV).'
+            description : 'WebDAV is used with programs/apps to synchronize contacts (CardDAV) and calendars (CalDAV).',
+            priority_in_list: 60,
         },
     };
+    services_translation_ordered: any;
 
     constructor(
         public app: RMM,
     ) {
+        const keys = Object.keys(this.services_translation);
+        const services = keys.map( ( k ) => {
+          this.services_translation[k].key = k;
+          return this.services_translation[k];
+        } );
+        this.services_translation_ordered = services.sort( ( a, b ) => {
+          return b.priority_in_list - a.priority_in_list;
+        } );
     }
 
     update(data): Observable<any> {
