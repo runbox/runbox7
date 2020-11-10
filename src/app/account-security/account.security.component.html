@@ -420,7 +420,7 @@
             <span><button mat-raised-button class="primaryContentButton" (click)="acl_clear()" [disabled]="!is_acl_clear_enabled">Clear</button></span>
             <span><button mat-raised-button class="primaryContentButton" (click)="acl_update()" [disabled]="is_busy_list_logins">Update </button></span>
             <!-- header -->
-            <mat-grid-list cols="7" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
+            <mat-grid-list cols="6" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
               <mat-grid-tile><h4>Service</h4></mat-grid-tile>
               <mat-grid-tile><h4>Login</h4></mat-grid-tile>
               <mat-grid-tile><h4>IP</h4></mat-grid-tile>
@@ -435,7 +435,7 @@
               <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
 		<mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
               </div>
-              <mat-grid-list cols="7" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
+              <mat-grid-list cols="6" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
 		<div *ngFor="let result of rmm.account_security.acl.results_logins_list">
                   <mat-grid-tile>
                     {{ rmm.account_security.service.services_translation[result.service].name }}
