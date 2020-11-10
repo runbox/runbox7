@@ -23,7 +23,17 @@
     </ng-container>
     <ng-container matColumnDef="quantity">
         <th mat-header-cell *matHeaderCellDef> Quantity </th>
-        <td mat-cell *matCellDef="let p"> {{ p.quantity }} </td>
+        <td mat-cell *matCellDef="let p">
+            {{ p.quantity }}
+            <span *ngIf="p.subtype === 'subaccount'">
+                ({{ p.subaccounts.length }} in use)
+                <button mat-icon-button *ngIf="p.subaccounts.length > 0" (click)="showSubsDialog(p)">
+                    <mat-icon svgIcon="information-outline"
+                        [matTooltip]="'Associated accounts: ' + p.subaccounts.join(', ')"
+                    ></mat-icon>
+                </button>
+            </span>
+        </td>
     </ng-container>
     <ng-container matColumnDef="active_from">
         <th mat-header-cell *matHeaderCellDef> Active from </th>

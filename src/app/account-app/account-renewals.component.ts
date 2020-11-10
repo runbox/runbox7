@@ -19,11 +19,13 @@
 
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
 import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 import * as moment from 'moment';
 
@@ -37,6 +39,7 @@ export class AccountRenewalsComponent {
 
     constructor(
         private cart: CartService,
+        private dialog: MatDialog,
         private rmmapi: RunboxWebmailAPI,
         private router: Router,
         private snackbar: MatSnackBar,
@@ -82,6 +85,15 @@ export class AccountRenewalsComponent {
                 this.snackbar.open('Failed to determine domain for the product. Try again later or contact Runbox Support', 'Okay');
             },
         );
+    }
+
+    showSubsDialog(p: any) {
+        const dialogRef = this.dialog.open(SubAccountRenewalDialogComponent, { data: p });
+        dialogRef.afterClosed().subscribe(renew => {
+            if (renew) {
+                this.renew(p);
+            }
+        });
     }
 
     toggleAutorenew(p: any) {

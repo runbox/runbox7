@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
@@ -66,6 +67,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
+import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 @NgModule({
   declarations: [
@@ -85,11 +87,13 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
     ProductComponent,
     ShoppingCartComponent,
     StripePaymentDialogComponent,
+    SubAccountRenewalDialogComponent,
     RunboxTimerComponent,
     CreditCardsComponent,
   ],
   imports: [
     BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     MenuModule,
     MatBadgeModule,
