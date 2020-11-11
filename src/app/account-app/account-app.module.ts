@@ -30,7 +30,7 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
-import { AccountRenewalsComponent } from './account-renewals.component';
+import { AccountRenewalsComponent, AccountRenewalsAutorenewToggleComponent, AccountRenewalsRenewNowButtonComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
@@ -75,6 +75,8 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
     AccountComponentsComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
+    AccountRenewalsAutorenewToggleComponent,
+    AccountRenewalsRenewNowButtonComponent,
     AccountTransactionsComponent,
     AccountUpgradesComponent,
     BitpayPaymentDialogComponent,
