@@ -166,6 +166,9 @@ export class AccountRenewalsComponent {
     >
     </app-runbox-loading>
 </span>
+<ng-template #renewNA>
+    N/A
+</ng-template>
     `,
 })
 export class AccountRenewalsAutorenewToggleComponent {
@@ -188,6 +191,9 @@ export class AccountRenewalsAutorenewToggleComponent {
     <button mat-button *ngIf="p.subtype === 'domain'; else renewNA" class="contentButton" (click)="clicked.emit()">
         Renew <mat-icon svgIcon="open-in-new"></mat-icon>
     </button>
+</ng-template>
+<ng-template #renewNA>
+    N/A
 </ng-template>
     `,
 })
