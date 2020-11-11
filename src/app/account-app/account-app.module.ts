@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
@@ -30,7 +31,11 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
-import { AccountRenewalsComponent, AccountRenewalsAutorenewToggleComponent, AccountRenewalsRenewNowButtonComponent } from './account-renewals.component';
+import {
+    AccountRenewalsComponent,
+    AccountRenewalsAutorenewToggleComponent,
+    AccountRenewalsRenewNowButtonComponent
+} from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
@@ -67,6 +72,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
+import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 @NgModule({
   declarations: [
@@ -88,11 +94,13 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
     ProductComponent,
     ShoppingCartComponent,
     StripePaymentDialogComponent,
+    SubAccountRenewalDialogComponent,
     RunboxTimerComponent,
     CreditCardsComponent,
   ],
   imports: [
     BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     MenuModule,
     MatBadgeModule,

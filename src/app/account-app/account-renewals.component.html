@@ -51,7 +51,17 @@ table.detailsTable tr td:nth-of-type(2) {
     </ng-container>
     <ng-container matColumnDef="quantity">
         <th mat-header-cell *matHeaderCellDef> Quantity </th>
-        <td mat-cell *matCellDef="let p"> {{ p.quantity }} </td>
+        <td mat-cell *matCellDef="let p">
+            {{ p.quantity }}
+            <span *ngIf="p.subtype === 'subaccount'">
+                ({{ p.subaccounts.length }} in use)
+                <button mat-icon-button *ngIf="p.subaccounts.length > 0" (click)="showSubsDialog(p)">
+                    <mat-icon svgIcon="information-outline"
+                        [matTooltip]="'Associated accounts: ' + p.subaccounts.join(', ')"
+                    ></mat-icon>
+                </button>
+            </span>
+        </td>
     </ng-container>
     <ng-container matColumnDef="active_from">
         <th mat-header-cell *matHeaderCellDef> Active from </th>
@@ -115,7 +125,16 @@ table.detailsTable tr td:nth-of-type(2) {
             <div class="productDetails" [@detailExpand]="p == expandedProduct ? 'expanded' : 'collapsed'">
                 <!-- yo dawg, I heard you like tables -->
                 <table class="detailsTable">
-                    <tr> <td> Quantity     </td> <td> {{ p.quantity }}                          </td> </tr>
+                    <tr> <td> Quantity </td> <td> {{ p.quantity }} </td> </tr>
+                    <tr *ngIf="p.subtype === 'subaccount'">
+                        <td> In use </td>
+                        <td style="display: flex; align-items: baseline;">
+                            {{ p.subaccounts.length }}
+                            <button mat-icon-button *ngIf="p.subaccounts.length > 0" (click)="showSubsDialog(p)">
+                                <mat-icon svgIcon="information-outline"></mat-icon>
+                            </button>
+                        </td>
+                    </tr>
                     <tr> <td> Active from  </td> <td> {{ p.active_from.format('YYYY-MM-DD') }}  </td> </tr>
                     <tr> <td> Active until </td> <td> {{ p.active_until.format('YYYY-MM-DD') }} </td> </tr>
                     <tr> <td> </td> <td>

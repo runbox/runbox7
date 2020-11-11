@@ -20,12 +20,14 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 import * as moment from 'moment';
 
@@ -54,8 +56,9 @@ export class AccountRenewalsComponent {
     expandedProduct: ActiveProduct;
 
     constructor(
-        private cart: CartService,
         public  mobileQuery: MobileQueryService,
+        private cart: CartService,
+        private dialog: MatDialog,
         private rmmapi: RunboxWebmailAPI,
         private router: Router,
         private snackbar: MatSnackBar,
@@ -119,6 +122,15 @@ export class AccountRenewalsComponent {
         if (this.mobileQuery.matches) {
             this.expandedProduct = this.expandedProduct === p ? null : p;
         }
+    }
+
+    showSubsDialog(p: ActiveProduct) {
+        const dialogRef = this.dialog.open(SubAccountRenewalDialogComponent, { data: p });
+        dialogRef.afterClosed().subscribe(renew => {
+            if (renew) {
+                this.renew(p);
+            }
+        });
     }
 
     toggleAutorenew(p: ActiveProduct) {
