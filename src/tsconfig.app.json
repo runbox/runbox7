@@ -6,8 +6,16 @@
     "module": "esNext",
     "types": []
   },
+  "files": [
+    "main.ts",
+    "polyfills.ts"
+  ],
+  "include": [
+    "**/*.module.ts"
+  ],
   "exclude": [
     "test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "app/rmm6/*.ts"
   ]
 }
