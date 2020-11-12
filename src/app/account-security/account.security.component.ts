@@ -47,7 +47,7 @@ import { RMM } from '../rmm';
         The password is wrong. Please enter the password again.
       </p>
       <p>
-        For security reasions your account password is required to save Account Security settings.
+        For security reasons your account password is required to save Account Security settings.
       </p>
     </div>
   `,
