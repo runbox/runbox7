@@ -36,7 +36,10 @@ export class FilterEditorComponent implements OnInit {
     @Output() moveDown: EventEmitter<void>   = new EventEmitter();
 
     isNegated: boolean;
-    folders: string[] = [];
+    folders: {
+        key:  string,
+        name: string,
+    }[] = [];
     form: FormGroup;
 
     constructor(
@@ -45,7 +48,12 @@ export class FilterEditorComponent implements OnInit {
         messageListService: MessageListService,
     ) {
         messageListService.folderListSubject.subscribe(folders => {
-            this.folders = folders.map(f => f.folderPath);
+            this.folders = folders.map(f => {
+                return {
+                    key:  f.folderPath.replace('/', '.'),
+                    name: f.folderPath,
+                };
+            });
         });
     }
 

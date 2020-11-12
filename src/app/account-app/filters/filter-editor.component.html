@@ -65,8 +65,8 @@
                 <mat-select formControlName="target" style="width: auto">
                     <mat-option
                         *ngFor="let folder of folders"
-                        [value]="folder"
-                    > {{ folder }} </mat-option>
+                        [value]="folder.key"
+                    > {{ folder.name }} </mat-option>
                 </mat-select>
             </mat-form-field>
             <ng-template #freeform>
