@@ -41,6 +41,7 @@ enum Activity {
     EditingEvent        = 'Editing event',
     RefreshingCalendars = 'Refreshing calendars',
     RefreshingEvents    = 'Refreshing events',
+    GeneratingEvents    = 'Generating events',
 }
 
 @Injectable()
@@ -466,7 +467,7 @@ export class CalendarService implements OnDestroy {
 
     saveCache() {
         const cache = {
-            version:   3,
+            version:   4,
             calendars: this.calendars,
             events:    this.icalevents.map((event) =>
                 ({'id': event['id'], 'ical': event['event'].component.parent.toString() } ))
@@ -494,30 +495,39 @@ export class CalendarService implements OnDestroy {
 
     // check if we have enough events to show another month worth
     // (forward and back), generate if not
-    updateEventList(viewPeriod?: ViewPeriod): void {
-        let this_month, start, end_month, next_month: moment.Moment;
-        // Too much is better than not enough!
-        if (viewPeriod) {
-            this_month = moment(viewPeriod.start).startOf('month');
-        } else {
-            this_month  = moment().startOf('month');
-        }
-        // generate now(viewdate) +/- 1 month (max display size)
-        start       = this_month.clone(); start.subtract(1, 'month');
-        end_month   = this_month.clone(); end_month.add(1, 'month');
-        next_month  = this_month.clone(); next_month.add(3, 'month');
+    updateEventList(viewPeriod?: ViewPeriod): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.activities.begin(Activity.GeneratingEvents);
+            let this_month, start, end_month, next_month: moment.Moment;
+            // Too much is better than not enough!
+            if (viewPeriod) {
+                this_month = moment(viewPeriod.start).startOf('month');
+            } else {
+                this_month  = moment().startOf('month');
+            }
+            // generate now(viewdate) +/- 1 month (max display size)
+            start       = this_month.clone(); start.subtract(1, 'month');
+            end_month   = this_month.clone(); end_month.add(1, 'month');
+            next_month  = this_month.clone(); next_month.add(3, 'month');
 
-        // Could try and be clever and generate only last month / next month
-        // assuming some previous code did current one, but.. how to only insert
-        // those new ones into this.events?
-        // lets just try/do all for now
-        // we wont interrupt the page redraw process though.
+            // Could try and be clever and generate only last month / next month
+            // assuming some previous code did current one, but.. how to only insert
+            // those new ones into this.events?
+            // lets just try/do all for now
+            // we wont interrupt the page redraw process though.
 
-        if (this.icalevents.length > 0) {
-            this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents);
-            // calendar-app calls filterEvents, will this recurse infinitely!?
-            this.eventSubject.next(this.events);
-        }
+            // NB calendar-app.component.spec.ts relis on this being
+            // multiple months
+            if (this.icalevents.length > 0) {
+                this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents);
+//                this.events = this.generateEvents(viewPeriod.start, viewPeriod.end, this.icalevents);
+                // calendar-app calls filterEvents, will this recurse infinitely!?
+                this.eventSubject.next(this.events);
+            }
+
+            this.activities.end(Activity.GeneratingEvents);
+            resolve();
+        });
     }
 
 }

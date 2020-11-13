@@ -131,37 +131,27 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // angular-calendar compatibility
 
     get start(): Date {
-        return this.dtstart.toDate();
+        return this._dtstart.toJSDate();
     }
 
     get end(): Date {
-        if (!this.dtend) {
+        if (!this._dtend) {
             return undefined;
         }
 
-        const shownEnd = moment(this.dtend);
+        const shownEnd = this._dtend;
         // ICAL event DTEND is exclusive, angular-calendar is inclusive
         if (this.allDay) {
-            shownEnd.subtract(1, 'days');
+            shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'days': 1}));
         } else {
-            shownEnd.subtract(1, 'seconds');
+            shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
         }
-        return shownEnd.toDate();
+        return shownEnd.toJSDate();
     }
 
     get allDay(): boolean {
         // isDate in ICAL.Event means "has no time"
         return this._dtstart.isDate;
-    }
-
-    // deprecated, we should move away from this eventually
-    get rrule(): RRule {
-        let rrule = this.event.component.getFirstPropertyValue('rrule');
-        if (rrule) {
-            rrule = rrule.toString(); // ICAL claims this should be a string, but sometimes it's not
-            return rrulestr(rrule, { dtstart: this.dtstart.toDate() });
-        }
-        return undefined;
     }
 
     // DAILY, WEEKLY, MONTHLY etc
@@ -215,6 +205,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
             this._calendar = this.id.split('/')[0];
         }
 
+        if (startdate !== null && enddate === null) {
+            enddate = startdate;
+        }
+
         // Not sure how we get "no icalevent.component", came up in tests tho
         if (icalevent.component && icalevent.component.parent) {
             this.ical = icalevent.component.parent;
@@ -263,25 +257,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
         return events;
     }
-
-    // Was only used by the calendar-app filterEvents function.
-    // now we can filter directly based on the event objects
-    // recurrenceAt(dt: moment.Moment): RunboxCalendarEvent {
-    //     const copy = this.clone();
-    //     copy.parent = this;
-
-    //     let duration: moment.Duration;
-    //     if (this.dtend) {
-    //         duration = moment.duration(this.dtend.diff(this.dtstart));
-    //     }
-
-    //     copy.dtstart = dt;
-    //     if (duration) {
-    //         copy.dtend = copy.dtstart.add(duration);
-    //     }
-
-    //     return copy;
-    // }
 
     // ICAL of the entire event (exceptions and all) - assuming it got updated?
     toIcal(): string {

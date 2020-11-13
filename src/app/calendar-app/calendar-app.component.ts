@@ -187,7 +187,6 @@ export class CalendarAppComponent implements OnDestroy {
         }
         this.viewPeriod = viewRender.period;
         this.calendarservice.updateEventList(this.viewPeriod);
-        // this.filterEvents();
     }
 
     dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
@@ -239,6 +238,8 @@ export class CalendarAppComponent implements OnDestroy {
             }
         }
 
+        // else nothing actually visually changes until the next sync!
+        this.cdr.detectChanges();
         this.refresh.next();
     }
 
