@@ -32,7 +32,12 @@ import { FilterEditorComponent } from './filter-editor.component';
 export class AccountFiltersComponent {
     @ViewChildren(FilterEditorComponent) filterComponents: QueryList<FilterEditorComponent>;
     filters: ReplaySubject<Filter[]> = new ReplaySubject(1);
+    shownFilters: Subject<Filter[]> = new Subject();
     filtersReordered: Subject<void> = new Subject();
+
+    filterPageSize = 50;
+    filtersShown = this.filterPageSize;
+    filtersTotal: number;
 
     constructor(
         private rmmapi:   RunboxWebmailAPI,
@@ -41,6 +46,8 @@ export class AccountFiltersComponent {
         this.rmmapi.getFilters().subscribe(filters => {
             this.filters.next(filters);
         });
+
+        this.filters.subscribe(_ => this.updateShownFilters());
 
         this.filtersReordered.pipe(debounceTime(1500)).subscribe(() => {
             this.filters.pipe(take(1)).subscribe(filters => {
@@ -142,5 +149,22 @@ export class AccountFiltersComponent {
 
     hilightFilter(filter: Filter): void {
         this.filterComponents.find(fc => fc.filter === filter).hilight();
+    }
+
+    showAllFilters(): void {
+        this.filtersShown = Number.MAX_SAFE_INTEGER;
+        this.updateShownFilters();
+    }
+
+    showMoreFilters(): void {
+        this.filtersShown += this.filterPageSize;
+        this.updateShownFilters();
+    }
+
+    updateShownFilters(): void {
+        this.filters.pipe(take(1)).subscribe(filters => {
+            this.shownFilters.next(filters.slice(0, this.filtersShown));
+            this.filtersTotal = filters.length;
+        });
     }
 }

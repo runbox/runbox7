@@ -1,6 +1,6 @@
 <h1> Filters </h1>
 
-<div *ngIf="filters | async as filters; else loading">
+<div *ngIf="shownFilters | async as filters; else loading">
     <div style="margin: 10px">
         <button mat-stroked-button (click)="newFilter()">
             <mat-icon svgIcon="plus-box"></mat-icon> Add new filter
@@ -16,6 +16,12 @@
         (moveUp)="moveFilterUp(filter)"
         (moveDown)="moveFilterDown(filter)"
     ></app-account-filter-editor>
+
+    <p *ngIf="filters.length < filtersTotal">
+        Showing {{ filters.length }}/{{ filtersTotal }} filters
+        <button mat-button (click)="showMoreFilters()"> Show {{ filterPageSize }} more </button>
+        <button mat-button (click)="showAllFilters()"> Show all </button>
+    </p>
 </div>
 
 <ng-template #loading>
