@@ -46,6 +46,18 @@ enum TimeSpan {
     CUSTOM,
 }
 
+enum FolderSelection {
+    ALL,
+    INBOX,
+    CUSTOM,
+}
+
+interface FolderSelectorEntry {
+    name:  string;
+    count: number;
+    shown: boolean;
+}
+
 @Component({
     selector: 'app-start',
     templateUrl: './startdesk.component.html',
@@ -58,10 +70,21 @@ export class StartDeskComponent implements OnInit {
     regularOverview: ContactHilights[] = [];
     mailingListOverview: ContactHilights[] = [];
 
-    TimeSpan = TimeSpan; // exposing enum to the template
+    // exposing enums to the template
+    TimeSpan = TimeSpan;
+    FolderSelection = FolderSelection;
     // TODO: from appsettings or such?
     unreadOnly = false;
     timeSpan = TimeSpan.TODAY;
+    folder = FolderSelection.ALL;
+    // for the folder message selector.
+    // We store the number of currently available messages in each folder,
+    // as well as the set of folders explicitely hidden (they're all shown by default).
+    folderMessages: Map<string, number> = new Map();
+    hiddenFolders = new Set<string>();
+    // a pre-calculated set of values for the folder selector, so that the angular template
+    // doesn't have to do too much too often
+    folderSelectorSwitches: FolderSelectorEntry[] = [];
 
     totalEmailCount = 0;
     regularEmailCount = 0;
@@ -84,6 +107,7 @@ export class StartDeskComponent implements OnInit {
 
     private async updateCommsOverview(): Promise<void> {
         const dateRange = this.dateRange();
+        const folderMessages = new Map<string, number>();
         const messages = this.searchService.getMessagesInTimeRange(
             dateRange[0], dateRange[1]
         ).map(
@@ -92,7 +116,22 @@ export class StartDeskComponent implements OnInit {
             msg => !this.unreadOnly || !msg.seen
         ).filter(
             msg => msg.folder !== 'Sent'
+        ).filter(
+            msg => {
+                const folderMessageCount = folderMessages.get(msg.folder) || 0;
+                folderMessages.set(msg.folder, folderMessageCount + 1);
+                switch (this.folder) {
+                    case FolderSelection.ALL:
+                        return true;
+                    case FolderSelection.INBOX:
+                        return msg.folder === 'Inbox';
+                    case FolderSelection.CUSTOM:
+                        return !this.hiddenFolders.has(msg.folder);
+                }
+            }
         );
+        this.folderMessages = folderMessages;
+        this.updateFolderSelectorSwitches();
 
         // Ideally, we'll obtain a list of mailing lists from List-ID across the entirety of search index
         // We don't have that luxury currently, so this hack will have to do
@@ -226,6 +265,16 @@ export class StartDeskComponent implements OnInit {
         return mailingLists;
     }
 
+    public toggleFolderVisibility(folderName: string, event: MatCheckboxChange) {
+        if (event.checked) {
+            this.hiddenFolders.delete(folderName);
+        } else {
+            this.hiddenFolders.add(folderName);
+        }
+        // TODO: persist hiddenFolders in settings or something
+        this.updateCommsOverview();
+    }
+
     public toggleUnreadOnly(event: MatCheckboxChange) {
         this.unreadOnly = event.checked;
         this.updateCommsOverview();
@@ -233,6 +282,11 @@ export class StartDeskComponent implements OnInit {
 
     public changeTimeSpan(event: MatSelectChange) {
         this.timeSpan = event.value;
+        this.updateCommsOverview();
+    }
+
+    public changeFolder(event: MatSelectChange) {
+        this.folder = event.value;
         this.updateCommsOverview();
     }
 
@@ -248,6 +302,17 @@ export class StartDeskComponent implements OnInit {
                 return [moment().subtract(6, 'day').toDate(), null];
             case TimeSpan.CUSTOM:
                 return [new Date(), null];
+        }
+    }
+
+    private updateFolderSelectorSwitches() {
+        this.folderSelectorSwitches = [];
+        for (const folder of Array.from(this.folderMessages.keys()).sort()) {
+            this.folderSelectorSwitches.push({
+                name:  folder,
+                count: this.folderMessages.get(folder),
+                shown: !this.hiddenFolders.has(folder),
+            });
         }
     }
 }

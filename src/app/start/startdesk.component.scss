@@ -89,6 +89,12 @@ $rmm-default-highlight:  mat-palette($mat-light-blue, 50, 25, 75);
 	justify-content: space-around;
 	align-items: center;
     }
+    #folderSelector {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: center;
+    }
     .contact {
         width: 33%;
         font-weight: bold;
