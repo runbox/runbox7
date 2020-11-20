@@ -21,7 +21,7 @@ import { Component, QueryList, ViewChildren } from '@angular/core';
 import { ReplaySubject, Subject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Filter, RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
+import { Filter, RunboxWebmailAPI, FilteredSender } from '../../rmmapi/rbwebmail';
 import { take, debounceTime } from 'rxjs/operators';
 import { FilterEditorComponent } from './filter-editor.component';
 
@@ -33,6 +33,9 @@ export class AccountFiltersComponent {
     @ViewChildren(FilterEditorComponent) filterComponents: QueryList<FilterEditorComponent>;
     filters: ReplaySubject<Filter[]> = new ReplaySubject(1);
     shownFilters: Subject<Filter[]> = new Subject();
+    blockedSenders: ReplaySubject<FilteredSender[]> = new ReplaySubject(1);
+    allowedSenders: ReplaySubject<FilteredSender[]> = new ReplaySubject(1);
+
     filtersReordered: Subject<void> = new Subject();
 
     filterPageSize = 50;
@@ -44,7 +47,9 @@ export class AccountFiltersComponent {
         private snackbar: MatSnackBar,
     ) {
         this.rmmapi.getFilters().subscribe(filters => {
-            this.filters.next(filters);
+            this.filters.next(filters.filters);
+            this.allowedSenders.next(filters.allowed);
+            this.blockedSenders.next(filters.blocked);
         });
 
         this.filters.subscribe(_ => this.updateShownFilters());
@@ -78,7 +83,7 @@ export class AccountFiltersComponent {
     deleteFilter(target: Filter): void {
         if (target.id) {
             console.log(`Deleting filter #${target.id}`);
-            this.rmmapi.deleteFilter(target).subscribe(
+            this.rmmapi.deleteFilter(target.id).subscribe(
                 () => console.log(`Filter #${target.id} deleted`),
             );
         }
@@ -102,13 +107,7 @@ export class AccountFiltersComponent {
                     })
                 );
             },
-            _err => {
-                const action = existing.id ? 'updating' : 'creating';
-                const message = `Error ${action} filter. Try again or contact Runbox Support`;
-                this.snackbar.open(message, 'Ok', {
-                    duration: 3000,
-                });
-            },
+            _err => this.showError(`Error ${existing.id ? 'updating' : 'creating'} filter.`),
         );
     }
 
@@ -165,6 +164,77 @@ export class AccountFiltersComponent {
         this.filters.pipe(take(1)).subscribe(filters => {
             this.shownFilters.next(filters.slice(0, this.filtersShown));
             this.filtersTotal = filters.length;
+        });
+    }
+
+    addAllowed(address: string): void {
+        this.rmmapi.whitelistSender(address).subscribe(
+            () => {
+                this.allowedSenders.pipe(take(1)).subscribe(allowed => {
+                    this.allowedSenders.next(
+                        allowed.concat({
+                            id:      address,
+                            address: address,
+                        })
+                    );
+                });
+            },
+            _err => this.showError('Error whitelisting an address.'),
+        );
+    }
+
+    removeAllowed(id: any): void {
+        this.rmmapi.dewhitelistSender(id).subscribe(
+            () => {
+                this.allowedSenders.pipe(take(1)).subscribe(allowed => {
+                    this.allowedSenders.next(
+                        allowed.filter(s => s.id !== id)
+                    );
+                });
+            },
+            _err => this.showError('Error dewhitelisting an address.'),
+        );
+    }
+
+    addBlocked(address: string): void {
+        const filter = {
+            id: null,
+            str: address,
+            action: 'k',
+            active: true,
+            target: '',
+            negated: false,
+            location: '1',
+            priority: -2,
+        };
+        this.rmmapi.saveFilter(filter).subscribe(
+            id => {
+                this.blockedSenders.pipe(take(1)).subscribe(blocked => {
+                    this.blockedSenders.next(
+                        blocked.concat({ id, address })
+                    );
+                });
+            },
+            _err => this.showError('Error blocking an address.'),
+        );
+    }
+
+    removeBlocked(id: any): void {
+        this.rmmapi.deleteFilter(id).subscribe(
+            () => {
+                this.blockedSenders.pipe(take(1)).subscribe(blocked => {
+                    this.blockedSenders.next(
+                        blocked.filter(f => f.id !== id)
+                    );
+                });
+            },
+            _err => this.showError('Error unblocking an address.'),
+        );
+    }
+
+    showError(message: string): void {
+        this.snackbar.open(message + ' Try again or contact Runbox Support', 'Ok', {
+            duration: 3000,
         });
     }
 }

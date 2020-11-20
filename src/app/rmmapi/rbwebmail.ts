@@ -84,6 +84,17 @@ export class ContactSyncResult {
     ) { }
 }
 
+export interface AccountFilters {
+    filters: Filter[];
+    blocked: FilteredSender[];
+    allowed: FilteredSender[];
+}
+
+export interface FilteredSender {
+    id:      any;
+    address: string;
+}
+
 export interface Filter {
     id:       number;
     active:   boolean;
@@ -798,13 +809,19 @@ export class RunboxWebmailAPI {
         );
     }
 
-    getFilters(): Observable<Filter[]> {
+    getFilters(): Observable<AccountFilters> {
         return this.http.get('/rest/v1/filter').pipe(
-            map((res: HttpResponse<any>) => res['result']['filters'].map((entry: any) => {
-                entry['str'] = entry['string'];
-                delete entry['string'];
-                return entry;
-            }))
+            map((res: HttpResponse<any>) => {
+                return {
+                    filters: res['result']['filters'].map((entry: any) => {
+                        entry['str'] = entry['string'];
+                        delete entry['string'];
+                        return entry;
+                    }),
+                    allowed: res['result']['allowed'],
+                    blocked: res['result']['blocked'],
+                };
+            })
         );
     }
 
@@ -814,14 +831,26 @@ export class RunboxWebmailAPI {
         );
     }
 
-    deleteFilter(f: Filter): Observable<void> {
-        return this.http.delete('/rest/v1/filter/' + f.id).pipe(
+    deleteFilter(id: number): Observable<void> {
+        return this.http.delete('/rest/v1/filter/' + id).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }
 
     reorderFilters(ids: number[]): Observable<void> {
         return this.http.post('/rest/v1/filter/reorder', { order: ids }).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    whitelistSender(address: string): Observable<void> {
+        return this.http.put('/rest/v1/filter/whitelist/' + address, {}).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    dewhitelistSender(address: string): Observable<void> {
+        return this.http.delete('/rest/v1/filter/whitelist/' + address, {}).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

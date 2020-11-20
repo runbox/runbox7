@@ -33,6 +33,7 @@ import { AccountAddonsComponent } from './account-addons.component';
 import { AccountComponentsComponent } from './account-components.component';
 import { AccountFiltersComponent } from './filters/account-filters.component';
 import { FilterEditorComponent } from './filters/filter-editor.component';
+import { SenderListComponent } from './filters/sender-list.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
@@ -65,6 +66,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -94,6 +96,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     RunboxTimerComponent,
     CreditCardsComponent,
     FilterEditorComponent,
+    SenderListComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -115,6 +118,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     MatRadioModule,
     MatSelectModule,
     MatSidenavModule,
+    MatTabsModule,
     MatTableModule,
     MatToolbarModule,
     MatTooltipModule,

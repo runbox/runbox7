@@ -1,0 +1,36 @@
+<mat-table [dataSource]="senderList">
+    <ng-container matColumnDef="address">
+        <td mat-cell *matCellDef="let sender">
+            <span *ngIf="sender.id; else inputField"> {{ sender.address }} </span>
+            <ng-template #inputField>
+                <mat-form-field>
+                    <mat-label>
+                        Add new
+                    </mat-label>
+                    <input matInput type="text" [(ngModel)]="sender.address">
+                </mat-form-field>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+        <td mat-cell *matCellDef="let sender">
+            <span *ngIf="sender.id; else addNewButton">
+                <button mat-icon-button
+                    (click)="remove.emit(sender.id)"
+                >
+                    <mat-icon svgIcon="delete"></mat-icon>
+                </button>
+            </span>
+            <ng-template #addNewButton>
+                <button mat-icon-button
+                    (click)="add.emit(sender.address)"
+                >
+                    <mat-icon svgIcon="plus-box"></mat-icon>
+                </button>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <tr mat-row *matRowDef="let row; columns: ['address', 'action'];"></tr>
+</mat-table>
