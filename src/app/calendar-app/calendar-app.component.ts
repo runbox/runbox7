@@ -53,6 +53,7 @@ import { ViewPeriod } from 'calendar-utils';
 import { CalendarService } from './calendar.service';
 import { CalendarSettings } from './calendar-settings';
 import { MobileQueryService } from '../mobile-query.service';
+import { UsageReportsService } from '../common/usage-reports.service';
 
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
@@ -108,6 +109,7 @@ export class CalendarAppComponent implements OnDestroy {
         private route:    ActivatedRoute,
         private router:   Router,
         private snackBar: MatSnackBar,
+        private usage:    UsageReportsService,
     ) {
         const storedSettings = localStorage.getItem('calendarSettings');
         if (storedSettings) {
@@ -153,6 +155,7 @@ export class CalendarAppComponent implements OnDestroy {
             this.sideMenuOpened = !mobile;
             this.cdr.markForCheck();
         });
+        this.usage.report('calendar');
     }
 
     ngOnDestroy() {

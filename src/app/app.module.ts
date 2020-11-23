@@ -26,7 +26,7 @@ import { SentryErrorHandler } from './sentry-error-handler';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
-
+import { RunboxCommonModule } from './common/common.module';
 import { MailViewerModule } from './mailviewer/mailviewer.module';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
@@ -167,6 +167,7 @@ const routes: Routes = [
     LoginLogoutModule,
     SearchExpressionBuilderModule,
     MultipleSearchFieldsInputModule,
+    RunboxCommonModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()

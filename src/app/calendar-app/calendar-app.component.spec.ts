@@ -26,6 +26,8 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { LogoutService } from '../login/logout.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { StorageService } from '../storage.service';
+import { SearchService } from '../xapian/searchservice';
+import { UsageReportsService } from '../common/usage-reports.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -103,6 +105,11 @@ describe('CalendarAppComponent', () => {
                     { provide: MatSnackBar, useValue: {
                     } },
                     { provide: LogoutService, useValue: {
+                    } },
+                    { provide: SearchService, useValue: {
+                    } },
+                    { provide: UsageReportsService, useValue: {
+                        report: (_: string) => { }
                     } },
                 ],
                 declarations: [MatIcon],
