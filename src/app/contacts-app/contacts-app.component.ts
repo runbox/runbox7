@@ -261,6 +261,7 @@ export class ContactsAppComponent {
             if (!result) {
                 return;
             }
+            const promises = [];
             for (const c of contacts) {
                 // Assign an uuid unless it already has one.
                 // Without it we won't be able to add them to groups if requested
@@ -278,9 +279,10 @@ export class ContactsAppComponent {
                     if (result.newCategory) {
                         c.categories = c.categories.concat(result.newCategory);
                     }
-                    this.contactsservice.saveContact(c);
+                    promises.push(this.contactsservice.saveContact(c, false));
                 }
             }
+            Promise.all(promises).finally(() => this.contactsservice.reload());
             if (result.addToGroup) {
                 this.addContactsToGroup(result.addToGroup, contacts);
             }

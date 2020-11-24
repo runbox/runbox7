@@ -249,7 +249,7 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-    saveContact(contact: Contact): Promise<string> {
+  saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
         this.activities.begin(Activity.SavingContact);
 
         const promise = new Promise<string>((resolve, reject) => {
@@ -271,7 +271,11 @@ export class ContactsService implements OnDestroy {
                 this.rmmapi.addNewContact(contact).subscribe(url => {
                     this.informationLog.next('New contact has been created');
                     contact.url = url;
-                    this.reload().then(() => resolve(contact.id));
+                    if (syncNow) {
+                        this.reload().then(() => resolve(contact.id));
+                    } else {
+                        resolve(contact.id);
+                    }
                 }, e => {
                     this.apiErrorHandler(e);
                     reject();
