@@ -86,8 +86,13 @@ export class StartDeskComponent implements OnInit {
         const dateRange = this.dateRange();
         const messages = this.searchService.getMessagesInTimeRange(
             dateRange[0], dateRange[1]
-        ).map(id => this.searchService.getDocData(id)
-        ).filter(msg => !this.unreadOnly || !msg.seen);
+        ).map(
+            id => this.searchService.getDocData(id)
+        ).filter(
+            msg => !this.unreadOnly || !msg.seen
+        ).filter(
+            msg => msg.folder !== 'Sent'
+        );
 
         // Ideally, we'll obtain a list of mailing lists from List-ID across the entirety of search index
         // We don't have that luxury currently, so this hack will have to do

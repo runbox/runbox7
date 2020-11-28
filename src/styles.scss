@@ -605,13 +605,13 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
 }
 
 @media(min-width: 1025px) {
-    #composeButton, #draftsButton {
+    #composeButton, #draftsButton, #overviewButton {
 	    display: block;
     }
 }
 
 @media(max-width: 1024px) {
-    #composeButton, #draftsButton {
+    #composeButton, #draftsButton, #overviewButton {
 	    display: none;
     }
 }

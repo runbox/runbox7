@@ -1,3 +1,4 @@
+<!--
 <div id="startdesk">
   <div id="heading">
     <div id="title">
@@ -10,23 +11,33 @@
       <mat-icon id="panelControlLarge">check_box_outline_blank</mat-icon>
     </div>
   </div>
+-->
 
   <div id="dashdeskOverviewContainer">
     <mat-card class="mat-card dashdeskOverview">
-      <h3><mat-icon>blur_on</mat-icon>Communication overview</h3>
-      <h4>Activity highlights</h4>
-      <div id="hilightsSettings">
-        <mat-form-field>
-          <mat-label> Time span </mat-label>
-          <mat-select [(ngModel)]="timeSpan" (selectionChange)="changeTimeSpan($event)">
-            <mat-option [value]="TimeSpan.TODAY"> Today </mat-option>
-            <mat-option [value]="TimeSpan.YESTERDAY"> Yesterday </mat-option>
-            <mat-option [value]="TimeSpan.LAST3"> Last 3 days </mat-option>
-            <mat-option [value]="TimeSpan.LAST7"> Last 7 days </mat-option>
-            <mat-option [value]="TimeSpan.CUSTOM"> Custom (NYI) </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
+      <h3><mat-icon>blur_on</mat-icon> Communication overview</h3>
+      <div id="hilightsHeader">
+	<h4 id="hilightsHeading">Activity highlights</h4>
+	<div id="hilightsSettings">
+          <mat-form-field>
+            <mat-select [(ngModel)]="timeSpan" (selectionChange)="changeTimeSpan($event)">
+              <mat-option [value]="TimeSpan.TODAY"> Today </mat-option>
+              <mat-option [value]="TimeSpan.YESTERDAY"> Yesterday </mat-option>
+              <mat-option [value]="TimeSpan.LAST3"> Last 3 days </mat-option>
+              <mat-option [value]="TimeSpan.LAST7"> Last 7 days </mat-option>
+              <mat-option [value]="TimeSpan.CUSTOM"> Custom (NYI) </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select [(ngModel)]="folder" (selectionChange)="changeFolder($event)">
+              <mat-option [value]=""> Current folder </mat-option>
+              <mat-option [value]=""> All folders </mat-option>
+            </mat-select>
+          </mat-form-field>
+	</div>
+	<div id="unreadOnly">
+          <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
+	</div>
       </div>
       <mat-tab-group>
         <mat-tab label="All emails ({{ totalEmailCount }})">
@@ -42,7 +53,7 @@
           <mat-card class="mat-card dashdeskOverview" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
             <div class="contact">
               <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages today</div>
+              <div class="messages">{{ sender.emails.length }} messages</div>
             </div>
             <div class="subject">
               <ul>
@@ -93,7 +104,8 @@
     </mat-card>
   </div>
   
-  <!-- <div id="dashdeskSections">
+  <!--
+  <div id="dashdeskSections">
     <mat-card class="mat-card">
       <h3><mat-icon>email</mat-icon>Email highlights</h3>
       <div>New messages: <u>Inbox</u>, <u>Friends</u>, <u>Enemies</u> <mat-icon class="start_chart" style="color: red">show_chart</mat-icon></div>
@@ -122,4 +134,3 @@
       <div>Upcoming: <u>Destroy One Ring</u> <mat-icon class="start_chart" style="margin-left: 30px; -webkit-transform: scaleX(-1); transform: scaleX(-1); color: red">insert_chart</mat-icon></div>
     </mat-card>
   </div> -->
-</div>

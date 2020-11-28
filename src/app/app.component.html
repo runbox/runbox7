@@ -72,6 +72,11 @@
         <span class="foldersidebarcount" style="margin-right: 24px"> {{ draftDeskService.draftModels.length }} </span>
       </mat-list-item>
 
+      <mat-list-item (click)="overview()" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}">
+        <mat-icon mat-list-icon svgIcon="blur" class="folderIconStandard"></mat-icon>
+        <p mat-line class="folderName">Overview</p>
+      </mat-list-item>
+
       <mat-divider></mat-divider>
     </mat-nav-list>
 

@@ -4,116 +4,136 @@ $rmm-default-highlight:  mat-palette($mat-light-blue, 50, 25, 75);
 #startdesk {
     position: relative;
     margin: 0px 20px 100px 30px;
-    
+
     #heading {
-	display: flex;
+        display: flex;
     }
     #title {
-	display: flex;
-	flex-grow: 1;
+        display: flex;
+        flex-grow: 1;
     }
     #panelControls {
-	display: flex;
-	flex-grow: 1;
-	justify-content: flex-end;
-	align-items: center;
-    }
-    h3 {
-	margin: 0;
-	padding: 0;
-    }
-    mat-card {
-	float: left;
-	margin: 0 20px 20px 0;
-	width: 90%;
-	padding: 20px;
-    }
-    #panelControls mat-icon {
-	vertical-align: bottom;
-	line-height: 24px;
-    }
-    #panelControlSmall {
-	font-size: 16px;
-	width: 16px;
-	height: auto;
-    }
-    #panelControlMedium {
-	font-size: 24px;
-	width: 24px;
-	height: auto;
-    }
-    #panelControlLarge {
-	font-size: 40px;
-	width: 40px;
-	height: auto;
-    }
-    #dashdeskOverviewContainer {
-	display: block;
-	width: 100%;
-	height: 100%;
-
-	.dashdeskOverview {
-	    width: 90%;
-	}
-	.dashdeskOverview mat-card {
-	    display: flex;
-	}
-	.contact {
-	    width: 33%;
-	    font-weight: bold;
-	}
-	.contact mat-icon {
-	    margin-right: 10px;
-	    font-size: 40px;
-	    width: 40px;
-	    height: auto;
-	}
-	.contact h4 {
-	    display: inline;
-	    margin: 10px 0;
-	}
-	.messages {
-	    margin: 0 5px;
-	}
-	.subject {
-	    width: 66%;
-	    text-decoration: underline;
-	}
-	.subject ul {
-	    margin: 0;
-	}
-	.subject li {
-	    list-style-type: square;
-	}
-    }
-    #dashdeskSections {
-	mat-card {
-	    width: 43%;
-	    height: 250px;
-	    padding: 20px;
-	}
-	mat-card div {
-	    margin: 10px 0;
-	}
-	mat-card h3 mat-icon {
-	    font-size: 1.4em;
-	    height: 1em;
-	    margin-right: 20px;
-	}
-	.start_chart {
-	    font-size: 3em;
-	    height: auto;
-	}
-    }
-
-    .noMessagesCard {
         display: flex;
-        justify-content: center;
-    }
-
-    #hilightsSettings {
-        display: flex;
-        justify-content: space-around;
+        flex-grow: 1;
+        justify-content: flex-end;
         align-items: center;
     }
+    h3 {
+        margin: 0;
+        padding: 0;
+    }
 }
+
+.dashdeskOverview mat-card {
+    //float: left;
+    //margin: 0 20px 20px 0;
+    //width: 90%;
+    padding: 20px;
+    margin: 10px 0;
+}
+#panelControls mat-icon {
+    vertical-align: bottom;
+    line-height: 24px;
+}
+#panelControlSmall {
+    font-size: 16px;
+    width: 16px;
+    height: auto;
+}
+#panelControlMedium {
+    font-size: 24px;
+    width: 24px;
+    height: auto;
+}
+#panelControlLarge {
+    font-size: 40px;
+    width: 40px;
+    height: auto;
+}
+#dashdeskOverviewContainer {
+    display: block;
+//    width: 100%;
+//    height: 100%;
+//
+//    .dashdeskOverview {
+//        width: 90%;
+//    }
+    .dashdeskOverview mat-card {
+        display: flex;
+    }
+    .noMessagesCard {
+	display: flex;
+	justify-content: center;
+    }
+    
+    #hilightsHeading {
+	display: flex;
+        margin: 10px 0;
+    }
+    #hilightsHeader {
+        margin: 10px 0;
+	display: flex;
+	flex-grow: 1;
+	justify-content: space-around;
+	align-items: center;
+    }
+    #hilightsSettings {
+	display: flex;
+	flex-grow: 1;
+	justify-content: space-around;
+	align-items: center;
+    }
+    #unreadOnly {
+	display: flex;
+	flex-grow: 1;
+	justify-content: space-around;
+	align-items: center;
+    }
+    .contact {
+        width: 33%;
+        font-weight: bold;
+    }
+    .contact mat-icon {
+        margin-right: 10px;
+        font-size: 40px;
+        width: 40px;
+        height: auto;
+    }
+    .contact h4 {
+        display: inline;
+        margin: 10px 0;
+    }
+    .messages {
+        margin: 0 5px;
+    }
+    .subject {
+        width: 66%;
+        text-decoration: underline;
+    }
+    .subject ul {
+        margin: 0;
+    }
+    .subject li {
+        list-style-type: square;
+    }
+}
+#dashdeskSections {
+    mat-card {
+        width: 43%;
+        height: 250px;
+        padding: 20px;
+    }
+    mat-card div {
+        margin: 10px 0;
+    }
+    mat-card h3 mat-icon {
+        font-size: 1.4em;
+        height: 1em;
+        margin-right: 20px;
+    }
+    .start_chart {
+        font-size: 3em;
+        height: auto;
+    }
+}
+
