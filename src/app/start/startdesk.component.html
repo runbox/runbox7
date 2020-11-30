@@ -3,16 +3,16 @@
     <div id="title">
       <h1>Runbox Dash Desk</h1>
     </div>
-    <div id="panelControls">
+    <!-- <div id="panelControls">
       Panel size:&nbsp;
       <mat-icon id="panelControlSmall">check_box_outline_blank</mat-icon>
       <mat-icon id="panelControlMedium">check_box_outline_blank</mat-icon>
       <mat-icon id="panelControlLarge">check_box_outline_blank</mat-icon>
-    </div>
+    </div> -->
   </div>
 
   <div id="dashdeskOverviewContainer">
-    <mat-card class="mat-card dashdeskOverview">
+    <mat-card class="mat-card communicationOverview">
       <h3><mat-icon>blur_on</mat-icon>Communication overview</h3>
       <h4>Activity highlights</h4>
       <div id="hilightsSettings">
@@ -36,10 +36,10 @@
             [sender]="sender"
           ></app-overview-sender-hilights>
           -->
-          <mat-card *ngIf="totalEmailCount === 0" class="noMessagesCard">
+          <div *ngIf="totalEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
-          </mat-card>
-          <mat-card class="mat-card dashdeskOverview" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
+          </div>
+          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
             <div class="contact">
               <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
               <div class="messages">{{ sender.emails.length }} messages today</div>
@@ -54,10 +54,10 @@
           </mat-card>
         </mat-tab>
         <mat-tab label="Directly to you ({{ regularEmailCount }})">
-          <mat-card *ngIf="regularEmailCount === 0" class="noMessagesCard">
+          <div *ngIf="regularEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
-          </mat-card>
-          <mat-card class="mat-card dashdeskOverview" *ngFor="let sender of regularOverview">
+          </div>
+          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview">
             <div class="contact">
               <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
               <div class="messages">{{ sender.emails.length }} messages today</div>
@@ -72,10 +72,10 @@
           </mat-card>
         </mat-tab>
         <mat-tab label="From mailing lists ({{ mailingListEmailCount }})">
-          <mat-card *ngIf="mailingListEmailCount === 0" class="noMessagesCard">
+          <div *ngIf="mailingListEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
-          </mat-card>
-          <mat-card class="mat-card dashdeskOverview" *ngFor="let sender of mailingListOverview">
+          </div>
+          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of mailingListOverview">
             <div class="contact">
               <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
               <div class="messages">{{ sender.emails.length }} messages today</div>
