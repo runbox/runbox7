@@ -75,7 +75,7 @@ export class StartDeskComponent implements OnInit {
 
     ngOnInit() {
         this.rmmapi.getFromAddress().subscribe(
-            froms => this.ownAddresses.next(new Set(froms.map(f => f.email))),
+            froms => this.ownAddresses.next(new Set(froms.map(f => f.email.toLowerCase()))),
             _err  => this.ownAddresses.next(new Set([])),
         );
         this.searchService.initSubject.pipe(filter(enabled => enabled)).subscribe(() => this.updateCommsOverview());
@@ -201,7 +201,7 @@ export class StartDeskComponent implements OnInit {
         const ownAddresses = await this.ownAddresses.pipe(take(1)).toPromise();
 
         for (const message of messages) {
-            if (!message.recipients.find(r => ownAddresses.has(r))) {
+            if (!message.recipients.find(r => ownAddresses.has(r.toLowerCase()))) {
                 for (const recipient of message.recipients) {
                     const recId = this.emailOf(recipient) || recipient;
                     let occurences = possibleMailingLists.get(recId) || 0;
