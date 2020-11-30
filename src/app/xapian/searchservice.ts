@@ -193,8 +193,6 @@ export class SearchService {
           this.updateIndexWithNewChanges();
           this.noLocalIndexFoundSubject.next(true);
           this.noLocalIndexFoundSubject.complete();
-          this.initSubject.next(false);
-          this.initSubject.complete();
         }
       });
   }
