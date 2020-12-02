@@ -173,9 +173,7 @@ export class RunboxDynamicComponent {
             //disabled: true,
             event: {
                 click: (e: any, col) => {
-                    console.log(e.target);
-                    console.log('col', col);
-                    let values = {};
+                    console.log(e);
                 },
             }
         }
