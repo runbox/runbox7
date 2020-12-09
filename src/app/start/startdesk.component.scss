@@ -17,154 +17,121 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         margin: 0;
         padding: 0;
     }
+    h3 mat-icon {
+        margin-right: 5px;
+    }
     mat-card {
         float: left;
         width: 100%;
         padding: 20px;
-    }
-    // #panelControls mat-icon {
-    //     vertical-align: bottom;
-    //     line-height: 24px;
-    // }
-    // #panelControlSmall {
-    //     font-size: 16px;
-    //     width: 16px;
-    //     height: auto;
-    // }
-    // #panelControlMedium {
-    //     font-size: 24px;
-    //     width: 24px;
-    //     height: auto;
-    // }
-    // #panelControlLarge {
-    //     font-size: 40px;
-    //     width: 40px;
-    //     height: auto;
-    // }
-    #dashdeskOverviewContainer {
-        display: block;
-        width: 100%;
-        height: 100%;
 
-        .communicationOverview {
-            box-sizing: border-box;
-
-            /* For mobile screens: */
-            @media only screen and (max-width: 768px) {
-                margin: 0;
-                min-height: calc(100vh - 56px);
-            }
-        }
-        .dashdeskCard {
-            box-sizing: border-box;
-            display: flex;
-            width: calc(100% - 20px);
-            margin: 20px 0 1px 10px;
-
-            /* For mobile screens: */
-            @media only screen and (max-width: 768px) {
-                margin: 20px 0 0 0;
-                width: 100%;
-                display: block;
-                border: 0;
-                .contact,
-                .subject {
-                    width: 100%;
-                }
-                .subject {
-                    padding-top: 10px;
-                }
-            }
-        }
-        #folderSelector {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            align-items: center;
-        }
-        .contact {
-            width: 33%;
-            font-weight: bold;
-        }
-        .contact mat-icon {
-            margin-right: 10px;
-            font-size: 40px;
-            width: 40px;
-            height: auto;
-        }
-        .contact h4 {
-            display: inline;
-            margin: 10px 0;
-        }
-        .messages {
-            margin: 0 5px;
-        }
-        .subject {
-            width: 66%;
-            text-decoration: underline;
-        }
-        .subject ul {
-            margin: 0;
-        }
-        .subject li {
-            list-style-type: square;
-        }
-    }
-    #dashdeskSections {
-        mat-card {
-            width: 43%;
-            height: 250px;
-            padding: 20px;
-        }
-        mat-card div {
-            margin: 10px 0;
-        }
-        mat-card h3 mat-icon {
-            font-size: 1.4em;
-            height: 1em;
-            margin-right: 20px;
-        }
-        .start_chart {
-            font-size: 3em;
-            height: auto;
-        }
-    }
-    .noMessagesCard {
-        display: flex;
-        justify-content: center;
-        padding: 20px 0 0 0;
-    }
-    #hilightsSettings {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
-
-    /* For mobile screens: */
-    @media only screen and (max-width: 768px) {
-        margin: 0;
-
-        #heading {
-            padding: 0 20px;
-        }
-        mat-card {
+        @media only screen and (max-width: 768px) {
             border-radius: 0;
             border: 0;
             padding: 16px;
         }
-        h3 mat-icon {
-            margin-right: 5px;
+    }
+}
+#dashdeskOverviewContainer {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    .communicationOverview {
+        box-sizing: border-box;
+
+        /* For mobile screens: */
+        @media only screen and (max-width: 768px) {
+            margin: 0;
+            min-height: calc(100vh - 56px);
         }
-        .senderItem {
+    }
+    .dashdeskCard {
+        box-sizing: border-box;
+        display: flex;
+        width: calc(100% - 20px);
+        margin: 20px 0 1px 10px;
+
+        /* For mobile screens: */
+        @media only screen and (max-width: 768px) {
+            margin: 20px 0 0 0;
+            width: 100%;
             display: block;
-            margin-right: 0;
-            div {
-                display: block !important;
+            border: 0;
+            .contact,
+            .subject {
                 width: 100%;
             }
+            .subject {
+                padding-top: 10px;
+            }
         }
-        #title {
-            display: none;
+    }
+    .contact {
+        width: 33%;
+        font-weight: bold;
+    }
+    .contact mat-icon {
+        margin-right: 10px;
+        font-size: 40px;
+        width: 40px;
+        height: auto;
+    }
+    .contact h4 {
+        display: inline;
+        margin: 10px 0;
+    }
+    .messages {
+        margin: 0 5px;
+    }
+    .subject {
+        width: 66%;
+        text-decoration: underline;
+    }
+    .subject ul {
+        margin: 0;
+    }
+    .subject li {
+        list-style-type: square;
+    }
+}
+#dashdeskSections {
+    mat-card {
+        width: 43%;
+        height: 250px;
+        padding: 20px;
+    }
+    mat-card div {
+        margin: 10px 0;
+    }
+    mat-card h3 mat-icon {
+        font-size: 1.4em;
+        height: 1em;
+        margin-right: 20px;
+    }
+    .start_chart {
+        font-size: 3em;
+        height: auto;
+    }
+}
+.noMessagesCard {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0 0 0;
+}
+#hilightsSettings {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+@media only screen and (max-width: 768px) {
+    .senderItem {
+        display: block;
+        margin-right: 0;
+        div {
+            display: block !important;
+            width: 100%;
         }
         #hilightsSettings {
             justify-content: space-between;
