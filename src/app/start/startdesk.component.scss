@@ -2,21 +2,16 @@
 $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
 
 #startdesk {
-    position: relative;
-    margin: 0 30px;
+    position: absolute;
+    top: 64px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 15px;
 
-    #heading {
-        display: flex;
-    }
-    #title {
-        display: flex;
-        flex-grow: 1;
-    }
-    #panelControls {
-        display: flex;
-        flex-grow: 1;
-        justify-content: flex-end;
-        align-items: center;
+    @media only screen and (max-width: 768px) {
+        padding: 0;
+        top: 56px;
     }
     h3 {
         margin: 0;
