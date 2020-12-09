@@ -12,14 +12,35 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     @media only screen and (max-width: 768px) {
         padding: 0;
         top: 56px;
+
+        .communicationTitle{
+            position: absolute;
+            top: -39px;
+            left: 60px;
+
+            mat-icon {
+                display: none;
+            }
+        }
     }
     h3 {
         margin: 0;
         padding: 0;
+        @media only screen and (max-width: 768px) {
+            font-size: 21px;
+        }
     }
     h3 mat-icon {
         margin-right: 5px;
     }
+    h4 {
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        @media only screen and (max-width: 768px) {
+            margin-block-start: 0;
+        }
+    }
+    
     mat-card {
         float: left;
         width: 100%;
