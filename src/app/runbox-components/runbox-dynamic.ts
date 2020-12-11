@@ -58,11 +58,11 @@ export class RunboxDynamicComponent {
   }
 
   build_my_form () {
-      let firstname = {
+      const firstname = {
         style: '',
         class: '',
         type: 'input',
-        //value: 'Hernan',
+        // value: 'Hernan',
         label: {
             text: 'Firstname:'
         },
@@ -80,11 +80,11 @@ export class RunboxDynamicComponent {
           return firstname['errors'].length ? false : true;
       };
 
-      let lastname = {
+      const lastname = {
         style: '',
         class: '',
         type: 'input',
-        //value: 'Lopes',
+        // value: 'Lopes',
         label: {
             text: 'Lastname:'
         },
@@ -102,7 +102,7 @@ export class RunboxDynamicComponent {
           return lastname['errors'].length ? false : true;
       };
 
-      let email = {
+      const email = {
         style: '',
         class: '',
         type: 'input',
@@ -119,10 +119,9 @@ export class RunboxDynamicComponent {
           email['errors'] = [];
           if ( ! email['value'] ) {
             email['errors'].push('Email is <strong>required</strong>');
-          }
-          else {
+          } else {
             if ( ! email['value'].match(/.+@.+\..+/g) ) {
-                email['errors'].push('Invalid format. ie. name@domain.com')
+                email['errors'].push('Invalid format. ie. name@domain.com');
             }
           }
           return email['errors'].length ? false : true;
@@ -135,7 +134,7 @@ export class RunboxDynamicComponent {
         text: 'Runbox7 Dynamic Builder!',
       };
 
-      let btn_subscribe = {
+      const btn_subscribe = {
         style: '',
         class: '',
         type: 'button',
@@ -147,30 +146,30 @@ export class RunboxDynamicComponent {
             event: {
                 click: function () {
                   let has_error = false;
-                  if ( ! firstname['validate']() ) { has_error = true }
-                  if ( ! lastname['validate']() ) { has_error = true }
-                  if ( ! email['validate']() ) { has_error = true }
+                  if ( ! firstname['validate']() ) { has_error = true; }
+                  if ( ! lastname['validate']() ) { has_error = true; }
+                  if ( ! email['validate']() ) { has_error = true; }
                   if ( ! has_error ) {
                       this.result = {
                         firstname: firstname['value'],
                         lastname: lastname['value'],
                         email: email['value'],
                       };
-                      alert('Form validated. Make that POST with: \n'+JSON.stringify(this.result))
+                      alert('Form validated. Make that POST with: \n' + JSON.stringify(this.result));
                   }
                 },
             }
         }
       };
 
-      let btn_load_values = {
+      const btn_load_values = {
         style: '',
         class: '',
         type: 'button',
         button: {
             color: 'warn',
             text: 'Load values',
-            //disabled: true,
+            // disabled: true,
             event: {
                 click: (e: any, col) => {
                     console.log(e);
@@ -179,38 +178,38 @@ export class RunboxDynamicComponent {
         }
       };
 
-      let paragraph_additional_notes = {
+      const paragraph_additional_notes = {
           style: '',
           class: '',
           type: 'p',
-          text:'This paragraph is an example of some notes. It could be used to describe the form fields or some other important property.'
+          text: 'This paragraph is an example of some notes. It could be used to describe the form fields or some other important property.'
       };
 
-      let form_row_notes = {
+      const form_row_notes = {
         style: '' ,
         class: '',
         cols: [ paragraph_additional_notes, ],
       };
 
-      let form_row_names = {
+      const form_row_names = {
         style: '' ,
         class: '',
         cols: [ firstname, lastname, ],
       };
 
-      let form_row_email = {
+      const form_row_email = {
         style: '' ,
         class: '',
         cols: [ email, ],
       };
 
-      let form_row_2 = {
+      const form_row_2 = {
         style: '' ,
         class: '',
         cols: [ btn_subscribe, btn_load_values ],
       };
 
-      let form = {
+      const form = {
         style: '',
         type: 'form',
         class: '',
@@ -223,12 +222,12 @@ export class RunboxDynamicComponent {
       };
 
       btn_load_values.button.event.click = ( e: any ) => {
-        firstname['value'] = "Hernan";
-        lastname['value'] = "Lopes";
-        email['value'] = "hernan604@runbox.com";
-      }
+        firstname['value'] = 'Hernan';
+        lastname['value'] = 'Lopes';
+        email['value'] = 'hernan604@runbox.com';
+      };
 
-      let row = {
+      const row = {
         style: '' ,
         class: '',
         cols: [ form ],
@@ -249,7 +248,11 @@ export class RunboxDynamicComponent {
                 cols: [
                     {
                     type: 'p',
-                    text: 'Welcome to the runbox dynamic builder. This builder is a possible recursive html generator. The objective of this builder is to create standard html across the runbox angular webapp. The idea is to let the recursive html generator do its job of building the html, and let the frontend developers focus on business logic instead. With this, the developer will not need to type angular html.'
+                    text: 'Welcome to the runbox dynamic builder. This builder is a possible recursive html generator. ' +
+                    'The objective of this builder is to create standard html across the runbox angular webapp.' +
+                    ' The idea is to let the recursive html generator do its job of building the html, and ' +
+                    'let the frontend developers focus on business logic instead. With this, the developer will ' +
+                    'not need to type angular html.'
                     },
                 ]
             },
@@ -279,7 +282,7 @@ export class RunboxDynamicComponent {
                 cols: [
                     {
                     type: 'p',
-                    text:'into the following form:'
+                    text: 'into the following form:'
                     },
                 ]
             },
