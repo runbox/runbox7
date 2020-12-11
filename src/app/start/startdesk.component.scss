@@ -88,6 +88,12 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
             }
         }
     }
+    #folderSelector {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
     .contact {
         width: 33%;
         font-weight: bold;
@@ -164,6 +170,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
 
     @media only screen and (max-width: 768px) {
         justify-content: space-around;
+        flex-direction: column;
     }
 }
 
