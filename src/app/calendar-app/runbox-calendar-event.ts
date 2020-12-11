@@ -196,7 +196,9 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     clone(): RunboxCalendarEvent {
-        return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+        const new_event = RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
+        new_event.color = this.color;
+        return new_event;
     }
 
     get_overview(): EventOverview[] {
