@@ -26,7 +26,21 @@
             <mat-option [value]="TimeSpan.CUSTOM"> Custom (NYI) </mat-option>
           </mat-select>
         </mat-form-field>
+        <mat-form-field>
+          <mat-select [(ngModel)]="folder" (selectionChange)="changeFolder($event)">
+            <mat-option [value]="FolderSelection.INBOX">  Inbox only </mat-option>
+            <mat-option [value]="FolderSelection.ALL">    All folders </mat-option>
+            <mat-option [value]="FolderSelection.CUSTOM"> Custom selection </mat-option>
+          </mat-select>
+        </mat-form-field>
         <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
+      </div>
+      <div id="folderSelector" *ngIf="folder === FolderSelection.CUSTOM">
+          <mat-checkbox
+              *ngFor="let folder of folderSelectorSwitches"
+              [checked]="folder.shown"
+              (change)="toggleFolderVisibility(folder.name, $event)"
+         > {{ folder.name }} ({{ folder.count }}) </mat-checkbox>
       </div>
       <mat-tab-group>
         <mat-tab label="All emails ({{ totalEmailCount }})">

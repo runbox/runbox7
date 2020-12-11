@@ -81,6 +81,12 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
                 }
             }
         }
+        #folderSelector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+        }
         .contact {
             width: 33%;
             font-weight: bold;
@@ -164,6 +170,10 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         }
         #title {
             display: none;
+        }
+        #hilightsSettings {
+            justify-content: space-between;
+            flex-wrap: wrap;
         }
     }
 }
