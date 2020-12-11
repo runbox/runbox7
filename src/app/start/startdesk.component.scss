@@ -13,7 +13,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         padding: 0;
         top: 56px;
 
-        .communicationTitle{
+        .communicationTitle {
             position: absolute;
             top: -39px;
             left: 60px;
@@ -40,7 +40,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
             margin-block-start: 0;
         }
     }
-    
+
     mat-card {
         float: left;
         width: 100%;
@@ -146,7 +146,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     justify-content: center;
     padding: 20px 0 0 0;
 }
-.highlights{
+.highlights {
     display: flex;
     justify-content: space-between;
     padding-left: 20px;
@@ -163,6 +163,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 20px;
 
     mat-checkbox {
         padding-left: 10px;
@@ -170,6 +171,10 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
 
     @media only screen and (max-width: 768px) {
         justify-content: space-around;
+        flex-wrap: wrap;
+    }
+
+    @media only screen and (max-width: 400px) {
         flex-direction: column;
     }
 }
@@ -181,10 +186,6 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         div {
             display: block !important;
             width: 100%;
-        }
-        #hilightsSettings {
-            justify-content: space-between;
-            flex-wrap: wrap;
         }
     }
 }
