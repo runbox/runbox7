@@ -61,10 +61,13 @@ export class HorizResizerDirective implements OnInit {
 
                 const parentOffsetTop = this.getParentOffsetTop();
                 this.el.nativeElement.style.top = `${Math.max(0, newTop - parentOffsetTop)}px`;
+                const fullheight = elementRect.bottom - this.getParentOffsetTop();
 
                 this.isFullHeight = newTop - parentOffsetTop < this.fullHeightThreshold;
+                const newHeight = elementRect.bottom - newTop;
+                const percentage = Math.round(newHeight / fullheight * 100);
 
-                this.resized.emit(elementRect.bottom - newTop);
+                this.resized.emit(percentage);
             };
 
             const mouseUp = (evt) => {
@@ -113,6 +116,14 @@ export class HorizResizerDirective implements OnInit {
         return toolbarelement ? toolbarelement.clientHeight : 0;
     }
 
+    heightOffsetToPercentage(height: number): number {
+        const elementRect = this.el.nativeElement.getBoundingClientRect();
+        const fullheight = elementRect.bottom - this.getParentOffsetTop();
+
+        const percentage = Math.round(height / fullheight * 100);
+        return percentage;
+    }
+
     resizePercentage(percentage: number): void {
         const elementRect = this.el.nativeElement.getBoundingClientRect();
         const fullheight = elementRect.bottom - this.getParentOffsetTop();
@@ -120,7 +131,7 @@ export class HorizResizerDirective implements OnInit {
         const newTop = fullheight - newHeight;
 
         this.el.nativeElement.style.top = `${newTop}px`;
-        this.resized.emit(newHeight);
+        this.resized.emit(percentage);
 
         this.isFullHeight = newTop - this.getParentOffsetTop() < this.fullHeightThreshold;
     }
@@ -129,9 +140,10 @@ export class HorizResizerDirective implements OnInit {
         const elementRect = this.el.nativeElement.getBoundingClientRect();
         const fullheight = elementRect.bottom - this.getParentOffsetTop();
         const newTop = fullheight - pixels;
+        const percentage = Math.round(pixels / fullheight * 100);
 
         this.el.nativeElement.style.top = `${newTop}px`;
-        this.resized.emit(pixels);
+        this.resized.emit(percentage);
 
         this.isFullHeight = newTop - this.getParentOffsetTop() < this.fullHeightThreshold;
     }
