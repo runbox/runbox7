@@ -291,6 +291,8 @@ END:VCALENDAR
     });
 
     it('should be possible to import/generate an infinitely repeating event', () => {
+        // This just says "WEEKLY", internals will figure out which
+        // day the startdate is and use that for the repeats.
         const rbevents = sut.fromIcal(undefined,
 `BEGIN:VCALENDAR
 VERSION:2.0
@@ -331,12 +333,13 @@ END:VCALENDAR
 `, true);
         // defaults to 2 months worth of events
         expect(rbevents.length).toBeGreaterThan(7, 'Got more than 7 weekly events');
-        expect(rbevents.length).toBeLessThan(13, 'Got less than 13 weekly events');
         expect(rbevents[0].start.getDay()).toEqual(1, 'Generates dates on a Monday');
     });
 
     it('should be possible to determine the day/time from the dtstart value', () => {
-        const rbevents = sut.fromIcal(undefined,
+        // This just says "WEEKLY", internals will figure out which
+        // day the startdate is and use that for the repeats.
+        let rbevents = sut.fromIcal(undefined,
 `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//www.contactoffice.com//NONSGML Calendar//EN
@@ -374,9 +377,12 @@ TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR
 `, true);
-        // defaults to 2 months worth of events
-        expect(rbevents.length).toBeGreaterThan(7, 'Got more than 7 weekly events');
-        expect(rbevents.length).toBeLessThan(13, 'Got less than 13 weekly events');
+        // The above generates by default all events from the
+        // startdate of the recurring event, to 2 months in the
+        // current future - generate a known set for tests.
+        rbevents = sut.generateEvents(new Date(2020,12,1,0,0,0), new Date(2021,1,1,0,0,0));
+        // These should generate on Mondays, using the dtstart as a pattern
+        expect(rbevents.length).toBe(4, 'Got 4 weekly events');
         expect(rbevents[0].start.getDay()).toEqual(1, 'Generates dates on a Monday');
     });
 });
