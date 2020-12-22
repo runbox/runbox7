@@ -60,6 +60,7 @@ import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings, AppSettingsService } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
+import { UsageReportsService } from './common/usage-reports.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -168,6 +169,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private hotkeysService: HotkeysService,
     public settingsService: AppSettingsService,
     private savedSearchService: SavedSearchesService,
+    // we don't need this for anything, but we want to make sure that it's instantiated
+    // and starts collecting data when we reach the webmail for the first time
+    _usage: UsageReportsService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],

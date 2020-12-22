@@ -24,6 +24,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Router, NavigationEnd } from '@angular/router';
 
+import { UsageReportsService } from '../common/usage-reports.service';
 import { Contact, ContactKind, GroupMember } from './contact';
 import { ContactListComponent } from './contact-list.component';
 import { ContactsService } from './contacts.service';
@@ -70,7 +71,8 @@ export class ContactsAppComponent {
         public  mobileQuery:     MobileQueryService,
         private route:           ActivatedRoute,
         private router:          Router,
-        private snackBar:        MatSnackBar
+        private snackBar:        MatSnackBar,
+        private usage:           UsageReportsService,
     ) {
         console.log('Contacts.app: waiting for backend contacts...');
         this.contactsservice.contactsSubject.subscribe(contacts => {
@@ -145,6 +147,8 @@ export class ContactsAppComponent {
                 this.determineLayout();
             }
         });
+
+        this.usage.report('contacts');
     }
 
     addSelectedToGroup(): void {

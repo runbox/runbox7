@@ -51,7 +51,9 @@ export class AppSettingsService {
     settings: AppSettings = AppSettings.getDefaults();
     settingsSubject: BehaviorSubject<AppSettings> = new BehaviorSubject(AppSettings.getDefaults());
 
-    constructor(private storage: StorageService) {
+    constructor(
+        private storage: StorageService,
+    ) {
         this.storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
             (settings: any) => this.settingsSubject.next(
                 this.settings = AppSettings.load(settings)
