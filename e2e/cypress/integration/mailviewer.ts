@@ -110,7 +110,7 @@ describe('Interacting with mailviewer', () => {
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
         // set full height
-        var resizerHeight = 0;
+        var resizerPercent = 0;
         cy.get('button[mattooltip="Full height"]').click().and(() => {
         // full height
             resizerPercent = parseInt(localStorage.getItem('rmm7resizerpercentage'), 10);
