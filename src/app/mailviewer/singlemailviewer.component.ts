@@ -47,6 +47,7 @@ import { loadLocalMailParser } from './mailparser';
 const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
+const resizerPercentageKey = 'rmm7resizerpercentage';
 
 const TOOLBAR_BUTTON_WIDTH = 40;
 
@@ -118,6 +119,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   height = 0;
   previousHeight: number;
+  previousHeightPercentage: number;
 
   morebuttonindex = 4;
   attachmentAreaCols = 2;
@@ -164,7 +166,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
+    // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
+    this.previousHeightPercentage = parseInt(localStorage.getItem(resizerPercentageKey), 10);
   }
 
   public ngAfterViewInit() {
@@ -172,11 +176,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // a URL fragment:
 
     // Ensure resizer child is loaded before setting height
-    this.resizerQuery.changes.subscribe((resizer: HorizResizerDirective) => {
+    this.resizerQuery.changes.subscribe((resizer: QueryList<HorizResizerDirective>) => {
       setTimeout(() => {
         if (this.adjustableHeight) {
           if (this.previousHeight) {
-            this.resizer.resizePixels(this.previousHeight);
+            // upgrade to Percentage
+            this.previousHeightPercentage = resizer.first.heightOffsetToPercentage(this.previousHeight);
+            this.previousHeight = undefined;
+            localStorage.removeItem(resizerHeightKey);
+          }
+          if (this.previousHeightPercentage) {
+            this.resizer.resizePercentage(this.previousHeightPercentage);
           } else {
             this.resizer.resizePercentage(50);
           }
@@ -558,8 +568,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         }
         // Only care about the horizontal pane height in horizontal mode
         if (this.adjustableHeight && this.resizer) {
-          if (this.previousHeight) {
-            this.resizer.resizePixels(this.previousHeight);
+          if (this.previousHeightPercentage) {
+            this.resizer.resizePercentage(this.previousHeightPercentage);
           } else {
             this.resizer.resizePercentage(50);
           }
@@ -569,11 +579,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   }
 
-  heightChanged(height: number) {
-    this.height = height;
-    if (height > 0) {
-      this.previousHeight = height;
-      localStorage.setItem(resizerHeightKey, height.toString());
+  heightChanged(percentage: number) {
+    if (percentage > 0) {
+      this.previousHeightPercentage = percentage;
+      localStorage.setItem(resizerPercentageKey, percentage.toString());
     }
   }
 
