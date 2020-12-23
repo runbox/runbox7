@@ -648,7 +648,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public deleteMessages() {
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    this.searchService.deleteMessages(messageIds);
+    if (this.selectedFolder == this.messagelistservice.trashFolderName) {
+      // permanent delete
+      this.searchService.deleteMessages(messageIds);
+    } else {
+      // moved to trash
+      const tFolder = this.displayedFolders.find((folder) => folder.folderName == this.messagelistservice.trashFolderName);
+      this.searchService.moveMessagesToFolder(messageIds, tFolder.folderPath);
+    }
+    this.searchService.updateIndexWithNewChanges();
     this.searchService.rmmapi.deleteMessages(messageIds)
       .subscribe(() => {
         this.clearSelection();
