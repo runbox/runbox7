@@ -647,8 +647,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public deleteLocalIndex() {
     this.usewebsocketsearch = true;
-    this.canvastable.topindex = 0;
-    this.canvastable.rows = null;
     this.viewmode = 'messages';
     this.dataReady = false;
     this.showingSearchResults = false;
