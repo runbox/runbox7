@@ -1060,10 +1060,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
   }
 
-  horizScroll(evt: any) {
-    this.canvastable.horizScroll = evt.target.scrollLeft;
-  }
-
   promptLocalSearch() {
     let localSearchIndexPromptItemName: string;
     console.log('promptLocalSearch');
