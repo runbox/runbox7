@@ -38,6 +38,8 @@ import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
 import { MessageDisplay } from '../common/messagedisplay';
 import { CanvasTableColumn } from './canvastablecolumn';
+import { filter, debounceTime } from 'rxjs/operators';
+import { AppComponent } from '../app.component';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -114,10 +116,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   @ViewChild(MatTooltip) columnOverlay: MatTooltip;
 
   repaintDoneSubject: Subject<any> = new Subject();
-  canvasResizedSubject: Subject<boolean> = new Subject();
 
   private canv: HTMLCanvasElement;
 
+  private canvasResizedSubject: Subject<boolean> = new Subject();
   private ctx: CanvasRenderingContext2D;
   private wantedCanvasWidth = 300;
   private wantedCanvasHeight = 300;
@@ -247,6 +249,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   ngOnInit() {
     this.calculateColumnWidths(this.columns);
+
+    this.canvasResizedSubject.pipe(
+      filter(widthChanged => widthChanged === true),
+      debounceTime(20)
+    ).subscribe(() =>
+      setTimeout(() =>
+        this.autoAdjustColumnWidths(), 0
+      )
+    );
   }
 
   ngAfterViewInit() {
@@ -764,7 +775,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
-  public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
+  private autoAdjustColumnWidths(minwidth = 40, tryFitScreenWidth = true) {
     if (!this.canv) {
       return;
     }
@@ -1361,6 +1372,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
 
   }
+
+  public resetColumns(app: AppComponent) {
+    if (this.rows) {
+      this.columns = this.rows.getCanvasTableColumns(app);
+    }
+    this.rowWrapModeWrapColumn = 3;
+    this.rowWrapModeDefaultSelectedColumn = 3;
+    setTimeout(() => this.autoAdjustColumnWidths(), 0);
+  }
 }
 
 @Component({
@@ -1520,7 +1540,6 @@ export class CanvasTableContainerComponent implements OnInit {
       this.selectAllTimeout = null;
     }
   }
-
 }
 
 

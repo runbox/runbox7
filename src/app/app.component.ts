@@ -41,7 +41,7 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
@@ -251,7 +251,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.setMessageDisplay('websocketlist', results);
         this.showingWebSocketSearchResults = true;
       }
-      this.resetColumns();
+      this.canvastable.resetColumns(this);
     });
 
     this.sideMenuOpened = !mobileQuery.matches;
@@ -295,7 +295,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable = this.canvastablecontainer.canvastable;
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
-    this.resetColumns();
+    this.canvastable.resetColumns(this);
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
@@ -311,13 +311,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.canvastable.scrollLimitHit.subscribe((limit) =>
       this.messagelistservice.requestMoreData(limit)
-    );
-
-    this.canvastable.canvasResizedSubject.pipe(
-        filter(widthChanged => widthChanged === true),
-        debounceTime(20)
-      ).subscribe(() =>
-        this.autoAdjustColumnWidths()
     );
 
     const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
@@ -661,7 +654,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.showingSearchResults = false;
     this.searchText = '';
 
-    this.resetColumns();
+    this.canvastable.resetColumns(this);
 
     this.usage.report('local-index-deleted');
 
@@ -737,7 +730,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // FIXME: [2] is searchservice specific!
       if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
-        this.resetColumns();
+        this.canvastable.resetColumns(this);
         this.clearSelection();
 
         // FIXME [0] is searchservice specific!
@@ -787,7 +780,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public afterLoadIndex() {
-    this.resetColumns();
+    this.canvastable.resetColumns(this);
     this.dataReady = true;
 
     this.showingWebSocketSearchResults = false;
@@ -883,7 +876,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
-      this.resetColumns();
+      this.canvastable.resetColumns(this);
       this.updateSearch(true);
     }
   }
@@ -921,7 +914,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         take(1)
       ).subscribe(() =>
         // Reset columns after folder list is updated
-        this.resetColumns()
+        this.canvastable.resetColumns(this)
       );
     this.messagelistservice.setCurrentFolder(folder);
 
@@ -937,7 +930,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     setTimeout(() => {
         if (doResetColumns) {
-          this.resetColumns();
+          this.canvastable.resetColumns(this);
         }
         this.updateSearch(true);
         this.canvastable.scrollTop();
@@ -946,15 +939,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   convertFolderPath(str) {
     return '/' + str.replace(/\./g, '/');
-  }
-
-  resetColumns() {
-    if (this.canvastable && this.canvastable.rows) {
-      this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
-    }
-    this.canvastable.rowWrapModeWrapColumn = 3;
-    this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
-    this.autoAdjustColumnWidths();
   }
 
   showSaveSearchDialog(): void {
@@ -998,7 +982,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
          */
         if (this.showingSearchResults) {
           this.showingSearchResults = false;
-          this.resetColumns();
+          this.canvastable.resetColumns(this);
         }
 
         this.setMessageDisplay('messagelist', this.messagelist);
@@ -1038,7 +1022,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (!this.showingSearchResults ||
           this.displayFolderColumn !== previousDisplayFolderColumn) {
           this.showingSearchResults = true;
-          this.resetColumns();
+          this.canvastable.resetColumns(this);
         }
 
         console.log(querytext);
@@ -1088,12 +1072,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   horizScroll(evt: any) {
     this.canvastable.horizScroll = evt.target.scrollLeft;
-  }
-
-  autoAdjustColumnWidths() {
-    setTimeout(() =>
-      this.canvastable.autoAdjustColumnWidths(40, true), 0
-    );
   }
 
   promptLocalSearch() {
