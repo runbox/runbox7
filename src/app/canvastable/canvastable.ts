@@ -1374,6 +1374,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public resetColumns(app: AppComponent) {
+    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
+    //
+    // "this" so we can check selectedFolder (FIXME: improve!)
+    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
+    //
+    // why we have resetColumns scattered everywhere,
+    // if we just called getCTC whenever we do a paint,
+    // it wouldn't need to be called in AppComponent so often?
+    // would that slow things down?
     if (this.rows) {
       this.columns = this.rows.getCanvasTableColumns(app);
     }

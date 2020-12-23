@@ -686,13 +686,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     }
 
-    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
-    // in canvastable, and anyway get CV to just read the columns itself
-    // "this" so we can check selectedFolder (FIXME: improve!)
-    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
-    // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
-    // would that slow things down?
-    this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
+    this.canvastable.resetColumns(this);
 
     // messages updated, check if we need to select a message from the fragment
     this.selectMessageFromFragment(this.fragment);
