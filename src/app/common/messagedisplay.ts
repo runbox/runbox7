@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
+import { AppComponent } from '../app.component';
 
 export abstract class MessageDisplay {
   public openedRowIndex: number;
@@ -145,5 +146,5 @@ export abstract class MessageDisplay {
   }
 
   // columns
-  abstract getCanvasTableColumns(app: any): CanvasTableColumn[];
+  abstract getCanvasTableColumns(app: AppComponent): CanvasTableColumn[];
 }

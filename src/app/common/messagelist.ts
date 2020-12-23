@@ -21,6 +21,7 @@ import { MessageDisplay } from '../common/messagedisplay';
 import { MessageInfo } from './messageinfo';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
+import { AppComponent } from '../app.component';
 
 export class MessageList extends MessageDisplay {
 
@@ -62,7 +63,7 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
-  public getCanvasTableColumns(app: any): CanvasTableColumn[] {
+  public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
     const columns: CanvasTableColumn[] = [
       {
         sortColumn: null,

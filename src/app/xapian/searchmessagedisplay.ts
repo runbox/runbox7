@@ -21,6 +21,7 @@ import { MessageDisplay } from '../common/messagedisplay';
 import { SearchService } from './searchservice';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
+import { AppComponent } from '../app.component';
 
 export class SearchMessageDisplay extends MessageDisplay {
   private searchService: SearchService;
@@ -43,9 +44,7 @@ export class SearchMessageDisplay extends MessageDisplay {
     return this.searchService.getMessageIdFromDocId(this.rows[index][0]);
   }
 
-  // columns
-  // app is a Component (currently)
-  public getCanvasTableColumns(app: any): CanvasTableColumn[] {
+  public getCanvasTableColumns(app: AppComponent): CanvasTableColumn[] {
     const columns: CanvasTableColumn[] = [
       {
         sortColumn: null,

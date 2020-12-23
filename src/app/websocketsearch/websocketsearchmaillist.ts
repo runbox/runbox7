@@ -21,6 +21,7 @@ import { MessageDisplay } from '../common/messagedisplay';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
+import { AppComponent } from '../app.component';
 
 export class WebSocketSearchMailList extends MessageDisplay {
 
@@ -45,7 +46,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
   }
 
 
-    public getCanvasTableColumns(app: any): CanvasTableColumn[] {
+    public getCanvasTableColumns(_app: AppComponent): CanvasTableColumn[] {
         const columns: CanvasTableColumn[] = [
             {
                 sortColumn: null,
