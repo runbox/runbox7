@@ -216,11 +216,10 @@
               <!-- currently only supporting threading / unread for local index -->
               <mat-list-item>
                 <mat-checkbox
-                  *ngIf="canvastable"
-                  [(ngModel)]="canvastable.showContentTextPreview"
-                  matLine
-                  (change)="saveContentPreviewSetting()"
+                  [(ngModel)]="settingsService.settings.mailviewerContentPreview"
+                  (change)="settingsService.store()"
                   (click)="$event.stopPropagation()"
+                  matLine
                   class="tableViewOptionsMenuElement"
                 >
                   <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
@@ -289,7 +288,7 @@
 
     <div [hidden]="hasChildRouterOutlet">
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !mailViewerOnRightSide && singlemailviewer ? singlemailviewer.height: 0}">
-        <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
+        <app-canvasmessagelist #messagelist></app-canvasmessagelist>
       </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"

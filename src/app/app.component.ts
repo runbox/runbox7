@@ -17,11 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef } from '@angular/core';
 import {
-  CanvasTableSelectListener, CanvasTableComponent,
-  CanvasTableContainerComponent
-} from './canvastable/canvastable';
+    AfterContentInit, AfterViewInit, Component, DoCheck, NgZone,
+    OnInit, ViewChild, Renderer2, ChangeDetectorRef
+} from '@angular/core';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
@@ -61,11 +60,11 @@ import { AppSettings, AppSettingsService } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
+import { MessageListComponent, RowSelection } from './messagelist/messagelistcomponent';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
-const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 
@@ -76,7 +75,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
+export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
@@ -122,13 +121,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
+  @ViewChild('messagelist', { static: true }) canvastable: MessageListComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
 
   sideMenuOpened = true;
 
   hasChildRouterOutlet: boolean;
-  canvastable: CanvasTableComponent;
 
   fragment: string;
 
@@ -223,7 +221,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollUp();
-            this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
@@ -233,7 +230,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           if (newRowIndex < this.canvastable.rows.rowCount()) {
             this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollDown();
-            this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         }
@@ -292,31 +288,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngOnInit(): void {
-    this.canvastable = this.canvastablecontainer.canvastable;
-    this.canvastablecontainer.sortColumn = 2;
-    this.canvastablecontainer.sortDescending = true;
-    this.canvastable.resetColumns(this);
-
-    this.messagelistservice.messagesInViewSubject.subscribe(res => {
-      this.messagelist = res;
-      if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
-        this.setMessageDisplay('messagelist', this.messagelist);
-        this.canvastable.hasChanges = true;
-      }
-    });
-
     this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
       map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
-
-    this.canvastable.scrollLimitHit.subscribe((limit) =>
-      this.messagelistservice.requestMoreData(limit)
-    );
-
-    const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-    if (contentPreview) {
-      this.canvastable.showContentTextPreview = contentPreview === 'true';
-    }
 
     const messagePaneSetting = localStorage.getItem(LOCAL_STORAGE_KEEP_PANE);
     if (messagePaneSetting) {
@@ -380,7 +354,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.overviewSelected = this.router.url === '/overview';
     });
 
-    // Download visible messages in the background
+    // CanvasTable (or equivalent) signal setup
     this.canvastable.visibleRowsChanged.pipe(
       throttleTime(1000)
     ).subscribe((rowIndexes: number[]) => {
@@ -388,9 +362,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             idx => idx < this.canvastable.rows.rowCount()
         ).map(idx => this.canvastable.rows.getRowMessageId(idx));
         for (const id of messageIds) {
-            this.rmmapi.getMessageContents(id).subscribe(() => this.canvastable.hasChanges = true);
+            this.rmmapi.getMessageContents(id).subscribe(() => this.canvastable.detectChanges());
         }
     });
+    this.canvastable.rowSelected.subscribe(
+        (s: RowSelection) => this.rowSelected(s.rowIndex, s.colIndex, s.multiSelect)
+    );
+    this.canvastable.sortToggled.subscribe(() => this.updateSearch(true));
+    this.canvastable.scrollLimitHit.subscribe((limit) =>
+      this.messagelistservice.requestMoreData(limit)
+    );
 
     if ('serviceWorker' in navigator) {
       try  {
@@ -399,6 +380,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.subscribeToNotifications();
+  }
+
+  ngAfterContentInit() {
+    this.messagelistservice.messagesInViewSubject.subscribe(res => {
+      this.messagelist = res;
+      if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
+        this.setMessageDisplay('messagelist', this.messagelist);
+        this.canvastable.detectChanges();
+      }
+    });
   }
 
   selectMessageFromFragment(fragment: string): void {
@@ -536,11 +527,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
     localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
-  }
-
-  saveContentPreviewSetting(): void {
-    const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
-    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
   }
 
   public trainSpam(params) {
@@ -732,7 +718,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.updateSearch(true);
       }
 
-      this.canvastable.hasChanges = true;
+      this.canvastable.detectChanges();
     }
   }
 
@@ -799,7 +785,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
-    this.canvastable.rows.clearOpenedRow();
+    // for some reason this may trigger before rows is actually initialized
+    this.canvastable.rows?.clearOpenedRow();
     this.updateUrlFragment();
   }
 
@@ -1022,8 +1009,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.ngZone.runOutsideAngular(() => {
             searchResults = this.searchService.api.sortedXapianQuery(
               querytext,
-              this.canvastablecontainer.sortColumn,
-              this.canvastablecontainer.sortDescending ? 1 : 0, 0, 50000,
+              this.canvastable.sortColumn,
+              this.canvastable.sortDescending ? 1 : 0, 0, 50000,
               this.viewmode === 'conversations' ? 1 : -1
             );
           });

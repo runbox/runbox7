@@ -40,6 +40,7 @@ import { MessageDisplay } from '../common/messagedisplay';
 import { CanvasTableColumn } from './canvastablecolumn';
 import { filter, debounceTime } from 'rxjs/operators';
 import { AppComponent } from '../app.component';
+import { RowSelection } from '../messagelist/messagelistcomponent';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -55,10 +56,6 @@ const getCSSClassProperty = (className, propertyName) => {
   }
   return window.getComputedStyle(element, null).getPropertyValue(propertyName);
 };
-
-export interface CanvasTableSelectListener {
-  rowSelected(rowIndex: number, colIndex: number, multiSelect?: boolean): void;
-}
 
 export class FloatingTooltip {
   constructor(public top: number,
@@ -217,7 +214,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public floatingTooltip: FloatingTooltip;
 
-  @Input() selectListener: CanvasTableSelectListener;
+  @Output() rowSelected: EventEmitter<RowSelection> = new EventEmitter();
   @Output() touchscroll = new EventEmitter();
 
   touchScrollSpeedY = 0;
@@ -650,7 +647,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       event.dataTransfer.dropEffect = 'move';
       event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
-      this.selectListener.rowSelected(selectedRowIndex, -1);
+      this.emitRowSelection(selectedRowIndex, -1);
     } else {
       event.preventDefault();
       this.lastMouseDownEvent = event;
@@ -719,6 +716,14 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
   }
 
+  private emitRowSelection(rowIndex: number, colIndex: number, multiSelect?: boolean): void {
+    this.rowSelected.emit({
+      rowIndex,
+      colIndex,
+      multiSelect: !!multiSelect,
+    });
+  }
+
   private isScrollInProgress(): boolean {
     return this.scrollbarDragInProgress || Math.abs(this.touchScrollSpeedY) > 0;
   }
@@ -740,7 +745,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const allSelected = this.rows.allSelected();
 
     this.rows.rows.forEach((rowobj, rowIndex) =>
-      this.selectListener.rowSelected(
+      this.emitRowSelection(
         rowIndex,
         0,
         !allSelected
@@ -757,7 +762,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       , true);
 
     visibleRowIndexes.forEach(selectedRowIndex =>
-      this.selectListener.rowSelected(selectedRowIndex,
+      this.emitRowSelection(selectedRowIndex,
         0,
         !visibleRowsAlreadySelected)
     );
@@ -774,7 +779,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const canvrect = this.canv.getBoundingClientRect();
     clientX -= canvrect.left;
 
-    this.selectListener.rowSelected(selectedRowIndex,
+    this.emitRowSelection(selectedRowIndex,
       this.getColIndexByClientX(clientX),
       multiSelect);
 
@@ -1043,7 +1048,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       colx += col.width;
     }
 
-    if (this.rows.rowCount() < 1) {
+    if (!this.rows || this.rows.rowCount() < 1) {
       return;
     }
 
@@ -1426,7 +1431,6 @@ export class CanvasTableContainerComponent implements OnInit {
   };
 
   @Input() configname = 'default';
-  @Input() canvastableselectlistener: CanvasTableSelectListener;
 
   @Output() sortToggled: EventEmitter<any> = new EventEmitter();
 
