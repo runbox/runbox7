@@ -381,11 +381,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
 
     // Download visible messages in the background
-    this.canvastable.repaintDoneSubject.pipe(
-        filter(() => !this.canvastable.isScrollInProgress()),
-        throttleTime(1000)
-    ).subscribe(() => {
-        const rowIndexes = this.canvastable.getVisibleRowIndexes();
+    this.canvastable.visibleRowsChanged.pipe(
+      throttleTime(1000)
+    ).subscribe((rowIndexes: number[]) => {
         const messageIds = rowIndexes.filter(
             idx => idx < this.canvastable.rows.rowCount()
         ).map(idx => this.canvastable.rows.getRowMessageId(idx));
@@ -394,13 +392,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
     });
 
-      if ('serviceWorker' in navigator) {
-        try  {
-          Notification.requestPermission();
-        } catch (e) {}
-      }
+    if ('serviceWorker' in navigator) {
+      try  {
+        Notification.requestPermission();
+      } catch (e) {}
+    }
 
-      this.subscribeToNotifications();
+    this.subscribeToNotifications();
   }
 
   selectMessageFromFragment(fragment: string): void {

@@ -115,12 +115,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   @ViewChild(MatTooltip) columnOverlay: MatTooltip;
 
-  repaintDoneSubject: Subject<any> = new Subject();
 
   private canv: HTMLCanvasElement;
 
   private canvasResizedSubject: Subject<boolean> = new Subject();
   private ctx: CanvasRenderingContext2D;
+  private repaintDoneSubject: Subject<any> = new Subject();
   private wantedCanvasWidth = 300;
   private wantedCanvasHeight = 300;
 
@@ -213,6 +213,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public columnSections: CanvasTableColumnSection[] = [];
 
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
+  public visibleRowsChanged: Subject<number[]> = new Subject();
 
   public floatingTooltip: FloatingTooltip;
 
@@ -258,6 +259,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         this.autoAdjustColumnWidths(), 0
       )
     );
+
+    this.repaintDoneSubject.subscribe(() => {
+      if (!this.isScrollInProgress()) {
+        this.visibleRowsChanged.next(this.getVisibleRowIndexes());
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -712,11 +719,11 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
   }
 
-  public isScrollInProgress(): boolean {
+  private isScrollInProgress(): boolean {
     return this.scrollbarDragInProgress || Math.abs(this.touchScrollSpeedY) > 0;
   }
 
-  public getVisibleRowIndexes(): number[] {
+  private getVisibleRowIndexes(): number[] {
     return new Array(Math.floor(this.maxVisibleRows))
       .fill(0).map((v, n) => Math.round(this.topindex + n));
   }
