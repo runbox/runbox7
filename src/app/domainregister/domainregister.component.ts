@@ -169,6 +169,9 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public is_trial = false;
 
+  public domain_quota_allowed = 0;
+  public domain_quota_used = 0;
+
   public btn_check_avail_color = function () {
     return this.is_available ? 'primary' : 'button';
   };
@@ -210,6 +213,9 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public check_avail = function () {
     if (this.is_btn_search_domain_disabled) { return; }
+    if ( this.domain_quota_used && this.domain_quota_allowed && this.domain_quota_used >= this.domain_quota_allowed ) {
+        return this.show_error('You have reached your domain quota allowed. Please purchase more Email Hosting products', 'Dismiss');
+    }
     this.is_btn_search_domain_disabled = true;
     this.is_available_error_msg = undefined;
     this.selected_product = undefined;
@@ -829,6 +835,22 @@ export class DomainRegisterComponent implements AfterViewInit {
     }
   }
 
+  public check_quota() {
+    const req = this.http.get('/rest/v1/email_hosting/domains_quota');
+    req.pipe(timeout(180000))
+      .subscribe((result: any) => {
+        this.domain_quota_allowed = result.result.domain_quota_allowed;
+        this.domain_quota_used = result.result.domain_quota_used;
+        if ( this.domain_quota_used >= this.domain_quota_allowed ) {
+            this.show_error('You have reached your domain quota allowed. Please purchase more Email Hosting products', 'Dismiss');
+        }
+      },
+        error => {
+          return this.show_error('Could not get domain quotas', 'Dismiss');
+        }
+      );
+  }
+
   constructor(
     private http: HttpClient,
     public snackBar: MatSnackBar,
@@ -849,6 +871,7 @@ export class DomainRegisterComponent implements AfterViewInit {
           return this.show_error('Could not list Top Level Domains', 'Dismiss');
         }
       );
+    this.check_quota();
     req_tld_list.subscribe(result => {
       this.load_domreg_hash();
       this.activate_renew_domain();
