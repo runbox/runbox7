@@ -17,10 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import {
-    AfterContentInit, AfterViewInit, Component, DoCheck, NgZone,
-    OnInit, ViewChild, Renderer2, ChangeDetectorRef
-} from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef } from '@angular/core';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
@@ -75,7 +72,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, DoCheck {
+export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
@@ -121,8 +118,19 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild('messagelist', { static: true }) canvastable: MessageListComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
+
+  useNativeMailList: boolean;
+  canvastable: MessageListComponent;
+  @ViewChild('messagelist', { static: false }) set canvastableComponent(component: MessageListComponent) {
+    if (this.canvastable) {
+      return; // page reload required after switching MessageListComponent impl
+    }
+    if (component) {
+      this.canvastable = component;
+      this.setupCanvasTable();
+    }
+  }
 
   sideMenuOpened = true;
 
@@ -202,6 +210,10 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
     if (localStorage.getItem('rmm7experimentalFeatureEnabled') === 'true') {
         this.experimentalFeatureEnabled = true;
     }
+
+    this.settingsService.settingsSubject.pipe(take(1)).subscribe(settings => {
+      this.useNativeMailList = settings.useNativeMailList;
+    });
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
     this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
@@ -354,7 +366,16 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
       this.overviewSelected = this.router.url === '/overview';
     });
 
-    // CanvasTable (or equivalent) signal setup
+    if ('serviceWorker' in navigator) {
+      try  {
+        Notification.requestPermission();
+      } catch (e) {}
+    }
+
+    this.subscribeToNotifications();
+  }
+
+  private setupCanvasTable(): void {
     this.canvastable.visibleRowsChanged.pipe(
       throttleTime(1000)
     ).subscribe((rowIndexes: number[]) => {
@@ -373,16 +394,6 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
       this.messagelistservice.requestMoreData(limit)
     );
 
-    if ('serviceWorker' in navigator) {
-      try  {
-        Notification.requestPermission();
-      } catch (e) {}
-    }
-
-    this.subscribeToNotifications();
-  }
-
-  ngAfterContentInit() {
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
@@ -677,7 +688,7 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
   }
 
   public clearSelection() {
-    this.canvastable.rows.clearSelection();
+    this.canvastable?.rows.clearSelection();
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -785,8 +796,7 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
   }
 
   singleMailViewerClosed(action: string): void {
-    // for some reason this may trigger before rows is actually initialized
-    this.canvastable.rows?.clearOpenedRow();
+    this.canvastable?.rows.clearOpenedRow();
     this.updateUrlFragment();
   }
 
@@ -1091,6 +1101,10 @@ export class AppComponent implements OnInit, AfterContentInit, AfterViewInit, Do
         }
       })
     ).subscribe();
+  }
+
+  public reloadPage(): void {
+    location.reload();
   }
 
   private updateUrlFragment(): void {

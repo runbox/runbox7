@@ -18,9 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { StorageService } from './storage.service';
-import { filter } from 'rxjs/operators';
 
 export interface AppSettings {
     avatars:                  AppSettings.AvatarSource;
@@ -53,12 +52,12 @@ export namespace AppSettings {
 @Injectable({ providedIn: 'root' })
 export class AppSettingsService {
     settings: AppSettings = AppSettings.getDefaults();
-    settingsSubject: BehaviorSubject<AppSettings> = new BehaviorSubject(AppSettings.getDefaults());
+    settingsSubject: ReplaySubject<AppSettings> = new ReplaySubject();
 
     constructor(
         private storage: StorageService,
     ) {
-        this.storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
+        this.storage.getSubject('webmailSettings').subscribe(
             (settings: any) => {
                 this.settingsSubject.next(
                     this.settings = AppSettings.load(settings)

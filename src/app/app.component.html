@@ -38,7 +38,14 @@
                   [(ngModel)]="settingsService.settings.useNativeMailList"
                   (change)="settingsService.store()"
                   (click)="$event.stopPropagation()"
-                > Use a simplified email list </mat-checkbox>
+                >
+                  Use a simplified email list
+                </mat-checkbox>
+              </mat-list-item>
+              <mat-list-item *ngIf="settingsService.settings.useNativeMailList !== useNativeMailList">
+                <button mat-button (click)="reloadPage()">
+                  Reload the page to apply
+                </button>
               </mat-list-item>
           </mat-list>
       </mat-menu>
@@ -295,7 +302,12 @@
 
     <div [hidden]="hasChildRouterOutlet">
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !mailViewerOnRightSide && singlemailviewer ? singlemailviewer.height: 0}">
-        <app-canvasmessagelist #messagelist></app-canvasmessagelist>
+        <app-canvasmessagelist #messagelist
+         *ngIf="useNativeMailList === false"
+        ></app-canvasmessagelist>
+        <app-nativemessagelist #messagelist
+         *ngIf="useNativeMailList === true"
+        ></app-nativemessagelist>
       </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
