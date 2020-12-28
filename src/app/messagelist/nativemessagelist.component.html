@@ -1,0 +1,40 @@
+<style>
+.messageButton {
+    text-align: left;
+    width:      100%;
+}
+</style>
+<div>
+    <button mat-button
+        *ngFor="let row of shownRows; index as i"
+        [ngClass]="{ 'messageButton': true, 'selectedFolder': openedRowId == i }"
+        (click)="openMessage(i)"
+    >
+        {{ row[columnsByName["Date"]] }} {{ row[columnsByName["From"]] }} <br>
+        <strong> {{ row[columnsByName["Subject"]] }} </strong>
+    </button>
+</div>
+<!--
+<div style="overflow: auto;">
+    <mat-table [dataSource]="shownRows" style="width: 100%; height: 100%">
+        <ng-container matColumnDef="Date">
+            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Date"]] }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="From">
+            <mat-header-cell *matHeaderCellDef> From </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["From"]] }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Subject">
+            <mat-header-cell *matHeaderCellDef> Subject </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Subject"]] }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Size">
+            <mat-header-cell *matHeaderCellDef> Size </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Size"]] }} </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="columnNames; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: columnNames;"></mat-row>
+    </mat-table>
+</div>
+-->
