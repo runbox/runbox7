@@ -33,6 +33,13 @@
                   </mat-select>
                 </mat-form-field>
               </mat-list-item>
+              <mat-list-item>
+                <mat-checkbox
+                  [(ngModel)]="settingsService.settings.useNativeMailList"
+                  (change)="settingsService.store()"
+                  (click)="$event.stopPropagation()"
+                > Use a simplified email list </mat-checkbox>
+              </mat-list-item>
           </mat-list>
       </mat-menu>
 

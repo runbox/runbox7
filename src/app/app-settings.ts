@@ -23,9 +23,10 @@ import { StorageService } from './storage.service';
 import { filter } from 'rxjs/operators';
 
 export interface AppSettings {
+    avatars:                  AppSettings.AvatarSource;
     mailviewerContentPreview: boolean;
     showPopularRecipients:    boolean;
-    avatars:                  AppSettings.AvatarSource;
+    useNativeMailList:        boolean;
 }
 
 export namespace AppSettings {
@@ -37,9 +38,10 @@ export namespace AppSettings {
 
     export function getDefaults(): AppSettings {
         return {
-            avatars: AvatarSource.LOCAL,
+            avatars:                  AvatarSource.LOCAL,
             mailviewerContentPreview: false,
-            showPopularRecipients: true,
+            showPopularRecipients:    true,
+            useNativeMailList:        false,
         };
     }
 
