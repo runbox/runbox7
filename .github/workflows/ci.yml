@@ -1,0 +1,25 @@
+name: Runbox7 CI
+
+on:
+    push:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                phase: ['lint', 'policy', 'unit', 'e2e', 'build']
+        name: Run ${{ matrix.phase }} tests
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: '10.x'
+            - uses: actions/cache@v2
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - run: npm ci
+            - run: npm run ci-tests -- ${{ matrix.phase }}
