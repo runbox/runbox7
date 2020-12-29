@@ -7,7 +7,7 @@
 <div>
     <button mat-button
         *ngFor="let row of shownRows; index as i"
-        [ngClass]="{ 'messageButton': true, 'selectedFolder': openedRowId == i }"
+        [ngClass]="{ 'messageButton': true, 'selectedFolder': rows.openedRowIndex == i }"
         (click)="openMessage(i)"
     >
         {{ row[columnsByName["Date"]] }} {{ row[columnsByName["From"]] }} <br>

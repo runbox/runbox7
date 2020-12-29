@@ -40,7 +40,6 @@ export class NativeMessageListComponent implements MessageListComponent {
     rows: MessageDisplay;
     shownRows: any[] = [];
 
-    openedRowId: number;
     columns: CanvasTableColumn[];
     columnNames: string[];
     columnsByName: Map<string, number>;
@@ -88,7 +87,6 @@ export class NativeMessageListComponent implements MessageListComponent {
             colIndex:    1,
             multiSelect: false,
         });
-        this.openedRowId = i;
     }
 
     scrollDown(): void {}
