@@ -33,4 +33,13 @@ describe('Switching between folders (and not-folders)', () => {
         // and back to inbox...
         goToInbox();
     });
+
+    it('can switch from an open email to another folder', () => {
+        localStorage.setItem('localSearchPromptDisplayed221', 'true');
+
+        cy.visit('/#Inbox:1');
+        cy.get('rmm-folderlist mat-tree-node:contains(Spam)').click();
+        cy.url().should('be', '/#Spam');
+        cy.get('rmm-folderlist mat-tree-node:contains(Spam)').should('have.class', 'selectedFolder');
+    });
 })
