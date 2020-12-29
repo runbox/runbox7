@@ -25,9 +25,18 @@ import { AppComponent } from '../app.component';
 import { Subject } from 'rxjs';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
+interface Message {
+    rowid: number;
+    from: string;
+    date: string;
+    subject: string;
+    unread: boolean;
+}
+
 @Component({
     selector: 'app-nativemessagelist',
     templateUrl: 'nativemessagelist.component.html',
+    styleUrls: ['nativemessagelist.component.scss'],
 })
 export class NativeMessageListComponent implements MessageListComponent {
     sortColumn = 2;
@@ -38,7 +47,13 @@ export class NativeMessageListComponent implements MessageListComponent {
     visibleRowsChanged: Subject<number[]> = new Subject();
     rowSelected: EventEmitter<RowSelection> = new EventEmitter();
     rows: MessageDisplay;
-    shownRows: any[] = [];
+    shownRows: Message[] = [];
+
+    offset = 0;
+    rowsDisplayed = 10;
+    upto: number;
+    rowCount: number;
+    remaining: number;
 
     columns: CanvasTableColumn[];
     columnNames: string[];
@@ -49,11 +64,12 @@ export class NativeMessageListComponent implements MessageListComponent {
             return;
         }
         this.shownRows = [];
-        let limit = 25;
-        if (this.rows.rowCount() < 25) {
-            limit = this.rows.rowCount();
+        this.upto = this.offset + this.rowsDisplayed;
+        this.rowCount = this.rows.rowCount();
+        if (this.rowCount < this.upto) {
+            this.upto = this.rowCount;
         }
-        for (let i = 0; i < limit; i++) {
+        for (let i = this.offset; i < this.upto; i++) {
             const row = this.columns.map(c => {
                 let value = c.getValue(i);
                 if (c.getFormattedValue) {
@@ -61,8 +77,15 @@ export class NativeMessageListComponent implements MessageListComponent {
                 }
                 return value;
             });
-            this.shownRows.push(row);
+            this.shownRows.push({
+                rowid:   i,
+                from:    row[this.columnsByName['From']],
+                subject: row[this.columnsByName['Subject']],
+                date:    row[this.columnsByName['Date']],
+                unread:  this.rows.getRowSeen(i),
+            });
         }
+        this.remaining = this.rowCount - this.upto;
     }
 
     resetColumns(app: AppComponent): void {
@@ -89,7 +112,16 @@ export class NativeMessageListComponent implements MessageListComponent {
         });
     }
 
-    scrollDown(): void {}
-    scrollUp(): void {}
-    scrollTop(): void {}
+    scrollDown(): void {
+        this.offset += this.rowsDisplayed;
+        this.detectChanges();
+    }
+    scrollUp(): void {
+        this.offset -= this.rowsDisplayed;
+        this.detectChanges();
+    }
+    scrollTop(): void {
+        this.offset = 0;
+        this.detectChanges();
+    }
 }

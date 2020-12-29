@@ -1,0 +1,35 @@
+.messageButton {
+    text-align: left;
+    width:      100%;
+}
+
+.firstRow {
+    display: flex;
+    justify-content: space-between;
+}
+
+.subjectRow {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+
+    .subject {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.indicatorsRow {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#nativemessagelist {
+    display: block;
+    height: 100%;
+    overflow: auto;
+}
+
+.pagingButton {
+    width: 100%;
+}

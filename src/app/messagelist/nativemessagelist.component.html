@@ -1,29 +1,30 @@
-<style>
-.messageButton {
-    text-align: left;
-    width:      100%;
-}
-
-.firstRow {
-    display: flex;
-    justify-content: space-between;
-}
-</style>
-<div>
+<div id="nativemessagelist">
+    <div *ngIf="rowsDisplayed < rowCount">
+        Showing messages {{ offset + 1 }}..{{ upto }} out of {{ rowCount }}
+    </div>
+    <button mat-stroked-button class="pagingButton" *ngIf="offset > 0" (click)="scrollUp()">
+        Show previous {{ rowsDisplayed }} messages
+    </button>
     <button mat-stroked-button
         *ngFor="let row of shownRows; index as i"
-        [ngClass]="{ 'messageButton': true, 'selectedFolder': rows.openedRowIndex == i }"
-        (click)="openMessage(i)"
+        [ngClass]="{ 'messageButton': true, 'selectedFolder': rows.openedRowIndex == row.rowid }"
+        (click)="openMessage(row.rowid)"
     >
         <div class="firstRow">
             <div>
-                {{ row[columnsByName["From"]] }}
+                {{ row.from }}
             </div>
             <div>
-                {{ row[columnsByName["Date"]] }}
+                {{ row.date }}
             </div>
         </div>
-        <strong> {{ row[columnsByName["Subject"]] }} </strong>
+        <div class="subjectRow">
+            <div class="subject"> {{ row.subject }} </div>
+            <div *ngIf="row.unread"> <em>UNREAD</em> </div>
+        </div>
+    </button>
+    <button mat-stroked-button class="pagingButton" *ngIf="remaining > 0" (click)="scrollDown()">
+        Show next {{ rowsDisplayed }} messages
     </button>
 </div>
 <!--
