@@ -30,8 +30,8 @@ import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
     templateUrl: 'nativemessagelist.component.html',
 })
 export class NativeMessageListComponent implements MessageListComponent {
-    sortColumn: number;
-    sortDescending: boolean;
+    sortColumn = 2;
+    sortDescending = true;
 
     sortToggled: Subject<void> = new Subject();
     scrollLimitHit: Subject<number> = new Subject();
