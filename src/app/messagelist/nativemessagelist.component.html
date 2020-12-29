@@ -3,14 +3,26 @@
     text-align: left;
     width:      100%;
 }
+
+.firstRow {
+    display: flex;
+    justify-content: space-between;
+}
 </style>
 <div>
-    <button mat-button
+    <button mat-stroked-button
         *ngFor="let row of shownRows; index as i"
         [ngClass]="{ 'messageButton': true, 'selectedFolder': rows.openedRowIndex == i }"
         (click)="openMessage(i)"
     >
-        {{ row[columnsByName["Date"]] }} {{ row[columnsByName["From"]] }} <br>
+        <div class="firstRow">
+            <div>
+                {{ row[columnsByName["From"]] }}
+            </div>
+            <div>
+                {{ row[columnsByName["Date"]] }}
+            </div>
+        </div>
         <strong> {{ row[columnsByName["Subject"]] }} </strong>
     </button>
 </div>
