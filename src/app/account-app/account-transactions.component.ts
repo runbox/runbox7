@@ -18,17 +18,35 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AsyncSubject } from 'rxjs';
-
 import * as moment from 'moment';
+import { MobileQueryService } from '../mobile-query.service';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+
+// TODO a proper interface for this
+type Transaction = any;
 
 @Component({
     selector: 'app-account-transactions-component',
     templateUrl: './account-transactions.component.html',
+    styleUrls: ['./mobiletables.scss'],
+    animations: [
+        trigger('detailExpand', [
+            state('collapsed', style({height: '0px', minHeight: '0'})),
+            state('expanded', style({height: '*'})),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+    ],
 })
 export class AccountTransactionsComponent implements OnInit {
-    transactions = new AsyncSubject<any[]>();
+    transactions = new AsyncSubject<Transaction[]>();
+    expandedTransaction: Transaction;
+
+    columnsDefault = ['amount', 'status', 'method', 'time', 'time-desc', 'receipt'];
+    columnsMobile  = ['expansionIndicator', 'time', 'amount', 'statusIcon'];
+
+    displayedColumns: string[];
 
     methods = {
         bitpay:     'Bitpay',
@@ -45,8 +63,16 @@ export class AccountTransactionsComponent implements OnInit {
     };
 
     constructor(
+        public  mobileQuery: MobileQueryService,
         private rmmapi: RunboxWebmailAPI,
     ) {
+        this.displayedColumns = this.mobileQuery.matches ? this.columnsMobile : this.columnsDefault;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.displayedColumns = mobile ? this.columnsMobile : this.columnsDefault;
+            if (!mobile) {
+                this.expandedTransaction = null;
+            }
+        });
     }
 
     ngOnInit() {
@@ -61,4 +87,11 @@ export class AccountTransactionsComponent implements OnInit {
             this.transactions.complete();
         });
     }
+
+    rowClicked(t: Transaction) {
+        if (this.mobileQuery.matches) {
+            this.expandedTransaction = this.expandedTransaction === t ? null : t;
+        }
+    }
+
 }

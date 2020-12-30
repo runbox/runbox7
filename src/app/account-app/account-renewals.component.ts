@@ -40,6 +40,7 @@ type ActiveProduct = any;
 @Component({
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
+    styleUrls: ['./mobiletables.scss'],
     animations: [
         trigger('detailExpand', [
             state('collapsed', style({height: '0px', minHeight: '0'})),
