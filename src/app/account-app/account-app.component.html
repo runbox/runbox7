@@ -41,7 +41,17 @@
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon svgIcon="menu"></mat-icon>
             </button>
+            <ng-container *ngIf="cart.items | async as items">
+                <button mat-mini-fab
+                    *ngIf="items.length > 0"
+                    routerLink="/account/cart"
+                >
+                    <mat-icon [matBadge]="items.length" matBadgePosition="below before" svgIcon="cart">
+                    </mat-icon>
+                </button>
+            </ng-container>
         </mat-toolbar>
+
         <style>
         #shoppingCartButton {
             position: fixed;
@@ -51,7 +61,7 @@
         }
         </style>
 
-        <div *ngIf="cart.items | async as items">
+        <div *ngIf="!mobileQuery.matches && cart.items | async as items">
             <button mat-fab id="shoppingCartButton"
                 *ngIf="items.length > 0"
                 matTooltip="Go to your shopping cart"
