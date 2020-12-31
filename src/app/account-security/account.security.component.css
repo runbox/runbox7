@@ -9,33 +9,21 @@ mat-form-field {
 }
     
 #totp_instructions, #totp_example {
-    float: left;
-    width: 48%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+#totp_example {
+    margin: 15px;
+    padding: 10px;
+    border: 1px solid #D7D5D7;
+    justify-content: space-evenly;
 }
 
 #totp-steps span {
     margin-left: 20px;
-}
-
-#table_totp_example {
-    margin-top: 20px;
-    margin-left: 4%;
-}
-
-#totp_example table {
-    display: inline-block;
-    margin-bottom: 10px;
-    border: 1px solid #D7D5D7;
-    border-right: 1px solid #D7D5D7;
-    border-bottom: 1px solid #D7D5D7;
-}
-
-#totp_example table td
-{
-    padding: 10px;
-    margin: 0;    
-    border-spacing: 0px;
-    border-collapse: separate;
 }
 
 /* Animated otp begin */
