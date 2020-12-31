@@ -32,12 +32,11 @@
     </mat-tab>
     <mat-tab label="Two-Factor Authentication">
       <app-runbox-section>
-        <div runbox-section-header>
+        <div runbox-section-header class="section-header-with-toggle">
           <h3 class="runbox-section-header">Two-Factor Authentication</h3>
           <mat-slide-toggle
             [(ngModel)]="rmm.account_security.tfa.settings.is_2fa_enabled"
             (ngModelChange)="toggle_2fa()"
-            style="float: right;"
             >
             {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
@@ -50,12 +49,11 @@
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
-        <div runbox-section-header>
+        <div runbox-section-header class="section-header-with-toggle">
           <h4 class="runbox-section-header">Timed One-Time Passwords</h4>
           <mat-slide-toggle
             [(ngModel)]="rmm.account_security.tfa.settings.is_device_2fa_enabled"
             (ngModelChange)="toggle_totp_device()"
-            style="float: right;"
             >
             {{ rmm.account_security.tfa.settings.is_device_2fa_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
@@ -155,12 +153,11 @@
 	</div>
       </app-runbox-section>
       <app-runbox-section size="h2">
-        <div runbox-section-header>
+        <div runbox-section-header class="section-header-with-toggle">
           <h4 class="runbox-section-header">One-Time Passwords</h4>
           <mat-slide-toggle
             [(ngModel)]="rmm.account_security.tfa.settings.is_otp_enabled"
             (ngModelChange)="toggle_otp()"
-            style="float: right;"
             >
             {{ rmm.account_security.tfa.settings.is_otp_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
@@ -294,12 +291,11 @@
     </mat-tab>
     <mat-tab label="App Passwords">
       <app-runbox-section size="h2">
-        <div runbox-section-header>
+        <div runbox-section-header class="section-header-with-toggle">
           <h3 class="runbox-section-header">App passwords</h3>
           <mat-slide-toggle
             [(ngModel)]="rmm.account_security.tfa.settings.is_app_pass_enabled"
             (ngModelChange)="app_pass_toggle_main_switch()"
-            style="float: right;"
             >
             {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>

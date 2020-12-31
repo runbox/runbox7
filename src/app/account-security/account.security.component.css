@@ -1,3 +1,9 @@
+div.section-header-with-toggle {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
 mat-form-field {
     margin: 0 10px;
 }
