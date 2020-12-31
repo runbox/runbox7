@@ -411,7 +411,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       const canvrect = this.canv.getBoundingClientRect();
       const clientX = event.clientX - canvrect.left;
 
-      let newHoverRowIndex = Math.floor(this.topindex + (event.clientY - canvrect.top) / this.rowheight);
+      let newHoverRowIndex = this.getRowIndexByClientY(event.clientY);
       if (this.scrollbarDragInProgress || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
         newHoverRowIndex = null;
       }
@@ -526,11 +526,14 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       event.preventDefault();
       if (this.visibleColumnSeparatorIndex > 0) {
         this.columnresizeend.emit();
-      } else if (!this.scrollbarArea &&
-        this.lastMouseDownEvent &&
-        event.clientX === this.lastMouseDownEvent.clientX &&
-        event.clientY === this.lastMouseDownEvent.clientY) {
-        this.selectRow(event.clientX, event.clientY);
+      } else if (!this.scrollbarArea && this.lastMouseDownEvent) {
+        const lastcol = this.getColIndexByClientX(this.lastMouseDownEvent.clientX);
+        const thiscol = this.getColIndexByClientX(event.clientX);
+        const lastrow = this.getRowIndexByClientY(this.lastMouseDownEvent.clientY);
+        const thisrow = this.getRowIndexByClientY(event.clientY);
+        if (lastcol === thiscol && lastrow === thisrow) {
+          this.selectRow(event.clientX, event.clientY);
+        }
       }
 
       this.lastMouseDownEvent = null;
@@ -623,7 +626,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public dragColumnOverlay(event: DragEvent) {
     const canvrect = this.canv.getBoundingClientRect();
     const selectedColIndex = this.getColIndexByClientX(event.clientX - canvrect.left);
-    const selectedRowIndex = Math.floor(this.topindex + (event.clientY - canvrect.top) / this.rowheight);
+    const selectedRowIndex = this.getRowIndexByClientY(event.clientY);
 
     if (!this.columns[selectedColIndex].checkbox) {
       event.dataTransfer.dropEffect = 'move';
@@ -648,6 +651,11 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.topindex = this.rows.rowCount() * ((clientY - canvrect.top) / this.canv.scrollHeight);
 
     this.enforceScrollLimit();
+  }
+
+  private getRowIndexByClientY(clientY: number) {
+    const canvrect = this.canv.getBoundingClientRect();
+    return Math.floor(this.topindex + (clientY - canvrect.top) / this.rowheight);
   }
 
   public getColIndexByClientX(clientX: number) {
@@ -740,8 +748,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public selectRow(clientX: number, clientY: number, multiSelect?: boolean) {
-    const canvrect = this.canv.getBoundingClientRect();
-    const selectedRowIndex = Math.floor(this.topindex + (clientY - canvrect.top) / this.rowheight);
+    const selectedRowIndex = this.getRowIndexByClientY(clientY);
     this.selectRowByIndex(clientX, selectedRowIndex, multiSelect);
   }
 
