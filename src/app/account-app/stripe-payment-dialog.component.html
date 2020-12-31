@@ -2,14 +2,15 @@
 .payment-row {
   display: -ms-flexbox;
   display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 0 5px 10px;
 }
 
 .payment-field {
   position: relative;
-  width: 100%;
   height: 50px;
-  margin: 0 10px;
   border-radius: 4px;
   border: 1px solid transparent;
   padding: 5px;
@@ -22,7 +23,7 @@
 }
 
 .payment-field-small {
-  width: 30%;
+  flex: 1 0 25%;
 }
 
 .payment-field-small .mat-form-field {
@@ -42,9 +43,9 @@
     </p>
 </ng-template>
 
-<div mat-dialog-content style="width: 500px; height: 300px;">
+<div mat-dialog-content style="max-width: 500px;">
     <div style="width: 100%; text-align: center">
-        <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: 300px; height: auto" />
+        <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
     </div>
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
         <div id="payment-button-row" class="payment-row" [style.display]="paymentRequestsSupported ? 'block' : 'none'">
