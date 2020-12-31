@@ -177,14 +177,16 @@
         </div>
         <div runbox-section-content>
           <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
-          <p>
-          <span>Browser name: </span>
-          <mat-form-field>
-            <input matInput name="trusted_browser_name" placeholder="Enter browser/device name" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
-          </mat-form-field>
-          <span><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></span>
-          <span style="padding-left: 20px">Suggestion: "Firefox on PC"</span>
-          </p>
+          <div style="display: flex; flex-wrap: wrap; align-items: center;">
+            <div>Browser name: </div>
+            <mat-form-field>
+              <input matInput name="trusted_browser_name" placeholder="Enter browser/device name" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
+            </mat-form-field>
+            <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; gap: 20px;">
+              <div><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></div>
+              <div>Suggestion: "Firefox on PC"</div>
+            </div>
+          </div>
           <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.device.results">
             <mat-grid-tile><h4>Name</h4></mat-grid-tile>
             <mat-grid-tile><h4>Status</h4></mat-grid-tile>
