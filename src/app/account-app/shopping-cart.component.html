@@ -1,9 +1,3 @@
-<style>
-app-payment-method {
-    text-align: center;
-}
-</style>
-
 <h1 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h1>
 <ng-template #urlPurchase> <h2> Your purchase </h2> </ng-template>
 
@@ -50,7 +44,9 @@ app-payment-method {
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
         <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency }} </td>
-        <td mat-footer-cell *matFooterCellDef> <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong> </td>
+        <td mat-footer-cell *matFooterCellDef [ngStyle]="{ 'text-align': mobileQuery.matches ? 'end' : null }">
+            <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong>
+        </td>
     </ng-container>
 
     <ng-container matColumnDef="remove">
@@ -105,9 +101,19 @@ app-payment-method {
 
     <style>
     .paymentMethods {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-around;
+        gap: 20px;
+    }
+
+    .paymentMethods app-payment-method {
+        flex: 350px 0 1;
+        text-align: center;
+    }
+
+    .paymentMethods mat-expansion-panel {
+        flex: 100% 0 0;
     }
     </style>
 
