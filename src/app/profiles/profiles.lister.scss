@@ -1,0 +1,21 @@
+.profile-form {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.profile-form form > div {
+    display: inline-block;
+    position: relative;
+    margin: 10px;
+}
+.header-image {
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-image: url(/_img/avatar.svg);
+    background-size: cover;
+}
+.mat_header {
+    align-items: center;
+}
+.profile-lister {
+    margin-top: 35px;
+}
