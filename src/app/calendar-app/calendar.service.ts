@@ -380,7 +380,6 @@ export class CalendarService implements OnDestroy {
             } else if (!end_date_Moment) {
                 end_date_Moment =  moment().startOf('month').add(2, 'month');
             }
-
             // keep going until we pass the end date:
             while ( ( next_time = iterator.next() )
                 && (end_date_Moment ? end_date_Moment.isAfter(next_time.toJSDate()) : true) ) {

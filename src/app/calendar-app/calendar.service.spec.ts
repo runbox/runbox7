@@ -380,7 +380,7 @@ END:VCALENDAR
         // The above generates by default all events from the
         // startdate of the recurring event, to 2 months in the
         // current future - generate a known set for tests.
-        rbevents = sut.generateEvents(new Date(2020,12,1,0,0,0), new Date(2021,1,1,0,0,0));
+        rbevents = sut.generateEvents(new Date(2020, 12, 1, 0, 0, 0), new Date(2021, 1, 1, 0, 0, 0));
         // These should generate on Mondays, using the dtstart as a pattern
         expect(rbevents.length).toBe(4, 'Got 4 weekly events');
         expect(rbevents[0].start.getDay()).toEqual(1, 'Generates dates on a Monday');
