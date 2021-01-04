@@ -93,6 +93,8 @@ export class AccountSecurityComponent implements OnInit {
   service_columns_desktop = ['name', 'status', 'description'];
   service_columns_mobile = ['name', 'status'];
   service_rows: any[];
+  app_pass_columns_desktop = ['name', 'status', 'password', 'action'];
+  app_pass_columns_mobile = ['name', 'status'];
   app_pass_name: string;
   is_btn_app_pass_new_disabled = false;
   acl_service = '';
