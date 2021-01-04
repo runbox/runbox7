@@ -178,10 +178,12 @@
         <div runbox-section-content>
           <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
           <div style="display: flex; flex-wrap: wrap; align-items: center;">
-            <div>Browser name: </div>
-            <mat-form-field>
-              <input matInput name="trusted_browser_name" placeholder="Enter browser/device name" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
-            </mat-form-field>
+            <p style="margin-bottom: 0px;">
+              Browser name:
+              <mat-form-field>
+                <input matInput name="trusted_browser_name" placeholder="Enter browser/device name" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
+              </mat-form-field>
+            </p>
             <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; gap: 20px;">
               <div><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></div>
               <div>Suggestion: "Firefox on PC"</div>
