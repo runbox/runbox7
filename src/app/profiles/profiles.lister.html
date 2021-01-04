@@ -2,76 +2,54 @@
     <ng-content select="[section-header]" style="margin-top: 20px;"></ng-content>
     <ng-content select="[section-description]"></ng-content>
     <ng-content select="[section-buttons]"></ng-content>
-    <mat-card class="mat_card" *ngFor="let item of values; let i = index;"
-        style='width: 600px; display: inline-flex; border-bottom: 1px solid #CCC'>
-        <mat-card-content class="" style="width: 100%">
-            <p>
-                <mat-grid-list cols="12" rowHeight="35px" class=''>
-                    <mat-grid-tile colspan="1" rowspan="{{item.profile.signature?4:3}}">
-                        <div mat-card-avatar class="header-image"></div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" rowspan="1" style='width: 600px;'>
-                        <div style="text-align: right; width: 100%; margin-right: 5px;">
-                            Email:
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="8" rowspan="1">
-                        <div style="text-align: left; width: 100%; margin-left: 5px;">
-                            {{item.profile.email}}
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="1" rowspan="{{item.profile.signature?4:3}}">
-                        <div>
-                            <button mat-raised-button (click)="edit(item)" color="primary">EDIT</button>
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" rowspan="1">
-                        <div style="text-align: right; width: 100%; margin-right: 5px;">
-                            From name:
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="8" rowspan="1">
-                        <div style="text-align: left; width: 100%; margin-left: 5px;">
-                            <strong>{{item.profile.from_name}}</strong>
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="2" rowspan="1">
-                        <div style="text-align: right; width: 100%; margin-right: 5px;">
-                            Reply to:
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="8" rowspan="1">
-                        <div style="text-align: left; width: 100%; margin-left: 5px;">
-                            <strong>{{item.profile.reply_to}}</strong>
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile *ngIf="item.profile.signature" colspan="2" rowspan="1">
-                        <div style="text-align: right; width: 100%; margin-right: 5px;">
-                            Signature:
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile *ngIf="item.profile.signature" colspan="8" rowspan="1">
-                        <div style="text-align: left; width: 100%; margin-left: 5px;">
-                            <div [innerHTML]="item.profile.signature"></div>
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="12" rowspan="1" *ngIf="
+    <mat-card class="mat-elevation-z2 profile-card" *ngFor="let item of values; let i = index;">
+        <mat-card-content class="profile-content">
+            <mat-grid-list cols="{{mobile?6:7}}" rowHeight="15px">
+                <mat-grid-tile colspan="2" rowspan="2">
+                    <span class="float-right">Email:</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="4" rowspan="2">
+                    <span class="float-left">{{item.profile.email}}</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="1" rowspan="8" *ngIf="!mobile">
+                    <button mat-raised-button (click)="edit(item)" color="primary">EDIT</button>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2" rowspan="2">
+                    <span class="float-right">From name:</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="4" rowspan="2">
+                    <span class="float-left">{{item.profile.from_name}}</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2" rowspan="2">
+                    <span class="float-right">Reply to:</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="4" rowspan="2">
+                    <span class="float-left">{{item.profile.reply_to}}</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2" rowspan="2">
+                    <span class="float-right">Signature:</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="4" rowspan="2">
+                    <span class="float-left">{{item.profile.signature}}</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="
                             rmm.profile.profiles
                             && rmm.profile.profiles.is_not_owner_alias
                             && rmm.profile.profiles.is_not_owner_alias[item.profile.id]
                         ">
-                        <div style="text-align: left; width: 100%; margin-left: 5px;">
-                            You are not the owner of this alias. Changes will not be saved.
-                        </div>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="12" rowspan="1"
-                        *ngIf="item.profile.reference_type == 'preference' && item.profile.reference.status === 1">
-                        <div style="text-align: left; width: 100%; margin-left: 5px;">
-                            Email not validated.
-                        </div>
-                    </mat-grid-tile>
-                </mat-grid-list>
-            </p>
+                    <span class="identity-warning">You are not the owner of this alias. Changes will not be saved.</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1"
+                    *ngIf="item.profile.reference_type == 'preference' && item.profile.reference.status === 1">
+                    <span class="identity-warning">Email not validated.</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="mobile">
+                    <mat-divider></mat-divider>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="3" *ngIf="mobile">
+                    <button mat-raised-button (click)="edit(item)" color="primary">EDIT</button>
+                </mat-grid-tile>
+            </mat-grid-list>
         </mat-card-content>
     </mat-card>
 </div>

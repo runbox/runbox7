@@ -1,15 +1,19 @@
+* {
+    box-sizing: border-box;
+}
+
 .profile-form {
     padding-top: 10px;
     padding-bottom: 10px;
 }
 .profile-form form > div {
-    display: inline-block;
     position: relative;
+    display: inline-block;
     margin: 10px;
 }
 .header-image {
-    border-radius: 50%;
     flex-shrink: 0;
+    border-radius: 50%;
     background-image: url(/_img/avatar.svg);
     background-size: cover;
 }
@@ -18,4 +22,34 @@
 }
 .profile-lister {
     margin-top: 35px;
+}
+.profile-card {
+    display: inline-flex;
+    width: calc(100% - 10px);
+    margin: 5px;
+    @media only screen and (min-width: 769px) {
+        width: calc(50% - 10px);
+        max-width: 600px;
+        margin: 5px;
+    }
+}
+.profile-content {
+    width: 100%;
+    .float-right {
+        width: 100%;
+        margin-right: 10px;
+        text-align: right;
+        white-space: nowrap;
+    }
+    .float-left {
+        width: 100%;
+        text-align: left;
+    }
+    .mobile-edit {
+        height: 50px;
+    }
+}
+.identity-warning {
+    font-weight: bold;
+    color: crimson;
 }
