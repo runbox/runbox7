@@ -214,7 +214,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   public check_avail = function () {
     if (this.is_btn_search_domain_disabled) { return; }
     if ( this.domain_quota_used && this.domain_quota_allowed && this.domain_quota_used >= this.domain_quota_allowed ) {
-        return this.show_error('You have reached your domain quota allowed. Please purchase more Email Hosting products', 'Dismiss');
+        return this.show_error('You have reached your allowed Email Domain quota. Please purchase more Email Hosting products.', 'Dismiss');
     }
     this.is_btn_search_domain_disabled = true;
     this.is_available_error_msg = undefined;
@@ -842,11 +842,11 @@ export class DomainRegisterComponent implements AfterViewInit {
         this.domain_quota_allowed = result.result.domain_quota_allowed;
         this.domain_quota_used = result.result.domain_quota_used;
         if ( this.domain_quota_used >= this.domain_quota_allowed ) {
-            this.show_error('You have reached your domain quota allowed. Please purchase more Email Hosting products', 'Dismiss');
+            this.show_error('You have reached your allowed Email Domain quota. Please purchase more Email Hosting products.', 'Dismiss');
         }
       },
         error => {
-          return this.show_error('Could not get domain quotas', 'Dismiss');
+          return this.show_error('Could not get Email Domain quota.', 'Dismiss');
         }
       );
   }
