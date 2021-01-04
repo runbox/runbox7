@@ -231,7 +231,7 @@
             <ng-container matColumnDef="details">
               <td mat-cell *matCellDef="let device" [attr.colspan]="trusted_browser_columns_mobile.length">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                  <div> Created on {{ device.created }} </div>
+                  <div> Created on <span style="white-space: nowrap;">{{ device.created }}</span> </div>
                   <div>
                     <button mat-raised-button class="primaryContentButton" (click)="device_delete(device.id)">Delete</button>
                   </div>
