@@ -90,6 +90,9 @@ export class AccountSecurityComponent implements OnInit {
   trusted_browser_name: string;
   trusted_browser_columns_desktop = ['name', 'status', 'created', 'action'];
   trusted_browser_columns_mobile = ['name', 'status'];
+  service_columns_desktop = ['name', 'status', 'description'];
+  service_columns_mobile = ['name', 'status'];
+  service_rows: any[];
   app_pass_name: string;
   is_btn_app_pass_new_disabled = false;
   acl_service = '';
@@ -114,6 +117,10 @@ export class AccountSecurityComponent implements OnInit {
     public rmm: RMM,
   ) {
     this.rmm.me.load();
+
+    this.service_rows = this.rmm.account_security.service.services_translation_ordered.filter(
+        (s: any) => !s.hide
+    );
   }
 
   otp_generate() {
