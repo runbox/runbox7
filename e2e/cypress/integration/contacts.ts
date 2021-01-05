@@ -6,7 +6,7 @@ describe('Display contact details', () => {
         cy.contains('Welcome to Runbox 7 Contacts');
         cy.contains('Patrick Postcode').click();
         cy.url().should('include', 'id-mr-postcode');
-        cy.get('input[placeholder="Company"').should('have.value', 'Post Office #42');
+        cy.get('input[data-placeholder="Company"').should('have.value', 'Post Office #42');
     });
 
     it('Should provide a sensible UI in mobile view', () => {
