@@ -83,7 +83,7 @@
           </ng-container>  
           <ng-container *ngSwitchCase="'trash'">
             <mat-menu #trashFolderActionsMenu="matMenu">
-              <button mat-menu-item (click)="emptyTrash.next(node.folderName)">
+              <button mat-menu-item (click)="emptyTrash.next(node)">
                 <mat-icon svgIcon="notification-clear-all"></mat-icon>
                 <span>Empty trash</span>              
               </button>

@@ -23,7 +23,7 @@ describe('Folder management', () => {
             .click();
 
         cy.server();
-        cy.route('DELETE', '/rest/v1/email/**').as('emptyTrashReq');
+        cy.route('PUT', '/rest/v1/email_folder/empty').as('emptyTrashReq');
         cy.contains('div.mat-menu-content button', 'Empty trash').click();
         cy.wait('@emptyTrashReq');
     });

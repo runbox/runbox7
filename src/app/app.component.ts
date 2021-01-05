@@ -517,16 +517,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
-  async emptyTrash(trashFolderName: string) {
-    console.log('found trash folder with name', trashFolderName);
+  async emptyTrash(trashFolder: FolderListEntry) {
+    console.log('found trash folder with name', trashFolder.folderName);
     const messageLists = await this.rmmapi.listAllMessages(
       0, 0, 0,
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-      true, trashFolderName
+      true, trashFolder.folderName
     ).toPromise();
-    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
+
+    // remove local copies
+    this.searchService.deleteMessages(messageLists.map((msg) => msg.id));
+    this.searchService.updateIndexWithNewChanges();
+    // empty remote folder
+    await this.rmmapi.emptyFolder(trashFolder.folderId).toPromise();
+    // ensure the view empties if we're looking at the trash
+    this.messagelistservice.setCurrentFolder(trashFolder.folderName);
+    // update local copies
     this.messagelistservice.refreshFolderList();
-    console.log('Deleted from', trashFolderName);
+    console.log('Deleted from', trashFolder.folderName);
   }
 
   async emptySpam(spamFolderName) {
