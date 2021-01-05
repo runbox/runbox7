@@ -18,37 +18,51 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { MediaMatcher } from '@angular/cdk/layout';
+import { BreakpointObserver, MediaMatcher } from '@angular/cdk/layout';
 import { Subject } from 'rxjs';
 
-// just an injectable wrapper around a preconfigured MediaMatcher
+export enum ScreenSize {
+    Phone,
+    Tablet,
+    Desktop,
+}
 
 @Injectable()
 export class MobileQueryService {
-    public mobileQuery: MediaQueryList;
-    public changed = new Subject<boolean>();
+    screenSize: ScreenSize;
+    screenSizeChanged = new Subject<ScreenSize>();
+
+    // deprecated, use ScreenSize instead
+    private mobileQuery: MediaQueryList;
+
+    changed = new Subject<boolean>();
 
     get matches(): boolean {
         return this.mobileQuery.matches;
     }
 
     constructor(
-        media: MediaMatcher,
+        breakpointObserver: BreakpointObserver,
+        media:              MediaMatcher,
     ) {
+        breakpointObserver.observe([
+            // I'm not sure if passing raw selectors is even the allowed API here,
+            // but the docs do say `string`, so eh
+            '(max-width: 480px)',
+            '(max-width: 1024px)',
+        ]).subscribe(_ => {
+            if (window.innerWidth <= 480) {
+                this.screenSize = ScreenSize.Phone;
+            } else if (window.innerWidth <= 1024) {
+                this.screenSize = ScreenSize.Tablet;
+            } else {
+                this.screenSize = ScreenSize.Desktop;
+            }
+            this.screenSizeChanged.next(this.screenSize);
+        });
+
         this.mobileQuery = media.matchMedia('(max-width: 1024px)');
         // tslint:disable-next-line:deprecation
         this.mobileQuery.addListener(() => this.changed.next(this.mobileQuery.matches));
-    }
-
-    addListener(listener: () => void) {
-        // the non-deprecated addEventListener doesn't work on Safari, so...
-        // tslint:disable-next-line:deprecation
-        this.mobileQuery.addListener(listener);
-    }
-
-    removeListener(listener: () => void) {
-        // the non-deprecated removeEventListener doesn't work on Safari, so...
-        // tslint:disable-next-line:deprecation
-        this.mobileQuery.removeListener(listener);
     }
 }
