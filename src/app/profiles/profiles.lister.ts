@@ -22,35 +22,29 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { RMM } from '../rmm';
+import { MobileQueryService, ScreenSize } from '../mobile-query.service';
 
 @Component({
     selector: 'app-profiles-lister',
     styleUrls: ['profiles.lister.scss'],
     templateUrl: 'profiles.lister.html',
-    host: {
-        '(window:resize)': 'onResize($event)',
-    },
 })
 export class ProfilesListerComponent {
     @Input() values: any[];
     @Output() ev_reload = new EventEmitter<string>();
 
     private dialog_ref: any;
+    mobile: boolean;
+
     constructor(
         public dialog: MatDialog,
         public rmm: RMM,
-        public snackBar: MatSnackBar
+        public snackBar: MatSnackBar,
+        mobileQuery: MobileQueryService,
     ) {
         this.rmm.me.load();
-    }
-
-    mobile;
-
-    ngOnInit() {
-        this.mobile = window.innerWidth <= 480 ? true : false;
-    }
-    onResize(event) {
-        this.mobile = event.target.innerWidth <= 480 ? true : false;
+        this.mobile = mobileQuery.screenSize === ScreenSize.Phone;
+        mobileQuery.screenSizeChanged.subscribe(size => this.mobile = size === ScreenSize.Phone);
     }
 
     edit(item): void {
