@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { BreakpointObserver, MediaMatcher } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Subject } from 'rxjs';
 
 export enum ScreenSize {
@@ -32,18 +32,13 @@ export class MobileQueryService {
     screenSize: ScreenSize;
     screenSizeChanged = new Subject<ScreenSize>();
 
-    // deprecated, use ScreenSize instead
-    private mobileQuery: MediaQueryList;
-
+    // old API, meaning "is it not a desktop"
+    // use screenSize instead
+    matches: boolean;
     changed = new Subject<boolean>();
-
-    get matches(): boolean {
-        return this.mobileQuery.matches;
-    }
 
     constructor(
         breakpointObserver: BreakpointObserver,
-        media:              MediaMatcher,
     ) {
         breakpointObserver.observe([
             // I'm not sure if passing raw selectors is even the allowed API here,
@@ -59,10 +54,13 @@ export class MobileQueryService {
                 this.screenSize = ScreenSize.Desktop;
             }
             this.screenSizeChanged.next(this.screenSize);
-        });
 
-        this.mobileQuery = media.matchMedia('(max-width: 1024px)');
-        // tslint:disable-next-line:deprecation
-        this.mobileQuery.addListener(() => this.changed.next(this.mobileQuery.matches));
+            // old API compatibility
+            const matches = this.screenSize !== ScreenSize.Desktop;
+            if (matches !== this.matches) {
+                this.matches = matches;
+                this.changed.next(matches);
+            }
+        });
     }
 }
