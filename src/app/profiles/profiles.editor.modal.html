@@ -1,150 +1,122 @@
-<mat-card class="mat_card update create" style="padding: 0px">
-    <mat-card-header class="mat_header" style="padding: 10px 0 10px 10px; background: #013b69">
-        <div mat-card-avatar class="header-image"></div>
-        <mat-card-title>
-            <div *ngIf="is_create" style="color: #fff">Create profile</div>
-            <div *ngIf="is_update" style="color: #fff">Edit profile</div>
-            <div *ngIf="is_create_main" style="color: #fff">
-                Create main profile
-            </div>
+<mat-card class="mat_card mat-elevation-z0 update create modal-card">
+    <mat-card-header class="header">
+        <mat-card-title class="header-title">
+            <span *ngIf="is_create">Create profile</span>
+            <span *ngIf="is_update">Edit profile</span>
+            <span *ngIf="is_create_main">Create main profile</span>
         </mat-card-title>
-        <mat-card-subtitle style="color: #fff">
-            <div *ngIf="is_update" style="color: #fff">
-                {{data.profile.name}}
-            </div>
+        <mat-card-subtitle class="header-subtitle">
+            <span *ngIf="is_update">{{data.profile.name}}</span>
         </mat-card-subtitle>
-        <mat-divider [vertical]="true" style="border-color: transparent; flex: max-content"></mat-divider>
-
-        <button *ngIf="is_update && data.profile.type != 'main'" mat-icon-button [matMenuTriggerFor]="modal_menu"
-            class="modal_menu">
-            <mat-icon color="warn" svgIcon="dots-vertical"></mat-icon>
-        </button>
-        <mat-menu #modal_menu="matMenu" xPosition="before">
-            <button mat-menu-item (click)="delete()">
-                <mat-icon svgIcon="delete"></mat-icon>
-                <span>Delete</span>
-            </button>
-        </mat-menu>
     </mat-card-header>
-    <mat-card-content>
-        <div mat-dialog-content>
-            <form>
-                <mat-grid-list cols="12" rowHeight="100px">
-                    <mat-grid-tile colspan="6" rowspan="1">
-                        <mat-form-field style="margin: 10px; width: 100%">
-                            <input matInput placeholder="From" name="from" [(ngModel)]="data.profile.from_name"
-                                (ngModelChange)="onchange_field('from_name')" />
-                            <div *ngIf="field_errors && field_errors.from_name">
-                                <mat-hint> ie. James Bond </mat-hint>
-                                <mat-error *ngFor="let error of field_errors.from_name; let i = index;">
-                                    {{error}}
-                                </mat-error>
-                            </div>
-                        </mat-form-field>
-                    </mat-grid-tile>
 
-                    <mat-grid-tile colspan="6" rowspan="1"
-                        *ngIf="is_aliases_global_domain(data) && rmm.runbox_domain.data ; else other_content">
-                        <mat-form-field style="margin: 10px; width: 100%">
-                            <mat-label>Email</mat-label>
-                            <mat-select [(ngModel)]="data.profile.preferred_runbox_domain"
-                                [(value)]="data.profile.preferred_runbox_domain"
-                                (ngModelChange)="onchange_field('preferred_runbox_domain')"
-                                name="preferred_runbox_domain" [ngModelOptions]="{standalone: true}">
-                                <mat-option *ngFor="let runbox_domain of rmm.runbox_domain.data"
-                                    [value]="runbox_domain.name">
-                                    {{localpart}}@{{runbox_domain.name}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </mat-grid-tile>
+    <mat-card-content class="content">
+        <form>
+            <mat-form-field class="form-field form-item">
+                <input matInput placeholder="From" name="from" [(ngModel)]="data.profile.from_name"
+                    (ngModelChange)="onchange_field('from_name')" />
+                <div *ngIf="field_errors && field_errors.from_name">
+                    <mat-hint> ie. James Bond </mat-hint>
+                    <mat-error *ngFor="let error of field_errors.from_name; let i = index;">
+                        {{error}}
+                    </mat-error>
+                </div>
+            </mat-form-field>
 
-                    <ng-template #other_content>
-                        <mat-grid-tile colspan="6" rowspan="1">
-                            <mat-form-field style="margin: 10px; width: 100%">
-                                <input matInput placeholder="Email" [ngStyle]="get_form_field_style()" name="email"
-                                    [readonly]="( data.profile && ( data.profile.type == 'aliases' || data.profile.type == 'main' ) )"
-                                    [(ngModel)]="data.profile.email" (ngModelChange)="onchange_field('email')" />
-                                <div *ngIf="field_errors && field_errors.email">
-                                    <mat-hint>
-                                        ie. jamesbond@runbox.com
-                                    </mat-hint>
-                                    <mat-error *ngFor="let error of field_errors.email; let i = index;">
-                                        {{error}}
-                                    </mat-error>
-                                </div>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                    </ng-template>
+            <mat-form-field class="form-field form-item"
+                *ngIf="is_aliases_global_domain(data) && rmm.runbox_domain.data ; else other_content">
+                <mat-label>Email</mat-label>
+                <mat-select [(ngModel)]="data.profile.preferred_runbox_domain"
+                    [(value)]="data.profile.preferred_runbox_domain"
+                    (ngModelChange)="onchange_field('preferred_runbox_domain')" name="preferred_runbox_domain"
+                    [ngModelOptions]="{standalone: true}">
+                    <mat-option *ngFor="let runbox_domain of rmm.runbox_domain.data" [value]="runbox_domain.name">
+                        {{localpart}}@{{runbox_domain.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
 
-                    <mat-grid-tile colspan="6" rowspan="1">
-                        <mat-form-field style="margin: 10px; width: 100%">
-                            <input matInput placeholder="Description" name="name" [(ngModel)]="data.profile.name"
-                                (ngModelChange)="onchange_field('name')" />
-                            <div *ngIf="field_errors && field_errors.name">
-                                <mat-hint> ie. My main identity </mat-hint>
-                                <mat-error *ngFor="let error of field_errors.name; let i = index;">
-                                    {{error}}
-                                </mat-error>
-                            </div>
-                        </mat-form-field>
-                    </mat-grid-tile>
+            <ng-template #other_content>
+                <mat-form-field class="form-field form-item">
+                    <input matInput placeholder="Email" [ngStyle]="get_form_field_style()" name="email"
+                        [readonly]="( data.profile && ( data.profile.type == 'aliases' || data.profile.type == 'main' ) )"
+                        [(ngModel)]="data.profile.email" (ngModelChange)="onchange_field('email')" />
+                    <div *ngIf="field_errors && field_errors.email">
+                        <mat-hint>
+                            ie. jamesbond@runbox.com
+                        </mat-hint>
+                        <mat-error *ngFor="let error of field_errors.email; let i = index;">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+            </ng-template>
 
-                    <mat-grid-tile colspan="6" rowspan="1">
-                        <mat-checkbox name="is_different_reply_to" (change)="onchange_field('is_different_reply_to')"
-                            [(ngModel)]="is_different_reply_to">
-                            Use different Reply-to
-                        </mat-checkbox>
-                    </mat-grid-tile>
+            <mat-form-field class="form-field form-item">
+                <input matInput placeholder="Description" name="name" [(ngModel)]="data.profile.name"
+                    (ngModelChange)="onchange_field('name')" />
+                <div *ngIf="field_errors && field_errors.name">
+                    <mat-hint> ie. My main identity </mat-hint>
+                    <mat-error *ngFor="let error of field_errors.name; let i = index;">
+                        {{error}}
+                    </mat-error>
+                </div>
+            </mat-form-field>
 
-                    <mat-grid-tile colspan="6" rowspan="1" *ngIf="is_different_reply_to">
-                        <mat-form-field style="margin: 10px; width: 100%">
-                            <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="data.profile.reply_to"
-                                (ngModelChange)="onchange_field('reply_to')" />
-                            <div *ngIf="field_errors && field_errors.reply_to">
-                                <mat-hint>ie. noreply@runbox.com</mat-hint>
-                                <mat-error *ngFor="let error of field_errors.reply_to; let i = index;">
-                                    {{error}}
-                                </mat-error>
-                            </div>
-                        </mat-form-field>
-                    </mat-grid-tile>
+            <div class="form-checkbox form-item">
+                <mat-checkbox name="is_different_reply_to" (change)="onchange_field('is_different_reply_to')"
+                    [(ngModel)]="is_different_reply_to">
+                    Use different Reply-to
+                </mat-checkbox>
+            </div>
 
-                    <mat-grid-tile colspan="12" rowspan="2">
-                        <mat-form-field style="margin: 10px; width: 100%; min-height: 150px">
-                            <textarea matInput placeholder="Signature" [id]="selector" name="signature"
-                                [(ngModel)]="data.profile.signature"
-                                (ngModelChange)="onchange_field('signature')"></textarea>
-                            <div *ngIf="field_errors && field_errors.signature">
-                                <mat-hint>
-                                    ie.
-                                    <br />Mr. James Bond <br />=-=-=
-                                    <br />
-                                    <br />"My name is Bond, James Bond"
-                                </mat-hint>
-                                <mat-error *ngFor="let error of field_errors.signature; let i = index;">
-                                    {{error}}
-                                </mat-error>
-                            </div>
-                        </mat-form-field>
-                    </mat-grid-tile>
-                    <mat-grid-tile colspan="12" rowspan="1">
-                        <div style="text-align: left; width: 100%">
-                            <mat-checkbox name="is_signature_html" [(ngModel)]="data.profile.is_signature_html"
-                                (change)="toggle_signature_html()">
-                                use HTML for signature
-                            </mat-checkbox>
-                        </div>
-                    </mat-grid-tile>
-                </mat-grid-list>
-            </form>
-        </div>
+            <mat-form-field class="form-field form-item" *ngIf="is_different_reply_to">
+                <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="data.profile.reply_to"
+                    (ngModelChange)="onchange_field('reply_to')" />
+                <div *ngIf="field_errors && field_errors.reply_to">
+                    <mat-hint>ie. noreply@runbox.com</mat-hint>
+                    <mat-error *ngFor="let error of field_errors.reply_to; let i = index;">
+                        {{error}}
+                    </mat-error>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="signature form-item">
+                <textarea matInput placeholder="Signature" [id]="selector" name="signature"
+                    [(ngModel)]="data.profile.signature" (ngModelChange)="onchange_field('signature')"></textarea>
+                <div *ngIf="field_errors && field_errors.signature">
+                    <mat-hint>
+                        ie.
+                        <br />Mr. James Bond
+                        <br />---------------
+                        <br />"My name is Bond, James Bond"
+                    </mat-hint>
+                    <mat-error *ngFor="let error of field_errors.signature; let i = index;">
+                        {{error}}
+                    </mat-error>
+                </div>
+            </mat-form-field>
+
+            <div class="form-checkbox form-item">
+                <mat-checkbox name="is_signature_html" [(ngModel)]="data.profile.is_signature_html"
+                    (change)="toggle_signature_html()">
+                    use HTML for signature
+                </mat-checkbox>
+            </div>
+        </form>
     </mat-card-content>
-    <mat-card-actions style="padding: 0px 25px">
-        <button mat-raised-button (click)="save()" color="primary">SAVE</button>
-        <button mat-raised-button (click)="close()" color="warn">CANCEL</button>
+
+    <mat-card-actions class="action-buttons">
+        <span class="delete-button">
+            <button mat-raised-button (click)="delete()" color="warn">DELETE</button>
+        </span>
+        <span>
+            <button mat-raised-button (click)="close()" color="accent">CANCEL</button>
+            <button mat-raised-button (click)="save()" color="primary">SAVE</button>
+        </span>
     </mat-card-actions>
-    <mat-card-footer style="padding: 0px 25px">
+
+    <mat-card-footer>
         <mat-progress-bar *ngIf="is_busy" mode="indeterminate"></mat-progress-bar>
         <div *ngIf="data.profile.reference_type == 'preference' && data.profile.reference.status === 1">
             Email not validated. Check your email or
