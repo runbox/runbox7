@@ -106,6 +106,12 @@
         </form>
     </mat-card-content>
 
+    <div class="warning-container" *ngIf="data.profile.reference_type == 'preference' && data.profile.reference.status === 1">
+        Email not validated. Check your email or
+        <a href="javascript:void(0)" (click)="resend_validate_email(data.profile.id)">
+            re-send</a>.
+    </div>
+
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
             <button mat-raised-button (click)="delete()" color="warn">DELETE</button>
@@ -118,10 +124,5 @@
 
     <mat-card-footer>
         <mat-progress-bar *ngIf="is_busy" mode="indeterminate"></mat-progress-bar>
-        <div *ngIf="data.profile.reference_type == 'preference' && data.profile.reference.status === 1">
-            Email not validated. Check your email or
-            <a href="javascript:void(0)" (click)="resend_validate_email(data.profile.id)">
-                re-send </a>.
-        </div>
     </mat-card-footer>
 </mat-card>
