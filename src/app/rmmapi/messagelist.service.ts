@@ -19,7 +19,7 @@
 
 import { Injectable } from '@angular/core';
 
-import { throwError as observableThrowError, BehaviorSubject, ReplaySubject } from 'rxjs';
+import { throwError as observableThrowError, BehaviorSubject, ReplaySubject, AsyncSubject } from 'rxjs';
 import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operators';
 
 import { MessageInfo } from '../common/messageinfo';
@@ -60,9 +60,10 @@ export class MessageListService {
     spamFolderName = 'Spam';
 
     public fetchInProgress = false;
+
     // Initialized "manually" by SearchService.
     // Can't be depedency-injected because of a circular dependency
-    public searchservice: SearchService;
+    public searchservice = new AsyncSubject<SearchService>();
 
     constructor(
         public rmmapi: RunboxWebmailAPI
@@ -85,41 +86,45 @@ export class MessageListService {
 
     public setCurrentFolder(folder: string) {
         this.currentFolder = folder;
-        if (!this.searchservice.localSearchActivated ||
-            folder === this.spamFolderName ||
-            folder === this.trashFolderName) {
-            // Always fetch fresh folder listing when setting current folder
-            this.folderMessageLists[folder] = [];
+        this.searchservice.pipe(take(1)).subscribe(searchservice => {
+            if (!searchservice.localSearchActivated ||
+                folder === this.spamFolderName ||
+                folder === this.trashFolderName) {
+                // Always fetch fresh folder listing when setting current folder
+                this.folderMessageLists[folder] = [];
 
-            this.fetchFolderMessages();
-        }
+                this.fetchFolderMessages();
+            }
+        });
     }
 
     public refreshFolderCounts(): Promise<void> {
         return new Promise((resolve, _) => {
-            const xapianFolders = new Set(
-                this.searchservice.localSearchActivated
-                    ?  this.searchservice.api.listFolders().map(f => f[0])
-                    : []
-            );
+            return this.searchservice.pipe(take(1)).subscribe(searchservice => {
+                const xapianFolders = new Set(
+                    searchservice.localSearchActivated
+                        ?  searchservice.api.listFolders().map(f => f[0])
+                        : []
+                );
 
-            this.folderListSubject.pipe(take(1)).subscribe((folders) => {
-                const folderCounts = {};
-                for (const folder of folders) {
-                    const path = folder.folderPath;
-                    const xapianPath = path.replace(/\//g, '.');
+                this.folderListSubject.pipe(take(1)).subscribe((folders) => {
+                    const folderCounts = {};
+                    for (const folder of folders) {
+                        const path = folder.folderPath;
+                        const xapianPath = path.replace(/\//g, '.');
 
-                    if (xapianFolders.has(xapianPath)) {
-                        const res = this.searchservice.api.getFolderMessageCounts(xapianPath);
+                        if (xapianFolders.has(xapianPath)) {
+                            const res = searchservice.api.getFolderMessageCounts(xapianPath);
 
-                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
-                    } else {
-                        folderCounts[path] = FolderMessageCountEntry.of(folder);
+                            folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
+                        } else {
+                            folderCounts[path] = FolderMessageCountEntry.of(folder);
+                        }
                     }
-                }
-                this.folderMessageCountSubject.next(folderCounts);
+                    this.folderMessageCountSubject.next(folderCounts);
 
-                resolve();
+                    resolve();
+                });
             });
         });
     }
