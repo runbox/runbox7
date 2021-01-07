@@ -19,7 +19,6 @@
             *ngIf="folder !== this.messagelistservice.trashFolderName; else deletePermanently"
             svgIcon="delete"
         >
-            delete
         </mat-icon>
         <ng-template #deletePermanently>
           <mat-icon svgIcon="delete-forever"></mat-icon>
