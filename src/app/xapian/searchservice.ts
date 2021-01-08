@@ -193,8 +193,6 @@ export class SearchService {
           this.updateIndexWithNewChanges();
           this.noLocalIndexFoundSubject.next(true);
           this.noLocalIndexFoundSubject.complete();
-          this.initSubject.next(false);
-          this.initSubject.complete();
         }
       });
   }
@@ -486,6 +484,7 @@ export class SearchService {
           mergeMap(() => downloadAndWriteFile('postlist.glass', 4)),
         ).subscribe(() => {
             this.api.initXapianIndex(XAPIAN_GLASS_WR);
+            this.indexNotPersisted = true;
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
             this.messagelistservice.refreshFolderCounts();
