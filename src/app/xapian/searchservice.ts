@@ -150,7 +150,8 @@ export class SearchService {
        private messagelistservice: MessageListService) {
 
       // we need to set it manually; DI won't work because of a cyclic dependency
-      this.messagelistservice.searchservice = this;
+      this.messagelistservice.searchservice.next(this);
+      this.messagelistservice.searchservice.complete();
       // Check if we have a local index stored
       this.rmmapi.me.pipe(
         map((me) => {

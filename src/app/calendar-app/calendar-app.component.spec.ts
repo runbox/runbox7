@@ -22,6 +22,7 @@ import { HttpClient } from '@angular/common/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { LogoutService } from '../login/logout.service';
 import { MobileQueryService } from '../mobile-query.service';
@@ -95,6 +96,11 @@ describe('CalendarAppComponent', () => {
                 providers: [
                     MobileQueryService,
                     StorageService,
+                    { provide: RMMAuthGuardService, useValue: {
+                        canActivate:      (_r, _s) => true,
+                        canActivateChild: (_r, _s) => true,
+                        isLoggedIn:       () => of(true),
+                    } },
                     { provide: RunboxWebmailAPI, useValue: {
                         getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
                         getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),

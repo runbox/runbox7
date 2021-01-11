@@ -15,7 +15,7 @@ describe('Composing emails', () => {
         cy.visit('/compose?new=true');
 
         cy.get('mat-card-actions div').should('contain', 'New message');
-        cy.get('input[placeholder="Subject"]').type('Email about Subject X');
+        cy.get('input[data-placeholder="Subject"]').type('Email about Subject X');
         cy.get('mat-card-actions div').should('contain', 'Subject X');
     });
 
