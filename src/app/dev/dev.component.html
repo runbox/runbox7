@@ -46,11 +46,16 @@
                      <mat-list-item>
                         <a mat-button [routerLink]="['/dev/app-runbox-timer']"><mat-icon svgIcon="border-inside"></mat-icon>Timer</a>
                      </mat-list-item>
+                     <mat-list-item>
+                         <a mat-button [routerLink]="['/dev/app-runbox-dynamic']"><mat-icon svgIcon="border-inside"></mat-icon>Dynamic</a>
+                     </mat-list-item>
                     </mat-list>
                   </div>
                 </div>
                 <div class='column right'>
                   <div class='green-column'>
+                    <app-runbox-dynamic *ngIf="route.params['getValue']().selected_component === 'app-runbox-dynamic'">
+                    </app-runbox-dynamic>
                     <app-runbox-intro *ngIf="route.params['getValue']().selected_component === 'app-runbox-intro'">
                     </app-runbox-intro>
                     <app-runbox-list

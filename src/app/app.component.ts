@@ -60,6 +60,7 @@ import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings, AppSettingsService } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
+import { UsageReportsService } from './common/usage-reports.service';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -98,6 +99,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   selectedFolder = 'Inbox';
   composeSelected: boolean;
   draftsSelected: boolean;
+  overviewSelected: boolean;
 
   timeOfDay: string;
 
@@ -167,6 +169,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private hotkeysService: HotkeysService,
     public settingsService: AppSettingsService,
     private savedSearchService: SavedSearchesService,
+    // we don't need this for anything, but we want to make sure that it's instantiated
+    // and starts collecting data when we reach the webmail for the first time
+    _usage: UsageReportsService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -381,6 +386,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     ).subscribe((event: NavigationEnd) => {
       this.composeSelected = this.router.url === '/compose?new=true';
       this.draftsSelected = this.router.url === '/compose';
+      this.overviewSelected = this.router.url === '/overview';
     });
 
     // Download visible messages in the background
@@ -494,6 +500,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     );
   }
 
+  public overview() {
+    this.router.navigate(['/overview']);
+    setTimeout(() => {
+        if (this.mobileQuery.matches && this.sidemenu.opened) {
+          this.sidemenu.close();
+        }
+      }, 0);
+  }
+
   renameFolder(folder: RenameFolderEvent) {
     this.rmmapi.renameFolder(
       folder.id, folder.name
@@ -502,16 +517,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
-  async emptyTrash(trashFolderName: string) {
-    console.log('found trash folder with name', trashFolderName);
+  async emptyTrash(trashFolder: FolderListEntry) {
+    console.log('found trash folder with name', trashFolder.folderName);
     const messageLists = await this.rmmapi.listAllMessages(
       0, 0, 0,
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-      true, trashFolderName
+      true, trashFolder.folderName
     ).toPromise();
-    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
+
+    // remove local copies
+    this.searchService.deleteMessages(messageLists.map((msg) => msg.id));
+    this.searchService.updateIndexWithNewChanges();
+    // empty remote folder
+    await this.rmmapi.emptyFolder(trashFolder.folderId).toPromise();
+    // ensure the view empties if we're looking at the trash
+    this.messagelistservice.setCurrentFolder(trashFolder.folderName);
+    // update local copies
     this.messagelistservice.refreshFolderList();
-    console.log('Deleted from', trashFolderName);
+    console.log('Deleted from', trashFolder.folderName);
   }
 
   async emptySpam(spamFolderName) {

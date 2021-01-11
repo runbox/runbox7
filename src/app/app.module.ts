@@ -26,7 +26,7 @@ import { SentryErrorHandler } from './sentry-error-handler';
 import { AppComponent } from './app.component';
 import { MenuModule } from './menu/menu.module';
 import { LoginComponent } from './login/login.component';
-
+import { RunboxCommonModule } from './common/common.module';
 import { MailViewerModule } from './mailviewer/mailviewer.module';
 import { WebSocketSearchModule } from './websocketsearch/websocketsearch.module';
 import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
@@ -81,6 +81,7 @@ import { HotkeyModule } from 'angular2-hotkeys';
 import { RMM } from './rmm';
 import { PopularRecipientsComponent } from './popular-recipients/popular-recipients.component';
 import { OverviewComponent } from './start/overview.component';
+import { StartDeskComponent } from './start/startdesk.component';
 import { SearchService } from './xapian/searchservice';
 import { SavedSearchesComponent } from './saved-searches/saved-searches.component';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
@@ -106,6 +107,10 @@ const routes: Routes = [
           {
             path: 'compose',
             component: DraftDeskComponent
+          },
+          {
+            path: 'overview',
+            component: StartDeskComponent
           },
           {
             path: 'welcome',
@@ -167,6 +172,7 @@ const routes: Routes = [
     LoginLogoutModule,
     SearchExpressionBuilderModule,
     MultipleSearchFieldsInputModule,
+    RunboxCommonModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()

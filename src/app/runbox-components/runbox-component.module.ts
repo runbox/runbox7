@@ -42,6 +42,8 @@ import { RunboxContainerComponent } from '../runbox-components/runbox-container'
 import { RunboxSectionComponent } from '../runbox-components/runbox-section';
 import { RunboxSlideToggleComponent } from '../runbox-components/runbox-slide-toggle';
 import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
+import { RunboxDynamicComponent } from '../runbox-components/runbox-dynamic';
+import { RunboxDynamicBuilderComponent } from './runbox-dynamic-builder';
 
 @NgModule({
     declarations: [
@@ -51,6 +53,8 @@ import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
         RunboxSectionComponent,
         RunboxSlideToggleComponent,
         RunboxTimerComponent,
+        RunboxDynamicComponent,
+        RunboxDynamicBuilderComponent,
     ],
     imports: [
         CommonModule,
@@ -79,6 +83,8 @@ import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
         RunboxSectionComponent,
         RunboxSlideToggleComponent,
         RunboxTimerComponent,
+        RunboxDynamicComponent,
+        RunboxDynamicBuilderComponent,
     ],
     entryComponents: [
     ],

@@ -24,6 +24,7 @@ import { RouterModule } from '@angular/router';
 
 import { RunboxLoadingComponent } from './loading.component';
 import { BackgroundActivityIndicatorComponent } from './background-activity-indicator.component';
+import { UsageReportsService } from './usage-reports.service';
 
 @NgModule({
     imports: [
@@ -38,7 +39,10 @@ import { BackgroundActivityIndicatorComponent } from './background-activity-indi
     exports: [
         BackgroundActivityIndicatorComponent,
         RunboxLoadingComponent,
-    ]
+    ],
+    providers: [
+        UsageReportsService,
+    ],
 })
 export class RunboxCommonModule {
 

@@ -97,9 +97,8 @@ describe('Interacting with mailviewer', () => {
         // set full height
         cy.get('button[mattooltip="Full height"]').click().should(() => {
             // full height 
-            const resizerHeight = parseInt(localStorage.getItem('rmm7resizerheight'), 10);
-            expect(resizerHeight).to.be.greaterThan(100);
-
+            const resizerPercent = parseInt(localStorage.getItem('rmm7resizerpercentage'), 10);
+            expect(resizerPercent).to.eq(100);
         });
     });
 
@@ -111,21 +110,21 @@ describe('Interacting with mailviewer', () => {
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
         // set full height
-        var resizerHeight = 0;
+        var resizerPercent = 0;
         cy.get('button[mattooltip="Full height"]').click().and(() => {
         // full height
-            resizerHeight = parseInt(localStorage.getItem('rmm7resizerheight'), 10);
+            resizerPercent = parseInt(localStorage.getItem('rmm7resizerpercentage'), 10);
         });
         // half height 
         cy.get('button[mattooltip="Half height"]').click().should(() => {
-            expect(parseInt(localStorage.getItem('rmm7resizerheight'), 10)).to.be.lessThan(resizerHeight);
+            expect(parseInt(localStorage.getItem('rmm7resizerpercentage'), 10)).to.be.eq(50);
         // collect new value
-            resizerHeight = parseInt(localStorage.getItem('rmm7resizerheight'), 10);
+            resizerPercent = parseInt(localStorage.getItem('rmm7resizerpercentage'), 10);
         });
 
         // doesnt go away on pane close (persist for other emails)
         cy.get('button[mattooltip="Close"]').click().should(() => {
-            expect(parseInt(localStorage.getItem('rmm7resizerheight'), 10)).to.equal(resizerHeight);
+            expect(parseInt(localStorage.getItem('rmm7resizerpercentage'), 10)).to.equal(resizerPercent);
         });
     });
 
