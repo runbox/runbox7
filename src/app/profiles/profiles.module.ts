@@ -41,6 +41,8 @@ import { ProfilesListerComponent } from './profiles.lister';
 import { AliasesListerComponent } from '../aliases/aliases.lister';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
+import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
+import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 @NgModule({
     declarations: [
@@ -69,7 +71,19 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
     MatTooltipModule,
     MatTableModule,
     MenuModule,
-    RouterModule.forChild([ { path: '', component: ProfilesComponent } ]),
+    RouterModule.forChild([
+      {
+        path: 'identities',
+        canActivateChild: [RMMAuthGuardService],
+        children: [
+          {
+            path: '', outlet: 'headertoolbar',
+            component: HeaderToolbarComponent
+          },
+          { path: '', component: ProfilesComponent },
+        ],
+      }
+    ]),
     ],
     entryComponents: [
       ProfilesEditorModalComponent,

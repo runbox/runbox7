@@ -75,6 +75,8 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { AccountSecurityModule } from '../account-security/account.security.module';
 import { AccountSecurityComponent } from '../account-security/account.security.component';
+import { ProfilesComponent } from '../profiles/profiles.component';
+import { ProfilesModule } from '../profiles/profiles.module';
 
 @NgModule({
   declarations: [
@@ -126,6 +128,7 @@ import { AccountSecurityComponent } from '../account-security/account.security.c
     ReactiveFormsModule,
     RunboxCommonModule,
     AccountSecurityModule,
+    ProfilesModule,
     RouterModule.forChild([
       {
         path: 'account',
@@ -186,6 +189,10 @@ import { AccountSecurityComponent } from '../account-security/account.security.c
               {
                   path: 'security',
                   component: AccountSecurityComponent,
+              },
+              {
+                  path: 'identities',
+                  component: ProfilesComponent,
               },
             ]
           }
