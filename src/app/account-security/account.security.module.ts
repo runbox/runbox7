@@ -46,6 +46,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AccountSecurityComponent, ModalPasswordComponent } from './account.security.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
+import {RMMAuthGuardService} from '../rmmapi/rmmauthguard.service';
+import {HeaderToolbarComponent} from '../menu/headertoolbar.component';
 
 @NgModule({
     declarations: [
@@ -76,7 +78,19 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
     MatTooltipModule,
     MenuModule,
     QRCodeModule,
-    RouterModule.forChild([ { path: '', component: AccountSecurityComponent } ]),
+    RouterModule.forChild([
+      {
+        path: 'account-security',
+        canActivateChild: [RMMAuthGuardService],
+        children: [
+          {
+            path: '', outlet: 'headertoolbar',
+            component: HeaderToolbarComponent
+          },
+          { path: '', component: AccountSecurityComponent },
+        ],
+      }
+    ]),
     RunboxComponentModule,
     ],
     entryComponents: [

@@ -73,6 +73,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
+import { AccountSecurityModule } from '../account-security/account.security.module';
+import { AccountSecurityComponent } from '../account-security/account.security.component';
 
 @NgModule({
   declarations: [
@@ -123,6 +125,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     MatTooltipModule,
     ReactiveFormsModule,
     RunboxCommonModule,
+    AccountSecurityModule,
     RouterModule.forChild([
       {
         path: 'account',
@@ -179,6 +182,10 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
               {
                   path: 'credit_cards',
                   component: CreditCardsComponent
+              },
+              {
+                  path: 'security',
+                  component: AccountSecurityComponent,
               },
             ]
           }
