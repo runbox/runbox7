@@ -30,7 +30,6 @@ type Transaction = any;
 @Component({
     selector: 'app-account-transactions-component',
     templateUrl: './account-transactions.component.html',
-    styleUrls: ['./mobiletables.scss'],
     animations: [
         trigger('detailExpand', [
             state('collapsed', style({height: '0px', minHeight: '0'})),
