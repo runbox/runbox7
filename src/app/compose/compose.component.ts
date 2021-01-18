@@ -548,10 +548,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         const from = this.draftDeskservice.froms.find(
             (f) => this.model.from === f.nameAndAddress);
-
-        if (from.reply_to !== null && from.reply_to.length > 0) {
-            this.model.reply_to = from.reply_to;
-        }
+        this.model.reply_to = from.reply_to;
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
