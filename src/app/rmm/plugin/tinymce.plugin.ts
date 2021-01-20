@@ -53,6 +53,7 @@ export class TinyMCEPlugin {
                             {text: 'C#', value: 'csharp'},
                             {text: 'C++', value: 'cpp'}
                         ]),
+                contextmenu: false,
                 image_list: (options.image_list || []),
                 menubar: (options.menubar || false),
                 setup: (options.setup),
