@@ -169,9 +169,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private hotkeysService: HotkeysService,
     public settingsService: AppSettingsService,
     private savedSearchService: SavedSearchesService,
-    // we don't need this for anything, but we want to make sure that it's instantiated
-    // and starts collecting data when we reach the webmail for the first time
-    _usage: UsageReportsService,
+    private usage: UsageReportsService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -1134,6 +1132,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           localStorage.setItem(localSearchIndexPromptItemName, 'true');
 
           dialogRef.afterClosed().subscribe(res => {
+            let localIndexDecision = 'clicked-away';
+            if (res === true) {
+              localIndexDecision = 'yes';
+            }
+            if (res === false) {
+              localIndexDecision = 'no';
+            }
+            this.usage.report(`local-index-decision-${localIndexDecision}`);
+
             if (res) {
               this.downloadIndexFromServer();
             } else {
