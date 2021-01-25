@@ -39,7 +39,7 @@
             <ng-template #other_content>
                 <mat-form-field class="form-field form-item">
                     <input matInput placeholder="Email" [ngStyle]="get_form_field_style()" name="email"
-                        [readonly]="( data.profile && ( data.profile.type == 'aliases' || data.profile.type == 'main' ) )"
+                        [readonly]="( data.profile && data.profile.type == 'aliases' )"
                         [(ngModel)]="data.profile.email" (ngModelChange)="onchange_field('email')" />
                     <div *ngIf="field_errors && field_errors.email">
                         <mat-hint>
