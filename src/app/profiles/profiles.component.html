@@ -31,6 +31,15 @@
                         </button>
                     </div>
                 </app-profiles-lister>
+
+                <app-profiles-default *ngIf="rmm.profile && rmm.profile.profiles" (ev_reload)="ev_reload_emiter($event)">
+                    <div section-description>
+                        <h3 style="margin-bottom: 0;">
+                            Choose the address picked by default when composing a new email:
+                        </h3>
+                    </div>
+                </app-profiles-default>
+
                 <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('aliases')"
                     [values]="rmm.profile.profiles.aliases"

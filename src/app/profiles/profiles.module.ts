@@ -40,6 +40,7 @@ import { ProfilesListerComponent } from './profiles.lister';
 import { AliasesListerComponent } from '../aliases/aliases.lister';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
+import { DefaultProfileComponent } from './profiles.default';
 
 @NgModule({
     declarations: [
@@ -48,6 +49,7 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
       ProfilesListerComponent,
       ProfilesEditorModalComponent,
       AliasesEditorModalComponent,
+      DefaultProfileComponent,
     ],
     imports: [
     CommonModule,
