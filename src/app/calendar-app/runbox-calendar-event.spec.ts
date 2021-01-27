@@ -57,24 +57,35 @@ describe('RunboxCalendarEvent', () => {
     });
 
     it('should be possible to add a special case to a recurring event', () => {
-        const todayStr = moment().toISOString().split('T')[0];
-        const yesterday = moment().subtract(1, 'day');
         const sut = new RunboxCalendarEvent(
-            'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
-                [ 'vevent', [
-                    [ 'dtstart', {}, 'date',  todayStr ],
-                    [ 'dtend',   {}, 'date',  todayStr ],
+            'testcal/testev', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                  [ 'dtstart', {}, 'date',  '2021-01-25' ],
+                    [ 'dtend',   {}, 'date',  '2021-01-25' ],
                     [ 'summary', {}, 'text',  'Weekly event' ],
                     [ 'uid',     {}, 'text',  'unittestcase1' ],
                     [ 'rrule',   {}, 'recur', { 'freq': 'WEEKLY' } ],
-                ] ]
-            ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+                ]
+            ])), ICAL.Time.fromDateString('2021-02-01'), ICAL.Time.fromDateString('2021-02-01'),
         );
 
-      const future = moment().add(1, 'week').add(3, 'day');
-      // FIXME
-        // const events = sut.recurrences(yesterday.toDate(), future.toDate());
+        const future = moment('2021-01-25').add(1, 'week').add(3, 'day');
+        // Feb 4th
+        sut.updateEvent(
+            future,
+            future,
+            sut.calendar,
+            '1', // 'This event only', should probably be an enum
+            'Moved weekly event', undefined, undefined,
+            true,
+            sut.recurringFrequency,
+            sut.recurInterval,
+            undefined, undefined, undefined, // and optional params..
+        );
 
+        expect(sut.toIcal()).toContain('SUMMARY:Moved weekly event');
+        expect(sut.toIcal()).toContain('RECURRENCE-ID;VALUE=DATE:20210201');
+        expect(sut.toIcal()).toContain('DTSTART;VALUE=DATE:20210204');
         // expect(events.length).toBe(2);
         // expect(events[0].dtstart.isSame(events[1].dtstart)).toBe(false);
 
@@ -88,4 +99,109 @@ describe('RunboxCalendarEvent', () => {
         // expect(events[0].title).toBe('Weekly event');
         // expect(events[1].title).toBe('Next weekly event');
     });
+
+    it('should be possible to add a special case to a recurring event (with time)', () => {
+        const sut = new RunboxCalendarEvent(
+            'testcal/unittestcase2', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                  [ 'dtstart', {}, 'date',  '2021-01-25T09:00:00' ],
+                  [ 'dtend',   {}, 'date',  '2021-01-25T10:00:00' ],
+                  [ 'summary', {}, 'text',  'Weekly event' ],
+                  [ 'uid',     {}, 'text',  'unittestcase2' ],
+                  [ 'rrule',   {}, 'recur', { 'freq': 'WEEKLY' } ],
+                ]
+            ])), ICAL.Time.fromDateTimeString('2021-02-01T09:00:00'), ICAL.Time.fromDateTimeString('2021-02-01T10:00:00'),
+        );
+        // Move this one an hour later
+        const future = moment('2021-02-01T10:00:00');
+        sut.updateEvent(
+            future,
+            future,
+            sut.calendar,
+            '1', // 'This event only', should probably be an enum
+            'Moved weekly event one hour', undefined, undefined,
+            true,
+            sut.recurringFrequency,
+            sut.recurInterval,
+            undefined, undefined, undefined, // and optional params..
+        );
+
+        expect(sut.toIcal()).toContain('SUMMARY:Moved weekly event one hour');
+        expect(sut.toIcal()).toContain('RECURRENCE-ID:20210201T090000');
+        expect(sut.toIcal()).toContain('DTSTART:20210201T100000');
+    });
+
+     it('should be possible to add a special case to a recurring event (with timezone)', () => {
+         // mostly taken straight out of the jCal spec: https://tools.ietf.org/html/rfc7265#page-30
+        const jcal = ICAL.parse(
+// `BEGIN:VCALENDAR
+// CALSCALE:GREGORIAN
+// PRODID:-//Example Inc.//Example Calendar//EN
+// VERSION:2.0
+// BEGIN:VEVENT
+// DTSTAMP:20080205T191224Z
+// DTSTART:20081006
+// SUMMARY:Planning meeting
+// UID:4088E990AD89CB3DBB484909
+// END:VEVENT
+// END:VCALENDAR`);
+`BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Europe/London
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+DTSTART:19810329T010000
+TZNAME:BST
+TZOFFSETTO:+0100
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0100
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+DTSTART:19961027T020000
+TZNAME:GMT
+TZOFFSETTO:+0000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTEND;TZID=Europe/London:20201101T100000
+UID:unittestcase3
+DTSTAMP:20201012T113203Z
+SUMMARY:Daily recurring
+DTSTART;TZID=Europe/London:20201101T090000
+RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5
+END:VEVENT
+END:VCALENDAR`
+        );
+         const ical = new ICAL.Component(jcal);
+         const vevent = ical.getFirstSubcomponent('vevent');
+         // pass in prop to apply the correct timezone to the ICAL.Time object
+         const dtstartProp = vevent.getFirstProperty('dtstart');
+         
+         // This is the RCE instance for the 2nd day:
+         const sut = new RunboxCalendarEvent(
+             'testcal/unittestcase3',
+             new ICAL.Event(vevent),
+             ICAL.Time.fromDateTimeString('2006-01-03T12:00:00', dtstartProp),
+             undefined, // defined by duration instead
+         );
+         // Move this one an hour later
+         const future = moment('2006-01-03T13:00:00');
+         sut.updateEvent(
+             future,
+             undefined,
+             sut.calendar,
+             '1', // 'This event only', should probably be an enum
+             'Moved daily event one hour', undefined, undefined,
+             true,
+             sut.recurringFrequency,
+             sut.recurInterval,
+             undefined, undefined, undefined, // and optional params..
+         );
+
+         expect(sut.toIcal()).toContain('SUMMARY:Moved daily event one hour');
+         expect(sut.toIcal()).toContain('RECURRENCE-ID;TZID=Europe/London:20060103T120000');
+         expect(sut.toIcal()).toContain('DTSTART;TZID=Europe/London:20060103T130000');
+     });
 });

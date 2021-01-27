@@ -192,6 +192,8 @@ export class EventEditorDialogComponent {
             this.recur_by_monthyeardays = [this.event_start.getDate().toString()];
             this.recur_by_weekdays = ['day'];
             this.recur_by_months = [String(this.event_start.getMonth() + 1)];
+            const chosenDay = ICAL.Time.fromJSDate(this.event_start).dayOfWeek();
+            this.weekdays[chosenDay - 1].recurs_on = true;
         }
 
         this.settings = data['settings'];
@@ -311,9 +313,16 @@ export class EventEditorDialogComponent {
     public updateStart(value: Date) {
         // Do this always, in case we fiddle with dates, then
         // set event_recurs:
-        this.generateMonthYearDays('MONTHLY', value);
-        this.recur_by_monthyeardays = [value.getDate().toString()];
-        this.recur_by_months = [String(value.getMonth() + 1)];
+        if (!this.event_recurs) {
+            this.generateMonthYearDays('MONTHLY', value);
+            this.recur_by_monthyeardays = [value.getDate().toString()];
+            this.recur_by_months = [String(value.getMonth() + 1)];
+
+            // select weekday matching day chosen (1-7 in time.js):
+            const chosenDay = ICAL.Time.fromJSDate(value).dayOfWeek();
+            this.weekdays.map((entry) => entry.recurs_on = false);
+            this.weekdays[chosenDay - 1].recurs_on = true;
+        }
 
         // Logic for recurring event date/time updates:
         if (this.event_recurs && !this.event_is_recur_start) {
@@ -355,9 +364,10 @@ export class EventEditorDialogComponent {
             // so let's help it a little
             this.calendarFC.markAsTouched();
             return;
-        } else if (this.event.calendar !== this.calendarFC.value) {
-            this.event.calendar = this.calendarFC.value;
         }
+        // else if (this.event.calendar !== this.calendarFC.value) {
+        //     this.event.calendar = this.calendarFC.value;
+        // }
 
         const dtstart = moment(this.event_start).seconds(0).milliseconds(0);
         let dtend = moment(this.event_end).seconds(0).milliseconds(0);
@@ -367,89 +377,27 @@ export class EventEditorDialogComponent {
         //
         // Since the user is the sane one here, let's just make all allDay events one day
         // longer behind the scenes (that's how nextcloud does it too, for example).
-        if (this.event.allDay) {
+        if (this.event_allDay) {
             // make sure we're going through the setter
             dtend = dtend.add(1, 'day');
         }
 
-        if (this.event.recurs && this.recur_save_type !== '0') {
-            // Adding an exception to an already recurring event
-            this.event.addExceptionEvent(
-                this.event.dtstart,
-                dtstart,
-                dtend,
-                this.recur_save_type === '2' ? true : false,
-                this.event_title,
-                this.event_description,
-                this.event_location);
-        } else {
-            this.event.dtstart     = dtstart;
-            this.event.dtend       = dtend;
-            if (this.event_title) {
-                this.event.title       = this.event_title;
-            }
-            if (this.event_location) {
-                this.event.location    = this.event_location;
-            }
-            if (this.event_description) {
-                this.event.description = this.event_description;
-            }
-
-            if (this.event_recurs) {
-                // New recurring event, didn't recur before, or updating
-                // whole recurring event
-                this.event.recurs = true;
-                this.event.recurringFrequency = this.recurring_frequency;
-                this.event.recurInterval = this.recur_interval;
-                if (this.recurring_frequency === 'WEEKLY') {
-                    // Repeats on one or more days every week
-                    this.event.recursByDay = this.weekdays.filter((entry) => entry.recurs_on).map((entry) => entry.val);
-                } else if (this.recurring_frequency === 'MONTHLY'
-                    || this.recurring_frequency === 'YEARLY') {
-                    // Repeats on either: eg: 1st,(2nd, 3rd) Tuesday, or 17th, (18th, 19th) day
-                    if (this.recur_by_weekdays.length === 1
-                        && this.recur_by_weekdays[0] === 'day') {
-                        if (this.recurring_frequency === 'YEARLY'
-                            && this.recur_by_months.length === 1
-                            && this.recur_by_months[0] === 'year') {
-                            // Nth day of the year
-                            this.event.recursByYearDay = this.recur_by_monthyeardays;
-                        } else {
-                            // Nth day of the month
-                            this.event.recursByMonthDay = this.recur_by_monthyeardays;
-                            if (this.recurring_frequency === 'YEARLY') {
-                                this.event.recursByMonth = this.recur_by_months;
-                            }
-                        }
-                    } else {
-                        // Nth <?>day:
-                        // If Nth is 0, then skip adding a number
-                        // (means eg "all tuesdays in the month")
-                        const weekdays = [];
-                        if (this.recur_by_weekdays.length === this.recur_by_monthyeardays.length) {
-                            for (let i = 0; i < this.recur_by_weekdays.length; i++) {
-                                const recur_monthday = this.recur_by_monthyeardays[i] !== '0' ? this.recur_by_monthyeardays[i] : '';
-                                weekdays.push(recur_monthday + this.recur_by_weekdays[i]);
-                            }
-                        } else {
-                            // picked one Nth and multiple days?
-                            for (let i = 0; i < this.recur_by_weekdays.length; i++) {
-                                const recur_monthday = this.recur_by_monthyeardays[i] !== '0' ? this.recur_by_monthyeardays[i] : '';
-                                weekdays.push(recur_monthday + this.recur_by_weekdays[i]);
-                            }
-                        }
-                        // list of 1TU,2WE etc
-                        this.event.recursByDay = weekdays;
-
-                        if (this.recurring_frequency === 'YEARLY'
-                            && this.recur_by_months[0] !== 'year') {
-                            // occurs on Nth <X>day in particular months:
-                            this.event.recursByMonth = this.recur_by_months;
-                        }
-                    }
-                }
-            }
-        }
+        this.event.updateEvent(
+            dtstart,
+            dtend,
+            this.calendarFC.value,
+            this.recur_save_type,
+            this.event_title,
+            this.event_location,
+            this.event_description,
+            this.event_recurs,
+            this.recurring_frequency,
+            this.recur_interval,
+            this.recurring_frequency === 'WEEKLY'
+                ? this.weekdays.filter((entry) => entry.recurs_on).map((entry) => entry.val)
+                : this.recur_by_weekdays,
+            this.recur_by_months,
+            this.recur_by_monthyeardays);
 
         this.dialogRef.close(this.event);
     }

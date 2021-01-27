@@ -171,8 +171,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
         }
     }
 
-    // This is the original DTSTART of the event - if recurring, will different
-    // from dtstart above.
+    // This is the original DTSTART of the event - if recurring, will
+    // be different from dtstart above.
     get recurStart(): Date {
         return this.event.startDate.toJSDate();
     }
@@ -389,16 +389,26 @@ export class RunboxCalendarEvent implements CalendarEvent {
         new_exception.component.removeProperty('rrule');
         const recurrence_id = this.momentToIcalTime(origdate, this.event.startDate.zone);
         const new_start = this.momentToIcalTime(startdate, this.event.startDate.zone);
-        const new_end = this.momentToIcalTime(enddate, this.event.startDate.zone);
+        let new_end;
+        if (enddate) {
+            new_end = this.momentToIcalTime(enddate, this.event.startDate.zone);
+        }
+        console.log('isDate? ' + this._dtstart.isDate);
+        console.log('Start: ' + this._dtstart.toString()); 
+        if (this._dtstart.isDate) {
+            recurrence_id.isDate = true;
+            new_start.isDate = true;
+            new_end.isDate = true;
+        }
         new_exception.recurrenceId = recurrence_id;
         if (thisandfuture) {
-            // add RANGE=THISANDFUTURE
             const rId = new_exception.component.getFirstProperty('recurrence-id');
             rId.setParameter('range', 'THISANDFUTURE');
-            // new_exception.component.updatePropertyWithValue('recurrence-id',rId);
         }
         new_exception.startDate = new_start;
-        new_exception.endDate = new_end;
+        if (new_end) {
+            new_exception.endDate = new_end;
+        }
         if (title) {
             new_exception.summary = title;
         }
@@ -409,13 +419,107 @@ export class RunboxCalendarEvent implements CalendarEvent {
             new_exception.location = location;
         }
         this.ical.addSubcomponent(new_exception.component);
-        // recreate this.event to sort out the exceptions/recurrences?
+        // regenerate this.event to sort out the exceptions/recurrences?
     }
 
-    // FIXME: do we still need this?
-//    clone(): RunboxCalendarEvent {
-//        return RunboxCalendarEvent.fromIcal(this.id, this.toIcal());
-//    }
+    // set values from edit dialog, inc logic for recurring
+    // parts + exception creation.
+    updateEvent(
+        dtstart:        moment.Moment,
+        dtend:          moment.Moment,
+        calendar:       string,
+        recur_save_type: string,
+        title:          string,
+        location:       string,
+        description:    string,
+        recurs:         boolean,
+        frequency:      string,
+        interval:       number,
+        recur_weekdays: string[],
+        recur_months:   string[],
+        recur_nth:      string[],
+    ) {
+        if (this.recurs && recur_save_type !== '0') {
+            // Adding an exception to an already recurring event
+            this.addExceptionEvent(
+                this.dtstart,
+                dtstart,
+                dtend,
+                recur_save_type === '2' ? true : false,
+                title,
+                description,
+                location);
+        } else {
+            this.dtstart     = dtstart;
+            this.dtend       = dtend;
+            this.calendar    = calendar;
+            if (title) {
+                this.title       = title;
+            }
+            if (location) {
+                this.location    = location;
+            }
+            if (description) {
+                this.description = description;
+            }
+
+            if (recurs) {
+                // New recurring event, didn't recur before, or updating
+                // whole recurring event
+                this.recurs = true;
+                this.recurringFrequency = frequency;
+                this.recurInterval = interval;
+                if (frequency === 'WEEKLY') {
+                    // Repeats on one or more days every week
+                    this.recursByDay = recur_weekdays;
+                } else if (frequency === 'MONTHLY'
+                    || frequency === 'YEARLY') {
+                    // Repeats on either: eg: 1st,(2nd, 3rd) Tuesday, or 17th, (18th, 19th) day
+                    if (recur_weekdays.length === 1
+                        && recur_weekdays[0] === 'day') {
+                        if (frequency === 'YEARLY'
+                            && recur_months.length === 1
+                            && recur_months[0] === 'year') {
+                            // Nth day of the year
+                            this.recursByYearDay = recur_nth;
+                        } else {
+                            // Nth day of the month
+                            this.recursByMonthDay = recur_nth;
+                            if (frequency === 'YEARLY') {
+                                this.recursByMonth = recur_months;
+                            }
+                        }
+                    } else {
+                        // Nth <?>day:
+                        // If Nth is 0, then skip adding a number
+                        // (means eg "all tuesdays in the month")
+                        const weekdays = [];
+                        if (recur_weekdays.length === recur_nth.length) {
+                            for (let i = 0; i < recur_weekdays.length; i++) {
+                                const recur_monthday = recur_nth[i] !== '0' ? recur_nth[i] : '';
+                                weekdays.push(recur_monthday + recur_weekdays[i]);
+                            }
+                        } else {
+                            // picked one Nth and multiple days?
+                            for (let i = 0; i < recur_weekdays.length; i++) {
+                                const recur_monthday = recur_nth[i] !== '0' ? recur_nth[i] : '';
+                                weekdays.push(recur_monthday + recur_weekdays[i]);
+                            }
+                        }
+                        // list of 1TU,2WE etc
+                        this.recursByDay = weekdays;
+
+                        if (frequency === 'YEARLY'
+                            && recur_months[0] !== 'year') {
+                            // occurs on Nth <X>day in particular months:
+                            this.recursByMonth = recur_months;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     get_overview(): EventOverview[] {
         const events = [];
