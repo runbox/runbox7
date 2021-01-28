@@ -178,7 +178,7 @@ END:VCALENDAR`
          const vevent = ical.getFirstSubcomponent('vevent');
          // pass in prop to apply the correct timezone to the ICAL.Time object
          const dtstartProp = vevent.getFirstProperty('dtstart');
-         
+
          // This is the RCE instance for the 2nd day:
          const sut = new RunboxCalendarEvent(
              'testcal/unittestcase3',

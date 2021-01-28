@@ -393,8 +393,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (enddate) {
             new_end = this.momentToIcalTime(enddate, this.event.startDate.zone);
         }
-        console.log('isDate? ' + this._dtstart.isDate);
-        console.log('Start: ' + this._dtstart.toString()); 
         if (this._dtstart.isDate) {
             recurrence_id.isDate = true;
             new_start.isDate = true;

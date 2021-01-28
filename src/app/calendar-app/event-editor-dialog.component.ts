@@ -131,8 +131,8 @@ export class EventEditorDialogComponent {
             // Already an exception, may not save as "all occurences"
             // or "this and future"?
             if (this.event.isException) {
-                this.save_types[0]['disabled'] = false;
-                this.save_types[2]['disabled'] = false;
+                this.save_types[0]['disabled'] = true;
+                this.save_types[2]['disabled'] = true;
                 this.recur_save_type = '1';
                 this.edit_recurrence = false;
             }
@@ -171,9 +171,19 @@ export class EventEditorDialogComponent {
                 this.recur_by_monthyeardays = this.event.recursByYearDay;
                 this.recur_by_weekdays = ['day'];
             }
+            if (this.recur_by_monthyeardays.length === 0) {
+                // neither, set defaults in case its changed to either of these
+                this.recur_by_monthyeardays = [this.event_start.getDate().toString()];
+            }
+            if (this.recur_by_weekdays.length === 0) {
+                this.recur_by_weekdays = ['day'];
+            }
             // month event occurs if yearly:
-            if (this.recurring_frequency === 'YEARLY' && this.event.recursByMonth.length > 0) {
+            if (this.recurring_frequency === 'YEARLY'
+                && this.event.recursByMonth.length > 0) {
                 this.recur_by_months = this.event.recursByMonth;
+            } else {
+                this.recur_by_months = [String(this.event_start.getMonth() + 1)];
             }
         } else {
             if (data['start']) {

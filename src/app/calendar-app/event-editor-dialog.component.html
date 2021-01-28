@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>{{ event_title || "New event" }}</h1>
-<section mat-dialog-content>
+<section mat-dialog-content style="max-width: 500px; box-sizing: border-box;">
   <mat-tab-group>
     <mat-tab label="Details">
     <style>
@@ -55,9 +55,9 @@
     </p>
     </mat-tab>
     <mat-tab label="Recurrence">
-      <ng-container *ngIf="edit_recurrence" class="display: flex;">
+      <ng-container *ngIf="edit_recurrence" style="display: flex;">
         <p>
-          <mat-checkbox [(ngModel)]="event_recurs"> Event repeats </mat-checkbox>
+          <mat-checkbox style="padding: 0 5px;" [(ngModel)]="event_recurs"> Event repeats </mat-checkbox>
         </p><p>
           <mat-form-field style="margin-top: 10px;">
             <mat-label> Repeat every </mat-label>
@@ -79,42 +79,40 @@
           </ng-container>
         </p>
         <ng-container *ngIf="recurring_frequency == 'MONTHLY' || recurring_frequency == 'YEARLY'" style="margin-top: 10px;display: flex;">
-          <p>
-            <mat-label> on the </mat-label>
-            <mat-select (selectionChange)="updateMonthlyNth($event)" [(value)]="recur_by_monthyeardays" multiple [disabled]="!event_recurs">
+          <p style="display: flex; justify-content: space-between; align-items: center;">
+            on the
+            <mat-select style="width:auto;" (selectionChange)="updateMonthlyNth($event)" [(value)]="recur_by_monthyeardays" multiple [disabled]="!event_recurs">
               <mat-option *ngFor="let mnthday of month_year_days" [value]="mnthday.val" ngDefaultControl>{{ mnthday.name }}</mat-option>
             </mat-select>
-            <mat-select (selectionChange)="updateWeekday($event)" [(value)]="recur_by_weekdays" multiple [disabled]="!event_recurs">
+            <mat-select style="width:auto;" (selectionChange)="updateWeekday($event)" [(value)]="recur_by_weekdays" multiple [disabled]="!event_recurs">
               <mat-option value="day">day</mat-option>
               <mat-option *ngFor="let wday of weekdays"[value]="wday.val" ngDefaultControl>{{ wday.name }}</mat-option>
             </mat-select>
-          </p>
-          <p *ngIf="recurring_frequency == 'MONTHLY'">
-            of the month
-          </p>
-          <p *ngIf="recurring_frequency == 'YEARLY'">
-            <mat-label> of </mat-label>
-            <mat-select (selectionChange)="updateMonths($event)" [(value)]="recur_by_months" multiple [disabled]="!event_recurs">
-              <mat-option *ngFor="let month of year_months" [value]="month.val" ngDefaultControl>{{ month.name }}</mat-option>
-            </mat-select>
-          </p>
+            <span *ngIf="recurring_frequency == 'MONTHLY'">
+              of the month
+            </span>
+            <span *ngIf="recurring_frequency == 'YEARLY'">
+              of
+              <mat-select style="width:auto;" (selectionChange)="updateMonths($event)" [(value)]="recur_by_months" multiple [disabled]="!event_recurs">
+                <mat-option *ngFor="let month of year_months" [value]="month.val" ngDefaultControl>{{ month.name }}</mat-option>
+              </mat-select>
+          </span>
         </ng-container>
-    </ng-container>
-    <p *ngIf="!edit_recurrence">
+      </ng-container>
+      <p *ngIf="!edit_recurrence">
       This event is an exception to a recurring one, to change the recurrence edit the main event.
-    </p><p>
-        <a *ngIf="export_url"
-            [href]="export_url"
-            mat-button>
-            <mat-icon svgIcon="swap-vertical"></mat-icon> Export this event
-        </a>
     </p>
     </mat-tab>
   </mat-tab-group>
-</section>
-<section mat-dialog-actions style="justify-content: flex-end;">
     <ng-container>
-        <mat-form-field style="margin-top: 10px;">
+      <p>
+        <a *ngIf="export_url"
+           [href]="export_url"
+           mat-button>
+          <mat-icon svgIcon="swap-vertical"></mat-icon> Export this event
+        </a>
+      </p>
+      <mat-form-field style="margin-top: 10px;">
             <mat-label> modify which events? </mat-label>
             <mat-select placeholder="All ocurrences" [(ngModel)]="recur_save_type" [disabled]="!change_save_type">
                 <mat-option *ngFor="let type of save_types" [value]="type.val" [disabled]="type.disabled">
@@ -123,12 +121,15 @@
             </mat-select>
         </mat-form-field>
     </ng-container>
-
+</section>
+<section mat-dialog-actions style="display: flex; justify-content: space-between;">
+  <span>
     <button *ngIf="event.id"
             mat-raised-button color="warn"
             (click)="onDeleteClick()">Delete this event</button>
-
-    <button mat-button
+  </span>
+  <span>
+    <button mat-raised-button color="accent"
             (click)="onCancelClick()">Cancel</button>
 
     <button id="eventSubmitButton" mat-raised-button color="primary"
@@ -136,5 +137,6 @@
         <span *ngIf="event.id">  Update </span>
         <span *ngIf="!event.id"> Create </span>
     </button>
+  </span>
 
 </section>
