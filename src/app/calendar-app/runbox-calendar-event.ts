@@ -299,6 +299,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         this.event.component.updatePropertyWithValue('rrule', recur);
     }
 
+    // Jan-Dec numbered 1-12
     get recursByMonth(): string[] {
         const recur = this.event.component.getFirstPropertyValue('rrule');
         if (!recur) {

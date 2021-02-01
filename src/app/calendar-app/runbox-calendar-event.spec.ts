@@ -32,7 +32,7 @@ describe('RunboxCalendarEvent', () => {
         // test things addEvent calls:
       expect(newEvent.toIcal()).toMatch(/BEGIN:VEVENT/);
     });
-    it('should be possible to add/remove a recurrence rule', () => {
+    it('should be possible to add/edit/remove a WEEKLY recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
           'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
                 [ 'vevent', [
@@ -54,6 +54,91 @@ describe('RunboxCalendarEvent', () => {
         sut.recurs = false;
         expect(sut.recurringFrequency).toBe('', 'recurrence seems to be unset');
         expect(sut.toIcal()).not.toContain('RRULE', 'recurrence seems to be unset');
+    });
+
+    it('should be possible to recur every other week on multiple days of the week', () => {
+        const sut = new RunboxCalendarEvent(
+          'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'summary', {}, 'text',  'One-time event' ],
+                ] ]
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+        );
+        sut.recurringFrequency = 'WEEKLY';
+        sut.recurInterval = 2;
+        sut.recursByDay = ['SA', 'SU'];
+        expect(sut.recurringFrequency).toBe('WEEKLY', 'recurrence can be retrieved');
+        expect(sut.toIcal()).toContain('RRULE:FREQ=WEEKLY', 'recurrence seems to be stringified properly');
+        expect(sut.toIcal()).toContain('INTERVAL=2', 'ical has interval set');
+        expect(sut.toIcal()).toContain('BYDAY=SA,SU', 'ical has BYDAY params');
+    });
+
+    it('should be possible to recur monthly on one or more Xth of the month', () => {
+        const sut = new RunboxCalendarEvent(
+          'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'summary', {}, 'text',  'One-time event' ],
+                ] ]
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+        );
+        sut.recurringFrequency = 'MONTHLY';
+        sut.recurInterval = 1; // the default
+        sut.recursByMonthDay = ['5'];
+        expect(sut.recurringFrequency).toBe('MONTHLY', 'recurrence can be retrieved');
+        expect(sut.toIcal()).toContain('RRULE:FREQ=MONTHLY', 'recurrence seems to be stringified properly');
+        expect(sut.toIcal()).not.toContain('INTERVAL', 'ical interval not set if default value (1)');
+        expect(sut.toIcal()).toContain('BYMONTHDAY=5', 'ical has BYMONTHDAY params');
+        sut.recursByMonthDay = ['5', '6'];
+        expect(sut.toIcal()).toContain('BYMONTHDAY=5,6', 'ical has updated BYMONTHDAY params');
+
+    });
+
+    it('should be possible to recur monthly on Xth day of the month', () => {
+        const sut = new RunboxCalendarEvent(
+          'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'summary', {}, 'text',  'One-time event' ],
+                ] ]
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+        );
+        // Every 2nd Monday of every month
+        sut.recurringFrequency = 'MONTHLY';
+        sut.recurInterval = 1; // the default
+        sut.recursByMonthDay = ['2'];
+        sut.recursByDay = ['MO'];
+        expect(sut.recurringFrequency).toBe('MONTHLY', 'recurrence can be retrieved');
+        expect(sut.toIcal()).toContain('RRULE:FREQ=MONTHLY', 'recurrence seems to be stringified properly');
+        expect(sut.toIcal()).not.toContain('INTERVAL', 'ical interval not set if default value (1)');
+        expect(sut.toIcal()).toContain('BYMONTHDAY=2', 'ical has BYMONTHDAY params');
+        expect(sut.toIcal()).toContain('BYDAY=MO', 'ical has BYDAY params');
+    });
+
+    it('should be possible to recur yearly on Xth day of the month', () => {
+        const sut = new RunboxCalendarEvent(
+          'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
+                [ 'vevent', [
+                    [ 'dtstart', {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
+                    [ 'summary', {}, 'text',  'One-time event' ],
+                ] ]
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+        );
+        // Every 2nd of February of every year
+        sut.recurringFrequency = 'YEARLY';
+        sut.recurInterval = 1; // the default
+        sut.recursByMonth = ['2'];
+        sut.recursByMonthDay = ['2'];
+        expect(sut.recurringFrequency).toBe('YEARLY', 'recurrence can be retrieved');
+        expect(sut.toIcal()).toContain('RRULE:FREQ=YEARLY', 'recurrence seems to be stringified properly');
+        expect(sut.toIcal()).not.toContain('INTERVAL', 'ical interval not set if default value (1)');
+        expect(sut.toIcal()).toContain('BYMONTHDAY=2', 'ical has BYMONTHDAY params');
+        expect(sut.toIcal()).toContain('BYMONTH=2', 'ical has BYMONTH params');
     });
 
     it('should be possible to add a special case to a recurring event', () => {
@@ -134,17 +219,6 @@ describe('RunboxCalendarEvent', () => {
      it('should be possible to add a special case to a recurring event (with timezone)', () => {
          // mostly taken straight out of the jCal spec: https://tools.ietf.org/html/rfc7265#page-30
         const jcal = ICAL.parse(
-// `BEGIN:VCALENDAR
-// CALSCALE:GREGORIAN
-// PRODID:-//Example Inc.//Example Calendar//EN
-// VERSION:2.0
-// BEGIN:VEVENT
-// DTSTAMP:20080205T191224Z
-// DTSTART:20081006
-// SUMMARY:Planning meeting
-// UID:4088E990AD89CB3DBB484909
-// END:VEVENT
-// END:VCALENDAR`);
 `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VTIMEZONE
@@ -175,6 +249,19 @@ END:VEVENT
 END:VCALENDAR`
         );
          const ical = new ICAL.Component(jcal);
+         // Need to setup timezones (usually calendar.service does this)
+         if (ical.getFirstSubcomponent('vtimezone')) {
+             for (const tzComponent of ical.getAllSubcomponents('vtimezone')) {
+                 const tz = new ICAL.Timezone({
+                     tzid:      tzComponent.getFirstPropertyValue('tzid'),
+                     component: tzComponent,
+                 });
+
+                 if (!ICAL.TimezoneService.has(tz.tzid)) {
+                     ICAL.TimezoneService.register(tz.tzid, tz);
+                 }
+             }
+         }
          const vevent = ical.getFirstSubcomponent('vevent');
          // pass in prop to apply the correct timezone to the ICAL.Time object
          const dtstartProp = vevent.getFirstProperty('dtstart');
