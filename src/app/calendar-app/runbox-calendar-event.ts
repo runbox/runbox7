@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -99,11 +99,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // If set on an exception, only changes that exception
     set dtstart(value: moment.Moment) {
         const allDay = this.allDay;
-        this._dtstart = this.momentToIcalTime(value, this.event.startDate ? this.event.startDate.zone : null);
-        // FIXME: Do this only if its the first one?
-        this.event.startDate = this._dtstart;
-        // FIXME: regenerate all following events!?
-        // Do we just let the save-to-dav / reloadEvents cycle do this for us?
+        // check this before we update:
+        if (this._dtstart.toJSDate() === this.recurStart) {
+            this._dtstart = this.momentToIcalTime(value, this.event.startDate ? this.event.startDate.zone : null);
+            this.event.startDate = this._dtstart;
+        }
         this.allDay = allDay;
     }
 
@@ -118,12 +118,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // If set on an exception, only changes that exception
     // FIXME: Does this change an ICAL.Time with no date (isDate=true) to
     // one with a time? (as a side effect that is)
-    // See also set dtstart comments!
     set dtend(value: moment.Moment) {
         const allDay = this.allDay;
-        if (value) {
+        if (value && this._dtstart.toJSDate() === this.recurStart) {
             this._dtend = this.momentToIcalTime(value, this.event.endDate ? this.event.endDate.zone : undefined);
-            // FIXME: (see above)
             this.event.endDate = this._dtend;
         }
         this.allDay = allDay;
@@ -171,8 +169,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
         }
     }
 
-    // This is the original DTSTART of the event - if recurring, will
-    // be different from dtstart above.
+    // This is the original DTSTART of the event - if recurring, could
+    // be different from dtstart above. Matches if its an exception.
     get recurStart(): Date {
         return this.event.startDate.toJSDate();
     }
@@ -320,12 +318,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (this._dtend) {
             this._dtend.isDate = value;
         }
-        // I know this looks silly, but without this
-        // ICAL.Event will not notice the isDate change
-        // and the event metadata will still be off
-        // FIXME: where is this set/used?
-        // this.event.startDate = this._dtstart;
-        // this.event.endDate   = this._dtend;
     }
 
     get isException(): boolean {
@@ -334,11 +326,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     // creates an unnamed event for today
     static newEmpty(): RunboxCalendarEvent {
+        const icalevent = new ICAL.Event(new ICAL.Component('vevent'));
+        icalevent.startDate = ICAL.Time.now();
         return new this(
             undefined,
-            new ICAL.Event(new ICAL.Component('vevent')),
-            ICAL.Time.fromData({year: 2019, month: 10, day: 2, hour: 14, minute: 0}),
-            ICAL.Time.fromData({year: 2019, month: 10, day: 2, hour: 14, minute: 0})
+            icalevent,
+            icalevent.startDate,
+            icalevent.startDate
         );
     }
 
@@ -553,16 +547,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // ICAL of the entire event (exceptions and all) - assuming it got updated?
     toIcal(): string {
         return this.ical.toString();
-    }
-
-    // returns jCal
-    toJSON(): any {
-        return {
-            id:       this.id,
-            calendar: this.calendar,
-            jcal:     this.ical.toJSON(),
-            ical:     this.toIcal(),
-        };
     }
 
     private icalTimeToLocalMoment(time: ICAL.Time): moment.Moment {

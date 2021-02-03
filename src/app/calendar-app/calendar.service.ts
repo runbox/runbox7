@@ -519,8 +519,6 @@ export class CalendarService implements OnDestroy {
             // multiple months
             if (this.icalevents.length > 0) {
                 this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents);
-//                this.events = this.generateEvents(viewPeriod.start, viewPeriod.end, this.icalevents);
-                // calendar-app calls filterEvents, will this recurse infinitely!?
                 this.eventSubject.next(this.events);
             }
 

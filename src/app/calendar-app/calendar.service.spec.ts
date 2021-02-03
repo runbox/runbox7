@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -116,8 +116,6 @@ describe('CalendarService', () => {
     it('should be able to move events between calendars', async () => {
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
             expect(events.length).toBe(1, '1 event loaded');
-            // FIXME?
-            // const event = events[0].clone();
             events[0].calendar = 'test2';
             sut.modifyEvent(events[0]);
             r();

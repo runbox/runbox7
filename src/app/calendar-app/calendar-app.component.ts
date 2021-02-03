@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -275,8 +275,6 @@ export class CalendarAppComponent implements OnDestroy {
         const target = event as RunboxCalendarEvent;
         console.log('Opening event', target);
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-        // FIXME: why are we cloning?
-//            data: { event: target.clone(), calendars: this.calendars, settings: this.settings }
             data: { event: target, calendars: this.calendars, settings: this.settings }
         });
         dialogRef.afterClosed().subscribe(result => {

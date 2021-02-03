@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -161,7 +161,6 @@ describe('CalendarAppComponent', () => {
     it('should display events', () => {
         mockData['events'] = simpleEvents;
         component.calendarservice.syncCaldav(true);
-        // component.calendarservice.eventSubject.next(simpleEvents);
         fixture.detectChanges();
 
         // if we run this at the end of the month, it might be 1, else
@@ -200,13 +199,6 @@ describe('CalendarAppComponent', () => {
         mockData['events'] = recurringEvents;
         component.calendarservice.syncCaldav(true);
 
-        // component.calendarservice.icalevents = [
-        //     { id: 'recurring',
-        //       event: recurringEvents[0].event
-        //     },
-        // ];
-        // component.calendarservice.eventSubject.next(recurringEvents);
-        // component.calendarservice.updateEventList();
         fixture.detectChanges();
 
         const shownEventsCount = component.shown_events.length;
