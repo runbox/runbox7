@@ -265,6 +265,8 @@ export class CalendarAppComponent implements OnDestroy {
                 }
             }
         }
+        this.shown_events = this.shown_events.sort(
+            (ea, eb) => ea.start.getTime() < eb.start.getTime() ? -1 : 1);
 
         this.calculateRecurringEvents();
         this.refresh.next();
