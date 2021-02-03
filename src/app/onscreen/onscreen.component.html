@@ -1,21 +1,3 @@
-<style>
-#jitsiContainer {
-    margin: auto;
-    height: 100%;
-}
-
-#meetingForm {
-    flex-direction: column;
-    width: 50%;
-    margin: auto;
-}
-
-.avatarImg {
-    height: 32px;
-    border-radius: 32px;
-}
-</style>
-
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu
         [opened]="sideMenuOpened"
@@ -58,39 +40,46 @@
                 <mat-icon>menu</mat-icon>
             </button>
 
-            <span *ngIf="activeMeeting" style="display: flex; width: 100%;">
+            <div *ngIf="activeMeeting" class="meeting-header">
                 <strong> {{ activeMeeting.name }} </strong>
                 <!--<span *ngIf="activeMeeting.createDate"> ({{ activeMeeting.createDate }}) </span>-->
-                <span style="flex-grow: 1"></span>
-                <button mat-raised-button color="link" (click)="copyMeetingCode()">
-                    <mat-icon> content_copy </mat-icon> Copy meeting code
-                </button>
-                <button mat-raised-button color="warn" (click)="leaveMeeting()"> Leave </button>
-            </span>
+                <div class="header-actions">
+                    <button mat-raised-button color="link" (click)="copyMeetingCode()">
+                        <mat-icon> content_copy </mat-icon> Copy meeting code
+                    </button>
+                    <button mat-raised-button color="warn" (click)="leaveMeeting()"> Leave </button>
+                </div>
+            </div>
         </mat-toolbar>
 
         <div id="jitsiContainer" [ngStyle]="{'display': jitsiAPI ? 'block' : 'none'}">
         </div>
 
         <div id="meetingForm" [ngStyle]="{'display': jitsiAPI ? 'none' : 'flex'}">
-            <mat-form-field>
-                <input matInput [(ngModel)]="form.yourName" placeholder="Your name">
-            </mat-form-field>
-            <mat-form-field>
-                <input matInput [(ngModel)]="form.yourEmail" placeholder="Visible email address">
-            </mat-form-field>
-
-            <h4> Create a new meeting </h4>
-            <mat-form-field>
-                <input matInput [(ngModel)]="form.meetingName" placeholder="Meeting name">
-            </mat-form-field>
-            <button mat-raised-button color="primary" (click)="createMeeting()"> Start a meeting </button>
-
-            <h4> Or join an existing one </h4>
-            <mat-form-field>
-                <input matInput [(ngModel)]="form.meetingCode" placeholder="Meeting code">
-            </mat-form-field>
-            <button mat-raised-button color="primary" (click)="joinMeeting(form.meetingCode)"> Join meeting </button>
+            <div class="user-information form-section">
+                <mat-form-field>
+                    <input matInput [(ngModel)]="form.yourName" placeholder="Your name">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput [(ngModel)]="form.yourEmail" placeholder="Visible email address">
+                </mat-form-field>
+            </div>
+        
+            <div class="new-meeting form-section">
+                <h4> Create a new meeting </h4>
+                <mat-form-field>
+                    <input matInput [(ngModel)]="form.meetingName" placeholder="Meeting name">
+                </mat-form-field>
+                <button mat-raised-button color="primary" (click)="createMeeting()"> Start a meeting </button>
+            </div>
+        
+            <div class="existing-meeting form-section">
+                <h4> Or join an existing one </h4>
+                <mat-form-field>
+                    <input matInput [(ngModel)]="form.meetingCode" placeholder="Meeting code">
+                </mat-form-field>
+                <button mat-raised-button color="primary" (click)="joinMeeting(form.meetingCode)"> Join meeting </button>
+            </div>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
