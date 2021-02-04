@@ -675,6 +675,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.resetColumns();
 
+    this.usage.report('local-index-deleted');
+
     this.searchService.deleteLocalIndex().subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
 
