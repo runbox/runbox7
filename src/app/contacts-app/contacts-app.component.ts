@@ -96,7 +96,7 @@ export class ContactsAppComponent {
             if (!vcfUrl) { return; }
             this.http.get(vcfUrl, { responseType: 'blob' }).subscribe(
                 res => (new Response(res)).text().then(
-                    text => this.processVcfImport(text)
+                    text => this.processVcfImport(text, false)
                 )
             );
             this.router.navigate(['/contacts'], { queryParams: {}, replaceUrl: true });
@@ -233,25 +233,37 @@ export class ContactsAppComponent {
         const file = uploadEvent.target.files[0];
         const fr   = new FileReader();
 
+        let type_check_warning = false;
         if (file.type !== 'text/vcard') {
-            this.showError('Error parsing contact: is it a proper VCF file?');
-            return;
+            type_check_warning = true;
         }
 
         fr.onload = (ev: any) => {
+            // Empty element so we can directly retry / upload more files
+            this.vcfUploadInput.nativeElement.value = '';
+
             const vcf = ev.target.result;
-            this.processVcfImport(vcf);
+            if (vcf.startsWith('BEGIN:VCARD')) {
+                // Maybe its fine after all, lets parse it and see what happens
+                type_check_warning = false;
+            }
+            this.processVcfImport(vcf, type_check_warning);
         };
 
         fr.readAsText(file);
     }
 
-    processVcfImport(vcf: string) {
+    processVcfImport(vcf: string, warning: boolean) {
         let contacts: Contact[];
         try {
             contacts = Contact.fromVcf(vcf);
-        } catch {
-            this.showError('Error parsing contacts: is it a proper VCF file?');
+        } catch (e) {
+            if (warning) {
+                // we predicted this:
+                this.showError('Only .vcf contacts files are supported, this does not look like one');
+            } else {
+                this.showError('Error parsing contacts: is it a proper VCF file?\n' + 'ParserError: ' + e.message);
+            }
             return;
         }
         const dialogRef = this.dialog.open(VcfImportDialogComponent, {
