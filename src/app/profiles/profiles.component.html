@@ -11,12 +11,12 @@
                 >
                     <div section-header>
                         <h2>
-                            Main Identity
+                            Default Identity
                         </h2>
                     </div>
                     <div section-description>
                         <h3>
-                            Your Main Identity is the address you signed up for Runbox with, and is your main profile.
+                            Address picked by default when composing a new email.
                         </h3>
                     </div>
                     <div section-buttons>
@@ -35,7 +35,7 @@
                 <app-profiles-default *ngIf="rmm.profile && rmm.profile.profiles" (ev_reload)="ev_reload_emiter($event)">
                     <div section-description>
                         <h3 style="margin-bottom: 0;">
-                            Choose the address picked by default when composing a new email:
+                            Select your Default Identity:
                         </h3>
                     </div>
                 </app-profiles-default>
