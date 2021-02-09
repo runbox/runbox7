@@ -27,6 +27,12 @@ import * as ICAL from 'ical.js';
 
 import { EventOverview } from './event-overview';
 
+export enum RecurSaveType {
+    ALL_OCCURENCES,
+    THIS_ONLY,
+    THIS_AND_FUTURE,
+}
+
 export class RunboxCalendarEvent implements CalendarEvent {
     id?:       string;
 
@@ -421,7 +427,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         dtstart:        moment.Moment,
         dtend:          moment.Moment,
         calendar:       string,
-        recur_save_type: string,
+        recur_save_type: RecurSaveType,
         title:          string,
         location:       string,
         description:    string,
@@ -432,13 +438,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
         recur_months:   string[],
         recur_nth:      string[],
     ) {
-        if (this.recurs && recur_save_type !== '0') {
+        if (this.recurs && recur_save_type !== RecurSaveType.ALL_OCCURENCES) {
             // Adding an exception to an already recurring event
             this.addExceptionEvent(
                 this.dtstart,
                 dtstart,
                 dtend,
-                recur_save_type === '2' ? true : false,
+                recur_save_type === RecurSaveType.THIS_AND_FUTURE ? true : false,
                 title,
                 description,
                 location);

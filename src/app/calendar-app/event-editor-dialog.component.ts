@@ -24,7 +24,7 @@ import { MatTab } from '@angular/material/tabs';
 
 import { CalendarSettings } from './calendar-settings';
 import { RunboxCalendar } from './runbox-calendar';
-import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { RunboxCalendarEvent, RecurSaveType } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 import * as moment from 'moment';
@@ -55,7 +55,7 @@ export class EventEditorDialogComponent {
     recur_by_months: string[] = [];
     recur_by_monthyeardays: string[] = [];
     recur_by_weekdays: string[] = [];
-    recur_save_type = '0';
+    recur_save_type = RecurSaveType.ALL_OCCURENCES;
     recurrence_frequencies = [
         { name: 'Hour(s)',    val: 'HOURLY'  },
         { name: 'Day(s)',     val: 'DAILY'   },
@@ -89,9 +89,9 @@ export class EventEditorDialogComponent {
         { name: 'December',   val: '12',    selected: false },
     ];
     save_types = [
-        { name: 'All ocurrences',         val: '0', disabled: false },
-        { name: 'This event only',        val: '1', disabled: false },
-        { name: 'This and future events', val: '2', disabled: false },
+        { name: 'All ocurrences',         val: RecurSaveType.ALL_OCCURENCES,  disabled: false },
+        { name: 'This event only',        val: RecurSaveType.THIS_ONLY,       disabled: false },
+        { name: 'This and future events', val: RecurSaveType.THIS_AND_FUTURE, disabled: false },
     ];
 
     export_url: string;
@@ -133,7 +133,7 @@ export class EventEditorDialogComponent {
             if (this.event.isException) {
                 this.save_types[0]['disabled'] = true;
                 this.save_types[2]['disabled'] = true;
-                this.recur_save_type = '1';
+                this.recur_save_type = RecurSaveType.THIS_ONLY;
                 this.edit_recurrence = false;
             }
             this.recurring_frequency = this.event.recurringFrequency;
@@ -343,8 +343,8 @@ export class EventEditorDialogComponent {
                 // If date changes, and not first event in recurring
                 // can't set on all occurences.
                 this.save_types[0]['disabled'] = true;
-                if (this.recur_save_type === '0') {
-                    this.recur_save_type = '1';
+                if (this.recur_save_type === RecurSaveType.ALL_OCCURENCES) {
+                    this.recur_save_type = RecurSaveType.THIS_ONLY;
                 }
             }
         }

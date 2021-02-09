@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { RunboxCalendarEvent, RecurSaveType } from './runbox-calendar-event';
 import * as moment from 'moment';
 import * as ICAL from 'ical.js';
 
@@ -160,7 +160,7 @@ describe('RunboxCalendarEvent', () => {
             future,
             future,
             sut.calendar,
-            '1', // 'This event only', should probably be an enum
+            RecurSaveType.THIS_ONLY,
             'Moved weekly event', undefined, undefined,
             true,
             sut.recurringFrequency,
@@ -203,7 +203,7 @@ describe('RunboxCalendarEvent', () => {
             future,
             future,
             sut.calendar,
-            '1', // 'This event only', should probably be an enum
+            RecurSaveType.THIS_ONLY,
             'Moved weekly event one hour', undefined, undefined,
             true,
             sut.recurringFrequency,
@@ -279,7 +279,7 @@ END:VCALENDAR`
              future,
              undefined,
              sut.calendar,
-             '1', // 'This event only', should probably be an enum
+             RecurSaveType.THIS_ONLY,
              'Moved daily event one hour', undefined, undefined,
              true,
              sut.recurringFrequency,
