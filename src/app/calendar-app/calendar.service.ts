@@ -83,7 +83,10 @@ export class CalendarService implements OnDestroy {
             for (const cal of this.calendars) {
                 this.syncTokens[cal.id] = cal.syncToken;
             }
-            const runboxevents = cache['events'].map((e: any) => this.fromIcal(e.id, e.ical));
+            const runboxevents = cache['events'].map((e: any) => {
+                const ievent = this.importFromIcal(e.id, e.ical);
+                return this.generateEvents(undefined, undefined, [ievent]);
+            });
             runboxevents.forEach((events) => this.events = this.events.concat(events));
             this.calendarSubject.next(this.calendars);
             this.eventSubject.next(this.events);
@@ -283,7 +286,7 @@ export class CalendarService implements OnDestroy {
     // item, set their specific dtstart date, store the same ICAL.Event.
     // an exception ICAL.Event gets both the exception, and the main one!?
     // set an "isException" flag!?
-    fromIcal(id: string, ical: string, keep = true): RunboxCalendarEvent[] {
+    importFromIcal(id: string, ical: string, keep = true): {id: string, event: any} {
         let component = new ICAL.Component(ICAL.parse(ical));
         // https://github.com/mozilla-comm/ical.js/issues/455
         if (component.getFirstSubcomponent('vtimezone')) {
@@ -308,14 +311,31 @@ export class CalendarService implements OnDestroy {
         const vevents = component.getAllSubcomponents('vevent')
             .filter((c) => !c.hasProperty('recurrence-id'))
             .map((c) => new ICAL.Event(c, {'strictExceptions': keep}));
+
+        // If this is empty, likely because an exception got separated
+        // from its rrule at some point - check to see if we already
+        // have the same uid
+        if (vevents.length === 0) {
+            const ievent = new ICAL.Event(component.getFirstSubcomponent('vevent'));
+            const existingEvent = this.icalevents.find(
+                (entry) => entry['id'] === ievent.uid
+            );
+            // Lets hope we get these in order (rrule first, exception after)
+            if (existingEvent && ievent.isRecurrenceException()) {
+                existingEvent['event'].relateException(ievent);
+                // we could save modified event, and delete this one
+                // or keep doing this and leave that for a different fix?
+            }
+            return;
+        }
         if (keep) {
             this.icalevents.push({ 'id': id, 'event': vevents[0] });
         }
-        // generate RBE events for just this set, for current month+1:
-        // FIXME: what if user runs import while not looking at "today"?
-        return this.generateEvents(undefined,
-                                   undefined,
-                                   [{ 'id': id, 'event': vevents[0] }]);
+
+        return { 'id': id, 'event': vevents[0] };
+        // return this.generateEvents(undefined,
+        //                            undefined,
+        //                            [{ 'id': id, 'event': vevents[0] }]);
     }
 
     // generate RBE events from ICAL.Events (inc exceptions)
@@ -447,9 +467,15 @@ export class CalendarService implements OnDestroy {
             this.events = [];
             this.icalevents = [];
             events.forEach((e: any) => {
-                const runboxevents = this.fromIcal(e.id, e.ical);
-                this.events = this.events.concat(runboxevents);
+                // store events into this.icalevents
+                this.importFromIcal(e.id, e.ical);
             });
+            console.log(this.icalevents);
+
+            // generate RBE events for just this set, for current month+1:
+            // FIXME: what if user runs import while not looking at "today"?
+            const runboxevents = this.generateEvents();
+            this.events = this.events.concat(runboxevents);
             this.eventSubject.next(this.events);
             this.activities.end(Activity.RefreshingEvents);
         }, e => {

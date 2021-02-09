@@ -67,8 +67,9 @@ export class ImportDialogComponent {
 
         // returns an array of RunboxCalendarEvent, we can figure out
         // the overview from any of them
-        const event = calendarservice.fromIcal(undefined, data['ical'], false)[0];
-        this.events = event.get_overview();
+        const ievent = calendarservice.importFromIcal(undefined, data['ical'], false);
+        const events = calendarservice.generateEvents(undefined, undefined, [ievent]);
+        this.events = events[0].get_overview();
     }
 
     onCancelClick(): void {

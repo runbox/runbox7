@@ -63,12 +63,25 @@ describe('CalendarService', () => {
         },
     } as RunboxWebmailAPI;
 
+    // This is a deliberate mess, rrules and their exceptions should not be
+    // stored separately, but older versions of the REST service did.
+    // this needs to be parsed, as 2 events
     beforeEach(() => {
         dav_events = {
             'test/foo': {
                 calendar: 'test',
                 id: 'test/foo',
                 ical: 'BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART:20190906T100000\nSUMMARY:Change me\nEND:VEVENT\nEND:VCALENDAR\n'
+            },
+            'test/rrule': {
+                calendar: 'test',
+                id: 'test/rrule',
+                ical: 'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDESCRIPTION;ALTREP="CID:<FFFF__":body\nDTEND:20210425T100000\nDTSTAMP:20210406T204303Z\nDTSTART:20210425T090000\nRRULE:FREQ=DAILY;COUNT=5\nSEQUENCE:0\nSUMMARY:More complicated stream (5 day recurring)\nTRANSP:OPAQUE\nUID:6BA1ECA4D58B306C85256FDB0071B664-Lotus_Notes_Generated\nEND:VEVENT\nEND:VCALENDAR\n'
+            },
+            'test/exception': {
+                calendar: 'test',
+                id: 'test/exception',
+                ical: 'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nCOMMENT;ALTREP="CID:<FFFF__":Reschedule of a single instance\'s time only (+ 1 hr)\nDESCRIPTION;ALTREP="CID:<FFFE__":body\nDTEND:20210426T110000\nDTSTAMP:20210406T205010Z\nDTSTART:20210426T100000\nRDATE;VALUE=PERIOD:20210426T100000/20210426T110000\nRECURRENCE-ID:20210426T130000Z\nSEQUENCE:1\nSUMMARY:More complicated stream (5 day recurring)\nTRANSP:OPAQUE\nUID:6BA1ECA4D58B306C85256FDB0071B664-Lotus_Notes_Generated\nEND:VEVENT\nEND:VCALENDAR\n'
             }
         };
 
@@ -94,7 +107,8 @@ describe('CalendarService', () => {
 
     it('should modify event when asked', async () => {
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
-            expect(events.length).toBe(1, '1 event loaded');
+            expect(sut.icalevents.length).toBe(2, '2 ical events found');
+            expect(events.length).toBe(6, '6 events generated');
             const event = events[0];
             event.title = 'Changed!';
             sut.modifyEvent(event);
@@ -102,7 +116,8 @@ describe('CalendarService', () => {
         }));
 
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
-            expect(events.length).toBe(1, '1 event loaded');
+            expect(sut.icalevents.length).toBe(2, '2 ical events found');
+            expect(events.length).toBe(6, '6 events loaded');
             const event = events[0];
             expect(event.title).toBe('Changed!', 'event got updated');
 
@@ -114,15 +129,20 @@ describe('CalendarService', () => {
     });
 
     it('should be able to move events between calendars', async () => {
+        expect(sut.icalevents.length).toBe(0, 'No ical events found');
+        expect(sut.events.length).toBe(0, 'No events loaded');
+
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
-            expect(events.length).toBe(1, '1 event loaded');
+            expect(sut.icalevents.length).toBe(2, '2 ical events found');
+            expect(events.length).toBe(6, '6 events loaded');
             events[0].calendar = 'test2';
             sut.modifyEvent(events[0]);
             r();
         }));
 
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
-            expect(events.length).toBe(1, '1 event loaded');
+            expect(sut.icalevents.length).toBe(2, '2 ical events found');
+            expect(events.length).toBe(6, '6 events loaded');
             const event = events[0];
             expect(event.calendar).toBe('test2', 'event got moved');
 
@@ -134,7 +154,7 @@ describe('CalendarService', () => {
     });
 
     it('should be possible to  import an .ics file', () => {
-        const rbevents = sut.fromIcal(undefined,
+        sut.importFromIcal(undefined,
 `BEGIN:VCALENDAR
 X-LOTUS-CHARSET:UTF-8
 VERSION:2.0
@@ -174,13 +194,14 @@ UID:F88157FE01BE8A5C85256FDB006EBCC3-Lotus_Notes_Generated
 END:VEVENT
 END:VCALENDAR
 `, true);
+        const rbevents = sut.generateEvents();
         // Produces multiple CalendarEvents which refer to the same ICal.Event
         expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
     });
 
     it('should be possible to import an .ics file with exceptions', () => {
-        const rbevents = sut.fromIcal(undefined,
+        sut.importFromIcal(undefined,
 `BEGIN:VCALENDAR
 X-LOTUS-CHARSET:UTF-8
 VERSION:2.0
@@ -241,6 +262,7 @@ UID:7BA1ECA4D58B306C85256FDB0071B664-Lotus_Notes_Generated
 END:VEVENT
 END:VCALENDAR
 `, true);
+        const rbevents = sut.generateEvents();
         // Produces multiple CalendarEvents which refer to the same ICal.Event
         expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
@@ -249,7 +271,7 @@ END:VCALENDAR
     });
 
     it('should be possible to import a static (non recurring) event', () => {
-        const rbevents = sut.fromIcal(undefined,
+        sut.importFromIcal(undefined,
 `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
@@ -285,13 +307,14 @@ UID:030b96e1-0e35-4725-84c6-2e564107970a
 END:VEVENT
 END:VCALENDAR
 `, true);
+        const rbevents = sut.generateEvents();
         expect(rbevents.length).toEqual(1, 'Imported one static event');
     });
 
     it('should be possible to import/generate an infinitely repeating event', () => {
         // This just says "WEEKLY", internals will figure out which
         // day the startdate is and use that for the repeats.
-        const rbevents = sut.fromIcal(undefined,
+        sut.importFromIcal(undefined,
 `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//www.contactoffice.com//NONSGML Calendar//EN
@@ -329,6 +352,7 @@ TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR
 `, true);
+        const rbevents = sut.generateEvents();
         // defaults to 2 months worth of events
         expect(rbevents.length).toBeGreaterThan(7, 'Got more than 7 weekly events');
         expect(rbevents[0].start.getDay()).toEqual(1, 'Generates dates on a Monday');
@@ -337,7 +361,7 @@ END:VCALENDAR
     it('should be possible to determine the day/time from the dtstart value', () => {
         // This just says "WEEKLY", internals will figure out which
         // day the startdate is and use that for the repeats.
-        let rbevents = sut.fromIcal(undefined,
+        sut.importFromIcal(undefined,
 `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//www.contactoffice.com//NONSGML Calendar//EN
@@ -375,6 +399,7 @@ TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR
 `, true);
+        let rbevents = sut.generateEvents();
         // The above generates by default all events from the
         // startdate of the recurring event, to 2 months in the
         // current future - generate a known set for tests.
