@@ -29,6 +29,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     templateUrl: 'profiles.default.html',
 })
 export class DefaultProfileComponent {
+    field_errors: any;
     profiles: any[] = new Array();
     selected: any;
 
@@ -64,10 +65,12 @@ export class DefaultProfileComponent {
     updateDefaultProfile() {
         const priorities: any[] = new Array();
         const priority_data = { from_priorities: priorities };
+        const type_data = { type: 'main' };
         for (const profile of this.profiles) {
             if (profile === this.selected) {
                 const values = { id: profile.id, from_priority: 0 };
                 priorities.push(values);
+                this.updateType(profile.id, type_data, this.field_errors);
             } else {
                 const values = { id: profile.id, from_priority: 1 };
                 priorities.push(values);
@@ -85,6 +88,20 @@ export class DefaultProfileComponent {
                     this.showNotification('Default Identity updated');
                 } else if (reply['status'] === 'error') {
                     this.showNotification('Could not update Default Identity');
+                    return;
+                }
+            }
+        );
+    }
+
+    updateType(id: number, values: { type: string }, field_errors: any) {
+        const req = this.rmm.profile.update(id, values, field_errors);
+        req.subscribe(
+            (reply) => {
+                if (reply['status'] === 'success') {
+                    this.rmm.profile.load();
+                } else if (reply['status'] === 'error') {
+                    this.showNotification('Could not update Identity Type');
                     return;
                 }
             }
