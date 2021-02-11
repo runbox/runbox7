@@ -1296,7 +1296,7 @@ const changes = [
         "fe0693f",
         "1574956692",
         "refactor",
-        "webmail",
+        "mail",
         "remove unused column widths code from AppComponent"
     ],
     [
@@ -1387,7 +1387,7 @@ const changes = [
         "163d88f",
         "1574346008",
         "style",
-        "webmail",
+        "mail",
         "Hide nav submenu in mobile view"
     ],
     [
@@ -1464,7 +1464,7 @@ const changes = [
         "f69af60",
         "1573848492",
         "style",
-        "webmail",
+        "mail",
         "Omit \"Deleting...\" feedback message when deleting messages."
     ],
     [
@@ -1549,7 +1549,7 @@ const changes = [
         "1573486468",
         "feat",
         "menu",
-        "Add buttons to navigate between calendar and webmail"
+        "Add buttons to navigate between calendar and mail"
     ],
     [
         "85ea2fa",
@@ -1751,35 +1751,35 @@ const changes = [
         "1a21270",
         "1572351944",
         "fix",
-        "webmail",
+        "mail",
         "don't keep the message pane open when in mobile view"
     ],
     [
         "d2969db",
         "1572351280",
         "style",
-        "webmail",
+        "mail",
         "adjust preview pane wording"
     ],
     [
         "9c4e9b6",
         "1572280164",
         "fix",
-        "webmail",
+        "mail",
         "Display viewMode menu even when no local index exists"
     ],
     [
         "5a30155",
         "1572279479",
         "feat",
-        "webmail",
+        "mail",
         "add an option to toggle the message pane openness"
     ],
     [
         "09a3fa1",
         "1572277440",
         "feat",
-        "webmail",
+        "mail",
         "Add an option to hide the message pane"
     ],
     [
@@ -2010,7 +2010,7 @@ const changes = [
         "4670c0a",
         "1569425925",
         "refactor",
-        "webmail",
+        "mail",
         "remove deprecated MediaQueryList APIs"
     ],
     [
