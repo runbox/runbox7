@@ -47,18 +47,14 @@ export class DefaultProfileComponent {
         await this.fetchProfiles();
         const defaultProfiles = [];
         for (const profile of this.profiles) {
-            if (profile.priority === '0' || profile.priority === 0) {
+            if (profile.priority === 0) {
                 defaultProfiles.push(profile);
             }
         }
         if (defaultProfiles.length === 1) {
             this.selected = defaultProfiles[0];
         } else {
-            for (const profile of defaultProfiles) {
-                if (profile.type === 'main') {
-                    this.selected = profile;
-                }
-            }
+            this.selected = this.profiles.find(p => p.type === 'main');
         }
     }
 
