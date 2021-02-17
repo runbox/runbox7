@@ -737,36 +737,58 @@
           <p>Below you will find a list of active browser sessions for your account.</p>
           <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Sessions" target="help">Sessions Help</a>.</p>
           <!-- header -->
-          <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.session.results">
-            <mat-grid-tile><h4>Login time</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Last seen</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Logout time</h4></mat-grid-tile>
-            <mat-grid-tile><h4>IP</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Browser</h4></mat-grid-tile>
-          </mat-grid-list>
-          <mat-grid-list cols="5" rowHeight="60px" *ngIf="rmm.account_security.session.results">
+          <div class="grid-table" *ngIf="rmm.account_security.session.results">
+            <mat-grid-list cols="5" rowHeight="50px">
+              <mat-grid-tile><h4>Login time</h4></mat-grid-tile>
+              <mat-grid-tile><h4>Last seen</h4></mat-grid-tile>
+              <!-- <mat-grid-tile><h4>Logout time</h4></mat-grid-tile> -->
+              <mat-grid-tile><h4>IP</h4></mat-grid-tile>
+              <mat-grid-tile colspan="2"><h4>Browser</h4></mat-grid-tile>
+            </mat-grid-list>
             <div *ngFor="let result of rmm.account_security.session.results">
-              <mat-grid-tile>
-                {{ result.created }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.updated }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.deleted }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.ip }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.user_agent }}
-              </mat-grid-tile>
+              <mat-grid-list class="grid-results" cols="5" rowHeight="60px">
+                  <mat-grid-tile>
+                    {{ result.created }}
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    {{ result.updated }}
+                  </mat-grid-tile>
+                  <!-- <mat-grid-tile>
+                    {{ result.deleted }}
+                  </mat-grid-tile> -->
+                  <mat-grid-tile>
+                    {{ result.ip }}
+                  </mat-grid-tile>
+                  <mat-grid-tile colspan="2">
+                    {{ result.user_agent }}
+                  </mat-grid-tile>
+              </mat-grid-list>
+              <mat-divider></mat-divider>
             </div>
-          </mat-grid-list>
+          </div>
+          <div *ngIf="rmm.account_security.session.results">
+            <div class="table-mobile" *ngFor="let result of rmm.account_security.session.results">
+              <div class="table-mobile-row">
+                <span class="row-title">Login time:</span>
+                <span>{{ result.created }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Last seen:</span>
+                <span>{{ result.updated }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">IP:</span>
+                <span>{{ result.ip }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Browser:</span>
+                <span>{{ result.user_agent }}</span>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
+          </div>
           <p style="text-align: center">
-          <span>
             <button mat-raised-button class="primaryContentButton" type='button' (click)="rmm.account_security.session.list()">Refresh</button>
-          </span>
           </p>
         </div>
       </app-runbox-section>
