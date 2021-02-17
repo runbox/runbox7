@@ -97,8 +97,65 @@ describe('CalendarAppComponent', () => {
 
     const mockData = {
         calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink', syncToken: 'testsync' }) ],
-        events:    [] // set in test cases
-    };
+        events:    [], // set in test cases
+        timezone:
+`BEGIN:VCALENDAR
+PRODID:-//citadel.org//NONSGML Citadel calendar//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:/citadel.org/20210210_1/Europe/Stockholm
+LAST-MODIFIED:20210210T123706Z
+X-LIC-LOCATION:Europe/Stockholm
+X-PROLEPTIC-TZNAME:LMT
+BEGIN:STANDARD
+TZNAME:SET
+TZOFFSETFROM:+011212
+TZOFFSETTO:+010014
+DTSTART:18790101T000000
+END:STANDARD
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+010014
+TZOFFSETTO:+0100
+DTSTART:19000101T000000
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19160514T230000
+RDATE:19800406T020000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19161001T010000
+END:STANDARD
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19800928T030000
+RRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T010000Z
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19810329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19961027T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+END:VCALENDAR
+`    };
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -119,6 +176,7 @@ describe('CalendarAppComponent', () => {
                     { provide: RunboxWebmailAPI, useValue: {
                         getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
                         getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
+                        getVTimezone:      (tzname: string): Observable<string> => of(mockData['timezone']),
                         me:                    of({ uid: 1 }),
                     } },
                     { provide: HttpClient, useValue: {

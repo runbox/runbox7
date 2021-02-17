@@ -35,7 +35,7 @@ import * as ICAL from 'ical.js';
     templateUrl: 'event-editor-dialog.component.html',
 })
 export class EventEditorDialogComponent {
-    event = RunboxCalendarEvent.newEmpty();
+    event: RunboxCalendarEvent;
     calendars: RunboxCalendar[];
     calendarFC = new FormControl('', Validators.required);
     event_start: Date;
@@ -104,8 +104,8 @@ export class EventEditorDialogComponent {
         this.calendars = data['calendars'];
         this.calendarFC.setValue(this.calendars[0].id);
 
-        if (data['event']) {
-            this.event = data['event'];
+        this.event = data['event'];
+        if (!data['is_new']) {
             this.calendarFC.setValue(this.event.calendar);
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
             this.event_title = this.event.title;
@@ -113,14 +113,11 @@ export class EventEditorDialogComponent {
             this.event_description = this.event.description;
             this.event_allDay = this.event.allDay;
 
-            this.event_start = this.event.dtstart.toDate();
-            if (this.event.allDay) {
-                // inclusive vs exclusive, see the comment in onSubmitClick()
-                this.event_end = this.event.dtend.subtract(1, 'day').toDate();
-            } else {
-                this.event_end = this.event.dtend.toDate();
-            }
+            // this.event_start = this.event.dtstart.toDate();
+            this.event_start = this.event.start;
+            this.event_end = this.event.end;
             this.event_recurs = this.event.recurs;
+
             // default:
             this.change_save_type = this.event_recurs;
             if (this.event_recurs
@@ -190,8 +187,9 @@ export class EventEditorDialogComponent {
                 this.event_start = moment(data['start']).hours(12).minutes(0).seconds(0).toDate();
                 this.event_end   = moment(data['start']).hours(14).minutes(0).seconds(0).toDate();
             } else {
-                this.event_start = moment().toDate();
-                this.event_end   = moment().toDate();
+                const now = moment();
+                this.event_start = now.toDate();
+                this.event_end   = now.add(1, 'hours').toDate();
             }
 
             // Default things for "new" events

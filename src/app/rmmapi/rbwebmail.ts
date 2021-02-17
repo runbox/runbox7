@@ -647,6 +647,11 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getVTimezone(tzname: string): Observable<any> {
+        const tz_file = tzname + '.ics';
+        return this.http.get('/_ics/' + tz_file, {responseType: 'text'});
+    }
+
     public getAvailableProducts(): Observable<Product[]> {
         return this.http.get('/rest/v1/account_product/available').pipe(
             map((res: HttpResponse<any>) => res['result']['products']),

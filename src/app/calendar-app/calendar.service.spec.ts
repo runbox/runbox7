@@ -27,6 +27,64 @@ import * as moment from 'moment';
 
 describe('CalendarService', () => {
     let dav_events: any;
+    const timezone =
+        `BEGIN:VCALENDAR
+PRODID:-//citadel.org//NONSGML Citadel calendar//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:/citadel.org/20210210_1/Europe/Stockholm
+LAST-MODIFIED:20210210T123706Z
+X-LIC-LOCATION:Europe/Stockholm
+X-PROLEPTIC-TZNAME:LMT
+BEGIN:STANDARD
+TZNAME:SET
+TZOFFSETFROM:+011212
+TZOFFSETTO:+010014
+DTSTART:18790101T000000
+END:STANDARD
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+010014
+TZOFFSETTO:+0100
+DTSTART:19000101T000000
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19160514T230000
+RDATE:19800406T020000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19161001T010000
+END:STANDARD
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19800928T030000
+RRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T010000Z
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19810329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19961027T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+END:VCALENDAR
+`;
 
     // poor man's callcounter, as I don't have a proper rmmapi stub
     const calls = {
@@ -45,6 +103,7 @@ describe('CalendarService', () => {
             { id: 'test2', displayname: 'Test2', syncToken: 'ogon' }
         ]),
         getCalendarEvents: () => of(Object.values(dav_events)),
+        getVTimezone:      (tzname: string) => of(timezone),
         modifyCalendarEvent: (e: RunboxCalendarEvent) => {
             calls.modifyCalendarEvent++;
             dav_events[e.id] = e;
@@ -103,6 +162,18 @@ describe('CalendarService', () => {
         newEvent.location = 'Somewhere';
         const newId = await sut.addEvent(newEvent);
         expect(newId).toBeTruthy();
+    });
+
+    it('should be able to add a new event with timezone', async () => {
+        sut.loadVTimezone('Europe/Stockholm');
+        const newEvent = RunboxCalendarEvent.newEmpty('Europe/Stockholm');
+        newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
+        newEvent.dtend = moment().date(1).hours(14).seconds(0).milliseconds(0);
+        newEvent.title = 'New Event';
+        newEvent.location = 'Somewhere';
+        const newId = await sut.addEvent(newEvent);
+        expect(newId).toBeTruthy();
+        expect(newEvent.ical.toString()).toContain('VTIMEZONE');
     });
 
     it('should modify event when asked', async () => {

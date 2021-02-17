@@ -163,8 +163,11 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     addEvent(on?: Date): void {
+        // setup new event
+        const new_event = RunboxCalendarEvent.newEmpty(this.calendarservice.me.timezone);
+        new_event.timezone = this.calendarservice.me.timezone;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { calendars: this.calendars, settings: this.settings, start: on } }
+            data: { event: new_event, calendars: this.calendars, settings: this.settings, start: on, is_new: true } }
         );
         dialogRef.afterClosed().subscribe(event => {
             console.log('Dialog result:', event);
@@ -275,7 +278,7 @@ export class CalendarAppComponent implements OnDestroy {
         const target = event as RunboxCalendarEvent;
         console.log('Opening event', target);
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: target, calendars: this.calendars, settings: this.settings }
+            data: { event: target, calendars: this.calendars, settings: this.settings, is_new: false }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result === 'DELETE') {
