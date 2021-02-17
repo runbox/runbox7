@@ -76,7 +76,7 @@ export class DefaultProfileComponent {
     }
 
     updateFromPriorities(values: { from_priorities: any[] }) {
-        const req = this.rmm.ua.http.put('/rest/v1/profile/from_priority/', values).pipe(retry(3), timeout(60000), share());
+        const req = this.rmm.ua.http.put('/rest/v1/profile/from_priority/', values).pipe(retry(3), timeout(10000), share());
         req.subscribe(
             (reply) => {
                 if (reply['status'] === 'success') {
