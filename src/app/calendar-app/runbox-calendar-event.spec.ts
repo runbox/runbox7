@@ -171,18 +171,6 @@ describe('RunboxCalendarEvent', () => {
         expect(sut.toIcal()).toContain('SUMMARY:Moved weekly event');
         expect(sut.toIcal()).toContain('RECURRENCE-ID;VALUE=DATE:20210201');
         expect(sut.toIcal()).toContain('DTSTART;VALUE=DATE:20210204');
-        // expect(events.length).toBe(2);
-        // expect(events[0].dtstart.isSame(events[1].dtstart)).toBe(false);
-
-        // alter the one happening next week
-        // const copy = events[1].clone();
-        // copy.title = 'Next weekly occurrence';
-        // sut.addRecurrenceSpecialCase(copy);
-        // console.log("Sut after setting specialcase:", sut.toIcal(), "\n");
-
-        // events = sut.recurrences(yesterday.toDate(), future.toDate());
-        // expect(events[0].title).toBe('Weekly event');
-        // expect(events[1].title).toBe('Next weekly event');
     });
 
     it('should be possible to add a special case to a recurring event (with time)', () => {

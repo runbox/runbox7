@@ -220,7 +220,6 @@ export class CalendarAppComponent implements OnDestroy {
         });
     }
 
-    // drag&drop?
     eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
         event.start = newStart;
         event.end = newEnd;

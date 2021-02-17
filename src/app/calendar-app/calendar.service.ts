@@ -342,9 +342,6 @@ export class CalendarService implements OnDestroy {
         }
 
         return { 'id': id, 'event': vevents[0] };
-        // return this.generateEvents(undefined,
-        //                            undefined,
-        //                            [{ 'id': id, 'event': vevents[0] }]);
     }
 
     // generate RBE events from ICAL.Events (inc exceptions)
@@ -436,7 +433,6 @@ export class CalendarService implements OnDestroy {
 
     modifyEvent(event: RunboxCalendarEvent) {
         if (event._old_id) {
-            console.log('old id found');
             // special case: if event.calendar is being modified we can't simply update the event:
             // we need to copy it to a new calendar, and remove it from the old one.
             this.addEvent(event).then(id => {
@@ -494,17 +490,16 @@ export class CalendarService implements OnDestroy {
         console.log('Fetching events');
         this.activities.begin(Activity.RefreshingEvents);
         this.rmmapi.getCalendarEvents().subscribe(events => {
-            // Returns an array of RunboxCalendarEvent objects
             this.events = [];
             this.icalevents = [];
             events.forEach((e: any) => {
                 // store events into this.icalevents
                 this.importFromIcal(e.id, e.ical);
             });
-            console.log(this.icalevents);
 
             // generate RBE events for just this set, for current month+1:
-            // FIXME: what if user runs import while not looking at "today"?
+            // TODO: what if user runs import while not looking at "today"?
+            // Returns an array of RunboxCalendarEvent objects
             const runboxevents = this.generateEvents();
             this.events = this.events.concat(runboxevents);
             this.eventSubject.next(this.events);
@@ -551,37 +546,34 @@ export class CalendarService implements OnDestroy {
 
     // check if we have enough events to show another month worth
     // (forward and back), generate if not
-    updateEventList(viewPeriod?: ViewPeriod): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.activities.begin(Activity.GeneratingEvents);
-            let this_month, start, end_month, next_month: moment.Moment;
-            // Too much is better than not enough!
-            if (viewPeriod) {
-                this_month = moment(viewPeriod.start).startOf('month');
-            } else {
-                this_month  = moment().startOf('month');
-            }
-            // generate now(viewdate) +/- 1 month (max display size)
-            start       = this_month.clone(); start.subtract(1, 'month');
-            end_month   = this_month.clone(); end_month.add(1, 'month');
-            next_month  = this_month.clone(); next_month.add(3, 'month');
+    updateEventList(viewPeriod?: ViewPeriod) {
+        this.activities.begin(Activity.GeneratingEvents);
+        let this_month, start, end_month, next_month: moment.Moment;
+        // Too much is better than not enough!
+        if (viewPeriod) {
+            this_month = moment(viewPeriod.start).startOf('month');
+        } else {
+            this_month  = moment().startOf('month');
+        }
+        // generate now(viewdate) +/- 1 month (max display size)
+        start       = this_month.clone(); start.subtract(1, 'month');
+        end_month   = this_month.clone(); end_month.add(1, 'month');
+        next_month  = this_month.clone(); next_month.add(3, 'month');
 
-            // Could try and be clever and generate only last month / next month
-            // assuming some previous code did current one, but.. how to only insert
-            // those new ones into this.events?
-            // lets just try/do all for now
-            // we wont interrupt the page redraw process though.
+        // Could try and be clever and generate only last month / next month
+        // assuming some previous code did current one, but.. how to only insert
+        // those new ones into this.events?
+        // lets just try/do all for now
+        // we wont interrupt the page redraw process though.
 
-            // NB calendar-app.component.spec.ts relis on this being
-            // multiple months
-            if (this.icalevents.length > 0) {
-                this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents);
-                this.eventSubject.next(this.events);
-            }
+        // NB calendar-app.component.spec.ts relis on this being
+        // multiple months
+        if (this.icalevents.length > 0) {
+            this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents);
+            this.eventSubject.next(this.events);
+        }
 
-            this.activities.end(Activity.GeneratingEvents);
-            resolve();
-        });
+        this.activities.end(Activity.GeneratingEvents);
     }
 
 }

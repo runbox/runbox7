@@ -107,13 +107,13 @@ export class EventEditorDialogComponent {
         this.event = data['event'];
         if (!data['is_new']) {
             this.calendarFC.setValue(this.event.calendar);
+            // TODO: Abstract url in rmmapi?
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
             this.event_title = this.event.title;
             this.event_location = this.event.location;
             this.event_description = this.event.description;
             this.event_allDay = this.event.allDay;
 
-            // this.event_start = this.event.dtstart.toDate();
             this.event_start = this.event.start;
             this.event_end = this.event.end;
             this.event_recurs = this.event.recurs;
@@ -373,9 +373,6 @@ export class EventEditorDialogComponent {
             this.calendarFC.markAsTouched();
             return;
         }
-        // else if (this.event.calendar !== this.calendarFC.value) {
-        //     this.event.calendar = this.calendarFC.value;
-        // }
 
         const dtstart = moment(this.event_start).seconds(0).milliseconds(0);
         let dtend = moment(this.event_end).seconds(0).milliseconds(0);

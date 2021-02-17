@@ -143,8 +143,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
     get start(): Date {
         // _dtstart as-is for display (its already got tz set.. )
         return new Date(this._dtstart.toString());
-        // this one converts to utc which is not helpful.
-        // return this._dtstart.toJSDate();
     }
 
     get end(): Date {
@@ -160,7 +158,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
             shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
         }
         return new Date(shownEnd.toString());
-        // return shownEnd.toJSDate();
     }
 
     get allDay(): boolean {
@@ -188,10 +185,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // be different from dtstart above. Matches if its an exception.
     get recurStart(): Date {
         return this.event.startDate.toJSDate();
-    }
-
-    set recurStart(start: Date) {
-        // Nope can't do that Dave
     }
 
     // DAILY, WEEKLY, MONTHLY etc
@@ -394,7 +387,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (this.isException) {
             // This shouldnt be possible
             console.log('Refusing to create an exception of an exception');
-            return false;
+            return;
         }
         // clone existing one
         const new_exception = new ICAL.Event(ICAL.Component.fromString(this.event.toString()));
