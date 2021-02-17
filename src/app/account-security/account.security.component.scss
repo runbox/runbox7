@@ -160,6 +160,9 @@ mat-form-field {
     @media only screen and (max-width: 767px) {
         display: none;
     }
+    h4 {
+        font-weight: bold;
+    }
 }
 
 .grid-results {
@@ -187,4 +190,13 @@ mat-form-field {
 .row-title {
     padding-right: 10px;
     font-weight: bold;
+}
+
+h1.runbox-section-header,
+h2.runbox-section-header {
+    margin-bottom: 0;
+}
+
+.runbox-section-content {
+    margin-top: 10px;
 }
