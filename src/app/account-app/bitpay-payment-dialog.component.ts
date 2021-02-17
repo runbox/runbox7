@@ -23,6 +23,15 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
+export interface PaymentOption {
+    id:           string;
+    displayName:  string;
+    address:      string;
+    amount:       number;
+    qrcode?:      string;
+    exchangeRate: string;
+}
+
 @Component({
     selector: 'app-bitpay-payment-dialog-component',
     templateUrl: './bitpay-payment-dialog.component.html',
@@ -30,11 +39,23 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 export class BitpayPaymentDialogComponent {
     tid:    number;
     total:  number;
-    currency: string;
 
     redirect_url: string;
 
     state = 'loading';
+
+    external_url: string;
+    mainOptions: PaymentOption[];
+    otherOptions: PaymentOption[];
+
+    display_names = {
+        'BTC': 'Bitcoin',
+        'ETH': 'Ethereum',
+    };
+    qrcode_generators = {
+        'BTC': (addr, amount) => `bitcoin:${addr}` + `?amount=${amount}`,
+        'ETH': (addr, amount) => `ethereum:${addr}` + `?value=${amount * 1e18}`
+    };
 
     constructor(
         private cart: CartService,
@@ -45,10 +66,27 @@ export class BitpayPaymentDialogComponent {
         this.tid = data.tx.tid;
         // not using Router here because we want the entire URL, hostname and all
         const receipt_url = window.location.href.replace(/account.*/, 'account/receipt/' + this.tid);
-        this.rmmapi.payWithBitpay(this.tid, receipt_url).subscribe(
+        const cancel_url = window.location.href;
+        this.rmmapi.payWithBitpay(this.tid, receipt_url, cancel_url).subscribe(
             res => {
-                this.redirect_url = res.redirect_url;
                 this.state = 'created';
+                const paymentOptions = Object.entries(res.addresses).map(([id, details], _) => {
+                    let qrcode: string;
+                    if (this.qrcode_generators[id]) {
+                        qrcode = this.qrcode_generators[id](details['address'], details['amount']);
+                    }
+                    return {
+                        id,
+                        displayName: this.display_names[id] || id,
+                        address: details['address'],
+                        amount: details['amount'],
+                        qrcode,
+                        exchangeRate: details['exchange_rate'],
+                    };
+                }).sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+                this.mainOptions = paymentOptions.filter(o => o.qrcode);
+                this.otherOptions = paymentOptions.filter(o => !o.qrcode);
             },
             _err => {
                 this.state = 'failed';
@@ -56,14 +94,10 @@ export class BitpayPaymentDialogComponent {
         );
     }
 
-    redirect() {
-        // the payment is not through yet, but this is the last call to clear the cart
-        // (we won't get notified on the frontend of its confirmation)
-        this.cart.clear();
-        window.location.href = this.redirect_url;
-    }
-
-    close() {
+    close(clearCart: boolean) {
+        if (clearCart) {
+            this.cart.clear();
+        }
         this.dialogRef.close(false);
     }
 }
