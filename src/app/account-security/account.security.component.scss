@@ -128,7 +128,7 @@ mat-form-field {
     margin-top: 4px;
 }
 
-/* Animated TOTP end */
+/* Last logins */
 
 #last-logins {
     margin-top: 20px;
@@ -136,5 +136,55 @@ mat-form-field {
 
 #last-logins mat-form-field,
 #manage-ips mat-form-field {
-    margin-right: 30px;
+    width: calc(100% - 20px);
+
+    @media only screen and (min-width: 768px) {
+        width: calc(50% - 20px);
+    }
+    @media only screen and (min-width: 1024px) {
+        width: calc(33.3% - 20px);
+        max-width: 300px;
+    }
+}
+
+.logins-form {
+    margin-bottom: 20px;
+}
+
+.action-buttons {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.grid-table {
+    @media only screen and (max-width: 767px) {
+        display: none;
+    }
+}
+
+.grid-results {
+    margin-top: 5px;
+}
+
+.table-mobile {
+    @media only screen and (min-width: 768px) {
+        display: none;
+    }
+    width: calc(100% - 20px);
+    padding: 0 10px 20px;
+}
+
+.table-mobile-row {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 6px;
+}
+
+.table-mobile-row span {
+    text-align: right;
+}
+
+.row-title {
+    padding-right: 10px;
+    font-weight: bold;
 }
