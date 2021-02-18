@@ -128,8 +128,8 @@ const routes: Routes = [
       { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
-      { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
-      { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
+      { path: 'identities',         redirectTo: '/account/identities' },
+      { path: 'account-security',   redirectTo: '/account/security'   },
     ]
   },
   { path: 'login', component: LoginComponent }

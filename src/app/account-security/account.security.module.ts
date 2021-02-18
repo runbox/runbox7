@@ -20,7 +20,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { QRCodeModule } from 'angular2-qrcode';
@@ -46,8 +45,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AccountSecurityComponent, ModalPasswordComponent } from './account.security.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
-import {RMMAuthGuardService} from '../rmmapi/rmmauthguard.service';
-import {HeaderToolbarComponent} from '../menu/headertoolbar.component';
 
 @NgModule({
     declarations: [
@@ -78,19 +75,6 @@ import {HeaderToolbarComponent} from '../menu/headertoolbar.component';
     MatTooltipModule,
     MenuModule,
     QRCodeModule,
-    RouterModule.forChild([
-      {
-        path: 'account-security',
-        canActivateChild: [RMMAuthGuardService],
-        children: [
-          {
-            path: '', outlet: 'headertoolbar',
-            component: HeaderToolbarComponent
-          },
-          { path: '', component: AccountSecurityComponent },
-        ],
-      }
-    ]),
     RunboxComponentModule,
     ],
     entryComponents: [
