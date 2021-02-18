@@ -1,0 +1,53 @@
+<h1> Filters </h1>
+
+<mat-tab-group>
+    <mat-tab label="Filters">
+        <div *ngIf="shownFilters | async as filters; else loading">
+            <div style="margin: 10px">
+                <button mat-stroked-button (click)="newFilter()">
+                    <mat-icon svgIcon="plus-box"></mat-icon> Add new filter
+                </button>
+            </div>
+
+            <app-account-filter-editor
+                [attr.id]="filter.id"
+                *ngFor="let filter of filters"
+                [filter]="filter"
+                (save)="saveFilter(filter, $event)"
+                (delete)="deleteFilter(filter)"
+                (moveUp)="moveFilterUp(filter)"
+                (moveDown)="moveFilterDown(filter)"
+            ></app-account-filter-editor>
+
+            <p *ngIf="filters.length < filtersTotal">
+                Showing {{ filters.length }}/{{ filtersTotal }} filters
+                <button mat-button (click)="showMoreFilters()"> Show {{ filterPageSize }} more </button>
+                <button mat-button (click)="showAllFilters()"> Show all </button>
+            </p>
+        </div>
+    </mat-tab>
+    <mat-tab label="Blocked senders">
+        <div *ngIf="blockedSenders | async as blocked; else loading">
+            <app-account-sender-list
+                [senders]="blocked"
+                (add)="addBlocked($event)"
+                (remove)="removeBlocked($event)"
+            ></app-account-sender-list>
+        </div>
+    </mat-tab>
+    <mat-tab label="Allowed senders">
+        <div *ngIf="allowedSenders | async as allowed; else loading">
+            <app-account-sender-list
+                [senders]="allowed"
+                (add)="addAllowed($event)"
+                (remove)="removeAllowed($event)"
+            ></app-account-sender-list>
+        </div>
+    </mat-tab>
+</mat-tab-group>
+
+<ng-template #loading>
+    <app-runbox-loading
+        text="Loading your filters..."
+    ></app-runbox-loading>
+</ng-template>
