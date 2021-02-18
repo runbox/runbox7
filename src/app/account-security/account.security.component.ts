@@ -75,7 +75,7 @@ export class ModalPasswordComponent {
 @Component({
   moduleId: 'angular2/app/account-security/',
   selector: 'app-account-security',
-  styleUrls: ['account.security.component.css'],
+  styleUrls: ['account.security.component.scss'],
   templateUrl: 'account.security.component.html'
 })
 
@@ -577,4 +577,3 @@ export class AccountSecurityComponent implements OnInit {
   }
 
 }
-

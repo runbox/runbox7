@@ -1,29 +1,51 @@
+<section class="mat-typography">
   <mat-tab-group>
     <mat-tab label="Account Security">
       <app-runbox-section>
         <div runbox-section-header>
-          <h3 class="runbox-section-header">Account Security</h3>
+          <h1 class="runbox-section-header">Account Security</h1>
         </div>
-        <div runbox-section-content>
+        <div runbox-section-content class="runbox-section-content">
           <div class="accountsecurity-intro body">
-            <p>In this area you can manage your account's security settings. An overview of the settings with explanations can be found below. You may then navigate to each section using the tabs above in order to change individual settings.</p><p>We encourage you to enable Two-Factor Authentication and review the other security settings in order to keep your account secure.</p>
-            <p>Please see <a href="https://help.runbox.com/account-security/" target="help">Account Security Help</a> for more information.</p>
-            <h4>Two-Factor Authentication</h4>
-            <p>With Two-Factor Authentication (2FA) you have to use your username and password along with an extra code to log in. When enabling 2FA, you have the following options:</p>
+            <p>In this area you can manage your account's security settings. An overview of the settings with
+              explanations can be found below. You may then navigate to each section using the tabs above in order to
+              change individual settings.</p>
+            <p>We encourage you to enable Two-Factor Authentication and review the other security settings in order to
+              keep your account secure.</p>
+            <p>Please see <a href="https://help.runbox.com/account-security/" target="help">Account Security Help</a>
+              for more information.</p><br>
+
+            <h2>Two-Factor Authentication</h2>
+            <p>With Two-Factor Authentication (2FA) you have to use your username and password along with an extra code
+              to log in. When enabling 2FA, you have the following options:</p>
             <ul class="text-list">
-              <li><strong>Timed One-Time Passwords (TOTP)</strong>: To use this option you need a free TOTP app on your smartphone or computer (see <a href="https://help.runbox.com/account-security/">Help</a> for examples). TOTP works by generating a unique code which changes over time.<br><br></li>
-              <li><strong>One-Time Passwords (OTP)</strong>: When you enable this option, the system will generate random codes that you can use only once.<br><br></li>
-              <li><strong>Trusted browsers</strong>: This allows the server to trust your current web browser so that you don't have to use a 2FA code to log in.<br><br></li>
-              <li><strong>Unlock code</strong>: This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.<br><br></li>
+              <li><strong>Timed One-Time Passwords (TOTP)</strong>: To use this option you need a free TOTP app on your
+                smartphone or computer (see <a href="https://help.runbox.com/account-security/">Help</a> for examples).
+                TOTP works by generating a unique code which changes over time.<br><br></li>
+              <li><strong>One-Time Passwords (OTP)</strong>: When you enable this option, the system will generate
+                random codes that you can use only once.<br><br></li>
+              <li><strong>Trusted browsers</strong>: This allows the server to trust your current web browser so that
+                you don't have to use a 2FA code to log in.<br><br></li>
+              <li><strong>Unlock code</strong>: This special code can be used to disable 2FA if you have problems
+                logging in with your 2FA codes.<br><br></li>
             </ul>
-            <h4>Manage Services</h4>
-            <p>This section lets you disable email services on your account, such as IMAP, POP, and SMTP.</p><p>These services are used with email programs/apps such as Outlook, Thunderbird, and Apple Mail. Disabling the services you don't use can protect your account from attempts at unauthorized access.</p>
-            <h4>App Passwords</h4>
-            <p>App Passwords are strong passwords that can be used with each of your device's email programs and apps.</p>
-            <p>If you use a different app password with each device and then lose one of them, you can easily disable that device's password and prevent it from logging in.</p>
-            <h4>Access Control</h4>
-            <p>Here you can manage the access to your account, review your last logins, and allow or deny IP addresses.</p>
-            <h4>Sessions</h4>
+
+            <h2>Manage Services</h2>
+            <p>This section lets you disable email services on your account, such as IMAP, POP, and SMTP.</p>
+            <p>These services are used with email programs/apps such as Outlook, Thunderbird, and Apple Mail. Disabling
+              the services you don't use can protect your account from attempts at unauthorized access.</p><br>
+
+            <h2>App Passwords</h2>
+            <p>App Passwords are strong passwords that can be used with each of your device's email programs and apps.
+            </p>
+            <p>If you use a different app password with each device and then lose one of them, you can easily disable
+              that device's password and prevent it from logging in.</p><br>
+
+            <h2>Access Control</h2>
+            <p>Here you can manage the access to your account, review your last logins, and allow or deny IP addresses.
+            </p><br>
+
+            <h2>Sessions</h2>
             <p>This section shows the currently active sessions for your account.</p>
           </div>
         </div>
@@ -32,47 +54,66 @@
     <mat-tab label="Two-Factor Authentication">
       <app-runbox-section>
         <div runbox-section-header class="section-header-with-toggle">
-          <h3 class="runbox-section-header">Two-Factor Authentication</h3>
-          <mat-slide-toggle
-            [(ngModel)]="rmm.account_security.tfa.settings.is_2fa_enabled"
-            (ngModelChange)="toggle_2fa()"
-            >
+          <h1 class="runbox-section-header">Two-Factor Authentication</h1>
+          <mat-slide-toggle [(ngModel)]="rmm.account_security.tfa.settings.is_2fa_enabled"
+            (ngModelChange)="toggle_2fa()">
             {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
         </div>
-        <div runbox-section-content>
-          <p>This is the Two-Factor Authentication (2FA) configuration screen, where you can configure the various options for enabling and using 2FA.</p>
-          <p>We recommended that you create an <strong>Unlock Code</strong> when enabling 2FA. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
-          <p style="margin: 0 5%"><em><strong>Note:</strong> For security reasons, enabling 2FA will disable your account password for non-web services. These include IMAP, POP, SMTP, FTP, CalDAV, and CardDAV services that may be used with progams or apps on your device. Therefore you will need to set up App Passwords for these services if you want to continue using them.</em></p>
-          <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Two-Factor_Authentication" target="help">Two-Factor Authentication Help</a>.</p>
+        <div runbox-section-content class="runbox-section-content">
+          <p>This is the Two-Factor Authentication (2FA) configuration screen, where you can configure the various
+            options for enabling and using 2FA.</p>
+          <p>We recommended that you create an <strong>Unlock Code</strong> when enabling 2FA. This special code can be
+            used to disable 2FA if you have problems logging in with your 2FA codes.</p>
+          <p style="margin: 0 5%"><em><strong>Note:</strong> For security reasons, enabling 2FA will disable your
+              account password for non-web services. These include IMAP, POP, SMTP, FTP, CalDAV, and CardDAV services
+              that may be used with progams or apps on your device. Therefore you will need to set up App Passwords for
+              these services if you want to continue using them.</em></p><br>
+          <p>For more information on these settings, please see <a
+              href="https://help.runbox.com/account-security/#Two-Factor_Authentication" target="help">Two-Factor
+              Authentication Help</a>.</p>
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
         <div runbox-section-header class="section-header-with-toggle">
-          <h4 class="runbox-section-header">Timed One-Time Passwords</h4>
-          <mat-slide-toggle
-            [(ngModel)]="rmm.account_security.tfa.settings.is_device_2fa_enabled"
-            (ngModelChange)="toggle_totp_device()"
-            >
+          <h2 class="runbox-section-header">Timed One-Time Passwords</h2>
+          <mat-slide-toggle [(ngModel)]="rmm.account_security.tfa.settings.is_device_2fa_enabled"
+            (ngModelChange)="toggle_totp_device()">
             {{ rmm.account_security.tfa.settings.is_device_2fa_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
         </div>
-        <div runbox-section-content>
-          <p></p><p>Timed One-Time Passwords (<strong>TOTP</strong>) are 6 digit codes that change every 30 seconds. The codes are generated by a free app that you download onto your smartphone or computer.</p><p>To generate codes for your account the system will provide you with a secret key. The secret key is entered into the app, and the generated codes along with your username and account password are used to log into your account.</p><p></p>
+        <div runbox-section-content class="runbox-section-content">
+          <p></p>
+          <p>Timed One-Time Passwords (<strong>TOTP</strong>) are 6 digit codes that change every 30 seconds. The codes
+            are generated by a free app that you download onto your smartphone or computer.</p>
+          <p>To generate codes for your account the system will provide you with a secret key. The secret key is entered
+            into the app, and the generated codes along with your username and account password are used to log into
+            your account.</p>
+          <p></p><br>
           <div id="totp_instructions">
             <div>
-            <h4>Setting up Timed One-Time Passwords</h4>
-            <p>First you need to download and install one of the recommended <a href="https://help.runbox.com/account-security/#Timed_One-Time_Passwords_TOTP">TOTP apps</a>, unless you already have a TOTP app.</p>
-            <p>Follow the steps below to set up TOTP. The app you installed will help guide you through the process.</p>
-            <p>When you have completed the setup, 2FA will be enabled for your account.</p>
-            <p>The next time you log into Runbox, you will be asked for a TOTP code in addition to your username and account password.</p>
+              <h2>Setting up Timed One-Time Passwords</h2>
+              <p>First you need to download and install one of the recommended <a
+                  href="https://help.runbox.com/account-security/#Timed_One-Time_Passwords_TOTP">TOTP apps</a>, unless
+                you already have a TOTP app.</p>
+              <p>Follow the steps below to set up TOTP. The app you installed will help guide you through the process.
+              </p>
+              <p>When you have completed the setup, 2FA will be enabled for your account.</p>
+              <p>The next time you log into Runbox, you will be asked for a TOTP code in addition to your username and
+                account password.</p>
             </div>
 
             <div id="totp_example">
               <div>
                 <div style="text-align: center; padding: 5px 0">Example TOTP app</div>
                 <div id="totp-animation">
-                  <div style="font-size: 14px;" class="totp-timer timer fill"><div class="percent">50%</div><div id="slice" class="gt50"><div style="transform: rotate(180.072deg);" class="pie"></div><div style="transform: rotate(180.072deg);" class="pie fill"></div></div></div>
+                  <div style="font-size: 14px;" class="totp-timer timer fill">
+                    <div class="percent">50%</div>
+                    <div id="slice" class="gt50">
+                      <div style="transform: rotate(180.072deg);" class="pie"></div>
+                      <div style="transform: rotate(180.072deg);" class="pie fill"></div>
+                    </div>
+                  </div>
                   <div class="totp-timer-code">136929</div>
                 </div>
                 <img class="base64scan">
@@ -80,10 +121,15 @@
               <div>
                 Recommended TOTP apps:
                 <ul class="square-list">
-                  <li>Authy (<a href="https://itunes.apple.com/br/app/authy/id494168017?mt=8">iOS</a>/<a href="https://play.google.com/store/apps/details?id=com.authy.authy">Android</a>)</li>
-                  <li>FreeOTP Authenticator (<a href="https://itunes.apple.com/en/app/freeotp-authenticator/id872559395?mt=8">iOS</a>/<a href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp&amp;hl=en">Android</a>)
+                  <li>Authy (<a href="https://itunes.apple.com/br/app/authy/id494168017?mt=8">iOS</a>/<a
+                      href="https://play.google.com/store/apps/details?id=com.authy.authy">Android</a>)</li>
+                  <li>FreeOTP Authenticator (<a
+                      href="https://itunes.apple.com/en/app/freeotp-authenticator/id872559395?mt=8">iOS</a>/<a
+                      href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp&amp;hl=en">Android</a>)
                   </li>
-                  <li>Google Authenticator (<a href="https://itunes.apple.com/br/app/google-authenticator/id388497605?mt=8">iOS</a>/<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Android</a>)
+                  <li>Google Authenticator (<a
+                      href="https://itunes.apple.com/br/app/google-authenticator/id388497605?mt=8">iOS</a>/<a
+                      href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Android</a>)
                   </li>
                 </ul>
               </div>
@@ -94,51 +140,57 @@
           <div id="totp-steps">
             <div>
               <p>
-              1. Click [Generate key] to generate a new TOTP key.
+                1. Click [Generate key] to generate a new TOTP key.
               </p>
               <p>
-              <span><button mat-raised-button class="primaryContentButton" (click)="totp_generate_new_key()">Generate key</button></span>
-              <mat-form-field>
-                <input matInput name="new_totp_code" placeholder="Key" maxlength="16" disabled="" [value]="rmm.account_security.tfa.new_totp_code">
-              </mat-form-field>
-              </p>
-            </div>
-            <div>
-              <p>
-              2. Note the label below, as it will identify the key in the TOTP app on your device.
-              </p>
-              <p>
-              <span><strong>Label:</strong></span>
-              <mat-form-field  *ngIf="rmm.me.data">
-                <input matInput name="totp_label" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="Label" readonly [value]="'Runbox: ' + rmm.me.data.username">
-              </mat-form-field>
+                <span><button mat-raised-button class="primaryContentButton" (click)="totp_generate_new_key()">Generate
+                    key</button></span>
+                <mat-form-field>
+                  <input matInput name="new_totp_code" placeholder="Key" maxlength="16" disabled=""
+                    [value]="rmm.account_security.tfa.new_totp_code">
+                </mat-form-field>
               </p>
             </div>
             <div>
               <p>
-              3. Scan the generated QR code below when requested by the app, or manually enter the key above into the app.
+                2. Note the label below, as it will identify the key in the TOTP app on your device.
+              </p>
+              <p>
+                <span><strong>Label:</strong></span>
+                <mat-form-field *ngIf="rmm.me.data">
+                  <input matInput name="totp_label" (ngModel)="rmm.account_security.tfa.totp_label" placeholder="Label"
+                    readonly [value]="'Runbox: ' + rmm.me.data.username">
+                </mat-form-field>
+              </p>
+            </div>
+            <div>
+              <p>
+                3. Scan the generated QR code below when requested by the app, or manually enter the key above into the
+                app.
               </p>
             </div>
             <div *ngIf="rmm.account_security.tfa.qr_code_value">
               <p>
-              <span>
-                <qr-code [value]="rmm.account_security.tfa.qr_code_value.href" [size]="250" level="H"></qr-code>
-              </span>
+                <span>
+                  <qr-code [value]="rmm.account_security.tfa.qr_code_value.href" [size]="250" level="H"></qr-code>
+                </span>
               </p>
             </div>
             <div>
               <p>
-              4. Enter the code generated by the app and click [Check code] to ensure that the setup is correct.
+                4. Enter the code generated by the app and click [Check code] to ensure that the setup is correct.
               </p>
               <p>
-              <span><strong>Test code:</strong></span>
-              <mat-form-field>
-                <input matInput name="totp_test_code" placeholder="Enter code" maxlength="6" [(ngModel)]="totp_test_code" (ngModelChange)="totp_test_code_change()">
-              </mat-form-field>
-              <span><button  mat-raised-button class="primaryContentButton" [disabled]="is_btn_totp_check_disabled" (click)="totp_check_code()">Check code</button></span>
+                <span><strong>Test code:</strong></span>
+                <mat-form-field>
+                  <input matInput name="totp_test_code" placeholder="Enter code" maxlength="6"
+                    [(ngModel)]="totp_test_code" (ngModelChange)="totp_test_code_change()">
+                </mat-form-field>
+                <span><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_totp_check_disabled"
+                    (click)="totp_check_code()">Check code</button></span>
               </p>
               <p>
-              5. If the code is correct, Two-Factor Authenetication with TOTP will be enabled for your account.
+                5. If the code is correct, Two-Factor Authenetication with TOTP will be enabled for your account.
               </p>
             </div>
           </div>
@@ -146,24 +198,26 @@
       </app-runbox-section>
       <app-runbox-section size="h2">
         <div runbox-section-header class="section-header-with-toggle">
-          <h4 class="runbox-section-header">One-Time Passwords</h4>
-          <mat-slide-toggle
-            [(ngModel)]="rmm.account_security.tfa.settings.is_otp_enabled"
-            (ngModelChange)="toggle_otp()"
-            >
+          <h2 class="runbox-section-header">One-Time Passwords</h2>
+          <mat-slide-toggle [(ngModel)]="rmm.account_security.tfa.settings.is_otp_enabled"
+            (ngModelChange)="toggle_otp()">
             {{ rmm.account_security.tfa.settings.is_otp_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
         </div>
-        <div runbox-section-content>
-          <p>One-Time Passwords (<strong>OTP</strong>) are codes that can be used only once. The OTP must be used together with your username and account password to log in.</p>
-          <p>You can generate new codes at any time, and this will invalidate any existing codes. A total of 40 codes with 16 characters each are generated each time.</p>
+        <div runbox-section-content class="runbox-section-content">
+          <p>One-Time Passwords (<strong>OTP</strong>) are codes that can be used only once. The OTP must be used
+            together with your username and account password to log in.</p>
+          <p>You can generate new codes at any time, and this will invalidate any existing codes. A total of 40 codes
+            with 16 characters each are generated each time.</p>
           <p>Click the button below to generate a new list of codes that you can copy &amp; paste or print out.</p>
-          <span><button mat-raised-button class="primaryContentButton" (click)="otp_generate()" [disabled]="is_busy_otp_update" >Generate codes</button></span>
+          <span><button mat-raised-button class="primaryContentButton" (click)="otp_generate()"
+              [disabled]="is_busy_otp_update">Generate codes</button></span>
           <p></p>
           <div *ngIf="is_busy_otp_update" style="display: flex; justify-content: center">
             <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
           </div>
-          <ul *ngIf="rmm.account_security.tfa.otp_generated_list && rmm.account_security.tfa.otp_generated_list.passwords">
+          <ul
+            *ngIf="rmm.account_security.tfa.otp_generated_list && rmm.account_security.tfa.otp_generated_list.passwords">
             <li *ngFor="let password of rmm.account_security.tfa.otp_generated_list.passwords">
               <span>{{password.value}}</span>
             </li>
@@ -172,27 +226,27 @@
       </app-runbox-section>
       <app-runbox-section size="h2">
         <div runbox-section-header>
-          <h4 class="runbox-section-header">Trusted Browsers</h4>
+          <h2 class="runbox-section-header">Trusted Browsers</h2>
         </div>
-        <div runbox-section-content>
-          <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is enabled.</p>
+        <div runbox-section-content class="runbox-section-content">
+          <p>Trusted browsers are able to log into Runbox with just the username and account password even if 2FA is
+            enabled.</p>
           <div style="display: flex; flex-wrap: wrap; align-items: center;">
             <p style="margin-bottom: 0px;">
               Browser name:
               <mat-form-field>
-                <input matInput name="trusted_browser_name" placeholder="Enter browser/device name" [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
+                <input matInput name="trusted_browser_name" placeholder="Enter browser/device name"
+                  [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
               </mat-form-field>
             </p>
             <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; gap: 20px;">
-              <div><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this browser</button></div>
+              <div><button mat-raised-button class="primaryContentButton" [disabled]="is_btn_trust_browser_disabled"
+                  (click)="device_trust_create()">Trust this browser</button></div>
               <div>Suggestion: "Firefox on PC"</div>
             </div>
           </div>
-          <table mat-table style="width: 100%"
-            *ngIf="rmm.account_security.device.results"
-            [dataSource]="rmm.account_security.device.results"
-            multiTemplateDataRows
-          >
+          <table mat-table style="width: 100%" *ngIf="rmm.account_security.device.results"
+            [dataSource]="rmm.account_security.device.results" multiTemplateDataRows>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef> Name </th>
               <td mat-cell *matCellDef="let device">
@@ -208,10 +262,7 @@
                 Status
               </th>
               <td mat-cell *matCellDef="let device" [ngStyle]="{ 'text-align': mobileQuery.matches ? 'end' : null }">
-                <mat-slide-toggle
-                  [(ngModel)]="device.is_trusted"
-                  (ngModelChange)="device_toggle(device)"
-                >
+                <mat-slide-toggle [(ngModel)]="device.is_trusted" (ngModelChange)="device_toggle(device)">
                   {{ device.is_trusted ? 'Trusted' : 'Not trusted' }}
                 </mat-slide-toggle>
               </td>
@@ -224,8 +275,9 @@
 
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef> Action </th>
-              <td mat-cell *matCellDef="let device"> 
-                <button mat-raised-button class="primaryContentButton" (click)="device_delete(device.id)">Delete</button>
+              <td mat-cell *matCellDef="let device">
+                <button mat-raised-button class="primaryContentButton"
+                  (click)="device_delete(device.id)">Delete</button>
               </td>
             </ng-container>
 
@@ -234,42 +286,41 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                   <div> Created on <span style="white-space: nowrap;">{{ device.created }}</span> </div>
                   <div>
-                    <button mat-raised-button class="primaryContentButton" (click)="device_delete(device.id)">Delete</button>
+                    <button mat-raised-button class="primaryContentButton"
+                      (click)="device_delete(device.id)">Delete</button>
                   </div>
                 </div>
               </td>
             </ng-container>
 
             <tr mat-header-row
-              *matHeaderRowDef="mobileQuery.matches ? trusted_browser_columns_mobile : trusted_browser_columns_desktop"
-            ></tr>
+              *matHeaderRowDef="mobileQuery.matches ? trusted_browser_columns_mobile : trusted_browser_columns_desktop">
+            </tr>
             <tr mat-row
               *matRowDef="let row; columns: mobileQuery.matches ? trusted_browser_columns_mobile : trusted_browser_columns_desktop;"
-              [ngClass]="{ 'regularRow': mobileQuery.matches }"
-            ></tr>
-            <tr mat-row
-              *matRowDef="let row; columns: ['details']"
-              class="detailsRow"
-              [ngStyle]="{ 'display': mobileQuery.matches ? null : 'none' }"
-            ></tr>
+              [ngClass]="{ 'regularRow': mobileQuery.matches }"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['details']" class="detailsRow"
+              [ngStyle]="{ 'display': mobileQuery.matches ? null : 'none' }"></tr>
           </table>
         </div>
       </app-runbox-section>
       <app-runbox-section size="h2">
         <div runbox-section-header>
-          <h4 class="runbox-section-header">Unlock code</h4>
+          <h2 class="runbox-section-header">Unlock code</h2>
         </div>
-        <div runbox-section-content>
+        <div runbox-section-content class="runbox-section-content">
           <p>
-          An unlock code is required so that if you lose your TOTP or OTP codes, you can still access your account.
+            An unlock code is required so that if you lose your TOTP or OTP codes, you can still access your account.
           </p>
           <p>
-          Using the unlock code will turn off 2FA for your account. You can easily reactivate 2FA on this page once you are successfully logged in again.
+            Using the unlock code will turn off 2FA for your account. You can easily reactivate 2FA on this page once
+            you are successfully logged in again.
           </p>
           <div *ngIf="is_busy_unlock_code_update" style="display: flex; justify-content: center">
             <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
           </div>
-          <span><button mat-raised-button class="primaryContentButton" (click)="unlock_code_generate()" [disabled]="is_busy_unlock_code_update">Generate code</button></span>
+          <span><button mat-raised-button class="primaryContentButton" (click)="unlock_code_generate()"
+              [disabled]="is_busy_unlock_code_update">Generate code</button></span>
           <span *ngIf="this.rmm.account_security.unlock_code.unlock_code">
             {{this.rmm.account_security.unlock_code.unlock_code}}
           </span>
@@ -281,17 +332,18 @@
     <mat-tab label="Manage Services">
       <app-runbox-section>
         <div runbox-section-header>
-          <h3 class="runbox-section-header">Manage Services</h3>
+          <h1 class="runbox-section-header">Manage Services</h1>
         </div>
-        <div runbox-section-content>
-          <p>On this screen you can enable or disable specific services. When a service is disabled it's not possible to log into that service at all.</p>
-          <p>Disabling all the services you don't use adds an extra layer of security to your account, as it completely prevents attempts to gain unauthorized access via those services.</p>
-          <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Manage_Services" target="help">Manage Services Help</a>.</p>
-          <table mat-table style="width: 100%"
-            *ngIf="rmm.account_security.service.results"
-            [dataSource]="service_rows"
-            multiTemplateDataRows
-          >
+        <div runbox-section-content class="runbox-section-content">
+          <p>On this screen you can enable or disable specific services. When a service is disabled it's not possible to
+            log into that service at all.</p>
+          <p>Disabling all the services you don't use adds an extra layer of security to your account, as it completely
+            prevents attempts to gain unauthorized access via those services.</p>
+          <p>For more information on these settings, please see <a
+              href="https://help.runbox.com/account-security/#Manage_Services" target="help">Manage Services Help</a>.
+          </p>
+          <table mat-table style="width: 100%" *ngIf="rmm.account_security.service.results" [dataSource]="service_rows"
+            multiTemplateDataRows>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef> Name </th>
               <td mat-cell *matCellDef="let service"> {{ service.name }} </td>
@@ -302,10 +354,8 @@
                 Status
               </th>
               <td mat-cell *matCellDef="let service" [ngStyle]="{ 'text-align': mobileQuery.matches ? 'end' : null }">
-                <mat-slide-toggle
-                  [(ngModel)]="rmm.account_security.service.results[service.key].is_enabled"
-                  (ngModelChange)="service_toggle(rmm.account_security.service.results[service.key])"
-                >
+                <mat-slide-toggle [(ngModel)]="rmm.account_security.service.results[service.key].is_enabled"
+                  (ngModelChange)="service_toggle(rmm.account_security.service.results[service.key])">
                   {{
                   rmm.account_security.service.results[service.key] &&
                   rmm.account_security.service.results[service.key].is_enabled
@@ -328,17 +378,12 @@
             </ng-container>
 
             <tr mat-header-row
-              *matHeaderRowDef="mobileQuery.matches ? service_columns_mobile : service_columns_desktop"
-            ></tr>
+              *matHeaderRowDef="mobileQuery.matches ? service_columns_mobile : service_columns_desktop"></tr>
             <tr mat-row
               *matRowDef="let row; columns: mobileQuery.matches ? service_columns_mobile : service_columns_desktop;"
-              [ngClass]="{ 'regularRow': mobileQuery.matches }"
-            ></tr>
-            <tr mat-row
-              *matRowDef="let row; columns: ['description-row']"
-              class="detailsRow"
-              [ngStyle]="{ 'display': mobileQuery.matches ? null : 'none' }"
-            ></tr>
+              [ngClass]="{ 'regularRow': mobileQuery.matches }"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['description-row']" class="detailsRow"
+              [ngStyle]="{ 'display': mobileQuery.matches ? null : 'none' }"></tr>
           </table>
         </div>
       </app-runbox-section>
@@ -346,25 +391,24 @@
     <mat-tab label="App Passwords">
       <app-runbox-section size="h2">
         <div runbox-section-header class="section-header-with-toggle">
-          <h3 class="runbox-section-header">App passwords</h3>
-          <mat-slide-toggle
-            [(ngModel)]="rmm.account_security.tfa.settings.is_app_pass_enabled"
-            (ngModelChange)="app_pass_toggle_main_switch()"
-            >
+          <h1 class="runbox-section-header">App passwords</h1>
+          <mat-slide-toggle [(ngModel)]="rmm.account_security.tfa.settings.is_app_pass_enabled"
+            (ngModelChange)="app_pass_toggle_main_switch()">
             {{ rmm.account_security.tfa.settings.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
           </mat-slide-toggle>
         </div>
-        <div runbox-section-content>
-          <p>Here you can create app passwords for specific applications or devices. App passwords are strong passwords that replace your account password for each service.</p>
-          <p>The main advantage of using app specific passwords is that you can use different passwords on each app or device. If you happen to lose a device you can immediately disable the password used by that device.</p>
-          <p>App passwords work for all non-web services such as IMAP, POP, SMTP, FTP, CalDAV, and CardDAV. For example, create one password for 'Outlook on my MacBook Pro', and another password for 'My Android email client'.</p>
-          <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#App_Passwords" target="help">App Passwords Help</a>.</p>
+        <div runbox-section-content class="runbox-section-content">
+          <p>Here you can create app passwords for specific applications or devices. App passwords are strong passwords
+            that replace your account password for each service.</p>
+          <p>The main advantage of using app specific passwords is that you can use different passwords on each app or
+            device. If you happen to lose a device you can immediately disable the password used by that device.</p>
+          <p>App passwords work for all non-web services such as IMAP, POP, SMTP, FTP, CalDAV, and CardDAV. For example,
+            create one password for 'Outlook on my MacBook Pro', and another password for 'My Android email client'.</p>
+          <p>For more information on these settings, please see <a
+              href="https://help.runbox.com/account-security/#App_Passwords" target="help">App Passwords Help</a>.</p>
 
-          <table mat-table style="width: 100%"
-            *ngIf="rmm.account_security.app_pass.results"
-            [dataSource]="rmm.account_security.app_pass.results"
-            multiTemplateDataRows
-          >
+          <table mat-table style="width: 100%" *ngIf="rmm.account_security.app_pass.results"
+            [dataSource]="rmm.account_security.app_pass.results" multiTemplateDataRows>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef> Name </th>
               <td mat-cell *matCellDef="let app_pass"> {{ app_pass.name }} </td>
@@ -375,10 +419,7 @@
                 Status
               </th>
               <td mat-cell *matCellDef="let app_pass" [ngStyle]="{ 'text-align': mobileQuery.matches ? 'end' : null }">
-                <mat-slide-toggle
-                  [(ngModel)]="app_pass.is_enabled"
-                  (ngModelChange)="app_pass_toggle(app_pass)"
-                  >
+                <mat-slide-toggle [(ngModel)]="app_pass.is_enabled" (ngModelChange)="app_pass_toggle(app_pass)">
                   {{ app_pass.is_enabled ? 'Enabled' : 'Disabled' }}
                 </mat-slide-toggle>
               </td>
@@ -400,7 +441,8 @@
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef> Action </th>
               <td mat-cell *matCellDef="let app_pass">
-                <button mat-raised-button class="primaryContentButton" type='button' (click)="app_pass_delete(app_pass)" [disabled]="rmm.account_security.app_pass.is_busy">Delete</button>
+                <button mat-raised-button class="primaryContentButton" type='button' (click)="app_pass_delete(app_pass)"
+                  [disabled]="rmm.account_security.app_pass.is_busy">Delete</button>
               </td>
             </ng-container>
 
@@ -408,46 +450,47 @@
               <td mat-cell *matCellDef="let app_pass" [attr.colspan]="app_pass_columns_mobile.length">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                   <div>
-                    <span *ngIf="rmm.account_security.app_pass.password[app_pass.name] as password; else hiddenPassword">
+                    <span
+                      *ngIf="rmm.account_security.app_pass.password[app_pass.name] as password; else hiddenPassword">
                       <strong> {{ password }} </strong>
                     </span>
                   </div>
                   <div>
-                    <button mat-raised-button class="primaryContentButton" type='button' (click)="app_pass_delete(app_pass)" [disabled]="rmm.account_security.app_pass.is_busy">Delete</button>
+                    <button mat-raised-button class="primaryContentButton" type='button'
+                      (click)="app_pass_delete(app_pass)"
+                      [disabled]="rmm.account_security.app_pass.is_busy">Delete</button>
                   </div>
                 </div>
               </td>
             </ng-container>
 
             <tr mat-header-row
-              *matHeaderRowDef="mobileQuery.matches ? app_pass_columns_mobile : app_pass_columns_desktop"
-            ></tr>
+              *matHeaderRowDef="mobileQuery.matches ? app_pass_columns_mobile : app_pass_columns_desktop"></tr>
             <tr mat-row
               *matRowDef="let row; columns: mobileQuery.matches ? app_pass_columns_mobile : app_pass_columns_desktop;"
-              [ngClass]="{ 'regularRow': mobileQuery.matches }"
-            ></tr>
-            <tr mat-row
-              *matRowDef="let row; columns: ['details-row']"
-              class="detailsRow"
-              [ngStyle]="{ 'display': mobileQuery.matches ? null : 'none' }"
-            ></tr>
+              [ngClass]="{ 'regularRow': mobileQuery.matches }"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['details-row']" class="detailsRow"
+              [ngStyle]="{ 'display': mobileQuery.matches ? null : 'none' }"></tr>
           </table>
         </div>
       </app-runbox-section>
       <app-runbox-section>
         <div runbox-section-header>
-          <h4 class="runbox-section-header">New app password</h4>
+          <h2 class="runbox-section-header">New app password</h2>
         </div>
-        <div runbox-section-content>
+        <div runbox-section-content class="runbox-section-content">
           <div style="display: flex; flex-wrap: wrap; align-items: center;">
             <p style="margin-bottom: 0px;">
               <strong>App password name:</strong>
               <mat-form-field>
-                <input matInput name="app_pass_name" placeholder="Enter app/device" maxlength="64" [(ngModel)]="app_pass_name" (ngModelChange)="app_pass_name_changed()">
+                <input matInput name="app_pass_name" placeholder="Enter app/device" maxlength="64"
+                  [(ngModel)]="app_pass_name" (ngModelChange)="app_pass_name_changed()">
               </mat-form-field>
             </p>
             <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; gap: 20px;">
-              <button mat-raised-button class="primaryContentButton" [disabled]="is_btn_app_pass_new_disabled || rmm.account_security.app_pass.is_busy" (click)="app_pass_create()">Submit</button>
+              <button mat-raised-button class="primaryContentButton"
+                [disabled]="is_btn_app_pass_new_disabled || rmm.account_security.app_pass.is_busy"
+                (click)="app_pass_create()">Submit</button>
               <div>Use a name so you will know which device you are using this app password on.</div>
             </div>
           </div>
@@ -467,17 +510,18 @@
         </div>
         </app-runbox-section>
       -->
-      <app-runbox-section size="h2">
+      <app-runbox-section>
         <div runbox-section-header>
-          <h4 class="runbox-section-header">Last logins</h4>
+          <h1 class="runbox-section-header">Last logins</h1>
         </div>
-        <div runbox-section-content id="last-logins">
-          <div>
+        <div runbox-section-content class="runbox-section-content" id="last-logins">
+          <div class="logins-form">
             <mat-form-field>
               <mat-label>Service</mat-label>
               <mat-select name="acl_service" [(ngModel)]="acl_service">
                 <mat-option value="" selected>Any</mat-option>
-                <mat-option *ngFor="let service of rmm.account_security.service.services_translation | keyvalue" [value]="service.key">
+                <mat-option *ngFor="let service of rmm.account_security.service.services_translation | keyvalue"
+                  [value]="service.key">
                   {{ rmm.account_security.service.services_translation[service.key].name }}
                 </mat-option>
               </mat-select>
@@ -493,9 +537,9 @@
             <mat-form-field>
               <mat-label>Period</mat-label>
               <mat-select name="acl_period" [(ngModel)]="acl_period">
-                <mat-option value="1h" selected>1 hour </mat-option>
-                <mat-option value="1d">1 day  </mat-option>
-                <mat-option value="7d">1 week </mat-option>
+                <mat-option value="1h" selected>1 hour</mat-option>
+                <mat-option value="1d">1 day</mat-option>
+                <mat-option value="7d">1 week</mat-option>
                 <mat-option value="1m">1 month</mat-option>
               </mat-select>
             </mat-form-field>
@@ -507,55 +551,101 @@
                 <mat-option value="in">Include IPs</mat-option>
               </mat-select>
             </mat-form-field>
-          </div>
-          <mat-form-field>
-            <input matInput name="acl_ip" placeholder="Enter IP or select from list" [(ngModel)]="acl_ip" (ngModelChange)="acl_ip_changed()">
-          </mat-form-field>
-          <span><button mat-raised-button class="primaryContentButton" (click)="acl_clear()" [disabled]="!is_acl_clear_enabled">Clear</button></span>
-          <span><button mat-raised-button class="primaryContentButton" (click)="acl_update()" [disabled]="is_busy_list_logins">Update </button></span>
-          <!-- header -->
-          <mat-grid-list cols="6" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
-            <mat-grid-tile><h4>Service</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Login</h4></mat-grid-tile>
-            <mat-grid-tile><h4>IP</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Hostname</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Time</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Status</h4></mat-grid-tile>
-            <!--
-              <mat-grid-tile></mat-grid-tile>
-            -->
-          </mat-grid-list>
-          <div style='max-height: 500px; overflow-x: scroll;'>
-            <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
-              <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+            <mat-form-field>
+              <input matInput name="acl_ip" placeholder="Enter IP or select from list" [(ngModel)]="acl_ip"
+                (ngModelChange)="acl_ip_changed()">
+            </mat-form-field>
+            <div class="action-buttons">
+              <button mat-raised-button class="primaryContentButton" (click)="acl_clear()"
+                [disabled]="!is_acl_clear_enabled">Clear</button>
+              <button mat-raised-button class="primaryContentButton" (click)="acl_update()"
+                [disabled]="is_busy_list_logins">Update</button>
             </div>
-            <mat-grid-list cols="6" rowHeight="50px" *ngIf="rmm.account_security.acl.results_logins_list">
-              <div *ngFor="let result of rmm.account_security.acl.results_logins_list">
-                <mat-grid-tile>
-                  {{ rmm.account_security.service.services_translation[result.service].name }}
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  {{ result.login }}
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  {{ result.ip }}
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  {{ result.hostname || '-' }}
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  {{ result.created }}
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  {{ result.success === 1 ? 'success' : 'fail' }}
-                </mat-grid-tile>
-                <!--
-                  <mat-grid-tile>
-                  <span *ngIf="result.success === 0"><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
-                  </mat-grid-tile>
-                -->
-              </div>
+          </div>
+          <!-- header -->
+          <div class="grid-table" *ngIf="rmm.account_security.acl.results_logins_list">
+            <mat-grid-list cols="6" rowHeight="50px">
+              <mat-grid-tile>
+                <h4>Service</h4>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <h4>Login</h4>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <h4>IP</h4>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <h4>Hostname</h4>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <h4>Time</h4>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <h4>Status</h4>
+              </mat-grid-tile>
             </mat-grid-list>
+            <div style='max-height: 500px;'>
+              <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
+                <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+              </div>
+              <div *ngFor="let result of rmm.account_security.acl.results_logins_list">
+                <mat-grid-list class="grid-results" cols="6" rowHeight="30px">
+                  <mat-grid-tile>
+                    {{ rmm.account_security.service.services_translation[result.service].name }}
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    {{ result.login }}
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    {{ result.ip }}
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    {{ result.hostname || '-' }}
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    {{ result.created }}
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    {{ result.success === 1 ? 'success' : 'fail' }}
+                  </mat-grid-tile>
+                  <!--
+                    <mat-grid-tile>
+                    <span *ngIf="result.success === 0"><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
+                    </mat-grid-tile>
+                  -->
+                </mat-grid-list>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="rmm.account_security.acl.results_logins_list">
+            <div class="table-mobile" *ngFor="let result of rmm.account_security.acl.results_logins_list">
+              <div class="table-mobile-row">
+                <span class="row-title">Service:</span>
+                <span>{{ rmm.account_security.service.services_translation[result.service].name }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Login:</span>
+                <span>{{ result.login }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">IP:</span>
+                <span>{{ result.ip }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Hostname:</span>
+                <span>{{ result.hostname || '-' }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Time:</span>
+                <span>{{ result.created }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Status:</span>
+                <span>{{ result.success === 1 ? 'success' : 'fail' }}</span>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
           </div>
         </div>
       </app-runbox-section>
@@ -699,44 +789,77 @@
     <mat-tab label="Sessions">
       <app-runbox-section>
         <div runbox-section-header>
-          <h3 class="runbox-section-header">Sessions</h3>
+          <h1 class="runbox-section-header">Sessions</h1>
         </div>
-        <div runbox-section-content>
+        <div runbox-section-content class="runbox-section-content">
           <p>Below you will find a list of active browser sessions for your account.</p>
-          <p>For more information on these settings, please see <a href="https://help.runbox.com/account-security/#Sessions" target="help">Sessions Help</a>.</p>
+          <p>For more information on these settings, please see <a
+              href="https://help.runbox.com/account-security/#Sessions" target="help">Sessions Help</a>.</p>
           <!-- header -->
-          <mat-grid-list cols="5" rowHeight="50px" *ngIf="rmm.account_security.session.results">
-            <mat-grid-tile><h4>Login time</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Last seen</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Logout time</h4></mat-grid-tile>
-            <mat-grid-tile><h4>IP</h4></mat-grid-tile>
-            <mat-grid-tile><h4>Browser</h4></mat-grid-tile>
-          </mat-grid-list>
-          <mat-grid-list cols="5" rowHeight="60px" *ngIf="rmm.account_security.session.results">
+          <div class="grid-table" *ngIf="rmm.account_security.session.results">
+            <mat-grid-list cols="5" rowHeight="50px">
+              <mat-grid-tile>
+                <h4>Login time</h4>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <h4>Last seen</h4>
+              </mat-grid-tile>
+              <!-- <mat-grid-tile><h4>Logout time</h4></mat-grid-tile> -->
+              <mat-grid-tile>
+                <h4>IP</h4>
+              </mat-grid-tile>
+              <mat-grid-tile colspan="2">
+                <h4>Browser</h4>
+              </mat-grid-tile>
+            </mat-grid-list>
             <div *ngFor="let result of rmm.account_security.session.results">
-              <mat-grid-tile>
-                {{ result.created }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.updated }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.deleted }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.ip }}
-              </mat-grid-tile>
-              <mat-grid-tile>
-                {{ result.user_agent }}
-              </mat-grid-tile>
+              <mat-grid-list class="grid-results" cols="5" rowHeight="60px">
+                <mat-grid-tile>
+                  {{ result.created }}
+                </mat-grid-tile>
+                <mat-grid-tile>
+                  {{ result.updated }}
+                </mat-grid-tile>
+                <!-- <mat-grid-tile>
+                    {{ result.deleted }}
+                  </mat-grid-tile> -->
+                <mat-grid-tile>
+                  {{ result.ip }}
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2">
+                  {{ result.user_agent }}
+                </mat-grid-tile>
+              </mat-grid-list>
+              <mat-divider></mat-divider>
             </div>
-          </mat-grid-list>
+          </div>
+          <div *ngIf="rmm.account_security.session.results">
+            <div class="table-mobile" *ngFor="let result of rmm.account_security.session.results">
+              <div class="table-mobile-row">
+                <span class="row-title">Login time:</span>
+                <span>{{ result.created }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Last seen:</span>
+                <span>{{ result.updated }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">IP:</span>
+                <span>{{ result.ip }}</span>
+              </div>
+              <div class="table-mobile-row">
+                <span class="row-title">Browser:</span>
+                <span>{{ result.user_agent }}</span>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
+          </div><br>
           <p style="text-align: center">
-          <span>
-            <button mat-raised-button class="primaryContentButton" type='button' (click)="rmm.account_security.session.list()">Refresh</button>
-          </span>
+            <button mat-raised-button class="primaryContentButton" type='button'
+              (click)="rmm.account_security.session.list()">Refresh</button>
           </p>
         </div>
       </app-runbox-section>
     </mat-tab>
   </mat-tab-group>
+</section>

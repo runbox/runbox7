@@ -46,6 +46,10 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
+.mat-typography {
+    padding-top: 20px;
+}
+
 mat-form-field {
     /* This is for iOS not to zoom in when focusing on text fields */
     font-size: 16px !important;
