@@ -28,8 +28,10 @@ if (process.env.SENTRY_DSN) {
     console.log(cp.execFileSync('node', ['src/build/add-sentry.js']).toString().trim())
 }
 
-console.log('Updating changelog');
-console.log(cp.execFileSync('node', ['src/build/build-changelog.js']).toString().trim())
+if (!process.env.SKIP_CHANGELOG) {
+    console.log('Updating changelog');
+    console.log(cp.execFileSync('node', ['src/build/build-changelog.js']).toString().trim())
+}
 
 console.log('Updating appData');
 const dirty = cp.execSync('git status --porcelain ngsw-config.json').toString().trim();

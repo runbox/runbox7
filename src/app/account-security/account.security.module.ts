@@ -20,7 +20,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from '../menu/menu.module';
-import { RouterModule } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { QRCodeModule } from 'angular2-qrcode';
@@ -76,7 +75,6 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
     MatTooltipModule,
     MenuModule,
     QRCodeModule,
-    RouterModule.forChild([ { path: '', component: AccountSecurityComponent } ]),
     RunboxComponentModule,
     ],
     entryComponents: [

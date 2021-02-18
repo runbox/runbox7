@@ -2,7 +2,7 @@
 const exec = require('child_process').execSync;
 
 function run(command) {
-    exec(command, { stdio: 'inherit' });
+    exec(command, { stdio: 'inherit', env: { ...process.env, SKIP_CHANGELOG: 1 } });
 }
 
 const phases = {
