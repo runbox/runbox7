@@ -780,18 +780,12 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     }
 }
 
-mat-expansion-panel-header {
-    min-height: 50px !important;
-    height: auto !important;
-    padding: 0 10px !important;
-}
-
 mat-expansion-panel {
     box-shadow: none !important;
 }
 
 .mat-expansion-panel-body {
-    padding: 0 10px 30px 10px !important;
+    padding: 0 !important;
 }
 
 /* Compose */
