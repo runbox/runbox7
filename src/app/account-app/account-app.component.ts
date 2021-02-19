@@ -32,6 +32,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 export class AccountAppComponent {
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
     sideMenuOpened = true;
+    rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
 
     constructor(
         public cart:   CartService,
