@@ -8,8 +8,6 @@ describe('Create calendar event', () => {
 
         cy.get('#addEventButton').should('contain', 'Add event').click();
         cy.get('input[data-placeholder=Title]').type('my test event');
-        cy.get('mat-select').contains('Calendar').click();
-        cy.get('mat-option').contains('Mock Calendar').click();
         cy.get('#eventSubmitButton').click();
 
         cy.get('.calendarMonthDayEvent').contains('my test event');
