@@ -54,6 +54,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { MessageCache } from './rmmapi/messagecache';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
@@ -188,6 +189,7 @@ const routes: Routes = [
   providers: [ProgressService,
     MessageListService,
     MobileQueryService,
+    MessageCache,
     RunboxWebmailAPI,
     SearchService,
     RMMOfflineService,

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, of, Subject, AsyncSubject } from 'rxjs';
+import { Observable, from, of, Subject, AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
@@ -35,6 +35,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
+import { MessageCache } from './messagecache';
 import * as moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 
@@ -175,13 +176,14 @@ export class RunboxWebmailAPI {
 
     public last_on_interval;
 
-    messageContentsCache: { [messageId: number]: Observable<MessageContents> } = {};
+    messageContentsRequestCache: { [messageId: number]: Promise<MessageContents> } = {};
 
     constructor(
-        public snackBar: MatSnackBar,
         private http: HttpClient,
+        private ngZone: NgZone,
+        private messageCache: MessageCache,
+        private snackBar: MatSnackBar,
         public rmm: RMM,
-        private ngZone: NgZone
     ) {
         this.rblocale = new RunboxLocale();
         this.http.get('/rest/v1/me')
@@ -207,40 +209,49 @@ export class RunboxWebmailAPI {
     }
 
     public deleteCachedMessageContents(messageId: number) {
-        if (this.messageContentsCache[messageId]) {
-            delete this.messageContentsCache[messageId];
+        this.messageCache.delete(messageId);
+        if (this.messageContentsRequestCache[messageId]) {
+            delete this.messageContentsRequestCache[messageId];
         }
     }
 
-    public getMessageContents(messageId: number, refresh = false): Observable<MessageContents> {
-        if (!refresh && this.messageContentsCache[messageId]) {
-            return this.messageContentsCache[messageId];
-        } else {
-            const messageContentsObservable = new AsyncSubject<MessageContents>();
+    public getCachedMessageContents(messageId: number): Promise<MessageContents> {
+        let cached = this.messageContentsRequestCache[messageId];
+        if (!cached) {
+            // This kind of multilevel caching may seem excessive,
+            // but it turns out that pulling a single row from indexedDB (or maybe from Dexie specifically?)
+            // can easily take over 100ms: the difference between "instant" and "fast"
+            // Since instant is the only acceptable result, we cache indexedDB lookups here.
 
-            this.messageContentsCache[messageId] = messageContentsObservable;
-
-            this.http.get('/rest/v1/email/' + messageId)
-            .pipe(
-                map((r: any) => r.result),
-            ).subscribe((r) => {
-                messageContentsObservable.next(r);
-                messageContentsObservable.complete();
-            }, err => {
-                delete this.messageContentsCache[messageId];
-                messageContentsObservable.error(err);
-            });
-
-            return messageContentsObservable;
+            cached = this.messageContentsRequestCache[messageId] = this.messageCache.get(messageId);
         }
+        return cached;
+    }
+
+    public getMessageContents(messageId: number, refresh = false): Observable<MessageContents> {
+        const cached = refresh ? Promise.resolve(null) : this.getCachedMessageContents(messageId);
+        return from(cached.then(contents => {
+            if (contents) {
+                return contents;
+            } else {
+                return this.messageContentsRequestCache[messageId] = new Promise((resolve, reject) => {
+                    this.http.get('/rest/v1/email/' + messageId)
+                    .pipe(
+                        map((r: any) => r.result),
+                    ).subscribe((result) => {
+                        this.messageCache.set(messageId, result);
+                        resolve(result);
+                    }, err => {
+                        delete this.messageContentsRequestCache[messageId];
+                        reject(err);
+                    });
+                });
+            }
+        }));
     }
 
     public updateLastOn(): Observable<any> {
         return this.http.put('/rest/v1/last_on', {});
-    }
-
-    public deleteFromMessageContentsCache(messageId: number) {
-        delete this.messageContentsCache[messageId];
     }
 
     public listDeletedMessagesSince(sincechangeddate: Date): Observable<number[]> {

@@ -4,7 +4,7 @@
     sandbox="allow-same-origin allow-modals"
     style="width: 0px; height: 0px; border: none; position: absolute"
   ></iframe>
-  <mat-toolbar style="display: flex; overflow-x: auto;">
+  <mat-toolbar *ngIf="mailObj" style="display: flex; overflow-x: auto;">
     <!-- Message preview toolbar -->
     <div style="flex-grow: 1; overflow: hidden" #toolbarButtonContainer>
       <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move to folder..." (click)="messageActionsHandler.moveToFolder()">
@@ -34,18 +34,18 @@
         <mat-icon svgIcon="forward"></mat-icon>
       </button>
       <ng-container *ngIf="morebuttonindex>5">
-        <button *ngIf="mailObj && mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
+        <button *ngIf="mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
         <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
         </button>
-        <button *ngIf="mailObj && mailObj.seen_flag===0" mat-icon-button matTooltip="Mark read" (click)="messageActionsHandler.markSeen(1)">
+        <button *ngIf="mailObj.seen_flag===0" mat-icon-button matTooltip="Mark read" (click)="messageActionsHandler.markSeen(1)">
         <mat-icon svgIcon="email-check"></mat-icon>
         </button>
        </ng-container>
       <ng-container *ngIf="morebuttonindex>6">
-        <button mat-icon-button *ngIf="mailObj && mailObj.flagged_flag===0" matTooltip="Flag" (click)="messageActionsHandler.flag()">
+        <button mat-icon-button *ngIf="mailObj.flagged_flag===0" matTooltip="Flag" (click)="messageActionsHandler.flag()">
           <mat-icon svgIcon="flag"></mat-icon>
         </button>
-        <button *ngIf="mailObj && mailObj.flagged_flag===1" mat-icon-button matTooltip="Remove flag" (click)="messageActionsHandler.unflag()">
+        <button *ngIf="mailObj.flagged_flag===1" mat-icon-button matTooltip="Remove flag" (click)="messageActionsHandler.unflag()">
   	  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mat-icon">
 	    <path d="M14 6l-1-2H5v17h2v-7h5l1 2h7V6h-6zm4 8h-4l-1-2H7V6h5l1 2h5v6z"/>
 	    <path fill="none" d="M0 0h24v24H0z"/>
@@ -120,11 +120,11 @@
           <span>Mark unread</span>
         </button>
         <ng-container *ngIf="morebuttonindex<7">
-          <button mat-menu-item *ngIf="mailObj && mailObj.flagged_flag===0" (click)="messageActionsHandler.flag()">
+          <button mat-menu-item *ngIf="mailObj.flagged_flag===0" (click)="messageActionsHandler.flag()">
             <mat-icon svgIcon="flag"></mat-icon>
             <span>Flag</span>
           </button>
-          <button *ngIf="mailObj && mailObj.flagged_flag===1" mat-menu-item (click)="messageActionsHandler.unflag()" tooltip="Remove flag">
+          <button *ngIf="mailObj.flagged_flag===1" mat-menu-item (click)="messageActionsHandler.unflag()" tooltip="Remove flag">
             <mat-icon svgIcon="flag-outline"></mat-icon>
             <span>Remove flag</span>
           </button>
