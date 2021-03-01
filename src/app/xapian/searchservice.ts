@@ -1136,7 +1136,7 @@ export class SearchService {
           };
 
           const rmmMessageId = parseInt(this.currentDocData.id.substring(1), 10);
-          this.rmmapi.getCachedMessageContents(rmmMessageId).subscribe(content => {
+          this.rmmapi.getCachedMessageContents(rmmMessageId).then(content => {
               if (content) {
                   this.currentDocData.textcontent = content.text.text;
               }
