@@ -429,6 +429,8 @@ export class RunboxWebmailAPI {
         return this.http.post('/rest/v1/spam/', JSON.stringify(params));
     }
 
+    // Moves to Trash if not already in Trash
+    // Deletes if currently in Trash
     public deleteMessages(messageIds: number[]): Observable<any> {
         const ids = messageIds.join(',');
         return this.http.delete(`/rest/v1/email/${ids}`);

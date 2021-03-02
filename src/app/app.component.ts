@@ -655,17 +655,35 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   }
 
+  // Delete selected messages in current canvastable view
   public deleteMessages() {
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    this.searchService.deleteMessages(messageIds);
-    this.searchService.rmmapi.deleteMessages(messageIds)
-      .subscribe(() => {
+    this.messageActionsHandler.updateMessages(
+      messageIds,
+      (msgIds: number[]) => {
+        this.searchService.deleteMessages(msgIds);
         this.clearSelection();
         if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
-      });
+        
+      },
+      (msgIds: number[]) => this.searchService.rmmapi.deleteMessages(msgIds)
+    );
+
+    // // Remove documents from xapian index (Trash is not indexed)
+    // this.searchService.deleteMessages(messageIds);
+    // // Move to Trash, or delete if in Trash already
+    // this.searchService.rmmapi.deleteMessages(messageIds)
+    //   .subscribe(() => {
+    //     // Update index + messagelist contents from backend:
+    //     this.searchService.updateIndexWithNewChanges();
+    //     this.clearSelection();
+    //     if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+    //       this.singlemailviewer.close();
+    //     }
+    //   });
   }
 
   public deleteLocalIndex() {
@@ -717,6 +735,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
     // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
     // would that slow things down?
+    // NB this triggers hasChanged for us and forces a redraw
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
     // messages updated, check if we need to select a message from the fragment

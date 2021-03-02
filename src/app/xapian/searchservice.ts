@@ -523,7 +523,7 @@ export class SearchService {
         } else if (this.processMessageIndex < this.pendingMessagesToProcess.length) {
           this.processMessageHistoryProgress = Math.round(this.processMessageIndex * 100 / this.pendingMessagesToProcess.length);
 
-          console.log('Adding to index', (this.pendingMessagesToProcess.length - this.processMessageIndex), 'to go');
+          console.log('Adding to (or removing from) index', (this.pendingMessagesToProcess.length - this.processMessageIndex), 'to go');
           if (progressSnackBar) {
             progressSnackBar.instance.messagetextsubject.next(getProgressSnackBarMessageText());
           }

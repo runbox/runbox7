@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { Observable, of } from 'rxjs';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MoveMessageDialogComponent } from '../actions/movemessage.action';
@@ -34,6 +35,14 @@ export class RMM7MessageActions implements MessageActions {
     searchService: SearchService;
     draftDeskService: DraftDeskService;
     rmmapi: RunboxWebmailAPI;
+
+    public updateMessages(messageIds: number[],
+                          updateLocal: (messageIds: number[]) => void,
+                          updateRemote: (messageIds: number[]) => Observable<any>,
+                         ) {
+        updateLocal(messageIds);
+        updateRemote(messageIds).subscribe(() => this.searchService.updateIndexWithNewChanges());
+    }
 
     public moveToFolder() {
         const dialogRef = this.dialog.open(MoveMessageDialogComponent);
