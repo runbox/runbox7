@@ -36,6 +36,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
 import { RunboxListComponent } from '../runbox-components/runbox-list';
 import { RunboxContainerComponent } from '../runbox-components/runbox-container';
@@ -43,6 +44,7 @@ import { RunboxSectionComponent } from '../runbox-components/runbox-section';
 import { RunboxSlideToggleComponent } from '../runbox-components/runbox-slide-toggle';
 import { RunboxTimerComponent } from '../runbox-components/runbox-timer';
 import { RunboxDynamicComponent } from '../runbox-components/runbox-dynamic';
+import { RunboxApiDocsComponent } from '../runbox-components/runbox-api-docs';
 import { RunboxDynamicBuilderComponent } from './runbox-dynamic-builder';
 
 @NgModule({
@@ -55,6 +57,7 @@ import { RunboxDynamicBuilderComponent } from './runbox-dynamic-builder';
         RunboxTimerComponent,
         RunboxDynamicComponent,
         RunboxDynamicBuilderComponent,
+        RunboxApiDocsComponent,
     ],
     imports: [
         CommonModule,
@@ -74,6 +77,7 @@ import { RunboxDynamicBuilderComponent } from './runbox-dynamic-builder';
         MatToolbarModule,
         MatTooltipModule,
         MatTableModule,
+        MatTabsModule,
         MenuModule,
     ],
     exports: [
@@ -85,6 +89,7 @@ import { RunboxDynamicBuilderComponent } from './runbox-dynamic-builder';
         RunboxTimerComponent,
         RunboxDynamicComponent,
         RunboxDynamicBuilderComponent,
+        RunboxApiDocsComponent,
     ],
     entryComponents: [
     ],
