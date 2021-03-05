@@ -154,6 +154,10 @@ mat-chip.mat-chip.mat-standard-chip {
 
 /* Generic custom styles */
 
+.mat-dialog-container {
+    max-width: 550px;
+}
+
 mat-grid-tile.tableTitle {
     background-color: mat-color($rmm-default-foreground);
 }

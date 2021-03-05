@@ -45,6 +45,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -78,6 +79,7 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
     MatCheckboxModule,
     MatDatepickerModule,
     MatDialogModule,
+    MatTabsModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,

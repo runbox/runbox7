@@ -25,6 +25,7 @@ import * as moment from 'moment';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventOverview } from './event-overview';
+import { CalendarService } from './calendar.service';
 
 @Component({
     selector: 'app-import-dialog-component',
@@ -40,6 +41,7 @@ export class ImportDialogComponent {
     extractedCalendar: RunboxCalendar;
 
     constructor(
+        public  calendarservice: CalendarService,
         public dialogRef: MatDialogRef<ImportDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
@@ -63,8 +65,11 @@ export class ImportDialogComponent {
             this.calendars.push(this.extractedCalendar);
         }
 
-        const event = RunboxCalendarEvent.fromIcal(undefined, data['ical']);
-        this.events = event.get_overview();
+        // returns an array of RunboxCalendarEvent, we can figure out
+        // the overview from any of them
+        const ievent = calendarservice.importFromIcal(undefined, data['ical'], false);
+        const events = calendarservice.generateEvents(undefined, undefined, [ievent]);
+        this.events = events[0].get_overview();
     }
 
     onCancelClick(): void {
