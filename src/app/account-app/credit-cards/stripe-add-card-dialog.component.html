@@ -1,0 +1,108 @@
+<style>
+.payment-row {
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 5px 10px;
+}
+
+.payment-field {
+  position: relative;
+  height: 50px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 5px;
+  box-shadow: 0 1px 3px 0 #bbb;
+  text-align: center;
+}
+
+.payment-field-big {
+  width: 100%;
+}
+
+.payment-field-small {
+  flex: 1 0 25%;
+}
+
+.payment-field-small .mat-form-field {
+  width: 100%;
+}
+</style>
+
+<h1 mat-dialog-title>Credit card setup via Stripe</h1>
+
+<ng-template #legacyFallback>
+    <p> Form not loading? </p>
+
+    <p>
+        Make sure your browser extensions are not blocking access to <span style="font-family: monospace">stripe.com</span>.
+    </p>
+</ng-template>
+
+<div mat-dialog-content style="max-width: 500px;">
+    <div style="width: 100%; text-align: center">
+        <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
+    </div>
+    <div [style.display]="state === 'initial' ? 'block' : 'none'">
+        <div class="payment-row">
+            <div class="payment-field payment-field-big">
+                <div #cardNumber></div>
+                <label for="cardNumber">Card number</label>
+            </div>
+        </div>
+        <div class="payment-row">
+            <div class="payment-field payment-field-small">
+                <div #cardExpiry></div>
+                <label for="cardExpiry">Expiration date</label>
+            </div>
+            <div class="payment-field payment-field-small">
+                <div #cardCvc></div>
+                <label for="cardCvc">CVC code</label>
+            </div>
+            <div class="payment-field payment-field-small StripeElement">
+                <mat-form-field>
+                    <input matInput [(ngModel)]="zipCode" placeholder="ZIP code">
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div id="card-errors" role="alert" style="display: flex; justify-content: center;">
+            <strong> {{ stripeError }} </strong>
+        </div>
+    </div>
+
+    <div [style.display]="state === 'loading' ? 'block' : 'none'">
+        <div> Loading Stripe form... </div>
+        <mat-spinner style="margin:0 auto;"></mat-spinner>
+
+        <ng-container *ngTemplateOutlet="legacyFallback"></ng-container>
+    </div>
+
+    <div [style.display]="state === 'processing' ? 'block' : 'none'">
+        <div> Processing your payment... </div>
+        <mat-spinner style="margin:0 auto;"></mat-spinner>
+    </div>
+
+    <div [style.display]="state === 'failure' ? 'block' : 'none'">
+        <div> {{ stripeError }} </div>
+    </div>
+
+    <div [style.display]="state === 'finished' ? 'block' : 'none'">
+        <div> The card has been sucecssfully added to your account. </div>
+    </div>
+</div>
+
+<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
+    <button mat-button (click)="close()"> Cancel </button>
+</div>
+<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'initial'">
+    <button mat-button (click)="close()"> Cancel </button>
+    <button mat-flat-button color="primary" (click)="submitCardDetails()">
+        <span *ngIf="state === 'initial'"> Submit card details </span>
+    </button>
+</div>
+<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'failure' || state === 'finished'">
+    <button mat-button (click)="close()"> Close </button>
+</div>
