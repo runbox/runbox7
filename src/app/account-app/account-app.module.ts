@@ -49,6 +49,7 @@ import { PaymentsService } from './payments.service';
 import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
 import { PaypalBillingAgreementsComponent } from './paypal-billing-agreements.component';
 import { PaypalHandlerComponent } from './paypal-handler.component';
+import { StripeAddCardDialogComponent } from './credit-cards/stripe-add-card-dialog.component';
 import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
 import { RunboxTimerComponent } from './runbox-timer';
 
@@ -101,6 +102,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
     PaypalPaymentDialogComponent,
     ProductComponent,
     ShoppingCartComponent,
+    StripeAddCardDialogComponent,
     StripePaymentDialogComponent,
     SubAccountRenewalDialogComponent,
     RunboxTimerComponent,
@@ -213,6 +215,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
   entryComponents: [
     BitpayPaymentDialogComponent,
     PaypalPaymentDialogComponent,
+    StripeAddCardDialogComponent,
     StripePaymentDialogComponent,
   ],
   providers: [

@@ -19,6 +19,10 @@
             You don't have any cards added to your account
         </div>
 
+        <div style="flex: 100% 0 1;">
+            <button mat-raised-button (click)="addCard()"> Add a new card </button>
+        </div>
+
         <mat-card *ngFor="let cc of creditCards" class="card">
             <mat-card-header>
                 <mat-icon mat-card-avatar svgIcon="credit-card"> </mat-icon>
