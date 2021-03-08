@@ -517,7 +517,11 @@
                     <br />
                     <p>Here you can purchase and register new domain names.</p>
 
-                            <div style='background: #C7DFFF; padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length">
+                            <div style='background: #C7DFFF; padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length && domain_quota_used >= domain_quota_allowed">
+                                <h2 class="mat-h2">Email Domain quota limit</h2>
+                                <p>You have reached your Email Domain quota limit. Your account is using {{domain_quota_used}} of its {{domain_quota_allowed}} total <a href='/mail/account_domain'>Email Domains</a>. Please <a href="/app/account/components">purchase more Email Hosting products</a> first.</p>
+                            </div>
+                            <div style='background: #C7DFFF; padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length && domain_quota_used < domain_quota_allowed">
                               <mat-card-header style="display: flex; width: 100%">
                                   <mat-card-title style="flex-grow: 1">
                                       <h2 class="mat-h2">Register a new domain name</h2>
