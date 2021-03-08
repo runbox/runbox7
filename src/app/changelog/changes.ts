@@ -36,6 +36,7 @@ const typeMapping = {
     'ci':       EntryType.CI,
     'docs':     EntryType.DOCS,
     'feat':     EntryType.FEAT,
+    'feature':  EntryType.FEAT,
     'fix':      EntryType.FIX,
     'perf':     EntryType.PERF,
     'refactor': EntryType.REFACTOR,
