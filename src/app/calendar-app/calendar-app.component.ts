@@ -35,8 +35,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { isSameDay, } from 'date-fns';
 
-import * as moment from 'moment';
-
 import { Subject } from 'rxjs';
 
 import {
