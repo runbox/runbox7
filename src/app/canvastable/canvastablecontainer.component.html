@@ -34,7 +34,7 @@
     <ng-container>
       <ng-container *ngFor="let col of canvastable.columns; let colIndex = index">
         <ng-container *ngIf="col.checkbox">
-        <button mat-icon-button style="margin-top: -8px; z-index: 10000"
+        <button mat-icon-button style="margin-top: -8px"
                 (click)="canvastable.selectRows()"
                 (mousedown)="mouseOverSelectAll()"
                 (mouseup)="mouseLeftSelectAll()"

@@ -2,14 +2,29 @@
 mat-card {
     min-height: 20vh;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
+
+mat-card.addon {
+    min-height: 10vh;
+}
+
 mat-card-subtitle {
     min-height: 3vh;
     font-size: 16px;
 }
+
+mat-card-content {
+    flex-grow: 1;
+}
+
+mat-card-actions {
+    margin-bottom: 0px !important;
+}
 </style>
 
-<mat-card>
+<mat-card [ngClass]="{ 'addon': p.type === 'addon' }">
   <h4 *ngIf="p.subtype === 'special'">Special offer</h4>
     <mat-card-title>
       {{ p.name }}
@@ -20,16 +35,27 @@ mat-card-subtitle {
     </mat-card-subtitle>
     <mat-card-content>
         <ng-content></ng-content>
+        <div *ngIf="allow_multiple" style="display: flex; justify-content: center; align-content: baseline;">
+            <button mat-icon-button (click)="less()">
+                <mat-icon svgIcon="minus-circle-outline"></mat-icon>
+            </button>
+            <button mat-button>
+                {{ quantity }}
+            </button>
+            <button mat-icon-button (click)="more()">
+                <mat-icon svgIcon="plus-circle-outline"></mat-icon>
+            </button>
+        </div>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
-        <button style="position: absolute; bottom: 20px;" mat-button *ngIf="!purchased; else unpurchase"
+        <button mat-button *ngIf="!purchased; else unpurchase"
             class="contentButton"
             (click)="order()"
         >
             Purchase for {{ p.price | number:'1.2-2' }} {{ currency }}
         </button>
         <ng-template #unpurchase>
-            <button style="position: absolute; bottom: 20px;" mat-button
+            <button mat-button
                 class="primaryContentButton"
                 (click)="unorder()"
             >
@@ -38,16 +64,7 @@ mat-card-subtitle {
         </ng-template>
     </mat-card-actions>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
-        <button mat-icon-button (click)="less()">
-            <mat-icon svgIcon="minus-circle-outline"></mat-icon>
-        </button>
-        <button mat-button>
-            {{ quantity }}
-        </button>
-        <button mat-icon-button (click)="more()">
-            <mat-icon svgIcon="plus-circle-outline"></mat-icon>
-        </button>
-        <button mat-button (click)="order()" class="contentButton" style="margin-left: 20px !important">
+        <button mat-button (click)="order()" class="contentButton">
             Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
         </button>
     </mat-card-actions>
