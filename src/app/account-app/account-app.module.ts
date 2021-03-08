@@ -69,6 +69,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
@@ -77,6 +78,9 @@ import { AccountSecurityModule } from '../account-security/account.security.modu
 import { AccountSecurityComponent } from '../account-security/account.security.component';
 import { ProfilesComponent } from '../profiles/profiles.component';
 import { ProfilesModule } from '../profiles/profiles.module';
+import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
+import { QRCodeModule } from 'angular2-qrcode';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @NgModule({
   declarations: [
@@ -101,10 +105,12 @@ import { ProfilesModule } from '../profiles/profiles.module';
     SubAccountRenewalDialogComponent,
     RunboxTimerComponent,
     CreditCardsComponent,
+    CryptoPaymentDescriptionComponent,
   ],
   imports: [
     BrowserAnimationsModule,
     CommonModule,
+    ClipboardModule,
     FormsModule,
     MenuModule,
     MatBadgeModule,
@@ -123,12 +129,14 @@ import { ProfilesModule } from '../profiles/profiles.module';
     MatSelectModule,
     MatSidenavModule,
     MatTableModule,
+    MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
     RunboxCommonModule,
     AccountSecurityModule,
     ProfilesModule,
+    QRCodeModule,
     RouterModule.forChild([
       {
         path: 'account',

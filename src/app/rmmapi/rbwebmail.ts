@@ -676,9 +676,9 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public payWithBitpay(tid: number, receipt_url: string): Observable<any> {
-        return this.http.post('/rest/v1/account_product/bitpay/pay', {
-            tid: tid, receipt_url: receipt_url
+    public payWithBitpay(tid: number, return_url: string, cancel_url: string): Observable<any> {
+        return this.http.post('/rest/v1/account_product/crypto/pay', {
+            tid, return_url, cancel_url
         }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
