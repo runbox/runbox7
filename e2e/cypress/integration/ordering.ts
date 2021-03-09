@@ -17,7 +17,7 @@ describe('Ordering products', () => {
     });
 
     it('can select a payment method and pay', () => {
-        cy.get('mat-expansion-panel-header').click();
+        cy.contains('mat-expansion-panel-header', 'Other payment methods').click();
         cy.get('button#payDirectly').click();
         cy.url().should('include', '/account/receipt');
     });
