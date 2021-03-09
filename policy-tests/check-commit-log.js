@@ -22,7 +22,7 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
                   `\tand it is ${message}`;
         }
         const type = match[1];
-        const valid_types = ['build', 'ci', 'docs', 'feat', 'fix', 'perf', 'refactor', 'style', 'test'];
+        const valid_types = ['build', 'ci', 'docs', 'feat', 'feature', 'fix', 'perf', 'refactor', 'style', 'test'];
         const is_valid = valid_types.find(t => t === type);
         if (!is_valid) {
             throw `Commit type for ${hash} ("${type}") is invalid\n` +

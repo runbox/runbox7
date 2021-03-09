@@ -23,7 +23,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import * as moment from 'moment';
 import { RunboxCalendar } from './runbox-calendar';
-import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { EventOverview } from './event-overview';
 import { CalendarService } from './calendar.service';
 

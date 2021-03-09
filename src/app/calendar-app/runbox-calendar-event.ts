@@ -19,7 +19,6 @@
 
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
-import { RRule, rrulestr } from 'rrule';
 
 import * as moment from 'moment';
 import 'moment-timezone';
