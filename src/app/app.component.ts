@@ -41,7 +41,7 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, share } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
@@ -503,6 +503,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
+  // Folder count values are displayed from messagelistservice folderListSubject
+  // (this.displayedFolders)
+  // contents of trash folder from folderMessageList, so update those first
   async emptyTrash(trashFolder: FolderListEntry) {
     console.log('found trash folder with name', trashFolder.folderName);
     const messageLists = await this.rmmapi.listAllMessages(
@@ -511,15 +514,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       true, trashFolder.folderName
     ).toPromise();
 
-    // remove local copies
-    this.searchService.deleteMessages(messageLists.map((msg) => msg.id));
-    this.searchService.updateIndexWithNewChanges();
-    // empty remote folder
-    await this.rmmapi.emptyFolder(trashFolder.folderId).toPromise();
-    // ensure the view empties if we're looking at the trash
-    this.messagelistservice.setCurrentFolder(trashFolder.folderName);
-    // update local copies
-    this.messagelistservice.refreshFolderList();
+    const messageIds = messageLists.map((msg) => msg.id);
+
+    this.messageActionsHandler.updateMessages(
+      messageIds,
+      // Update local view first
+      ((msgIds: number[]) => {
+        this.messagelistservice.pretendEmptyTrash();
+      }),
+      // Then actually change the data (triggering a local update if necessary)
+      ((msgIds: number[]): Observable<any> => {
+        const req = this.rmmapi.emptyFolder(trashFolder.folderId)
+          .pipe(share());
+        // Now fetch changed folder list, which will also update counts
+        req.subscribe(() => this.messagelistservice.refreshFolderList());
+        return req;
+      })
+    );
+
     console.log('Deleted from', trashFolder.folderName);
   }
 
@@ -667,23 +679,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
-        
       },
-      (msgIds: number[]) => this.searchService.rmmapi.deleteMessages(msgIds)
+      (msgIds: number[]) => this.rmmapi.deleteMessages(msgIds)
     );
-
-    // // Remove documents from xapian index (Trash is not indexed)
-    // this.searchService.deleteMessages(messageIds);
-    // // Move to Trash, or delete if in Trash already
-    // this.searchService.rmmapi.deleteMessages(messageIds)
-    //   .subscribe(() => {
-    //     // Update index + messagelist contents from backend:
-    //     this.searchService.updateIndexWithNewChanges();
-    //     this.clearSelection();
-    //     if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
-    //       this.singlemailviewer.close();
-    //     }
-    //   });
   }
 
   public deleteLocalIndex() {

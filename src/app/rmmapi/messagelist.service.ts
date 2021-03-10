@@ -55,6 +55,7 @@ export class MessageListService {
 
     folderMessageLists: { [folder: string]: MessageInfo[] } = {};
     messagesById: { [id: number]: MessageInfo } = {};
+    folderCounts: FolderMessageCountMap;
 
     trashFolderName = 'Trash';
     spamFolderName = 'Spam';
@@ -123,6 +124,7 @@ export class MessageListService {
                             folderCounts[path] = FolderMessageCountEntry.of(folder);
                         }
                     }
+                    this.folderCounts = folderCounts;
                     this.folderMessageCountSubject.next(folderCounts);
 
                     resolve();
@@ -229,6 +231,19 @@ export class MessageListService {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
             this.refreshFolderList();
         }
+    }
+
+    // When emptying the trash we delete from here first
+    // (then update backend + index)
+    public pretendEmptyTrash() {
+        // Set these locally, main trash emptying will come along and
+        // offically update them later
+        this.folderCounts[this.trashFolderName].unread = 0;
+        this.folderCounts[this.trashFolderName].total = 0;
+
+        // Just lie a bit, we'll fix it in a mo..
+        this.folderMessageCountSubject.next(this.folderCounts);
+        this.folderMessageLists[this.trashFolderName] = [];
     }
 
     public fetchFolderMessages() {
