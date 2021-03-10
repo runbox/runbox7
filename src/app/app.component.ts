@@ -678,13 +678,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.messageActionsHandler.updateMessages(
       messageIds,
+      // Delete local copies
       (msgIds: number[]) => {
         this.searchService.deleteMessages(msgIds);
+        this.messagelistservice.deleteMessages(msgIds);
         this.clearSelection();
         if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
       },
+      // delete backend copies and refresh
       (msgIds: number[]) => this.rmmapi.deleteMessages(msgIds)
     );
   }

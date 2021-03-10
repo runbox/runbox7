@@ -246,6 +246,45 @@ export class MessageListService {
         this.folderMessageLists[this.trashFolderName] = [];
     }
 
+    // Non-index users - delete messages from messagelist
+    public deleteMessages(messageIds: number[]) {
+        messageIds.forEach((msgId) => {
+            const msg = this.messagesById[msgId];
+            if (!msg) {
+                return;
+            }
+            const msgPos = this.folderMessageLists[msg.folder].findIndex((m) => msg.id == m.id);
+            if (msgPos > -1 ) {
+                this.folderMessageLists[msg.folder]
+                    .splice(msgPos, 1);
+                this.folderCounts[msg.folder].total--;
+                if (!msg.seenFlag) {
+                    this.folderCounts[msg.folder].unread--;
+                }
+            }
+
+            // Not already in trash so move it there:
+            if (msg.folder != this.trashFolderName) {
+                // reinsert into trash (assuming we've loaded trash)
+                if (this.folderMessageLists[this.trashFolderName]) {
+                    const msgNewIndex = this.folderMessageLists[this.trashFolderName].findIndex((m) => msg.id > m.id);
+                    if (msgNewIndex > -1) {
+                        this.folderMessageLists[this.trashFolderName]
+                            .splice(msgNewIndex, 0, msg);
+                    } else {
+                        this.folderMessageLists[this.trashFolderName].push(msg);
+                    }
+                }
+
+                this.folderCounts[this.trashFolderName].total++;
+                if (!msg.seenFlag) {
+                    this.folderCounts[this.trashFolderName].unread++;
+                }
+            }
+        });
+        this.folderMessageCountSubject.next(this.folderCounts);
+    }
+
     public fetchFolderMessages() {
         if (this.fetchInProgress) {
             return;
