@@ -345,6 +345,25 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.viewmode = viewModeSetting;
       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
     }
+
+    this.route.fragment.subscribe(
+      fragment => {
+        if (!fragment) {
+          this.messagelistservice.setCurrentFolder('Inbox');
+          if (this.singlemailviewer) {
+            this.singlemailviewer.close();
+          }
+          this.fragment = '';
+          return;
+        }
+
+        if (fragment !== this.fragment) {
+          this.fragment = fragment;
+          this.selectMessageFromFragment(fragment);
+        }
+      }
+    );
+
   }
 
   ngAfterViewInit() {
@@ -362,22 +381,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         setTimeout(() => this.afterLoadIndex(), 0);
       }
     });
-
-    this.route.fragment.subscribe(
-      fragment => {
-        if (!fragment) {
-          this.messagelistservice.setCurrentFolder('Inbox');
-          this.singlemailviewer.close();
-          this.fragment = '';
-          return;
-        }
-
-        if (fragment !== this.fragment) {
-          this.fragment = fragment;
-          this.selectMessageFromFragment(fragment);
-        }
-      }
-    );
 
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
@@ -416,7 +419,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       const [folder, msgId] = fragmentTarget;
       this.switchToFolder(folder);
       if (msgId === null) {
-        this.singlemailviewer.close();
+        if (this.singlemailviewer) {
+          this.singlemailviewer.close();
+        }
       }
       if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
         this.selectRowByMessageId(msgId);
@@ -947,6 +952,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.selectedFolder = folder;
 
+    // FIXME: fairly sure this is redundant, the messageDisplay setting
+    // in the subscribe in ngInit should do it for us
     this.messagelistservice.messagesInViewSubject
       .pipe(
         skip(1),
