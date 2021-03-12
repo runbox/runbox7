@@ -50,6 +50,10 @@ type ActiveProduct = any;
 })
 export class AccountRenewalsComponent {
     active_products: ActiveProduct[] = [];
+    sections: {
+        label:    string,
+        products: ActiveProduct[],
+    }[] = [];
     current_subscription: number;
 
     displayedColumns: string[];
@@ -70,10 +74,10 @@ export class AccountRenewalsComponent {
             this.active_products = products.map(p => {
                 p.active_from = moment(p.active_from, moment.ISO_8601);
                 p.active_until = moment(p.active_until, moment.ISO_8601);
-                const day_diff = p.active_until.diff(moment(), 'days');
-                if (day_diff < 0) {
+                p.days_left = p.active_until.diff(moment(), 'days');
+                if (p.days_left < 0) {
                     p.expired = true;
-                } else if (day_diff < 90) {
+                } else if (p.days_left < 90) {
                     p.expires_soon = true;
                 }
 
@@ -82,6 +86,24 @@ export class AccountRenewalsComponent {
 
                 return p;
             });
+
+            // Naming here is confusing, since "active" in our internals includes products
+            // that have already expired, but that's very confusing to the user.
+            // In the code below, "alive" is used as "active but not expired".
+            // "alive" products are labeled as "active" in the UI,
+            // and expired products are labeled as "expired"
+            const alive_products   = this.active_products.filter(p => !p.expired);
+            const expired_products = this.active_products.filter(p => p.expired);
+
+            // Show alive products starting with the ones expiring the soonest first,
+            // but show expiring products starting with the ones that expired most recently.
+            alive_products.sort((p1, p2) => p1.days_left - p2.days_left);
+            expired_products.sort((p1, p2) => p2.days_left - p1.days_left);
+
+            this.sections = [
+                { label: 'Active',  products: alive_products },
+                { label: 'Expired', products: expired_products },
+            ];
 
             this.cart.items.subscribe(_ => {
                 for (const p of this.active_products) {
