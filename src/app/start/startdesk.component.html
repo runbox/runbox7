@@ -1,9 +1,8 @@
 <div id="startdesk">
   <div id="dashdeskOverviewContainer">
     <mat-card class="mat-card communicationOverview">
-      <h3 class="communicationTitle"><mat-icon>blur_on</mat-icon>Communication overview</h3>
       <div class="highlights">
-        <h4>Activity highlights</h4>
+        <h3><mat-icon>blur_on</mat-icon>Overview</h3>
         <div id="hilightsSettings">
           <mat-form-field>
             <mat-label> Time span </mat-label>
@@ -16,10 +15,19 @@
             </mat-select>
           </mat-form-field>
           <mat-form-field>
+            <mat-label> Folder </mat-label>
             <mat-select [(ngModel)]="folder" (selectionChange)="changeFolder($event)">
               <mat-option [value]="FolderSelection.INBOX">  Inbox only </mat-option>
               <mat-option [value]="FolderSelection.ALL">    All folders </mat-option>
               <mat-option [value]="FolderSelection.CUSTOM"> Custom selection </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label> Sort by </mat-label>
+            <mat-select>
+              <mat-option> Count</mat-option>
+              <mat-option> Date </mat-option>
+              <mat-option> Folder</mat-option>
             </mat-select>
           </mat-form-field>
           <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
@@ -44,8 +52,11 @@
             No messages (yet?)
           </div>
           <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
+	    <div class="contactIcon">
+	      <mat-icon> {{ sender.icon }}</mat-icon>
+	    </div>
             <div class="contact">
-              <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
+              <h5> {{ sender.name }} </h5>
               <div class="messages">{{ sender.emails.length }} messages</div>
             </div>
             <div class="subject">
@@ -55,6 +66,10 @@
                 </li>
               </ul>
             </div>
+	    <div class="showMoreLess">
+	      <div class="showMore">Show nn more</div>
+	      <div class="showLess">Show less</div>
+	    </div>
           </mat-card>
         </mat-tab>
         <mat-tab label="Directly to you ({{ regularEmailCount }})">

@@ -7,7 +7,6 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     bottom: 0px;
     left: 0px;
     right: 0px;
-    padding: 15px;
 
     @media only screen and (max-width: 768px) {
         padding: 0;
@@ -24,7 +23,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         }
     }
     h3 {
-        margin: 0;
+        margin: 10px 0 0 0;
         padding: 0;
         @media only screen and (max-width: 768px) {
             font-size: 21px;
@@ -44,7 +43,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     mat-card {
         float: left;
         width: 100%;
-        padding: 20px;
+        padding: 10px;
 
         @media only screen and (max-width: 768px) {
             border-radius: 0;
@@ -71,7 +70,9 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         box-sizing: border-box;
         display: flex;
         width: calc(100% - 20px);
-        margin: 20px 0 1px 10px;
+        margin: 5px 0 1px 5px;
+	max-height: 100px;
+	overflow: hidden;
 
         /* For mobile screens: */
         @media only screen and (max-width: 768px) {
@@ -94,32 +95,37 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         justify-content: space-between;
         align-items: center;
     }
+    .contactIcon {
+	width: 10%;
+    }
     .contact {
-        width: 33%;
+        width: 25%;
         font-weight: bold;
     }
-    .contact mat-icon {
+    .contactIcon mat-icon {
         margin-right: 10px;
         font-size: 40px;
         width: 40px;
         height: auto;
     }
-    .contact h4 {
+    .contact h5 {
         display: inline;
         margin: 10px 0;
     }
     .messages {
-        margin: 0 5px;
+	font-size: 0.75em;
     }
     .subject {
-        width: 66%;
-        text-decoration: underline;
+        width: 55%;
     }
     .subject ul {
         margin: 0;
     }
     .subject li {
         list-style-type: square;
+    }
+    .subject a {
+	text-decoration: none !important;
     }
 }
 #dashdeskSections {
@@ -163,7 +169,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 20px;
+    padding-bottom: 0px;
 
     mat-checkbox {
         padding-left: 10px;
@@ -188,4 +194,14 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
             width: 100%;
         }
     }
+}
+
+.showMoreLess {
+    float: right;
+    width: 10%
+}
+
+.showMore, .showLess {
+    height: 30px;
+    font-size: 0.75em;	       
 }
