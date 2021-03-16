@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, of, Subject, AsyncSubject } from 'rxjs';
-import { share } from 'rxjs/operators';
+import { Observable, of, Subject, AsyncSubject, throwError } from 'rxjs';
+import { catchError, concatMap, share } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 
@@ -31,7 +31,7 @@ import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
@@ -170,7 +170,7 @@ export class RunboxWebmailAPI {
 
     public last_on_interval;
 
-    messageContentsCache: { [messageId: number]: Observable<MessageContents> } = {};
+    messageContentsCache: { [messageId: number]: AsyncSubject<MessageContents> } = {};
 
     constructor(
         public snackBar: MatSnackBar,
@@ -222,12 +222,60 @@ export class RunboxWebmailAPI {
                 messageContentsObservable.next(r);
                 messageContentsObservable.complete();
             }, err => {
-                delete this.messageContentsCache[messageId];
                 messageContentsObservable.error(err);
+                delete this.messageContentsCache[messageId];
             });
 
             return messageContentsObservable;
         }
+    }
+
+    public downloadMessages(messageIds: number[]): Promise<MessageContents[]> {
+        const missingMessages = [];
+        for (const msgid of messageIds) {
+            if (!this.messageContentsCache[msgid]) {
+                this.messageContentsCache[msgid] = new AsyncSubject<MessageContents>();
+                missingMessages.push(msgid);
+            }
+        }
+
+        const messagePromises = messageIds.map(id => this.messageContentsCache[id].toPromise());
+
+        if (missingMessages.length > 0) {
+            this.http.get(`/rest/v1/email/download/${missingMessages.join(',')}`).pipe(
+                catchError((err: HttpErrorResponse) => throwError(err.message)),
+                concatMap((res: any) => {
+                    if (res.status === 'success') {
+                        return of(res.result);
+                    } else {
+                        return throwError(res.errors[0]);
+                    }
+                }),
+            ).subscribe(
+                (result: any) => {
+                    for (const resultKey of Object.keys(result)) {
+                        const msgid = parseInt(resultKey, 10);
+                        const contents = result[msgid]?.json;
+                        if (contents) {
+                            this.messageContentsCache[msgid].next(contents);
+                            this.messageContentsCache[msgid].complete();
+                        } else {
+                            this.messageContentsCache[msgid].error(result[msgid]?.error);
+                            delete this.messageContentsCache[msgid];
+                        }
+                    }
+                },
+                (err: Error) => {
+                    for (const msgid of missingMessages) {
+                        this.messageContentsCache[msgid].error(err.toString());
+                        delete this.messageContentsCache[msgid];
+                    }
+                }
+            );
+        }
+
+        // return Promise.allSettled(messagePromises);
+        return Promise.all(messagePromises);
     }
 
     public updateLastOn(): Observable<any> {
