@@ -246,39 +246,26 @@ END:VCALENDAR
                 }
 
             }
+
+            const bulkemailendpiont = requesturl.match(/\/rest\/v1\/email\/download\/([0-9,]+)/);
+            if (bulkemailendpiont) {
+                const ids = bulkemailendpiont[1].split(',').map(id => parseInt(id, 10));
+
+                const messages = {};
+                for (const id of ids) {
+                    messages[id] = { json: this.getMessage(id).result };
+                }
+
+                response.end(JSON.stringify({
+                    'status': 'success',
+                    'result': messages,
+                }));
+            }
+
             const emailendpoint = requesturl.match(/\/rest\/v1\/email\/([0-9]+)/);
             if (emailendpoint) {
-                const mailid = emailendpoint[1];
-                let message_obj = mail_message_obj;
-                if (mailid === '11') {
-                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
-                    const to = message_obj.result.headers['to'];
-                    delete message_obj.result.headers['to'];
-                    message_obj.result.headers['cc'] = to;
-                    message_obj.result.headers['subject'] = "No 'To', just 'CC'";
-                }
-                if (mailid === '12') {
-                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
-                    message_obj.result.headers['to'].value[0].address = "TESTMAIL@TESTMAIL.COM";
-                    message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
-                    message_obj.result.headers['subject'] = "Default from fix test";
-                }
-                if (mailid === '13') {
-                    message_obj = JSON.parse(JSON.stringify(mail_message_obj));
-                    const to = message_obj.result.headers['to'];
-                    delete message_obj.result.headers['to'];
-                    message_obj.result.headers['cc'] = to;
-                    message_obj.result.headers['subject'] = "";
-                }
-                // This one warns, we couldnt find it!
-                if (mailid === '14') {
-                    message_obj = {
-                        'status':'warning',
-                        'errors': [
-                            'Email content missing'
-                        ]
-                    };
-                }
+                const mailid = parseInt(emailendpoint[1], 10);
+                const message_obj = this.getMessage(mailid);
 
                 if (requesturl.endsWith('/html')) {
                     response.end(message_obj.result.text.html);
@@ -1003,5 +990,40 @@ END:VCALENDAR
                 "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
             ],
         ];
+    }
+
+    getMessage(mailid: number): any {
+        let message_obj = mail_message_obj;
+        if (mailid === 11) {
+            message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+            const to = message_obj.result.headers['to'];
+            delete message_obj.result.headers['to'];
+            message_obj.result.headers['cc'] = to;
+            message_obj.result.headers['subject'] = "No 'To', just 'CC'";
+        }
+        if (mailid === 12) {
+            message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+            message_obj.result.headers['to'].value[0].address = "TESTMAIL@TESTMAIL.COM";
+            message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
+            message_obj.result.headers['subject'] = "Default from fix test";
+        }
+        if (mailid === 13) {
+            message_obj = JSON.parse(JSON.stringify(mail_message_obj));
+            const to = message_obj.result.headers['to'];
+            delete message_obj.result.headers['to'];
+            message_obj.result.headers['cc'] = to;
+            message_obj.result.headers['subject'] = "";
+        }
+        // This one warns, we couldnt find it!
+        if (mailid === '14') {
+            message_obj = {
+              'status':'warning',
+              'errors': [
+                 'Email content missing'
+              ]
+           };
+        }
+
+        return message_obj;
     }
 }

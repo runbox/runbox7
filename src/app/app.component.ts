@@ -460,16 +460,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         filter(() => !this.canvastable.isScrollInProgress()),
         throttleTime(1000)
     ).subscribe(() => {
-        const rowIndexes = this.canvastable.getVisibleRowIndexes();
-        const messageIds = rowIndexes.filter(
-            idx => idx < this.canvastable.rows.rowCount()
-        ).map(idx => this.canvastable.rows.getRowMessageId(idx)
-        ).filter(id => id > 0);
-        for (const id of messageIds) {
-          if (this.searchService.updateMessageText(id)) {
-            this.canvastable.hasChanges = true;
+      const rowIndexes = this.canvastable.getVisibleRowIndexes();
+      const messageIds = rowIndexes.filter(
+        idx => idx < this.canvastable.rows.rowCount()
+      ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+      this.rmmapi.downloadMessages(messageIds).then(
+        (messages) => {
+          for (const msg messages) {
+            this.searchService.updateMessageText(parseInt(msg['id'], 10));
           }
-        }
+          this.canvastable.hasChanges = true;
+        });
     });
 
       if ('serviceWorker' in navigator) {
