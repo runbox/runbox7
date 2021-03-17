@@ -215,9 +215,15 @@ export class RunboxWebmailAPI {
 
             this.messageContentsCache[messageId] = messageContentsObservable;
 
-            this.http.get('/rest/v1/email/' + messageId)
-            .pipe(
-                map((r: any) => r.result),
+            this.http.get('/rest/v1/email/' + messageId).pipe(
+                catchError((err: HttpErrorResponse) => throwError(err.message)),
+                concatMap((res: any) => {
+                    if (res.status === 'success') {
+                        return of(res.result);
+                    } else {
+                        return throwError(res.errors[0]);
+                    }
+                }),
             ).subscribe((r) => {
                 messageContentsObservable.next(r);
                 messageContentsObservable.complete();

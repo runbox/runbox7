@@ -711,6 +711,8 @@ export class MockServer {
             message_obj.result.headers['subject'] = "";
         }
 
+        message_obj.status = 'success';
+
         return message_obj;
     }
 }
