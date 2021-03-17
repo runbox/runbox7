@@ -1024,6 +1024,8 @@ END:VCALENDAR
            };
         }
 
+        message_obj.status = 'success';
+
         return message_obj;
     }
 }

@@ -51,10 +51,12 @@ describe('RBWebMail', () => {
         // so we set it directly here
         rmmapi.setRunboxMe({'uid': '11', 'last_name': 'testuser'});
         const httpTestingController = TestBed.inject(HttpTestingController);
+
         // HACK: crappy solution to get the email request to resolve
         // see https://github.com/angular/angular/issues/25965
         await new Promise(resolve => setTimeout(resolve, 500));
-        httpTestingController.expectOne('/rest/v1/email/123').flush({
+        let req = httpTestingController.expectOne('/rest/v1/email/123');
+        req.flush({
             status: 'success',
             result: {
                 id: 123,
@@ -77,6 +79,8 @@ describe('RBWebMail', () => {
         messageContentsObservable = rmmapi.getMessageContents(123, true);
         await new Promise(resolve => setTimeout(resolve, 0));
         httpTestingController.expectOne('/rest/v1/email/123').flush({
+        req = httpTestingController.expectOne('/rest/v1/email/123');
+        req.flush({
             status: 'success',
             result: {
                 id: 123,
@@ -93,7 +97,8 @@ describe('RBWebMail', () => {
 
         messageContentsObservable = rmmapi.getMessageContents(123);
         await new Promise(resolve => setTimeout(resolve, 0));
-        httpTestingController.expectOne('/rest/v1/email/123').flush({
+        req = httpTestingController.expectOne('/rest/v1/email/123');
+        req.flush({
             status: 'success',
             result: {
                 id: 123,
