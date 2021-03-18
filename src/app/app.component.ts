@@ -142,7 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianDocCount: number;
   searchResultsCount: number;
 
-  startDeskEnabled = false;
+  experimentalFeatureEnabled = false;
 
   xapianLoaded = xapianLoadedSubject;
 
@@ -190,10 +190,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         new Hotkey(
             'up up down down left right left right b a',
             (event: KeyboardEvent): ExtendedKeyboardEvent => {
-                this.router.navigateByUrl('/start');
-                this.snackBar.open('Enjoy the start desk prototype!', 'Thanks!', { duration: 3000 });
-                this.startDeskEnabled = true;
-                localStorage.setItem('rmm7startdeskenabled', 'true');
+                this.router.navigateByUrl('/onscreen');
+                this.snackBar.open('Enjoy the video call prototype!', 'Thanks!', { duration: 3000 });
+                this.experimentalFeatureEnabled = true;
+                localStorage.setItem('rmm7experimentalFeatureEnabled', 'true');
                 const e: ExtendedKeyboardEvent = event;
                 e.returnValue = false;
                 return e;
@@ -201,8 +201,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         ),
     );
 
-    if (localStorage.getItem('rmm7startdeskenabled') === 'true') {
-        this.startDeskEnabled = true;
+    if (localStorage.getItem('rmm7experimentalFeatureEnabled') === 'true') {
+        this.experimentalFeatureEnabled = true;
     }
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
