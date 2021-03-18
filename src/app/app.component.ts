@@ -212,6 +212,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.draftDeskService = draftDeskService;
     this.messageActionsHandler.rmmapi = rmmapi;
     this.messageActionsHandler.searchService = searchService;
+    this.messageActionsHandler.messageListService = messagelistservice;
     this.messageActionsHandler.snackBar = snackBar;
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
@@ -513,29 +514,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // contents of trash folder from folderMessageList, so update those first
   async emptyTrash(trashFolder: FolderListEntry) {
     console.log('found trash folder with name', trashFolder.folderName);
-    const messageLists = await this.rmmapi.listAllMessages(
-      0, 0, 0,
-      RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-      true, trashFolder.folderName
-    ).toPromise();
 
-    const messageIds = messageLists.map((msg) => msg.id);
-
-    this.messageActionsHandler.updateMessages(
-      messageIds,
-      // Update local view first
-      ((msgIds: number[]) => {
+    this.messageActionsHandler.updateMessages({
+      messageIds: [],
+      updateLocal: (msgIds: number[]) => {
         this.messagelistservice.pretendEmptyTrash();
-      }),
-      // Then actually change the data (triggering a local update if necessary)
-      ((msgIds: number[]): Observable<any> => {
-        const req = this.rmmapi.emptyFolder(trashFolder.folderId)
-          .pipe(share());
-        // Now fetch changed folder list, which will also update counts
-        req.subscribe(() => this.messagelistservice.refreshFolderList());
-        return req;
-      })
-    );
+      },
+      updateRemote: (msgIds: number[]): Observable<any> =>
+        this.rmmapi.emptyFolder(trashFolder.folderId)
+    });
 
     console.log('Deleted from', trashFolder.folderName);
   }
@@ -547,8 +534,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
     ).toPromise();
-    await this.rmmapi.deleteMessages(messageLists.map(msg => msg.id)).toPromise();
-    this.messagelistservice.refreshFolderList();
+
+    const messageIds = messageLists.map(msg => msg.id);
+    this.messageActionsHandler.updateMessages({
+      messageIds: messageIds,
+      updateLocal: (msgIds: number[]) => this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName),
+      updateRemote: (msgIds: number[]) =>
+        this.rmmapi.deleteMessages(msgIds)
+    });
+
     console.log('Deleted from', spamFolderName);
   }
 
@@ -590,22 +584,47 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const snackBarRef = this.snackBar.open( msg );
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    this.messageActionsHandler.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds})
-      .subscribe(data => {
-        if ( data.status === 'error' ) {
-          snackBarRef.dismiss();
-          this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
+    this.messageActionsHandler.updateMessages({
+      messageIds: messageIds,
+      updateLocal: (msgIds: number[]) => {
+        // Move to spam folder (delete from index), set spam flag
+        if (params.is_spam) {
+          this.searchService.deleteMessages(msgIds);
+          this.messagelistservice.moveMessages(msgIds, this.messagelistservice.spamFolderName, true);
+        } else {
+          // move back to inbox
+          if (this.searchService.localSearchActivated) {
+            msgIds.forEach((msgId) => {
+              const msgInfo = this.messagelistservice.messagesById[msgId];
+              this.searchService.indexingTools.addMessageToIndex(msgInfo);
+            });
+          }
+          // FIXME: constant for "inbox"?
+          this.messagelistservice.moveMessages(msgIds, 'Inbox', true);
         }
-        this.searchService.updateIndexWithNewChanges();
-        snackBarRef.dismiss();
-      }, (err) => {
-        console.error('Error reporting spam', err);
-        this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
-      },
-      () => {
         this.clearSelection();
-        snackBarRef.dismiss();
-      });
+        if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+          this.singlemailviewer.close();
+        }
+      },
+      updateRemote: (msgIds: number[]) => {
+        const res = this.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds});
+        res.subscribe(data => {
+          if ( data.status === 'error' ) {
+            snackBarRef.dismiss();
+            this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
+          }
+          snackBarRef.dismiss();
+        }, (err) => {
+          console.error('Error reporting spam', err);
+          this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
+        },
+       () => {
+         snackBarRef.dismiss();
+       });
+        return res;
+      }
+    });
   }
 
   public openMarkOpMenu() {
@@ -620,27 +639,32 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const snackBarRef = this.snackBar.open('Toggling read status...');
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-
-    const args = {
-      flag: {
-        name: 'seen_flag',
-        value: status ? 1 : 0,
-      },
-      ids: messageIds
-    };
-
-    this.rmm.email.update(args).subscribe(() => {
-        this.searchService.updateIndexWithNewChanges();
-        if (!this.searchService.localSearchActivated) {
-          messageIds.forEach( (id) => {
-               this.rmmapi.messageFlagChangeSubject.next(
-                   new MessageFlagChange(id, status, null)
-               );
-          } );
-        }
+    this.messageActionsHandler.updateMessages({
+      messageIds: messageIds,
+      updateLocal: (msgIds: number[]) => {
+        msgIds.forEach( (id) => {
+          // Updates both index + messagelist
+          this.rmmapi.messageFlagChangeSubject.next(
+            new MessageFlagChange(id, status, null)
+          );
+        });
         this.clearSelection();
-        this.showSelectMarkOpMenu = false;
+        if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+          this.singlemailviewer.mailObj.seen_flag = status ? 1 : 0;
+        }
+      },
+      updateRemote: (msgIds: number[]) =>
+        this.rmm.email.update({
+          flag: {
+            name: 'seen_flag',
+            value: status ? 1 : 0,
+          },
+          ids: msgIds
+        })
+      ,
+      afterwards: (result) => {
         snackBarRef.dismiss();
+      }
     });
   }
 
@@ -648,48 +672,57 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const snackBarRef = this.snackBar.open('Toggling flags...');
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    const args = {
-      flag: {
-        name: 'flagged_flag',
-        value: status ? 1 : 0,
-      },
-      ids: messageIds
-    };
-
-    this.rmm.email.update(args).subscribe(() => {
-        this.searchService.updateIndexWithNewChanges();
-         if (!this.searchService.localSearchActivated) {
-           messageIds.forEach( (id) => {
-             this.rmmapi.messageFlagChangeSubject.next(
-               new MessageFlagChange(id, null, status)
-             );
-           } );
-         }
+    this.messageActionsHandler.updateMessages({
+      messageIds: messageIds,
+      updateLocal: (msgIds: number[]) => {
+        msgIds.forEach( (id) => {
+          // Updates both index + messagelist
+          this.rmmapi.messageFlagChangeSubject.next(
+            new MessageFlagChange(id, null, status)
+          );
+        });
         this.clearSelection();
-        this.showSelectMarkOpMenu = false;
+        if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+          this.singlemailviewer.mailObj.flagged_flag = status ? 1 : 0;
+        }
+      },
+      updateRemote: (msgIds: number[]) =>
+        this.rmm.email.update({
+          flag: {
+            name: 'flagged_flag',
+            value: status ? 1 : 0,
+          },
+          ids: msgIds
+        })
+      ,
+      afterwards: (result) => {
         snackBarRef.dismiss();
+      }
     });
-
   }
 
   // Delete selected messages in current canvastable view
+  // If looking at Trash, this will be "delete permanently"
   public deleteMessages() {
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    this.messageActionsHandler.updateMessages(
-      messageIds,
-      // Delete local copies
-      (msgIds: number[]) => {
+    this.messageActionsHandler.updateMessages({
+      messageIds: messageIds,
+      updateLocal: (msgIds: number[]) => {
         this.searchService.deleteMessages(msgIds);
-        this.messagelistservice.deleteMessages(msgIds);
+        this.updateSearch(true);
+        if (this.selectedFolder === this.messagelistservice.trashFolderName) {
+          this.messagelistservice.deleteTrashMessages(msgIds);
+        } else {
+          this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName);
+        }
         this.clearSelection();
-        if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+        if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
       },
-      // delete backend copies and refresh
-      (msgIds: number[]) => this.rmmapi.deleteMessages(msgIds)
-    );
+      updateRemote: (msgIds: number[]) => this.rmmapi.deleteMessages(msgIds)
+    });
   }
 
   public deleteLocalIndex() {
@@ -750,6 +783,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public clearSelection() {
     this.canvastable.rows.clearSelection();
+    this.showSelectOperations = false;
+    this.showSelectMarkOpMenu = false;
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -766,9 +801,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.showSelectOperations = this.canvastable.rows.anySelected();
 
     if (this.canvastable.rows.hasChanges) {
+      this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
       this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
-
-      this.updateUrlFragment();
 
       if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
@@ -883,35 +917,55 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   dropToFolder(folderId): void {
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
-    if (this.showingSearchResults) {
-      this.messagelistservice.folderListSubject.subscribe(folders => {
-        const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
-        this.searchService.moveMessagesToFolder(messageIds, folderPath);
-      });
-    } else {
-      ProgressDialog.open(this.dialog);
-    }
-
-    this.rmmapi.moveToFolder(messageIds
-      , folderId).subscribe(() => {
-        this.searchService.updateIndexWithNewChanges();
-        this.clearSelection();
-        this.canvastable.rows.clearOpenedRow();
-        ProgressDialog.close();
-      });
+    this.messageActionsHandler.updateMessages({
+      messageIds: messageIds,
+      updateLocal: (msgIds: number[]) => {
+        let folderPath;
+        this.messagelistservice.folderListSubject.subscribe(folders => {
+          folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
+        });
+        // FIXME: Make a "not indexed folder list" somewhere!?
+        // moveMessagesToFolder cant see these cos not in index
+        if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
+          this.selectedFolder !== this.messagelistservice.trashFolderName) {
+          this.searchService.moveMessagesToFolder(msgIds, folderPath);
+        }
+        this.messagelistservice.moveMessages(msgIds, folderPath);
+      },
+      updateRemote: (msgIds: number[]) => this.rmmapi.moveToFolder(messageIds, folderId)
+    });
   }
 
   public moveToFolder() {
     const dialogRef: MatDialogRef<MoveMessageDialogComponent> = this.dialog.open(MoveMessageDialogComponent);
+//    dialogRef.componentInstance.messageActionsHandler = this.messageActionsHandler;
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
     console.log('selected messages', messageIds);
-    dialogRef.componentInstance.selectedMessageIds = messageIds;
+    // dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
-        this.searchService.updateIndexWithNewChanges();
-        this.clearSelection();
-        this.canvastable.rows.clearOpenedRow();
+        this.messageActionsHandler.updateMessages({
+          messageIds: messageIds,
+          updateLocal: (msgIds: number[]) => {
+            let folderPath;
+            this.messagelistservice.folderListSubject.subscribe(folders => {
+              folderPath = folders.find(fld => fld.folderId === folder).folderPath;
+            });
+            console.log('Moving to folder', folderPath, messageIds);
+            // FIXME: Make a "not indexed folder list" somewhere!?
+            // moveMessagesToFolder cant see these cos not in index
+            if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
+              this.selectedFolder !== this.messagelistservice.trashFolderName) {
+              this.searchService.moveMessagesToFolder(msgIds, folderPath);
+            }
+            this.messagelistservice.moveMessages(msgIds, folderPath);
+            this.clearSelection();
+            this.canvastable.rows.clearOpenedRow();
+          },
+          updateRemote: (msgIds: number[]) =>
+            this.messagelistservice.rmmapi.moveToFolder(msgIds, folder)
+        });
       }
     });
   }
@@ -1187,14 +1241,20 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     ).subscribe();
   }
 
-  private updateUrlFragment(): void {
+  private updateUrlFragment(messageId?: number): void {
     if (this.router.url.match('^/[^#]')) {
       // we're not actually on mailviewer, so don't try to be smart
       return;
     }
     let fragment = this.selectedFolder;
-    if (fragment && this.singlemailviewer?.messageId) {
-      fragment += `:${this.singlemailviewer.messageId}`;
+    if (fragment && messageId) { //  || this.singlemailviewer?.messageId) {
+      //      fragment += `:${this.singlemailviewer.messageId}`;
+      fragment += `:${messageId}`;
+    }
+
+    // navigating to the same page does not fire off our fragment.subscribe
+    if (fragment !== this.fragment) {
+      this.fragment = fragment;
     }
     this.router.navigate(['/'], { fragment });
   }

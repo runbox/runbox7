@@ -213,7 +213,8 @@ export class SearchService {
       .pipe(
         mergeMap((msgFlagChange) => {
           if (msgFlagChange.flaggedFlag !== null) {
-            return this.postMessagesToXapianWorker([new SearchIndexDocumentUpdate(
+            return this.postMessagesToXapianWorker([
+              new SearchIndexDocumentUpdate(
               msgFlagChange.id,
                 () => this.indexingTools.flagMessage(msgFlagChange.id, msgFlagChange.flaggedFlag)
             )]);
@@ -223,7 +224,8 @@ export class SearchService {
               msgFlagChange.id,
               () => {
                 this.indexingTools.markMessageSeen(msgFlagChange.id, msgFlagChange.seenFlag);
-                this.messagelistservice.refreshFolderCounts();
+                // counts and list to ensure we have uptodate data
+                this.messagelistservice.refreshFolderList();
               }
             )]);
           } else {
@@ -489,7 +491,7 @@ export class SearchService {
             this.api.initXapianIndex(XAPIAN_GLASS_WR);
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
-            this.messagelistservice.refreshFolderCounts();
+            this.messagelistservice.refreshFolderList();
 
             this.updateIndexLastUpdateTime();
 
@@ -603,6 +605,9 @@ export class SearchService {
    * @param destinationfolderPath
    */
   moveMessagesToFolder(messageIds: number[], destinationfolderPath: string) {
+    if (!this.api) {
+      return;
+    }
     this.messagelistservice.folderListSubject
       .pipe(take(1))
       .subscribe((folders) => {
@@ -721,6 +726,12 @@ export class SearchService {
             RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
             true).toPromise();
 
+      const deletedMessages = await this.rmmapi.listDeletedMessagesSince(
+        new Date(
+          // Subtract timezone offset to get UTC
+          this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
+      ).toPromise();
+
       if (this.localSearchActivated) {
         if (this.numberOfMessagesSyncedLastTime === 0) {
           // nothing else to do, check for folder count discrepancies
@@ -778,11 +789,6 @@ export class SearchService {
           }
         }
         const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
-
-        const deletedMessages = await this.rmmapi.listDeletedMessagesSince(new Date(
-              // Subtract timezone offset to get UTC
-              this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
-            ).toPromise();
 
         deletedMessages.forEach(msgid => {
           const uniqueIdTerm = `Q${msgid}`;
@@ -928,10 +934,8 @@ export class SearchService {
           }
         }
 
-        if (msginfos && msginfos.length > 0) {
+      if (msginfos && msginfos.length > 0) {
           // Notify on new messages
-          this.messagelistservice.applyChanges(msginfos);
-
           if (this.notifyOnNewMessages && 'Notification' in window &&
               window['Notification']['permission'] === 'granted') {
             const newmessages = msginfos.filter(m =>
@@ -954,6 +958,16 @@ export class SearchService {
               }
             }
           }
+      }
+
+      if ((msginfos && msginfos.length > 0)
+        || (deletedMessages && deletedMessages.length > 0)) {
+        // Update folder lists + counts
+        this.messagelistservice.applyChanges(
+          msginfos ? msginfos : [],
+          deletedMessages ? deletedMessages : []
+        );
+
           // Find latest date in result set and use as since parameter for getting new changes from server
 
           let newLastUpdateTime = 0;

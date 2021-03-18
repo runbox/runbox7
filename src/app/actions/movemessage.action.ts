@@ -20,7 +20,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
-import { SearchService } from '../xapian/searchservice';
 
 @Component({
     template: `
@@ -45,13 +44,11 @@ import { SearchService } from '../xapian/searchservice';
 export class MoveMessageDialogComponent implements OnInit {
     moving = false;
     folderListEntries: FolderListEntry[];
-    selectedMessageIds: number[];
 
     constructor(
         public dialogRef: MatDialogRef<MoveMessageDialogComponent>,
-        public searchService: SearchService,
-        public rmmapi: RunboxWebmailAPI) {
-
+        public rmmapi: RunboxWebmailAPI,
+    ) {
     }
 
     ngOnInit() {
@@ -65,18 +62,6 @@ export class MoveMessageDialogComponent implements OnInit {
     }
 
     public moveMessages(folderId: number) {
-        console.log('Moving to folder', folderId, this.selectedMessageIds);
-
-        const folderPath = this.folderListEntries.find(fld => fld.folderId === folderId).folderPath;
-        if (this.searchService.localSearchActivated) {
-            this.searchService.moveMessagesToFolder(this.selectedMessageIds, folderPath);
-            this.rmmapi.moveToFolder(this.selectedMessageIds, folderId).subscribe();
-            this.dialogRef.close(folderId);
-        } else {
-            this.moving = true;
-            this.rmmapi.moveToFolder(this.selectedMessageIds, folderId).subscribe(() => {
-                this.dialogRef.close(folderId);
-            });
-        }
+        this.dialogRef.close(folderId);
     }
 }

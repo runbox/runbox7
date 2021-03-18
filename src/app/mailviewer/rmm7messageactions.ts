@@ -22,10 +22,11 @@ import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MoveMessageDialogComponent } from '../actions/movemessage.action';
 import { SearchService } from '../xapian/searchservice';
+import { MessageListService } from '../rmmapi/messagelist.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessageActions } from './messageactions';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, MessageFlagChange } from '../rmmapi/rbwebmail';
 import { ProgressDialog } from '../dialog/dialog.module';
 
 export class RMM7MessageActions implements MessageActions {
@@ -33,36 +34,59 @@ export class RMM7MessageActions implements MessageActions {
     dialog: MatDialog;
     snackBar: MatSnackBar;
     searchService: SearchService;
+    messageListService: MessageListService;
     draftDeskService: DraftDeskService;
     rmmapi: RunboxWebmailAPI;
 
-    public updateMessages(messageIds: number[],
-                          updateLocal: (messageIds: number[]) => void,
-                          updateRemote: (messageIds: number[]) => Observable<any>,
+    public updateMessages(args: { messageIds: number[],
+                                  updateLocal: (messageIds: number[]) => void,
+                                  updateRemote: (messageIds: number[]) => Observable<any>,
+                                  afterwards?: (result) => void,
+                                }
                          ) {
-        updateLocal(messageIds);
-        updateRemote(messageIds).subscribe(() => this.searchService.updateIndexWithNewChanges());
+        args['updateLocal'](args['messageIds']);
+        args['updateRemote'](args['messageIds']).subscribe((data) => {
+            this.searchService.updateIndexWithNewChanges();
+            if (args['afterwards']) {
+                args['afterwards'](data);
+            }
+        });
     }
 
     public moveToFolder() {
         const dialogRef = this.dialog.open(MoveMessageDialogComponent);
 
-        dialogRef.componentInstance.selectedMessageIds = [this.mailViewerComponent.messageId];
         dialogRef.afterClosed().subscribe(folder => {
             if (folder) {
-                this.searchService.updateIndexWithNewChanges();
-                this.mailViewerComponent.close();
+                this.updateMessages({
+                    messageIds: [this.mailViewerComponent.messageId],
+                    updateLocal: (msgIds: number[]) => {
+                        let folderPath;
+                        this.messageListService.folderListSubject.subscribe(folders => {
+                            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
+                        });
+                        console.log('Moving to folder', folderPath, this.mailViewerComponent.messageId);
+                        this.searchService.moveMessagesToFolder(msgIds, folderPath);
+                        this.messageListService.moveMessages(msgIds, folderPath);
+                        this.mailViewerComponent.close();
+                    },
+                    updateRemote: (msgIds: number[]) =>
+                        this.messageListService.rmmapi.moveToFolder(msgIds, folder)
+                });
             }
         });
     }
 
     public deleteMessage() {
-        this.searchService.deleteMessages([this.mailViewerComponent.messageId]);
-        this.searchService.rmmapi.deleteMessages([this.mailViewerComponent.messageId])
-            .subscribe(() => {
-                this.searchService.updateIndexWithNewChanges();
-                this.mailViewerComponent.close();
-            });
+        this.updateMessages({
+            messageIds: [this.mailViewerComponent.messageId],
+            updateLocal: (msgIds: number[]) => {
+                this.searchService.deleteMessages(msgIds);
+                this.messageListService.moveMessages(msgIds, this.messageListService.trashFolderName);
+            },
+            updateRemote: (msgIds: number[]) => this.searchService.rmmapi.deleteMessages(msgIds),
+            afterwards: (result) => this.mailViewerComponent.close()
+        });
     }
 
     public reply(useHTML: boolean) {
@@ -86,42 +110,92 @@ export class RMM7MessageActions implements MessageActions {
     }
 
     public markSeen(seen_flag_value = 1) {
-        this.rmmapi.markSeen(this.mailViewerComponent.messageId, seen_flag_value)
-            .subscribe(() =>
-                this.mailViewerComponent.mailObj.seen_flag = seen_flag_value
-        );
+        this.updateMessages({
+            messageIds: [this.mailViewerComponent.messageId],
+            updateLocal: (msgIds: number[]) => {
+                msgIds.forEach( (id) => {
+                    // Updates both index + messagelist
+                    this.rmmapi.messageFlagChangeSubject.next(
+                        new MessageFlagChange(id, seen_flag_value === 1, null)
+                    );
+                });
+                this.mailViewerComponent.mailObj.seen_flag = seen_flag_value;
+            },
+            updateRemote: (msgIds: number[]) =>
+                this.rmmapi.markSeen(msgIds[0], seen_flag_value)
+        });
     }
 
+    // FIXME: How does the view change? close mailview, show "next" email or?
     trainSpam(params) {
         const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
         const snackBarRef = this.snackBar.open(msg);
-        this.rmmapi.trainSpam({ is_spam: params.is_spam, messages: [this.mailViewerComponent.messageId] }).subscribe(
-            (data) => {
-                if (data.status === 'error') {
-                    snackBarRef.dismiss();
-                    this.snackBar.open('There was an error with Spam functionality. Please try again.', 'Dismiss');
-                }
-                this.searchService.updateIndexWithNewChanges();
-            }, (err) => {
-                console.error('Error reporting spam', err);
-            },
-            () => {
-                snackBarRef.dismiss();
-            });
+        this.updateMessages({
+            messageIds: [this.mailViewerComponent.messageId],
+            updateLocal: (msgIds: number[]) => {
+                // Move to spam folder (delete from index), set spam flag
+                if (params.is_spam) {
+                    this.searchService.deleteMessages(msgIds);
+                    this.messageListService.moveMessages(msgIds, this.messageListService.spamFolderName, true);
+                } else {
+                    // move back to inbox - do messagelist first, so
+                    // the folder changes. FIXME: constant for "inbox"?
+                    this.messageListService.moveMessages(msgIds, 'Inbox', true);
 
+                    if (this.searchService.localSearchActivated) {
+                        msgIds.forEach((msgId) => {
+                            const msgInfo = this.messageListService.messagesById[msgId];
+                            this.searchService.indexingTools.addMessageToIndex(msgInfo);
+                        });
+                    }
+                }
+            },
+            updateRemote: (msgIds: number[]) => {
+                const res = this.rmmapi.trainSpam({is_spam: params.is_spam, messages: msgIds});
+                res.subscribe(data => {
+                    if ( data.status === 'error' ) {
+                        snackBarRef.dismiss();
+                        this.snackBar.open('There was an error with Spam functionality. Please try again.', 'Dismiss');
+                    }
+                }, (err) => {
+                    console.error('Error reporting spam', err);
+                    this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
+                });
+                return res;
+            },
+            afterwards: (result) => {
+                snackBarRef.dismiss();
+                this.mailViewerComponent.close();
+            }
+        });
     }
 
+    // Update mailviewer menu flag icon after flagging?
     flag() {
-        this.rmmapi.markFlagged(this.mailViewerComponent.messageId, 1)
-            .subscribe(() =>
-                this.mailViewerComponent.mailObj.flagged_flag = 1
-            );
+        this.updateMessages({
+            messageIds: [this.mailViewerComponent.messageId],
+            updateLocal: (msgIds: number[]) => {
+                this.rmmapi.messageFlagChangeSubject.next(
+                    new MessageFlagChange(msgIds[0], null, true)
+                );
+                this.mailViewerComponent.mailObj.flagged_flag = 1;
+            },
+            updateRemote: (msgIds: number[]) =>
+                this.rmmapi.markFlagged(msgIds[0], 1)
+        });
     }
 
     unflag() {
-        this.rmmapi.markFlagged(this.mailViewerComponent.messageId, 0)
-            .subscribe(() =>
-                this.mailViewerComponent.mailObj.flagged_flag = 0
-            );
+        this.updateMessages({
+            messageIds: [this.mailViewerComponent.messageId],
+            updateLocal: (msgIds: number[]) => {
+                this.rmmapi.messageFlagChangeSubject.next(
+                    new MessageFlagChange(msgIds[0], null, false)
+                );
+                this.mailViewerComponent.mailObj.flagged_flag = 0;
+            },
+            updateRemote: (msgIds: number[]) =>
+                this.rmmapi.markFlagged(msgIds[0], 0)
+        });
     }
 }
