@@ -104,6 +104,11 @@ export class RunboxMe {
     public is_trial: boolean;
     public uses_own_domain: boolean;
 
+    public owner?: {
+        uid: number;
+        username: string;
+    };
+
     constructor(instanceData?: RunboxMe) {
         if (instanceData) {
             this.deserialize(instanceData);

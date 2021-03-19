@@ -23,7 +23,6 @@ import { MatSidenav } from '@angular/material/sidenav';
 
 import { CartService } from './cart.service';
 import { MobileQueryService } from '../mobile-query.service';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-account-app-component',
@@ -35,10 +34,9 @@ export class AccountAppComponent {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
 
     constructor(
-        public cart:   CartService,
-        public  mobileQuery:     MobileQueryService,
-        public rmmapi: RunboxWebmailAPI,
-        router:          Router,
+        public cart:        CartService,
+        public mobileQuery: MobileQueryService,
+               router:      Router,
     ) {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => {

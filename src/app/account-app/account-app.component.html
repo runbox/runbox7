@@ -187,24 +187,9 @@
             </button>
         </div>
 
-        <div *ngIf="rmmapi.me | async as me">
-            <div *ngIf="me.owner; else show_subpages">
-                <h4>
-                    <p>
-                        This is a sub-account and can't be managed from within the sub-account itself.
-                    </p>
-                    <p>
-                        Please have the owner of the administrator account ({{ me.owner.username }})
-                        do that for you.
-                    </p>
-                </h4>
-            </div>
-            <ng-template #show_subpages>
-                <div style="padding-left: 25px; padding-right: 25px;">
-                    <router-outlet>
-                    </router-outlet>
-                </div>
-            </ng-template>
+        <div style="padding-left: 25px; padding-right: 25px;">
+            <router-outlet>
+            </router-outlet>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
