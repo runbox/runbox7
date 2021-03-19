@@ -18,7 +18,7 @@ describe('Selecting rows in canvastable', () => {
         moveButton().should('be.visible');
         // unselect
         canvas().click({ x: 21, y: 41, force: true });
-        moveButton().should('not.be.visible');
+        moveButton().should('not.exist');
     })
 
     it('should select multiple rows', () => {
@@ -33,6 +33,6 @@ describe('Selecting rows in canvastable', () => {
 
         // unselect by moving mouse back up
         canvas().trigger('mousemove', { x: 21, y: 12 });
-        moveButton().should('not.be.visible');
+        moveButton().should('not.exist');
     })
 })
