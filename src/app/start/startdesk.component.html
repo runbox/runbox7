@@ -25,9 +25,10 @@
           <mat-form-field>
             <mat-label> Sort by </mat-label>
             <mat-select>
-              <mat-option> Count</mat-option>
+              <mat-option> Count </mat-option>
               <mat-option> Date </mat-option>
-              <mat-option> Folder</mat-option>
+              <mat-option> Folder </mat-option>
+              <mat-option> Sender </mat-option>
             </mat-select>
           </mat-form-field>
           <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
