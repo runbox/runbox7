@@ -36,6 +36,7 @@ import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
 import { MessageCache } from './messagecache';
+import { LRUMessageCache } from './lru-message-cache';
 import * as moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 
@@ -176,7 +177,7 @@ export class RunboxWebmailAPI {
 
     public last_on_interval;
 
-    messageContentsRequestCache: { [messageId: number]: Promise<MessageContents> } = {};
+    private messageContentsRequestCache = new LRUMessageCache<Promise<MessageContents>>();
 
     constructor(
         private http: HttpClient,
@@ -210,20 +211,18 @@ export class RunboxWebmailAPI {
 
     public deleteCachedMessageContents(messageId: number) {
         this.messageCache.delete(messageId);
-        if (this.messageContentsRequestCache[messageId]) {
-            delete this.messageContentsRequestCache[messageId];
-        }
+        this.messageContentsRequestCache.delete(messageId);
     }
 
     public getCachedMessageContents(messageId: number): Promise<MessageContents> {
-        let cached = this.messageContentsRequestCache[messageId];
+        let cached = this.messageContentsRequestCache.get(messageId);
         if (!cached) {
             // This kind of multilevel caching may seem excessive,
             // but it turns out that pulling a single row from indexedDB (or maybe from Dexie specifically?)
             // can easily take over 100ms: the difference between "instant" and "fast"
             // Since instant is the only acceptable result, we cache indexedDB lookups here.
-
-            cached = this.messageContentsRequestCache[messageId] = this.messageCache.get(messageId);
+            cached = this.messageCache.get(messageId);
+            this.messageContentsRequestCache.add(messageId, cached);
         }
         return cached;
     }
@@ -234,18 +233,20 @@ export class RunboxWebmailAPI {
             if (contents) {
                 return contents;
             } else {
-                return this.messageContentsRequestCache[messageId] = new Promise((resolve, reject) => {
+                const messagePromise = new Promise<MessageContents>((resolve, reject) => {
                     this.http.get('/rest/v1/email/' + messageId)
                     .pipe(
                         map((r: any) => r.result),
                     ).subscribe((result) => {
                         this.messageCache.set(messageId, result);
-                        resolve(result);
+                        resolve(<MessageContents>result);
                     }, err => {
                         delete this.messageContentsRequestCache[messageId];
                         reject(err);
                     });
                 });
+                this.messageContentsRequestCache.add(messageId, messagePromise);
+                return messagePromise;
             }
         }));
     }
