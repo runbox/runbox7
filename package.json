@@ -72,7 +72,7 @@
     "@types/jasminewd2": "^2.0.8",
     "@types/node": "~10.12.18",
     "codelyzer": "^5.2.2",
-    "cypress": "^5.0.0",
+    "cypress": "^6.8.0",
     "cypress-file-upload": "^4.0.6",
     "cypress-terminal-report": "^1.2.1",
     "jasmine-core": "~3.5.0",

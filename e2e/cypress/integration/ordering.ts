@@ -25,7 +25,7 @@ describe('Ordering products', () => {
     it('can order product twice to increase quantity', () => {
         cy.visit('/account/addons');
 
-        cy.get('#shoppingCartButton').should('not.be.visible');
+        cy.get('#shoppingCartButton').should('not.exist');
 
         cy.get('button:contains(Purchase)').click();
         cy.get('#shoppingCartButton').should('be.visible');

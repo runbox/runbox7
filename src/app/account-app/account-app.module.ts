@@ -81,6 +81,8 @@ import { ProfilesModule } from '../profiles/profiles.module';
 import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
 import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
+import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
 
 @NgModule({
   declarations: [
@@ -106,6 +108,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     RunboxTimerComponent,
     CreditCardsComponent,
     CryptoPaymentDescriptionComponent,
+    NoProductsForSubaccountsComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -140,7 +143,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     RouterModule.forChild([
       {
         path: 'account',
-        canActivateChild: [RMMAuthGuardService],
+        canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
         children: [
           {
             path: '', outlet: 'headertoolbar',
@@ -201,6 +204,10 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
               {
                   path: 'identities',
                   component: ProfilesComponent,
+              },
+              {
+                  path: 'not-for-subaccounts',
+                  component: NoProductsForSubaccountsComponent,
               },
             ]
           }
