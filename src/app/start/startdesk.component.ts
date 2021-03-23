@@ -19,6 +19,7 @@
 
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSelectChange } from '@angular/material/select';
 
 import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import * as moment from 'moment';
@@ -29,7 +30,7 @@ import { isValidEmail } from '../compose/emailvalidator';
 import { filter, take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import {MatSelectChange} from '@angular/material/select';
+import { UsageReportsService } from '../common/usage-reports.service';
 
 interface ContactHilights {
     icon: string;
@@ -94,9 +95,11 @@ export class StartDeskComponent implements OnInit {
         private cdr: ChangeDetectorRef,
         private searchService: SearchService,
         private rmmapi: RunboxWebmailAPI,
+        private usage: UsageReportsService,
     ) { }
 
     ngOnInit() {
+        this.usage.report('overview-desk');
         this.rmmapi.getFromAddress().subscribe(
             froms => this.ownAddresses.next(new Set(froms.map(f => f.email.toLowerCase()))),
             _err  => this.ownAddresses.next(new Set([])),
