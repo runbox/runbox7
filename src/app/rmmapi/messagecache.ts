@@ -26,21 +26,32 @@ export class MessageCache {
     db: Dexie;
 
     constructor() {
-        this.db = new Dexie('messageCache');
-        this.db.version(2).stores({
-            messages: '', // use out-of-line keys
-        });
+        try {
+            this.db = new Dexie('messageCache');
+            this.db.version(2).stores({
+                messages: '', // use out-of-line keys
+            });
+        } catch (err) {
+            console.log(`Error initializing messagecache: ${err}`);
+        }
     }
 
     async get(id: number): Promise<MessageContents> {
-        return this.db.table('messages').get(id);
+        return this.db?.table('messages').get(id).then(
+            result => result,
+            _error => null,
+        );
     }
 
     set(id: number, contents: MessageContents): void {
-        this.db.table('messages').put(contents, id);
+        this.db?.table('messages').put(contents, id).catch(
+            _err => {},
+        );
     }
 
     delete(id: number): void {
-        this.db.table('messages').delete(id);
+        this.db?.table('messages').delete(id).catch(
+            _err => {},
+        );
     }
 }
