@@ -8,6 +8,9 @@
                     {{profile.email}}
                 </mat-option>
             </mat-select>
+            <mat-error *ngIf="field_errors?.from_priorities">
+                {{field_errors.from_priorities[0]}}
+            </mat-error>
         </mat-form-field>
 
         <button type="submit" (click)="updateDefaultProfile()" mat-raised-button color="primary">
