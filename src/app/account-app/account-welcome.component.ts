@@ -24,5 +24,7 @@ import { Component } from '@angular/core';
     templateUrl: './account-welcome.component.html',
 })
 export class AccountWelcomeComponent {
+    rmm6tooltip = "This area isn't upgraded to Runbox 7 yet and will open in a new tab";
+
     constructor() {}
 }

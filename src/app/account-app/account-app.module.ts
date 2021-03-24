@@ -109,6 +109,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
     CreditCardsComponent,
     CryptoPaymentDescriptionComponent,
     NoProductsForSubaccountsComponent,
+    AccountWelcomeComponent,
   ],
   imports: [
     BrowserAnimationsModule,
