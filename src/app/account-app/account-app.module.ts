@@ -30,7 +30,6 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
-import { AccountComponentsComponent } from './account-components.component';
 import {
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
@@ -88,7 +87,6 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
   declarations: [
     AccountAddonsComponent,
     AccountAppComponent,
-    AccountComponentsComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
@@ -157,10 +155,6 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
               {
                   path: '',
                   component: AccountWelcomeComponent,
-              },
-              {
-                  path: 'components',
-                  component: AccountComponentsComponent,
               },
               {
                   path: 'upgrades',
