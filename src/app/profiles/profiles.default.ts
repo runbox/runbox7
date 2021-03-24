@@ -23,6 +23,17 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { timeout, share, retry } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+export interface Profile {
+    email: string;
+    id: number;
+    name: string;
+    nameAndAddress: string;
+    priority: number;
+    reply_to: string;
+    signature: string;
+    type: string;
+}
+
 @Component({
     selector: 'app-profiles-default',
     styleUrls: ['profiles.default.scss'],
@@ -30,7 +41,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class DefaultProfileComponent {
     field_errors: any;
-    profiles: any[] = new Array();
+    profiles: Profile[];
     selected: any;
 
     constructor(public rmm: RMM, public rmmapi: RunboxWebmailAPI, private snackBar: MatSnackBar) {
