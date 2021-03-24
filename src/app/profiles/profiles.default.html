@@ -1,0 +1,20 @@
+<div class="profiles-default">
+    <ng-content select="[section-description]"></ng-content>
+
+    <div class="profiles-select">
+        <mat-form-field id="default-identity-form">
+            <mat-select [(value)]="selected" [(ngModel)]="selected">
+                <mat-option class="identity-profile" *ngFor="let profile of profiles" [value]="profile">
+                    {{profile.email}}
+                </mat-option>
+            </mat-select>
+            <mat-error *ngIf="field_errors?.from_priorities">
+                {{field_errors.from_priorities[0]}}
+            </mat-error>
+        </mat-form-field>
+
+        <button type="submit" (click)="updateDefaultProfile()" mat-raised-button color="primary">
+            Confirm
+        </button>
+    </div>
+</div>
