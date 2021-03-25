@@ -41,13 +41,13 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, of, Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -390,28 +390,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
         filter(() => !this.canvastable.isScrollInProgress()),
-        throttleTime(1000),
-        map(() => this.canvastable.getVisibleRowIndexes()),
-        mergeMap((rowIndexes) =>
-          from(
-            rowIndexes
-              .filter(ndx => ndx < this.canvastable.rows.rowCount())
-              .map(ndx => {
-                const messageId = this.canvastable.rows.getRowMessageId(ndx);
-                return of(messageId);
-            })
-          ).pipe(
-            mergeMap(o =>
-              o.pipe(
-                mergeMap(messageId => this.rmmapi.getMessageContents(messageId)),
-                take(1),
-                tap(() => this.canvastable.hasChanges = true)
-              ), 1),
-            bufferCount(rowIndexes.length)
-          )
-        )
-      )
-      .subscribe();
+        throttleTime(1000)
+    ).subscribe(() => {
+        const rowIndexes = this.canvastable.getVisibleRowIndexes();
+        const messageIds = rowIndexes.filter(
+            idx => idx < this.canvastable.rows.rowCount()
+        ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+        this.rmmapi.downloadMessages(messageIds).then(
+            () => this.canvastable.hasChanges = true,
+        );
+    });
 
       if ('serviceWorker' in navigator) {
         try  {

@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 
+import { RunboxContactSupportComponent } from './contact-support.component';
 import { RunboxLoadingComponent } from './loading.component';
 import { BackgroundActivityIndicatorComponent } from './background-activity-indicator.component';
 import { UsageReportsService } from './usage-reports.service';
@@ -34,10 +35,12 @@ import { UsageReportsService } from './usage-reports.service';
     ],
     declarations: [
         BackgroundActivityIndicatorComponent,
+        RunboxContactSupportComponent,
         RunboxLoadingComponent,
     ],
     exports: [
         BackgroundActivityIndicatorComponent,
+        RunboxContactSupportComponent,
         RunboxLoadingComponent,
     ],
     providers: [
