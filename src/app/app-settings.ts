@@ -54,7 +54,7 @@ export class AppSettingsService {
     constructor(
         private storage: StorageService,
     ) {
-        this.storage.getSubject('mailSettings').pipe(filter(s => s)).subscribe(
+        this.storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
             (settings: any) => this.settingsSubject.next(
                 this.settings = AppSettings.load(settings)
             )
