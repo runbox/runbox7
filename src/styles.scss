@@ -179,6 +179,11 @@ mat-grid-tile.tableTitle {
     padding: 3em;
 }
 
+.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+    background-color: mat-color($rmm-default-primary);
+}
+
+
 /* Palette colors */
 
 .themePalettePrimary {
