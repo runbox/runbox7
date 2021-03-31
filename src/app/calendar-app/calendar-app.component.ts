@@ -138,7 +138,6 @@ export class CalendarAppComponent implements OnDestroy {
         });
         this.calendarservice.eventSubject.subscribe(events => {
             this.events = events;
-            console.log('Processed events:', this.events);
             this.updateEventColors();
             this.filterEvents();
         });
@@ -168,7 +167,6 @@ export class CalendarAppComponent implements OnDestroy {
             data: { event: new_event, calendars: this.calendars, settings: this.settings, start: on, is_new: true } }
         );
         dialogRef.afterClosed().subscribe(event => {
-            console.log('Dialog result:', event);
             if (event) {
                 this.calendarservice.addEvent(event);
             }
@@ -209,7 +207,6 @@ export class CalendarAppComponent implements OnDestroy {
             if (!result) {
                 return;
             }
-            console.log('Dialog result:', result);
             if (result === 'DELETE') {
                 this.calendarservice.deleteCalendar(cal.id);
             } else {
@@ -221,13 +218,11 @@ export class CalendarAppComponent implements OnDestroy {
     eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
         event.start = newStart;
         event.end = newEnd;
-        console.log('Event changed', event);
         this.calendarservice.modifyEvent(event as RunboxCalendarEvent);
     }
 
     filterEvents(): void {
         if (this.calendars.length === 0) {
-            console.log('Calendars not loaded yet, showing all events');
             this.shown_events = this.events;
         } else {
             this.shown_events = [];
@@ -266,7 +261,6 @@ export class CalendarAppComponent implements OnDestroy {
 
         fr.onload = (ev: any) => {
             const ics = ev.target.result;
-            console.log(ics);
             this.processIcsImport(ics);
         };
 
@@ -275,7 +269,6 @@ export class CalendarAppComponent implements OnDestroy {
 
     openEvent(event: CalendarEvent): void {
         const target = event as RunboxCalendarEvent;
-        console.log('Opening event', target);
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
             data: { event: target, calendars: this.calendars, settings: this.settings, is_new: false }
         });
@@ -356,7 +349,6 @@ export class CalendarAppComponent implements OnDestroy {
     showAddCalendarDialog(): void {
         const dialogRef = this.dialog.open(CalendarEditorDialogComponent);
         dialogRef.afterClosed().subscribe(result => {
-            console.log('Dialog result:', result);
             if (!result) { return; }
 
             result.generateID();
@@ -366,7 +358,6 @@ export class CalendarAppComponent implements OnDestroy {
 
     showError(e: any): void {
         let message = '';
-        console.log('Showing error:', e);
 
         if (typeof e === 'string') {
             message = e;

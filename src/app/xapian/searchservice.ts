@@ -528,7 +528,8 @@ export class SearchService {
             progressSnackBar.instance.messagetextsubject.next(getProgressSnackBarMessageText());
           }
 
-          this.rmmapi.deleteFromMessageContentsCache(this.pendingMessagesToProcess[this.processMessageIndex].id);
+          // TODO: it'd be more efficient to just update the cache instead of forcing the redownload
+          this.rmmapi.deleteCachedMessageContents(this.pendingMessagesToProcess[this.processMessageIndex].id);
 
           const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
           await nextMessage.updateFunction();
@@ -1135,11 +1136,11 @@ export class SearchService {
           };
 
           const rmmMessageId = parseInt(this.currentDocData.id.substring(1), 10);
-          const rmmCachedMessageContent = this.rmmapi.messageContentsCache[rmmMessageId];
-          if (rmmCachedMessageContent) {
-            rmmCachedMessageContent.subscribe(content =>
-              this.currentDocData.textcontent = content.text.text);
-          }
+          this.rmmapi.getCachedMessageContents(rmmMessageId).then(content => {
+              if (content) {
+                  this.currentDocData.textcontent = content.text.text;
+              }
+          });
 
           this.api.documentXTermList(docid);
           (Module.documenttermlistresult as string[])
