@@ -109,13 +109,21 @@
                             <mat-icon mat-list-icon svgIcon="account"></mat-icon> Account & Security
                         </p>
                     </mat-expansion-panel-header>
-                    <a href="/mail/account" target="rmm6">
-                        <mat-list-item [matTooltip]="rmm6tooltip">
-                            <p mat-line>
-                                <mat-icon mat-list-icon svgIcon="details"></mat-icon> Account Details
-                            </p>
-                        </mat-list-item>
-                    </a>
+                    <mat-list-item routerLink="/account/details">
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="face"></mat-icon> Personal Details
+                        </p>
+                    </mat-list-item>
+                    <mat-list-item routerLink="/account/storage">
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="view-list"></mat-icon> Storage and Data
+                        </p>
+                    </mat-list-item>
+                    <mat-list-item routerLink="/account/account_settings">
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="cog"></mat-icon> Account Settings
+                        </p>
+                    </mat-list-item>
                     <mat-list-item routerLink="/account/security">
                         <p mat-line>
                             <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security

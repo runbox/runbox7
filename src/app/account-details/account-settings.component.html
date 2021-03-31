@@ -1,0 +1,28 @@
+<section class="mat-typography">
+    <div class="container">
+        <h1>Account Settings</h1>
+        <table mat-table [dataSource]="dataSource" id="account-settings-table">
+            <!-- Info Column -->
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Description</th>
+                <td mat-cell *matCellDef="let data"> {{data.description}} </td>
+            </ng-container>
+
+            <!-- Option Column -->
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Option</th>
+                <td mat-cell *matCellDef="let data">
+                    <mat-radio-group aria-label="Select an option">
+                        <mat-radio-button value="yes" [checked]="data.status ? 'checked' : null">Yes</mat-radio-button>
+                        <mat-radio-button value="no" [checked]="!data.status ? 'checked' : null">No</mat-radio-button>
+                    </mat-radio-group>
+                </td>
+            </ng-container>
+
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <div class="action-buttons margin-top">
+            <button mat-raised-button color="primary">Save Details</button>
+        </div>
+    </div>
+</section>

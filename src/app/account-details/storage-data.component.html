@@ -1,0 +1,40 @@
+<section class="mat-typography">
+    <div class="container">
+        <h1>Data Usage</h1>
+        <table mat-table [dataSource]="dataSource">
+            <!-- Type Column -->
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef> Type </th>
+                <td mat-cell *matCellDef="let data"> {{data.type}} </td>
+            </ng-container>
+
+            <!-- Quota Column -->
+            <ng-container matColumnDef="quota">
+                <th mat-header-cell *matHeaderCellDef> Quota </th>
+                <td mat-cell *matCellDef="let data"> {{data.quota}} GB </td>
+            </ng-container>
+
+            <!-- Usage Column -->
+            <ng-container matColumnDef="usage">
+                <th mat-header-cell *matHeaderCellDef> Usage </th>
+                <td mat-cell *matCellDef="let data"> {{data.usage}} MB </td>
+            </ng-container>
+
+            <!-- % used Column -->
+            <ng-container matColumnDef="percentage_used">
+                <th mat-header-cell *matHeaderCellDef> % used </th>
+                <td mat-cell *matCellDef="let data"> {{data.percentage_used}} % </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>Storage Details</h2>
+        <p>Location: //LOCATION//</p>
+        <p>Home directory: //DIRECTORY//</p>
+        <p>Backup: //BACKUP INTERVAL//</p>
+    </div>
+</section>

@@ -1,0 +1,78 @@
+.container {
+    max-width: 1024px;
+    padding-top: 10px;
+    padding-bottom: 30px;
+}
+
+.container form {
+    margin-block-end: 1em;
+}
+
+.container form mat-form-field {
+    width: 100%;
+
+    @media only screen and (min-width: 768px) {
+        width: calc(50% - 20px);
+        max-width: 490px;
+        margin-right: 15px;
+    }
+}
+
+.smaller-fields form mat-form-field {
+    @media only screen and (min-width: 1024px) {
+        max-width: 300px;
+    }
+}
+
+mat-option:hover {
+    background-color: lightgray;
+}
+
+table {
+    width: 100%;
+    @media only screen and (max-width: 767px) {
+        th,
+        td {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+}
+
+#account-settings-table {
+    @media only screen and (max-width: 767px) {
+        td {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        td:last-of-type {
+            padding-top: 10px;
+            width: 130px;
+            text-align: right;
+        }
+    }
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.smaller-fields .action-buttons {
+    @media only screen and (min-width: 1024px) {
+        display: inline;
+    }
+}
+
+.password-button {
+    margin-bottom: 10px;
+}
+
+.mat-radio-button ~ .mat-radio-button {
+    margin-left: 16px;
+}
+
+.margin-top {
+    margin-top: 2em;
+}

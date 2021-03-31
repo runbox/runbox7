@@ -1,0 +1,124 @@
+<section class="mat-typography">
+    <h1>Account Details</h1>
+    <p>Account created: //ACCOUNT CREATED//</p>
+    <p>We encourage you to keep the information as current as possible in case we need to contact you about your
+        account.</p>
+
+    <mat-divider></mat-divider>
+
+    <div class="container smaller-fields">
+        <p>Enter your current password to be able to change your personal information.</p>
+        <form action="" class="form current-password-form">
+            <mat-form-field>
+                <mat-label>Current password</mat-label>
+                <input matInput type="password" required>
+                <mat-hint color="red">Required for all changes</mat-hint>
+            </mat-form-field>
+        </form>
+    </div>
+
+    <div class="container smaller-fields">
+        <h2>Change Password</h2>
+        <form action="" class="form new-password-form">
+            <mat-form-field>
+                <!-- TO DO:
+                ADD DYNAMIC PASSWORD CHECK -->
+                <mat-label>New password</mat-label>
+                <input matInput [type]="hide ? 'password' : 'text'">
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                    [attr.aria-pressed]="hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field>
+                <!-- TO DO:
+                MAKE SURE PASSWORDS ARE THE SAME -->
+                <mat-label>Confirm password</mat-label>
+                <input matInput type="password">
+                <mat-error>
+                    Passwords do not match
+                </mat-error>
+            </mat-form-field>
+            <div class="action-buttons password-button">
+                <button mat-raised-button color="primary">Change Password</button>
+            </div>
+            <p><i>Your password must be 8-64 characters long, be a mix of characters, numbers, and special characters.</i></p>
+        </form>
+        <p>If you use an email client (Outlook, Thunderbird, etc), it may take a few minutes for the new password to
+            take effect. <a href="http://help.runbox.com/usernames-and-passwords/">More information on selecting a
+                password</a>.</p>
+    </div>
+
+    <div class="container">
+        <h2>Personal Details</h2>
+        <form class="form-personal" action="">
+            <mat-form-field>
+                <mat-label>First name</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Last name</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+        </form>
+        <form class="form-contact" action="">
+            <mat-form-field>
+                <mat-label>Alternative email address</mat-label>
+                <input type="email" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Phone number (optional)</mat-label>
+                <input type="tel" matInput>
+            </mat-form-field>
+        </form>
+        <form class="form-company" action="">
+            <p><strong>Company information:</strong></p>
+            <mat-form-field>
+                <mat-label>Company (optional)</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Organization number (optional)</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>VAT number (optional)</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+        </form>
+        <form class="form-address" action="">
+            <p><strong>Address details:</strong></p>
+            <mat-form-field>
+                <mat-label>Address</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>City</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Postal/Zip code</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Country</mat-label>
+                <mat-select id="country" name="country">
+                    <mat-option>One</mat-option>
+                    <mat-option>Two</mat-option>
+                    <mat-option>Three</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Time zone</mat-label>
+                <mat-select id="timezone" name="timezone">
+                    <mat-option>One</mat-option>
+                    <mat-option>Two</mat-option>
+                    <mat-option>Three</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </form>
+        <div class="action-buttons">
+            <button mat-raised-button color="primary">Save Details</button>
+        </div>
+    </div>
+</section>

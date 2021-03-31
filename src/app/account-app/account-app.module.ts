@@ -82,10 +82,16 @@ import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
 import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
+import { PersonalDetailsComponent } from '../account-details/personal-details.component';
+import { AccountSettingsComponent } from '../account-details/account-settings.component';
+import { StorageDataComponent } from '../account-details/storage-data.component';
 
 @NgModule({
   declarations: [
     AccountAppComponent,
+    PersonalDetailsComponent,
+    AccountSettingsComponent,
+    StorageDataComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
@@ -216,7 +222,20 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   path: 'not-for-subaccounts',
                   component: NoProductsForSubaccountsComponent,
               },
-              { path: 'components', redirectTo: '' },
+                { path: 'components',
+                  redirectTo: '' },
+              {
+                  path: 'details',
+                  component: PersonalDetailsComponent,
+              },
+              {
+                  path: 'storage',
+                  component: StorageDataComponent,
+              },
+              {
+                  path: 'account_settings',
+                  component: AccountSettingsComponent,
+              },
             ]
           }
         ]
