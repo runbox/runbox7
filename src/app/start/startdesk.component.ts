@@ -52,6 +52,11 @@ enum FolderSelection {
     CUSTOM,
 }
 
+enum SortOrder {
+    COUNT,
+    SENDER,
+}
+
 interface FolderSelectorEntry {
     name:  string;
     count: number;
@@ -73,10 +78,14 @@ export class StartDeskComponent implements OnInit {
     // exposing enums to the template
     TimeSpan = TimeSpan;
     FolderSelection = FolderSelection;
+    SortOrder = SortOrder;
+
     // TODO: from appsettings or such?
     unreadOnly = false;
     timeSpan = TimeSpan.TODAY;
     folder = FolderSelection.ALL;
+    sortOrder = SortOrder.SENDER;
+
     // for the folder message selector.
     // We store the number of currently available messages in each folder,
     // as well as the set of folders explicitely hidden (they're all shown by default).
@@ -183,6 +192,15 @@ export class StartDeskComponent implements OnInit {
             }
         );
 
+        this.regularOverview.sort((a, b) => {
+            switch (this.sortOrder) {
+                case SortOrder.COUNT:
+                    return b.emails.length - a.emails.length;
+                case SortOrder.SENDER:
+                    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            }
+        });
+
         this.totalEmailCount = messages.length;
         this.regularEmailCount = otherMessages.length;
         this.mailingListEmailCount = messages.length - otherMessages.length;
@@ -272,21 +290,6 @@ export class StartDeskComponent implements OnInit {
             this.hiddenFolders.add(folderName);
         }
         // TODO: persist hiddenFolders in settings or something
-        this.updateCommsOverview();
-    }
-
-    public toggleUnreadOnly(event: MatCheckboxChange) {
-        this.unreadOnly = event.checked;
-        this.updateCommsOverview();
-    }
-
-    public changeTimeSpan(event: MatSelectChange) {
-        this.timeSpan = event.value;
-        this.updateCommsOverview();
-    }
-
-    public changeFolder(event: MatSelectChange) {
-        this.folder = event.value;
         this.updateCommsOverview();
     }
 
