@@ -6,82 +6,68 @@
             <div>
                 <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('main')"
-                    [values]="rmm.profile.profiles.main"
-                    (ev_reload)="ev_reload_emiter($event)"
-                >
+                    [values]="rmm.profile.profiles.main" (ev_reload)="ev_reload_emiter($event)">
                     <div section-header>
                         <h2>
-                            Main Identity
+                            Default Identity
                         </h2>
                     </div>
                     <div section-description>
-                        <h3>
-                            Your Main Identity is the address you signed up for Runbox with, and is your main profile.
-                        </h3>
-                    </div>
-                    <div section-buttons>
-                        <button 
-                            *ngIf="!rmm.profile.profiles.main.length"
-                            mat-raised-button 
-                            color='primary'
-                            style="margin: 10px;"
-                            (click)='add_profile("main")'
-                        >
-                            Add Main Identity
-                        </button>
+                        <p>
+                            Address picked by default when composing a new email.
+                        </p>
                     </div>
                 </app-profiles-lister>
+
+                <app-profiles-default *ngIf="rmm.profile && rmm.profile.profiles"
+                    (ev_reload)="ev_reload_emiter($event)">
+                    <div section-description>
+                        <p style="margin-bottom: 0;">
+                            Select your Default Identity:
+                        </p>
+                    </div>
+                </app-profiles-default>
+                <br>
+
                 <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('aliases')"
-                    [values]="rmm.profile.profiles.aliases"
-                    (ev_reload)="ev_reload_emiter($event)"
-                >
+                    [values]="rmm.profile.profiles.aliases" (ev_reload)="ev_reload_emiter($event)">
                     <div section-header>
                         <h2>
                             Aliases
                         </h2>
                     </div>
-                    <div section-description>
-                        <h3>
-                            Your aliases
-                        </h3>
-                    </div>
                     <div section-buttons>
-                        <button 
-                            mat-raised-button 
-                            color='primary'
-                            style="margin: 10px;"
-                            (click)='add_alias()'
-                        >
+                        <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_alias()'>
                             Add Alias
                         </button>
                         <span *ngIf="rmm.alias && rmm.alias.aliases_counter">
-                            {{rmm.alias.aliases_counter.current}} of {{rmm.alias.aliases_counter.total}} available aliases created
+                            {{rmm.alias.aliases_counter.current}} of {{rmm.alias.aliases_counter.total}} available
+                            aliases created
                         </span>
                     </div>
                 </app-profiles-lister>
+                <br><br>
+
                 <app-profiles-lister
                     *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('others')"
-                    [values]="rmm.profile.profiles.others"
-                    (ev_reload)="ev_reload_emiter($event)"
-                >
+                    [values]="rmm.profile.profiles.others" (ev_reload)="ev_reload_emiter($event)">
                     <div section-header>
                         <h2>
                             Other identities
                         </h2>
                     </div>
                     <div section-description>
-                        <h3>
-                            Identities lets you send email from addresses that are not among your Main Identity or Aliases, and require verification via an email sent to the given From Address.
-                        </h3>
+                        <p>
+                            Identities allow to send emails from addresses that are not among your username email or
+                            Aliases.
+                        </p>
+                        <p>
+                            Added identities require verification via an email sent to the given address.
+                        </p>
                     </div>
                     <div section-buttons>
-                        <button
-                            mat-raised-button
-                            color='primary'
-                            style="margin: 10px;"
-                            (click)='add_profile()'
-                        >
+                        <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
                             Add identity
                         </button>
                         {{rmm.profile.profiles.others.length}} identities created

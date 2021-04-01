@@ -1,0 +1,40 @@
+* {
+    box-sizing: border-box;
+}
+
+#jitsiContainer {
+    margin: auto;
+    height: calc(100% - 64px);
+}
+
+#meetingForm {
+    flex-direction: column;
+    width: 50%;
+    margin: auto;
+}
+
+.avatarImg {
+    height: 32px;
+    border-radius: 32px;
+}
+
+.meeting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.header-actions button:not(:last-child) {
+    margin-right: 10px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+}
+
+h4 {
+    margin-bottom: 15px;
+}

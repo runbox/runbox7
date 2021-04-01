@@ -30,7 +30,6 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
-import { AccountComponentsComponent } from './account-components.component';
 import {
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
@@ -81,12 +80,13 @@ import { ProfilesModule } from '../profiles/profiles.module';
 import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
 import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
+import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
 
 @NgModule({
   declarations: [
     AccountAddonsComponent,
     AccountAppComponent,
-    AccountComponentsComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
@@ -106,6 +106,8 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     RunboxTimerComponent,
     CreditCardsComponent,
     CryptoPaymentDescriptionComponent,
+    NoProductsForSubaccountsComponent,
+    AccountWelcomeComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -140,7 +142,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     RouterModule.forChild([
       {
         path: 'account',
-        canActivateChild: [RMMAuthGuardService],
+        canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
         children: [
           {
             path: '', outlet: 'headertoolbar',
@@ -153,10 +155,6 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
               {
                   path: '',
                   component: AccountWelcomeComponent,
-              },
-              {
-                  path: 'components',
-                  component: AccountComponentsComponent,
               },
               {
                   path: 'upgrades',
@@ -201,6 +199,10 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
               {
                   path: 'identities',
                   component: ProfilesComponent,
+              },
+              {
+                  path: 'not-for-subaccounts',
+                  component: NoProductsForSubaccountsComponent,
               },
             ]
           }

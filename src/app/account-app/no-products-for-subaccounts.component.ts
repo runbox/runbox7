@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -18,11 +18,31 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-    selector: 'app-account-components-component',
-    templateUrl: './account-components.component.html',
+    selector: 'app-account-not-for-subaccounts',
+    template: `
+<div>
+    <h4>
+        <p>
+            This is a sub-account and can't be managed from within the sub-account itself.
+        </p>
+        <p>
+            Please have the owner of the administrator account
+            <span *ngIf="owner">({{ owner }})</span>
+            do that for you.
+        </p>
+    </h4>
+</div>
+`
 })
-export class AccountComponentsComponent {
-    constructor() {}
+export class NoProductsForSubaccountsComponent {
+    owner: string;
+
+    constructor(rmmapi: RunboxWebmailAPI) {
+        rmmapi.me.subscribe((me: RunboxMe) => {
+            this.owner = me.owner?.username;
+        });
+    }
 }
