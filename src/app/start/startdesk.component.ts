@@ -293,21 +293,6 @@ export class StartDeskComponent implements OnInit {
         this.updateCommsOverview();
     }
 
-    public toggleUnreadOnly(event: MatCheckboxChange) {
-        this.unreadOnly = event.checked;
-        this.updateCommsOverview();
-    }
-
-    public changeTimeSpan(event: MatSelectChange) {
-        this.timeSpan = event.value;
-        this.updateCommsOverview();
-    }
-
-    public changeFolder(event: MatSelectChange) {
-        this.folder = event.value;
-        this.updateCommsOverview();
-    }
-
     public dateRange(): Date[] {
         switch (this.timeSpan) {
             case TimeSpan.TODAY:
