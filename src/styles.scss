@@ -480,9 +480,6 @@ rmm-headertoolbar {
     color: mat-color($rmm-default-accent) !important;
 }
 
-.mainMenuLogo {
-    line-height: 16px;
-}
 
 /* Sidenav pane */
 
@@ -571,13 +568,29 @@ mat-sidenav-container {
     margin-left: 0em;
 }
 
-a.mainMenu, mat-menu a, .mat-nav-list a {
+.mainMenu p {
+    margin: 0;
+    line-height: 20px;
+}
+
+.mainMenu a, mat-menu a, .mat-nav-list a {
+    min-width: 72px;
+    line-height: 20px;
+    padding: 0;
     text-decoration: none;
     font-weight: 400;
 }
 
+.mainMenu .mainMenuDesc {
+    display: none;
+}
+
+.mainMenu:hover + .mainMenuDesc {
+    display: block;
+}
+
 #mainMenu mat-icon {
-    margin-right: 10px;
+    margin: 0 10px 0 0;
     color: #fff;
 }
 
@@ -605,12 +618,15 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     font-size: 16px;
 }
 
+.mainMenuLogo {
+    line-height: 0px;
+}
+
 #logo {
-    margin-left: 30px;
+    margin-left: 20px;
     margin-right: 10px;
     width: 125px;
     height: auto;
-    line-height: 16px !important;
 }
 
 #logoSidenav {
