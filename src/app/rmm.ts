@@ -25,6 +25,7 @@ import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
 import { AccountSecurity } from './rmm/account-security';
+import { Docs } from './rmm/docs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
@@ -39,6 +40,7 @@ export class RMM {
     public email: Email;
     public runbox_domain: RunboxDomain;
     public account_security: AccountSecurity;
+    public docs: Docs;
     constructor(
         public http: HttpClient,
         public snackBar: MatSnackBar,
@@ -50,6 +52,7 @@ export class RMM {
         this.runbox_domain = new RunboxDomain(this);
         this.email = new Email(this);
         this.account_security = new AccountSecurity(this);
+        this.docs = new Docs(this);
     }
 
     public show_error ( message, action ) {
