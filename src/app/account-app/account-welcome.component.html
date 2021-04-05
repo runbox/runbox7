@@ -18,11 +18,16 @@
       margin: 0;
       font-size: 16px;
   }
+  div.settingsRow {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+  }
   mat-card.settingsItem {
-      float: left;
+      display: flex;
       width: 150px;
       height: 125px;
-      margin-right: 10px;
+      margin: 0 10px 10px 0;
   }
   mat-card.settingsItem {
       border: 2px solid #f4f4f4;
@@ -49,6 +54,8 @@
         <mat-icon svgIcon="email" class="category"></mat-icon> Mail
       </h4>
       <p>Settings that control the Mail interface.</p>
+    </div>
+    <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a routerLink="/account/identities">
           <h3><mat-icon svgIcon="border-inside"></mat-icon> <strong>Identities</strong></h3>
@@ -64,21 +71,20 @@
         <mat-icon svgIcon="briefcase" class="category"></mat-icon> Manager
       </h4>
       <p>With Manager you can easily import, filter, and forward your email as it "falls" through each level.</p>
-      
+    </div>
+    <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a href="/mail/fetch" target="rmm6" [matTooltip]="rmm6tooltip">
 	  <h3><mat-icon svgIcon="cloud-download"></mat-icon> <strong>Retrieve</strong></h3>
           <p>Lets you import email from external accounts into your Runbox account.</p>
 	</a>
       </mat-card>
-      
       <mat-card class="settingsItem">
         <a href="/mail/rules" target="rmm6" [matTooltip]="rmm6tooltip">
           <h3><mat-icon svgIcon="filter-variant"></mat-icon> <strong>Filter</strong></h3>
           <p>Configure spam and virus filters, set up an autoreply, and sort incoming email.</p>
         </a>
       </mat-card>
-      
       <mat-card class="settingsItem">
         <a href="/mail/access" target="rmm6" [matTooltip]="rmm6tooltip">
           <h3><mat-icon svgIcon="download"></mat-icon> <strong>Access</strong></h3>
@@ -94,21 +100,20 @@
         <mat-icon svgIcon="cloud" class="category"></mat-icon> Hosting
       </h4>
       <p>Settings for email, domain, and web hosting.</p>
-      
+    </div>
+    <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a href="/mail/account_domain" target="rmm6" [matTooltip]="rmm6tooltip">
 	  <h3><mat-icon svgIcon="email"></mat-icon> <strong>Email Hosting</strong></h3>
           <p>Set up your Runbox account to handle email for your domain.</p>
 	</a>
       </mat-card>
-      
       <mat-card class="settingsItem">
 	<a href="/mail/account_domain_hosting" target="rmm6" [matTooltip]="rmm6tooltip">
 	  <h3><mat-icon svgIcon="domain"></mat-icon> <strong>Domain Hosting</strong></h3>
           <p>Manage domain names that you can use with Email Web Hosting services.</p>
 	</a>
 	</mat-card>
-      
       <mat-card class="settingsItem">
 	<a href="/mail/account_webhosting" target="rmm6" [matTooltip]="rmm6tooltip">
 	  <h3><mat-icon svgIcon="earth"></mat-icon> <strong>Web Hosting</strong></h3>
@@ -124,14 +129,14 @@
         <mat-icon svgIcon="manage_accounts" class="category"></mat-icon> Account & Security
       </h4>
       <p>Configure settings for your account and its security.</p>
-      
+    </div>
+    <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a href="/mail/account" target="rmm6" [matTooltip]="rmm6tooltip">
 	  <h3><mat-icon svgIcon="account"></mat-icon> <strong>Account Details</strong></h3>
           <p>View and update your personal and account data.</p>
 	</a>
       </mat-card>
-      
       <mat-card class="settingsItem">
 	<a href="/app/account/security">
 	  <h3><mat-icon svgIcon="security"></mat-icon> <strong>Security</strong></h3>
@@ -147,35 +152,32 @@
         <mat-icon svgIcon="credit_score" class="category"></mat-icon> Subscriptions
       </h4>
       <p>Manage your subscriptions and transactions.</p>
-      
+    </div>
+    <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a href="/account/upgrades">
 	  <h3><mat-icon svgIcon="card_membership"></mat-icon> <strong>Account Plans</strong></h3>
           <p>Subscribe to Runbox or change an existing subscription plan.</p>
 	</a>
       </mat-card>
-
       <mat-card class="settingsItem">
 	<a href="/account/addons">
 	  <h3><mat-icon svgIcon="puzzle"></mat-icon> <strong>Add-ons</strong></h3>
           <p>Add more accounts or other upgrades to your main account.</p>
 	</a>
       </mat-card>
-
       <mat-card class="settingsItem">
 	<a href="/account/renewals">
 	  <h3><mat-icon svgIcon="autorenew"></mat-icon> <strong>Products</strong></h3>
           <p>Show all active products in your account, and renew any of them at any time.</p>
 	</a>
       </mat-card>
-
       <mat-card class="settingsItem">
 	<a href="/account/transactions">
 	  <h3><mat-icon svgIcon="receipt_long"></mat-icon> <strong>Transactions</strong></h3>
           <p>List all your payment transactions.</p>
 	</a>
       </mat-card>
-
       <mat-card class="settingsItem">
 	<a href="/account/credit_cards">
 	  <h3><mat-icon svgIcon="credit-card"></mat-icon> <strong>Card Details</strong></h3>
