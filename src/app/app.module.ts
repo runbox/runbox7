@@ -175,7 +175,7 @@ const routes: Routes = [
     SearchExpressionBuilderModule,
     MultipleSearchFieldsInputModule,
     RunboxCommonModule,
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }),
     ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
     HotkeyModule.forRoot()
   ],

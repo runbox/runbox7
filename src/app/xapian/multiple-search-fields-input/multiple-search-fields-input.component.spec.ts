@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MultipleSearchFieldsInputComponent } from './multiple-search-fields-input.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,7 +34,7 @@ describe('MultipleSearchFieldsInputComponent', () => {
   let component: MultipleSearchFieldsInputComponent;
   let fixture: ComponentFixture<MultipleSearchFieldsInputComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [ CommonModule,
         NoopAnimationsModule,
