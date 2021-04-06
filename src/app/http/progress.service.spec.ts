@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -60,7 +60,7 @@ describe('ProgressService', () => {
         httpMock = TestBed.inject(HttpTestingController);
     });
 
-    it('should indicate http request activity', async( async() => {
+    it('should indicate http request activity', waitForAsync( async() => {
 
         let httpProgressSeen = false;
         progressService.httpRequestInProgress.pipe(
