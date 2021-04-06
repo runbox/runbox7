@@ -18,13 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { StripeAddCardDialogComponent } from './stripe-add-card-dialog.component';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
+import { RunboxContactSupportSnackBar } from '../../common/contact-support-snackbar.service';
 
 class CreditCard {
     id:      string;
@@ -71,7 +71,7 @@ export class CreditCardsComponent implements OnInit {
     constructor(
         private dialog:   MatDialog,
         private rmmapi:   RunboxWebmailAPI,
-        private snackbar: MatSnackBar,
+        private snackbar: RunboxContactSupportSnackBar,
     ) {
     }
 
@@ -92,14 +92,14 @@ export class CreditCardsComponent implements OnInit {
                     }
                 });
             },
-            _err => this.snackbar.open('Failed to add a new credit card', 'Okay'),
+            _err => this.snackbar.open('Failed to add a new credit card'),
         );
     }
 
     makeCardDefault(card: CreditCard) {
         this.rmmapi.makeCardDefault(card.id).subscribe(
             _ => this.defaultCard = card.id,
-            _err => this.snackbar.open('Failed to set the default credit card', 'Okay'),
+            _err => this.snackbar.open('Failed to set the default credit card'),
         );
     }
 
@@ -123,10 +123,7 @@ export class CreditCardsComponent implements OnInit {
                 );
             },
             _err => {
-                this.snackbar.open(
-                    'Failed to remove credit card. Try again later or contact Runbox Support',
-                    'Okay'
-                );
+                this.snackbar.open('Failed to remove credit card');
                 card.removing = false;
             }
         );

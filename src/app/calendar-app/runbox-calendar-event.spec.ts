@@ -204,7 +204,7 @@ describe('RunboxCalendarEvent', () => {
         expect(sut.toIcal()).toContain('DTSTART:20210201T100000');
     });
 
-     it('should be possible to add a special case to a recurring event (with timezone)', () => {
+    it('should be possible to add a special case to a recurring event (with timezone)', () => {
          // mostly taken straight out of the jCal spec: https://tools.ietf.org/html/rfc7265#page-30
         const jcal = ICAL.parse(
 `BEGIN:VCALENDAR
