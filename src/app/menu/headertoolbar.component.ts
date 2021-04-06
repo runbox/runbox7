@@ -25,7 +25,7 @@ import { LogoutService } from '../login/logout.service';
 
 @Component({
     moduleId: 'angular2/app/menu/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm-headertoolbar',
     templateUrl: 'headertoolbar.component.html'
 })

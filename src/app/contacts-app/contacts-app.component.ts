@@ -37,7 +37,7 @@ import { take } from 'rxjs/operators';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'contacts-app-root',
     styleUrls: ['contacts-app.component.scss'],
     templateUrl: './contacts-app.component.html'

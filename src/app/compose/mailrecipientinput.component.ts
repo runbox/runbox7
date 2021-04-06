@@ -34,7 +34,7 @@ const COMMA = 188;
 
 @Component({
     moduleId: 'angular2/app/compose/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mailrecipient-input',
     templateUrl: 'mailrecipientinput.component.html'
 })

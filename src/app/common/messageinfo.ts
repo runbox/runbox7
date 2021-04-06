@@ -75,9 +75,9 @@ export class IndexingTools {
 
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
-            // tslint:disable-next-line:no-bitwise
+            // eslint-disable-next-line no-bitwise
             hash = ((hash << 5) - hash) + char;
-            // tslint:disable-next-line:no-bitwise
+            // eslint-disable-next-line no-bitwise
             hash = hash & hash; // Convert to 32bit integer
         }
         return hash;

@@ -30,7 +30,7 @@ import { SearchService } from '../xapian/searchservice';
 import { Router } from '@angular/router';
 
 @Component({
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'testcomponent',
     template: ``
 })

@@ -943,7 +943,7 @@ export class SearchService {
                   `${newmessages.length} new email messages` :
                   `New email message`;
               try {
-                  // tslint:disable-next-line:no-unused-expression
+                  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                   new Notification(newMessagesTitle, {
                     body: newmessages[0].from[0].name,
                     icon: 'assets/icons/icon-192x192.png',

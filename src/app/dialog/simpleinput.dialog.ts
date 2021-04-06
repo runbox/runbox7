@@ -51,7 +51,7 @@ export class SimpleInputDialogParams {
                 [disabled]="!data.isValidInput(inputText)"><mat-icon svgIcon="check"></mat-icon></button>
         </mat-dialog-actions>`
 })
-// tslint:disable-next-line:component-class-suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SimpleInputDialog {
     trustedHtml: SafeHtml;
 

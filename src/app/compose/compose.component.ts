@@ -44,7 +44,7 @@ declare const MailParser;
 
 @Component({
     moduleId: 'angular2/app/compose/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
     templateUrl: 'compose.component.html',
     styleUrls: ['compose.component.scss']
