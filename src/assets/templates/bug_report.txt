@@ -1,0 +1,48 @@
+Thank you for filing a bug report for Runbox 7.
+
+Please fill in details for each item below that you think is relevant.
+
+Basic information
+=================
+Username: (should be detected automatically) %%USERNAME%%
+Your geographical location:
+Network/bandwidth details:
+Any previous related communication with Runbox staff:
+
+
+
+Device/platform details
+=======================
+Browser (name and version): %%ONMOBILE%% %%VENDOR%% %%APPNAME%% %%APPVERSION%% 
+Reported User Agent: %%USERAGENT%%
+Operating system and device type: %%PLATFORM%%
+Screen size/resolution: %%SIZE%%
+Browser zoom setting (if other than 100%):
+
+Runbox 7 details
+================
+Has the account index been downloaded and synchronized with your device (yes/no) (automatic detection says %%INDEXSYNC%%):
+Is index synchronization on or off as shown at the bottom of the folder pane (yes/no):
+Any changes you have made to Runbox 7 settings:
+
+Keep mail pane open: %%SETTINGPANE%%
+Show content preview: %%SETTINGPREVIEW%%
+Mail viewer on right: %%SETTINGVIEWRRIGHT%%
+Show unread email only: %%SETTINGUNREAD%%
+
+
+Details about the error
+=======================
+Any error messages you see in the interface:
+Description of the problem you are experiencing:
+Which steps were taken before the problem occurred:
+Can you make the problem occur on demand?
+Any other information you think might be useful to us:
+
+Attach screenshots to your message if relevant.
+
+Note: Ensure that the subject line of this message is unchanged, and then click the Send button to file your bug report. 
+
+A technician will then review the report, and we will contact you if further information is needed. 
+
+Thank you!

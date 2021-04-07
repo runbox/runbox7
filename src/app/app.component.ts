@@ -542,6 +542,22 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.router.navigate(['/compose'],  {queryParams: {'new': true}});
   }
 
+  async composeBugReport() {
+    if (this.mobileQuery.matches && this.sidemenu.opened) {
+      this.sidemenu.close();
+    }
+    // Create pre-filled draft email, setting some of the values
+    await this.draftDeskService.newBugReport(
+      this.searchService.localSearchActivated,
+      this.keepMessagePaneOpen,
+      this.canvastable.showContentTextPreview,
+      this.mailViewerOnRightSide,
+      this.unreadMessagesOnlyCheckbox,
+      this.mobileQuery.matches
+    );
+    this.router.navigate(['/compose']);
+   }
+
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
     localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
