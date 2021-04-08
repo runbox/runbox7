@@ -29,12 +29,12 @@ export interface ContactHilights {
 
 @Component({
     selector: 'app-overview-sender-hilights',
-    styleUrls: ['./startdesk.component.scss'],
+    styleUrls: ['./sender-hilights.component.scss'],
     template: `
-<mat-card class="mat-card dashdeskOverview">
+<mat-card class="dashdeskCard senderItem">
   <div class="contact">
-    <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-    <div class="messages">{{ sender.emails.length }} messages today</div>
+    <mat-icon> {{ sender.icon }}</mat-icon> <h5> {{ sender.name }} </h5>
+    <div class="messages"> {{ sender.emails.length }} messages </div>
   </div>
   <div class="subject">
     <ul>
@@ -42,6 +42,10 @@ export interface ContactHilights {
           <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
       </li>
     </ul>
+  </div>
+  <div class="showMoreLess">
+    <div class="showMore">Show nn more</div>
+    <div class="showLess">Show less</div>
   </div>
 </mat-card>
     `,
