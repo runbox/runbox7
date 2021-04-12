@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WelcomeDeskComponent } from './welcomedesk.component';
 
@@ -25,7 +25,7 @@ describe('WelcomeDeskComponent', () => {
   let component: WelcomeDeskComponent;
   let fixture: ComponentFixture<WelcomeDeskComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ WelcomeDeskComponent ]
     })

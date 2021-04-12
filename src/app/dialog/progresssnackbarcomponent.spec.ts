@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed, async, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
+import { TestBed, ComponentFixture, tick, fakeAsync, waitForAsync } from '@angular/core/testing';
 import { DialogModule } from './dialog.module';
 import { ProgressSnackbarComponent } from './progresssnackbar.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,7 +31,7 @@ import { Component } from '@angular/core';
 describe('ProgressService', () => {
     let fixture: ComponentFixture<TestAppComponent>;
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             imports: [
                 NoopAnimationsModule,
