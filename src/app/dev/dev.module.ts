@@ -41,6 +41,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DevComponent } from './dev.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 import { RunboxCommonModule } from '../common/common.module';
+import { LoadingDemoComponent } from './loading-demo.component';
 import { RunboxIntroComponent } from '../runbox-components/runbox-intro';
 import { RunboxDynamicComponent } from '../runbox-components/runbox-dynamic';
 import { ListDemoComponent } from './list-demo.component';
@@ -52,6 +53,7 @@ import { TimerDemoComponent } from './timer-demo.component';
 @NgModule({
     declarations: [
         DevComponent,
+        LoadingDemoComponent,
         ListDemoComponent,
         ContainerDemoComponent,
         SectionDemoComponent,
@@ -89,6 +91,7 @@ import { TimerDemoComponent } from './timer-demo.component';
                     { path: 'app-runbox-dynamic', component: RunboxDynamicComponent },
                     { path: 'app-runbox-intro',   component: RunboxIntroComponent },
                     { path: 'app-runbox-list',    component: ListDemoComponent },
+                    { path: 'app-runbox-loading', component: LoadingDemoComponent },
                     { path: 'app-runbox-section', component: SectionDemoComponent },
                     { path: 'app-runbox-slide-toggle', component: SlideToggleDemoComponent },
                     { path: 'app-runbox-timer', component: TimerDemoComponent },
