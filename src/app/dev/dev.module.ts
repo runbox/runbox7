@@ -49,9 +49,11 @@ import { ContainerDemoComponent } from './container-demo.component';
 import { SectionDemoComponent } from './section-demo.component';
 import { SlideToggleDemoComponent } from './slide-toggle-demo.component';
 import { TimerDemoComponent } from './timer-demo.component';
+import { ActivityIndicatorDemoComponent } from './activity-indicator.demo.component';
 
 @NgModule({
     declarations: [
+        ActivityIndicatorDemoComponent,
         DevComponent,
         LoadingDemoComponent,
         ListDemoComponent,
@@ -87,6 +89,7 @@ import { TimerDemoComponent } from './timer-demo.component';
                 component: DevComponent,
                 children: [
                     { path: '',                   redirectTo: 'app-runbox-intro' },
+                    { path: 'app-activity-indicator', component: ActivityIndicatorDemoComponent },
                     { path: 'app-runbox-container', component: ContainerDemoComponent },
                     { path: 'app-runbox-dynamic', component: RunboxDynamicComponent },
                     { path: 'app-runbox-intro',   component: RunboxIntroComponent },

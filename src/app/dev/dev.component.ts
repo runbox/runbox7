@@ -25,13 +25,14 @@ import { Component } from '@angular/core';
 })
 export class DevComponent {
     routes = [
-        { path: 'app-runbox-intro',        name: 'Intro'             },
-        { path: 'app-runbox-list',         name: 'List'              },
-        { path: 'app-runbox-container',    name: 'Container'         },
-        { path: 'app-runbox-section',      name: 'Section'           },
-        { path: 'app-runbox-slide-toggle', name: 'Slide Toggle'      },
-        { path: 'app-runbox-timer',        name: 'Timer'             },
-        { path: 'app-runbox-dynamic',      name: 'Dynamic'           },
-        { path: 'app-runbox-loading',      name: 'Loading indicator' },
+        { path: 'app-activity-indicator',  name: 'Activity Indicator' },
+        { path: 'app-runbox-intro',        name: 'Intro'              },
+        { path: 'app-runbox-list',         name: 'List'               },
+        { path: 'app-runbox-container',    name: 'Container'          },
+        { path: 'app-runbox-section',      name: 'Section'            },
+        { path: 'app-runbox-slide-toggle', name: 'Slide Toggle'       },
+        { path: 'app-runbox-timer',        name: 'Timer'              },
+        { path: 'app-runbox-dynamic',      name: 'Dynamic'            },
+        { path: 'app-runbox-loading',      name: 'Loading indicator'  },
     ];
 }
