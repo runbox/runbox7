@@ -28,128 +28,15 @@
                   <div class='blue-column'>
                     <h2>Components</h2>
                     <mat-list>
-                     <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/app-runbox-intro']"><mat-icon svgIcon="border-inside"></mat-icon>Intro</a>
-                     </mat-list-item>
-                     <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/app-runbox-list']"><mat-icon svgIcon="border-inside"></mat-icon>List</a>
-                     </mat-list-item>
-                     <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/app-runbox-container']"><mat-icon svgIcon="border-inside"></mat-icon>Container</a>
-                     </mat-list-item>
-                     <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/app-runbox-section']"><mat-icon svgIcon="border-inside"></mat-icon>Section</a>
-                     </mat-list-item>
-                     <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/app-runbox-slide-toggle']"><mat-icon svgIcon="border-inside"></mat-icon>Slide Toggle</a>
-                     </mat-list-item>
-                     <mat-list-item>
-                        <a mat-button [routerLink]="['/dev/app-runbox-timer']"><mat-icon svgIcon="border-inside"></mat-icon>Timer</a>
-                     </mat-list-item>
-                     <mat-list-item>
-                         <a mat-button [routerLink]="['/dev/app-runbox-dynamic']"><mat-icon svgIcon="border-inside"></mat-icon>Dynamic</a>
+                     <mat-list-item *ngFor="let route of routes">
+                         <a mat-button [routerLink]="route.path"><mat-icon svgIcon="border-inside"></mat-icon> {{ route.name }} </a>
                      </mat-list-item>
                     </mat-list>
                   </div>
                 </div>
                 <div class='column right'>
                   <div class='green-column'>
-                    <app-runbox-dynamic *ngIf="route.params['getValue']().selected_component === 'app-runbox-dynamic'">
-                    </app-runbox-dynamic>
-                    <app-runbox-intro *ngIf="route.params['getValue']().selected_component === 'app-runbox-intro'">
-                    </app-runbox-intro>
-                    <app-runbox-list
-                        *ngIf="route.params['getValue']().selected_component === 'app-runbox-list'"
-                        [values]='values_runbox_list'
-                    >
-                        <ng-template #runbox_list_row_small let-item>
-                            <h1 style="color:red;">{{ item.firstname }}</h1>
-                            <div>{{ item.lastname }}</div>
-                        </ng-template>
-                        <ng-template #runbox_list_row_medium let-item>
-                            <h1 style="color:red;">{{ item.firstname }}</h1>
-                            <div>{{ item.firstname }}</div>
-                            <br>
-                            <div>{{ item.lastname }}</div>
-                            <br>
-                            This is a medium row. Its bigger than the small row.. it displays more content.
-                            <button (click)="edit(item)">EDIT ITEM</button>
-                        </ng-template>
-                    </app-runbox-list>
-                    <app-runbox-container
-                        sidebar_opened=false
-                        *ngIf="route.params['getValue']().selected_component === 'app-runbox-container'"
-                    >
-                       New components goes here ie. &lt;runbox-component/&gt;
-                    </app-runbox-container>
-                    <app-runbox-section
-                        *ngIf="route.params['getValue']().selected_component === 'app-runbox-section'"
-                    >
-                    <div runbox-section-header>
-                        THIS IS THE TITLE IN BLUE BACKGROUND proably needs the div with id
-                    </div>
-                    <div runbox-section-content>
-                        <p>This is the Two-Factor Authentication (2FA) configuration screen, where you can configure the various options for enabling and using 2FA.</p>
-                        <p><strong>Note:</strong> For security reasons, enabling 2FA disables your account password for non-web services. These include IMAP, POP, and SMTP (for email programs/apps), FTP (for file transfer programs/apps), and CalDAV (for calendar programs/apps). Therefore you will need to set up App Passwords for these services if you want to use them.</p>
-                        <p><strong>Unlock code:</strong> We recommended that you create an unlock code. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
-                    </div>
-                    </app-runbox-section>
-                    <div
-                        *ngIf="route.params['getValue']().selected_component === 'app-runbox-slide-toggle'"
-                    >
-                    <app-runbox-slide-toggle>
-                        example #1
-                    </app-runbox-slide-toggle>
-                    <app-runbox-slide-toggle [is_checked]=true>
-                        ex#2
-                    </app-runbox-slide-toggle>
-                    <app-runbox-slide-toggle [is_checked]=false>
-                        ex#3
-                    </app-runbox-slide-toggle>
-                    </div>
-                    <div
-                        *ngIf="route.params['getValue']().selected_component === 'app-runbox-timer'"
-                    >
-                        <div class='synopsis'>
-                            <h1>Runbox Timer</h1>
-                            <p>
-                                The runbox timer is a countdown timer. It expects a predefined date in the future and will make the calculations necessary to represent in a countdown timer.
-                            </p>
-                        </div>
-                        <div class='examples'>
-                            <h2>Standard timer with css style</h2>
-                            <app-runbox-timer future_date="2021/01/19 23:24:14" class="nice_blue_timer"></app-runbox-timer>
-                        </div>
-                        <div class='examples'>
-                            <h2>Standard timer with css style</h2>
-                            <app-runbox-timer future_date="2020/12/08 00:44:11" class="nice_green_timer"></app-runbox-timer>
-                        </div>
-                        <div class='examples'>
-                            <h2>Custom timer template</h2>
-                            <app-runbox-timer
-                                class="timer-custom-tpl"
-                                future_date="2025/02/18 01:14:41"
-                                [child_timer]="child_timer"
-                            >
-                                <div custom_template>
-                                    <div>
-                                      <div class='date'>
-                                          <div class="timeunit y" *ngIf="child_timer.years">{{child_timer.years}}</div>
-                                          <div class="timeunit m" *ngIf="child_timer.months">{{child_timer.months}}</div>
-                                          <div class="timeunit d" *ngIf="child_timer.months">{{child_timer.days}}</div>
-                                      </div>
-                                      <div class='time'>
-                                          <div class="timeunit h">{{child_timer.hours < 10 ? '0'+child_timer.hours : child_timer.hours}}</div>
-:
-                                          <div class="timeunit m" >{{child_timer.minutes < 10 ? '0'+child_timer.minutes : child_timer.minutes}}</div>
-:
-                                          <div class="timeunit s" >{{child_timer.seconds < 10 ? '0'+child_timer.seconds : child_timer.seconds}}</div>
-                                      </div>
-                                    </div>
-                                </div>
-                            </app-runbox-timer>
-                        </div>
-                    </div>
+                    <router-outlet></router-outlet>
                   </div>
                 </div>
               </div>
