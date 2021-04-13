@@ -80,7 +80,7 @@ export class CreditCardsComponent implements OnInit {
     }
 
     addCard() {
-        this.rmmapi.addNewCard().subscribe(
+        this.rmmapi.setupCreditCard().subscribe(
             res => {
                 const dialogRef = this.dialog.open(StripeAddCardDialogComponent, { data: { clientSecret: res.client_secret } });
                 dialogRef.afterClosed().subscribe(cardAdded => {
