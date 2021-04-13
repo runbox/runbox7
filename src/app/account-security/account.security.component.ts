@@ -17,13 +17,59 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Component, Output, EventEmitter, ViewChild, OnInit, Inject } from '@angular/core';
-
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-
 import { MobileQueryService } from '../mobile-query.service';
 import { RMM } from '../rmm';
+import { timeout, share } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-modal-unlockcode-component',
+  template: `
+    <div mat-dialog-content>
+      <h3>
+          Unlock code required
+      </h3>
+      <div>
+          <p>
+              The unlock code can be used to disable 2FA if you have problems logging in with your 2FA codes.
+          </p>
+          <p>
+              I confirm I have made a copy of the unlock code and will keep it in a safe place. I understand that if I lose the unlock code I may not be able to access my account.
+          </p>
+          <p style="text-align: center;">
+              Your code: <span style="font-size: 26px; font-weight: bold;">{{data.parent_ref.rmm.account_security.unlock_code.unlock_code}}</span>
+          </p>
+          <p>
+            <button class="primaryContentButton" mat-raised-button (click)="close()">Continue</button>
+          </p>
+          <mat-progress-bar mode="indeterminate" *ngIf="is_creating_unlockcode"></mat-progress-bar>
+      </div>
+    </div>
+  `,
+})
+export class ModalUnlockcodeComponent {
+  is_creating_unlockcode = false;
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<ModalUnlockcodeComponent>,
+    public rmm: RMM,
+  ) {
+    this.is_creating_unlockcode = true;
+    this.data.parent_ref.rmm.account_security.unlock_code.generate({
+        action: 'generate',
+        password: this.data.parent_ref.rmm.account_security.user_password,
+    })
+    .subscribe( ( ) => {
+      this.is_creating_unlockcode = false;
+      this.data.parent_ref.rmm.account_security.tfa.get();
+    });
+  }
+  close() {
+    this.dialogRef.close(this.data);
+  }
+}
 
 @Component({
   selector: 'app-modal-password-component',
@@ -460,8 +506,23 @@ export class AccountSecurityComponent implements OnInit {
     });
   }
 
+  show_dialog_unlockcode() {
+    // dialog displays unlock code and asks user to write it down
+    const modal = this.dialog.open(ModalUnlockcodeComponent, {
+      width: '600px',
+      disableClose: true,
+      data: {
+        parent_ref: this,
+      }
+    });
+    modal.afterClosed().pipe(timeout(60000), share())
+        .subscribe(result => {
+    });
+  }
+
   toggle_otp() {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
+    if ( ! this.rmm.account_security.unlock_code.unlock_code ) { this.show_dialog_unlockcode(); return; }
     if (
         !this.rmm.account_security.tfa.otp
         || !this.rmm.account_security.tfa.otp['total_available']
@@ -494,6 +555,7 @@ export class AccountSecurityComponent implements OnInit {
 
   toggle_totp_device() {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
+    if ( ! this.rmm.account_security.unlock_code.unlock_code ) { this.show_dialog_unlockcode(); return; }
     if (!this.rmm.account_security.tfa.settings.secret) {
         this.show_error('You must generate a new TOTP code before you enable this feature.', 'Dismiss');
         this.rmm.account_security.tfa.get();
@@ -520,6 +582,7 @@ export class AccountSecurityComponent implements OnInit {
 
   toggle_2fa() {
     if ( ! this.rmm.account_security.user_password ) { this.show_modal_password(); return; }
+    if ( ! this.rmm.account_security.unlock_code.unlock_code ) { this.show_dialog_unlockcode(); return; }
     if (
         this.rmm.account_security.tfa.settings.is_2fa_enabled
         &&
