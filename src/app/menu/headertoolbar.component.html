@@ -1,60 +1,36 @@
-<mat-toolbar style="background-image: linear-gradient(175deg, #0068b7, #003156);" color="primary" id="mainMenu">
+<mat-toolbar style="background-image: linear-gradient(175deg, #0068b7, #003156);" color="primary" id="mainMenuContainer">
   <a routerLink="/" class="mainMenuLogo"><img src="assets/runbox7.png" id="logo" alt="Runbox 7" /></a>
 
   <div class="mainMenu">
-    <a mat-button routerLink="/" class="mainMenu"><mat-icon svgIcon="email"></mat-icon></a>
-    <p class="mainMenuDesc">Mail</p>
+    <a mat-button routerLink="/">
+      <mat-icon svgIcon="email"></mat-icon>
+      <p class="mainMenuDesc">Mail</p>
+    </a>
   </div>
   <div class="mainMenu">
-    <a mat-button routerLink="/contacts" class="mainMenu"><mat-icon svgIcon="account-multiple"></mat-icon></a>
-    <p class="mainMenuDesc">Contacts</p>
+    <a mat-button routerLink="/contacts">
+      <mat-icon svgIcon="account-multiple"></mat-icon>
+      <p class="mainMenuDesc">Contacts</p>
+    </a>
   </div>
   <div class="mainMenu">
-    <a mat-button routerLink="/calendar" class="mainMenu"><mat-icon svgIcon="calendar-range"></mat-icon></a>
-    <p class="mainMenuDesc">Calendar</p>
+    <a mat-button routerLink="/calendar">
+      <mat-icon svgIcon="calendar-range"></mat-icon>
+      <p class="mainMenuDesc">Calendar</p>
+    </a>
   </div>
   <div class="mainMenu">
-    <a mat-button href="/files" class="mainMenu" target="rmm6"><mat-icon svgIcon="folder-outline"></mat-icon></a>
-    <p class="mainMenuDesc">Files</p>
+    <a mat-button href="/files" target="rmm6">
+      <mat-icon svgIcon="folder-outline"></mat-icon>
+      <p class="mainMenuDesc">Files</p>
+    </a>
   </div>
 
-  <mat-menu #settingsMenu="matMenu">
-    <mat-menu #accountSubMenu="matMenu" class="mainMenuSub">
-      <a mat-button href="/mail/account" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="account"></mat-icon>Account Settings</a>
-      <a mat-button routerLink="/account/identities"><mat-icon svgIcon="border-inside"></mat-icon>Identities</a>
-      <a mat-button routerLink="/account/security"><mat-icon svgIcon="security"></mat-icon>Account Security</a>
-      <a mat-button routerLink="/account/components"><mat-icon svgIcon="widgets"></mat-icon>Account Products</a>
-    </mat-menu>
-    <button mat-menu-item [matMenuTriggerFor]="accountSubMenu" class="mainMenuSub">
-      <mat-icon svgIcon="account"></mat-icon> Account
-    </button>
-
-    <mat-menu #managerSubMenu="matMenu" class="mainMenuSub">
-      <a mat-button href="/mail/manager" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="briefcase"></mat-icon>Manager</a><br />
-      <a mat-button href="/mail/fetch" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="cloud-download"></mat-icon>Retrieve</a><br />
-      <a mat-button href="/mail/rules" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="filter-variant"></mat-icon>Filter</a><br />
-      <a mat-button href="/mail/access" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="download"></mat-icon>Access</a>
-    </mat-menu>
-    <button mat-menu-item [matMenuTriggerFor]="managerSubMenu" class="mainMenuSub">
-      <mat-icon svgIcon="briefcase"></mat-icon> Manager
-    </button>
-
-    <mat-menu #hostingSubMenu="matMenu" class="mainMenuSub">
-	<a mat-button href="/mail/account_domain" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="email"></mat-icon>Email Hosting</a><br />
-	<a mat-button href="/mail/account_webhosting" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="earth"></mat-icon>Web Hosting</a><br />
-	<a mat-button href="/mail/account_domain_hosting" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="domain"></mat-icon>Domain Hosting</a>
-    <a mat-button [routerLink]="['/domainregistration']"><mat-icon svgIcon="border-inside"></mat-icon>Domain Registration</a>
-    </mat-menu>
-    <button mat-menu-item [matMenuTriggerFor]="hostingSubMenu" class="mainMenuSub">
-      <mat-icon svgIcon="cloud"></mat-icon> Hosting
-    </button>
-  </mat-menu>
-
   <div class="mainMenu">
-    <button mat-button [matMenuTriggerFor]="settingsMenu">
+    <a mat-button routerLink="/account/settings">
       <mat-icon svgIcon="cog"></mat-icon>
-    </button>
-    <p class="mainMenuDesc">Settings</p>
+      <p class="mainMenuDesc">Settings</p>
+    </a>
   </div>
   
   <span flex style="flex-grow: 1"></span>
@@ -64,39 +40,25 @@
   </a>
 
   <div class="mainMenu">
-    <button mat-button [matMenuTriggerFor]="helpMenu">
+    <a mat-button routerLink="/help">
       <mat-icon svgIcon="help-circle"></mat-icon>
-    </button>
-    <p class="mainMenuDesc">Help</p>
-  </div>
-  <mat-menu #helpMenu="matMenu" class="mainMenuSub">
-    <a mat-button href="https://help.runbox.com/"><mat-icon svgIcon="help-circle"></mat-icon>Help</a><br />
-    <a mat-button href="https://status.runbox.com/"><mat-icon svgIcon="check-circle"></mat-icon>Service Status</a><br />
-    <a mat-button href="https://help.runbox.com/how-tos/"><mat-icon svgIcon="format-list-numbered"></mat-icon>How-Tos</a><br />
-    <a mat-button href="https://help.runbox.com/faq/"><mat-icon svgIcon="lightbulb-outline"></mat-icon>FAQ</a><br />
-    <a mat-button href="https://help.runbox.com/documentation/"><mat-icon svgIcon="format-list-bulleted"></mat-icon>Documentation</a><br />
-    <a mat-button href="https://forum.runbox.com/"><mat-icon svgIcon="forum"></mat-icon>Forum</a><br />
-    <a mat-button href="https://support.runbox.com/"><mat-icon svgIcon="comment-question"></mat-icon>Support</a>
-  </mat-menu>
-
-  <div class="mainMenu">
-    <a mat-button href="https://blog.runbox.com/" class="mainMenu"><mat-icon svgIcon="comment-text" matTooltip="Blog"></mat-icon></a>
-    <p class="mainMenuDesc">Blog</p>
+      <p class="mainMenuDesc">Help</p>
+    </a>
   </div>
 
   <div class="mainMenu">
-    <button mat-fab [matMenuTriggerFor]="accountMenu" class="accountMenu">
+    <a mat-button href="https://blog.runbox.com/">
+      <mat-icon svgIcon="comment-text"></mat-icon>
+      <p class="mainMenuDesc">Blog</p>
+    </a>
+  </div>
+
+  <div class="mainMenu">
+    <a mat-fab routerLink="/account" class="accountMenu">
       <mat-icon svgIcon="account"></mat-icon>
-    </button>
-    <p class="mainMenuDesc">Account</p>
+      <p class="mainMenuDesc">Account</p>
+    </a>
   </div>
-  
-  <mat-menu #accountMenu="matMenu" class="mainMenuSub themePalettePrimary">
-    <a mat-button href="/mail/account" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="account"></mat-icon>Account Settings</a><br />
-    <a mat-button routerLink="/account/components"><mat-icon svgIcon="widgets"></mat-icon>Account Products</a><br />
-    <a mat-button (click)="logoutservice.logout()"><mat-icon svgIcon="power"></mat-icon>Log out</a>
-  </mat-menu>
-
 </mat-toolbar>
 
 <style>

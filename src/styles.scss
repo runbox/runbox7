@@ -119,7 +119,7 @@ ul.square-list li {
 }
 
 .mat-toolbar, .mat-button {
-    font-size: 16px !important;
+    font-size: 16px;
     font-weight: 400;
 }
 
@@ -453,31 +453,103 @@ rmm-headertoolbar {
     width: 100%;
 }
 
-#mainMenu {
-    height: 50px;
-    padding: 0 40px;
+#mainMenuContainer mat-icon {
+    color: #fff;
 }
 
-#mainMenu button.accountMenu {
-    margin: 0 15px;
-    width: 30px; 
-    height: 30px;
-    line-height: 1em;
+#mainMenuContainer {
+    padding: 0 30px;
 }
 
-#mainMenu button.accountMenu .mat-button-wrapper {
+#mainMenuContainer #runbox6 {
+    color: mat-color($rmm-default-accent) !important;
+}
+
+.mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
+    color: mat-color($rmm-default-primary) !important;
+}
+
+#mainMenuContainer button {
+    margin-left: 0em;
+}
+
+.mainMenu a, mat-menu a, .mat-nav-list a {
+    line-height: 20px;
     padding: 0;
-    text-align: center;
-    vertical-align: middle;
+    text-decoration: none;
+    font-weight: 400;
 }
 
-#mainMenu button.accountMenu mat-icon {
+div.mainMenu {
+    margin-top: 30px;
+    transition: margin-top 0.25s;
+}
+
+.mainMenuDesc {
+    margin: 20px 0 0 0;
+    line-height: 12px;
+    transition: margin-top 0.25s;
+    color: #fff;
+}
+
+.mainMenu:hover {
+    margin-top: -5px;
+
+    .mainMenuDesc {
+	margin-top: 0px;
+    }
+}
+
+#mainMenuContainer .accountMenu {
+    margin: -5px 17px 0 17px;
+    width: 32px;
+    height: 32px;
+}
+
+#mainMenuContainer .accountMenu .mat-button-wrapper {
+    margin: 0 0 0 -10px;
+    padding: 0;
+}
+
+
+#mainMenuContainer .accountMenu mat-icon {
     margin: 0;
+    width: 30px;
+    height: 30px;
     color: mat-color($rmm-default-primary);
 }
 
-#mainMenu #runbox6 {
-    color: mat-color($rmm-default-accent) !important;
+.mainMenuSub .mat-button {
+    height: 48px !important;
+    width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 32px !important;
+    text-align: left !important;
+}
+
+.mainMenuSub .mat-menu-item .mat-icon, .mainMenuSub .mat-button, .mainMenuSub .mat-icon {
+    color: mat-color($rmm-default-primary) !important;
+}
+
+.mainMenuSub .mat-icon {
+    margin-right: 16px;
+}
+
+.mainMenuSub .mat-button-focus-overlay {
+    background-color: rgba(0,0,0,.03) !important;
+}
+
+#mainMenu button, #mainMenu a, .mainMenuSub, .mainMenuSub a {
+    font-size: 16px;
+}
+
+.mainMenuLogo {
+}
+
+#logo {
+    margin: 0px 10px 0 20px;
+    width: 125px;
+    height: auto;
 }
 
 
@@ -560,75 +632,6 @@ mat-sidenav-container {
     font-size: 12px !important;
 }
 
-.mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
-    color: mat-color($rmm-default-primary) !important;
-}
-
-#mainMenu button {
-    margin-left: 0em;
-}
-
-.mainMenu p {
-    margin: 0;
-    line-height: 20px;
-}
-
-.mainMenu a, mat-menu a, .mat-nav-list a {
-    min-width: 72px;
-    line-height: 20px;
-    padding: 0;
-    text-decoration: none;
-    font-weight: 400;
-}
-
-.mainMenu .mainMenuDesc {
-    display: none;
-}
-
-.mainMenu:hover + .mainMenuDesc {
-    display: block;
-}
-
-#mainMenu mat-icon {
-    margin: 0 10px 0 0;
-    color: #fff;
-}
-
-.mainMenuSub .mat-button {
-    height: 48px !important;
-    width: 100% !important;
-    padding-left: 16px !important;
-    padding-right: 32px !important;
-    text-align: left !important;
-}
-
-.mainMenuSub .mat-menu-item .mat-icon, .mainMenuSub .mat-button, .mainMenuSub .mat-icon {
-    color: mat-color($rmm-default-primary) !important;
-}
-
-.mainMenuSub .mat-icon {
-    margin-right: 16px;
-}
-
-.mainMenuSub .mat-button-focus-overlay {
-    background-color: rgba(0,0,0,.03) !important;
-}
-
-#mainMenu button, #mainMenu a, .mainMenuSub, .mainMenuSub a {
-    font-size: 16px;
-}
-
-.mainMenuLogo {
-    line-height: 0px;
-}
-
-#logo {
-    margin-left: 20px;
-    margin-right: 10px;
-    width: 125px;
-    height: auto;
-}
-
 #logoSidenav {
     width: 125px;
     height: auto;
@@ -650,6 +653,7 @@ mat-sidenav-container {
     color: mat-color($rmm-default-primary);
     text-decoration: underline;
 }
+
 
 /* Welcome Desk */
 .welcomedesk a {
