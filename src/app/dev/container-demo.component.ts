@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -16,23 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
+
 import { Component } from '@angular/core';
 
 @Component({
   moduleId: 'angular2/app/dev/',
-  selector: 'app-dev',
-  templateUrl: 'dev.component.html'
+  template: `
+<app-runbox-container
+    sidebar_opened=false
+>
+   New components goes here ie. &lt;runbox-component/&gt;
+</app-runbox-container>
+  `
 })
-export class DevComponent {
-    routes = [
-        { path: 'app-activity-indicator',  name: 'Activity Indicator' },
-        { path: 'app-runbox-intro',        name: 'Intro'              },
-        { path: 'app-runbox-list',         name: 'List'               },
-        { path: 'app-runbox-container',    name: 'Container'          },
-        { path: 'app-runbox-section',      name: 'Section'            },
-        { path: 'app-runbox-slide-toggle', name: 'Slide Toggle'       },
-        { path: 'app-runbox-timer',        name: 'Timer'              },
-        { path: 'app-runbox-dynamic',      name: 'Dynamic'            },
-        { path: 'app-runbox-loading',      name: 'Loading indicator'  },
-    ];
-}
+export class ContainerDemoComponent { }
