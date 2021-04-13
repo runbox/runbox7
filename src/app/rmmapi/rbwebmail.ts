@@ -767,6 +767,12 @@ export class RunboxWebmailAPI {
         return this.http.delete('/rest/v1/account_product/payment_methods/' + id);
     }
 
+    public setupCreditCard(): Observable<any> {
+        return this.http.post('/rest/v1/account_product/payment_methods/', {}).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
     public makeCardDefault(id: string): Observable<any> {
         return this.http.post('/rest/v1/account_product/default_payment_method/' + id, {});
     }
