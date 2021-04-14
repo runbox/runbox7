@@ -17,15 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 
 import { SearchIndexDocumentData } from '../xapian/searchservice';
-
-export interface ContactHilights {
-    icon: string;
-    name: string;
-    emails: SearchIndexDocumentData[];
-}
+import { ContactHilights } from './startdesk.component';
 
 @Component({
     selector: 'app-overview-sender-hilights',
@@ -38,21 +33,43 @@ export interface ContactHilights {
   </div>
   <div class="subject">
     <ul>
-      <li *ngFor="let email of sender.emails">
+      <li *ngFor="let email of shownEmails">
           <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
       </li>
     </ul>
   </div>
   <div class="showMoreLess">
-    <div class="showMore">Show nn more</div>
-    <div class="showLess">Show less</div>
+    <button *ngIf="canShowMore" mat-button class="showMore" (click)="showMore.next()">
+        Show {{ sender.emails.length - shownCount }} more
+    </button>
+    <button *ngIf="canShowLess" mat-button class="showLess" (click)="showLess.next()">
+        Show less
+    </button>
   </div>
 </mat-card>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SenderHilightsComponent {
+export class SenderHilightsComponent implements OnChanges {
     @Input() sender: ContactHilights;
+
+    @Output() showMore = new EventEmitter<void>();
+    @Output() showLess = new EventEmitter<void>();
+
+    canShowMore = false;
+    canShowLess = false;
+
+    DEFAULT_SHOWN_EMAILS = 3;
+    shownCount: number;
+    shownEmails = [];
+
+    ngOnChanges() {
+        this.shownCount = this.sender.shownEmails || this.DEFAULT_SHOWN_EMAILS;
+
+        this.canShowMore = this.shownCount < this.sender.emails.length;
+        this.canShowLess = this.shownCount > this.DEFAULT_SHOWN_EMAILS;
+        this.shownEmails = this.sender.emails.slice(0, this.shownCount);
+    }
 
     public emailPath(email: SearchIndexDocumentData): string {
         const folderPath = email.folder.replace(/\./, '/');

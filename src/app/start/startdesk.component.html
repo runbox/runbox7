@@ -51,6 +51,8 @@
           <app-overview-sender-hilights
             *ngFor="let sender of regularOverview.concat(mailingListOverview)"
             [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
           ></app-overview-sender-hilights>
         </mat-tab>
         <mat-tab label="Directly to you ({{ regularEmailCount }})">
@@ -60,6 +62,8 @@
           <app-overview-sender-hilights
             *ngFor="let sender of regularOverview"
             [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
           ></app-overview-sender-hilights>
         </mat-tab>
         <mat-tab label="From mailing lists ({{ mailingListEmailCount }})">
@@ -67,8 +71,10 @@
             No messages (yet?)
           </div>
           <app-overview-sender-hilights
-            *ngFor="let sender of regularOverview"
+            *ngFor="let sender of mailingListOverview"
             [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
           ></app-overview-sender-hilights>
         </mat-tab>
       </mat-tab-group>
