@@ -206,6 +206,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   path: 'not-for-subaccounts',
                   component: NoProductsForSubaccountsComponent,
               },
+              { path: 'components', redirectTo: '' },
             ]
           }
         ]
