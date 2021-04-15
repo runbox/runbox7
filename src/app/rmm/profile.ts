@@ -20,6 +20,7 @@ import { timeout, share } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { RMM } from '../rmm';
 import { FromAddress } from '../rmmapi/from_address';
+import { PubSub } from './pubsub';
 
 export class Profile {
     public profiles: any;
@@ -27,9 +28,11 @@ export class Profile {
     is_busy: boolean;
     compose_froms: any;
     public from_addresses: FromAddress[] = [];
+    public pubsub;
     constructor(
         public app: RMM,
     ) {
+        this.pubsub = new PubSub();
     }
     load(): Observable<any> {
         this.is_busy = true;
@@ -80,6 +83,7 @@ export class Profile {
                     this.from_addresses.push(profile);
                 });
             });
+            this.pubsub.publish('profiles_verified.updated', [ this.profiles_verified ]);
           },
           error => {
             this.is_busy = false;
