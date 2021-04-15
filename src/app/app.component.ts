@@ -1023,7 +1023,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           default:
             if (this.searchText.length < 3) {
               // Expand to all folders if search text length is longer than 3 characters
-              querytext += this.searchService.getFolderQuery(querytext, this.selectedFolder, this.unreadMessagesOnlyCheckbox);
+              const restrictToUnread = this.unreadMessagesOnlyCheckbox
+                && !this.messagelistservice.ignoreUnreadInFolders.includes(this.selectedFolder)
+                ? true : false;
+              querytext += this.searchService.getFolderQuery(querytext, this.selectedFolder, restrictToUnread);
             }
         }
         const previousDisplayFolderColumn = this.displayFolderColumn;
