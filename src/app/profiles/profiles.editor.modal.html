@@ -10,7 +10,7 @@
         </mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content class="content">
+    <mat-card-content class="content" style="margin-bottom: 0;">
         <form>
             <mat-form-field class="form-field form-item">
                 <input matInput placeholder="From" name="from" [(ngModel)]="data.profile.from_name"
@@ -111,6 +111,8 @@
         <a href="javascript:void(0)" (click)="resend_validate_email(data.profile.id)">
             re-send</a>.
     </div>
+
+    <p class="mat-small" style="text-align: center; margin-top: 0;" *ngIf="this.data.profile.type === 'aliases'">To manage aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Administration</a>.</p>
 
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
