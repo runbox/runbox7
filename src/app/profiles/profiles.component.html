@@ -29,6 +29,7 @@
                 <p>Aliases are extra email addresses that deliver to your email account, just as your main email address
                     does. An alias can't be used to log in or have any storage of its own, and does not work independently from
                     your account.</p>
+                <p style="color: crimson" *ngIf="rmm.alias?.aliases_counter.current === 100">You have reached the maximum allowed number of Runbox aliases.</p>
                 <p>To manage your aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Administration</a>.</p>
             </div>
             <div section-buttons>
