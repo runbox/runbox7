@@ -39,7 +39,7 @@ describe('Switching between folders (and not-folders)', () => {
 
         cy.visit('/#Inbox:1');
         cy.get('rmm-folderlist mat-tree-node:contains(Spam)').click();
-        cy.url().should('be', '/#Spam');
+        cy.url().should('contain', '/#Spam');
         cy.get('rmm-folderlist mat-tree-node:contains(Spam)').should('have.class', 'selectedFolder');
     });
 })
