@@ -502,20 +502,20 @@ div.mainMenu {
 
 #mainMenuContainer .accountMenu {
     margin: -5px 17px 0 17px;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
 }
 
 #mainMenuContainer .accountMenu .mat-button-wrapper {
-    margin: 0 0 0 -10px;
+    margin: 0 0 0 -11px;
     padding: 0;
 }
 
 
 #mainMenuContainer .accountMenu mat-icon {
     margin: 0;
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     color: mat-color($rmm-default-primary);
 }
 
@@ -550,6 +550,15 @@ div.mainMenu {
     margin: 0px 10px 0 20px;
     width: 125px;
     height: auto;
+    transition: margin-left 0.25s;
+    transition: width 0.25s;
+    transition: height 0.25s;
+}
+
+#logo:hover {
+    width: 130px;
+    height: auto;
+    margin-left: 18px;
 }
 
 
