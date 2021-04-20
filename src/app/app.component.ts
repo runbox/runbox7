@@ -342,22 +342,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       }
     });
 
-    this.route.fragment.subscribe(
-      fragment => {
-        if (!fragment) {
-          this.messagelistservice.setCurrentFolder('Inbox');
-          this.singlemailviewer.close();
-          this.fragment = '';
-          return;
-        }
-
-        if (fragment !== this.fragment) {
-          this.fragment = fragment;
-          this.selectMessageFromFragment(fragment);
-        }
-      }
-    );
-
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -401,6 +385,24 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         this.canvastable.detectChanges();
       }
     });
+
+    // we have to do it here so that we don't do selectMessageFromFragment()
+    // before the messagelist exists
+    this.route.fragment.subscribe(
+      fragment => {
+        if (!fragment) {
+          this.messagelistservice.setCurrentFolder('Inbox');
+          this.singlemailviewer.close();
+          this.fragment = '';
+          return;
+        }
+
+        if (fragment !== this.fragment) {
+          this.fragment = fragment;
+          this.selectMessageFromFragment(fragment);
+        }
+      }
+    );
   }
 
   selectMessageFromFragment(fragment: string): void {
