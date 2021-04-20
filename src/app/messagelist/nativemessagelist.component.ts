@@ -79,7 +79,7 @@ export class NativeMessageListComponent implements MessageListComponent {
             });
             this.shownRows.push({
                 rowid:   i,
-                from:    row[this.columnsByName['From']],
+                from:    row[this.columnsByName['From'] || this.columnsByName['To']],
                 subject: row[this.columnsByName['Subject']],
                 date:    row[this.columnsByName['Date']],
                 unread:  this.rows.getRowSeen(i),
