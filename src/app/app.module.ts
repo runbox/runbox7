@@ -86,8 +86,8 @@ import { StartDeskComponent } from './start/startdesk.component';
 import { SearchService } from './xapian/searchservice';
 import { SavedSearchesComponent } from './saved-searches/saved-searches.component';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
-import { CanvasMessageListComponent } from './messagelist/canvasmessagelist';
-import { NativeMessageListComponent } from './messagelist/nativemessagelist';
+import { CanvasMessageListComponent } from './messagelist/canvasmessagelist.component';
+import { NativeMessageListComponent } from './messagelist/nativemessagelist.component';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
