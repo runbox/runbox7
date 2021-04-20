@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input } from '@angular/core';
 
 import { MessageListComponent, RowSelection } from './messagelistcomponent';
 import { MessageDisplay } from '../common/messagedisplay';
@@ -40,6 +40,8 @@ interface Message {
     styleUrls: ['nativemessagelist.component.scss'],
 })
 export class NativeMessageListComponent implements MessageListComponent {
+    @Input() inlinePreviews = false;
+
     sortColumn = 2;
     sortDescending = true;
 

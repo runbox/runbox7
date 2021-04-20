@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 
 import { MessageListComponent, RowSelection } from './messagelistcomponent';
 import { CanvasTableComponent, CanvasTableContainerComponent } from '../canvastable/canvastable';
@@ -29,8 +29,10 @@ import { Subject } from 'rxjs';
     selector: 'app-canvasmessagelist',
     template: `<canvastablecontainer></canvastablecontainer>`,
 })
-export class CanvasMessageListComponent implements MessageListComponent, OnInit {
+export class CanvasMessageListComponent implements MessageListComponent, OnInit, OnChanges {
     @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
+
+    @Input() inlinePreviews = false;
 
     get canvastable(): CanvasTableComponent {
         return this.canvastablecontainer.canvastable;
@@ -39,6 +41,10 @@ export class CanvasMessageListComponent implements MessageListComponent, OnInit 
     ngOnInit() {
         this.canvastablecontainer.sortColumn = 2;
         this.canvastablecontainer.sortDescending = true;
+    }
+
+    ngOnChanges() {
+        this.canvastable.showContentTextPreview = this.inlinePreviews;
     }
 
     // required by MessageListComponent

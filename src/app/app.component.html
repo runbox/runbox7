@@ -304,9 +304,11 @@
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !mailViewerOnRightSide && singlemailviewer ? singlemailviewer.height: 0}">
         <app-canvasmessagelist #messagelist
          *ngIf="useNativeMailList === false"
+         [inlinePreviews]="settingsService.settings.mailviewerContentPreview"
         ></app-canvasmessagelist>
         <app-nativemessagelist #messagelist
          *ngIf="useNativeMailList === true"
+         [inlinePreviews]="settingsService.settings.mailviewerContentPreview"
         ></app-nativemessagelist>
       </div>
 
