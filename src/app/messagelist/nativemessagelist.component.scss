@@ -23,6 +23,16 @@
     }
 }
 
+.contentPreview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .noPreview {
+        font-style: italic;
+        color: #bbb;
+    }
+}
+
 .indicatorsRow {
     display: flex;
     justify-content: flex-end;

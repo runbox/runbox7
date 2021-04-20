@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges } from '@angular/core';
 
 import { MessageListComponent, RowSelection } from './messagelistcomponent';
 import { MessageDisplay } from '../common/messagedisplay';
@@ -32,6 +32,7 @@ interface Message {
     subject: string;
     unread: boolean;
     count: number;
+    contentPreview?: string;
 }
 
 @Component({
@@ -39,7 +40,7 @@ interface Message {
     templateUrl: 'nativemessagelist.component.html',
     styleUrls: ['nativemessagelist.component.scss'],
 })
-export class NativeMessageListComponent implements MessageListComponent {
+export class NativeMessageListComponent implements MessageListComponent, OnChanges {
     @Input() inlinePreviews = false;
 
     sortColumn = 2;
@@ -62,6 +63,10 @@ export class NativeMessageListComponent implements MessageListComponent {
     columnNames: string[];
     columnsByName: Map<string, number>;
 
+    ngOnChanges(): void {
+        this.detectChanges();
+    }
+
     detectChanges(): void {
         if (!this.rows) {
             return;
@@ -76,10 +81,14 @@ export class NativeMessageListComponent implements MessageListComponent {
         let retry = false;
 
         for (let i = this.offset; i < this.upto; i++) {
+            let contentPreview: string;
             const row = this.columns.map(c => {
                 let value = c.getValue(i);
                 if (c.getFormattedValue) {
                     value = c.getFormattedValue(value);
+                }
+                if (c.getContentPreviewText && this.inlinePreviews) {
+                    contentPreview = c.getContentPreviewText(i);
                 }
                 return value;
             });
@@ -93,6 +102,7 @@ export class NativeMessageListComponent implements MessageListComponent {
                 date:    row[this.columnsByName['Date']],
                 count:   row[this.columnsByName['Count']],
                 unread:  this.rows.getRowSeen(i),
+                contentPreview,
             });
         }
         this.remaining = this.rowCount - this.upto;

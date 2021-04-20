@@ -25,6 +25,12 @@
                 <span class="note" *ngIf="row.unread"><em>UNREAD</em></span>
             </div>
         </div>
+        <div class="contentPreview" *ngIf="inlinePreviews">
+            <span *ngIf="row.contentPreview; else noPreview"> {{ row.contentPreview }} </span>
+            <ng-template #noPreview>
+                <span class="noPreview"> Preview not available </span>
+            </ng-template>
+        </div>
     </button>
     <button mat-stroked-button class="pagingButton" *ngIf="remaining > 0" (click)="scrollDown()">
         Show next {{ rowsDisplayed }} messages
