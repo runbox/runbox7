@@ -20,7 +20,10 @@
         </div>
         <div class="subjectRow">
             <div class="subject"> {{ row.subject }} </div>
-            <div *ngIf="row.unread"> <em>UNREAD</em> </div>
+            <div class="notes">
+                <span class="note" *ngIf="row.count > 1"><em>{{ row.count }} messages in thread</em></span>
+                <span class="note" *ngIf="row.unread"><em>UNREAD</em></span>
+            </div>
         </div>
     </button>
     <button mat-stroked-button class="pagingButton" *ngIf="remaining > 0" (click)="scrollDown()">

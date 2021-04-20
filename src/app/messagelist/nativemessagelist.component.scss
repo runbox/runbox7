@@ -17,6 +17,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+    .note:not(:last-of-type):after {
+        content: ", ";
+    }
 }
 
 .indicatorsRow {

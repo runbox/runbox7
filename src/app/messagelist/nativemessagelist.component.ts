@@ -31,6 +31,7 @@ interface Message {
     date: string;
     subject: string;
     unread: boolean;
+    count: number;
 }
 
 @Component({
@@ -69,6 +70,9 @@ export class NativeMessageListComponent implements MessageListComponent {
         if (this.rowCount < this.upto) {
             this.upto = this.rowCount;
         }
+
+        let retry = false;
+
         for (let i = this.offset; i < this.upto; i++) {
             const row = this.columns.map(c => {
                 let value = c.getValue(i);
@@ -77,15 +81,22 @@ export class NativeMessageListComponent implements MessageListComponent {
                 }
                 return value;
             });
+            if (row[this.columnsByName['Count']] === 'RETRY') {
+                retry = true;
+            }
             this.shownRows.push({
                 rowid:   i,
                 from:    row[this.columnsByName['From'] || this.columnsByName['To']],
                 subject: row[this.columnsByName['Subject']],
                 date:    row[this.columnsByName['Date']],
+                count:   row[this.columnsByName['Count']],
                 unread:  this.rows.getRowSeen(i),
             });
         }
         this.remaining = this.rowCount - this.upto;
+        if (retry) {
+            setTimeout(() => this.detectChanges(), 50);
+        }
     }
 
     resetColumns(app: AppComponent): void {
@@ -99,8 +110,6 @@ export class NativeMessageListComponent implements MessageListComponent {
                 this.columnsByName[name] = i;
             }
         }
-        // console.log("Columns have changed:", this.columnNames.join(', '));
-        // console.log(this.columnsByName);
         this.detectChanges();
     }
 
