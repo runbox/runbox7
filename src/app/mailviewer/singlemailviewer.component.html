@@ -98,10 +98,10 @@
             <mat-icon svgIcon="delete"></mat-icon>
             Move to Trash
           </span>
-          <span #deletePermanently2>
+          <ng-template #deletePermanently2>
             <mat-icon svgIcon="delete-forever"></mat-icon>
             Delete permanently
-          </span>
+          </ng-template>
         </button>
         <button *ngIf="morebuttonindex<3" mat-menu-item (click)="messageActionsHandler.reply(showHTML)">
           <mat-icon svgIcon="reply"></mat-icon>
