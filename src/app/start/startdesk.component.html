@@ -45,71 +45,37 @@
       </div>
       <mat-tab-group>
         <mat-tab label="All emails ({{ totalEmailCount }})">
-          <!-- should work just as well but doesn't: why?
-          <app-overview-sender-hilights
-            *ngFor="let sender of regularOverview.concat(mailingListOverview)"
-            [sender]="sender"
-          ></app-overview-sender-hilights>
-          -->
           <div *ngIf="totalEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
           </div>
-          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
-	    <div class="contactIcon">
-	      <mat-icon> {{ sender.icon }}</mat-icon>
-	    </div>
-            <div class="contact">
-              <h5> {{ sender.name }} </h5>
-              <div class="messages">{{ sender.emails.length }} messages</div>
-            </div>
-            <div class="subject">
-              <ul>
-                <li *ngFor="let email of sender.emails">
-                    <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
-                </li>
-              </ul>
-            </div>
-	    <div class="showMoreLess">
-	      <div class="showMore">Show nn more</div>
-	      <div class="showLess">Show less</div>
-	    </div>
-          </mat-card>
+          <app-overview-sender-hilights
+            *ngFor="let sender of regularOverview.concat(mailingListOverview)"
+            [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
+          ></app-overview-sender-hilights>
         </mat-tab>
         <mat-tab label="Directly to you ({{ regularEmailCount }})">
           <div *ngIf="regularEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
           </div>
-          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview">
-            <div class="contact">
-              <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages</div>
-            </div>
-            <div class="subject">
-              <ul>
-                <li *ngFor="let email of sender.emails">
-                    <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
-                </li>
-              </ul>
-            </div>
-          </mat-card>
+          <app-overview-sender-hilights
+            *ngFor="let sender of regularOverview"
+            [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
+          ></app-overview-sender-hilights>
         </mat-tab>
         <mat-tab label="From mailing lists ({{ mailingListEmailCount }})">
           <div *ngIf="mailingListEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
           </div>
-          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of mailingListOverview">
-            <div class="contact">
-              <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages</div>
-            </div>
-            <div class="subject">
-              <ul>
-                <li *ngFor="let email of sender.emails">
-                    <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
-                </li>
-              </ul>
-            </div>
-          </mat-card>
+          <app-overview-sender-hilights
+            *ngFor="let sender of mailingListOverview"
+            [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
+          ></app-overview-sender-hilights>
         </mat-tab>
       </mat-tab-group>
     </mat-card>

@@ -31,11 +31,12 @@ import { ReplaySubject } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import {MatSelectChange} from '@angular/material/select';
 
-interface ContactHilights {
+export interface ContactHilights {
     icon: string;
     name: string;
     contact?: Contact;
     emails: SearchIndexDocumentData[];
+    shownEmails?: number;
 }
 
 enum TimeSpan {
@@ -74,6 +75,7 @@ export class StartDeskComponent implements OnInit {
 
     regularOverview: ContactHilights[] = [];
     mailingListOverview: ContactHilights[] = [];
+    emailsShownPerName = new Map<string, number>();
 
     // exposing enums to the template
     TimeSpan = TimeSpan;
@@ -178,6 +180,7 @@ export class StartDeskComponent implements OnInit {
                     icon:  'person',
                     name:   sender,
                     emails: messagesBySender[sender],
+                    shownEmails: this.emailsShownPerName.get(sender),
                 };
             }
         );
@@ -188,6 +191,7 @@ export class StartDeskComponent implements OnInit {
                     icon:   'list',
                     name:   ml,
                     emails: messagesFromLists.get(ml),
+                    shownEmails: this.emailsShownPerName.get(ml),
                 };
             }
         );
@@ -281,6 +285,16 @@ export class StartDeskComponent implements OnInit {
         }
 
         return mailingLists;
+    }
+
+    public showMoreFor(sender: ContactHilights) {
+        this.emailsShownPerName.set(sender.name, sender.emails.length);
+        this.updateCommsOverview();
+    }
+
+    public showLessFor(sender: ContactHilights) {
+        this.emailsShownPerName.delete(sender.name);
+        this.updateCommsOverview();
     }
 
     public toggleFolderVisibility(folderName: string, event: MatCheckboxChange) {
