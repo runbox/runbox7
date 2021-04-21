@@ -722,8 +722,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
-    this.showSelectOperations = Object.keys(this.canvastable.rows.selectedRowIds).reduce((prev, current) =>
-      (this.canvastable.rows.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
+    this.showSelectOperations = this.canvastable.rows.anySelected();
 
     if (this.canvastable.rows.hasChanges) {
       this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);

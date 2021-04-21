@@ -21,8 +21,9 @@ import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 export abstract class MessageDisplay {
   public openedRowIndex: number;
   public selectedRowId: number;
-//  public openedRowId: number;
-  public selectedRowIds: { [key: number]: boolean } = {};
+  //  public openedRowId: number;
+  public msgIdsSelected: { [key: number]: boolean } = {};
+  // public selectedRowIds: { [key: number]: boolean } = {};
   public hasChanges: boolean;
 
   public rows = [];
@@ -36,20 +37,43 @@ export abstract class MessageDisplay {
     return this.rows.length;
   }
 
+  // row indexes which are selected
+  selectedRowIds(): number[] {
+    return Object.keys(this.msgIdsSelected).map((msgIndex) => this.findRowByMessageId(parseInt(msgIndex, 10)));
+  }
+
+  // msgIds which are actually selected (value is true, not false)
   selectedMessageIds(): number[] {
-    return Object.keys(this.selectedRowIds).map((rowIndex) => this.getRowMessageId(parseInt(rowIndex, 10)));
+    return Object.keys(this.msgIdsSelected).filter((msgId) => this.msgIdsSelected[parseInt(msgId, 10)]).map((msgId) => parseInt(msgId, 10));
   }
 
+  // true if we selected all included messages
   allSelected(): boolean {
-    return Object.keys(this.selectedRowIds).filter((key) => this.selectedRowIds[key]).length === this.rows.length;
+    return Object.keys(this.msgIdsSelected).filter((key) => this.msgIdsSelected[key]).length === this.rows.length;
   }
 
-  // public selectPreviousRow() {
-  //   const newRowIndex = this.openedRowIndex - 1;
-  //   if (newRowIndex >= 0) {
+  // true if any messages are selected
+  anySelected(): boolean {
+    return Object.values(this.msgIdsSelected).includes(true);
+  }
 
-  //   }
-  // }
+  // invert message selection
+  public flipSelectedRow(rowIndex: number) {
+    const msgId = this.getRowMessageId(rowIndex);
+    this.msgIdsSelected[msgId] = !this.msgIdsSelected[msgId];
+  }
+
+  // ensure this message is selected
+  public selectRow(rowIndex: number) {
+    const msgId = this.getRowMessageId(rowIndex);
+    this.msgIdsSelected[msgId] = true;
+  }
+
+  // remove item from selection list altogether
+  public delSelectedRow(rowIndex: number) {
+    const msgId = this.getRowMessageId(rowIndex);
+    delete this.msgIdsSelected[msgId];
+  }
 
   public getCurrentRow(): any {
     return this.rows[this.openedRowIndex];
@@ -75,27 +99,27 @@ export abstract class MessageDisplay {
 
     // flip sense of selected row (deleted below if now false)
     if (columnIndex >= -1) {
-      this.selectedRowIds[this.selectedRowId] = !this.selectedRowIds[this.selectedRowId];
+      this.flipSelectedRow(this.selectedRowId);
     }
     if (multiSelect) {
       // MS is a special snowflake:
-      this.selectedRowIds[this.selectedRowId] = true;
+      this.selectRow(this.selectedRowId);
       return;
     }
 
     // click anywhere on a row right of the checkbox, reset the selected rows
     // as we want to open the email instead
     if (columnIndex > 0) {
-      this.selectedRowIds = {};
+      this.msgIdsSelected = {};
     }
 
     // columnIndex == -1 if drag & drop
     // columnIndex == 0 is the checkbox
     // we're removing this one from the selected list (sense reversed
     // above, but we only remove when not in multiSelect mode)
-    if (columnIndex === 0 && !this.selectedRowIds[this.selectedRowId]) {
+    if (columnIndex === 0 && !this.isSelectedRow(this.selectedRowId)) {
       this.selectedRowId = null;
-      delete this.selectedRowIds[selectedRowId];
+      this.delSelectedRow(selectedRowId);
     }
 
     // If we clicked right of the checkbox, we wanted to open the email:
@@ -127,7 +151,8 @@ export abstract class MessageDisplay {
   }
 
   isSelectedRow(index: number): boolean {
-    return this.selectedRowIds[index] === true;
+    const msgId = this.getRowMessageId(index);
+    return this.msgIdsSelected[msgId] === true;
   }
 
   isOpenedRow(index: number): boolean {
@@ -136,7 +161,7 @@ export abstract class MessageDisplay {
 
   clearSelection() {
     this.selectedRowId = null;
-    this.selectedRowIds = {};
+    this.msgIdsSelected = {};
 //    this.openedRowIndex = null;
   }
 
