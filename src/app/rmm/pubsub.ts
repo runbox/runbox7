@@ -29,14 +29,14 @@ export class PubSub {
   subscribe(subject, callback) {
     this.subject[subject] = this.subject[subject] || [];
     this.subject[subject].push(callback);
-    var subscription = [subject, callback];
+    const subscription = [subject, callback];
     return subscription;
   }
   unsubscribe(subscription) {
-    var subject = subscription[0];
-    var callback = subscription[1];
+    const subject = subscription[0];
+    const callback = subscription[1];
     this.subject[subject].forEach( (v, i) => {
-        if ( v == callback ) { this.subject[subject].splice(i, 1) }
-    } )
+        if ( v === callback ) { this.subject[subject].splice(i, 1); }
+    } );
   }
 }
