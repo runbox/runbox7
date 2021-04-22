@@ -83,22 +83,7 @@ export class DefaultProfileComponent {
                 priorities.push(values);
             }
         }
-        this.updateFromPriorities(priority_data);
-    }
-
-    updateFromPriorities(values: { from_priorities: any[] }) {
-        const req = this.rmm.ua.http.put('/rest/v1/profile/from_priority/', values).pipe(retry(3), timeout(10000), share());
-        req.subscribe(
-            (reply) => {
-                if (reply['status'] === 'success') {
-                    this.rmm.profile.load();
-                    this.showNotification('Default Identity updated');
-                } else if (reply['status'] === 'error') {
-                    this.showNotification('Could not update Default Identity');
-                    return;
-                }
-            }
-        );
+        this.rmm.profile.updateFromPriorities(priority_data);
     }
 
     updateType(id: number, values: { type: string }, field_errors: any) {

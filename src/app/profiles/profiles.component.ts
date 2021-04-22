@@ -16,13 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
-import { RMM } from '../rmm';
+import { RMM, AllIdentities } from '../rmm';
 
 @Component({
   moduleId: 'angular2/app/profiles/',
@@ -30,17 +30,19 @@ import { RMM } from '../rmm';
   templateUrl: 'profiles.component.html'
 })
 
-export class ProfilesComponent implements AfterViewInit {
+export class ProfilesComponent implements OnInit {
   panelOpenState = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
+  profiles: AllIdentities;
   aliases = [];
   aliases_counter = {};
   aliases_unique = [];
   dialog_ref: any;
 
-  ngAfterViewInit() {
+  ngOnInit() {
+    this.rmm.profile.profiles.subscribe(profiles => this.profiles = profiles);
   }
 
   ev_reload_emiter (ev) {

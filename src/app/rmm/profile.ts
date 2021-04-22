@@ -17,12 +17,36 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { RMM } from '../rmm';
 import { FromAddress } from '../rmmapi/from_address';
 
+export class Identity {
+    email: string;
+    from_name: string;
+    from_priority: number;
+    id: number;
+    is_sigature_html: boolean;
+    is_smtp_enabled: boolean;
+    name: string;
+    reference_type: string;
+    reply_to: string;
+    signature: string;
+    type: string;
+    smtp_address: string;
+    smtp_password: string;
+    smtp_port: string;
+    smtp_username: string;
+}
+
+export class AllIdentities {
+    aliases: Identity[];
+    main: Identity;
+    others: Identity[];
+}
+
 export class Profile {
-    public profiles: any;
+    public profiles: Subject<AllIdentities> = new Subject();
     public profiles_verified: any;
     is_busy: boolean;
     compose_froms: any;
@@ -31,17 +55,16 @@ export class Profile {
         public app: RMM,
     ) {
     }
-    load(): Observable<any> {
+    load() {
         this.is_busy = true;
-        const req = this.app.ua.http.get('/rest/v1/profiles', {}).pipe(timeout(60000), share());
-        req.subscribe(
+        this.app.ua.http.get('/rest/v1/profiles', {}).subscribe(
           reply => {
             this.is_busy = false;
             if ( reply['status'] === 'error' ) {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
-            this.profiles = reply['result'];
+              this.profiles.next(reply['result'] as AllIdentities);
             return;
           },
           error => {
@@ -49,7 +72,6 @@ export class Profile {
             return this.app.show_error('Could not load profiles.', 'Dismiss');
           }
         );
-        return req;
     }
     load_verified(): Observable<any> {
         this.from_addresses.splice(0, this.from_addresses.length);
@@ -142,4 +164,18 @@ export class Profile {
         );
         return req;
     }
+    updateFromPriorities(values: { from_priorities: any[] }) {
+        this.app.ua.http.put('/rest/v1/profile/from_priority/', values).subscribe(
+            (reply) => {
+                if (reply['status'] === 'success') {
+                    this.load();
+//                    this.showNotification('Default Identity updated');
+                } else if (reply['status'] === 'error') {
+                    this.app.show_error('Could not update Default Identity', 'Dismiss');
+                    return;
+                }
+            }
+        );
+    }
+
 }

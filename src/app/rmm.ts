@@ -20,12 +20,14 @@ import { Injectable } from '@angular/core';
 import { UserAgent } from './rmm/useragent';
 import { HttpClient } from '@angular/common/http';
 import { Email } from './rmm/email';
-import { Profile } from './rmm/profile';
+import { Profile, AllIdentities, Identity } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
 import { AccountSecurity } from './rmm/account-security';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
+export { AllIdentities, Identity } from './rmm/profile';
 
 @Injectable({
     providedIn: 'root',

@@ -23,6 +23,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { RMM } from '../rmm';
 import { from, of, AsyncSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
 
@@ -197,7 +198,9 @@ export class DraftDeskService {
     draftsRefreshed: AsyncSubject<boolean> = new AsyncSubject();
     froms: FromAddress[] = [];
 
-    constructor(public rmmapi: RunboxWebmailAPI, private http: HttpClient) {
+    constructor(public rmmapi: RunboxWebmailAPI, private http: HttpClient, private rmm: RMM) {
+        this.rmm.profile.profiles.subscribe((_) =>
+            this.refreshFroms());
         this.refreshDrafts().then(() => {
             this.draftsRefreshed.next(true);
             this.draftsRefreshed.complete();
