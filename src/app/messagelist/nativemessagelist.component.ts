@@ -134,11 +134,17 @@ export class NativeMessageListComponent implements MessageListComponent, OnChang
     }
 
     scrollDown(): void {
-        this.offset += this.rowsDisplayed;
+        this.offset += 1;
+        if (this.offset == this.rowCount) {
+            this.offset = this.rowCount - 1;
+        }
         this.detectChanges();
     }
     scrollUp(): void {
-        this.offset -= this.rowsDisplayed;
+        this.offset -= 1;
+        if (this.offset < 0) {
+            this.offset = 0;
+        }
         this.detectChanges();
     }
     scrollTop(): void {
