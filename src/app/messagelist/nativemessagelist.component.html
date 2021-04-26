@@ -1,3 +1,4 @@
+<!--
 <div id="nativemessagelist">
     <div *ngIf="rowsDisplayed < rowCount">
         Showing messages {{ offset + 1 }}..{{ upto }} out of {{ rowCount }}
@@ -36,27 +37,46 @@
         Show next {{ rowsDisplayed }} messages
     </button>
 </div>
-<!--
-<div style="overflow: auto;">
-    <mat-table [dataSource]="shownRows" style="width: 100%; height: 100%">
-        <ng-container matColumnDef="Date">
-            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
-            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Date"]] }} </mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="From">
-            <mat-header-cell *matHeaderCellDef> From </mat-header-cell>
-            <mat-cell *matCellDef="let row"> {{ row[columnsByName["From"]] }} </mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="Subject">
-            <mat-header-cell *matHeaderCellDef> Subject </mat-header-cell>
-            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Subject"]] }} </mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="Size">
-            <mat-header-cell *matHeaderCellDef> Size </mat-header-cell>
-            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Size"]] }} </mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="columnNames; sticky: true"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: columnNames;"></mat-row>
-    </mat-table>
-</div>
 -->
+<div style="overflow: auto;">
+    <table mat-table [dataSource]="dataSource" style="width: 100%" multiTemplateDataRows>
+        <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let row"> {{ row.date }} </td>
+        </ng-container>
+        <ng-container matColumnDef="from">
+            <th mat-header-cell *matHeaderCellDef> From/To </th>
+            <td mat-cell *matCellDef="let row"> {{ row.from }} </td>
+        </ng-container>
+        <ng-container matColumnDef="subject">
+            <th mat-header-cell *matHeaderCellDef> Subject </th>
+            <td mat-cell *matCellDef="let row"> {{ row.subject }} </td>
+        </ng-container>
+        <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef> Count </th>
+            <td mat-cell *matCellDef="let row">
+                <span *ngIf="row.count !== 'RETRY'">
+                    {{ row.count }}
+                </span>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="preview">
+            <td mat-cell *matCellDef="let row" class="contentPreview" [attr.colspan]="shownColumns.length"> 
+                <span *ngIf="row.contentPreview; else noPreview"> {{ row.contentPreview }} </span>
+                <ng-template #noPreview>
+                    <span class="noPreview"> Preview not available </span>
+                </ng-template>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="shownColumns; sticky: true"></tr>
+        <tr mat-row [ngClass]="{ 'regularRow': inlinePreviews }" *matRowDef="let row; columns: shownColumns;" (click)="openMessage(row.rowid)"></tr>
+        <tr mat-row class="detailsRow" *matRowDef="let row; columns: ['preview']" [ngStyle]="{ 'display': inlinePreviews ? null : 'none' }"></tr>
+    </table>
+    <mat-paginator
+        [length]="rowCount"
+        [pageIndex]="pageIndex"
+        [pageSize]="rowsDisplayed"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="changePage($event)"
+    ></mat-paginator>
+</div>
