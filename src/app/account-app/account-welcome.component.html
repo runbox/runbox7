@@ -15,8 +15,8 @@
       line-height: 20px;
   }
   h4 {
-      margin: 0;
-      font-size: 16px;
+      margin: 0 0 0 5px;
+      font-size: 18px;
   }
   div.settingsRow {
       display: flex;
@@ -36,9 +36,10 @@
       border: 2px solid lightblue;
   }
   mat-card.settingsItem mat-icon {
+      margin-right: 5px;
       width: 26px;
       height: auto;
-      margin-right: 5px;
+      line-height: 14px;
   }
   div.divider {
       clear: both;
@@ -58,7 +59,7 @@
     <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a routerLink="/account/identities">
-          <h3><mat-icon svgIcon="border-inside"></mat-icon> <strong>Identities</strong></h3>
+          <h3><mat-icon svgIcon="account-group"></mat-icon> <strong>Identities</strong></h3>
 	  <p>Set up and manage alternative email addresses that deliver email to your account.</p>
 	</a>
       </mat-card>
@@ -126,14 +127,14 @@
     
     <div>
       <h4 class="themePaletteBlack">
-        <mat-icon svgIcon="manage_accounts" class="category"></mat-icon> Account & Security
+        <mat-icon svgIcon="account-cog" class="category"></mat-icon> Account & Security
       </h4>
       <p>Configure settings for your account and its security.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a href="/mail/account" target="rmm6" [matTooltip]="rmm6tooltip">
-	  <h3><mat-icon svgIcon="account"></mat-icon> <strong>Account Details</strong></h3>
+	  <h3><mat-icon svgIcon="account-details"></mat-icon> <strong>Account Details</strong></h3>
           <p>View and update your personal and account data.</p>
 	</a>
       </mat-card>
@@ -149,14 +150,14 @@
     
     <div>
       <h4 class="themePaletteBlack">
-        <mat-icon svgIcon="credit_score" class="category"></mat-icon> Subscriptions
+        <mat-icon svgIcon="credit-card-check" class="category"></mat-icon> Subscriptions
       </h4>
       <p>Manage your subscriptions and transactions.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
 	<a href="/account/upgrades">
-	  <h3><mat-icon svgIcon="card_membership"></mat-icon> <strong>Account Plans</strong></h3>
+	  <h3><mat-icon svgIcon="card-account-details"></mat-icon> <strong>Account Plans</strong></h3>
           <p>Subscribe to Runbox or change an existing subscription plan.</p>
 	</a>
       </mat-card>
@@ -168,13 +169,13 @@
       </mat-card>
       <mat-card class="settingsItem">
 	<a href="/account/renewals">
-	  <h3><mat-icon svgIcon="autorenew"></mat-icon> <strong>Products</strong></h3>
+	  <h3><mat-icon svgIcon="folder-star-multiple"></mat-icon> <strong>Products</strong></h3>
           <p>Show all active products in your account, and renew any of them at any time.</p>
 	</a>
       </mat-card>
       <mat-card class="settingsItem">
 	<a href="/account/transactions">
-	  <h3><mat-icon svgIcon="receipt_long"></mat-icon> <strong>Transactions</strong></h3>
+	  <h3><mat-icon svgIcon="receipt"></mat-icon> <strong>Transactions</strong></h3>
           <p>List all your payment transactions.</p>
 	</a>
       </mat-card>
