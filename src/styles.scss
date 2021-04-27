@@ -453,6 +453,17 @@ rmm-headertoolbar {
     width: 100%;
 }
 
+#logo {
+    margin: 0px 10px 3px 20px;
+    width: 125px;
+    height: auto;
+    transition: filter 0.5s;
+}
+
+#logo:hover {
+    filter: brightness(110%);
+}
+
 #mainMenuContainer mat-icon {
     color: #fff;
 }
@@ -480,7 +491,7 @@ rmm-headertoolbar {
     font-weight: 400;
 }
 
-div.mainMenu {
+.mainMenu, .mainMenuAccount {
     margin-top: 30px;
     transition: margin-top 0.25s;
 }
@@ -498,67 +509,46 @@ div.mainMenu {
     .mainMenuDesc {
 	margin-top: 0px;
     }
+
+    .accountMenu {
+	margin-top: 5px;
+    }
+
+    .accountMenu .mainMenuDesc {
+	margin: 7px 0 0 0;
+    }
 }
 
-#mainMenuContainer .accountMenu {
-    margin: -5px 17px 0 17px;
-    width: 30px;
-    height: 30px;
-}
-
-#mainMenuContainer .accountMenu .mat-button-wrapper {
-    margin: 0 0 0 -11px;
-    padding: 0;
-}
-
-
-#mainMenuContainer .accountMenu mat-icon {
-    margin: 0;
-    width: 26px;
-    height: 26px;
-    color: mat-color($rmm-default-primary);
-}
-
-.mainMenuSub .mat-button {
-    height: 48px !important;
-    width: 100% !important;
-    padding-left: 16px !important;
-    padding-right: 32px !important;
-    text-align: left !important;
-}
-
-.mainMenuSub .mat-menu-item .mat-icon, .mainMenuSub .mat-button, .mainMenuSub .mat-icon {
-    color: mat-color($rmm-default-primary) !important;
-}
-
-.mainMenuSub .mat-icon {
-    margin-right: 16px;
-}
-
-.mainMenuSub .mat-button-focus-overlay {
-    background-color: rgba(0,0,0,.03) !important;
-}
-
-#mainMenu button, #mainMenu a, .mainMenuSub, .mainMenuSub a {
+.mainMenuAccount a {
+    margin: -3px 17px 0 17px;
+    width: 29px;
+    height: 29px;
     font-size: 16px;
 }
 
-.mainMenuLogo {
+.mainMenuAccount .mat-button-wrapper {
+    margin: 1px 0 0 -16px;
+    padding: 0 !important;
 }
 
-#logo {
-    margin: 0px 10px 0 20px;
-    width: 125px;
-    height: auto;
-    transition: margin-left 0.25s;
-    transition: width 0.25s;
-    transition: height 0.25s;
+.mainMenuAccount .mat-fab.mat-accent {
+    background-color: #fff;
 }
 
-#logo:hover {
-    width: 130px;
-    height: auto;
-    margin-left: 18px;
+
+.mainMenuAccount mat-icon {
+    margin: 0;
+    width: 25px;
+    height: 25px;
+    color: mat-color($rmm-default-primary) !important;
+}
+
+.mainMenuAccount:hover {
+    margin-top: -2px;
+
+    .mainMenuDesc {
+        margin-top: 1px;
+    }
 }
 
 
