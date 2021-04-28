@@ -54,6 +54,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
+import { MessageCache } from './rmmapi/messagecache';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
 import { ComposeModule } from './compose/compose.module';
 import { DraftDeskComponent } from './compose/draftdesk.component';
@@ -128,8 +129,9 @@ const routes: Routes = [
       { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
-      { path: 'identities',         loadChildren: './profiles/profiles.module#ProfilesModule' },
-      { path: 'account-security',   loadChildren: './account-security/account.security.module#AccountSecurityModule' },
+      { path: 'onscreen',           loadChildren: './onscreen/onscreen.module#OnscreenModule' },
+      { path: 'identities',         redirectTo: '/account/identities' },
+      { path: 'account-security',   redirectTo: '/account/security'   },
     ]
   },
   { path: 'login', component: LoginComponent }
@@ -187,6 +189,7 @@ const routes: Routes = [
   providers: [ProgressService,
     MessageListService,
     MobileQueryService,
+    MessageCache,
     RunboxWebmailAPI,
     SearchService,
     RMMOfflineService,

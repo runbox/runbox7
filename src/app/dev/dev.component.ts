@@ -1,4 +1,3 @@
-
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 // 
@@ -17,68 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-
-import { RMM } from '../rmm';
+import { Component } from '@angular/core';
 
 @Component({
   moduleId: 'angular2/app/dev/',
   selector: 'app-dev',
   templateUrl: 'dev.component.html'
 })
-export class DevComponent implements AfterViewInit { panelOpenState = false;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @Output() Close: EventEmitter<string> = new EventEmitter();
-  selected_component;
-  values_runbox_list;
-  dialog_ref: any;
-  child_timer: any = {};
-
-  ngAfterViewInit() {
-  }
-
-  constructor(
-    public snackBar: MatSnackBar,
-    public dialog: MatDialog,
-    public rmm: RMM,
-    public route: ActivatedRoute,
-    private router: Router,
-  ) {
-    if ( !route || !route.params && route.params['getValue'] || !route.params['getValue']().selected_component ) {
-        this.router.navigate(['/dev', 'app-runbox-intro']);
-        return;
-    }
-    this.init();
-  }
-
-  init() {
-    this.load_runbox_list();
-  }
-
-  load_runbox_list() {
-    // prepares data to be used with <runbox-list>
-    this.values_runbox_list = [
-        {id: 1, firstname: 'Bob', lastname: 'Sponja', email: 'random@email.com'},
-        {id: 2, firstname: 'Emliy', lastname: 'Sparrow', email: 'emily@email.com'},
-        {id: 3, firstname: 'Nicole', lastname: 'Leconi', email: 'nicoleconi@runbox.com'},
+export class DevComponent {
+    routes = [
+        { path: 'app-activity-indicator',  name: 'Activity Indicator' },
+        { path: 'app-runbox-intro',        name: 'Intro'              },
+        { path: 'app-runbox-list',         name: 'List'               },
+        { path: 'app-runbox-container',    name: 'Container'          },
+        { path: 'app-runbox-section',      name: 'Section'            },
+        { path: 'app-runbox-slide-toggle', name: 'Slide Toggle'       },
+        { path: 'app-runbox-timer',        name: 'Timer'              },
+        { path: 'app-runbox-dynamic',      name: 'Dynamic'            },
+        { path: 'app-runbox-loading',      name: 'Loading indicator'  },
     ];
-  }
-
-  edit(item) {
-    console.log('edit', item);
-    this.router.navigate(['/dev', 'app-runbox-list', 'edit', item.id]);
-  }
-
-  log(item) {
-    console.log('item', item);
-  }
-
-  runbox_list_edit(item) {
-    console.log('edit runbox list item', item);
-  }
-
 }

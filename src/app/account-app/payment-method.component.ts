@@ -22,10 +22,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'app-payment-method',
     template: `
-<mat-card style="width: 350px; height: 250px">
-    <div style="width: 350px; height: 120px">
-        <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}"
-             style="width: 350px">
+<mat-card style="height: 250px">
+    <div>
+        <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}" style="margin: 10px 0; width: auto; height: 100px;">
     </div>
     <mat-card-content>
         <ng-content>

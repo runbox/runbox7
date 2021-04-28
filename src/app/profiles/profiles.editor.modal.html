@@ -10,7 +10,7 @@
         </mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content class="content">
+    <mat-card-content class="content" style="margin-bottom: 0;">
         <form>
             <mat-form-field class="form-field form-item">
                 <input matInput placeholder="From" name="from" [(ngModel)]="data.profile.from_name"
@@ -112,9 +112,11 @@
             re-send</a>.
     </div>
 
+    <p class="mat-small" style="text-align: center; margin-top: 0;" *ngIf="this.data.profile.type === 'aliases'">To manage aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Administration</a>.</p>
+
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
-            <button mat-raised-button (click)="delete()" color="warn">DELETE</button>
+            <button *ngIf="this.data.profile.type === 'external_email'" mat-raised-button (click)="delete()" color="warn">DELETE</button>
         </span>
         <span>
             <button mat-raised-button (click)="close()" color="accent">CANCEL</button>

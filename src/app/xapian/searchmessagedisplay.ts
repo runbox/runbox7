@@ -96,8 +96,8 @@ export class SearchMessageDisplay extends MessageDisplay {
 
       const processCurrentCountObject = () => {
         // Function for counting messages in a conversation
-        const rowIndex = currentCountObject;
-        const conversationId = this.searchService.api.getStringValue(rowIndex[0], 1);
+        const rowObj = currentCountObject;
+        const conversationId = this.searchService.api.getStringValue(rowObj[0], 1);
         this.searchService.api.setStringValueRange(1, 'conversation:');
         const conversationSearchText = `conversation:${conversationId}..${conversationId}`;
         const results = this.searchService.api.sortedXapianQuery(
@@ -105,7 +105,7 @@ export class SearchMessageDisplay extends MessageDisplay {
           1, 0, 0, 1000, 1
         );
         this.searchService.api.clearValueRange();
-        this.getRow(rowIndex)[2] = `${results[0][1] + 1}`;
+        rowObj[2] = `${results[0][1] + 1}`;
 
         currentCountObject = null;
       };

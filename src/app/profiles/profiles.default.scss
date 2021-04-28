@@ -1,0 +1,31 @@
+.profiles-default {
+    margin-top: 25px;
+}
+
+.profiles-default mat-form-field {
+    overflow: hidden;
+}
+
+.profiles-select {
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+
+    @media only screen and (max-width: 700px) {
+        justify-content: space-between;
+    }
+}
+
+.identity-type {
+    text-transform: capitalize;
+}
+
+.identity-profile {
+    text-transform: lowercase;
+}
+
+#default-identity-form {
+    margin-right: 20px;
+    min-width: 200px;
+    width: auto;
+}

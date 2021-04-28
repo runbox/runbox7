@@ -41,13 +41,13 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, bufferCount, mergeMap, filter, tap, throttleTime ,  debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, of, Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -142,7 +142,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianDocCount: number;
   searchResultsCount: number;
 
-  startDeskEnabled = false;
+  experimentalFeatureEnabled = false;
 
   xapianLoaded = xapianLoadedSubject;
 
@@ -190,10 +190,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         new Hotkey(
             'up up down down left right left right b a',
             (event: KeyboardEvent): ExtendedKeyboardEvent => {
-                this.router.navigateByUrl('/start');
-                this.snackBar.open('Enjoy the start desk prototype!', 'Thanks!', { duration: 3000 });
-                this.startDeskEnabled = true;
-                localStorage.setItem('rmm7startdeskenabled', 'true');
+                this.router.navigateByUrl('/onscreen');
+                this.snackBar.open('Enjoy the video call prototype!', 'Thanks!', { duration: 3000 });
+                this.experimentalFeatureEnabled = true;
+                localStorage.setItem('rmm7experimentalFeatureEnabled', 'true');
                 const e: ExtendedKeyboardEvent = event;
                 e.returnValue = false;
                 return e;
@@ -201,8 +201,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         ),
     );
 
-    if (localStorage.getItem('rmm7startdeskenabled') === 'true') {
-        this.startDeskEnabled = true;
+    if (localStorage.getItem('rmm7experimentalFeatureEnabled') === 'true') {
+        this.experimentalFeatureEnabled = true;
     }
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
@@ -390,28 +390,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
         filter(() => !this.canvastable.isScrollInProgress()),
-        throttleTime(1000),
-        map(() => this.canvastable.getVisibleRowIndexes()),
-        mergeMap((rowIndexes) =>
-          from(
-            rowIndexes
-              .filter(ndx => ndx < this.canvastable.rows.rowCount())
-              .map(ndx => {
-                const messageId = this.canvastable.rows.getRowMessageId(ndx);
-                return of(messageId);
-            })
-          ).pipe(
-            mergeMap(o =>
-              o.pipe(
-                mergeMap(messageId => this.rmmapi.getMessageContents(messageId)),
-                take(1),
-                tap(() => this.canvastable.hasChanges = true)
-              ), 1),
-            bufferCount(rowIndexes.length)
-          )
-        )
-      )
-      .subscribe();
+        throttleTime(1000)
+    ).subscribe(() => {
+        const rowIndexes = this.canvastable.getVisibleRowIndexes();
+        const messageIds = rowIndexes.filter(
+            idx => idx < this.canvastable.rows.rowCount()
+        ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+        for (const id of messageIds) {
+            this.rmmapi.getMessageContents(id).subscribe(() => this.canvastable.hasChanges = true);
+        }
+    });
 
       if ('serviceWorker' in navigator) {
         try  {
@@ -553,6 +541,22 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
     this.router.navigate(['/compose'],  {queryParams: {'new': true}});
   }
+
+  async composeBugReport() {
+    if (this.mobileQuery.matches && this.sidemenu.opened) {
+      this.sidemenu.close();
+    }
+    // Create pre-filled draft email, setting some of the values
+    await this.draftDeskService.newBugReport(
+      this.searchService.localSearchActivated,
+      this.keepMessagePaneOpen,
+      this.canvastable.showContentTextPreview,
+      this.mailViewerOnRightSide,
+      this.unreadMessagesOnlyCheckbox,
+      this.mobileQuery.matches
+    );
+    this.router.navigate(['/compose']);
+   }
 
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
@@ -734,8 +738,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
-    this.showSelectOperations = Object.keys(this.canvastable.rows.selectedRowIds).reduce((prev, current) =>
-      (this.canvastable.rows.selectedRowIds[current] ? prev + 1 : prev), 0) > 0;
+    this.showSelectOperations = this.canvastable.rows.anySelected();
 
     if (this.canvastable.rows.hasChanges) {
       this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
@@ -1035,7 +1038,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           default:
             if (this.searchText.length < 3) {
               // Expand to all folders if search text length is longer than 3 characters
-              querytext += this.searchService.getFolderQuery(querytext, this.selectedFolder, this.unreadMessagesOnlyCheckbox);
+              const restrictToUnread = this.unreadMessagesOnlyCheckbox
+                && !this.messagelistservice.ignoreUnreadInFolders.includes(this.selectedFolder)
+                ? true : false;
+              querytext += this.searchService.getFolderQuery(querytext, this.selectedFolder, restrictToUnread);
             }
         }
         const previousDisplayFolderColumn = this.displayFolderColumn;

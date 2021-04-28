@@ -32,6 +32,7 @@ export class RunboxCalendar {
         this.syncToken   = props['syncToken'] || props['sync-token'];
     }
 
+
     generateID(): void {
         let id = this.displayname.toLowerCase();
         id = id.replace(/\s+/g, '-');

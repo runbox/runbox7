@@ -1,10 +1,34 @@
-<div mat-dialog-content style="width: 500px; height: 200px;">
+<div mat-dialog-content style="max-width: 500px;">
     <span *ngIf="state === 'loading'">
         We're preparing your Bitpay payment, please wait...
         <mat-spinner style="margin:0 auto;"></mat-spinner>
     </span>
     <span *ngIf="state === 'created'">
-        Your payment is ready. Click the "Go to Bitpay" button below to complete your payment.
+        <mat-tab-group>
+            <mat-tab *ngFor="let option of mainOptions" [label]="option.displayName">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <app-crypto-payment-description
+                        style="text-align: center;"
+                        [payment]="option"
+                    >
+                    </app-crypto-payment-description>
+                    <qr-code [value]="option.qrcode" [size]="250" level="H"></qr-code>
+                </div>
+            </mat-tab>
+            <mat-tab label="Other">
+                <div *ngFor="let option of otherOptions">
+                    <h4> {{ option.id }} </h4>
+                    <app-crypto-payment-description [payment]="option" ></app-crypto-payment-description>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+        <div>
+            You can also complete your payment via <a [href]="external_url">Coinbase</a>.
+        </div>
+        <div>
+            Processing your payment may take a while.
+            You will be notified with an email when the process is finished.
+        </div>
     </span>
     <span *ngIf="state === 'failed'">
         There was an error creating your payment. <br>
@@ -12,6 +36,8 @@
     </span>
 </div>
 <div mat-dialog-actions style="justify-content: space-between;">
-    <button mat-button (click)="close()"> Cancel </button>
-    <button *ngIf="redirect_url" mat-flat-button color="primary" (click)="redirect()"> Go to Bitpay </button>
+    <button mat-flat-button (click)="close(false)"> Cancel </button>
+    <button mat-flat-button color="primary" (click)="close(true)">
+        I've paid, clear the cart
+    </button>
 </div>

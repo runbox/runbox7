@@ -46,6 +46,10 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
+.mat-typography {
+    padding-top: 20px;
+}
+
 mat-form-field {
     /* This is for iOS not to zoom in when focusing on text fields */
     font-size: 16px !important;
@@ -123,10 +127,6 @@ ul.square-list li {
     font-size: 16px  !important;
 }
 
-.mat-select-value {
-    display: inline !important;
-}
-
 mat-icon {
     margin-bottom: 3px;
     vertical-align: middle !important;
@@ -149,6 +149,10 @@ mat-chip.mat-chip.mat-standard-chip {
 }
 
 /* Generic custom styles */
+
+.mat-dialog-container {
+    max-width: 550px;
+}
 
 mat-grid-tile.tableTitle {
     background-color: mat-color($rmm-default-foreground);
@@ -173,6 +177,39 @@ mat-grid-tile.tableTitle {
 
 .mainTextContent {
     padding: 3em;
+}
+
+.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+    background-color: mat-color($rmm-default-primary);
+}
+
+.mat-slide-toggle-content {
+    margin-top: 1px;
+}
+
+.section-header-with-toggle {
+    .mat-slide-toggle-bar {
+	height: 16px;
+	width: 42px;
+    }
+    
+    .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
+	top: -5px;
+	transform: translate3d(20px, 0, 0);
+    }
+    
+    .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+	height: 24px;
+	width: 24px;
+    }
+    
+    .mat-slide-toggle-label {
+	font-size: 16px;
+    }
+    
+    .mat-slide-toggle-content {
+	margin-left: 2px;
+    }
 }
 
 /* Palette colors */
@@ -776,18 +813,12 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     }
 }
 
-mat-expansion-panel-header {
-    min-height: 50px !important;
-    height: auto !important;
-    padding: 0 10px !important;
-}
-
 mat-expansion-panel {
     box-shadow: none !important;
 }
 
 .mat-expansion-panel-body {
-    padding: 0 10px 30px 10px !important;
+    padding: 0 !important;
 }
 
 /* Compose */
@@ -1042,4 +1073,31 @@ canvastable {
     [draggable] {
         cursor: pointer;
     }
+}
+
+// helpers for multi-row mobile-friendly mat-tables
+tr.detailsRow {
+    height: 0;
+}
+
+tr.regularRow td {
+    border-bottom-width: 0;
+}
+
+div.expandedDetails {
+    overflow: hidden;
+    display: flex;
+}
+
+table.detailsTable {
+    width: 100%;
+}
+
+table.detailsTable tr td:first-of-type {
+    font-weight: bold;
+}
+
+table.detailsTable tr td:nth-of-type(2) {
+    display: flex;
+    justify-content: flex-end;
 }

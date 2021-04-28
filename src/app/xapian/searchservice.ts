@@ -528,7 +528,8 @@ export class SearchService {
             progressSnackBar.instance.messagetextsubject.next(getProgressSnackBarMessageText());
           }
 
-          this.rmmapi.deleteFromMessageContentsCache(this.pendingMessagesToProcess[this.processMessageIndex].id);
+          // TODO: it'd be more efficient to just update the cache instead of forcing the redownload
+          this.rmmapi.deleteCachedMessageContents(this.pendingMessagesToProcess[this.processMessageIndex].id);
 
           const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
           await nextMessage.updateFunction();
@@ -1116,6 +1117,15 @@ export class SearchService {
         );
     }
 
+    // We need this because getDocData is fully synchronous (and treated as such),
+    // while it actually updates SearchIndexDocumentData.textcontent asynchronously,
+    // and not fast enough for the caller to get it.
+    //
+    // Abusing the fact that getDocData is called multiple times for the same message,
+    // this cache ensures that at least the future calls will get the textcontent synchronously
+    // tslint:disable-next-line:member-ordering // this is temporary and only needed in this context
+    messageTextCache = new Map<number, string>();
+
     /**
      * Look up document data from the database. If the id is the same as from the previous request, it will use
      * the previous lookup result, otherwise look up from the database with the new id
@@ -1135,11 +1145,15 @@ export class SearchService {
           };
 
           const rmmMessageId = parseInt(this.currentDocData.id.substring(1), 10);
-          const rmmCachedMessageContent = this.rmmapi.messageContentsCache[rmmMessageId];
-          if (rmmCachedMessageContent) {
-            rmmCachedMessageContent.subscribe(content =>
-              this.currentDocData.textcontent = content.text.text);
+          if (this.messageTextCache.has(rmmMessageId)) {
+              this.currentDocData.textcontent = this.messageTextCache.get(rmmMessageId);
           }
+          this.rmmapi.getCachedMessageContents(rmmMessageId).then(content => {
+              if (content) {
+                  // this.currentDocData.textcontent = content.text.text;
+                  this.messageTextCache.set(rmmMessageId, content.text.text);
+              }
+          });
 
           this.api.documentXTermList(docid);
           (Module.documenttermlistresult as string[])

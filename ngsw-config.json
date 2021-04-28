@@ -34,7 +34,7 @@
   "dataGroups": [
     {
       "name": "rmmapipersonal",
-      "urls": ["/rest/v1/me","/ajax/from_address"],
+      "urls": ["/rest/v1/me","/rest/v1/profiles/verified"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 15,
@@ -43,19 +43,9 @@
       }
     },
     {
-      "name": "rmmapiemails",
-      "urls": ["/rest/v1/email/*"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 100,
-        "maxAge": "30d",
-        "timeout": "5s"
-      }
-    },
-    {
       "name": "folders",
       "urls": [
-        "/ajax?action=ajax_getfoldercount"
+        "/rest/v1/email_folder/list"
       ],
       "cacheConfig": {
         "strategy": "freshness",

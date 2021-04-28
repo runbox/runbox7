@@ -1,0 +1,114 @@
+<section class="mat-typography">
+    <h1>Account Settings</h1>
+
+    <div>
+        <h2>
+            <mat-icon svgIcon="email"></mat-icon> Mail
+        </h2>
+        <p></p>
+        <ul>
+            <li>
+                <p><a routerLink="/account/identities"><strong>Identities</strong></a>: Set up and manage alternative
+                    email addresses that deliver email to your account. Identities also allow you to send email using
+                    addresses that are not associated with your Runbox account.</p>
+            </li>
+        </ul><br>
+    </div>
+
+    <div>
+        <h2>
+            <mat-icon svgIcon="briefcase"></mat-icon> Manager
+        </h2>
+        <p>With Manager you can easily import, filter, and forward your email as it "falls" through the levels below.
+        </p>
+        <ul>
+            <li>
+                <p><a href="/mail/fetch" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Retrieve</strong></a>: Lets
+                    you import email from external accounts (for instance Gmail or Hotmail) into your Runbox account.
+                    You can import email using both POP and IMAP.</p>
+            </li>
+            <li>
+                <p><a href="/mail/rules" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Filter</strong></a>: Configure
+                    protection against unwanted email, set up an autoreply, and sort email to folders and other email
+                    addresses.</p>
+            </li>
+            <li>
+                <p><a href="/mail/access" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Access</strong></a>: Shows
+                    you how to access all the email stored on the server - with a computer, tablet, cell phone, or any
+                    other device.</p>
+            </li>
+        </ul><br>
+    </div>
+
+    <div>
+        <h2>
+            <mat-icon svgIcon="cloud"></mat-icon> Hosting
+        </h2>
+        <p></p>
+        <ul>
+            <li>
+                <p><a href="/mail/account_domain" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Email
+                            Hosting</strong></a>: Set up your Runbox account to handle email for your domain.</p>
+            </li>
+            <li>
+                <p><a href="/mail/account_domain_hosting" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Domain
+                            Hosting</strong></a>: Manage domain names that you can then set up with our Email Hosting
+                    and Web Hosting services.</p>
+            </li>
+            <li>
+                <p><a href="/mail/account_webhosting" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Web
+                            Hosting</strong></a>: Manage your Runbox Web Hosting accounts.</p>
+            </li>
+        </ul><br>
+    </div>
+
+    <div>
+        <h2>
+            <mat-icon mat-list-icon svgIcon="account"></mat-icon> Account & Security
+        </h2>
+        <p></p>
+        <ul>
+            <li>
+                <p><a href="/mail/account" target="rmm6" [matTooltip]="rmm6tooltip"><strong>Account
+                            Details</strong></a>: View and update your personal and account data.</p>
+            </li>
+            <li>
+                <p><a routerLink="/account/security"><strong>Account Security</strong></a>: Manage your account’s
+                    security settings. We encourage you to enable Two-Factor Authentication and review the other
+                    settings in order to keep your account secure.</p>
+            </li>
+        </ul><br>
+    </div>
+
+    <div>
+        <h2>
+            <mat-icon mat-list-icon svgIcon="hot-tub"></mat-icon> Subscriptions
+        </h2>
+        <p></p>
+        <ul>
+            <li>
+                <p><a routerLink="/account/upgrades"><strong>Main Account Plans</strong></a>: Subscribe to Runbox, or
+                    change an existing subscription plan.</p>
+            </li>
+            <li>
+                <p><a routerLink="/account/addons"><strong>Add-ons & Sub-Accounts</strong></a>: Add-ons are individual
+                    upgrades that can be added to your main account.</p>
+            </li>
+            <li>
+                <p><a routerLink="/account/renewals"><strong>Active products & Renewals</strong></a>: All the active
+                    products in your account, and renew any of them at any time.</p>
+            </li>
+            <li>
+                <p><a routerLink="/account/transactions"><strong>Transactions</strong></a>: List of all your payment
+                    transactions.</p>
+            </li>
+            <li>
+                <p><a routerLink="/account/credit_cards"><strong>Card Details</strong></a>: Details of your credit/debit
+                    cards.</p>
+            </li>
+        </ul><br>
+    </div>
+
+    <p><mat-icon mat-list-icon svgIcon="help"></mat-icon> Need to know more about settings? See <a href="https://help.runbox.com/documentation/"
+            target="help">documentation</a> for more information.</p><br>
+</section>

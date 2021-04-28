@@ -39,6 +39,9 @@ import { LogoutService } from '../login/logout.service';
             <button mat-mini-fab routerLink="/calendar">
                 <mat-icon svgIcon="calendar-range"></mat-icon>
             </button>
+            <button mat-mini-fab routerLink="/account">
+                <mat-icon svgIcon="cog"></mat-icon>
+            </button>
             <button mat-mini-fab (click)="logoutservice.logout()">
                 <mat-icon svgIcon="power"></mat-icon>
             </button>

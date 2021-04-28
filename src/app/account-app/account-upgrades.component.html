@@ -1,58 +1,64 @@
 <style>
-@media(min-width: 1024px) {
-    .limitedTimeOffer, .productCardSpecial {
-	margin: 2% 25%;
-    }
-}
+  @media(min-width: 1024px) {
 
-@media(max-width: 1023px) {
-    .limitedTimeOffer, .productCardSpecial {
-	margin: 2% 10%;
+    .limitedTimeOffer,
+    .productCardSpecial {
+      margin: 2% 25%;
     }
-}
+  }
 
-@media(max-width: 813px) {
-    .limitedTimeOffer, .productCardSpecial {
-	margin: 2% 0;
+  @media(max-width: 1023px) {
+
+    .limitedTimeOffer,
+    .productCardSpecial {
+      margin: 2% 10%;
     }
-}
+  }
 
-.limitedTimeOffer h2 {
+  @media(max-width: 813px) {
+
+    .limitedTimeOffer,
+    .productCardSpecial {
+      margin: 2% 0;
+    }
+  }
+
+  .limitedTimeOffer h2 {
     white-space: nowrap;
-}
+  }
 
-mat-icon.limitedTimeOffer {
+  mat-icon.limitedTimeOffer {
     margin: 0;
     width: auto;
     border: none;
     color: primary;
     font-size: 40px;
     line-height: 12px;
-}
+  }
 
-#productGrid {
+  #productGrid {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
-}
+  }
 
-.productCard {
+  .productCard {
     margin: 10px;
     flex: 200px 1 0;
-}
+  }
 
-.productCardSpecial {
+  .productCardSpecial {
     text-align: center;
-}
-
+  }
 </style>
 
-<h2> Main account subscriptions </h2>
+<section class="mat-typography">
+  <h1> Main account subscriptions </h1>
 
-<div *ngIf="rmmapi.me | async as me; else loading">
-    <p>
-        <strong> Acccount: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
-    </p>
+  <div *ngIf="rmmapi.me | async as me; else loading">
+    <h4>
+      <strong> Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
+    </h4>
 
     <p>
       Here you can subscribe to Runbox, or change an existing subscription plan according to your needs.
@@ -62,20 +68,20 @@ mat-icon.limitedTimeOffer {
     </p>
 
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
-      <h2 style="margin: 20px 0 10px 0"><mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star</mat-icon></h2>
+      <h2 style="margin: 20px 0 10px 0">
+        <mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star
+        </mat-icon>
+      </h2>
       <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra generous today!</h3>
       <h4 style="margin: 20px 0 0 0">Subscribe within 24 hours of signing up and get</h4>
       <h1 style="margin: 10px 0 0 0">1 extra year for free!</h1>
-      <p>This offer expires in <app-runbox-timer class="timer" [user_created]="me.getCreatedMoment()" [timer_length]="limited_time_offer_age" (onFinished)="runboxTimerFinished()"></app-runbox-timer></p>
+      <p>This offer expires in <app-runbox-timer class="timer" [user_created]="me.getCreatedMoment()"
+          [timer_length]="limited_time_offer_age" (onFinished)="runboxTimerFinished()"></app-runbox-timer>
+      </p>
     </div>
 
     <div id="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
-      <app-account-product
-        *ngFor="let p of subs_regular"
-        [ngClass]="'productCard'"
-        [p]="p"
-        [currency]="me.currency"
-        >
+      <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency">
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
@@ -83,12 +89,8 @@ mat-icon.limitedTimeOffer {
     </div>
 
     <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
-      <app-account-product
-        *ngFor="let p of subs_special"
-        [ngClass]="'productCardSpecial'"
-        [p]="p"
-        [currency]="me.currency"
-        >
+      <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
+        [currency]="me.currency">
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
@@ -96,21 +98,20 @@ mat-icon.limitedTimeOffer {
     </div>
 
     <div style="margin-bottom: 5%; text-align: center; min-height: 10vh">
-        ...And don't forget to check out
-        <button mat-button routerLink="/account/addons" class="contentButton">
-            <mat-icon svgIcon="puzzle"></mat-icon> account addons
-        </button>
-	!
+      ...And don't forget to check out
+      <button mat-button routerLink="/account/addons" class="contentButton">
+        <mat-icon svgIcon="puzzle"></mat-icon> account addons
+      </button>
+      !
     </div>
 
     <ng-template #productsLoading>
-        <app-runbox-loading
-            text="Loading available plans..."
-        >
-        </app-runbox-loading>
+      <app-runbox-loading text="Loading available plans...">
+      </app-runbox-loading>
     </ng-template>
-</div>
+  </div>
 
-<ng-template #loading>
+  <ng-template #loading>
     <div> Loading account details... </div>
-</ng-template>
+  </ng-template>
+</section>

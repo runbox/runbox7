@@ -1,94 +1,63 @@
-<mat-sidenav-container class="profiles" style="padding: 10px;">
-    <mat-sidenav mode="side" opened=false></mat-sidenav>
-    <mat-sidenav-content>
-        <section class="mat-typography">
-            <h1 class="mat-h1">Identities</h1>
-            <div>
-                <app-profiles-lister
-                    *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('main')"
-                    [values]="rmm.profile.profiles.main"
-                    (ev_reload)="ev_reload_emiter($event)"
-                >
-                    <div section-header>
-                        <h2>
-                            Main Identity
-                        </h2>
-                    </div>
-                    <div section-description>
-                        <h3>
-                            Your Main Identity is the address you signed up for Runbox with, and is your main profile.
-                        </h3>
-                    </div>
-                    <div section-buttons>
-                        <button 
-                            *ngIf="!rmm.profile.profiles.main.length"
-                            mat-raised-button 
-                            color='primary'
-                            style="margin: 10px;"
-                            (click)='add_profile("main")'
-                        >
-                            Add Main Identity
-                        </button>
-                    </div>
-                </app-profiles-lister>
-                <app-profiles-lister
-                    *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('aliases')"
-                    [values]="rmm.profile.profiles.aliases"
-                    (ev_reload)="ev_reload_emiter($event)"
-                >
-                    <div section-header>
-                        <h2>
-                            Aliases
-                        </h2>
-                    </div>
-                    <div section-description>
-                        <h3>
-                            Your aliases
-                        </h3>
-                    </div>
-                    <div section-buttons>
-                        <button 
-                            mat-raised-button 
-                            color='primary'
-                            style="margin: 10px;"
-                            (click)='add_alias()'
-                        >
-                            Add Alias
-                        </button>
-                        <span *ngIf="rmm.alias && rmm.alias.aliases_counter">
-                            {{rmm.alias.aliases_counter.current}} of {{rmm.alias.aliases_counter.total}} available aliases created
-                        </span>
-                    </div>
-                </app-profiles-lister>
-                <app-profiles-lister
-                    *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('others')"
-                    [values]="rmm.profile.profiles.others"
-                    (ev_reload)="ev_reload_emiter($event)"
-                >
-                    <div section-header>
-                        <h2>
-                            Other identities
-                        </h2>
-                    </div>
-                    <div section-description>
-                        <h3>
-                            Identities lets you send email from addresses that are not among your Main Identity or Aliases, and require verification via an email sent to the given From Address.
-                        </h3>
-                    </div>
-                    <div section-buttons>
-                        <button
-                            mat-raised-button
-                            color='primary'
-                            style="margin: 10px;"
-                            (click)='add_profile()'
-                        >
-                            Add identity
-                        </button>
-                        {{rmm.profile.profiles.others.length}} identities created
-                    </div>
-                </app-profiles-lister>
+<section class="mat-typography">
+    <h1>Identities</h1>
+    <div>
+        <app-profiles-lister *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('main')"
+            [values]="rmm.profile.profiles.main" (ev_reload)="ev_reload_emiter($event)">
+            <div section-header>
+                <h2>Default Identity</h2>
             </div>
-        </section>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+            <div section-description>
+                <p>Your Default Identity is the address that is used by default on the Compose screen. You may select
+                    any other identity as your Default Identity in the drop-down menu below.</p>
+            </div>
+        </app-profiles-lister>
 
+        <app-profiles-default *ngIf="rmm.profile && rmm.profile.profiles" (ev_reload)="ev_reload_emiter($event)">
+            <div section-description>
+                <p style="margin-bottom: 0;">Select email you want to use as your Default Identity:</p>
+            </div>
+        </app-profiles-default>
+        <br>
+
+        <app-profiles-lister
+            *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('aliases')"
+            [values]="rmm.profile.profiles.aliases" (ev_reload)="ev_reload_emiter($event)">
+            <div section-header>
+                <h2>Aliases</h2>
+            </div>
+            <div section-description>
+                <p>Aliases are extra email addresses that deliver to your email account, just as your main email address
+                    does. An alias can't be used to log in or have any storage of its own, and does not work independently from
+                    your account.</p>
+                <p style="color: crimson" *ngIf="rmm.alias?.aliases_counter.current === 100">You have reached the maximum allowed number of Runbox aliases.</p>
+                <p>To manage your aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Administration</a>.</p>
+            </div>
+            <div section-buttons>
+                <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_alias()'>
+                    Add Alias
+                </button>
+            </div>
+        </app-profiles-lister>
+        <br><br>
+
+        <app-profiles-lister
+            *ngIf="rmm.profile && rmm.profile.profiles && rmm.profile.profiles.hasOwnProperty('others')"
+            [values]="rmm.profile.profiles.others" (ev_reload)="ev_reload_emiter($event)">
+            <div section-header>
+                <h2>Other identities</h2>
+            </div>
+            <div section-description>
+                <p>An identity allows you to set up a separate profile for sending mail, and is different from an alias.
+                    It is different because it allows you to send email using addresses that are not part of your Runbox
+                    account.</p>
+                <p>Added identities require verification via an email sent to the given address.</p>
+            </div>
+            <div section-buttons>
+                <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
+                    Add identity
+                </button>
+                {{rmm.profile.profiles.others.length}} identities created
+            </div>
+        </app-profiles-lister>
+    </div>
+</section>

@@ -28,7 +28,7 @@ import { RMM } from '../rmm';
     `],
     template: `
     <div class="app-runbox-section">
-        <div style="background: #e1eeff; padding: 15px;"
+        <div style="background: #e1eeff; padding: 15px 0;"
             [ngStyle]="{'background': heading_sizes[size].background}"
             *ngIf="is_header_open"
             ><ng-content select="[runbox-section-header]"></ng-content>
@@ -47,39 +47,33 @@ export class RunboxSectionComponent {
     h1: {
     },
     h2: {
-        margin: '0 10px 50px 10px',
+        margin: '0 10px 50px 0px',
     },
     h3: {
-        margin: '0 10px 50px 10px',
+        margin: '0 10px 50px 0px',
     },
     h4: {
-        margin: '0 10px 50px 10px',
+        margin: '0 10px 50px 0px',
     },
     h5: {
-        margin: '0 10px 50px 10px',
+        margin: '0 10px 50px 0px',
     },
     h6: {
-        margin: '0 10px 50px 10px',
+        margin: '0 10px 50px 0px',
     },
   };
   public heading_sizes = {
     h1: {
-        background: '#CAE1FF'
     },
     h2: {
-        background: '#e1eeff'
     },
     h3: {
-        background: '#9CC6FE'
     },
     h4: {
-        background: '#7BB1FA'
     },
     h5: {
-        background: '#549CFC'
     },
     h6: {
-        background: '#207efe'
     },
   };
   constructor(public dialog: MatDialog,
@@ -94,4 +88,3 @@ export class RunboxSectionComponent {
     });
   }
 }
-

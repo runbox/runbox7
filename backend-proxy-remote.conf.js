@@ -21,7 +21,7 @@ const PROXY_CONFIG = [
     },
     {
         context: [
-            "/rest", "/LOGOUT", "/mail", "/ajax", "/_js", "/_img", "/_css", "/app", "/angular2"    
+            "/rest", "/LOGOUT", "/mail", "/ajax", "/_js", "/_img", "/_css", "/_ics", "/app", "/angular2", "/locale", "/signup", "pw_reset"
         ],
         onProxyRes: (proxyRes, req, res) => {            
             if (proxyRes.headers['set-cookie']) {

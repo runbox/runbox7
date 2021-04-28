@@ -17,27 +17,46 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
+import { MobileQueryService } from '../mobile-query.service';
 import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 import * as moment from 'moment';
 
+const columnsDefault = ['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
+const columnsMobile = ['expansionIndicator', 'name', 'smallhints'];
+
+// TODO define it as an interface
+type ActiveProduct = any;
+
 @Component({
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
+    animations: [
+        trigger('detailExpand', [
+            state('collapsed', style({height: '0px', minHeight: '0'})),
+            state('expanded', style({height: '*'})),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+    ],
 })
 export class AccountRenewalsComponent {
-    active_products = [];
+    active_products: ActiveProduct[] = [];
     current_subscription: number;
 
+    displayedColumns: string[];
+    expandedProduct: ActiveProduct;
+
     constructor(
+        public  mobileQuery: MobileQueryService,
         private cart: CartService,
         private dialog: MatDialog,
         private rmmapi: RunboxWebmailAPI,
@@ -70,13 +89,25 @@ export class AccountRenewalsComponent {
                 }
             });
         });
+
+        this.displayedColumns = this.mobileQuery.matches ? columnsMobile : columnsDefault;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.displayedColumns = mobile ? columnsMobile : columnsDefault;
+            if (!mobile) {
+                this.expandedProduct = null;
+            }
+        });
     }
 
-    renew(p: any) {
-        this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
+    renew(p: ActiveProduct) {
+        if (p.subtype !== 'domain') {
+            this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
+        } else {
+            this.renewDomain(p);
+        }
     }
 
-    renewDomain(p: any) {
+    renewDomain(p: ActiveProduct) {
         this.rmmapi.getProductDomain(p.apid).subscribe(
             domain => {
                 this.router.navigateByUrl('/domainregistration?renew_domain=' + domain);
@@ -87,7 +118,13 @@ export class AccountRenewalsComponent {
         );
     }
 
-    showSubsDialog(p: any) {
+    rowClicked(p: ActiveProduct) {
+        if (this.mobileQuery.matches) {
+            this.expandedProduct = this.expandedProduct === p ? null : p;
+        }
+    }
+
+    showSubsDialog(p: ActiveProduct) {
         const dialogRef = this.dialog.open(SubAccountRenewalDialogComponent, { data: p });
         dialogRef.afterClosed().subscribe(renew => {
             if (renew) {
@@ -96,7 +133,7 @@ export class AccountRenewalsComponent {
         });
     }
 
-    toggleAutorenew(p: any) {
+    toggleAutorenew(p: ActiveProduct) {
         p.changingAutorenew = new Promise((resolve, reject) => {
             this.rmmapi.setProductAutorenew(p.apid, !p.active).subscribe(
                 _ => {
@@ -112,4 +149,55 @@ export class AccountRenewalsComponent {
             );
         });
     }
+}
+
+@Component({
+    selector: 'app-account-renewals-autorenew-toggle-component',
+    template: `
+<span *ngIf="p.can_renew; else renewNA">
+    <mat-checkbox *ngIf="!p.changingAutorenew"
+        [checked]="p.active"
+        (change)="toggle.emit()">
+        {{ p.active ? 'Yes' : 'No' }}
+    </mat-checkbox>
+    <app-runbox-loading *ngIf="p.changingAutorenew"
+        size="tiny"
+        text="{{ p.active ? 'Disabling' : 'Enabling' }}"
+    >
+    </app-runbox-loading>
+</span>
+<ng-template #renewNA>
+    N/A
+</ng-template>
+    `,
+})
+export class AccountRenewalsAutorenewToggleComponent {
+    @Input() p: ActiveProduct;
+    @Output() toggle: EventEmitter<void> = new EventEmitter();
+}
+
+@Component({
+    selector: 'app-account-renewals-renew-now-button-component',
+    template: `
+<span *ngIf="p.can_renew; else renewIfDomain">
+    <button mat-button (click)="clicked.emit()" *ngIf="!p.ordered" class="contentButton">
+        Renew <mat-icon svgIcon="cart"></mat-icon>
+    </button>
+    <span *ngIf="p.ordered">
+        Added to shopping cart
+    </span>
+</span>
+<ng-template #renewIfDomain>
+    <button mat-button *ngIf="p.subtype === 'domain'; else renewNA" class="contentButton" (click)="clicked.emit()">
+        Renew <mat-icon svgIcon="open-in-new"></mat-icon>
+    </button>
+</ng-template>
+<ng-template #renewNA>
+    N/A
+</ng-template>
+    `,
+})
+export class AccountRenewalsRenewNowButtonComponent {
+    @Input() p: ActiveProduct;
+    @Output() clicked: EventEmitter<void> = new EventEmitter();
 }

@@ -40,6 +40,9 @@
         <div id="sidenavGreeting">
             <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
             <p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
+            <p *ngIf="experimentalFeatureEnabled">
+                <a routerLink="/onscreen" class="textLink"> (Experimental) create a video call </a>
+            </p>
         </div>
         <div>
             <button mat-icon-button [matMenuTriggerFor]="settingsMenu" matTooltip="Show webmail settings">
@@ -123,6 +126,13 @@
       <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
         <mat-icon  svgIcon="sync" mat-list-icon></mat-icon>
         <p mat-line>Synchronize index</p>
+      </mat-list-item>
+    </mat-nav-list>
+
+    <mat-nav-list>
+      <mat-list-item (click)="composeBugReport()" matTooltip="Compose an email to runbox support">
+        <mat-icon svgIcon="spider" mat-list-icon></mat-icon>
+        <p mat-line>Compose a bug report</p>
       </mat-list-item>
     </mat-nav-list>
 

@@ -30,11 +30,15 @@ import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { AccountAppComponent } from './account-app.component';
 import { AccountAddonsComponent } from './account-addons.component';
-import { AccountComponentsComponent } from './account-components.component';
-import { AccountRenewalsComponent } from './account-renewals.component';
+import {
+    AccountRenewalsComponent,
+    AccountRenewalsAutorenewToggleComponent,
+    AccountRenewalsRenewNowButtonComponent
+} from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
+import { AccountWelcomeComponent } from './account-welcome.component';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
 import { CartService } from './cart.service';
 import { ComponentCardComponent } from './component-card.component';
@@ -45,6 +49,7 @@ import { PaymentsService } from './payments.service';
 import { PaypalPaymentDialogComponent } from './paypal-payment-dialog.component';
 import { PaypalBillingAgreementsComponent } from './paypal-billing-agreements.component';
 import { PaypalHandlerComponent } from './paypal-handler.component';
+import { StripeAddCardDialogComponent } from './credit-cards/stripe-add-card-dialog.component';
 import { StripePaymentDialogComponent } from './stripe-payment-dialog.component';
 import { RunboxTimerComponent } from './runbox-timer';
 
@@ -64,18 +69,29 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
+import { AccountSecurityModule } from '../account-security/account.security.module';
+import { AccountSecurityComponent } from '../account-security/account.security.component';
+import { ProfilesComponent } from '../profiles/profiles.component';
+import { ProfilesModule } from '../profiles/profiles.module';
+import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
+import { QRCodeModule } from 'angular2-qrcode';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
+import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
 
 @NgModule({
   declarations: [
     AccountAddonsComponent,
     AccountAppComponent,
-    AccountComponentsComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
+    AccountRenewalsAutorenewToggleComponent,
+    AccountRenewalsRenewNowButtonComponent,
     AccountTransactionsComponent,
     AccountUpgradesComponent,
     BitpayPaymentDialogComponent,
@@ -86,14 +102,19 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     PaypalPaymentDialogComponent,
     ProductComponent,
     ShoppingCartComponent,
+    StripeAddCardDialogComponent,
     StripePaymentDialogComponent,
     SubAccountRenewalDialogComponent,
     RunboxTimerComponent,
     CreditCardsComponent,
+    CryptoPaymentDescriptionComponent,
+    NoProductsForSubaccountsComponent,
+    AccountWelcomeComponent,
   ],
   imports: [
     BrowserAnimationsModule,
     CommonModule,
+    ClipboardModule,
     FormsModule,
     MenuModule,
     MatBadgeModule,
@@ -112,14 +133,18 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
     MatSelectModule,
     MatSidenavModule,
     MatTableModule,
+    MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
     RunboxCommonModule,
+    AccountSecurityModule,
+    ProfilesModule,
+    QRCodeModule,
     RouterModule.forChild([
       {
         path: 'account',
-        canActivateChild: [RMMAuthGuardService],
+        canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
         children: [
           {
             path: '', outlet: 'headertoolbar',
@@ -131,11 +156,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
             children: [
               {
                   path: '',
-                  component: AccountComponentsComponent,
-              },
-              {
-                  path: 'components',
-                  component: AccountComponentsComponent,
+                  component: AccountWelcomeComponent,
               },
               {
                   path: 'upgrades',
@@ -173,6 +194,19 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
                   path: 'credit_cards',
                   component: CreditCardsComponent
               },
+              {
+                  path: 'security',
+                  component: AccountSecurityComponent,
+              },
+              {
+                  path: 'identities',
+                  component: ProfilesComponent,
+              },
+              {
+                  path: 'not-for-subaccounts',
+                  component: NoProductsForSubaccountsComponent,
+              },
+              { path: 'components', redirectTo: '' },
             ]
           }
         ]
@@ -182,6 +216,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
   entryComponents: [
     BitpayPaymentDialogComponent,
     PaypalPaymentDialogComponent,
+    StripeAddCardDialogComponent,
     StripePaymentDialogComponent,
   ],
   providers: [

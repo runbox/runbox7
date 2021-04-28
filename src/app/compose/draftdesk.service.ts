@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../common/messageinfo';
@@ -196,7 +197,7 @@ export class DraftDeskService {
     draftsRefreshed: AsyncSubject<boolean> = new AsyncSubject();
     froms: FromAddress[] = [];
 
-    constructor(public rmmapi: RunboxWebmailAPI) {
+    constructor(public rmmapi: RunboxWebmailAPI, private http: HttpClient) {
         this.refreshDrafts().then(() => {
             this.draftsRefreshed.next(true);
             this.draftsRefreshed.complete();
@@ -244,6 +245,49 @@ export class DraftDeskService {
     public deleteDraft(messageId: number) {
         this.draftModels = this.draftModels
             .filter(dm => dm.mid !== messageId);
+    }
+
+    public async newBugReport(
+        local_search: boolean,
+        keep_pane: boolean,
+        content_preview: boolean,
+        mailviewer_right: boolean,
+        unread_only: boolean,
+        on_mobile: boolean
+    ) {
+        const draftObj = DraftFormModel.create(
+            -1,
+            this.froms[0],
+            'support@runbox.com',
+            'Runbox 7 bug report'
+        );
+        const template = await this.http.get('assets/templates/bug_report.txt',
+                                             {responseType: 'text'}).toPromise();
+        const me = await this.rmmapi.me.toPromise();
+
+        let body = `
+${template}
+`
+        ;
+        body = body.replace('%%USERNAME%%', me.username);
+        body = body.replace('%%USERAGENT%%', window.navigator.userAgent);
+        body = body.replace('%%INDEXSYNC%%', local_search ? 'Yes' : 'No');
+        body = body.replace('%%VENDOR%%', window.navigator.vendor);
+        body = body.replace('%%APPNAME%%', window.navigator.hasOwnProperty('appName')
+            ? window.navigator.appName : '');
+        body = body.replace('%%APPVERSION%%', window.navigator.hasOwnProperty('appVersion')
+            ? window.navigator.appVersion : '');
+        body = body.replace('%%PLATFORM%%', window.navigator.hasOwnProperty('appPlatform')
+            ? window.navigator['appPlatform'] : '');
+        body = body.replace('%%SIZE%%', window.outerWidth + 'x' + window.outerHeight);
+        body = body.replace('%%SETTINGPANE%%', keep_pane ? 'Yes' : 'No');
+        body = body.replace('%%SETTINGPREVIEW%%', content_preview ? 'Yes' : 'No');
+        body = body.replace('%%SETTINGVIEWRRIGHT%%', mailviewer_right ? 'Yes' : 'No');
+        body = body.replace('%%SETTINGUNREAD%%', unread_only ? 'Yes' : 'No');
+        body = body.replace('%%ONMOBILE%%', on_mobile ? 'Mobile Browser' : '');
+
+        draftObj.msg_body = body;
+        this.draftModels.splice(0, 0, draftObj );
     }
 
     public newDraft(model: DraftFormModel, callback?: Function) {

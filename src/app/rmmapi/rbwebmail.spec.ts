@@ -22,6 +22,7 @@ import { FolderListEntry, RunboxWebmailAPI } from './rbwebmail';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { MessageCache } from './messagecache';
 
 describe('RBWebMail', () => {
     beforeEach(() => {
@@ -31,7 +32,14 @@ describe('RBWebMail', () => {
                 MatDialogModule,
                 HttpClientTestingModule,
             ],
-            providers: [RunboxWebmailAPI]
+            providers: [
+                RunboxWebmailAPI,
+                { provide: MessageCache, useValue: {
+                    get: (_) => Promise.resolve(null),
+                    set: (_, __) => {},
+                    delete: (_) => {},
+                } },
+            ]
         });
     });
 
@@ -39,6 +47,9 @@ describe('RBWebMail', () => {
         const rmmapi = TestBed.inject(RunboxWebmailAPI);
 
         let messageContentsObservable = rmmapi.getMessageContents(123);
+        // We need this nonsense because httpTestingController's asserts expect results *right now*
+        // this is a good enough cheat to have the actual request kick in early enough.
+        await new Promise(resolve => setTimeout(resolve, 0));
 
         const httpTestingController = TestBed.inject(HttpTestingController);
         let req = httpTestingController.expectOne('/rest/v1/email/123');
@@ -54,6 +65,7 @@ describe('RBWebMail', () => {
         expect(messageContents.subject).toBe('test');
 
         messageContentsObservable = rmmapi.getMessageContents(123);
+        await new Promise(resolve => setTimeout(resolve, 0));
         httpTestingController.expectNone('/rest/v1/email/123');
 
         messageContents = await messageContentsObservable.toPromise();
@@ -61,6 +73,7 @@ describe('RBWebMail', () => {
         expect(messageContents.subject).toBe('test');
 
         messageContentsObservable = rmmapi.getMessageContents(123, true);
+        await new Promise(resolve => setTimeout(resolve, 0));
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
             result: {
@@ -70,12 +83,14 @@ describe('RBWebMail', () => {
         });
 
         messageContents = await messageContentsObservable.toPromise();
+        await new Promise(resolve => setTimeout(resolve, 0));
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test2');
 
         rmmapi.deleteCachedMessageContents(123);
 
         messageContentsObservable = rmmapi.getMessageContents(123);
+        await new Promise(resolve => setTimeout(resolve, 0));
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
             result: {

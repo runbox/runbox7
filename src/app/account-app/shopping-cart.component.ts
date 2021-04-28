@@ -31,6 +31,7 @@ import { ProductOrder } from './product-order';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Product } from './product';
+import { MobileQueryService } from '../mobile-query.service';
 
 enum CartError {
     CANT_LOAD_PRODUCTS,
@@ -46,7 +47,9 @@ class CartItem extends ProductOrder {
     templateUrl: './shopping-cart.component.html',
 })
 export class ShoppingCartComponent implements OnInit {
-    tableColumns = ['name', 'quantity', 'price', 'total-price', 'remove'];
+    defaultColumns = ['name', 'quantity', 'price', 'total-price', 'remove'];
+    mobileColumns = ['name', 'remove'];
+    tableColumns: string[];
 
     // the component has two "modes":
     // it either displays the cart items and allows for their manipulation,
@@ -83,6 +86,7 @@ export class ShoppingCartComponent implements OnInit {
     constructor(
         private cart:            CartService,
         private dialog:          MatDialog,
+        public  mobileQuery:     MobileQueryService,
         private paymentsservice: PaymentsService,
         private rmmapi:          RunboxWebmailAPI,
         private route:           ActivatedRoute,
@@ -92,6 +96,11 @@ export class ShoppingCartComponent implements OnInit {
         this.itemsSubject.subscribe(items => this.items = items);
         this.itemsSubject.subscribe(items => this.currency = items.length > 0 ? items[0].product.currency : null);
         this.itemsSubject.subscribe(items => this.checkIfLegal(items));
+
+        this.tableColumns = this.mobileQuery.matches ? this.mobileColumns : this.defaultColumns;
+        this.mobileQuery.changed.subscribe(mobile => {
+            this.tableColumns = mobile ? this.mobileColumns : this.defaultColumns;
+        });
     }
 
     ngOnInit() {

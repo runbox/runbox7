@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { async, ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync } from '@angular/core/testing';
 
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
@@ -54,7 +54,7 @@ describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
   let fixture: ComponentFixture<SingleMailViewerComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NoopAnimationsModule,

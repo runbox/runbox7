@@ -28,6 +28,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
+import { MessageCache } from '../rmmapi/messagecache';
 
 declare var FS;
 declare var IDBFS;
@@ -100,6 +101,7 @@ describe('SearchService', () => {
             MatDialogModule
           ],
           providers: [ SearchService,
+            MessageCache,
             MessageListService,
             RunboxWebmailAPI
           ]

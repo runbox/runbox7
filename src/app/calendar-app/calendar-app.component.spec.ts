@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { CalendarAppComponent } from './calendar-app.component';
 import { CalendarAppModule } from './calendar-app.module';
@@ -37,55 +37,127 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import * as moment from 'moment';
+import * as ICAL from 'ical.js';
 
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
     let fixture: ComponentFixture<CalendarAppComponent>;
 
+    // jCal spec: https://tools.ietf.org/html/rfc7265
     const simpleEvents = [
-        new RunboxCalendarEvent('test-calendar/event0', ['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().toISOString() ],
+        {'id': 'test-calendar/event0',
+         'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
+             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
+             [ 'dtend',   {}, 'date-time', moment().add(1, 'hour').toISOString() ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
-        ]]]]),
-        new RunboxCalendarEvent('test-calendar/event1', ['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(14, 'day').toISOString() ],
+         ]]]]).toString(),
+         'calendar': 'test-calendar',
+        },
+        {'id': 'test-calendar/event1',
+         'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
+            [ 'dtstart', {}, 'date-time', moment().add(1, 'month').add(1, 'day').add(2, 'hour').toISOString() ],
+             [ 'dtend', {}, 'date-time', moment().add(1, 'month').add(1, 'day').add(3, 'hour').toISOString() ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
-        ]]]]),
+         ]]]]).toString(),
+         'calendar': 'test-calendar',
+        }
     ];
 
     const recurringEvents = [
-        new RunboxCalendarEvent('test-calendar/recurring', ['vcalendar', [], [ [ 'vevent', [
+        { 'id': 'test-calendar/recurring',
+          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date-time', moment().date(1).toISOString() ],
+              [ 'dtend', {}, 'date-time', moment().add(1, 'hour').date(1).toISOString() ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
-            [ 'rrule',   {}, 'text',      'FREQ=WEEKLY'     ],
-        ]]]]),
-    ];
+            [ 'rrule',   {}, 'recur',     {'freq': 'WEEKLY'}     ],
+          ]]]]).toString(),
+          'calendar': 'test-calendar',
+        }];
 
     const GH_179_recurring_yearly = [
-        new RunboxCalendarEvent('test-calendar/recurring-yearly', ['vcalendar', [], [ [ 'vevent', [
+        { 'id': 'test-calendar/recurring-yearly',
+          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
             [ 'dtstart', {}, 'date',  moment().date(5).toISOString().split('T')[0] ],
             [ 'dtend',   {}, 'date',  moment().date(6).toISOString().split('T')[0] ],
             [ 'summary', {}, 'text',  'Yearly event' ],
-            [ 'rrule',   {}, 'text',  'FREQ=YEARLY'  ],
-        ]]]]),
-    ];
-
-    // the test below only makes sense when the event start date is not now()
-    const not_today = moment().date() === 2 ? 3 : 2;
+            [ 'rrule',   {}, 'recur',  {'freq': 'YEARLY'}  ],
+          ]]]]).toString(),
+          'calendar': 'test-calendar',
+        }];
 
     const GH_181_setting_recurrence = [
-        new RunboxCalendarEvent('test-calendar/not-recurring-yet', ['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment.utc().date(not_today).hour(12).minute(34).toISOString() ],
-            [ 'summary', {}, 'text',      'One-shot event' ],
-        ]]]]),
-    ];
+        {'id': 'test-calendar/not-recurring-yet',
+         'ical': new ICAL.Component(['vcalendar', [], [[ 'vevent', [
+             [ 'dtstart', {}, 'date-time', moment.utc().date(1).hour(12).minute(34).toISOString() ],
+             [ 'dtend',   {}, 'date-time', moment.utc().date(1).hour(13).minute(34).toISOString() ],
+             [ 'summary', {}, 'text',      'One-shot event' ],
+         ]]]]).toString(),
+         'calendar': 'test-calendar',
+        }];
 
     const mockData = {
-        calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink' }) ],
-        events:    [] // set in test cases
-    };
+        calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink', syncToken: 'testsync' }) ],
+        events:    [], // set in test cases
+        timezone:
+`BEGIN:VCALENDAR
+PRODID:-//citadel.org//NONSGML Citadel calendar//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:/citadel.org/20210210_1/Europe/Stockholm
+LAST-MODIFIED:20210210T123706Z
+X-LIC-LOCATION:Europe/Stockholm
+X-PROLEPTIC-TZNAME:LMT
+BEGIN:STANDARD
+TZNAME:SET
+TZOFFSETFROM:+011212
+TZOFFSETTO:+010014
+DTSTART:18790101T000000
+END:STANDARD
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+010014
+TZOFFSETTO:+0100
+DTSTART:19000101T000000
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19160514T230000
+RDATE:19800406T020000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19161001T010000
+END:STANDARD
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19800928T030000
+RRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU;UNTIL=19950924T010000Z
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:19810329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:19961027T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+END:VCALENDAR
+`    };
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
                 imports: [
                     NoopAnimationsModule,
@@ -104,6 +176,7 @@ describe('CalendarAppComponent', () => {
                     { provide: RunboxWebmailAPI, useValue: {
                         getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
                         getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
+                        getVTimezone:      (tzname: string): Observable<string> => of(mockData['timezone']),
                         me:                    of({ uid: 1 }),
                     } },
                     { provide: HttpClient, useValue: {
@@ -130,7 +203,7 @@ describe('CalendarAppComponent', () => {
 
     it('should display calendars', () => {
         expect(component).toBeTruthy();
-
+        component.calendarservice.syncCaldav();
         fixture.detectChanges();
 
         expect(component.calendars[0]).toBeDefined();
@@ -144,9 +217,13 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should display events', () => {
-        component.calendarservice.eventSubject.next(simpleEvents);
+        mockData['events'] = simpleEvents;
+        component.calendarservice.syncCaldav(true);
+        fixture.detectChanges();
 
-        expect(component.events.length).toBe(2);
+        // if we run this at the end of the month, it might be 1, else
+        // generally 2!
+        expect(component.events.length).toBeGreaterThan(0);
 
         fixture.detectChanges();
 
@@ -158,23 +235,28 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should be possible to hide calendars', () => {
-        component.calendarservice.eventSubject.next(simpleEvents);
+        mockData['events'] = simpleEvents;
+        component.calendarservice.syncCaldav(true);
         fixture.detectChanges();
 
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events[0].innerText).toContain('Test Event #0', 'test event is displayed in the month view');
 
         fixture.debugElement.nativeElement.querySelector('button.calendarToggleButton').click();
+        fixture.detectChanges();
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(0, 'events are gone from the screen');
 
         fixture.debugElement.nativeElement.querySelector('button.calendarToggleButton').click();
+        fixture.detectChanges();
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'events are back on the screen');
     });
 
     it('should display recurring events', () => {
-        component.calendarservice.eventSubject.next(recurringEvents);
+        mockData['events'] = recurringEvents;
+        component.calendarservice.syncCaldav(true);
+
         fixture.detectChanges();
 
         const shownEventsCount = component.shown_events.length;
@@ -188,28 +270,30 @@ describe('CalendarAppComponent', () => {
     });
 
     it('should not display yearly events as longer than they are (GH-179)', () => {
-        component.calendarservice.eventSubject.next(GH_179_recurring_yearly);
+        mockData['events'] = GH_179_recurring_yearly;
+        component.calendarservice.syncCaldav(true);
         fixture.detectChanges();
 
         const events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
-        expect(events.length).toBe(1, 'only one event should be displayed');
+        expect(events.length).toBe(1, 'only one calendar cell should be full');
     });
 
     it('should not break event start date when setting recurrence (GH-181)', () => {
-        component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
+        mockData['events'] = GH_181_setting_recurrence;
+        component.calendarservice.syncCaldav(true);
         fixture.detectChanges();
 
         let events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(events.length).toBe(1, 'only one event should be displayed');
 
-        GH_181_setting_recurrence[0].recurringFrequency = 'WEEKLY';
-        component.calendarservice.eventSubject.next(GH_181_setting_recurrence);
+        component.events[0].recurringFrequency = 'WEEKLY';
+        component.calendarservice.updateEventList();
         fixture.detectChanges();
 
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
         const first_occurence = component.shown_events[0].start;
-        expect(first_occurence.getDate()).toBe(not_today, 'day matches');
+        expect(first_occurence.getDate()).toBe(1, 'day matches');
         expect(first_occurence.getHours()).toBe(12, 'hour matches');
         expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
     });

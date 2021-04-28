@@ -59,6 +59,8 @@ export class MessageListService {
     trashFolderName = 'Trash';
     spamFolderName = 'Spam';
 
+    ignoreUnreadInFolders = [ 'Sent' ];
+
     public fetchInProgress = false;
 
     // Initialized "manually" by SearchService.

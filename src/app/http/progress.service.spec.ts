@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -30,6 +30,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { filter, take } from 'rxjs/operators';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
+import { MessageCache } from '../rmmapi/messagecache';
 
 describe('ProgressService', () => {
     let rmmapiservice: RunboxWebmailAPI;
@@ -48,6 +49,7 @@ describe('ProgressService', () => {
         providers: [
             RMMOfflineService,
             RunboxWebmailAPI,
+            MessageCache,
             RMMAuthGuardService,
             ProgressService,
             { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
@@ -58,7 +60,7 @@ describe('ProgressService', () => {
         httpMock = TestBed.inject(HttpTestingController);
     });
 
-    it('should indicate http request activity', async( async() => {
+    it('should indicate http request activity', waitForAsync( async() => {
 
         let httpProgressSeen = false;
         progressService.httpRequestInProgress.pipe(

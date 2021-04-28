@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SearchExpressionBuilderComponent } from './search-expression-builder.component';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -32,7 +32,7 @@ describe('SearchExpressionBuilderComponent', () => {
   let component: SearchExpressionBuilderComponent;
   let fixture: ComponentFixture<SearchExpressionBuilderComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NoopAnimationsModule,
