@@ -25,6 +25,9 @@
     .contact {
         width: 25%;
         font-weight: bold;
+        @media only screen and (max-width: 768px) {
+            width: 100%;
+        }
     }
     .contactIcon mat-icon {
         margin-right: 10px;
@@ -41,6 +44,11 @@
     }
     .subject {
         width: 55%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        @media only screen and (max-width: 768px) {
+            width: 100%;
+        }
     }
     .subject ul {
         margin: 0;
