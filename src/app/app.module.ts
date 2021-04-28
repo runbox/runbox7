@@ -86,6 +86,8 @@ import { StartDeskComponent } from './start/startdesk.component';
 import { SearchService } from './xapian/searchservice';
 import { SavedSearchesComponent } from './saved-searches/saved-searches.component';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
+import { HelpComponent } from './help/help.component';
+import { HelpModule } from './help/help.module';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -119,10 +121,8 @@ const routes: Routes = [
           }
         ]
       },
-      {
-        path: 'start',
-        component: OverviewComponent,
-      },
+      { path: 'start', component: OverviewComponent },
+      { path: 'help', component: HelpComponent },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
       { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
@@ -146,6 +146,7 @@ const routes: Routes = [
     StartDeskModule,
     WelcomeDeskModule,
     FolderModule,
+    HelpModule,
     MatSnackBarModule,
     MatIconModule,
     MatDialogModule,
