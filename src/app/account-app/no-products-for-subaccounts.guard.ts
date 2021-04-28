@@ -22,7 +22,6 @@ import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, CanActivateChild,
 import { AsyncSubject, Observable } from 'rxjs';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
-import { AccountAddonsComponent } from './account-addons.component';
 import { AccountRenewalsComponent } from './account-renewals.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
 import { AccountUpgradesComponent } from './account-upgrades.component';
@@ -33,7 +32,6 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 })
 export class NoProductsForSubaccountsGuard implements CanActivate, CanActivateChild {
     banned_components = [
-        AccountAddonsComponent,
         AccountUpgradesComponent,
         AccountTransactionsComponent,
         AccountRenewalsComponent,

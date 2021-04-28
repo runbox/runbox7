@@ -29,7 +29,6 @@ import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { HeaderToolbarComponent } from '../menu/headertoolbar.component';
 
 import { AccountAppComponent } from './account-app.component';
-import { AccountAddonsComponent } from './account-addons.component';
 import {
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
@@ -86,7 +85,6 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
 
 @NgModule({
   declarations: [
-    AccountAddonsComponent,
     AccountAppComponent,
     AccountReceiptComponent,
     AccountRenewalsComponent,
@@ -164,7 +162,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
               },
               {
                   path: 'addons',
-                  component: AccountAddonsComponent,
+                  redirectTo: 'upgrades',
               },
               {
                   path: 'renewals',
