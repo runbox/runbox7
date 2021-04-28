@@ -27,11 +27,11 @@ describe('Ordering products', () => {
 
         cy.get('#shoppingCartButton').should('not.exist');
 
-        cy.get('button:contains(Purchase)').click();
+        cy.get('.productGrid .contentButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
-        cy.get('button:contains(Purchase)').click();
+        cy.get('.productGrid .contentButton').contains('Purchase').click();
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
