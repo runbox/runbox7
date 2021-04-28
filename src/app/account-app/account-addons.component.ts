@@ -52,4 +52,3 @@ export class AccountAddonsComponent implements OnInit {
         this.rmmapi.me.subscribe(me => this.me = me);
     }
 }
-
