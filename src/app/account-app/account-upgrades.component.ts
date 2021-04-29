@@ -21,7 +21,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CartService } from './cart.service';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
 import { RunboxTimerComponent } from './runbox-timer';
@@ -33,6 +33,10 @@ import { AsyncSubject } from 'rxjs';
 })
 export class AccountUpgradesComponent implements OnInit {
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
+    me: RunboxMe = new RunboxMe();
+
+    subaccounts    = new AsyncSubject<Product[]>();
+    emailaddons    = new AsyncSubject<Product[]>();
     subscriptions = new AsyncSubject<Product[]>();
     subs_regular = new AsyncSubject<Product[]>();
     subs_special = new AsyncSubject<Product[]>();
@@ -81,6 +85,16 @@ export class AccountUpgradesComponent implements OnInit {
                 }
             });
         });
+
+        this.paymentsservice.products.subscribe(products => {
+            this.subaccounts.next(products.filter(p => p.subtype === 'subaccount'));
+            this.emailaddons.next(products.filter(p => p.subtype === 'emailaddon'));
+
+            this.subaccounts.complete();
+            this.emailaddons.complete();
+        });
+
+        this.rmmapi.me.subscribe(me => this.me = me);
     }
 
     runboxTimerFinished(): void {

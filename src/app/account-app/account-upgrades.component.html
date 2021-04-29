@@ -36,7 +36,7 @@
     line-height: 12px;
   }
 
-  #productGrid {
+  #productGrid, .productGrid {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
@@ -44,7 +44,7 @@
 
   .productCard {
     margin: 10px;
-    flex: 200px 1 0;
+    flex: 1 1 360px;
   }
 
   .productCardSpecial {
@@ -97,14 +97,6 @@
       </app-account-product>
     </div>
 
-    <div style="margin-bottom: 5%; text-align: center; min-height: 10vh">
-      ...And don't forget to check out
-      <button mat-button routerLink="/account/addons" class="contentButton">
-        <mat-icon svgIcon="puzzle"></mat-icon> account addons
-      </button>
-      !
-    </div>
-
     <ng-template #productsLoading>
       <app-runbox-loading text="Loading available plans...">
       </app-runbox-loading>
@@ -114,4 +106,39 @@
   <ng-template #loading>
     <div> Loading account details... </div>
   </ng-template>
+
+  <mat-divider></mat-divider><br>
+
+  <ng-template #addonsLoading>
+    <app-runbox-loading text="Loading available addons...">
+    </app-runbox-loading>
+  </ng-template>
+
+  <h1> Add-ons </h1>
+
+  <h2> Main account add-ons </h2>
+
+  <p> Add-ons are individual upgrades that can be added to your main account. </p>
+
+  <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
+      <app-account-product *ngFor="let p of emailaddons" class="productCard" [p]="p" [currency]="me.currency">
+      </app-account-product>
+  </div>
+
+  <br>
+  <h2> Sub-accounts </h2>
+
+  <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies,
+      organizations, and families who need separate accounts with their own dedicated storage space and account
+      settings. </p>
+
+  <p>
+      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products
+      below.
+  </p>
+
+  <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
+      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
+      </app-account-product>
+  </div>
 </section>
