@@ -81,7 +81,7 @@ export class ModalUnlockcodeComponent {
       <div>
         <form class="">
           <mat-form-field class="">
-            <input matInput placeholder="Account password" name='user_password' type='password'
+            <input matInput placeholder="Account password" name='user_password' type='password' autocomplete='current-password'
                 [(ngModel)]="data.password"
                 cdkFocusInitial
                 (keydown.enter)="check_pass()"
@@ -624,6 +624,7 @@ export class AccountSecurityComponent implements OnInit {
   show_modal_password() {
     this.modal_password_ref = this.dialog.open(ModalPasswordComponent, {
       width: '600px',
+      disableClose: true,
       data: { password: null }
     });
     this.modal_password_ref.afterClosed().subscribe(result => {
