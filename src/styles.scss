@@ -464,6 +464,10 @@ rmm-headertoolbar {
     filter: brightness(110%);
 }
 
+#logo:active {
+    filter: brightness(120%);
+}
+
 #mainMenuContainer mat-icon {
     color: #fff;
 }
@@ -499,23 +503,15 @@ rmm-headertoolbar {
 .mainMenuDesc {
     margin: 20px 0 0 0;
     line-height: 12px;
-    transition: margin-top 0.25s;
     color: #fff;
+    transition: margin-top 0.25s;
 }
 
 .mainMenu:hover {
     margin-top: -5px;
 
     .mainMenuDesc {
-	margin-top: 0px;
-    }
-
-    .accountMenu {
-	margin-top: 5px;
-    }
-
-    .accountMenu .mainMenuDesc {
-	margin: 7px 0 0 0;
+	margin-top: -2px;
     }
 }
 
@@ -535,7 +531,6 @@ rmm-headertoolbar {
     background-color: #fff;
 }
 
-
 .mainMenuAccount mat-icon {
     margin: 0;
     width: 25px;
@@ -547,7 +542,7 @@ rmm-headertoolbar {
     margin-top: -2px;
 
     .mainMenuDesc {
-        margin-top: 1px;
+        margin-top: -1px;
     }
 }
 
