@@ -20,7 +20,7 @@ import { Injectable } from '@angular/core';
 import { UserAgent } from './rmm/useragent';
 import { HttpClient } from '@angular/common/http';
 import { Email } from './rmm/email';
-import { Profile, AllIdentities, Identity } from './rmm/profile';
+import { Profile } from './rmm/profile';
 import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
