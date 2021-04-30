@@ -541,8 +541,11 @@ rmm-headertoolbar {
 .mainMenuAccount:hover {
     margin-top: -2px;
 
+    .mainMenuAccount mat-icon {
+	margin: -3px;
+    }
     .mainMenuDesc {
-        margin-top: -1px;
+        margin-top: 0px;
     }
 }
 
