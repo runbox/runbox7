@@ -1,0 +1,25 @@
+<mat-sidenav-container autosize>
+    <mat-sidenav #sidemenu
+        [opened]="sideMenuOpened"
+        [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches"
+        fixedTopGap="0"
+        id="sideMenu"
+        style="width: 330px"
+    >
+        <mat-nav-list dense>
+            <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+
+            <ng-content select="nav"></ng-content>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
+            <button mat-icon-button (click)="sidemenu.toggle()">
+                <mat-icon svgIcon="menu"></mat-icon>
+            </button>
+            <ng-content select="[toolbar]"></ng-content>
+        </mat-toolbar>
+        <ng-content></ng-content>
+    </mat-sidenav-content>
+</mat-sidenav-container>
