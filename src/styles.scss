@@ -495,7 +495,7 @@ rmm-headertoolbar {
     font-weight: 400;
 }
 
-.mainMenu, .mainMenuAccount {
+.mainMenu {
     margin-top: 30px;
     transition: margin-top 0.25s;
 }
@@ -512,40 +512,6 @@ rmm-headertoolbar {
 
     .mainMenuDesc {
 	margin-top: -2px;
-    }
-}
-
-.mainMenuAccount a {
-    margin: -3px 17px 0 17px;
-    width: 29px;
-    height: 29px;
-    font-size: 16px;
-}
-
-.mainMenuAccount .mat-button-wrapper {
-    margin: 1px 0 0 -16px;
-    padding: 0 !important;
-}
-
-.mainMenuAccount .mat-fab.mat-accent {
-    background-color: #fff;
-}
-
-.mainMenuAccount mat-icon {
-    margin: 0;
-    width: 25px;
-    height: 25px;
-    color: mat-color($rmm-default-primary) !important;
-}
-
-.mainMenuAccount:hover {
-    margin-top: -2px;
-
-    .mainMenuAccount mat-icon {
-	margin: -3px;
-    }
-    .mainMenuDesc {
-        margin-top: 0px;
     }
 }
 

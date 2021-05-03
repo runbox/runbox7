@@ -58,10 +58,31 @@
     </a>
   </div>
 
-  <div class="mainMenuAccount">
-    <a mat-fab routerLink="/account">
+  <div class="mainMenu">
+    <a mat-button href="/mail/account">
       <mat-icon svgIcon="account"></mat-icon>
       <p class="mainMenuDesc">Account</p>
+    </a>
+  </div>
+
+  <div *ngIf="user_is_trial" class="mainMenu">
+    <a mat-button routerLink="/account/plans">
+      <mat-icon svgIcon="wallet-membership"></mat-icon>
+      <p class="mainMenuDesc">Subscribe</p>
+    </a>
+  </div>
+
+  <div *ngIf="!user_is_trial" class="mainMenu">
+    <a mat-button routerLink="/account/subscriptions">
+      <mat-icon svgIcon="wallet-membership"></mat-icon>
+      <p class="mainMenuDesc">Renew</p>
+    </a>
+  </div>
+
+  <div class="mainMenu">
+    <a mat-button (click)="logoutservice.logout()">
+      <mat-icon svgIcon="power"></mat-icon>
+      <p class="mainMenuDesc">Log out</p>
     </a>
   </div>
 </mat-toolbar>
