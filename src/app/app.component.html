@@ -33,6 +33,20 @@
                   </mat-select>
                 </mat-form-field>
               </mat-list-item>
+              <mat-list-item>
+                <mat-checkbox
+                  [(ngModel)]="settingsService.settings.useNativeMailList"
+                  (change)="settingsService.store()"
+                  (click)="$event.stopPropagation()"
+                >
+                  Use a simplified email list
+                </mat-checkbox>
+              </mat-list-item>
+              <mat-list-item *ngIf="settingsService.settings.useNativeMailList !== useNativeMailList">
+                <button mat-button (click)="reloadPage()">
+                  Reload the page to apply
+                </button>
+              </mat-list-item>
           </mat-list>
       </mat-menu>
 
@@ -223,11 +237,10 @@
               <!-- currently only supporting threading / unread for local index -->
               <mat-list-item>
                 <mat-checkbox
-                  *ngIf="canvastable"
-                  [(ngModel)]="canvastable.showContentTextPreview"
-                  matLine
-                  (change)="saveContentPreviewSetting()"
+                  [(ngModel)]="settingsService.settings.mailviewerContentPreview"
+                  (change)="settingsService.store()"
                   (click)="$event.stopPropagation()"
+                  matLine
                   class="tableViewOptionsMenuElement"
                 >
                   <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
@@ -296,7 +309,14 @@
 
     <div [hidden]="hasChildRouterOutlet">
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !mailViewerOnRightSide && singlemailviewer ? singlemailviewer.height: 0}">
-        <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
+        <app-canvasmessagelist #messagelist
+         *ngIf="useNativeMailList === false"
+         [inlinePreviews]="settingsService.settings.mailviewerContentPreview"
+        ></app-canvasmessagelist>
+        <app-nativemessagelist #messagelist
+         *ngIf="useNativeMailList === true"
+         [inlinePreviews]="settingsService.settings.mailviewerContentPreview"
+        ></app-nativemessagelist>
       </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"

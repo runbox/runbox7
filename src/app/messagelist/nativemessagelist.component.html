@@ -1,0 +1,62 @@
+<div id="nativemessagelist">
+    <div *ngIf="rowsDisplayed < rowCount">
+        Showing messages {{ offset + 1 }}..{{ upto }} out of {{ rowCount }}
+    </div>
+    <button mat-stroked-button class="pagingButton" *ngIf="offset > 0" (click)="scrollUp()">
+        Show previous {{ rowsDisplayed }} messages
+    </button>
+    <button mat-stroked-button
+        *ngFor="let row of shownRows; index as i"
+        [ngClass]="{ 'messageButton': true, 'selectedFolder': rows.openedRowIndex == row.rowid }"
+        (click)="openMessage(row.rowid)"
+    >
+        <div class="firstRow">
+            <div>
+                {{ row.from }}
+            </div>
+            <div>
+                {{ row.date }}
+            </div>
+        </div>
+        <div class="subjectRow">
+            <div class="subject"> {{ row.subject }} </div>
+            <div class="notes">
+                <span class="note" *ngIf="row.count > 1"><em>{{ row.count }} messages in thread</em></span>
+                <span class="note" *ngIf="row.unread"><em>UNREAD</em></span>
+            </div>
+        </div>
+        <div class="contentPreview" *ngIf="inlinePreviews">
+            <span *ngIf="row.contentPreview; else noPreview"> {{ row.contentPreview }} </span>
+            <ng-template #noPreview>
+                <span class="noPreview"> Preview not available </span>
+            </ng-template>
+        </div>
+    </button>
+    <button mat-stroked-button class="pagingButton" *ngIf="remaining > 0" (click)="scrollDown()">
+        Show next {{ rowsDisplayed }} messages
+    </button>
+</div>
+<!--
+<div style="overflow: auto;">
+    <mat-table [dataSource]="shownRows" style="width: 100%; height: 100%">
+        <ng-container matColumnDef="Date">
+            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Date"]] }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="From">
+            <mat-header-cell *matHeaderCellDef> From </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["From"]] }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Subject">
+            <mat-header-cell *matHeaderCellDef> Subject </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Subject"]] }} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Size">
+            <mat-header-cell *matHeaderCellDef> Size </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[columnsByName["Size"]] }} </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="columnNames; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: columnNames;"></mat-row>
+    </mat-table>
+</div>
+-->

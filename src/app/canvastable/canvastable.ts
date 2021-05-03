@@ -38,6 +38,9 @@ import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
 import { MessageDisplay } from '../common/messagedisplay';
 import { CanvasTableColumn } from './canvastablecolumn';
+import { filter, debounceTime } from 'rxjs/operators';
+import { AppComponent } from '../app.component';
+import { RowSelection } from '../messagelist/messagelistcomponent';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -53,10 +56,6 @@ const getCSSClassProperty = (className, propertyName) => {
   }
   return window.getComputedStyle(element, null).getPropertyValue(propertyName);
 };
-
-export interface CanvasTableSelectListener {
-  rowSelected(rowIndex: number, colIndex: number, multiSelect?: boolean): void;
-}
 
 export class FloatingTooltip {
   constructor(public top: number,
@@ -113,12 +112,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   @ViewChild(MatTooltip) columnOverlay: MatTooltip;
 
-  repaintDoneSubject: Subject<any> = new Subject();
-  canvasResizedSubject: Subject<boolean> = new Subject();
 
   private canv: HTMLCanvasElement;
 
+  private canvasResizedSubject: Subject<boolean> = new Subject();
   private ctx: CanvasRenderingContext2D;
+  private repaintDoneSubject: Subject<any> = new Subject();
   private wantedCanvasWidth = 300;
   private wantedCanvasHeight = 300;
 
@@ -211,10 +210,11 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public columnSections: CanvasTableColumnSection[] = [];
 
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
+  public visibleRowsChanged: Subject<number[]> = new Subject();
 
   public floatingTooltip: FloatingTooltip;
 
-  @Input() selectListener: CanvasTableSelectListener;
+  @Output() rowSelected: EventEmitter<RowSelection> = new EventEmitter();
   @Output() touchscroll = new EventEmitter();
 
   touchScrollSpeedY = 0;
@@ -247,6 +247,21 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   ngOnInit() {
     this.calculateColumnWidths(this.columns);
+
+    this.canvasResizedSubject.pipe(
+      filter(widthChanged => widthChanged === true),
+      debounceTime(20)
+    ).subscribe(() =>
+      setTimeout(() =>
+        this.autoAdjustColumnWidths(), 0
+      )
+    );
+
+    this.repaintDoneSubject.subscribe(() => {
+      if (!this.isScrollInProgress()) {
+        this.visibleRowsChanged.next(this.getVisibleRowIndexes());
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -632,7 +647,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       event.dataTransfer.dropEffect = 'move';
       event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
-      this.selectListener.rowSelected(selectedRowIndex, -1);
+      this.emitRowSelection(selectedRowIndex, -1);
     } else {
       event.preventDefault();
       this.lastMouseDownEvent = event;
@@ -701,11 +716,19 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
   }
 
-  public isScrollInProgress(): boolean {
+  private emitRowSelection(rowIndex: number, colIndex: number, multiSelect?: boolean): void {
+    this.rowSelected.emit({
+      rowIndex,
+      colIndex,
+      multiSelect: !!multiSelect,
+    });
+  }
+
+  private isScrollInProgress(): boolean {
     return this.scrollbarDragInProgress || Math.abs(this.touchScrollSpeedY) > 0;
   }
 
-  public getVisibleRowIndexes(): number[] {
+  private getVisibleRowIndexes(): number[] {
     return new Array(Math.floor(this.maxVisibleRows))
       .fill(0).map((v, n) => Math.round(this.topindex + n));
   }
@@ -722,7 +745,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const allSelected = this.rows.allSelected();
 
     this.rows.rows.forEach((rowobj, rowIndex) =>
-      this.selectListener.rowSelected(
+      this.emitRowSelection(
         rowIndex,
         0,
         !allSelected
@@ -739,7 +762,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       , true);
 
     visibleRowIndexes.forEach(selectedRowIndex =>
-      this.selectListener.rowSelected(selectedRowIndex,
+      this.emitRowSelection(selectedRowIndex,
         0,
         !visibleRowsAlreadySelected)
     );
@@ -756,7 +779,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const canvrect = this.canv.getBoundingClientRect();
     clientX -= canvrect.left;
 
-    this.selectListener.rowSelected(selectedRowIndex,
+    this.emitRowSelection(selectedRowIndex,
       this.getColIndexByClientX(clientX),
       multiSelect);
 
@@ -764,7 +787,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
-  public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
+  private autoAdjustColumnWidths(minwidth = 40, tryFitScreenWidth = true) {
     if (!this.canv) {
       return;
     }
@@ -1025,7 +1048,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       colx += col.width;
     }
 
-    if (this.rows.rowCount() < 1) {
+    if (!this.rows || this.rows.rowCount() < 1) {
       return;
     }
 
@@ -1361,6 +1384,24 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
 
   }
+
+  public resetColumns(app: AppComponent) {
+    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
+    //
+    // "this" so we can check selectedFolder (FIXME: improve!)
+    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
+    //
+    // why we have resetColumns scattered everywhere,
+    // if we just called getCTC whenever we do a paint,
+    // it wouldn't need to be called in AppComponent so often?
+    // would that slow things down?
+    if (this.rows) {
+      this.columns = this.rows.getCanvasTableColumns(app);
+    }
+    this.rowWrapModeWrapColumn = 3;
+    this.rowWrapModeDefaultSelectedColumn = 3;
+    setTimeout(() => this.autoAdjustColumnWidths(), 0);
+  }
 }
 
 @Component({
@@ -1390,7 +1431,6 @@ export class CanvasTableContainerComponent implements OnInit {
   };
 
   @Input() configname = 'default';
-  @Input() canvastableselectlistener: CanvasTableSelectListener;
 
   @Output() sortToggled: EventEmitter<any> = new EventEmitter();
 
@@ -1520,7 +1560,6 @@ export class CanvasTableContainerComponent implements OnInit {
       this.selectAllTimeout = null;
     }
   }
-
 }
 
 

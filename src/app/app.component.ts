@@ -18,10 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef } from '@angular/core';
-import {
-  CanvasTableSelectListener, CanvasTableComponent,
-  CanvasTableContainerComponent
-} from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
@@ -41,7 +37,7 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
@@ -61,11 +57,11 @@ import { AppSettings, AppSettingsService } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
+import { MessageListComponent, RowSelection } from './messagelist/messagelistcomponent';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
-const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 
@@ -76,7 +72,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
+export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
@@ -122,13 +118,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
+
+  useNativeMailList: boolean;
+  canvastable: MessageListComponent;
+  @ViewChild('messagelist', { static: false }) set canvastableComponent(component: MessageListComponent) {
+    if (this.canvastable) {
+      return; // page reload required after switching MessageListComponent impl
+    }
+    if (component) {
+      this.canvastable = component;
+      this.setupCanvasTable();
+    }
+  }
 
   sideMenuOpened = true;
 
   hasChildRouterOutlet: boolean;
-  canvastable: CanvasTableComponent;
 
   fragment: string;
 
@@ -205,6 +211,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.experimentalFeatureEnabled = true;
     }
 
+    this.settingsService.settingsSubject.pipe(take(1)).subscribe(settings => {
+      this.useNativeMailList = settings.useNativeMailList;
+    });
+
     this.mdIconRegistry.addSvgIcon('movetofolder',
     this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
 
@@ -223,7 +233,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollUp();
-            this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
@@ -233,7 +242,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           if (newRowIndex < this.canvastable.rows.rowCount()) {
             this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollDown();
-            this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
         }
@@ -251,7 +259,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.setMessageDisplay('websocketlist', results);
         this.showingWebSocketSearchResults = true;
       }
-      this.resetColumns();
+      this.canvastable.resetColumns(this);
     });
 
     this.sideMenuOpened = !mobileQuery.matches;
@@ -292,38 +300,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngOnInit(): void {
-    this.canvastable = this.canvastablecontainer.canvastable;
-    this.canvastablecontainer.sortColumn = 2;
-    this.canvastablecontainer.sortDescending = true;
-    this.resetColumns();
-
-    this.messagelistservice.messagesInViewSubject.subscribe(res => {
-      this.messagelist = res;
-      if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
-        this.setMessageDisplay('messagelist', this.messagelist);
-        this.canvastable.hasChanges = true;
-      }
-    });
-
     this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
       map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
-
-    this.canvastable.scrollLimitHit.subscribe((limit) =>
-      this.messagelistservice.requestMoreData(limit)
-    );
-
-    this.canvastable.canvasResizedSubject.pipe(
-        filter(widthChanged => widthChanged === true),
-        debounceTime(20)
-      ).subscribe(() =>
-        this.autoAdjustColumnWidths()
-    );
-
-    const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-    if (contentPreview) {
-      this.canvastable.showContentTextPreview = contentPreview === 'true';
-    }
 
     const messagePaneSetting = localStorage.getItem(LOCAL_STORAGE_KEEP_PANE);
     if (messagePaneSetting) {
@@ -363,6 +342,52 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
 
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.composeSelected = this.router.url === '/compose?new=true';
+      this.draftsSelected = this.router.url === '/compose';
+      this.overviewSelected = this.router.url === '/overview';
+    });
+
+    if ('serviceWorker' in navigator) {
+      try  {
+        Notification.requestPermission();
+      } catch (e) {}
+    }
+
+    this.subscribeToNotifications();
+  }
+
+  private setupCanvasTable(): void {
+    this.canvastable.visibleRowsChanged.pipe(
+      throttleTime(1000)
+    ).subscribe((rowIndexes: number[]) => {
+        const messageIds = rowIndexes.filter(
+            idx => idx < this.canvastable.rows.rowCount()
+        ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+        for (const id of messageIds) {
+            this.rmmapi.getMessageContents(id).subscribe(() => this.canvastable.detectChanges());
+        }
+    });
+    this.canvastable.rowSelected.subscribe(
+        (s: RowSelection) => this.rowSelected(s.rowIndex, s.colIndex, s.multiSelect)
+    );
+    this.canvastable.sortToggled.subscribe(() => this.updateSearch(true));
+    this.canvastable.scrollLimitHit.subscribe((limit) =>
+      this.messagelistservice.requestMoreData(limit)
+    );
+
+    this.messagelistservice.messagesInViewSubject.subscribe(res => {
+      this.messagelist = res;
+      if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
+        this.setMessageDisplay('messagelist', this.messagelist);
+        this.canvastable.detectChanges();
+      }
+    });
+
+    // we have to do it here so that we don't do selectMessageFromFragment()
+    // before the messagelist exists
     this.route.fragment.subscribe(
       fragment => {
         if (!fragment) {
@@ -378,36 +403,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
       }
     );
-
-    this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.composeSelected = this.router.url === '/compose?new=true';
-      this.draftsSelected = this.router.url === '/compose';
-      this.overviewSelected = this.router.url === '/overview';
-    });
-
-    // Download visible messages in the background
-    this.canvastable.repaintDoneSubject.pipe(
-        filter(() => !this.canvastable.isScrollInProgress()),
-        throttleTime(1000)
-    ).subscribe(() => {
-        const rowIndexes = this.canvastable.getVisibleRowIndexes();
-        const messageIds = rowIndexes.filter(
-            idx => idx < this.canvastable.rows.rowCount()
-        ).map(idx => this.canvastable.rows.getRowMessageId(idx));
-        for (const id of messageIds) {
-            this.rmmapi.getMessageContents(id).subscribe(() => this.canvastable.hasChanges = true);
-        }
-    });
-
-      if ('serviceWorker' in navigator) {
-        try  {
-          Notification.requestPermission();
-        } catch (e) {}
-      }
-
-      this.subscribeToNotifications();
   }
 
   selectMessageFromFragment(fragment: string): void {
@@ -563,11 +558,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
   }
 
-  saveContentPreviewSetting(): void {
-    const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
-    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
-  }
-
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     const snackBarRef = this.snackBar.open( msg );
@@ -670,14 +660,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public deleteLocalIndex() {
     this.usewebsocketsearch = true;
-    this.canvastable.topindex = 0;
-    this.canvastable.rows = null;
     this.viewmode = 'messages';
     this.dataReady = false;
     this.showingSearchResults = false;
     this.searchText = '';
 
-    this.resetColumns();
+    this.canvastable.resetColumns(this);
 
     this.usage.report('local-index-deleted');
 
@@ -711,20 +699,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     }
 
-    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
-    // in canvastable, and anyway get CV to just read the columns itself
-    // "this" so we can check selectedFolder (FIXME: improve!)
-    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
-    // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
-    // would that slow things down?
-    this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
+    this.canvastable.resetColumns(this);
 
     // messages updated, check if we need to select a message from the fragment
     this.selectMessageFromFragment(this.fragment);
   }
 
   public clearSelection() {
-    this.canvastable.rows.clearSelection();
+    this.canvastable?.rows.clearSelection();
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -752,7 +734,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // FIXME: [2] is searchservice specific!
       if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
-        this.resetColumns();
+        this.canvastable.resetColumns(this);
         this.clearSelection();
 
         // FIXME [0] is searchservice specific!
@@ -764,7 +746,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.updateSearch(true);
       }
 
-      this.canvastable.hasChanges = true;
+      this.canvastable.detectChanges();
     }
   }
 
@@ -802,7 +784,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public afterLoadIndex() {
-    this.resetColumns();
+    this.canvastable.resetColumns(this);
     this.dataReady = true;
 
     this.showingWebSocketSearchResults = false;
@@ -831,7 +813,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
-    this.canvastable.rows.clearOpenedRow();
+    this.canvastable?.rows.clearOpenedRow();
     this.updateUrlFragment();
   }
 
@@ -898,7 +880,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
-      this.resetColumns();
+      this.canvastable.resetColumns(this);
       this.updateSearch(true);
     }
   }
@@ -920,7 +902,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         return;
     }
 
-    console.log('Change selectedFolder');
     this.clearSelection();
 
     let doResetColumns = false;
@@ -936,7 +917,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         take(1)
       ).subscribe(() =>
         // Reset columns after folder list is updated
-        this.resetColumns()
+        this.canvastable.resetColumns(this)
       );
     this.messagelistservice.setCurrentFolder(folder);
 
@@ -952,7 +933,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     setTimeout(() => {
         if (doResetColumns) {
-          this.resetColumns();
+          this.canvastable.resetColumns(this);
         }
         this.updateSearch(true);
         this.canvastable.scrollTop();
@@ -961,15 +942,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   convertFolderPath(str) {
     return '/' + str.replace(/\./g, '/');
-  }
-
-  resetColumns() {
-    if (this.canvastable && this.canvastable.rows) {
-      this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
-    }
-    this.canvastable.rowWrapModeWrapColumn = 3;
-    this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
-    this.autoAdjustColumnWidths();
   }
 
   showSaveSearchDialog(): void {
@@ -1013,7 +985,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
          */
         if (this.showingSearchResults) {
           this.showingSearchResults = false;
-          this.resetColumns();
+          this.canvastable.resetColumns(this);
         }
 
         this.setMessageDisplay('messagelist', this.messagelist);
@@ -1056,7 +1028,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (!this.showingSearchResults ||
           this.displayFolderColumn !== previousDisplayFolderColumn) {
           this.showingSearchResults = true;
-          this.resetColumns();
+          this.canvastable.resetColumns(this);
         }
 
         console.log(querytext);
@@ -1066,8 +1038,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.ngZone.runOutsideAngular(() => {
             searchResults = this.searchService.api.sortedXapianQuery(
               querytext,
-              this.canvastablecontainer.sortColumn,
-              this.canvastablecontainer.sortDescending ? 1 : 0, 0, 50000,
+              this.canvastable.sortColumn,
+              this.canvastable.sortDescending ? 1 : 0, 0, 50000,
               this.viewmode === 'conversations' ? 1 : -1
             );
           });
@@ -1102,16 +1074,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE, this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
-  }
-
-  horizScroll(evt: any) {
-    this.canvastable.horizScroll = evt.target.scrollLeft;
-  }
-
-  autoAdjustColumnWidths() {
-    setTimeout(() =>
-      this.canvastable.autoAdjustColumnWidths(40, true), 0
-    );
   }
 
   promptLocalSearch() {
@@ -1160,6 +1122,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     ).subscribe();
   }
 
+  public reloadPage(): void {
+    location.reload();
+  }
+
   private updateUrlFragment(): void {
     if (this.router.url.match('^/[^#]')) {
       // we're not actually on mailviewer, so don't try to be smart
@@ -1169,6 +1135,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (fragment && this.singlemailviewer?.messageId) {
       fragment += `:${this.singlemailviewer.messageId}`;
     }
+    // needed so that our fragment listener doesn't trigger any further navigation
+    this.fragment = fragment;
     this.router.navigate(['/'], { fragment });
   }
 }

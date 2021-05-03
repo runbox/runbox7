@@ -32,11 +32,6 @@ describe('canvastable', () => {
 
     it('should activate draggable column overlay on mouseover', async () => {
         const fixture = TestBed.createComponent(CanvasTableContainerComponent);
-        fixture.componentInstance.canvastableselectlistener = {
-            rowSelected: (rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void => {
-
-            },
-        };
         fixture.componentInstance.canvastable.columns = [
             {
                 name: 'Column1',

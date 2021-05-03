@@ -111,7 +111,7 @@
         [style.left.px]="canvastable.horizScroll"
         [style.top.px]="canvastable.rowWrapMode && !canvastable.hasSortColumns ? 0 : 25"
         >          
-      <canvastable [selectListener]="canvastableselectlistener"
+      <canvastable
         (touchscroll)="handleTouchScroll($event)"
         (columnresizestart)="colresizestart($event.clientx, $event.colindex)"
         (columnresizeend)="colresizeend()"

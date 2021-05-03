@@ -18,13 +18,14 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { StorageService } from './storage.service';
-import { filter } from 'rxjs/operators';
 
 export interface AppSettings {
-    showPopularRecipients: boolean;
-    avatars: AppSettings.AvatarSource;
+    avatars:                  AppSettings.AvatarSource;
+    mailviewerContentPreview: boolean;
+    showPopularRecipients:    boolean;
+    useNativeMailList:        boolean;
 }
 
 export namespace AppSettings {
@@ -36,8 +37,10 @@ export namespace AppSettings {
 
     export function getDefaults(): AppSettings {
         return {
-            avatars: AvatarSource.LOCAL,
-            showPopularRecipients: true,
+            avatars:                  AvatarSource.LOCAL,
+            mailviewerContentPreview: false,
+            showPopularRecipients:    true,
+            useNativeMailList:        false,
         };
     }
 
@@ -49,19 +52,31 @@ export namespace AppSettings {
 @Injectable({ providedIn: 'root' })
 export class AppSettingsService {
     settings: AppSettings = AppSettings.getDefaults();
-    settingsSubject: BehaviorSubject<AppSettings> = new BehaviorSubject(AppSettings.getDefaults());
+    settingsSubject: ReplaySubject<AppSettings> = new ReplaySubject();
 
     constructor(
         private storage: StorageService,
     ) {
-        this.storage.getSubject('webmailSettings').pipe(filter(s => s)).subscribe(
-            (settings: any) => this.settingsSubject.next(
-                this.settings = AppSettings.load(settings)
-            )
+        this.storage.getSubject('webmailSettings').subscribe(
+            (settings: any) => {
+                this.settingsSubject.next(
+                    this.settings = AppSettings.load(settings)
+                );
+                this.migrateOldSettings();
+            }
         );
     }
 
     public store(): void {
         this.storage.set('webmailSettings', this.settings);
+    }
+
+    private migrateOldSettings(): void {
+        const mailpreview = localStorage.getItem('rmm7mailViewerContentPreview');
+        if (mailpreview) {
+            this.settings.mailviewerContentPreview = mailpreview === 'true';
+            localStorage.removeItem('rmm7mailViewerContentPreview');
+            this.store();
+        }
     }
 }
