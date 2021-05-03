@@ -22,6 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
 import { RunboxCommonModule } from '../common/common.module';
+import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SentryErrorHandler } from '../sentry-error-handler';
@@ -86,6 +87,8 @@ import { ManageServicesComponent } from '../account-security/manage-services.com
 import { AppPasswordsComponent } from '../account-security/app-passwords.component';
 import { LastLoginsComponent } from '../account-security/last-logins.component';
 import { SessionsComponent } from '../account-security/sessions.component';
+import { DomainRegisterModule } from '../domainregister/domainregister.module';
+import { DomainRegisterComponent } from '../domainregister/domainregister.component';
 
 @NgModule({
   declarations: [
@@ -140,6 +143,8 @@ import { SessionsComponent } from '../account-security/sessions.component';
     MatTooltipModule,
     ReactiveFormsModule,
     RunboxCommonModule,
+    RunboxComponentModule,
+    DomainRegisterModule,
     AccountSecurityModule,
     ProfilesModule,
     QRCodeModule,
@@ -235,6 +240,10 @@ import { SessionsComponent } from '../account-security/sessions.component';
               {
                   path: 'sessions',
                   component: SessionsComponent,
+              },
+              {
+                  path: 'domainregistration',
+                  component: DomainRegisterComponent,
               },
               {
                   path: 'not-for-subaccounts',
