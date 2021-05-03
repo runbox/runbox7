@@ -22,6 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
 import { RunboxCommonModule } from '../common/common.module';
+import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SentryErrorHandler } from '../sentry-error-handler';
@@ -136,6 +137,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
     MatTooltipModule,
     ReactiveFormsModule,
     RunboxCommonModule,
+    RunboxComponentModule,
     AccountSecurityModule,
     ProfilesModule,
     QRCodeModule,
