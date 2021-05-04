@@ -169,8 +169,12 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   redirectTo: 'plans',
               },
               {
-                  path: 'renewals',
+                  path: 'subscriptions',
                   component: AccountRenewalsComponent,
+              },
+              {
+                  path: 'renewals',
+                  redirectTo: 'subscriptions',
               },
               {
                   path: 'payments',
