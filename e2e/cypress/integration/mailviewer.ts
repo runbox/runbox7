@@ -25,8 +25,6 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To"', () => {
-        cy.visit('/');
-        cy.wait(1000);
         cy.visit('/#Inbox:11');
 
         cy.get('button[mattooltip="Reply"]').click();

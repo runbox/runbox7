@@ -55,6 +55,7 @@ export class MessageListService {
 
     folderMessageLists: { [folder: string]: MessageInfo[] } = {};
     messagesById: { [id: number]: MessageInfo } = {};
+    folderCounts: FolderMessageCountMap;
 
     trashFolderName = 'Trash';
     spamFolderName = 'Spam';
@@ -76,13 +77,28 @@ export class MessageListService {
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
             ).subscribe((msgFlagChange) => {
                 if (msgFlagChange.seenFlag === true || msgFlagChange.seenFlag === false) {
+                    const msg = this.messagesById[msgFlagChange.id];
+                    const msgSeenFlag = msg.seenFlag;
                     this.messagesById[msgFlagChange.id].seenFlag = msgFlagChange.seenFlag;
+                    if (msgSeenFlag !== this.messagesById[msgFlagChange.id].seenFlag) {
+                        this.folderCounts[msg.folder].unread = msgFlagChange.seenFlag === true
+                            ? this.folderCounts[msg.folder].unread - 1
+                            : this.folderCounts[msg.folder].unread + 1;
+                        // remove from cache so that it will be
+                        // refetched with the new status when we next
+                        // visit it
+                        this.rmmapi.deleteCachedMessageContents(msgFlagChange.id);
+                    }
                 }
                 if (msgFlagChange.flaggedFlag === true || msgFlagChange.flaggedFlag === false) {
                     this.messagesById[msgFlagChange.id].flaggedFlag = msgFlagChange.flaggedFlag;
+                    this.rmmapi.deleteCachedMessageContents(msgFlagChange.id);
                 }
                 // update local results ASAP, schedule API results for later
-                this.refreshFolderCounts().then(() => this.refreshFolderList());
+                // Message counts update
+                this.folderMessageCountSubject.next(this.folderCounts);
+                // current folder contents update
+                this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
             });
     }
 
@@ -100,6 +116,9 @@ export class MessageListService {
         });
     }
 
+    // This will only be definitely correct (for trash+spam) if we have recently
+    // updated the folderlist - never call this directly, always call
+    // refreshFolderList
     public refreshFolderCounts(): Promise<void> {
         return new Promise((resolve, _) => {
             return this.searchservice.pipe(take(1)).subscribe(searchservice => {
@@ -123,6 +142,7 @@ export class MessageListService {
                             folderCounts[path] = FolderMessageCountEntry.of(folder);
                         }
                     }
+                    this.folderCounts = folderCounts;
                     this.folderMessageCountSubject.next(folderCounts);
 
                     resolve();
@@ -162,7 +182,11 @@ export class MessageListService {
         }
     }
 
-    public applyChanges(msgInfos: MessageInfo[]) {
+    // Due to rmm7messageactions doing local updates (messagelist contents etc)
+    // first, then updating the API and forcing an index/messagelist update
+    // this code is likely to only find changes when contents have been
+    // changed outside of runbox (eg via IMAP)
+    public applyChanges(msgInfos: MessageInfo[], delMsgInfos: number[]) {
         const filterFolders: { [folder: string]: boolean } = {};
 
         let hasChanges = false;
@@ -218,6 +242,23 @@ export class MessageListService {
                 hasChanges = true;
                 this.messagesById[msg.id].seenFlag = msg.seenFlag;
             });
+
+        // messages permanently deleted (removed from trash
+        delMsgInfos
+            .forEach((msgId) => {
+                const msg = this.messagesById[msgId];
+                if (msg && this.folderMessageLists[msg.folder]) {
+                    hasChanges = true;
+                    const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
+
+                    if (delFolderMessageIndex > -1) {
+                        this.folderMessageLists[msg.folder]
+                            .splice(delFolderMessageIndex, 1);
+                    }
+                    delete this.messagesById[msgId];
+                }
+            });
+
         Object.keys(filterFolders)
             .filter((fld) => this.folderMessageLists[fld])
             .forEach((fld) => {
@@ -229,6 +270,101 @@ export class MessageListService {
             this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
             this.refreshFolderList();
         }
+    }
+
+    // When emptying the trash we delete from here first
+    // (then update backend + index)
+    public pretendEmptyTrash() {
+        // Set these locally, main trash emptying will come along and
+        // offically update them later
+        this.folderCounts[this.trashFolderName].unread = 0;
+        this.folderCounts[this.trashFolderName].total = 0;
+
+        // Just lie a bit, we'll fix it in a mo..
+        this.folderMessageCountSubject.next(this.folderCounts);
+        this.folderMessageLists[this.trashFolderName] = [];
+    }
+
+    // almost duplicate of code in applyChanges, except for hasChanges!?
+    // Permanent delete
+    public deleteTrashMessages(messageIds: number[]) {
+        messageIds.forEach((msgId) => {
+            const msg = this.messagesById[msgId];
+            if (msg && this.folderMessageLists[msg.folder]) {
+                const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
+
+                if (delFolderMessageIndex > -1) {
+                    this.folderMessageLists[msg.folder]
+                        .splice(delFolderMessageIndex, 1);
+                }
+                this.folderCounts[this.trashFolderName].total++;
+                if (!msg.seenFlag) {
+                    this.folderCounts[this.trashFolderName].unread++;
+                }
+                delete this.messagesById[msgId];
+            }
+        });
+        // Message counts update
+        this.folderMessageCountSubject.next(this.folderCounts);
+        // current folder contents update
+        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+    }
+
+    // Non-index users (or trash/spam) - move to other folder
+    public moveMessages(messageIds: number[], folderName: string, decache: boolean = false) {
+        messageIds.forEach((msgId) => {
+            const msg = this.messagesById[msgId];
+            if (!msg) {
+                return;
+            }
+            if (msg.folder === folderName) {
+                return;
+            }
+
+            // Remove from visible emails
+            // If we havent loaded/viewed this folder, we won't have any
+            if (this.folderMessageLists[msg.folder]) {
+                const msgPos = this.folderMessageLists[msg.folder].findIndex((m) => msg.id === m.id);
+                if (msgPos > -1 ) {
+                    this.folderMessageLists[msg.folder]
+                        .splice(msgPos, 1);
+                }
+            }
+            // Update counts regardless
+            this.folderCounts[msg.folder].total--;
+            if (!msg.seenFlag) {
+                this.folderCounts[msg.folder].unread--;
+            }
+
+            // Not already in target folder so move it there:
+            msg.folder = folderName;
+            // reinsert into trash (assuming we've loaded trash)
+            if (this.folderMessageLists[folderName]) {
+                const msgNewIndex = this.folderMessageLists[folderName].findIndex((m) => msg.id > m.id);
+                if (msgNewIndex > -1) {
+                    this.folderMessageLists[folderName]
+                        .splice(msgNewIndex, 0, msg);
+                } else {
+                    this.folderMessageLists[folderName].push(msg);
+                }
+            }
+
+            // if requested, remove from cache (eg for enforcing
+            // refresh of emails moved to spam folder, to display the
+            // correct icon
+            if (decache) {
+                this.rmmapi.deleteCachedMessageContents(msgId);
+            }
+
+            this.folderCounts[folderName].total++;
+            if (!msg.seenFlag) {
+                this.folderCounts[folderName].unread++;
+            }
+        });
+        // Message counts update
+        this.folderMessageCountSubject.next(this.folderCounts);
+        // current folder contents update
+        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
     }
 
     public fetchFolderMessages() {
