@@ -17,8 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ViewChild } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-help',
@@ -26,9 +25,7 @@ import { MatSidenav } from '@angular/material/sidenav';
   styleUrls: ['./help.component.scss']
 })
 export class HelpComponent {
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
-    sideMenuOpened = true;
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
 
-    constructor() { }
+    constructor() {}
 }
