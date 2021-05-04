@@ -157,12 +157,16 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   component: AccountWelcomeComponent,
               },
               {
-                  path: 'upgrades',
+                  path: 'plans',
                   component: AccountUpgradesComponent,
               },
               {
                   path: 'addons',
-                  redirectTo: 'upgrades',
+                  redirectTo: 'plans',
+              },
+              {
+                  path: 'upgrades',
+                  redirectTo: 'plans',
               },
               {
                   path: 'renewals',
