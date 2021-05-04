@@ -173,8 +173,12 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   component: AccountRenewalsComponent,
               },
               {
-                  path: 'transactions',
+                  path: 'payments',
                   component: AccountTransactionsComponent,
+              },
+              {
+                  path: 'transactions',
+                  redirectTo: 'payments',
               },
               {
                   path: 'receipt/:id',
