@@ -38,6 +38,8 @@ describe('RBWebMail', () => {
                     get: (_) => Promise.resolve(null),
                     set: (_, __) => {},
                     delete: (_) => {},
+                    checkIds: (_) => Promise.resolve([]),
+                    getMany: (_) => Promise.resolve([]),
                 } },
             ]
         });

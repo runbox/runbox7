@@ -911,20 +911,25 @@ export class SearchService {
           // Look up messages with missing body text term and add the missing text to the index
           const messagesMissingBodyText = this.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1);
           if (messagesMissingBodyText.length > 0) {
-            await this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
-              const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
-
-              return new SearchIndexDocumentUpdate(messageId, async () => {
-                try {
-                  const docIdTerm = `Q${messageId}`;
-                  const messageText = (await this.rmmapi.getMessageContents(messageId).toPromise()).text.text;
-                  this.api.addTextToDocument(docIdTerm, true, messageText);
-                  this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
-                } catch (e) {
-                  console.error('Failed to add text to document', messageId, e);
-                }
-              });
-            })).toPromise();
+            const messageIds = messagesMissingBodyText.map(searchIndexEntry =>
+              parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10));
+            await this.postMessagesToXapianWorker([new SearchIndexDocumentUpdate(
+              0, // fake id as we're expecting one func per message
+              async () => {
+                // ensure we have fetched the whole lot
+                await this.rmmapi.downloadMessages(messageIds);
+                messageIds.forEach(async (msgId) => {
+                  try {
+                    const docIdTerm = `Q${msgId}`;
+                    const messageText = (await this.rmmapi.getMessageContents(msgId).toPromise()).text.text;
+                    this.api.addTextToDocument(docIdTerm, true, messageText);
+                    this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
+                  } catch (e) {
+                    console.error('Failed to add text to document', msgId, e);
+                  }
+                });
+              })
+            ]).toPromise();
           }
         }
 

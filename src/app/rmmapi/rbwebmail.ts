@@ -257,53 +257,62 @@ export class RunboxWebmailAPI {
     public downloadMessages(messageIds: number[]): Promise<MessageContents[]> {
         const cached = this.messageCache.checkIds([...messageIds]);
         return cached.then((inCache) => {
+            // Filter out items we already have
+            // or are busy fetching
             const missingMessages = messageIds.filter(
                 (msgId) => !inCache.includes(msgId)
                     && !this.downloadingMessages.includes(msgId)
             );
-            const messagePromises = missingMessages.map(id => this.messageCache.get(id));
 
+            const messagePromises = [];
             if (missingMessages.length > 0) {
                 this.downloadingMessages = this.downloadingMessages.concat(missingMessages);
-                this.http.get(`/rest/v1/email/download/${missingMessages.join(',')}`).pipe(
-                    catchError((err: HttpErrorResponse) => throwError(err.message)),
-                    concatMap((res: any) => {
-                        if (res.status === 'success') {
-                            return of(res.result);
-                        } else {
-                            return throwError(res.errors[0]);
-                        }
-                    }),
-                ).subscribe(
-                    (result: any) => {
-                        for (const resultKey of Object.keys(result)) {
-                            const msgid = parseInt(resultKey, 10);
-                            const contents = result[msgid]?.json;
-                            if (contents) {
-                                this.messageCache.set(msgid, contents);
-                            } else {
-                                this.deleteCachedMessageContents(msgid);
+                messagePromises.push(
+                    new Promise((resolve, reject) => {
+                        this.http.get(`/rest/v1/email/download/${missingMessages.join(',')}`).pipe(
+                            catchError((err: HttpErrorResponse) => throwError(err.message)),
+                            concatMap((res: any) => {
+                                if (res.status === 'success') {
+                                    return of(res.result);
+                                } else {
+                                    return throwError(res.errors[0]);
+                                }
+                            }),
+                        ).subscribe(
+                            (result: any) => {
+                                for (const resultKey of Object.keys(result)) {
+                                    const msgid = parseInt(resultKey, 10);
+                                    console.log('RMMAPI Got some result:', result);
+                                    const contents = result[msgid]?.json;
+                                    if (contents) {
+                                        console.log(`RMMAPI setting cache for msgid = ${msgid}`);
+                                        this.messageCache.set(msgid, contents);
+                                    } else {
+                                        this.deleteCachedMessageContents(msgid);
+                                    }
+                                    const msgIndex = this.downloadingMessages
+                                        .findIndex((id) => msgid === id);
+                                    if (msgIndex > -1) {
+                                        this.downloadingMessages.splice(msgIndex, 1);
+                                    }
+                                }
+                                resolve();
+                            },
+                            (err: Error) => {
+                                for (const msgid of missingMessages) {
+                                    this.deleteCachedMessageContents(msgid);
+                                    const msgIndex = this.downloadingMessages
+                                        .findIndex((id) => msgid === id);
+                                    if (msgIndex > -1) {
+                                        this.downloadingMessages.splice(msgIndex, 1);
+                                    }
+                                }
+                                reject(err);
                             }
-                            const msgIndex = this.downloadingMessages
-                                .findIndex((id) => msgid === id);
-                            if (msgIndex > -1) {
-                                this.downloadingMessages.splice(msgIndex, 1);
-                            }
-                        }
-                    },
-                    (err: Error) => {
-                        for (const msgid of missingMessages) {
-                            this.deleteCachedMessageContents(msgid);
-                            const msgIndex = this.downloadingMessages
-                                .findIndex((id) => msgid === id);
-                            if (msgIndex > -1) {
-                                this.downloadingMessages.splice(msgIndex, 1);
-                            }
-                        }
-                    }
+                        );
+                    })
                 );
             }
-            // return Promise.allSettled(messagePromises);
             return Promise.all(messagePromises);
         });
     }
