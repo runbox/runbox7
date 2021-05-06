@@ -678,7 +678,7 @@ export class SearchService {
     ).map((pair: number[]) => pair[0]);
   }
 
-    checkIfDownloadableIndexExists(): Observable<boolean> {
+  checkIfDownloadableIndexExists(): Observable<boolean> {
       return this.httpclient.get('/mail/download_xapian_index?exists=check').pipe(
             map((stat: any) => {
               this.serverIndexSize = stat.size;

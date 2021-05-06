@@ -106,6 +106,7 @@ describe('SearchService', () => {
           ],
             providers: [
                 SearchService,
+                MessageCache,
                 MessageListService,
                 RunboxWebmailAPI
                 // { provide: Worker, useValue: {
@@ -245,6 +246,7 @@ describe('SearchService', () => {
 
 
         expect(await searchService.initSubject.toPromise()).toBeTruthy();
+        console.log('search service initialised');
         expect(searchService.localSearchActivated).toBeTruthy();
         expect(localdir).toEqual(searchService.localdir);
 
@@ -286,12 +288,16 @@ describe('SearchService', () => {
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        req = httpMock.expectOne('/rest/v1/email/' + testMessageId);
+        req = httpMock.expectOne('/rest/v1/email/download/' + testMessageId);
         req.flush({
             status: 'success',
             result: {
-                text: {
-                    text: 'message body test text SecretSauceFormula'
+                [testMessageId]: {
+                    json: {
+                        text: {
+                            text: 'message body test text SecretSauceFormula'
+                        }
+                    }
                 }
             }
         });
@@ -314,7 +320,5 @@ describe('SearchService', () => {
 
         FS.chdir('/');
         FS.unmount('/' + localdir);
-
-        console.log(searchService.api.getXapianDocCount(), 'docs in xapian db');
     });
 });
