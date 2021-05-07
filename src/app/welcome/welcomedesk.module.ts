@@ -21,7 +21,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WelcomeDeskComponent } from './welcomedesk.component';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 @NgModule({
   declarations: [WelcomeDeskComponent],
