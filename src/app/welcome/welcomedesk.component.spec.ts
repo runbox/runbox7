@@ -25,8 +25,8 @@ describe('WelcomeDeskComponent', () => {
   let component: WelcomeDeskComponent;
   let fixture: ComponentFixture<WelcomeDeskComponent>;
 
-  beforeEach(waitForAsync() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [ WelcomeDeskComponent ]
     })
     .compileComponents();
