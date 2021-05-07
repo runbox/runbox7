@@ -27,8 +27,8 @@ import { RouterModule } from '@angular/router';
   declarations: [WelcomeDeskComponent],
   imports: [
     CommonModule,
-    MatIconModule,
     RouterModule,
+    MatIconModule,
   ]
 })
 export class WelcomeDeskModule { }
