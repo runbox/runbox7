@@ -32,13 +32,13 @@ import { SidenavMenuComponent } from './sidenav-menu.component';
 @NgModule({
   imports: [
       CommonModule,
-      MatIconModule,
       MatButtonModule,
       MatToolbarModule,
       MatTooltipModule,
       RouterModule.forChild([]),
       MatMenuModule,
-      RouterModule
+      RouterModule,
+      MatIconModule,
   ],
   declarations: [
     HeaderToolbarComponent,
