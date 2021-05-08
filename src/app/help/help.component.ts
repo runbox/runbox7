@@ -20,7 +20,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
-import { MobileQueryService } from '../mobile-query.service';
 
 @Component({
   selector: 'app-help',
@@ -32,21 +31,5 @@ export class HelpComponent {
     sideMenuOpened = true;
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
 
-    constructor(
-        public mobileQuery: MobileQueryService,
-        router:      Router,
-    ) {
-        this.sideMenuOpened = !mobileQuery.matches;
-        this.mobileQuery.changed.subscribe(mobile => {
-            this.sideMenuOpened = !mobile;
-        });
-
-        router.events.subscribe(event => {
-            if (event instanceof NavigationStart) {
-                if (mobileQuery.matches) {
-                    this.sideMenu.close();
-                }
-            }
-        });
-    }
+    constructor() { }
 }
