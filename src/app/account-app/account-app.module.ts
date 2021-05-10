@@ -157,20 +157,32 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   component: AccountWelcomeComponent,
               },
               {
-                  path: 'upgrades',
+                  path: 'plans',
                   component: AccountUpgradesComponent,
               },
               {
                   path: 'addons',
-                  redirectTo: 'upgrades',
+                  redirectTo: 'plans',
               },
               {
-                  path: 'renewals',
+                  path: 'upgrades',
+                  redirectTo: 'plans',
+              },
+              {
+                  path: 'subscriptions',
                   component: AccountRenewalsComponent,
               },
               {
-                  path: 'transactions',
+                  path: 'renewals',
+                  redirectTo: 'subscriptions',
+              },
+              {
+                  path: 'payments',
                   component: AccountTransactionsComponent,
+              },
+              {
+                  path: 'transactions',
+                  redirectTo: 'payments',
               },
               {
                   path: 'receipt/:id',
