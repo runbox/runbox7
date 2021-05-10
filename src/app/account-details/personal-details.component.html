@@ -50,75 +50,77 @@
     </div>
 
     <div class="container">
-        <h2>Personal Details</h2>
-        <form class="form-personal" action="">
-            <mat-form-field>
-                <mat-label>First name</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Last name</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
+        <form [formGroup]="detailsForm">
+            <h2>Personal Details</h2>
+            <div class="form-personal">
+                <mat-form-field>
+                    <mat-label>First name</mat-label>
+                    <input type="text" matInput formControlName="first_name">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Last name</mat-label>
+                    <input type="text" matInput formControlName="last_name">
+                </mat-form-field>
+            </div>
+            <div class="form-contact">
+                <mat-form-field>
+                    <mat-label>Alternative email address</mat-label>
+                    <input type="email" matInput formControlName="email_alternative">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Phone number (optional)</mat-label>
+                    <input type="tel" matInput formControlName="phone_number">
+                </mat-form-field>
+            </div>
+            <div class="form-company">
+                <p><strong>Company information:</strong></p>
+                <mat-form-field>
+                    <mat-label>Company (optional)</mat-label>
+                    <input type="text" matInput formControlName="company">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Organization number (optional)</mat-label>
+                    <input type="text" matInput formControlName="org_number">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>VAT number (optional)</mat-label>
+                    <input type="text" matInput matInput formControlName="vat_number">
+                </mat-form-field>
+            </div>
+            <div class="form-address">
+                <p><strong>Address details:</strong></p>
+                <mat-form-field>
+                    <mat-label>Address</mat-label>
+                    <input type="text" matInput formControlName="street_address1">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>City</mat-label>
+                    <input type="text" matInput formControlName="city">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Postal/Zip code</mat-label>
+                    <input type="text" matInput formControlName="postal_code">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Country</mat-label>
+                    <mat-select id="country" name="country">
+                        <mat-option>One</mat-option>
+                        <mat-option>Two</mat-option>
+                        <mat-option>Three</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Time zone</mat-label>
+                    <mat-select id="timezone" name="timezone">
+                        <mat-option>One</mat-option>
+                        <mat-option>Two</mat-option>
+                        <mat-option>Three</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="action-buttons">
+                <button mat-raised-button color="primary" (click)="update()">Save Details</button>
+            </div>
         </form>
-        <form class="form-contact" action="">
-            <mat-form-field>
-                <mat-label>Alternative email address</mat-label>
-                <input type="email" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Phone number (optional)</mat-label>
-                <input type="tel" matInput>
-            </mat-form-field>
-        </form>
-        <form class="form-company" action="">
-            <p><strong>Company information:</strong></p>
-            <mat-form-field>
-                <mat-label>Company (optional)</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Organization number (optional)</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>VAT number (optional)</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-        </form>
-        <form class="form-address" action="">
-            <p><strong>Address details:</strong></p>
-            <mat-form-field>
-                <mat-label>Address</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>City</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Postal/Zip code</mat-label>
-                <input type="text" matInput>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Country</mat-label>
-                <mat-select id="country" name="country">
-                    <mat-option>One</mat-option>
-                    <mat-option>Two</mat-option>
-                    <mat-option>Three</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Time zone</mat-label>
-                <mat-select id="timezone" name="timezone">
-                    <mat-option>One</mat-option>
-                    <mat-option>Two</mat-option>
-                    <mat-option>Three</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </form>
-        <div class="action-buttons">
-            <button mat-raised-button color="primary">Save Details</button>
-        </div>
     </div>
 </section>

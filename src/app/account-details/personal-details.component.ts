@@ -17,7 +17,12 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { AccountDetailsInterface } from '../rmm/account-details';
 
 @Component({
     selector: 'app-personal-details-component',
@@ -27,5 +32,58 @@ import { Component } from '@angular/core';
 export class PersonalDetailsComponent {
     hide = true;
 
-    constructor() {}
+    details: Subject<AccountDetailsInterface> = new Subject();
+
+    detailsForm = this.createForm();
+
+    constructor(private fb: FormBuilder, private http: HttpClient) {
+        this.details.subscribe((details: AccountDetailsInterface) => {
+            this.detailsForm.patchValue(details);
+        });
+
+        this.loadDetails();
+    }
+
+    private loadDetails() {
+        this.http
+            .get('/rest/v1/account/details')
+            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .subscribe((details) => {
+                this.details.next(details);
+            });
+    }
+
+    private createForm(): FormGroup {
+        return this.fb.group({
+            first_name: this.fb.control(''),
+            last_name: this.fb.control(''),
+            email_alternative: this.fb.control(''),
+            phone_number: this.fb.control(''),
+            company: this.fb.control(''),
+            org_number: this.fb.control(''),
+            vat_number: this.fb.control(''),
+            street_address1: this.fb.control(''),
+            city: this.fb.control(''),
+            postal_code: this.fb.control(''),
+            country: this.fb.control(''),
+            timezone: this.fb.control(''),
+        });
+    }
+
+    public update() {
+        const updates = {};
+        for (const name of Object.keys(this.detailsForm.controls)) {
+            const ctl = this.detailsForm.get(name);
+            if (ctl.dirty) {
+                updates[name] = ctl.value;
+            }
+        }
+
+        this.http
+            .post('/rest/v1/account/details', updates)
+            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .subscribe((details) => {
+                this.details.next(details);
+            });
+    }
 }
