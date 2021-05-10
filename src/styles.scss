@@ -119,7 +119,7 @@ ul.square-list li {
 }
 
 .mat-toolbar, .mat-button {
-    font-size: 16px !important;
+    font-size: 16px;
     font-weight: 400;
 }
 
@@ -321,8 +321,8 @@ login {
 }
 
 #logoLogin {
-    margin: 20px 0;
-    width: 180px;
+    margin: 10px 0;
+    width: 150px;
     height: auto;
 }
 
@@ -486,27 +486,68 @@ rmm-headertoolbar {
     width: 100%;
 }
 
-#mainMenu button.accountMenu {
-    margin: 0; 
-    width: 40px; 
-    height: 40px;
-    line-height: 1em;
+#logo {
+    margin: 0px 10px 3px 20px;
+    width: 125px;
+    height: auto;
+    transition: filter 0.5s;
 }
 
-#mainMenu button.accountMenu .mat-button-wrapper {
-    padding: 0;
-    text-align: center;
-    vertical-align: middle;
+#logo:hover {
+    filter: brightness(110%);
 }
 
-#mainMenu button.accountMenu mat-icon {
-    margin: 0;
-    color: mat-color($rmm-default-primary);
+#logo:active {
+    filter: brightness(120%);
 }
 
-#mainMenu #runbox6 {
+#mainMenuContainer mat-icon {
+    color: #fff;
+}
+
+#mainMenuContainer {
+    padding: 0 30px;
+}
+
+#mainMenuContainer #runbox6 {
     color: mat-color($rmm-default-accent) !important;
 }
+
+.mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
+    color: mat-color($rmm-default-primary) !important;
+}
+
+#mainMenuContainer button {
+    margin-left: 0em;
+}
+
+.mainMenu a, mat-menu a, .mat-nav-list a {
+    line-height: 20px;
+    padding: 0;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.mainMenu {
+    margin-top: 30px;
+    transition: margin-top 0.25s;
+}
+
+.mainMenuDesc {
+    margin: 20px 0 0 0;
+    line-height: 12px;
+    color: #fff;
+    transition: margin-top 0.25s;
+}
+
+.mainMenu:hover {
+    margin-top: -5px;
+
+    .mainMenuDesc {
+	margin-top: -2px;
+    }
+}
+
 
 /* Sidenav pane */
 
@@ -520,7 +561,7 @@ mat-sidenav-container {
 
 @media(min-width: 1025px) {
     mat-sidenav-container {
-	    top: 65px !important;
+	    top: 50px !important;
     }
 }
 
@@ -587,55 +628,6 @@ mat-sidenav-container {
     font-size: 12px !important;
 }
 
-.mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
-    color: mat-color($rmm-default-primary) !important;
-}
-
-#mainMenu button {
-    margin-left: 0em;
-}
-
-a.mainMenu, mat-menu a, .mat-nav-list a {
-    text-decoration: none;
-    font-weight: 400;
-}
-
-#mainMenu mat-icon {
-    margin-right: 10px;
-    color: #fff;
-}
-
-.mainMenuSub .mat-button {
-    height: 48px !important;
-    width: 100% !important;
-    padding-left: 16px !important;
-    padding-right: 32px !important;
-    text-align: left !important;
-}
-
-.mainMenuSub .mat-menu-item .mat-icon, .mainMenuSub .mat-button, .mainMenuSub .mat-icon {
-    color: mat-color($rmm-default-primary) !important;
-}
-
-.mainMenuSub .mat-icon {
-    margin-right: 16px;
-}
-
-.mainMenuSub .mat-button-focus-overlay {
-    background-color: rgba(0,0,0,.03) !important;
-}
-
-#mainMenu button, #mainMenu a, .mainMenuSub, .mainMenuSub a {
-    font-size: 16px;
-}
-
-#logo {
-    width: 125px;
-    height: auto;
-    margin-left: 30px;
-    margin-right: 10px;
-}
-
 #logoSidenav {
     width: 125px;
     height: auto;
@@ -657,6 +649,7 @@ a.mainMenu, mat-menu a, .mat-nav-list a {
     color: mat-color($rmm-default-primary);
     text-decoration: underline;
 }
+
 
 /* Welcome Desk */
 .welcomedesk a {

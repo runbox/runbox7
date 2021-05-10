@@ -1,45 +1,90 @@
-<mat-toolbar style="background-image: linear-gradient(175deg, #0068b7, #003156);" color="primary" id="mainMenu">
-  <a mat-button routerLink="/" class="mainMenu"><mat-icon svgIcon="email"></mat-icon>Webmail</a><br />
-  <a mat-button routerLink="/contacts" class="mainMenu"><mat-icon svgIcon="account-multiple"></mat-icon>Contacts</a>
-  <a mat-button routerLink="/calendar" class="mainMenu"><mat-icon svgIcon="calendar-range"></mat-icon>Calendar</a>
-  <a mat-button href="/files" class="mainMenu" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="folder-outline"></mat-icon>Files</a>
-  <a mat-button routerLink="/account" class="mainMenu"><mat-icon svgIcon="cog"></mat-icon>Settings</a>
+<mat-toolbar style="background-image: linear-gradient(177deg, #0068b7, #003156);" color="primary" id="mainMenuContainer">
+  <a routerLink="/" class="mainMenuLogo"><img src="assets/runbox7_blue.png" id="logo" alt="Runbox 7" /></a>
+
+  <div class="mainMenu">
+    <a mat-button routerLink="/">
+      <mat-icon svgIcon="email"></mat-icon>
+      <p class="mainMenuDesc">Mail</p>
+    </a>
+  </div>
+  <div class="mainMenu">
+    <a mat-button routerLink="/contacts">
+      <mat-icon svgIcon="account-multiple"></mat-icon>
+      <p class="mainMenuDesc">Contacts</p>
+    </a>
+  </div>
+  <div class="mainMenu">
+    <a mat-button routerLink="/calendar">
+      <mat-icon svgIcon="calendar-range"></mat-icon>
+      <p class="mainMenuDesc">Calendar</p>
+    </a>
+  </div>
+  <div class="mainMenu">
+    <a mat-button href="/files" target="rmm6">
+      <mat-icon svgIcon="folder-outline"></mat-icon>
+      <p class="mainMenuDesc">Files</p>
+    </a>
+  </div>
+
+  <div class="mainMenu">
+    <a mat-button routerLink="/account/settings">
+      <mat-icon svgIcon="cog"></mat-icon>
+      <p class="mainMenuDesc">Settings</p>
+    </a>
+  </div>
   
   <span flex style="flex-grow: 1"></span>
 
-  <a *ngIf="user_is_trial" mat-button routerLink="/account/components" matTooltip="Subscribe now">
-    <mat-icon svgIcon="wallet-membership" id="subscribe"></mat-icon> Subscribe
-  </a>
+  <div *ngIf="user_is_trial" class="mainMenu" id="subscribe">
+    <a mat-button routerLink="/account/upgrades">
+      <mat-icon svgIcon="wallet-membership"></mat-icon> &nbsp;Subscribe Now
+      <p class="mainMenuDesc">Full money back guarantee</p>
+    </a>
+  </div>
 
-  <a *ngIf="!user_is_trial" mat-button color="accent" matTooltip="Go back to the old version of Runbox" href="/mail">
-    <mat-icon  svgIcon="undo" id="runbox6"></mat-icon> Runbox 6
-  </a>
+  <span flex style="flex-grow: 1"></span>
 
-  <button mat-button [matMenuTriggerFor]="helpMenu">
-    <mat-icon svgIcon="help-circle"></mat-icon> Help
-  </button>
-  <mat-menu #helpMenu="matMenu" class="mainMenuSub">
-    <a mat-button href="https://help.runbox.com/"><mat-icon svgIcon="help-circle"></mat-icon>Help</a><br />
-    <a mat-button href="https://status.runbox.com/"><mat-icon svgIcon="check-circle"></mat-icon>Service Status</a><br />
-    <a mat-button href="https://help.runbox.com/how-tos/"><mat-icon svgIcon="format-list-numbered"></mat-icon>How-Tos</a><br />
-    <a mat-button href="https://help.runbox.com/faq/"><mat-icon svgIcon="lightbulb-outline"></mat-icon>FAQ</a><br />
-    <a mat-button href="https://help.runbox.com/documentation/"><mat-icon svgIcon="format-list-bulleted"></mat-icon>Documentation</a><br />
-    <a mat-button href="https://forum.runbox.com/"><mat-icon svgIcon="forum"></mat-icon>Forum</a><br />
-    <a mat-button href="https://support.runbox.com/"><mat-icon svgIcon="comment-question"></mat-icon>Support</a>
-  </mat-menu>
+  <div class="mainMenu">
+    <a mat-button routerLink="/help">
+      <mat-icon svgIcon="help-circle"></mat-icon>
+      <p class="mainMenuDesc">Help</p>
+    </a>
+  </div>
 
-  <a mat-button href="https://blog.runbox.com/" class="mainMenu"><mat-icon svgIcon="comment-text"></mat-icon>Blog</a>
+  <div class="mainMenu">
+    <a mat-button href="https://blog.runbox.com/">
+      <mat-icon svgIcon="comment-text"></mat-icon>
+      <p class="mainMenuDesc">Blog</p>
+    </a>
+  </div>
 
-  <button mat-fab [matMenuTriggerFor]="accountMenu" class="accountMenu">
-    <mat-icon svgIcon="account"></mat-icon>
-  </button>
-  <mat-menu #accountMenu="matMenu" class="mainMenuSub themePalettePrimary">
-    <a mat-button href="/mail/account" [matTooltip]="rmm6tooltip" target="rmm6"><mat-icon svgIcon="account"></mat-icon>Account Settings</a><br />
-    <a mat-button routerLink="/account/components"><mat-icon svgIcon="widgets"></mat-icon>Account Products</a><br />
-    <a mat-button (click)="logoutservice.logout()"><mat-icon svgIcon="power"></mat-icon>Log out</a>
-  </mat-menu>
+  <div class="mainMenu">
+    <a mat-button href="/mail/account">
+      <mat-icon svgIcon="account"></mat-icon>
+      <p class="mainMenuDesc">Account</p>
+    </a>
+  </div>
 
-  <img src="assets/runbox7.png" id="logo" alt="Runbox 7" />
+  <div *ngIf="user_is_trial" class="mainMenu">
+    <a mat-button routerLink="/account/plans">
+      <mat-icon svgIcon="wallet-membership"></mat-icon>
+      <p class="mainMenuDesc">Subscribe</p>
+    </a>
+  </div>
+
+  <div *ngIf="!user_is_trial" class="mainMenu">
+    <a mat-button routerLink="/account/subscriptions">
+      <mat-icon svgIcon="wallet-membership"></mat-icon>
+      <p class="mainMenuDesc">Renew</p>
+    </a>
+  </div>
+
+  <div class="mainMenu">
+    <a mat-button (click)="logoutservice.logout()">
+      <mat-icon svgIcon="power"></mat-icon>
+      <p class="mainMenuDesc">Log out</p>
+    </a>
+  </div>
 </mat-toolbar>
 
 <style>
