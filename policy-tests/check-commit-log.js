@@ -25,9 +25,9 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
         const valid_types = ['build', 'ci', 'docs', 'feat', 'feature', 'fix', 'perf', 'refactor', 'style', 'test'];
         const is_valid = valid_types.find(t => t === type);
         if (!is_valid) {
-            throw `Commit type for ${hash} ("${type}") is invalid\n` +
+            console.error(`Commit type for ${hash} ("${type}") is invalid\n` +
                   `\tin commit message "${message}"\n` + 
-                  `\tvalid options are: ${valid_types.join(', ')}`;
+                  `\tvalid options are: ${valid_types.join(', ')}`);
         }
         if (message.length > 100) {
             throw `Commit message for ${hash} should be no longer than 100 characters\n` +

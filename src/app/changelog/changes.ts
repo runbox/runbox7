@@ -41,7 +41,9 @@ const typeMapping = {
     'perf':     EntryType.PERF,
     'refactor': EntryType.REFACTOR,
     'style':    EntryType.STYLE,
-    'test':     EntryType.TEST
+    'test':     EntryType.TEST,
+    // known typos
+    'refator':  EntryType.REFACTOR,
 };
 
 export class ChangelogEntry {
@@ -2048,7 +2050,7 @@ const changes = [
 export const changelog: ChangelogEntry[] = changes.map(entry => {
     const type = typeMapping[entry[2]];
     if (type === undefined) {
-        throw new Error('Invalid change type in ' + entry);
+        throw new Error(`Invalid change type "${entry[2]}" in ${entry}`);
     }
     return new ChangelogEntry(
         entry[0], parseInt(entry[1], 10), type, entry[3], entry[4]
