@@ -28,7 +28,7 @@ export interface AccountDetailsInterface {
     company: string;
     org_number: number;
     vat_number: string;
-    street_address1: string;
+    street_address: string;
     city: string;
     postal_code: string;
     country: string;

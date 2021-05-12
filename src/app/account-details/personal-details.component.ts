@@ -62,7 +62,7 @@ export class PersonalDetailsComponent {
             company: this.fb.control(''),
             org_number: this.fb.control(''),
             vat_number: this.fb.control(''),
-            street_address1: this.fb.control(''),
+            street_address: this.fb.control(''),
             city: this.fb.control(''),
             postal_code: this.fb.control(''),
             country: this.fb.control(''),
