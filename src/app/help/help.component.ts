@@ -18,7 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, ViewChild } from '@angular/core';
-import { Router, NavigationStart } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
