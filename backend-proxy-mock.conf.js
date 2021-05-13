@@ -2,7 +2,7 @@ const http = require('http');
 const PROXY_CONFIG = [
     {
         context: [
-            "/rest", "/LOGOUT", "/mail", "/ajax", "/app"
+            "/rest", "/LOGOUT", "/mail", "/ajax", "/app", "/_ics"
         ],
         "target": 'http://localhost:15000'
     },

@@ -108,7 +108,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // If set on an exception, only changes that exception
     set dtstart(value: moment.Moment) {
         const allDay = this.allDay;
-        console.log('Timezone: ' + this.timezone);
         // check this before we update:
         if (this._dtstart.toJSDate().toString() === this.recurStart.toString()) {
             this._dtstart = this.momentToIcalTime(value, this.event.startDate ? this.event.startDate.zone : null);
@@ -140,8 +139,15 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // angular-calendar compatibility
 
     get start(): Date {
-        // _dtstart as-is for display (its already got tz set.. )
-        return new Date(this._dtstart.toString());
+        // This needs to be converted *from* tz the ical data is in
+        // *to* the tz the user's calendar display is in (this.timezone?)
+        let user_dtstart = this._dtstart;
+        // can't convert items with no tz set, so assume default (utc)
+        if (this._dtstart.zone) {
+            user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
+        }
+
+        return new Date(user_dtstart.toString());
     }
 
     get end(): Date {
@@ -149,13 +155,17 @@ export class RunboxCalendarEvent implements CalendarEvent {
             return undefined;
         }
 
-        const shownEnd = this._dtend.clone();
+        let shownEnd = this._dtend.clone();
         // ICAL event DTEND is exclusive, angular-calendar is inclusive
         if (this.allDay) {
             shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'days': 1}));
         } else {
             shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
         }
+        if (shownEnd.zone) {
+            shownEnd = shownEnd.convertToZone(ICAL.TimezoneService.get(this.timezone));
+        }
+
         return new Date(shownEnd.toString());
     }
 
@@ -376,7 +386,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     // An exception to the main (recurring) event
     addExceptionEvent(
-        origdate: moment.Moment,
+        origdate: ICAL.Time,
         startdate: moment.Moment,
         enddate: moment.Moment,
         thisandfuture: boolean,
@@ -391,7 +401,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         // clone existing one
         const new_exception = new ICAL.Event(ICAL.Component.fromString(this.event.toString()));
         new_exception.component.removeProperty('rrule');
-        const recurrence_id = this.momentToIcalTime(origdate, this.event.startDate.zone);
+        const recurrence_id = origdate;
         const new_start = this.momentToIcalTime(startdate, this.event.startDate.zone);
         let new_end;
         if (enddate) {
@@ -444,7 +454,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (this.recurs && recur_save_type !== RecurSaveType.ALL_OCCURENCES) {
             // Adding an exception to an already recurring event
             this.addExceptionEvent(
-                this.dtstart,
+                this._dtstart,
                 dtstart,
                 dtend,
                 recur_save_type === RecurSaveType.THIS_AND_FUTURE ? true : false,
@@ -558,19 +568,24 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return this.ical.toString();
     }
 
+    // Incoming ICAL.Time may (probably) has its own timezone set
+    // outgoing Moment needs to have the user's tz set.
     private icalTimeToMoment(time: ICAL.Time): moment.Moment {
         if (!time.zone) {
             // assume that the event is in localtime already
             return moment(time.toString());
         } else {
             // Assemble a moment with the UTC Date() and the user's timezone
-            const my_timezone = this.timezone || moment.tz.guess();
+            let my_timezone = time.zone && time.zone.component ? time.zone.component.getFirstPropertyValue('x-lic-location') : null;
+            my_timezone = my_timezone || this.timezone || moment.tz.guess();
             const m = moment(time.toJSDate()).tz(my_timezone);
             return m;
         }
     }
 
     private momentToIcalTime(input: moment.Moment, zone: ICAL.Timezone): ICAL.Time {
+        // No supplied tz = new, or original didnt have one:
+        // (Is it legit to have dates with tzs and without in same ical?)
         if (!zone || zone.tzid === 'floating') {
             const my_timezone = this.timezone || moment.tz.guess();
             zone = ICAL.TimezoneService.get(my_timezone) || ICAL.Timezone.utcTimezone;
@@ -579,9 +594,20 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 && !this.ical.getFirstSubcomponent('vtimezone')) {
                 this.ical.addSubcomponent(zone.component);
             }
+            const ical_time = ICAL.Time.fromJSDate(input.toDate());
+            ical_time.zone = zone;
+            return ical_time;
         }
-        const ical_time = ICAL.Time.fromJSDate(input.toDate());
-        ical_time.zone = zone;
-        return ical_time;
+        // input is date in user timezone, convert to target timezone
+        const ical_tztime = ICAL.Time.fromJSDate(input.toDate());
+        if (ICAL.TimezoneService.has(this.timezone)) {
+            ical_tztime.zone = ICAL.TimezoneService.get(this.timezone);
+            return ical_tztime.convertToZone(zone);
+        } else {
+            // Hmm this (should?) only get hit if zone wasnt loaded
+            // eg in tests!?
+            ical_tztime.zone = zone;
+            return ical_tztime;
+        }
     }
 }
