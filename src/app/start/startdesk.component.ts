@@ -119,7 +119,7 @@ export class StartDeskComponent implements OnInit {
         this.searchService.searchResultsSubject.subscribe(() => this.updateCommsOverview());
     }
 
-    private async updateCommsOverview(): Promise<void> {
+    public async updateCommsOverview(): Promise<void> {
         const dateRange = this.dateRange();
         const folderMessages = new Map<string, number>();
         const messages = this.searchService.getMessagesInTimeRange(
