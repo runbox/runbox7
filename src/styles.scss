@@ -123,6 +123,10 @@ ul.square-list li {
     font-weight: 400;
 }
 
+.mat-raised-button:hover {
+    background-color: mat-color($rmm-default-highlight);
+}
+
 .mat-line, .mat-tree-node {
     font-size: 16px  !important;
 }
@@ -134,6 +138,10 @@ mat-icon {
 
 .mat-header-cell {
     font-size: 16px;
+}
+
+td.mat-cell {
+    padding-right: 10px !important;
 }
 
 .mat-card-header-text {
@@ -162,7 +170,7 @@ mat-grid-tile.tableTitle {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
     background: white;
-    padding: 5px 10px 3px 10px !important;
+    padding: 4px 10px 5px 10px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;

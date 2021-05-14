@@ -21,7 +21,7 @@
                 <td mat-cell *matCellDef="let t"> {{ methods[t.method] }} </td>
             </ng-container>
             <ng-container matColumnDef="time">
-                <th mat-header-cell *matHeaderCellDef> Time </th>
+                <th mat-header-cell *matHeaderCellDef> Date </th>
                 <td mat-cell *matCellDef="let t"> {{ t.time.format('YYYY-MM-DD') }} </td>
             </ng-container>
             <ng-container matColumnDef="time-desc">
@@ -86,7 +86,7 @@
     </div>
 
     <ng-template #loading>
-        <app-runbox-loading text="Loading your transactions...">
+        <app-runbox-loading text="Loading your payments...">
         </app-runbox-loading>
     </ng-template>
 </section>
