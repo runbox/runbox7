@@ -1,27 +1,27 @@
 <style>
-mat-card {
-    min-height: 20vh;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-mat-card.addon {
-    min-height: 10vh;
-}
-
-mat-card-subtitle {
-    min-height: 3vh;
-    font-size: 16px;
-}
-
-mat-card-content {
-    flex-grow: 1;
-}
-
-mat-card-actions {
-    margin-bottom: 0px !important;
-}
+  mat-card {
+      min-height: 20vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+  }
+  
+  mat-card.addon {
+      min-height: 10vh;
+  }
+  
+  mat-card-subtitle {
+      min-height: 3vh;
+      font-size: 16px;
+  }
+  
+  mat-card-content {
+      flex-grow: 1;
+  }
+  
+  mat-card-actions {
+      margin-bottom: 0px !important;
+  }
 </style>
 
 <mat-card [ngClass]="{ 'addon': p.type === 'addon' }">

@@ -68,15 +68,17 @@ body {
     overscroll-behavior: contain;
 }
 
-h1 {
+h1, .mat-typography h1 {
+    margin: 0 0 20px 0;
     font-size: 36px;
+    font-weight: 400;
 }
 
-h2 {
+h2, .mat-typography h2 {
     font-size: 30px;
 }
 
-h3 {
+h3, .mat-typography h3 {
     font-size: 24px;
 }
 
@@ -85,7 +87,7 @@ h3.runbox-section-header {
     margin: 0px;
 }
 
-h4 {
+h4, .mat-typography h4 {
     font-size: 20px;
 }
 
@@ -94,12 +96,16 @@ h4.runbox-section-header {
     margin: 0px;
 }
 
-h5 {
+h5, .mat-typography h5 {
     font-size: 16px;
 }
 
 th {
    font-size: 16px;
+}
+
+p, .mat-typography p {
+    font-size: 16px;
 }
 
 ul.square-list {
@@ -132,8 +138,16 @@ ul.square-list li {
 }
 
 mat-icon {
-    margin-bottom: 3px;
+    align-items: center;
     vertical-align: middle !important;
+}
+
+mat-expansion-panel-header span.mat-content {
+    align-items: center;
+}
+
+.mat-expansion-indicator::after {
+    margin-bottom: 5px; // Because this arrow shape is half a square rotated 45 degrees it is normally positioned lower than center
 }
 
 .mat-header-cell {
@@ -171,10 +185,14 @@ mat-grid-tile.tableTitle {
     border: 1px solid mat-color($rmm-default-primary) !important;
     background: white;
     padding: 4px 10px 5px 10px !important;
-    line-height: 1.5em !important;
+    line-height: 1.7em !important;
     text-decoration: none !important;
     white-space: nowrap;
     font-size: 16px;
+}
+
+.contentButton span {
+    vertical-align: middle;
 }
 
 .primaryContentButton {
