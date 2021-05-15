@@ -1,15 +1,26 @@
 <style>
-    #shoppingCartButton {
-        position: fixed;
-        top: 75px;
-        right: 50px;
-        z-index: 10;
+    #sideMenu {
+	padding-top: 20px;
+	width: 330px;
+    }
+    #sideMenu h3 {
+	margin: 20px 0 0 0;
+	padding-left: 20px;
+    }
+    mat-sidenav-content {
+	padding-top: 20px;
     }
     mat-expansion-panel-header mat-icon {
         padding-right: 8px;
     }
     mat-expansion-panel-header span {
 	vertical-align: middle;
+    }
+    #shoppingCartButton {
+        position: fixed;
+        top: 75px;
+        right: 50px;
+        z-index: 10;
     }
 </style>
 
@@ -20,8 +31,9 @@
         [fixedInViewport]="mobileQuery.matches"
         fixedTopGap="0"
         id="sideMenu"
-        style="width: 330px"
-    >
+		 >
+        <h3>Settings Menu</h3>
+      
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
 

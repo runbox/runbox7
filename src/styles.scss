@@ -146,6 +146,14 @@ mat-expansion-panel-header span.mat-content {
     align-items: center;
 }
 
+.mat-expansion-panel-body mat-icon {
+    margin-right: 5px;
+}
+
+.mat-expansion-panel-body span {
+    vertical-align: middle;
+}
+
 .mat-expansion-indicator::after {
     margin-bottom: 5px; // Because this arrow shape is half a square rotated 45 degrees it is normally positioned lower than center
 }
