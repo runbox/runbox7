@@ -7,7 +7,6 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     bottom: 0px;
     left: 0px;
     right: 0px;
-    padding: 15px;
 
     @media only screen and (max-width: 768px) {
         padding: 0;
@@ -24,7 +23,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         }
     }
     h3 {
-        margin: 0;
+        margin: 10px 0 0 0;
         padding: 0;
         @media only screen and (max-width: 768px) {
             font-size: 21px;
@@ -44,7 +43,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     mat-card {
         float: left;
         width: 100%;
-        padding: 20px;
+        padding: 10px;
 
         @media only screen and (max-width: 768px) {
             border-radius: 0;
@@ -67,59 +66,11 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
             min-height: calc(100vh - 56px);
         }
     }
-    .dashdeskCard {
-        box-sizing: border-box;
-        display: flex;
-        width: calc(100% - 20px);
-        margin: 20px 0 1px 10px;
-
-        /* For mobile screens: */
-        @media only screen and (max-width: 768px) {
-            margin: 20px 0 0 0;
-            width: 100%;
-            display: block;
-            border: 0;
-            .contact,
-            .subject {
-                width: 100%;
-            }
-            .subject {
-                padding-top: 10px;
-            }
-        }
-    }
     #folderSelector {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
-    }
-    .contact {
-        width: 33%;
-        font-weight: bold;
-    }
-    .contact mat-icon {
-        margin-right: 10px;
-        font-size: 40px;
-        width: 40px;
-        height: auto;
-    }
-    .contact h4 {
-        display: inline;
-        margin: 10px 0;
-    }
-    .messages {
-        margin: 0 5px;
-    }
-    .subject {
-        width: 66%;
-        text-decoration: underline;
-    }
-    .subject ul {
-        margin: 0;
-    }
-    .subject li {
-        list-style-type: square;
     }
 }
 #dashdeskSections {
@@ -163,7 +114,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 20px;
+    padding-bottom: 0px;
 
     mat-checkbox {
         padding-left: 10px;
@@ -176,16 +127,5 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
 
     @media only screen and (max-width: 400px) {
         flex-direction: column;
-    }
-}
-
-@media only screen and (max-width: 768px) {
-    .senderItem {
-        display: block;
-        margin-right: 0;
-        div {
-            display: block !important;
-            width: 100%;
-        }
     }
 }
