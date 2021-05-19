@@ -18,29 +18,8 @@
                     noValuesLabel="No types"
                     newValueLabel="New type"
                 ></app-contact-details-multivalue-editor>
-                <ng-container *ngIf="layout === 'simple'">
-                    <mat-form-field>
-                        <input matInput formControlName="value" [placeholder]="valuePlaceholder">
-                    </mat-form-field>
-                    <div class="mat-form-field" *ngIf="actionIcon === 'link'">
-                        <a mat-button href="{{ elem.value.value }}">
-                            <mat-icon svgIcon="{{ actionIcon }}"> </mat-icon> {{ actionDescription }}
-                        </a>
-                    </div>
-                    <div class="mat-form-field" *ngIf="actionIcon === 'email'">
-                        <a mat-button routerLink="/compose" [queryParams]="{to: elem.value.value }">
-                            <mat-icon svgIcon="{{ actionIcon }}"></mat-icon> {{ actionDescription }}
-                        </a>
-                    </div>
-                    <div class="mat-form-field">
-                        <a mat-button (click)="removeAt(i)">
-                            <mat-icon svgIcon="delete"></mat-icon> {{ deleteDescription }}
-                        </a>
-                    </div>
-                </ng-container>
 
-                <div formGroupName="value" *ngIf="layout === 'complex'">
-                    <!-- so far it means we're dealing with an address -->
+                <div formGroupName="value" *ngIf="faName === 'addresses'; else notAddresses">
                     <div class="contact-details-row">
                         <mat-form-field>
                             <input matInput formControlName="street" placeholder="Street">
@@ -66,6 +45,27 @@
                         </mat-form-field>
                     </div>
                 </div>
+
+                <ng-template #notAddresses>
+                    <mat-form-field>
+                        <input matInput formControlName="value" [placeholder]="valuePlaceholder">
+                    </mat-form-field>
+                    <div class="mat-form-field" *ngIf="faName === 'urls'">
+                        <a mat-button href="{{ elem.value.value }}">
+                            <mat-icon svgIcon="link"></mat-icon> Visit this website
+                        </a>
+                    </div>
+                    <div class="mat-form-field" *ngIf="faName === 'emails'">
+                        <a mat-button routerLink="/compose" [queryParams]="{to: elem.value.value }">
+                            <mat-icon svgIcon="email"></mat-icon> Send an email to this address
+                        </a>
+                    </div>
+                    <div class="mat-form-field">
+                        <a mat-button (click)="removeAt(i)">
+                            <mat-icon svgIcon="delete"></mat-icon> {{ deleteDescription }}
+                        </a>
+                    </div>
+                </ng-template>
             </div>
         </div>
 
