@@ -19,7 +19,6 @@
 
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatSelectChange } from '@angular/material/select';
 
 import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import * as moment from 'moment';
