@@ -83,6 +83,8 @@ import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
 import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
+import { DomainRegisterModule } from '../domainregister/domainregister.module';
+import { DomainRegisterComponent } from '../domainregister/domainregister.component';
 
 @NgModule({
   declarations: [
@@ -140,6 +142,7 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
     RunboxComponentModule,
     AccountSecurityModule,
     ProfilesModule,
+    DomainRegisterModule,
     QRCodeModule,
     RouterModule.forChild([
       {
@@ -213,6 +216,10 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
               {
                   path: 'identities',
                   component: ProfilesComponent,
+              },
+              {
+                  path: 'domainregistration',
+                  component: DomainRegisterComponent,
               },
               {
                   path: 'not-for-subaccounts',
