@@ -17,38 +17,59 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 
 import { SearchIndexDocumentData } from '../xapian/searchservice';
-
-export interface ContactHilights {
-    icon: string;
-    name: string;
-    emails: SearchIndexDocumentData[];
-}
+import { ContactHilights } from './startdesk.component';
 
 @Component({
     selector: 'app-overview-sender-hilights',
-    styleUrls: ['./startdesk.component.scss'],
+    styleUrls: ['./sender-hilights.component.scss'],
     template: `
-<mat-card class="mat-card dashdeskOverview">
+<mat-card class="dashdeskCard senderItem">
   <div class="contact">
-    <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-    <div class="messages">{{ sender.emails.length }} messages today</div>
+    <mat-icon> {{ sender.icon }}</mat-icon> <h5> {{ sender.name }} </h5>
+    <div class="messages"> {{ sender.emails.length }} messages </div>
   </div>
   <div class="subject">
     <ul>
-      <li *ngFor="let email of sender.emails">
+      <li *ngFor="let email of shownEmails">
           <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
       </li>
     </ul>
+  </div>
+  <div class="showMoreLess">
+    <button *ngIf="canShowMore" mat-button class="showMore" (click)="showMore.next()">
+        Show {{ sender.emails.length - shownCount }} more
+    </button>
+    <button *ngIf="canShowLess" mat-button class="showLess" (click)="showLess.next()">
+        Show less
+    </button>
   </div>
 </mat-card>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SenderHilightsComponent {
+export class SenderHilightsComponent implements OnChanges {
     @Input() sender: ContactHilights;
+
+    @Output() showMore = new EventEmitter<void>();
+    @Output() showLess = new EventEmitter<void>();
+
+    canShowMore = false;
+    canShowLess = false;
+
+    DEFAULT_SHOWN_EMAILS = 3;
+    shownCount: number;
+    shownEmails = [];
+
+    ngOnChanges() {
+        this.shownCount = this.sender.shownEmails || this.DEFAULT_SHOWN_EMAILS;
+
+        this.canShowMore = this.shownCount < this.sender.emails.length;
+        this.canShowLess = this.shownCount > this.DEFAULT_SHOWN_EMAILS;
+        this.shownEmails = this.sender.emails.slice(0, this.shownCount);
+    }
 
     public emailPath(email: SearchIndexDocumentData): string {
         const folderPath = email.folder.replace(/\./, '/');

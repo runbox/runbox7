@@ -41,13 +41,16 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-
-import { AccountSecurityComponent, ModalPasswordComponent } from './account.security.component';
+import {
+    AccountSecurityComponent,
+    ModalPasswordComponent,
+    ModalUnlockcodeComponent,
+} from './account.security.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 
 @NgModule({
     declarations: [
+      ModalUnlockcodeComponent,
       AccountSecurityComponent,
       ModalPasswordComponent,
     ],

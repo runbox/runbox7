@@ -27,6 +27,8 @@ import { RunboxDomain } from './rmm/runbox_domain';
 import { AccountSecurity } from './rmm/account-security';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+export { AllIdentities, Identity } from './rmm/profile';
+
 @Injectable({
     providedIn: 'root',
 })

@@ -2,7 +2,7 @@
 
 describe('Ordering products', () => {
     it('can place an order', () => {
-        cy.visit('/account/upgrades');
+        cy.visit('/account/plans');
 
         cy.get('#productGrid .contentButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
@@ -23,15 +23,15 @@ describe('Ordering products', () => {
     });
 
     it('can order product twice to increase quantity', () => {
-        cy.visit('/account/addons');
+        cy.visit('/account/plans');
 
         cy.get('#shoppingCartButton').should('not.exist');
 
-        cy.get('button:contains(Purchase)').click();
+        cy.get('.productGrid .contentButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
-        cy.get('button:contains(Purchase)').click();
+        cy.get('.productGrid .contentButton').contains('Purchase').click();
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
         cy.get('#shoppingCartButton').click();

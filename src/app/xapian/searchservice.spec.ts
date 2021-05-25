@@ -143,13 +143,27 @@ describe('SearchService', () => {
         req.flush(testMessageId + '\t' + testMessageTime + '\t1561389614\tInbox\t1\t0\t0\t' +
             'Cloud Web Services <cloud-marketing-email-replies@cloudsuperhosting.com>\ttest@example.com	Analyse Data at Scale\ty');
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const sincechangeddate = new Date(searchService.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000);
+        const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+        req = httpMock.expectOne(`/rest/v1/list/deleted_messages/${datestring}`);
+        req.flush({
+            message_ids: []
+        });
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        console.log('Test messagesById');
+        console.log(messageListService.messagesById[testMessageId]);
         expect(messageListService.messagesById[testMessageId]).toBeTruthy();
 
+        console.log('Test indexUpdateIntervalId');
+        console.log(searchService.indexUpdateIntervalId);
         expect(searchService.indexUpdateIntervalId).toBeTruthy();
         clearTimeout(searchService.indexUpdateIntervalId);
 
         await new Promise(resolve => {
+            console.log('Deleting database');
             const idbreq = window.indexedDB.deleteDatabase('/' + searchService.localdir);
             idbreq.onsuccess = () => resolve();
         });
