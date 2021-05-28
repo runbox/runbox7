@@ -6,7 +6,7 @@
 
     <mat-divider></mat-divider>
 
-    <div class="container smaller-fields">
+    <!-- <div class="container smaller-fields">
         <p>Enter your current password to be able to change your personal information.</p>
         <form action="" class="form current-password-form">
             <mat-form-field>
@@ -15,7 +15,7 @@
                 <mat-hint color="red">Required for all changes</mat-hint>
             </mat-form-field>
         </form>
-    </div>
+    </div> -->
 
     <div class="container smaller-fields">
         <h2>Change Password</h2>
@@ -51,8 +51,8 @@
 
     <div class="container">
         <form [formGroup]="detailsForm">
-            <h2>Personal Details</h2>
-            <div class="form-personal">
+            <h2><strong>Personal Details</strong></h2>
+            <div class="form-container form-personal">
                 <mat-form-field>
                     <mat-label>First name</mat-label>
                     <input type="text" matInput formControlName="first_name">
@@ -62,7 +62,7 @@
                     <input type="text" matInput formControlName="last_name">
                 </mat-form-field>
             </div>
-            <div class="form-contact">
+            <div class="form-container form-contact">
                 <mat-form-field>
                     <mat-label>Alternative email address</mat-label>
                     <input type="email" matInput formControlName="email_alternative">
@@ -72,8 +72,8 @@
                     <input type="tel" matInput formControlName="phone_number">
                 </mat-form-field>
             </div>
-            <div class="form-company">
-                <p><strong>Company information:</strong></p>
+            <h3><strong>Company information:</strong></h3>
+            <div class="form-container form-company">
                 <mat-form-field>
                     <mat-label>Company (optional)</mat-label>
                     <input type="text" matInput formControlName="company">
@@ -87,8 +87,8 @@
                     <input type="text" matInput matInput formControlName="vat_number">
                 </mat-form-field>
             </div>
-            <div class="form-address">
-                <p><strong>Address details:</strong></p>
+            <h3><strong>Address details:</strong></h3>
+            <div class="form-container form-address">
                 <mat-form-field>
                     <mat-label>Address</mat-label>
                     <input type="text" matInput formControlName="street_address">
@@ -103,20 +103,16 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Country</mat-label>
-                    <mat-select id="country" name="country">
-                        <mat-option>One</mat-option>
-                        <mat-option>Two</mat-option>
-                        <mat-option>Three</mat-option>
-                    </mat-select>
+                    <input type="text" matInput formControlName="country">
                 </mat-form-field>
-                <mat-form-field>
+                <!-- <mat-form-field>
                     <mat-label>Time zone</mat-label>
                     <mat-select id="timezone" name="timezone">
                         <mat-option>One</mat-option>
                         <mat-option>Two</mat-option>
                         <mat-option>Three</mat-option>
                     </mat-select>
-                </mat-form-field>
+                </mat-form-field> -->
             </div>
             <div class="action-buttons">
                 <button mat-raised-button color="primary" (click)="update()">Save Details</button>

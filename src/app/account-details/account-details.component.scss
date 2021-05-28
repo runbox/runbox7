@@ -12,9 +12,8 @@
     width: 100%;
 
     @media only screen and (min-width: 768px) {
-        width: calc(50% - 20px);
-        max-width: 490px;
-        margin-right: 15px;
+        max-width: 430px;
+        margin-right: 20px;
     }
 }
 
@@ -55,7 +54,7 @@ table {
 
 .action-buttons {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     width: 100%;
 }
 
@@ -75,4 +74,8 @@ table {
 
 .margin-top {
     margin-top: 2em;
+}
+
+.capitalize {
+    text-transform: capitalize;
 }
