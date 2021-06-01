@@ -19,7 +19,6 @@
 
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatSelectChange } from '@angular/material/select';
 
 import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
 import * as moment from 'moment';
@@ -32,11 +31,12 @@ import { ReplaySubject } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { UsageReportsService } from '../common/usage-reports.service';
 
-interface ContactHilights {
+export interface ContactHilights {
     icon: string;
     name: string;
     contact?: Contact;
     emails: SearchIndexDocumentData[];
+    shownEmails?: number;
 }
 
 enum TimeSpan {
@@ -51,6 +51,11 @@ enum FolderSelection {
     ALL,
     INBOX,
     CUSTOM,
+}
+
+enum SortOrder {
+    COUNT,
+    SENDER,
 }
 
 interface FolderSelectorEntry {
@@ -70,14 +75,19 @@ export class StartDeskComponent implements OnInit {
 
     regularOverview: ContactHilights[] = [];
     mailingListOverview: ContactHilights[] = [];
+    emailsShownPerName = new Map<string, number>();
 
     // exposing enums to the template
     TimeSpan = TimeSpan;
     FolderSelection = FolderSelection;
+    SortOrder = SortOrder;
+
     // TODO: from appsettings or such?
     unreadOnly = false;
     timeSpan = TimeSpan.TODAY;
     folder = FolderSelection.ALL;
+    sortOrder = SortOrder.SENDER;
+
     // for the folder message selector.
     // We store the number of currently available messages in each folder,
     // as well as the set of folders explicitely hidden (they're all shown by default).
@@ -108,7 +118,7 @@ export class StartDeskComponent implements OnInit {
         this.searchService.searchResultsSubject.subscribe(() => this.updateCommsOverview());
     }
 
-    private async updateCommsOverview(): Promise<void> {
+    public async updateCommsOverview(): Promise<void> {
         const dateRange = this.dateRange();
         const folderMessages = new Map<string, number>();
         const messages = this.searchService.getMessagesInTimeRange(
@@ -172,6 +182,7 @@ export class StartDeskComponent implements OnInit {
                     icon:  'person',
                     name:   sender,
                     emails: messagesBySender[sender],
+                    shownEmails: this.emailsShownPerName.get(sender),
                 };
             }
         );
@@ -182,9 +193,19 @@ export class StartDeskComponent implements OnInit {
                     icon:   'list',
                     name:   ml,
                     emails: messagesFromLists.get(ml),
+                    shownEmails: this.emailsShownPerName.get(ml),
                 };
             }
         );
+
+        this.regularOverview.sort((a, b) => {
+            switch (this.sortOrder) {
+                case SortOrder.COUNT:
+                    return b.emails.length - a.emails.length;
+                case SortOrder.SENDER:
+                    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            }
+        });
 
         this.totalEmailCount = messages.length;
         this.regularEmailCount = otherMessages.length;
@@ -268,6 +289,16 @@ export class StartDeskComponent implements OnInit {
         return mailingLists;
     }
 
+    public showMoreFor(sender: ContactHilights) {
+        this.emailsShownPerName.set(sender.name, sender.emails.length);
+        this.updateCommsOverview();
+    }
+
+    public showLessFor(sender: ContactHilights) {
+        this.emailsShownPerName.delete(sender.name);
+        this.updateCommsOverview();
+    }
+
     public toggleFolderVisibility(folderName: string, event: MatCheckboxChange) {
         if (event.checked) {
             this.hiddenFolders.delete(folderName);
@@ -275,21 +306,6 @@ export class StartDeskComponent implements OnInit {
             this.hiddenFolders.add(folderName);
         }
         // TODO: persist hiddenFolders in settings or something
-        this.updateCommsOverview();
-    }
-
-    public toggleUnreadOnly(event: MatCheckboxChange) {
-        this.unreadOnly = event.checked;
-        this.updateCommsOverview();
-    }
-
-    public changeTimeSpan(event: MatSelectChange) {
-        this.timeSpan = event.value;
-        this.updateCommsOverview();
-    }
-
-    public changeFolder(event: MatSelectChange) {
-        this.folder = event.value;
         this.updateCommsOverview();
     }
 

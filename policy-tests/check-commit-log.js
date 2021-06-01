@@ -17,9 +17,10 @@ exec('git log --oneline --no-merges 95e518d..', (stdin, stdout, stderr) => {
         }
         const match = message.match(/([^\(]+)\(([^\)]+)\): .+/);
         if (!match) {
-            throw `Commit message for ${hash} doesn't have the correct format\n` +
+            console.error(`Commit message for ${hash} doesn't have the correct format\n` +
                   `\tshould be <type>(<scope>): <subject>\n` +
-                  `\tand it is ${message}`;
+                  `\tand it is ${message}`);
+            continue;
         }
         const type = match[1];
         const valid_types = ['build', 'ci', 'docs', 'feat', 'feature', 'fix', 'perf', 'refactor', 'style', 'test'];
