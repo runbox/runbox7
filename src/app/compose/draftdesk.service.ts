@@ -261,8 +261,8 @@ export class DraftDeskService {
         const draftObj = DraftFormModel.create(
             -1,
             this.froms[0],
-            '"Runbox Support" <support@runbox.com>',
-            'Runbox 7 bug report'
+            '"Runbox 7 Bug Reports" <bugs@runbox.com>',
+            'Runbox 7 Bug Report'
         );
         const template = await this.http.get('assets/templates/bug_report.txt',
                                              {responseType: 'text'}).toPromise();
