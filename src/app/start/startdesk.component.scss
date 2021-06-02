@@ -100,8 +100,7 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
 .highlights {
     display: flex;
     justify-content: space-between;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 20px 20px 0 20px;
 
     @media only screen and (max-width: 768px) {
         flex-direction: column;
@@ -110,11 +109,17 @@ $rmm-default-highlight: mat-palette($mat-light-blue, 50, 25, 75);
         padding-right: 0;
     }
 }
+
 #hilightsSettings {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 0px;
+    
+    mat-form-field {
+	margin-right: 20px;
+	width: 100px;
+    }
 
     mat-checkbox {
         padding-left: 10px;

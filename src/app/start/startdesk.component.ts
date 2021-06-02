@@ -83,10 +83,10 @@ export class StartDeskComponent implements OnInit {
     SortOrder = SortOrder;
 
     // TODO: from appsettings or such?
-    unreadOnly = false;
+    unreadOnly = true;
     timeSpan = TimeSpan.TODAY;
     folder = FolderSelection.ALL;
-    sortOrder = SortOrder.SENDER;
+    sortOrder = SortOrder.COUNT;
 
     // for the folder message selector.
     // We store the number of currently available messages in each folder,
