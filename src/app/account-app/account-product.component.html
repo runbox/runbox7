@@ -25,7 +25,7 @@ mat-card-actions {
 </style>
 
 <mat-card [ngClass]="{ 'addon': p.type === 'addon' }">
-  <h4 *ngIf="p.subtype === 'special'">Special offer</h4>
+  <h4 *ngIf="p.subtype === 'special'">Special Offer</h4>
     <mat-card-title>
       {{ p.name }}
       <strong *ngIf="active_sub"> – your current {{ p.type }} </strong>

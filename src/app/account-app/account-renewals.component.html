@@ -1,5 +1,5 @@
 <section class="mat-typography">
-    <h1> Active products </h1>
+    <h1> Your Subscriptions </h1>
 
     <div *ngIf="active_products.length === 0; else productsTable">
         <app-runbox-loading text="Loading your products...">
@@ -34,13 +34,13 @@
                 </td>
             </ng-container>
             <ng-container matColumnDef="active_from">
-                <th mat-header-cell *matHeaderCellDef> Active from </th>
+                <th mat-header-cell *matHeaderCellDef> Active From </th>
                 <td mat-cell *matCellDef="let p">
                     {{ p.active_from.format('YYYY-MM-DD') }}
                 </td>
             </ng-container>
             <ng-container matColumnDef="active_until">
-                <th mat-header-cell *matHeaderCellDef> Active until </th>
+                <th mat-header-cell *matHeaderCellDef> Active Until </th>
                 <td mat-cell *matCellDef="let p">
                     {{ p.active_until.format('YYYY-MM-DD') }}
                 </td>
@@ -64,14 +64,14 @@
                 </td>
             </ng-container>
             <ng-container matColumnDef="recur">
-                <th mat-header-cell *matHeaderCellDef> Auto renewal </th>
+                <th mat-header-cell *matHeaderCellDef> Auto Renew </th>
                 <td mat-cell *matCellDef="let p">
                     <app-account-renewals-autorenew-toggle-component [p]="p" (toggle)="toggleAutorenew(p)">
                     </app-account-renewals-autorenew-toggle-component>
                 </td>
             </ng-container>
             <ng-container matColumnDef="renew">
-                <th mat-header-cell *matHeaderCellDef> Renew now </th>
+                <th mat-header-cell *matHeaderCellDef> Renew Now </th>
                 <td mat-cell *matCellDef="let p">
                     <app-account-renewals-renew-now-button-component [p]="p" (clicked)="renew(p)">
                     </app-account-renewals-renew-now-button-component>
@@ -106,11 +106,11 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td> Active from </td>
+                                <td> Active From </td>
                                 <td> {{ p.active_from.format('YYYY-MM-DD') }} </td>
                             </tr>
                             <tr>
-                                <td> Active until </td>
+                                <td> Active Until </td>
                                 <td> {{ p.active_until.format('YYYY-MM-DD') }} </td>
                             </tr>
                             <tr>
@@ -125,7 +125,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td> Auto renewal </td>
+                                <td> Auto Renew </td>
                                 <td>
                                     <app-account-renewals-autorenew-toggle-component [p]="p"
                                         (toggle)="toggleAutorenew(p)">
@@ -133,7 +133,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td> Renew now </td>
+                                <td> Renew Now </td>
                                 <td>
                                     <app-account-renewals-renew-now-button-component [p]="p" (clicked)="renew(p)">
                                     </app-account-renewals-renew-now-button-component>

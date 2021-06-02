@@ -4,13 +4,13 @@
         </app-runbox-loading>
     </div>
     <div *ngIf="loadingFail">
-        Failed to load your credit card details.
+        Failed to load your card details.
         <button mat-button (click)="refreshCards()"> Try again </button>
     </div>
 </ng-template>
 
 <section class="mat-typography">
-    <h1> Your credit cards </h1>
+    <h1> Payment Cards </h1>
 
     <p> The details of your credit cards are stored and processed by <a href="https://stripe.com/">Stripe</a> </p>
 
@@ -20,7 +20,7 @@
         </div>
 
         <div style="flex: 100% 0 1;">
-            <button mat-raised-button (click)="addCard()"> Add a new card </button>
+            <button mat-raised-button (click)="addCard()"> Add a New Card </button>
         </div>
 
         <mat-card *ngFor="let cc of creditCards" class="card">
@@ -32,7 +32,7 @@
                     ending in {{ cc.last4 }}
                 </mat-card-title>
                 <mat-card-subtitle>
-                    <strong *ngIf="defaultCard === cc.id"> Your default card </strong> &nbsp;
+                    <strong *ngIf="defaultCard === cc.id"> Your Default Card </strong> &nbsp;
                 </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
@@ -49,7 +49,7 @@
             </mat-card-content>
             <mat-card-actions *ngIf="!cc.removing">
                 <button mat-button (click)="cc.removing = true"> Forget </button>
-                <button mat-button *ngIf="defaultCard !== cc.id" (click)="makeCardDefault(cc)"> Make default </button>
+                <button mat-button *ngIf="defaultCard !== cc.id" (click)="makeCardDefault(cc)"> Make Default </button>
             </mat-card-actions>
             <mat-card-actions *ngIf="cc.removing">
                 <span style="padding: 0 16px">Are you sure?</span>
