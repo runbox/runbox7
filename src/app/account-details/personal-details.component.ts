@@ -19,10 +19,12 @@
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { Subject, Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { AccountDetailsInterface } from '../rmm/account-details';
+import * as moment from 'moment';
+import 'moment-timezone';
 
 @Component({
     selector: 'app-personal-details-component',
@@ -31,6 +33,9 @@ import { AccountDetailsInterface } from '../rmm/account-details';
 })
 export class PersonalDetailsComponent {
     hide = true;
+    myControl = new FormControl();
+    timezones: string[] = moment.tz.names();
+    filteredTimezones: Observable<string[]>;
 
     details: Subject<AccountDetailsInterface> = new Subject();
 
@@ -42,6 +47,21 @@ export class PersonalDetailsComponent {
         });
 
         this.loadDetails();
+    }
+
+    ngOnInit() {
+        this.filteredTimezones = this.myControl.valueChanges.pipe(
+            startWith(''),
+            map((value) => this._filter(value)),
+        );
+    }
+
+    private _filter(value: string): string[] {
+        const filterValue = value.toLowerCase();
+
+        return this.timezones.filter((option) =>
+            option.toLowerCase().includes(filterValue),
+        );
     }
 
     private loadDetails() {

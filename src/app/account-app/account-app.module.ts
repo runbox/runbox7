@@ -71,6 +71,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { AccountSecurityModule } from '../account-security/account.security.module';
@@ -140,6 +142,7 @@ import { StorageDataComponent } from '../account-details/storage-data.component'
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
+    MatAutocompleteModule,
     ReactiveFormsModule,
     RunboxCommonModule,
     AccountSecurityModule,
