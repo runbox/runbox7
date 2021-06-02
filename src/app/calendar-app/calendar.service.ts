@@ -33,15 +33,15 @@ import * as ICAL from 'ical.js';
 
 enum Activity {
     LoadingCache        = 'Loading local cache',
-    CreatingCalendar    = 'Creating calendar',
-    CreatingEvent       = 'Creating event',
-    DeletingCalendar    = 'Deleting calendar',
-    DeletingEvent       = 'Deleting event',
-    EditingCalendar     = 'Editing calendar',
-    EditingEvent        = 'Editing event',
-    RefreshingCalendars = 'Refreshing calendars',
-    RefreshingEvents    = 'Refreshing events',
-    GeneratingEvents    = 'Generating events',
+    CreatingCalendar    = 'Creating Calendar',
+    CreatingEvent       = 'Creating Event',
+    DeletingCalendar    = 'Deleting Calendar',
+    DeletingEvent       = 'Deleting Event',
+    EditingCalendar     = 'Editing Calendar',
+    EditingEvent        = 'Editing Event',
+    RefreshingCalendars = 'Refreshing Calendars',
+    RefreshingEvents    = 'Refreshing Events',
+    GeneratingEvents    = 'Generating Events',
 }
 
 @Injectable()

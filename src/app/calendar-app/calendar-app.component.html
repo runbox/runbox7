@@ -115,13 +115,13 @@
 
             <mat-list-item id="addEventButton" mat-button (click)="addEvent()" class="calendarMenuButton">
                 <mat-icon mat-list-icon svgIcon="plus"></mat-icon>
-                <p mat-line>Add event</p>
+                <p mat-line>Add Event</p>
             </mat-list-item>
 
             <mat-list-item (click)="importEventClicked()" class="calendarMenuButton">
                 <input #icsUploadInput accept="text/calendar,.ics" type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
                 <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
-                <p mat-line>Import event</p>
+                <p mat-line>Import Event</p>
             </mat-list-item>
 
             <mat-list-item mat-button (click)="openSettings()" class="calendarMenuButton">
@@ -166,7 +166,7 @@
 
             <mat-list-item (click)="calendarservice.syncCaldav(true)" class="calendarMenuButton">
                 <mat-icon mat-list-icon svgIcon="refresh"></mat-icon> 
-                <p mat-line>Synchronize calendars</p>
+                <p mat-line>Synchronize Calendars</p>
             </mat-list-item>
 
             <mat-list-item *ngIf="calendarservice.lastUpdate" class="updateInfo">
