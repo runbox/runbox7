@@ -52,14 +52,14 @@
             </span>
             <ng-template #defaultName>
                 <span [ngSwitch]="contact.kind">
-                    <span *ngSwitchCase="kind.GROUP"> New group   </span>
-                    <span *ngSwitchDefault>           New contact </span>
+                    <span *ngSwitchCase="kind.GROUP"> New Group   </span>
+                    <span *ngSwitchDefault>           New Contact </span>
                 </span>
             </ng-template>
         </span>
     </h2>
     <form [formGroup]="contactForm">
-        <h3> Basic information </h3>
+        <h3> Basic Information </h3>
         <div *ngIf="contact.kind !== kind.INVIDIDUAL">
             <mat-form-field>
                 <input matInput formControlName="full_name" placeholder="Name">
@@ -166,7 +166,7 @@
         </div>
 
         <app-contact-details-fa-viewer
-            title="Email addresses"
+            title="Email Addresses"
             [hidden]="false"
 
             [inputFG]="contactForm"
@@ -184,7 +184,7 @@
         </app-contact-details-fa-viewer>
 
         <app-contact-details-fa-viewer
-            title="Phone numbers"
+            title="Phone Numbers"
 
             [inputFG]="contactForm"
             faName="phones"
