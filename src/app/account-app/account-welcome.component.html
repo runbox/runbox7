@@ -62,6 +62,14 @@
         <h3>
           <mat-icon svgIcon="account-group"></mat-icon> <strong>Identities</strong>
         </h3>
+        <p>Create and manage identities associated with your email aliases and external addresses.</p>
+      </a>
+    </mat-card>
+    <mat-card class="settingsItem">
+      <a href="/mail/account_alias" target="rmm6" [matTooltip]="rmm6tooltip">
+        <h3>
+          <mat-icon svgIcon="account-circle"></mat-icon> <strong>Email Aliases</strong>
+        </h3>
         <p>Set up and manage alternative email addresses that deliver email to your account.</p>
       </a>
     </mat-card>
@@ -149,7 +157,7 @@
 
   <div>
     <h4 class="themePaletteBlack">
-      <mat-icon svgIcon="account-cog" class="category"></mat-icon> Account & Security
+      <mat-icon svgIcon="account-cog" class="category"></mat-icon> Account
     </h4>
     <p>Configure settings for your account and its security.</p>
   </div>
@@ -159,15 +167,15 @@
         <h3>
           <mat-icon svgIcon="account-details"></mat-icon> <strong>Account Details</strong>
         </h3>
-        <p>View your personal details and update your personal settings.</p>
+        <p>View and update your personal information and account preferences.</p>
       </a>
     </mat-card>
-    <mat-card class="settingsItem">
-      <a routerLink="/account/security">
+    <mat-card *ngIf="isMainAccount" class="settingsItem">
+      <a href="/mail/account_account" target="rmm6" [matTooltip]="rmm6tooltip">
         <h3>
-          <mat-icon svgIcon="security"></mat-icon> <strong>Security</strong>
+          <mat-icon svgIcon="account-supervisor"></mat-icon> <strong>Sub-Accounts</strong>
         </h3>
-        <p>Manage your account's security features and login settings.</p>
+        <p>Manage sub-accounts for people in your family, company, organization, or others.</p>
       </a>
     </mat-card>
   </div>
@@ -211,6 +219,25 @@
           <mat-icon svgIcon="credit-card"></mat-icon> <strong>Payment Cards</strong>
         </h3>
         <p>Show the details of your payment cards, and add or remove cards.</p>
+      </a>
+    </mat-card>
+  </div>
+
+  <div class="divider"></div>
+
+  <div>
+    <h4 class="themePaletteBlack">
+      <mat-icon svgIcon="security" class="category"></mat-icon> Security
+    </h4>
+    <p>Configure settings for your account and its security.</p>
+  </div>
+  <div class="settingsRow">
+    <mat-card class="settingsItem">
+      <a routerLink="/account/security">
+        <h3>
+          <mat-icon svgIcon="security"></mat-icon> <strong>Security</strong>
+        </h3>
+        <p>Manage your account's security settings.</p>
       </a>
     </mat-card>
   </div>

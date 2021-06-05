@@ -261,16 +261,14 @@ export class DraftDeskService {
         const draftObj = DraftFormModel.create(
             -1,
             this.froms[0],
-            'support@runbox.com',
-            'Runbox 7 bug report'
+            '"Runbox 7 Bug Reports" <bugs@runbox.com>',
+            'Runbox 7 Bug Report'
         );
         const template = await this.http.get('assets/templates/bug_report.txt',
                                              {responseType: 'text'}).toPromise();
         const me = await this.rmmapi.me.toPromise();
 
-        let body = `
-${template}
-`
+        let body = `${template}`
         ;
         body = body.replace('%%USERNAME%%', me.username);
         body = body.replace('%%USERAGENT%%', window.navigator.userAgent);

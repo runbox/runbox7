@@ -24,6 +24,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as moment from 'moment';
+import * as ICAL from 'ical.js';
 
 describe('CalendarService', () => {
     let dav_events: any;
@@ -97,7 +98,7 @@ END:VCALENDAR
     let sut: CalendarService;
 
     const rmmapi = {
-        me: of({ uid: 1 }),
+        me: of({ uid: 1, timezone: 'Europe/London' }),
         getCalendars: () => of([
             { id: 'test',  displayname: 'Test',  syncToken: 'asdf' },
             { id: 'test2', displayname: 'Test2', syncToken: 'ogon' }
@@ -126,6 +127,7 @@ END:VCALENDAR
     // stored separately, but older versions of the REST service did.
     // this needs to be parsed, as 2 events
     beforeEach(() => {
+        ICAL.TimezoneService.reset();
         dav_events = {
             'test/foo': {
                 calendar: 'test',
@@ -166,7 +168,7 @@ END:VCALENDAR
 
     it('should be able to add a new event with timezone', async () => {
         sut.loadVTimezone('Europe/Stockholm');
-        const newEvent = RunboxCalendarEvent.newEmpty('Europe/Stockholm');
+        const newEvent = RunboxCalendarEvent.newEmpty('/citadel.org/20210210_1/Europe/Stockholm');
         newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
         newEvent.dtend = moment().date(1).hours(14).seconds(0).milliseconds(0);
         newEvent.title = 'New Event';
@@ -272,6 +274,7 @@ END:VCALENDAR
     });
 
     it('should be possible to import an .ics file with exceptions', () => {
+        sut.loadVTimezone('Europe/Stockholm');
         sut.importFromIcal(undefined,
 `BEGIN:VCALENDAR
 X-LOTUS-CHARSET:UTF-8
@@ -337,8 +340,8 @@ END:VCALENDAR
         // Produces multiple CalendarEvents which refer to the same ICal.Event
         expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
-        expect(rbevents[0].start).toEqual(new Date(2021, 3, 25, 9, 0, 0), 'event 1 start date is 9am');
-        expect(rbevents[1].start).toEqual(new Date(2021, 3, 26, 10, 0, 0), 'event 1 start date is 10am');
+        expect(rbevents[0].start).toEqual(new Date(2021, 3, 25, 15, 0, 0), 'event 1 start date is 3pm in Stockholm');
+        expect(rbevents[1].start).toEqual(new Date(2021, 3, 26, 16, 0, 0), 'event 1 start date is 4pm in Stockholm');
     });
 
     it('should be possible to import a static (non recurring) event', () => {

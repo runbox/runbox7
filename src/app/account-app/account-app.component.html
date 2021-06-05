@@ -50,6 +50,13 @@
                         <mat-icon mat-list-icon svgIcon="account-group"></mat-icon> <span>Identities</span>
                       </p>
                     </mat-list-item>
+                    <a href="/mail/account_alias" target="rmm6">
+                        <mat-list-item [matTooltip]="rmm6tooltip">
+                            <p mat-line>
+                                <mat-icon mat-list-icon svgIcon="account-circle"></mat-icon> Email Aliases
+                            </p>
+                        </mat-list-item>
+                    </a>
                 </mat-expansion-panel>
 
                 <!-- MANAGER -->
@@ -133,11 +140,13 @@
                             </p>
                         </mat-list-item>
                     </a>
-                    <mat-list-item routerLink="/account/security">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> <span>Account Security</span>
-                        </p>
-                    </mat-list-item>
+                    <a href="/mail/account_account" target="rmm6" *ngIf="isMainAccount">
+                        <mat-list-item [matTooltip]="rmm6tooltip">
+                            <p mat-line>
+                                <mat-icon mat-list-icon svgIcon="account-supervisor"></mat-icon> Sub-Accounts
+                            </p>
+                        </mat-list-item>
+                    </a>
                 </mat-expansion-panel>
 
                 <!-- SUBSCRIPTIONS -->
@@ -168,6 +177,21 @@
                         </p>
                     </mat-list-item>
                 </mat-expansion-panel>
+
+                <!-- SECURITY -->
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon>Security
+                        </p>
+                    </mat-expansion-panel-header>
+                    <mat-list-item routerLink="/account/security">
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security
+                        </p>
+                    </mat-list-item>
+                </mat-expansion-panel>
+
             </mat-accordion>
         </mat-nav-list>
     </mat-sidenav>

@@ -177,7 +177,7 @@ END:VCALENDAR
                         getCalendars:      (): Observable<RunboxCalendar[]> => of(mockData['calendars']),
                         getCalendarEvents: (): Observable<RunboxCalendarEvent[]> => of(mockData['events']),
                         getVTimezone:      (tzname: string): Observable<string> => of(mockData['timezone']),
-                        me:                    of({ uid: 1 }),
+                        me:                    of({ uid: 1, timezone: 'Europe/London' }),
                     } },
                     { provide: HttpClient, useValue: {
                     } },
