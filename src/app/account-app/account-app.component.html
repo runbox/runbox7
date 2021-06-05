@@ -104,7 +104,7 @@
                         </mat-list-item>
                     </a>
                     <a href="/mail/account_domain_hosting" target="rmm6">
-                        <mat-list-item [matTooltip]="rmm6tooltip">
+                      <mat-list-item [matTooltip]="rmm6tooltip">
                             <p mat-line>
                                 <mat-icon mat-list-icon svgIcon="domain"></mat-icon> <span>Domain Hosting</span>
                             </p>
@@ -130,7 +130,7 @@
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="account"></mat-icon> <span>Account & Security</span>
+                            <mat-icon mat-list-icon svgIcon="account"></mat-icon> <span>Account</span>
                         </p>
                     </mat-expansion-panel-header>
                     <a href="/mail/account" target="rmm6">
@@ -147,6 +147,20 @@
                             </p>
                         </mat-list-item>
                     </a>
+                </mat-expansion-panel>
+
+                <!-- SECURITY -->
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon>Security
+                        </p>
+                    </mat-expansion-panel-header>
+                    <mat-list-item routerLink="/account/security">
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security
+                        </p>
+                    </mat-list-item>
                 </mat-expansion-panel>
 
                 <!-- SUBSCRIPTIONS -->
@@ -174,20 +188,6 @@
                     <mat-list-item routerLink="/account/credit_cards">
                         <p mat-line>
                             <mat-icon mat-list-icon svgIcon="credit-card"></mat-icon> <span>Payment Cards</span>
-                        </p>
-                    </mat-list-item>
-                </mat-expansion-panel>
-
-                <!-- SECURITY -->
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon>Security
-                        </p>
-                    </mat-expansion-panel-header>
-                    <mat-list-item routerLink="/account/security">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security
                         </p>
                     </mat-list-item>
                 </mat-expansion-panel>
