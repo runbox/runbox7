@@ -116,7 +116,7 @@
 
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
-            <button *ngIf="this.data.profile.type === 'external_email'" mat-raised-button (click)="delete()" color="warn">DELETE</button>
+            <button *ngIf="this.data.profile.type !== 'main' && this.data.profile.type !== 'aliases' " mat-raised-button (click)="delete()" color="warn">DELETE</button>
         </span>
         <span>
             <button mat-raised-button (click)="close()" color="accent">CANCEL</button>
