@@ -303,7 +303,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
-        this.generateAttachmentURLs(res.attachments);
+        res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
+        res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
+
 
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
@@ -388,10 +390,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
   }
 
-  generateAttachmentURLs(attachments: any[]) {
+  generateAttachmentURLs(attachments: any[], html: string): string {
     if (attachments) {
       attachments.forEach((att, ndx) => {
         let isImage = false;
+        att.internal = false;
         if (att.contentType && att.contentType.indexOf('image/') === 0) {
           isImage = true;
         }
@@ -407,10 +410,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
                             '?download=true';
           if (isImage) {
             att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
+            if (html) {
+              html = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
+              att.internal = true;
+            }
           }
         }
       });
     }
+    return html;
   }
 
   saveShowHTMLDecision() {
@@ -465,7 +473,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
               this.mailObj.text = parsed.text;
               this.mailObj.subject = parsed.subject;
               this.mailContentHTML = parsed.html;
-              this.generateAttachmentURLs(parsed.attachments);
+              this.mailContentHTML = this.generateAttachmentURLs(parsed.attachments, parsed.html);
               this.mailObj.attachments = parsed.attachments;
 
               console.log(parsed);
