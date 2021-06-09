@@ -19,7 +19,7 @@
 
 import { map } from 'rxjs/operators';
 import {
-  SecurityContext, Component, Input, OnInit, Output, EventEmitter, ViewChild,
+  Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
   QueryList,
   ElementRef,
@@ -43,7 +43,6 @@ import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 
-const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
@@ -114,6 +113,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public showHTMLDecision = 'dontask';
   public showHTML = false;
   public showAllHeaders = false;
+
+  public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 
   height = 0;
   previousHeight: number;
@@ -307,7 +308,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
         if (res.text.html) {
-          res.html = res.sanitized_html;
+          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
         } else {
           res.html = null;
         }

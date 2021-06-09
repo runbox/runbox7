@@ -32,6 +32,14 @@ describe('Contact', () => {
         expect(sut.vcard()).toContain('FN');
     });
 
+    it('can create contact with a no name, but a company', () => {
+        const sut = new Contact({});
+        sut.company = 'Runbox';
+        expect(() => sut.vcard()).not.toThrow();
+        expect(sut.vcard()).toContain('ORG');
+        expect(sut.vcard()).toContain('ABSHOWAS');
+    });
+
     it('can set first name for contact', () => {
         let sut = new Contact({});
         sut.first_name = 'Peter';
@@ -220,6 +228,16 @@ END:VCARD`);
 
         expect(sut.company).toBe('runbox');
         expect(sut.department).toBeFalsy();
+    });
+
+    it('can parse company with no name fields', () => {
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+ORG:company;department
+END:VCARD`);
+
+        expect(sut.company).toBe('company');
+        expect(sut.department).toBe('department');
     });
 
     it('can parse grouped properties', () => {
