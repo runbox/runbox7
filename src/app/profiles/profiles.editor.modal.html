@@ -13,7 +13,7 @@
     <mat-card-content class="content" style="margin-bottom: 0;">
         <form>
             <mat-form-field class="form-field form-item">
-                <input matInput placeholder="From" name="from" [(ngModel)]="data.profile.from_name"
+                <input matInput placeholder="From Name" name="from" [(ngModel)]="data.profile.from_name"
                     (ngModelChange)="onchange_field('from_name')" />
                 <div *ngIf="field_errors && field_errors.from_name">
                     <mat-hint> ie. James Bond </mat-hint>
@@ -100,7 +100,7 @@
             <div class="form-checkbox form-item">
                 <mat-checkbox name="is_signature_html" [(ngModel)]="data.profile.is_signature_html"
                     (change)="toggle_signature_html()">
-                    use HTML for signature
+                    Use HTML for signature
                 </mat-checkbox>
             </div>
         </form>
@@ -112,7 +112,7 @@
             re-send</a>.
     </div>
 
-    <p class="mat-small" style="text-align: center; margin-top: 0;" *ngIf="this.data.profile.type === 'aliases'">To manage aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Administration</a>.</p>
+    <p class="mat-small" style="text-align: center; margin-top: 0;" *ngIf="this.data.profile.type === 'aliases'">To manage aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Management</a>.</p>
 
     <mat-card-actions class="action-buttons">
         <span class="delete-button">

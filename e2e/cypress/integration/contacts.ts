@@ -43,7 +43,7 @@ describe('Display contact details', () => {
 
         // we should be able to go back to all contacts
         cy.get('mat-toolbar button mat-icon[svgIcon="menu"]').click();
-        cy.get('mat-sidenav mat-list-item:contains("Show all contacts")').click();
+        cy.get('mat-sidenav mat-list-item:contains("All Contacts")').click();
         cy.url().should('match', /contacts\/?$/);
         cy.get('mat-toolbar').should('contain', 'Showing all contacts');
         cy.get('div.contactList app-contact-button').should('have.length', 2);
