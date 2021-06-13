@@ -132,11 +132,25 @@
                     </a>
                 </mat-expansion-panel>
 
+                <!-- SECURITY -->
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon>Security
+                        </p>
+                    </mat-expansion-panel-header>
+                    <mat-list-item routerLink="/account/security">
+                        <p mat-line>
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security
+                        </p>
+                    </mat-list-item>
+                </mat-expansion-panel>
+
                 <!-- SUBSCRIPTIONS -->
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="credit-card-check"></mat-icon> Subscriptions & Payments
+                            <mat-icon mat-list-icon svgIcon="credit-card-check"></mat-icon> Subscriptions
                         </p>
                     </mat-expansion-panel-header>
                     <mat-list-item routerLink="/account/subscriptions">
@@ -157,20 +171,6 @@
                     <mat-list-item routerLink="/account/credit_cards">
                         <p mat-line>
                             <mat-icon mat-list-icon svgIcon="credit-card"></mat-icon> Payment Cards
-                        </p>
-                    </mat-list-item>
-                </mat-expansion-panel>
-
-                <!-- SECURITY -->
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon>Security
-                        </p>
-                    </mat-expansion-panel-header>
-                    <mat-list-item routerLink="/account/security">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security
                         </p>
                     </mat-list-item>
                 </mat-expansion-panel>
