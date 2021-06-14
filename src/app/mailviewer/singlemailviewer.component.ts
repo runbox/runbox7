@@ -24,7 +24,8 @@ import {
   QueryList,
   ElementRef,
   AfterViewInit,
-  DoCheck
+  DoCheck,
+  SecurityContext
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
@@ -310,7 +311,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
         if (res.text.html) {
-          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
+          // Pre-sanitized, however we need to escape ampersands and
+          // quotes for srcdoc, let angular do it:
+          res.html = this.domSanitizer.sanitize(SecurityContext.HTML, res.sanitized_html);
         } else {
           res.html = null;
         }
