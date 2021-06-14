@@ -68,15 +68,17 @@ body {
     overscroll-behavior: contain;
 }
 
-h1 {
+h1, .mat-typography h1 {
+    margin: 0 0 20px 0;
     font-size: 30px;
+    font-weight: 400;
 }
 
-h2 {
+h2, .mat-typography h2 {
     font-size: 26px;
 }
 
-h3 {
+h3, .mat-typography h3 {
     font-size: 20px;
 }
 
@@ -85,7 +87,7 @@ h3.runbox-section-header {
     margin: 0px;
 }
 
-h4 {
+h4, .mat-typography h4 {
     font-size: 16px;
 }
 
@@ -94,7 +96,7 @@ h4.runbox-section-header {
     margin: 0px;
 }
 
-h5 {
+h5, .mat-typography h5 {
     font-size: 14px;
 }
 
@@ -128,7 +130,7 @@ ul.square-list li {
 }
 
 mat-icon {
-    margin-bottom: 3px;
+    align-items: center;
     vertical-align: middle !important;
 }
 
