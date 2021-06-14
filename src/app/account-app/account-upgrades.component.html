@@ -56,9 +56,9 @@
   <h1> Plans & Upgrades </h1>
 
   <div *ngIf="rmmapi.me | async as me; else loading">
-    <h5>
+    <h4>
       <strong> Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
-    </h5>
+    </h4>
 
     <p>
       Here you can subscribe to Runbox, or change an existing subscription plan according to your needs.
@@ -66,10 +66,6 @@
       Note: When selecting a subscription plan for your main account, please note that your current email disk usage is
       {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
     </p>
-
-    <br />
-    
-    <h2> Main Account Plans </h2>
 
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0">
@@ -111,14 +107,16 @@
     <div> Loading account details... </div>
   </ng-template>
 
-  <br /><br />
+  <mat-divider></mat-divider><br>
 
   <ng-template #addonsLoading>
     <app-runbox-loading text="Loading available addons...">
     </app-runbox-loading>
   </ng-template>
-  
-  <h3> Main Account Add-ons </h3>
+
+  <h1> Add-Ons </h1>
+
+  <h2> Main Account Add-Ons </h2>
 
   <p> Add-ons are individual upgrades that can be added to your main account. </p>
 
@@ -127,9 +125,8 @@
       </app-account-product>
   </div>
 
-  <br /><br />
-  
-  <h2> Sub-accounts </h2>
+  <br>
+  <h2> Sub-Accounts </h2>
 
   <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies,
       organizations, and families who need separate accounts with their own dedicated storage space and account
@@ -144,7 +141,4 @@
       <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
       </app-account-product>
   </div>
-
-  <br /><br />
-
 </section>

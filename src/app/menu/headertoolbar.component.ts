@@ -22,7 +22,6 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
-import { RunboxMe } from '../rmmapi/rbwebmail';
 
 @Component({
     moduleId: 'angular2/app/menu/',
@@ -34,7 +33,6 @@ export class HeaderToolbarComponent {
 
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     user_is_trial = false;
-    isMainAccount: boolean;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
@@ -42,10 +40,6 @@ export class HeaderToolbarComponent {
         private router: Router,
         public logoutservice: LogoutService
     ) {
-
-        rmmapi.me.subscribe((me: RunboxMe) => {
-            this.isMainAccount = !me.owner;
-        });
 
     }
 

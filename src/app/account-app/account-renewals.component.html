@@ -2,21 +2,16 @@
     <h1> Your Subscriptions </h1>
 
     <div *ngIf="active_products.length === 0; else productsTable">
-        <app-runbox-loading text="Loading your subscriptions...">
+        <app-runbox-loading text="Loading your products...">
         </app-runbox-loading>
     </div>
 
     <ng-template #productsTable>
 
         <p>
-          These are the subscriptions associated with your account.
-	</p>
-	<p>
-	  You may renew any of them at any time, which will add the new period to the end of your current subscription.
+            Here you can see all the active products in your account, and renew any of them at any time.
         </p>
 
-	<br />
-	
         <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
@@ -85,7 +80,7 @@
             <ng-container matColumnDef="expansionIndicator">
                 <th mat-header-cell *matHeaderCellDef> </th>
                 <td mat-cell *matCellDef="let p">
-                    <mat-icon *ngIf="p == expandedProduct; else expandedProduct" svgIcon="chevron-down"></mat-icon>
+                    <mat-icon *ngIf="p == expandedProduct; else notExpanded" svgIcon="chevron-down"></mat-icon>
                     <ng-template #notExpanded>
                         <mat-icon svgIcon="chevron-right"></mat-icon>
                     </ng-template>
