@@ -20,9 +20,9 @@
 import { Contact, ContactKind, Address, AddressDetails } from './contact';
 
 describe('Contact', () => {
-    it('cannot create contact with no name', () => {
+    it('can create contact with no name', () => {
         const sut = new Contact({});
-        expect(() => sut.vcard()).toThrow();
+        expect(() => sut.vcard()).not.toThrow();
     });
 
     it('can create contact with a name', () => {
