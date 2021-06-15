@@ -87,6 +87,8 @@ export class BitpayPaymentDialogComponent {
 
                 this.mainOptions = paymentOptions.filter(o => o.qrcode);
                 this.otherOptions = paymentOptions.filter(o => !o.qrcode);
+
+                this.external_url = res.hosted_url;
             },
             _err => {
                 this.state = 'failed';

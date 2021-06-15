@@ -272,14 +272,14 @@
     </div>
 
     <!-- We have an HTML message -->
-    <div *ngIf="showHTML && !htmlObjectURL">
+    <div *ngIf="showHTML && !SUPPORTS_IFRAME_SANDBOX">
       <div class="notificationContainer">
 	<span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
       </div>
       <div [innerHTML]="mailContentHTML"></div>
     </div>
 
-    <div *ngIf="showHTML && htmlObjectURL" class="notificationContainer">
+    <div *ngIf="showHTML && SUPPORTS_IFRAME_SANDBOX" class="notificationContainer">
       <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
     </div>
 
@@ -297,10 +297,10 @@
     <div *ngIf="!showHTML && mailObj.text !== 'undefined'" id="messageContent" style="white-space: pre-wrap" [innerHTML]='mailObj.text'>
     </div>
 
-    <div *ngIf="mailContentHTML && showHTML && htmlObjectURL" class="iframe-container">
+    <div *ngIf="mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX" class="iframe-container">
       <iframe
 	        #htmliframe
-          [src]="htmlObjectURL"
+          [srcdoc]="mailContentHTML"
           (load)="adjustIframeHTMLHeight()"
           sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           id="iframe"

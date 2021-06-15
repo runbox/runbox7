@@ -35,7 +35,7 @@ import { Component } from '@angular/core';
 	See the Settings for more details about that.
     </p>
     <p>
-        The <a routerLink="/contacts/new" class="contentButton"><mat-icon svgIcon="account-plus"></mat-icon>New contact </a>
+        The <a routerLink="/contacts/new" class="contentButton"><mat-icon svgIcon="account-plus"></mat-icon>New Contact </a>
         button will allow you to add new contacts to your contact list.
 	Note that they will then be added to CardDAV and will <b>not</b> be visible in Runbox 6.
     </p>

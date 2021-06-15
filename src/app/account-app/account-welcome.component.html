@@ -1,6 +1,6 @@
 <style>
   mat-icon.category {
-      margin: 0;
+      margin: 0 5px 0 0;
       width: 24px;
       height: auto;
       line-height: 24px;
@@ -10,12 +10,12 @@
       text-decoration: none;
   }
   h3 {
-      margin: 0;
+      margin: 0 0 5px 0;
       font-size: 15px;
       line-height: 20px;
   }
   h4 {
-      margin: 0 0 0 5px;
+      margin: 0;
       font-size: 18px;
   }
   div.settingsRow {
@@ -25,7 +25,7 @@
   }
   mat-card.settingsItem {
       display: flex;
-      width: 160px;
+      width: 175px;
       height: 130px;
       margin: 0 10px 10px 0;
   }
@@ -62,6 +62,14 @@
         <h3>
           <mat-icon svgIcon="account-group"></mat-icon> <strong>Identities</strong>
         </h3>
+        <p>Create and manage identities associated with your email aliases and external addresses.</p>
+      </a>
+    </mat-card>
+    <mat-card class="settingsItem">
+      <a href="/mail/account_alias" target="rmm6" [matTooltip]="rmm6tooltip">
+        <h3>
+          <mat-icon svgIcon="account-circle"></mat-icon> <strong>Email Aliases</strong>
+        </h3>
         <p>Set up and manage alternative email addresses that deliver email to your account.</p>
       </a>
     </mat-card>
@@ -97,7 +105,7 @@
         <h3>
           <mat-icon svgIcon="download"></mat-icon> <strong>Access</strong>
         </h3>
-        <p>Shows you how to access all the email stored on the server.</p>
+        <p>Shows you how to access all the email stored in your account on our servers.</p>
       </a>
     </mat-card>
   </div>
@@ -132,7 +140,15 @@
         <h3>
           <mat-icon svgIcon="earth"></mat-icon> <strong>Web Hosting</strong>
         </h3>
-        <p>Manage your Runbox Web Hosting accounts.</p>
+        <p>Manage your existing Runbox Web Hosting accounts (legacy feature).</p>
+      </a>
+    </mat-card>
+    <mat-card class="settingsItem">
+      <a href="/mail/domain_registration" target="rmm6" [matTooltip]="rmm6tooltip">
+        <h3>
+          <mat-icon svgIcon="border-inside"></mat-icon> <strong>Domain Registration</strong>
+        </h3>
+        <p>Register a new domain name that you may use to set up email hosting or other services.</p>
       </a>
     </mat-card>
   </div>
@@ -141,7 +157,7 @@
 
   <div>
     <h4 class="themePaletteBlack">
-      <mat-icon svgIcon="account-cog" class="category"></mat-icon> Account & Security
+      <mat-icon svgIcon="account-cog" class="category"></mat-icon> Account
     </h4>
     <p>Configure settings for your account and its security.</p>
   </div>
@@ -151,15 +167,15 @@
         <h3>
           <mat-icon svgIcon="account-details"></mat-icon> <strong>Account Details</strong>
         </h3>
-        <p>View and update your personal and account data.</p>
+        <p>View and update your personal information and account preferences.</p>
       </a>
     </mat-card>
-    <mat-card class="settingsItem">
-      <a routerLink="/account/security">
+    <mat-card *ngIf="isMainAccount" class="settingsItem">
+      <a href="/mail/account_account" target="rmm6" [matTooltip]="rmm6tooltip">
         <h3>
-          <mat-icon svgIcon="security"></mat-icon> <strong>Security</strong>
+          <mat-icon svgIcon="account-supervisor"></mat-icon> <strong>Sub-Accounts</strong>
         </h3>
-        <p>Manage your account's security settings.</p>
+        <p>Manage sub-accounts for people in your family, company, organization, or others.</p>
       </a>
     </mat-card>
   </div>
@@ -184,7 +200,7 @@
     <mat-card class="settingsItem">
       <a routerLink="/account/plans">
         <h3>
-          <mat-icon svgIcon="card-account-details"></mat-icon> <strong>Plans & Upgrades</strong>
+          <mat-icon svgIcon="table-account"></mat-icon> <strong>Plans & Upgrades</strong>
         </h3>
         <p>Subscribe to Runbox or change an existing subscription plan.</p>
       </a>
@@ -194,7 +210,7 @@
         <h3>
           <mat-icon svgIcon="receipt"></mat-icon> <strong>Payment History</strong>
         </h3>
-        <p>List all your payment transactions.</p>
+        <p>List all your payment transactions and show your receipts.</p>
       </a>
     </mat-card>
     <mat-card class="settingsItem">
@@ -202,7 +218,26 @@
         <h3>
           <mat-icon svgIcon="credit-card"></mat-icon> <strong>Payment Cards</strong>
         </h3>
-        <p>Details of your credit/debit cards.</p>
+        <p>Show the details of your payment cards, and add or remove cards.</p>
+      </a>
+    </mat-card>
+  </div>
+
+  <div class="divider"></div>
+
+  <div>
+    <h4 class="themePaletteBlack">
+      <mat-icon svgIcon="security" class="category"></mat-icon> Security
+    </h4>
+    <p>Configure settings for your account and its security.</p>
+  </div>
+  <div class="settingsRow">
+    <mat-card class="settingsItem">
+      <a routerLink="/account/security">
+        <h3>
+          <mat-icon svgIcon="security"></mat-icon> <strong>Security</strong>
+        </h3>
+        <p>Manage your account's security settings.</p>
       </a>
     </mat-card>
   </div>
@@ -210,7 +245,7 @@
   <div class="divider"></div>
 
   <p>
-    <mat-icon mat-list-icon svgIcon="help"></mat-icon> Need to know more about settings? See <a
+    <mat-icon mat-list-icon svgIcon="help"></mat-icon> Need to know more about settings? See our <a
       href="https://help.runbox.com/documentation/" target="help">documentation</a> for more information.
   </p>
   <br>
