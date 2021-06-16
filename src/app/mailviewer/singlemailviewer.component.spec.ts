@@ -87,7 +87,7 @@ describe('SingleMailViewerComponent', () => {
           getFromAddress() { return of([]); },
           getMessageContents(messageId: number): Observable<MessageContents> {
             console.log('Get message contents for', messageId);
-            return of(Object.assign(new MessageContents(), {
+            return of({
               mid: messageId,
               headers: {
                 from: {
@@ -112,7 +112,7 @@ describe('SingleMailViewerComponent', () => {
                   content: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
                 }
               ]
-            }));
+            });
           }
         } },
         { provide: ContactsService, useValue: {

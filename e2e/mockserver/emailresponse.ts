@@ -12,7 +12,6 @@ export const mail_message_obj = {
             'text': 'Test\n',
             'type': 'text'
         },
-        'sanitized_html': '<div dir="ltr">Test</div>\n',
         'mid': '11574228',
         'flagged_flag': 0,
         'seen_flag': 1,
