@@ -1,64 +1,10 @@
-<style>
-  @media(min-width: 1024px) {
-
-    .limitedTimeOffer,
-    .productCardSpecial {
-      margin: 2% 25%;
-    }
-  }
-
-  @media(max-width: 1023px) {
-
-    .limitedTimeOffer,
-    .productCardSpecial {
-      margin: 2% 10%;
-    }
-  }
-
-  @media(max-width: 813px) {
-
-    .limitedTimeOffer,
-    .productCardSpecial {
-      margin: 2% 0;
-    }
-  }
-
-  .limitedTimeOffer h2 {
-    white-space: nowrap;
-  }
-
-  mat-icon.limitedTimeOffer {
-    margin: 0;
-    width: auto;
-    border: none;
-    color: primary;
-    font-size: 40px;
-    line-height: 12px;
-  }
-
-  #productGrid, .productGrid {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-  }
-
-  .productCard {
-    margin: 10px;
-    flex: 1 1 360px;
-  }
-
-  .productCardSpecial {
-    text-align: center;
-  }
-</style>
-
 <section class="mat-typography">
   <h1> Plans & Upgrades </h1>
 
   <div *ngIf="rmmapi.me | async as me; else loading">
-    <h5>
+    <h4>
       <strong> Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
-    </h5>
+    </h4>
 
     <p>
       Here you can subscribe to Runbox, or change an existing subscription plan according to your needs.
@@ -68,9 +14,9 @@
     </p>
 
     <br />
-    
-    <h2> Main Account Plans </h2>
 
+    <h2> Main Account Plans </h2>
+    
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0">
         <mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star
@@ -117,20 +63,20 @@
     <app-runbox-loading text="Loading available addons...">
     </app-runbox-loading>
   </ng-template>
-  
-  <h3> Main Account Add-ons </h3>
 
+  <h3> Main Account Add-ons </h3>
+  
   <p> Add-ons are individual upgrades that can be added to your main account. </p>
 
   <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
       <app-account-product *ngFor="let p of emailaddons" class="productCard" [p]="p" [currency]="me.currency">
       </app-account-product>
   </div>
-
+  
   <br /><br />
   
   <h2> Sub-accounts </h2>
-
+    
   <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies,
       organizations, and families who need separate accounts with their own dedicated storage space and account
       settings. </p>
@@ -146,5 +92,4 @@
   </div>
 
   <br /><br />
-
 </section>

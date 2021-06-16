@@ -1,39 +1,7 @@
-<style>
-    #sideMenu {
-        padding-top: 20px;
-        width: 330px;
-    }
-
-    #sideMenu h3 {
-        margin: 20px 0 0 0;
-        padding-left: 20px;
-    }
-
-    mat-sidenav-content {
-        padding-top: 20px;
-    }
-
-    mat-expansion-panel-header mat-icon {
-        padding-right: 8px;
-    }
-
-    mat-expansion-panel-header span {
-        vertical-align: middle;
-    }
-
-    #shoppingCartButton {
-        position: fixed;
-        top: 75px;
-        right: 50px;
-        z-index: 10;
-    }
-</style>
-
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu [opened]="sideMenuOpened" [mode]="mobileQuery.matches ? 'over' : 'side'"
         [fixedInViewport]="mobileQuery.matches" fixedTopGap="0" id="sideMenu">
         <h3>Settings Menu</h3>
-
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
 
@@ -53,7 +21,7 @@
                     <a href="/mail/account_alias" target="rmm6">
                         <mat-list-item [matTooltip]="rmm6tooltip">
                             <p mat-line>
-                                <mat-icon mat-list-icon svgIcon="account-circle"></mat-icon> Email Aliases
+                                <mat-icon mat-list-icon svgIcon="account-circle"></mat-icon> <span>Email Aliases</span>
                             </p>
                         </mat-list-item>
                     </a>
@@ -131,28 +99,29 @@
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="account"></mat-icon> <span>Account</span>
+                            <mat-icon mat-list-icon svgIcon="account-cog"></mat-icon> <span>Account</span>
                         </p>
                     </mat-expansion-panel-header>
                     <mat-list-item routerLink="/account/details">
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="face"></mat-icon> Personal Details
+                            <mat-icon mat-list-icon svgIcon="face"></mat-icon> <span>Personal Details</span>
                         </p>
                     </mat-list-item>
                     <mat-list-item routerLink="/account/storage">
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="view-list"></mat-icon> Storage and Data
+                            <mat-icon mat-list-icon svgIcon="view-list"></mat-icon> <span>Storage and Data</span>
                         </p>
                     </mat-list-item>
                     <mat-list-item routerLink="/account/account_settings">
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="cog"></mat-icon> Account Settings
+                            <mat-icon mat-list-icon svgIcon="cog"></mat-icon> <span>Account Settings</span>
                         </p>
                     </mat-list-item>
                     <a href="/mail/account_account" target="rmm6" *ngIf="isMainAccount">
                         <mat-list-item [matTooltip]="rmm6tooltip">
                             <p mat-line>
-                                <mat-icon mat-list-icon svgIcon="account-supervisor"></mat-icon> Sub-Accounts
+                                <mat-icon mat-list-icon svgIcon="account-supervisor"></mat-icon>
+                                <span>Sub-Accounts</span>
                             </p>
                         </mat-list-item>
                     </a>
@@ -162,12 +131,12 @@
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon>Security
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> <span>Security</span>
                         </p>
                     </mat-expansion-panel-header>
                     <mat-list-item routerLink="/account/security">
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> Account Security
+                            <mat-icon mat-list-icon svgIcon="security"></mat-icon> <span>Account Security</span>
                         </p>
                     </mat-list-item>
                 </mat-expansion-panel>
@@ -176,8 +145,7 @@
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="credit-card-check"></mat-icon> <span>Subscriptions &
-                                Payments</span>
+                            <mat-icon mat-list-icon svgIcon="credit-card-check"></mat-icon> <span>Subscriptions</span>
                         </p>
                     </mat-expansion-panel-header>
                     <mat-list-item routerLink="/account/subscriptions">
@@ -188,7 +156,8 @@
                     </mat-list-item>
                     <mat-list-item routerLink="/account/plans">
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="table-account"></mat-icon> <span>Plans & Upgrades</span>
+                            <mat-icon mat-list-icon svgIcon="card-account-details"></mat-icon> <span>Plans &
+                                Upgrades</span>
                         </p>
                     </mat-list-item>
                     <mat-list-item routerLink="/account/payments">
@@ -202,7 +171,6 @@
                         </p>
                     </mat-list-item>
                 </mat-expansion-panel>
-
             </mat-accordion>
         </mat-nav-list>
     </mat-sidenav>

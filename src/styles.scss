@@ -70,16 +70,16 @@ body {
 
 h1, .mat-typography h1 {
     margin: 0 0 20px 0;
-    font-size: 36px;
+    font-size: 30px;
     font-weight: 400;
 }
 
 h2, .mat-typography h2 {
-    font-size: 30px;
+    font-size: 26px;
 }
 
 h3, .mat-typography h3 {
-    font-size: 24px;
+    font-size: 20px;
 }
 
 h3.runbox-section-header {
@@ -88,7 +88,7 @@ h3.runbox-section-header {
 }
 
 h4, .mat-typography h4 {
-    font-size: 20px;
+    font-size: 16px;
 }
 
 h4.runbox-section-header {
@@ -97,15 +97,11 @@ h4.runbox-section-header {
 }
 
 h5, .mat-typography h5 {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 th {
    font-size: 16px;
-}
-
-p, .mat-typography p {
-    font-size: 16px;
 }
 
 ul.square-list {
@@ -138,32 +134,20 @@ mat-icon {
     vertical-align: middle !important;
 }
 
-mat-expansion-panel-header span.mat-content {
-    align-items: center;
-}
-
-.mat-expansion-panel-body mat-icon {
-    margin-right: 5px;
-}
-
-.mat-expansion-panel-body span {
-    vertical-align: middle;
-}
-
-.mat-expansion-indicator::after {
-    margin-bottom: 5px; // Because this arrow shape is half a square rotated 45 degrees it is normally positioned lower than center
-}
-
 .mat-header-cell {
     font-size: 16px;
 }
 
-td.mat-cell {
-    padding-right: 10px !important;
-}
-
 .mat-card-header-text {
     margin-left: 0px !important;
+}
+
+.gridHighlight mat-card {
+    transition: background-color 0.25s;
+}
+
+.gridHighlight mat-card:hover {
+    background-color: mat-color($rmm-default-highlight);
 }
 
 mat-grid-tile {
@@ -188,15 +172,11 @@ mat-grid-tile.tableTitle {
     margin: 0 5px !important;
     border: 1px solid mat-color($rmm-default-primary) !important;
     background: white;
-    padding: 4px 10px 5px 10px !important;
-    line-height: 1.7em !important;
+    padding: 5px 10px 3px 10px !important;
+    line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
     font-size: 16px;
-}
-
-.contentButton span {
-    vertical-align: middle;
 }
 
 .primaryContentButton {
@@ -574,7 +554,7 @@ rmm-headertoolbar {
     margin-top: -5px;
 
     .mainMenuDesc {
-	margin-top: 2px;
+	margin-top: -2px;
     }
 }
 

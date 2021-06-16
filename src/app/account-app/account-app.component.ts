@@ -28,6 +28,7 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 @Component({
     selector: 'app-account-app-component',
     templateUrl: './account-app.component.html',
+    styleUrls: ['./account-app.component.scss'],
 })
 export class AccountAppComponent {
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
