@@ -42,11 +42,9 @@ export class HeaderToolbarComponent {
         private router: Router,
         public logoutservice: LogoutService
     ) {
-
-        rmmapi.me.subscribe((me: RunboxMe) => {
-            this.isMainAccount = !me.owner;
+         rmmapi.me.subscribe((me: RunboxMe) => {
+         this.isMainAccount = !me.owner;
         });
-
     }
 
     ngOnInit() {

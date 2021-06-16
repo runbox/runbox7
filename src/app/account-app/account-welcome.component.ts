@@ -23,6 +23,7 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 @Component({
     selector: 'app-account-welcome-component',
     templateUrl: './account-welcome.component.html',
+    styleUrls: ['./account-welcome.component.scss']
 })
 export class AccountWelcomeComponent {
     rmm6tooltip = "This area isn't upgraded to Runbox 7 yet and will open in a new tab";

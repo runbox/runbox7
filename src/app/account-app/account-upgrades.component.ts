@@ -30,6 +30,7 @@ import { AsyncSubject } from 'rxjs';
 @Component({
     selector: 'app-account-upgrades-component',
     templateUrl: './account-upgrades.component.html',
+    styleUrls: ['./account-upgrades.component.scss'],
 })
 export class AccountUpgradesComponent implements OnInit {
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;

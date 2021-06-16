@@ -15,30 +15,30 @@
     <p> Here are the payment cards currently associated with your account.</p>
     
     <p> The details of your payment cards are securely stored and processed by Stripe. </p>
-
-    <p> Runbox accepts a number of payment methods including credit and debit cards, PayPal, cryptocurrencies, and bank transfers. For details, please see <a href="https://runbox.com/price-plans/payment-methods/" target="info">Payment Methods</a>.
-
-      <br /><br />
-
+    
+    <p> Runbox accepts a number of payment methods including credit and debit cards, PayPal, cryptocurrencies, and bank transfers. For details, please see <a href="https://runbox.com/price-plans/payment-methods/" target="info">Payment Methods</a>.</p>
+      
+    <br /><br />
+      
     <div class="grid" *ngIf="creditCards | async as creditCards; else creditCardsLoading">
         <div *ngIf="creditCards.length === 0">
             You don't have any cards added to your account
         </div>
 
         <div style="flex: 100% 0 1;">
-            <button mat-raised-button (click)="addCard()" color="primary"> Add a new card </button>
+          <button mat-raised-button (click)="addCard()" color="primary"> Add a new card </button>
         </div>
 
         <mat-card *ngFor="let cc of creditCards" class="card">
             <mat-card-header style="display: flex; align-items: center">
                 <mat-icon mat-card-avatar svgIcon="credit-card"> </mat-icon> &nbsp;
                 <mat-card-title style="margin: 0 0 0 10px">
-                    {{ cc.brand }}
+		  {{ cc.brand }}
                     <span *ngIf="cc.wallet">({{ cc.wallet }})</span>
                     ending in {{ cc.last4 }}
                 </mat-card-title>
-                <mat-card-subtitle *ngIf="defaultCard === cc.id">
-                    <strong> Your default card </strong> &nbsp;
+		<mat-card-subtitle *ngIf="defaultCard === cc.id">
+                  <strong> Your default card </strong> &nbsp;
                 </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
