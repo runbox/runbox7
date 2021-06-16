@@ -1,53 +1,8 @@
 <section class="mat-typography">
     <h1>Account Details</h1>
-    <p>Account created: //ACCOUNT CREATED//</p>
+    <!-- <p>Account created: //ACCOUNT CREATED//</p> -->
     <p>We encourage you to keep the information as current as possible in case we need to contact you about your
         account.</p>
-
-    <mat-divider></mat-divider>
-
-    <!-- <div class="container smaller-fields">
-        <p>Enter your current password to be able to change your personal information.</p>
-        <form action="" class="form current-password-form">
-            <mat-form-field>
-                <mat-label>Current password</mat-label>
-                <input matInput type="password" required>
-                <mat-hint color="red">Required for all changes</mat-hint>
-            </mat-form-field>
-        </form>
-    </div> -->
-
-    <div class="container smaller-fields">
-        <h2>Change Password</h2>
-        <form action="" class="form new-password-form">
-            <mat-form-field>
-                <!-- TO DO:
-                ADD DYNAMIC PASSWORD CHECK -->
-                <mat-label>New password</mat-label>
-                <input matInput [type]="hide ? 'password' : 'text'">
-                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                    [attr.aria-pressed]="hide">
-                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                </button>
-            </mat-form-field>
-            <mat-form-field>
-                <!-- TO DO:
-                MAKE SURE PASSWORDS ARE THE SAME -->
-                <mat-label>Confirm password</mat-label>
-                <input matInput type="password">
-                <mat-error>
-                    Passwords do not match
-                </mat-error>
-            </mat-form-field>
-            <div class="action-buttons password-button">
-                <button mat-raised-button color="primary">Change Password</button>
-            </div>
-            <p><i>Your password must be 8-64 characters long, be a mix of characters, numbers, and special characters.</i></p>
-        </form>
-        <p>If you use an email client (Outlook, Thunderbird, etc), it may take a few minutes for the new password to
-            take effect. <a href="http://help.runbox.com/usernames-and-passwords/">More information on selecting a
-                password</a>.</p>
-    </div>
 
     <div class="container">
         <form [formGroup]="detailsForm">
