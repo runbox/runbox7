@@ -40,8 +40,8 @@ import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/r
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
-import { SimpleInputDialog, ProgressDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, share } from 'rxjs/operators';
+import { SimpleInputDialog, SimpleInputDialogParams } from './dialog/dialog.module';
+import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';

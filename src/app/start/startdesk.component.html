@@ -1,13 +1,11 @@
 <div id="startdesk">
-  <div id="dashdeskOverviewContainer">
-    <mat-card class="mat-card communicationOverview">
-      <h3 class="communicationTitle"><mat-icon>blur_on</mat-icon>Communication overview</h3>
+  <div id="dashdeskOverviewContainer communicationOverview">
       <div class="highlights">
-        <h4>Activity highlights</h4>
+        <h3><mat-icon>blur_on</mat-icon>Overview</h3>
         <div id="hilightsSettings">
           <mat-form-field>
             <mat-label> Time span </mat-label>
-            <mat-select [(ngModel)]="timeSpan" (selectionChange)="changeTimeSpan($event)">
+            <mat-select [(ngModel)]="timeSpan" (selectionChange)="updateCommsOverview()">
               <mat-option [value]="TimeSpan.TODAY"> Today </mat-option>
               <mat-option [value]="TimeSpan.YESTERDAY"> Yesterday </mat-option>
               <mat-option [value]="TimeSpan.LAST3"> Last 3 days </mat-option>
@@ -16,13 +14,25 @@
             </mat-select>
           </mat-form-field>
           <mat-form-field>
-            <mat-select [(ngModel)]="folder" (selectionChange)="changeFolder($event)">
+            <mat-label> Folder </mat-label>
+            <mat-select [(ngModel)]="folder" (selectionChange)="updateCommsOverview()">
               <mat-option [value]="FolderSelection.INBOX">  Inbox only </mat-option>
               <mat-option [value]="FolderSelection.ALL">    All folders </mat-option>
               <mat-option [value]="FolderSelection.CUSTOM"> Custom selection </mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-checkbox [checked]="unreadOnly" (change)="toggleUnreadOnly($event)"> Unread only </mat-checkbox>
+          <mat-form-field>
+            <mat-label> Sort by </mat-label>
+            <mat-select [(ngModel)]="sortOrder" (selectionChange)="updateCommsOverview()">
+              <mat-option [value]="SortOrder.COUNT"> Count </mat-option>
+              <!--
+              <mat-option> Date </mat-option>
+              <mat-option> Folder </mat-option>
+              -->
+              <mat-option [value]="SortOrder.SENDER"> Sender </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-checkbox [(ngModel)]="unreadOnly" (change)="updateCommsOverview()"> Unread only </mat-checkbox>
         </div>
       </div>
       <div id="folderSelector" *ngIf="folder === FolderSelection.CUSTOM">
@@ -34,67 +44,39 @@
       </div>
       <mat-tab-group>
         <mat-tab label="All emails ({{ totalEmailCount }})">
-          <!-- should work just as well but doesn't: why?
-          <app-overview-sender-hilights
-            *ngFor="let sender of regularOverview.concat(mailingListOverview)"
-            [sender]="sender"
-          ></app-overview-sender-hilights>
-          -->
           <div *ngIf="totalEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
           </div>
-          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview.concat(mailingListOverview)">
-            <div class="contact">
-              <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages</div>
-            </div>
-            <div class="subject">
-              <ul>
-                <li *ngFor="let email of sender.emails">
-                    <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
-                </li>
-              </ul>
-            </div>
-          </mat-card>
+          <app-overview-sender-hilights
+            *ngFor="let sender of regularOverview.concat(mailingListOverview)"
+            [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
+          ></app-overview-sender-hilights>
         </mat-tab>
         <mat-tab label="Directly to you ({{ regularEmailCount }})">
           <div *ngIf="regularEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
           </div>
-          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of regularOverview">
-            <div class="contact">
-              <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages</div>
-            </div>
-            <div class="subject">
-              <ul>
-                <li *ngFor="let email of sender.emails">
-                    <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
-                </li>
-              </ul>
-            </div>
-          </mat-card>
+          <app-overview-sender-hilights
+            *ngFor="let sender of regularOverview"
+            [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
+          ></app-overview-sender-hilights>
         </mat-tab>
         <mat-tab label="From mailing lists ({{ mailingListEmailCount }})">
           <div *ngIf="mailingListEmailCount === 0" class="noMessagesCard">
             No messages (yet?)
           </div>
-          <mat-card class="mat-card dashdeskCard senderItem" *ngFor="let sender of mailingListOverview">
-            <div class="contact">
-              <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
-              <div class="messages">{{ sender.emails.length }} messages</div>
-            </div>
-            <div class="subject">
-              <ul>
-                <li *ngFor="let email of sender.emails">
-                    <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
-                </li>
-              </ul>
-            </div>
-          </mat-card>
+          <app-overview-sender-hilights
+            *ngFor="let sender of mailingListOverview"
+            [sender]="sender"
+            (showMore)="showMoreFor(sender)"
+            (showLess)="showLessFor(sender)"
+          ></app-overview-sender-hilights>
         </mat-tab>
       </mat-tab-group>
-    </mat-card>
   </div>
   
   <!-- <div id="dashdeskSections">

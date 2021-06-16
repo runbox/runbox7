@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-account-welcome-component',
@@ -25,6 +26,11 @@ import { Component } from '@angular/core';
 })
 export class AccountWelcomeComponent {
     rmm6tooltip = "This area isn't upgraded to Runbox 7 yet and will open in a new tab";
+    isMainAccount: boolean;
 
-    constructor() {}
+    constructor(rmmapi: RunboxWebmailAPI) {
+        rmmapi.me.subscribe((me: RunboxMe) => {
+            this.isMainAccount = !me.owner;
+        });
+    }
 }

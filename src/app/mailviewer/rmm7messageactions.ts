@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MoveMessageDialogComponent } from '../actions/movemessage.action';
