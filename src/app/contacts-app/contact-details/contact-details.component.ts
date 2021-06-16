@@ -162,7 +162,11 @@ export class ContactDetailsComponent {
         this.initializeFormArray('phones',    () => this.createEmailFG());
         this.initializeFormArray('related',   () => this.createEmailFG());
 
-        this.contactForm.patchValue(this.contact.toDict());
+        const formValue = this.contact.toDict();
+        for (const email of formValue.emails) {
+            email.canVideoCall = email.value.match(/@runbox\.\w+$/);
+        }
+        this.contactForm.patchValue(formValue);
 
         if (this.contact.show_as_company()) {
             this.contactIcon = 'domain';
@@ -235,8 +239,9 @@ export class ContactDetailsComponent {
 
     createEmailFG(types = []): FormGroup {
         return this.fb.group({
-            types: this.fb.control(types),
-            value: this.fb.control(''),
+            types:        this.fb.control(types),
+            value:        this.fb.control(''),
+            canVideoCall: this.fb.control(false),
         });
     }
 

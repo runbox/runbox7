@@ -60,7 +60,7 @@
                             <mat-icon svgIcon="email"></mat-icon> Send an email to this address
                         </a>
                     </div>
-                    <div class="mat-form-field" *ngIf="faName === 'emails'">
+                    <div class="mat-form-field" *ngIf="faName === 'emails' && elem.value.canVideoCall">
                         <a mat-button (click)="startVideoCall.emit(elem.value.value)">
                             <mat-icon svgIcon="message-video"></mat-icon> Invite to video call
                         </a>
