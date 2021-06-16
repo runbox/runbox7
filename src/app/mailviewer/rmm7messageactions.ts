@@ -102,11 +102,11 @@ export class RMM7MessageActions implements MessageActions {
     public forward(useHTML: boolean) {
         ProgressDialog.open(this.dialog);
         this.draftDeskService.newDraft(
-            DraftFormModel.forward(this.mailViewerComponent.mailObj, this.draftDeskService.froms, useHTML),
-            () => {
-                this.mailViewerComponent.close('goToDraftDesk');
-                ProgressDialog.close();
-            });
+            DraftFormModel.forward(this.mailViewerComponent.mailObj, this.draftDeskService.froms, useHTML)
+        ).then(() => {
+            this.mailViewerComponent.close('goToDraftDesk');
+            ProgressDialog.close();
+        });
     }
 
     public markSeen(seen_flag_value = 1) {

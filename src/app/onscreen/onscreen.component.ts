@@ -19,9 +19,10 @@
 
 import { Component, OnDestroy } from '@angular/core';
 import { MobileQueryService } from '../mobile-query.service';
-import {AsyncSubject} from 'rxjs';
-import {RunboxWebmailAPI, RunboxMe} from '../rmmapi/rbwebmail';
-import {ContactsService} from '../contacts-app/contacts.service';
+import { AsyncSubject } from 'rxjs';
+import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
+import { ContactsService } from '../contacts-app/contacts.service';
+import { ActivatedRoute } from '@angular/router';
 
 let jitsiLoader: AsyncSubject<void> = null;
 declare var JitsiMeetExternalAPI: any;
@@ -65,6 +66,7 @@ export class OnscreenComponent implements OnDestroy {
         private contactsservice: ContactsService,
         public  mobileQuery: MobileQueryService,
         private rmmapi:      RunboxWebmailAPI,
+                route:       ActivatedRoute,
     ) {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => this.sideMenuOpened = !mobile);
@@ -85,6 +87,16 @@ export class OnscreenComponent implements OnDestroy {
             this.me.next(me);
             this.me.complete();
         });
+
+        route.params.subscribe(params => {
+            if (params['meetingCode']) {
+                this.joinMeeting(params['meetingCode']);
+            }
+        });
+    }
+
+    static generateMeetingName(name: string, host: string): string {
+        return 'runbox7' + btoa(`${host}.${(new Date()).getTime()}.${name}`);
     }
 
     async createMeeting() {
@@ -163,7 +175,7 @@ export class OnscreenComponent implements OnDestroy {
     async encodeMeetingName(name: string): Promise<string> {
         const me = await this.me.toPromise();
 
-        return Promise.resolve('runbox7' + btoa(`${me.uid}.${(new Date()).getTime()}.${name}`));
+        return Promise.resolve(OnscreenComponent.generateMeetingName(name, me.uid.toString()));
     }
 
     onMeetingJoined(encodedName: string) {

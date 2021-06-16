@@ -36,6 +36,7 @@ export class FormArrayEditorComponent implements OnInit {
     @Input() addNewDescription: string;
 
     @Output() newElementClicked = new EventEmitter<any>();
+    @Output() startVideoCall = new EventEmitter<string>();
 
     faObj: FormArray;
 
