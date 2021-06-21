@@ -19,7 +19,7 @@
 
 import { map } from 'rxjs/operators';
 import {
-  Component, Input, OnInit, Output, EventEmitter, ViewChild,
+  SecurityContext, Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
   QueryList,
   ElementRef,
@@ -36,6 +36,7 @@ import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MobileQueryService } from '../mobile-query.service';
 
+import { SafeUrl } from '@angular/platform-browser';
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
@@ -43,6 +44,7 @@ import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 
+const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
@@ -108,13 +110,12 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public err: any;
 
   public mailContentHTML: string = null;
+  public htmlObjectURL: SafeUrl = null;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
   public showHTML = false;
   public showAllHeaders = false;
-
-  public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 
   height = 0;
   previousHeight: number;
@@ -308,8 +309,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         // Remove style tag otherwise angular sanitazion will display style tag content as text
 
         if (res.text.html) {
-          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
+          const styleFilterRegexp = new RegExp(/(<style[\S\s]*?>[\S\s]*?<\/style>)/ig);
+          const rawhtml = '' + res.text.html;
+          let filteredhtml = rawhtml;
+          filteredhtml = filteredhtml.replace(styleFilterRegexp, '');
+          filteredhtml = this.domSanitizer.sanitize(SecurityContext.HTML, filteredhtml);
+
+          res.html = filteredhtml;
+
+          // Use HTML rest endpoint
+          if (SUPPORTS_IFRAME_SANDBOX) {
+            this.htmlObjectURL = this.domSanitizer.bypassSecurityTrustResourceUrl('/rest/v1/email/' + this.messageId + '/html');
+          } else {
+            this.htmlObjectURL = null;
+          }
         } else {
+          this.htmlObjectURL = null;
           res.html = null;
         }
 
