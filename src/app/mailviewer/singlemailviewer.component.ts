@@ -24,8 +24,7 @@ import {
   QueryList,
   ElementRef,
   AfterViewInit,
-  DoCheck,
-  SecurityContext
+  DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
@@ -313,7 +312,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (res.text.html) {
           // Pre-sanitized, however we need to escape ampersands and
           // quotes for srcdoc, let angular do it:
-          res.html = this.domSanitizer.sanitize(SecurityContext.HTML, res.sanitized_html);
+//          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
+          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
         } else {
           res.html = null;
         }
