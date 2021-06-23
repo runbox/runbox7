@@ -74,7 +74,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { AccountSecurityModule } from '../account-security/account.security.module';
-import { AccountSecurityComponent } from '../account-security/account.security.component';
 import { ProfilesComponent } from '../profiles/profiles.component';
 import { ProfilesModule } from '../profiles/profiles.module';
 import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
@@ -82,6 +81,11 @@ import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
 import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
+import { TwoFactorAuthenticationComponent } from '../account-security/two-factor-authentication.component';
+import { ManageServicesComponent } from '../account-security/manage-services.component';
+import { AppPasswordsComponent } from '../account-security/app-passwords.component';
+import { LastLoginsComponent } from '../account-security/last-logins.component';
+import { SessionsComponent } from '../account-security/sessions.component';
 
 @NgModule({
   declarations: [
@@ -205,12 +209,32 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
                   component: CreditCardsComponent
               },
               {
-                  path: 'security',
-                  component: AccountSecurityComponent,
-              },
-              {
                   path: 'identities',
                   component: ProfilesComponent,
+              },
+              {
+                  path: 'security',
+                  redirectTo: '2fa',
+              },
+              {
+                  path: '2fa',
+                  component: TwoFactorAuthenticationComponent,
+              },
+              {
+                  path: 'app_passwords',
+                  component: AppPasswordsComponent,
+              },
+              {
+                  path: 'manage_services',
+                  component: ManageServicesComponent,
+              },
+              {
+                  path: 'last_logins',
+                  component: LastLoginsComponent,
+              },
+              {
+                  path: 'sessions',
+                  component: SessionsComponent,
               },
               {
                   path: 'not-for-subaccounts',
