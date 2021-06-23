@@ -130,15 +130,47 @@
       <h3 class="themePaletteBlack">
         <mat-icon svgIcon="security" class="category"></mat-icon> Security
       </h3>
-      <p>Configure your account's security settings and set up Two-Factor authentication.</p>
+      <p>Configure your account's security settings and set up Two-Factor Authentication.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-        <a routerLink="/account/security">
+        <a routerLink="/account/2fa">
           <h4>
-            <mat-icon svgIcon="security"></mat-icon> Security
+            <mat-icon svgIcon="cellphone-lock"></mat-icon> 2FA
           </h4>
-          <p>Manage your account's security settings and set up Two-Factor Authentication.</p>
+          <p>Configure the various options for enabling and using Two-Factor Authentication.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/app_passwords">
+          <h4>
+            <mat-icon svgIcon="lock-plus"></mat-icon> App Passwords
+          </h4>
+          <p>Strong passwords that can be used with each of your device's email programs and apps.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/manage_services">
+          <h4>
+            <mat-icon svgIcon="tools"></mat-icon> Manage Services
+          </h4>
+          <p>This section lets you disable email services on your account, such as IMAP, POP, and SMTP.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/last_logins">
+          <h4>
+            <mat-icon svgIcon="login-variant"></mat-icon> Last Logins
+          </h4>
+          <p>All successful and failed attempts to log in to your account from IP addresses that you have not blocked.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/sessions">
+          <h4>
+            <mat-icon svgIcon="history"></mat-icon> Sessions
+          </h4>
+          <p>This section shows the currently active sessions for your account.</p>
         </a>
       </mat-card>
     </div>
