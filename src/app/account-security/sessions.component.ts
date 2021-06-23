@@ -28,7 +28,7 @@ import { RMM } from '../rmm';
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'sessions.component.html',
 })
-export class SessionsComponent implements OnInit {
+export class SessionsComponent {
     panelOpenState = false;
     @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
     @Output() Close: EventEmitter<string> = new EventEmitter();
