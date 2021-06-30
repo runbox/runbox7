@@ -120,6 +120,10 @@ ul.square-list li {
     font-weight: 400;
 }
 
+mat-list-item p.mat-line mat-icon {
+    padding-bottom: 8px !important;
+}
+
 .mat-toolbar, .mat-button {
     font-size: 16px;
     font-weight: 400;

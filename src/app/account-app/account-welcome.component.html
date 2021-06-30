@@ -4,191 +4,224 @@
   <div class="gridHighlight">
     <div>
       <h3 class="themePaletteBlack">
-	<mat-icon svgIcon="email" class="category"></mat-icon> Mail
+        <mat-icon svgIcon="email" class="category"></mat-icon> Mail
       </h3>
       <p>Settings that control the Mail interface.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-	<a routerLink="/account/identities">
+        <a routerLink="/account/identities">
           <h4>
             <mat-icon svgIcon="account-group"></mat-icon> Identities
           </h4>
           <p>Create and manage identities associated with your email aliases and external addresses.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a href="/mail/account_alias" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/account_alias" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="account-circle"></mat-icon> Email Aliases
           </h4>
           <p>Set up and manage alternative email addresses that deliver email to your account.</p>
-	</a>
+        </a>
       </mat-card>
     </div>
-    
+
     <div class="divider"></div>
-    
+
     <div>
       <h3 class="themePaletteBlack">
-	<mat-icon svgIcon="briefcase" class="category"></mat-icon> Manager
+        <mat-icon svgIcon="briefcase" class="category"></mat-icon> Manager
       </h3>
       <p>With Manager you can easily import, filter, and forward your email as it "falls" through each level.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-	<a href="/mail/fetch" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/fetch" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="cloud-download"></mat-icon> Retrieve
           </h4>
           <p>Lets you import email from external accounts into your Runbox account.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a href="/mail/rules" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/rules" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="filter-variant"></mat-icon> Filter
           </h4>
           <p>Configure spam and virus filters, set up an autoreply, and sort incoming email.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a href="/mail/access" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/access" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="download"></mat-icon> Access
           </h4>
           <p>Shows you how to access all the email stored on the server.</p>
-	</a>
+        </a>
       </mat-card>
     </div>
-    
+
     <div class="divider"></div>
-    
+
     <div>
       <h3 class="themePaletteBlack">
-	<mat-icon svgIcon="cloud" class="category"></mat-icon> Hosting
+        <mat-icon svgIcon="cloud" class="category"></mat-icon> Hosting
       </h3>
       <p>Settings for email, domain, and web hosting.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-	<a href="/mail/account_domain" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/account_domain" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="email"></mat-icon> Email Hosting
           </h4>
           <p>Set up your Runbox account to handle email for your domain.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a href="/mail/account_domain_hosting" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/account_domain_hosting" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="domain"></mat-icon> Domain Hosting
           </h4>
           <p>Manage domain names that you can use with Email Web Hosting services.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a href="/mail/account_webhosting" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/account_webhosting" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="earth"></mat-icon> Web Hosting
           </h4>
           <p>Manage your Runbox Web Hosting accounts.</p>
-	</a>
+        </a>
       </mat-card>
     </div>
-    
+
     <div class="divider"></div>
-    
+
     <div>
       <h3 class="themePaletteBlack">
-	<mat-icon svgIcon="account-cog" class="category"></mat-icon> Account
+        <mat-icon svgIcon="account-cog" class="category"></mat-icon> Account
       </h3>
       <p>Configure settings for your account and any sub-accounts.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-	<a href="/mail/account" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/account" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="account-details"></mat-icon> Account Details
           </h4>
           <p>View and update your personal information and account preferences.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card *ngIf="isMainAccount" class="settingsItem">
-	<a href="/mail/account_account" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a href="/mail/account_account" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="account-supervisor"></mat-icon> Sub-Accounts
           </h4>
           <p>Manage sub-accounts for people in your family, company, organization, or others.</p>
-	</a>
+        </a>
       </mat-card>
     </div>
-    
+
     <div class="divider"></div>
-    
+
     <div>
       <h3 class="themePaletteBlack">
-	<mat-icon svgIcon="security" class="category"></mat-icon> Security
+        <mat-icon svgIcon="security" class="category"></mat-icon> Security
       </h3>
-      <p>Configure your account's security settings and set up Two-Factor authentication.</p>
+      <p>Configure your account's security settings and set up Two-Factor Authentication.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-	<a routerLink="/account/security">
+        <a routerLink="/account/2fa">
           <h4>
-            <mat-icon svgIcon="security"></mat-icon> Security
+            <mat-icon svgIcon="cellphone-lock"></mat-icon> 2FA
           </h4>
-          <p>Manage your account's security settings and set up Two-Factor Authentication.</p>
-	</a>
+          <p>Configure the various options for enabling and using Two-Factor Authentication.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/app_passwords">
+          <h4>
+            <mat-icon svgIcon="lock-plus"></mat-icon> App Passwords
+          </h4>
+          <p>Strong passwords that can be used with each of your device's email programs and apps.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/manage_services">
+          <h4>
+            <mat-icon svgIcon="tools"></mat-icon> Manage Services
+          </h4>
+          <p>This section lets you disable email services on your account, such as IMAP, POP, and SMTP.</p>
+        </a>
+      </mat-card>
+      <!-- <mat-card class="settingsItem">
+        <a routerLink="/account/last_logins">
+          <h4>
+            <mat-icon svgIcon="login-variant"></mat-icon> Last Logins
+          </h4>
+          <p>All successful and failed attempts to log in to your account from IP addresses that you have not blocked.</p>
+        </a>
+      </mat-card> -->
+      <mat-card class="settingsItem">
+        <a routerLink="/account/sessions">
+          <h4>
+            <mat-icon svgIcon="history"></mat-icon> Sessions
+          </h4>
+          <p>This section shows the currently active sessions for your account.</p>
+        </a>
       </mat-card>
     </div>
     <div class="divider"></div>
-    
+
     <div>
       <h3 class="themePaletteBlack">
-	<mat-icon svgIcon="credit-card-check" class="category"></mat-icon> Subscriptions
+        <mat-icon svgIcon="credit-card-check" class="category"></mat-icon> Subscriptions
       </h3>
       <p>Manage your subscriptions and transactions.</p>
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-	<a routerLink="/account/subscriptions">
+        <a routerLink="/account/subscriptions">
           <h4>
             <mat-icon svgIcon="folder-star-multiple"></mat-icon> Your Subscriptions
           </h4>
           <p>Show all active products in your account, and renew any of them at any time.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a routerLink="/account/plans">
+        <a routerLink="/account/plans">
           <h4>
             <mat-icon svgIcon="card-account-details"></mat-icon> Plans & Upgrades
           </h4>
           <p>Subscribe to Runbox or change an existing subscription plan.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a routerLink="/account/payments">
+        <a routerLink="/account/payments">
           <h4>
             <mat-icon svgIcon="receipt"></mat-icon> Payment History
           </h4>
           <p>List all your payment transactions and view your receipts.</p>
-	</a>
+        </a>
       </mat-card>
       <mat-card class="settingsItem">
-	<a routerLink="/account/credit_cards">
+        <a routerLink="/account/credit_cards">
           <h4>
             <mat-icon svgIcon="credit-card"></mat-icon> Payment Cards
           </h4>
           <p>View and manage the credit/debit cards you use with Runbox.</p>
-	</a>
+        </a>
       </mat-card>
     </div>
-    
+
     <div class="divider"></div>
-    
+
     <p>
-      <mat-icon mat-list-icon svgIcon="help"></mat-icon> Need to know more about Settings? See our <a href="https://help.runbox.com/documentation/" target="help">documentation</a> for more information.
+      <mat-icon mat-list-icon svgIcon="help"></mat-icon> Need to know more about Settings? See our <a
+        href="https://help.runbox.com/documentation/" target="help">documentation</a> for more information.
     </p>
     <br />
   </div>
