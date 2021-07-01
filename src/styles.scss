@@ -621,7 +621,7 @@ mat-sidenav-container {
 
 #sidenavLogoContainer {
     background-color: mat-color($rmm-default-primary) !important;
-    padding: 10px none;
+    margin-top: -4px;
 }
 
 #sidenavLogoButton {

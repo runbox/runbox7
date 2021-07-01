@@ -1,9 +1,9 @@
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu [opened]="sideMenuOpened" [mode]="mobileQuery.matches ? 'over' : 'side'"
         [fixedInViewport]="mobileQuery.matches" fixedTopGap="0" id="sideMenu">
-        <h3>Settings Menu</h3>
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+            <h3>Settings Menu</h3>
 
             <mat-accordion>
                 <!-- MAIL -->
@@ -210,7 +210,7 @@
             </button>
         </div>
 
-        <div style="padding-left: 25px; padding-right: 25px;">
+        <div style="padding-left: 25px; padding-right: 25px; padding-top: 10px">
             <router-outlet>
             </router-outlet>
         </div>
