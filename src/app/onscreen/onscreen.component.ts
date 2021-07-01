@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnDestroy } from '@angular/core';
+import { Location } from '@angular/common';
 import { MobileQueryService } from '../mobile-query.service';
 import { AsyncSubject } from 'rxjs';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
@@ -67,6 +68,7 @@ export class OnscreenComponent implements OnDestroy {
         public  mobileQuery: MobileQueryService,
         private rmmapi:      RunboxWebmailAPI,
                 route:       ActivatedRoute,
+        private location:    Location,
     ) {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => this.sideMenuOpened = !mobile);
@@ -89,7 +91,7 @@ export class OnscreenComponent implements OnDestroy {
         });
 
         route.params.subscribe(params => {
-            if (params['meetingCode']) {
+            if (params['meetingCode'] && params['meetingCode'] !== this.activeMeeting?.code) {
                 this.joinMeeting(params['meetingCode']);
             }
         });
@@ -199,6 +201,7 @@ export class OnscreenComponent implements OnDestroy {
                 participants: [],
             };
         }
+        this.location.go('/onscreen/' + encodedName);
     }
 
     leaveMeeting() {
@@ -206,6 +209,7 @@ export class OnscreenComponent implements OnDestroy {
             this.jitsiAPI.dispose();
             this.jitsiAPI = null;
             this.activeMeeting = null;
+            this.location.go('/onscreen/');
         }
     }
 
