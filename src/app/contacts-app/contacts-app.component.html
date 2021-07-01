@@ -12,17 +12,17 @@
 
             <mat-list-item routerLink="/contacts/new" class="contactListButton">
                 <mat-icon mat-list-icon svgIcon="account-plus"></mat-icon>
-                <p mat-line>New contact</p>
+                <p mat-line>New Contact</p>
             </mat-list-item>
             <mat-list-item routerLink="/contacts/new_group" class="contactListButton" (click)="shownGroup = null">
                 <mat-icon mat-list-icon svgIcon="account-multiple-plus"></mat-icon>
-                <p mat-line>New group</p>
+                <p mat-line>New Group</p>
             </mat-list-item>
 
             <mat-list-item (click)="importVcfClicked()" class="contactListButton">
                 <input #vcfUploadInput accept="text/vcard,.vcf" type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
                 <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
-                <p mat-line>Import contacts</p>
+                <p mat-line>Import Contacts</p>
             </mat-list-item>
 
             <mat-list-item routerLink="/contacts/settings" class="contactListButton">
@@ -35,7 +35,7 @@
             <mat-list-item routerLink="/contacts/" class="contactListButton" [ngClass]="!shownGroup ? 'selectedFolder' : ''">
                 <mat-icon mat-list-icon svgIcon="account-multiple"></mat-icon>
                 <p mat-line>
-                    Show all contacts
+                    All Contacts
                 </p>
             </mat-list-item>
 
@@ -54,7 +54,7 @@
             <mat-list-item *ngIf="groups.length === 0" class="contactListButton contactListHint">
                 <mat-icon mat-list-icon svgIcon="information"></mat-icon>
                 <p mat-line>
-                    your groups will be visible here
+                    Groups will be shown here
                 </p>
             </mat-list-item>
 

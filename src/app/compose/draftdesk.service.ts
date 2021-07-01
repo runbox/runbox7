@@ -49,6 +49,7 @@ export class DraftFormModel {
     reply_to: string = null;
     subject: string = null;
     msg_body = '';
+    html: string;
     preview: string;
     in_reply_to: string;
     reply_to_id: string = null;
@@ -130,11 +131,11 @@ export class DraftFormModel {
         } else if (!useHTML && !mailObj.rawtext) {
             ret.msg_body = '';
         } else {
-            ret.msg_body =
+            ret.html =
                 `<br /><div style="padding-left: 10px; border-left: black solid 1px">
                     <hr style="width: 100%" />
                     ${mailObj.origMailHeaderHTML}<br />
-                    ${mailObj.html}
+                    ${mailObj.sanitized_html}
                 </div>`;
             ret.useHTML = true;
         }
@@ -158,12 +159,12 @@ export class DraftFormModel {
             ret.msg_body = '\n\n----------------------------------------------\nForwarded message:\n' +
                 mailObj.origMailHeaderText + '\n\n' + mailObj.rawtext;
         } else {
-            ret.msg_body =
+            ret.html =
                 `<br />
                 <hr style="width: 100%" />
                 Forwarded message:<br />
                 ${mailObj.origMailHeaderHTML}<br />
-                ${mailObj.html}`;
+                ${mailObj.sanitized_html}`;
             ret.useHTML = true;
         }
         ret.attachments = mailObj.attachments.map((attachment, ndx) =>
@@ -261,8 +262,8 @@ export class DraftDeskService {
         const draftObj = DraftFormModel.create(
             -1,
             this.froms[0],
-            '"Runbox Support" <support@runbox.com>',
-            'Runbox 7 bug report'
+            '"Runbox 7 Bug Reports" <bugs@runbox.com>',
+            'Runbox 7 Bug Report'
         );
         const template = await this.http.get('assets/templates/bug_report.txt',
                                              {responseType: 'text'}).toPromise();

@@ -26,22 +26,22 @@ import { ViewPeriod } from 'calendar-utils';
 
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, Subject, ReplaySubject } from 'rxjs';
+import { Observable, Subject, ReplaySubject, AsyncSubject } from 'rxjs';
 
 import * as moment from 'moment';
 import * as ICAL from 'ical.js';
 
 enum Activity {
     LoadingCache        = 'Loading local cache',
-    CreatingCalendar    = 'Creating calendar',
-    CreatingEvent       = 'Creating event',
-    DeletingCalendar    = 'Deleting calendar',
-    DeletingEvent       = 'Deleting event',
-    EditingCalendar     = 'Editing calendar',
-    EditingEvent        = 'Editing event',
-    RefreshingCalendars = 'Refreshing calendars',
-    RefreshingEvents    = 'Refreshing events',
-    GeneratingEvents    = 'Generating events',
+    CreatingCalendar    = 'Creating Calendar',
+    CreatingEvent       = 'Creating Event',
+    DeletingCalendar    = 'Deleting Calendar',
+    DeletingEvent       = 'Deleting Event',
+    EditingCalendar     = 'Editing Calendar',
+    EditingEvent        = 'Editing Event',
+    RefreshingCalendars = 'Refreshing Calendars',
+    RefreshingEvents    = 'Refreshing Events',
+    GeneratingEvents    = 'Generating Events',
 }
 
 @Injectable()
@@ -64,6 +64,8 @@ export class CalendarService implements OnDestroy {
 
     me: RunboxMe    = new RunboxMe();
 
+    userTimezoneLoaded = new AsyncSubject<ICAL.Timezone>();
+
     constructor(
         private rmmapi:  RunboxWebmailAPI,
         private storage: StorageService,
@@ -75,34 +77,39 @@ export class CalendarService implements OnDestroy {
             this.loadVTimezone(this.me.timezone);
         });
 
-        storage.get('caldavCache').then(cache => {
-            if (!cache) {
-                return;
-            }
-            console.log('Cache version:', cache['version']);
-            // tslint:disable-next-line:triple-equals
-            if (cache['version'] != 4) {
-                console.log('Old cache format found, removing');
-                storage.set('caldavCache', undefined);
-                return;
-            }
-            this.activities.begin(Activity.LoadingCache);
-            console.log('Loading calendars/events from local cache');
-            this.calendars = cache['calendars'].map((c: any) => new RunboxCalendar(c));
-            for (const cal of this.calendars) {
-                this.syncTokens[cal.id] = cal.syncToken;
-            }
-            const runboxevents = cache['events'].map((e: any) => {
-                const ievent = this.importFromIcal(e.id, e.ical);
-                return this.generateEvents(undefined, undefined, [ievent]);
-            });
-            runboxevents.forEach((events) => this.events = this.events.concat(events));
-            this.calendarSubject.next(this.calendars);
-            this.eventSubject.next(this.events);
-            this.activities.end(Activity.LoadingCache);
-        }).then(
-            () => this.syncCaldav(),
-        );
+        // We need the user's timezone to display their events:
+        this.userTimezoneLoaded.subscribe((tzone) => {
+            // Is this clever.. ?
+            this.me.timezone = tzone.tzid;
+            storage.get('caldavCache').then(cache => {
+                if (!cache) {
+                    return;
+                }
+                console.log('Cache version:', cache['version']);
+                // tslint:disable-next-line:triple-equals
+                if (cache['version'] != 4) {
+                    console.log('Old cache format found, removing');
+                    storage.set('caldavCache', undefined);
+                    return;
+                }
+                this.activities.begin(Activity.LoadingCache);
+                console.log('Loading calendars/events from local cache');
+                this.calendars = cache['calendars'].map((c: any) => new RunboxCalendar(c));
+                for (const cal of this.calendars) {
+                    this.syncTokens[cal.id] = cal.syncToken;
+                }
+                const runboxevents = cache['events'].map((e: any) => {
+                    const ievent = this.importFromIcal(e.id, e.ical);
+                    return this.generateEvents(undefined, undefined, [ievent]);
+                });
+                runboxevents.forEach((events) => this.events = this.events.concat(events));
+                this.calendarSubject.next(this.calendars);
+                this.eventSubject.next(this.events);
+                this.activities.end(Activity.LoadingCache);
+            }).then(
+                () => this.syncCaldav(),
+            );
+        });
 
         this.calendarSubject.subscribe(cals => {
             const updatedCals = [];
@@ -465,17 +472,19 @@ export class CalendarService implements OnDestroy {
     }
 
     loadVTimezone(tzname: string) {
-        this.rmmapi.getVTimezone(tzname).subscribe(res => {
+        this.rmmapi.getVTimezone(tzname).subscribe(tzData => {
             // This debug makes tests quite noisy!
-            // console.log('Found timezone data:', res);
+            // console.log('Found timezone data:', tzData);
             // VCALENDAR with VTIMEZONE in it
-            const component = new ICAL.Component(ICAL.parse(res));
+            const component = new ICAL.Component(ICAL.parse(tzData));
+            let tz;
             if (component.getFirstSubcomponent('vtimezone')) {
                 for (const tzComponent of component.getAllSubcomponents('vtimezone')) {
                     // TZIDs in vzic are, eg: /citadel.org/20210210_1/Europe/London
-                    // we want to match versus: X-LIC-LOCATION:Europe/London
-                    const tz = new ICAL.Timezone({
-                        tzid:      tzComponent.getFirstPropertyValue('x-lic-location'),
+                    // so that we match the same thing, we save the unique tz
+                    // up there where userTimezoneloaded is subbed.
+                    tz = new ICAL.Timezone({
+                        tzid:      tzComponent.getFirstPropertyValue('tzid'),
                         component: tzComponent,
                     });
                     if (!ICAL.TimezoneService.has(tz.tzid)) {
@@ -483,6 +492,8 @@ export class CalendarService implements OnDestroy {
                     }
                 }
             }
+            this.userTimezoneLoaded.next(tz);
+            this.userTimezoneLoaded.complete();
         });
     }
 

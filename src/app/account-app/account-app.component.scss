@@ -1,0 +1,19 @@
+#sideMenu {
+    width: 330px;
+}
+#sideMenu h3 {
+    margin: 20px 0 10px 0;
+    padding-left: 20px;
+}
+mat-expansion-panel-header mat-icon {
+    padding-right: 8px;
+}
+mat-expansion-panel-header span {
+    vertical-align: middle;
+}
+#shoppingCartButton {
+    position: fixed;
+    top: 75px;
+    right: 50px;
+    z-index: 10;
+}

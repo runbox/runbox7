@@ -531,11 +531,11 @@ export class Contact {
                 fn = [this.first_name, this.last_name].join(' ');
             } else if (this.company) {
                 fn = this.company;
-                this.component.setPropertyValue('X-ABSHOWAS', 'COMPANY');
+                this.setPropertyValue('X-ABSHOWAS', 'COMPANY');
             } else if (this.primary_email()) {
                 fn = this.primary_email();
             } else {
-                throw new Error('Contact needs a name before it can be saved');
+                fn = '';
             }
             this.setPropertyValue('fn', fn);
         }

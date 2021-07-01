@@ -20,9 +20,9 @@
 import { Contact, ContactKind, Address, AddressDetails } from './contact';
 
 describe('Contact', () => {
-    it('cannot create contact with no name', () => {
+    it('can create contact with no name', () => {
         const sut = new Contact({});
-        expect(() => sut.vcard()).toThrow();
+        expect(() => sut.vcard()).not.toThrow();
     });
 
     it('can create contact with a name', () => {
@@ -30,6 +30,14 @@ describe('Contact', () => {
         sut.nickname = 'Peter Pan';
         expect(() => sut.vcard()).not.toThrow();
         expect(sut.vcard()).toContain('FN');
+    });
+
+    it('can create contact with a no name, but a company', () => {
+        const sut = new Contact({});
+        sut.company = 'Runbox';
+        expect(() => sut.vcard()).not.toThrow();
+        expect(sut.vcard()).toContain('ORG');
+        expect(sut.vcard()).toContain('ABSHOWAS');
     });
 
     it('can set first name for contact', () => {
@@ -220,6 +228,16 @@ END:VCARD`);
 
         expect(sut.company).toBe('runbox');
         expect(sut.department).toBeFalsy();
+    });
+
+    it('can parse company with no name fields', () => {
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+ORG:company;department
+END:VCARD`);
+
+        expect(sut.company).toBe('company');
+        expect(sut.department).toBe('department');
     });
 
     it('can parse grouped properties', () => {

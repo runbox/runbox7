@@ -18,20 +18,26 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-
 import { CartService } from './cart.service';
 import { MobileQueryService } from '../mobile-query.service';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-account-app-component',
     templateUrl: './account-app.component.html',
+    styleUrls: ['./account-app.component.scss'],
 })
 export class AccountAppComponent {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
+    isMainAccount: boolean;
 
     constructor(
-        public cart:        CartService,
-        public mobileQuery: MobileQueryService,
+        public  cart:        CartService,
+        public  mobileQuery: MobileQueryService,
+                rmmapi:      RunboxWebmailAPI,
     ) {
+        rmmapi.me.subscribe((me: RunboxMe) => {
+            this.isMainAccount = !me.owner;
+        });
     }
 }

@@ -6,7 +6,7 @@ describe('Create calendar event', () => {
 
         cy.get('.calendarListItem').should('have.length', 1).and('contain', 'Mock Calendar');
 
-        cy.get('#addEventButton').should('contain', 'Add event').click();
+        cy.get('#addEventButton').should('contain', 'Add Event').click();
         cy.get('input[data-placeholder=Title]').type('my test event');
         cy.get('#eventSubmitButton').click();
 
