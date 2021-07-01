@@ -10,17 +10,22 @@
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenuOpened = false"></app-sidenav-menu>
 
-            <mat-list-item class="contactListButton">
-                <mat-icon mat-list-icon>person_add</mat-icon>
-                <p mat-line> Invite someone! </p>
+            <mat-list-item *ngIf="meetingList.length === 0">
+                Meetings you participate in will show up here
             </mat-list-item>
-            <mat-list-item class="contactListButton">
-                <mat-icon mat-list-icon>person_add</mat-icon>
-                <p mat-line> Or something </p>
-            </mat-list-item>
-            <mat-list-item class="contactListButton">
-                <mat-icon mat-list-icon>person_add</mat-icon>
-                <p mat-line> I'm not your mom </p>
+
+            <mat-list-item class="contactListButton"
+                *ngFor="let meeting of meetingList"
+                routerLink="/onscreen/{{ meeting.code }}"
+            >
+                <mat-icon mat-list-icon svgIcon="video-box"></mat-icon>
+                <p mat-line> {{ meeting.name }} </p>
+
+                <span style="flex-grow: 1"></span>
+
+                <button mat-icon-button class="contactIcon" matTooltip="Forget" (click)="forgetMeeting(meeting.code)">
+                    <mat-icon color="primary" svgIcon="delete"></mat-icon>
+                </button>
             </mat-list-item>
 
             <mat-divider></mat-divider>
