@@ -17,10 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ViewChild } from '@angular/core';
-import { Router, NavigationStart } from '@angular/router';
-import { MatSidenav } from '@angular/material/sidenav';
-
+import { Component } from '@angular/core';
 import { CartService } from './cart.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -31,8 +28,6 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     styleUrls: ['./account-app.component.scss'],
 })
 export class AccountAppComponent {
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
-    sideMenuOpened = true;
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     isMainAccount: boolean;
 
@@ -40,23 +35,9 @@ export class AccountAppComponent {
         public  cart:        CartService,
         public  mobileQuery: MobileQueryService,
                 rmmapi:      RunboxWebmailAPI,
-                router:      Router,
     ) {
-        this.sideMenuOpened = !mobileQuery.matches;
-        this.mobileQuery.changed.subscribe(mobile => {
-            this.sideMenuOpened = !mobile;
-        });
-
         rmmapi.me.subscribe((me: RunboxMe) => {
             this.isMainAccount = !me.owner;
-        });
-
-        router.events.subscribe(event => {
-            if (event instanceof NavigationStart) {
-                if (mobileQuery.matches) {
-                    this.sideMenu.close();
-                }
-            }
         });
     }
 }

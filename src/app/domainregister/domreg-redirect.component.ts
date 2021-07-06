@@ -18,14 +18,19 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-help',
-  templateUrl: './help.component.html',
-  styleUrls: ['./help.component.scss']
+    selector: 'app-domain-register-redirect',
+    template: ''
 })
-export class HelpComponent {
-    rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
-
-    constructor() {}
+export class DomainRegisterRedirectComponent {
+    constructor(
+        route: ActivatedRoute,
+        router: Router,
+    ) {
+        route.queryParams.subscribe((params: Params) => {
+            router.navigate(['/account/domainregistration'], { queryParams: params });
+        });
+    }
 }

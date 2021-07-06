@@ -1,6 +1,5 @@
-
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -17,41 +16,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Input } from '@angular/core';
-
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { RMM } from '../rmm';
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
+import { NavigationStart, Router } from '@angular/router';
+import { MobileQueryService } from '../mobile-query.service';
 
 @Component({
     selector: 'app-runbox-container',
-    styles: [`
-    `],
-    template: `
-    <div class="app-runbox-container">
-        <mat-sidenav-container class="" style="padding: 0 20px;">
-            <mat-sidenav mode="side" [opened]="sidebar_opened">
-            </mat-sidenav>
-            <mat-sidenav-content>
-                <ng-content></ng-content>
-            </mat-sidenav-content>
-        </mat-sidenav-container>
-    </div>
-    `
+    templateUrl: './runbox-container.html',
 })
 
 export class RunboxContainerComponent {
-  @Input() sidebar_opened = false;
-  constructor(public dialog: MatDialog,
-    public rmm: RMM,
-    public snackBar: MatSnackBar,
-  ) {
-  }
+    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    sideMenuOpened: boolean;
 
-  show_error (message, action) {
-    this.snackBar.open(message, action, {
-      duration: 2000,
-    });
-  }
+    constructor(
+        public mobileQuery: MobileQueryService,
+               router:      Router,
+    ) {
+        this.sideMenuOpened = !mobileQuery.matches;
+        this.mobileQuery.changed.subscribe((mobile: any) => {
+            this.sideMenuOpened = !mobile;
+        });
+
+        router.events.subscribe(event => {
+            if (event instanceof NavigationStart) {
+                if (mobileQuery.matches) {
+                    this.sideMenu.close();
+                }
+            }
+        });
+    }
 }
-

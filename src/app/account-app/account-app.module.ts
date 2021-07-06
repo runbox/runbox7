@@ -22,6 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
 import { RunboxCommonModule } from '../common/common.module';
+import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SentryErrorHandler } from '../sentry-error-handler';
@@ -32,7 +33,7 @@ import { AccountAppComponent } from './account-app.component';
 import {
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
-    AccountRenewalsRenewNowButtonComponent
+    AccountRenewalsRenewNowButtonComponent,
 } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
@@ -86,179 +87,188 @@ import { ManageServicesComponent } from '../account-security/manage-services.com
 import { AppPasswordsComponent } from '../account-security/app-passwords.component';
 import { LastLoginsComponent } from '../account-security/last-logins.component';
 import { SessionsComponent } from '../account-security/sessions.component';
+import { DomainRegisterModule } from '../domainregister/domainregister.module';
+import { DomainRegisterComponent } from '../domainregister/domainregister.component';
 
 @NgModule({
-  declarations: [
-    AccountAppComponent,
-    AccountReceiptComponent,
-    AccountRenewalsComponent,
-    AccountRenewalsAutorenewToggleComponent,
-    AccountRenewalsRenewNowButtonComponent,
-    AccountTransactionsComponent,
-    AccountUpgradesComponent,
-    BitpayPaymentDialogComponent,
-    ComponentCardComponent,
-    PaymentMethodComponent,
-    PaypalBillingAgreementsComponent,
-    PaypalHandlerComponent,
-    PaypalPaymentDialogComponent,
-    ProductComponent,
-    ShoppingCartComponent,
-    StripeAddCardDialogComponent,
-    StripePaymentDialogComponent,
-    SubAccountRenewalDialogComponent,
-    RunboxTimerComponent,
-    CreditCardsComponent,
-    CryptoPaymentDescriptionComponent,
-    NoProductsForSubaccountsComponent,
-    AccountWelcomeComponent,
-  ],
-  imports: [
-    BrowserAnimationsModule,
-    CommonModule,
-    ClipboardModule,
-    FormsModule,
-    MenuModule,
-    MatBadgeModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDatepickerModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatProgressSpinnerModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatTableModule,
-    MatTabsModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    ReactiveFormsModule,
-    RunboxCommonModule,
-    AccountSecurityModule,
-    ProfilesModule,
-    QRCodeModule,
-    RouterModule.forChild([
-      {
-        path: 'account',
-        canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
-        children: [
-          {
-            path: '', outlet: 'headertoolbar',
-            component: HeaderToolbarComponent
-          },
-          {
-            path: '',
-            component: AccountAppComponent,
-            children: [
-              {
-                  path: '',
-                  component: AccountWelcomeComponent,
-              },
-              {
-                  path: 'plans',
-                  component: AccountUpgradesComponent,
-              },
-              {
-                  path: 'addons',
-                  redirectTo: 'plans',
-              },
-              {
-                  path: 'upgrades',
-                  redirectTo: 'plans',
-              },
-              {
-                  path: 'subscriptions',
-                  component: AccountRenewalsComponent,
-              },
-              {
-                  path: 'renewals',
-                  redirectTo: 'subscriptions',
-              },
-              {
-                  path: 'payments',
-                  component: AccountTransactionsComponent,
-              },
-              {
-                  path: 'transactions',
-                  redirectTo: 'payments',
-              },
-              {
-                  path: 'receipt/:id',
-                  component: AccountReceiptComponent,
-              },
-              {
-                  path: 'cart',
-                  component: ShoppingCartComponent,
-              },
-              {
-                  path: 'billing_agreements',
-                  component: PaypalBillingAgreementsComponent,
-              },
-              {
-                  path: 'paypal/:action',
-                  component: PaypalHandlerComponent,
-              },
-              {
-                  path: 'credit_cards',
-                  component: CreditCardsComponent
-              },
-              {
-                  path: 'identities',
-                  component: ProfilesComponent,
-              },
-              {
-                  path: 'security',
-                  redirectTo: '2fa',
-              },
-              {
-                  path: '2fa',
-                  component: TwoFactorAuthenticationComponent,
-              },
-              {
-                  path: 'app_passwords',
-                  component: AppPasswordsComponent,
-              },
-              {
-                  path: 'manage_services',
-                  component: ManageServicesComponent,
-              },
-              {
-                  path: 'last_logins',
-                  component: LastLoginsComponent,
-              },
-              {
-                  path: 'sessions',
-                  component: SessionsComponent,
-              },
-              {
-                  path: 'not-for-subaccounts',
-                  component: NoProductsForSubaccountsComponent,
-              },
-              { path: 'components', redirectTo: '' },
-            ]
-          }
-        ]
-      }
-    ]),
-  ],
-  entryComponents: [
-    BitpayPaymentDialogComponent,
-    PaypalPaymentDialogComponent,
-    StripeAddCardDialogComponent,
-    StripePaymentDialogComponent,
-  ],
-  providers: [
-    CartService,
-    PaymentsService,
-    { provide: ErrorHandler, useClass: SentryErrorHandler },
-  ],
-  bootstrap: []
+    declarations: [
+        AccountAppComponent,
+        AccountReceiptComponent,
+        AccountRenewalsComponent,
+        AccountRenewalsAutorenewToggleComponent,
+        AccountRenewalsRenewNowButtonComponent,
+        AccountTransactionsComponent,
+        AccountUpgradesComponent,
+        BitpayPaymentDialogComponent,
+        ComponentCardComponent,
+        PaymentMethodComponent,
+        PaypalBillingAgreementsComponent,
+        PaypalHandlerComponent,
+        PaypalPaymentDialogComponent,
+        ProductComponent,
+        ShoppingCartComponent,
+        StripeAddCardDialogComponent,
+        StripePaymentDialogComponent,
+        SubAccountRenewalDialogComponent,
+        RunboxTimerComponent,
+        CreditCardsComponent,
+        CryptoPaymentDescriptionComponent,
+        NoProductsForSubaccountsComponent,
+        AccountWelcomeComponent,
+    ],
+    imports: [
+        BrowserAnimationsModule,
+        CommonModule,
+        ClipboardModule,
+        FormsModule,
+        MenuModule,
+        MatBadgeModule,
+        MatButtonModule,
+        MatCardModule,
+        MatDatepickerModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatTableModule,
+        MatTabsModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        ReactiveFormsModule,
+        RunboxCommonModule,
+        RunboxComponentModule,
+        DomainRegisterModule,
+        AccountSecurityModule,
+        ProfilesModule,
+        DomainRegisterModule,
+        QRCodeModule,
+        RouterModule.forChild([
+            {
+                path: 'account',
+                canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
+                children: [
+                    {
+                        path: '',
+                        outlet: 'headertoolbar',
+                        component: HeaderToolbarComponent,
+                    },
+                    {
+                        path: '',
+                        component: AccountAppComponent,
+                        children: [
+                            {
+                                path: '',
+                                component: AccountWelcomeComponent,
+                            },
+                            {
+                                path: 'plans',
+                                component: AccountUpgradesComponent,
+                            },
+                            {
+                                path: 'addons',
+                                redirectTo: 'plans',
+                            },
+                            {
+                                path: 'upgrades',
+                                redirectTo: 'plans',
+                            },
+                            {
+                                path: 'subscriptions',
+                                component: AccountRenewalsComponent,
+                            },
+                            {
+                                path: 'renewals',
+                                redirectTo: 'subscriptions',
+                            },
+                            {
+                                path: 'payments',
+                                component: AccountTransactionsComponent,
+                            },
+                            {
+                                path: 'transactions',
+                                redirectTo: 'payments',
+                            },
+                            {
+                                path: 'receipt/:id',
+                                component: AccountReceiptComponent,
+                            },
+                            {
+                                path: 'cart',
+                                component: ShoppingCartComponent,
+                            },
+                            {
+                                path: 'billing_agreements',
+                                component: PaypalBillingAgreementsComponent,
+                            },
+                            {
+                                path: 'paypal/:action',
+                                component: PaypalHandlerComponent,
+                            },
+                            {
+                                path: 'credit_cards',
+                                component: CreditCardsComponent,
+                            },
+                            {
+                                path: 'identities',
+                                component: ProfilesComponent,
+                            },
+                            {
+                                path: 'security',
+                                redirectTo: '2fa',
+                            },
+                            {
+                                path: '2fa',
+                                component: TwoFactorAuthenticationComponent,
+                            },
+                            {
+                                path: 'app_passwords',
+                                component: AppPasswordsComponent,
+                            },
+                            {
+                                path: 'manage_services',
+                                component: ManageServicesComponent,
+                            },
+                            {
+                                path: 'last_logins',
+                                component: LastLoginsComponent,
+                            },
+                            {
+                                path: 'sessions',
+                                component: SessionsComponent,
+                            },
+                            {
+                                path: 'domainregistration',
+                                component: DomainRegisterComponent,
+                            },
+                            {
+                                path: 'domainregistration',
+                                component: DomainRegisterComponent,
+                            },
+                            {
+                                path: 'not-for-subaccounts',
+                                component: NoProductsForSubaccountsComponent,
+                            },
+                            { path: 'components', redirectTo: '' },
+                        ],
+                    },
+                ],
+            },
+        ]),
+    ],
+    entryComponents: [
+        BitpayPaymentDialogComponent,
+        PaypalPaymentDialogComponent,
+        StripeAddCardDialogComponent,
+        StripePaymentDialogComponent
+    ],
+    providers: [CartService, PaymentsService, { provide: ErrorHandler, useClass: SentryErrorHandler }],
+    bootstrap: [],
 })
-
-export class AccountAppModule { }
+export class AccountAppModule {}
