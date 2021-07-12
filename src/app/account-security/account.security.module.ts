@@ -51,11 +51,13 @@ import { ManageServicesComponent } from './manage-services.component';
 import { AppPasswordsComponent } from './app-passwords.component';
 import { LastLoginsComponent } from './last-logins.component';
 import { SessionsComponent } from './sessions.component';
+import { AccountPasswordComponent } from './account-password.component';
 
 @NgModule({
     declarations: [
       ModalUnlockcodeComponent,
       ModalPasswordComponent,
+      AccountPasswordComponent,
       TwoFactorAuthenticationComponent,
       ManageServicesComponent,
       AppPasswordsComponent,
