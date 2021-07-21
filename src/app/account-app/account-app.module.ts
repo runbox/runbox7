@@ -22,6 +22,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MenuModule } from '../menu/menu.module';
 import { RunboxCommonModule } from '../common/common.module';
+import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SentryErrorHandler } from '../sentry-error-handler';
@@ -32,7 +33,7 @@ import { AccountAppComponent } from './account-app.component';
 import {
     AccountRenewalsComponent,
     AccountRenewalsAutorenewToggleComponent,
-    AccountRenewalsRenewNowButtonComponent
+    AccountRenewalsRenewNowButtonComponent,
 } from './account-renewals.component';
 import { AccountReceiptComponent } from './account-receipt.component';
 import { AccountTransactionsComponent } from './account-transactions.component';
@@ -76,7 +77,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { AccountSecurityModule } from '../account-security/account.security.module';
-import { AccountSecurityComponent } from '../account-security/account.security.component';
 import { ProfilesComponent } from '../profiles/profiles.component';
 import { ProfilesModule } from '../profiles/profiles.module';
 import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
@@ -87,6 +87,13 @@ import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts
 import { PersonalDetailsComponent } from '../account-details/personal-details.component';
 import { AccountSettingsComponent } from '../account-details/account-settings.component';
 import { StorageDataComponent } from '../account-details/storage-data.component';
+import { TwoFactorAuthenticationComponent } from '../account-security/two-factor-authentication.component';
+import { ManageServicesComponent } from '../account-security/manage-services.component';
+import { AppPasswordsComponent } from '../account-security/app-passwords.component';
+import { LastLoginsComponent } from '../account-security/last-logins.component';
+import { SessionsComponent } from '../account-security/sessions.component';
+import { DomainRegisterModule } from '../domainregister/domainregister.module';
+import { DomainRegisterComponent } from '../domainregister/domainregister.component';
 
 @NgModule({
     declarations: [
@@ -145,8 +152,11 @@ import { StorageDataComponent } from '../account-details/storage-data.component'
         MatAutocompleteModule,
         ReactiveFormsModule,
         RunboxCommonModule,
+        RunboxComponentModule,
+        DomainRegisterModule,
         AccountSecurityModule,
         ProfilesModule,
+        DomainRegisterModule,
         QRCodeModule,
         RouterModule.forChild([
             {
@@ -215,18 +225,37 @@ import { StorageDataComponent } from '../account-details/storage-data.component'
                                 component: CreditCardsComponent,
                             },
                             {
-                                path: 'security',
-                                component: AccountSecurityComponent,
-                            },
-                            {
                                 path: 'identities',
                                 component: ProfilesComponent,
                             },
                             {
-                                path: 'not-for-subaccounts',
-                                component: NoProductsForSubaccountsComponent,
+                                path: 'security',
+                                redirectTo: '2fa',
                             },
-                            { path: 'components', redirectTo: '' },
+                            {
+                                path: '2fa',
+                                component: TwoFactorAuthenticationComponent,
+                            },
+                            {
+                                path: 'app_passwords',
+                                component: AppPasswordsComponent,
+                            },
+                            {
+                                path: 'manage_services',
+                                component: ManageServicesComponent,
+                            },
+                            {
+                                path: 'last_logins',
+                                component: LastLoginsComponent,
+                            },
+                            {
+                                path: 'sessions',
+                                component: SessionsComponent,
+                            },
+                            {
+                                path: 'domainregistration',
+                                component: DomainRegisterComponent,
+                            },
                             {
                                 path: 'details',
                                 component: PersonalDetailsComponent,
@@ -239,6 +268,11 @@ import { StorageDataComponent } from '../account-details/storage-data.component'
                                 path: 'account_settings',
                                 component: AccountSettingsComponent,
                             },
+                            {
+                                path: 'not-for-subaccounts',
+                                component: NoProductsForSubaccountsComponent,
+                            },
+                            { path: 'components', redirectTo: '' },
                         ],
                     },
                 ],

@@ -18,10 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnDestroy } from '@angular/core';
+import { Location } from '@angular/common';
 import { MobileQueryService } from '../mobile-query.service';
-import {AsyncSubject} from 'rxjs';
-import {RunboxWebmailAPI, RunboxMe} from '../rmmapi/rbwebmail';
-import {ContactsService} from '../contacts-app/contacts.service';
+import { AsyncSubject } from 'rxjs';
+import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
+import { ContactsService } from '../contacts-app/contacts.service';
+import { ActivatedRoute } from '@angular/router';
+import { StorageService } from '../storage.service';
 
 let jitsiLoader: AsyncSubject<void> = null;
 declare var JitsiMeetExternalAPI: any;
@@ -35,6 +38,11 @@ export class OnscreenComponent implements OnDestroy {
     sideMenuOpened: boolean;
     jitsiAPI: any;
     role: string;
+
+    meetingList: {
+        code: string,
+        name: string,
+    }[] = [];
 
     activeMeeting: {
         name:       string,
@@ -65,6 +73,9 @@ export class OnscreenComponent implements OnDestroy {
         private contactsservice: ContactsService,
         public  mobileQuery: MobileQueryService,
         private rmmapi:      RunboxWebmailAPI,
+                route:       ActivatedRoute,
+        private location:    Location,
+        private storage:     StorageService,
     ) {
         this.sideMenuOpened = !mobileQuery.matches;
         this.mobileQuery.changed.subscribe(mobile => this.sideMenuOpened = !mobile);
@@ -85,6 +96,22 @@ export class OnscreenComponent implements OnDestroy {
             this.me.next(me);
             this.me.complete();
         });
+
+        this.storage.get('onscreen-meetings').then(res => {
+            if (res) {
+                this.meetingList = res;
+            }
+            route.params.subscribe(params => {
+                if (params['meetingCode'] && params['meetingCode'] !== this.activeMeeting?.code) {
+                    this.leaveMeeting();
+                    this.joinMeeting(params['meetingCode']);
+                }
+            });
+        });
+    }
+
+    static generateMeetingName(name: string, host: string): string {
+        return 'runbox7' + btoa(`${host}.${(new Date()).getTime()}.${name}`);
     }
 
     async createMeeting() {
@@ -163,7 +190,7 @@ export class OnscreenComponent implements OnDestroy {
     async encodeMeetingName(name: string): Promise<string> {
         const me = await this.me.toPromise();
 
-        return Promise.resolve('runbox7' + btoa(`${me.uid}.${(new Date()).getTime()}.${name}`));
+        return Promise.resolve(OnscreenComponent.generateMeetingName(name, me.uid.toString()));
     }
 
     onMeetingJoined(encodedName: string) {
@@ -187,6 +214,13 @@ export class OnscreenComponent implements OnDestroy {
                 participants: [],
             };
         }
+
+        this.meetingList = [{ code: this.activeMeeting.code, name: this.activeMeeting.name }].concat(
+            this.meetingList.filter(e => e.code !== this.activeMeeting.code)
+        );
+        this.storage.set('onscreen-meetings', this.meetingList);
+
+        this.location.go('/onscreen/' + encodedName);
     }
 
     leaveMeeting() {
@@ -194,7 +228,13 @@ export class OnscreenComponent implements OnDestroy {
             this.jitsiAPI.dispose();
             this.jitsiAPI = null;
             this.activeMeeting = null;
+            this.location.go('/onscreen/');
         }
+    }
+
+    forgetMeeting(code: string) {
+        this.meetingList = this.meetingList.filter(e => e.code !== code);
+        this.storage.set('onscreen-meetings', this.meetingList);
     }
 
     ngOnDestroy() {

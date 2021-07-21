@@ -27,7 +27,6 @@ import { FormArray, FormGroup } from '@angular/forms';
 export class FormArrayEditorComponent implements OnInit {
     @Input() inputFG: FormGroup;
     @Input() faName:  string;
-    @Input() layout:  string; // 'simple' or 'complex'
 
     @Input() hidden   = true;
 
@@ -36,10 +35,8 @@ export class FormArrayEditorComponent implements OnInit {
     @Input() deleteDescription: string;
     @Input() addNewDescription: string;
 
-    @Input() actionIcon:        string;
-    @Input() actionDescription: string;
-
     @Output() newElementClicked = new EventEmitter<any>();
+    @Output() startVideoCall = new EventEmitter<string>();
 
     faObj: FormArray;
 

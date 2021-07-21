@@ -88,6 +88,7 @@ import { SavedSearchesComponent } from './saved-searches/saved-searches.componen
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
+import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -125,13 +126,15 @@ const routes: Routes = [
       { path: 'help', component: HelpComponent },
       { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
       { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
-      { path: 'domainregistration', loadChildren: './domainregister/domainregister.module#DomainRegisterModule' },
       { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
       { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
       { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
       { path: 'onscreen',           loadChildren: './onscreen/onscreen.module#OnscreenModule' },
       { path: 'identities',         redirectTo: '/account/identities' },
       { path: 'account-security',   redirectTo: '/account/security'   },
+      // can't handle it with a simple redirectTo because it'd lose the query params
+      // (https://github.com/angular/angular/issues/13315)
+      { path: 'domainregistration', component: DomainRegisterRedirectComponent },
     ]
   },
   { path: 'login', component: LoginComponent }

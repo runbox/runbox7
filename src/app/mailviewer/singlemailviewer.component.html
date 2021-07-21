@@ -303,35 +303,38 @@
           [srcdoc]="mailContentHTML"
           (load)="adjustIframeHTMLHeight()"
           sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          scrolling="no"
           id="iframe"
 	    >
       </iframe>
     </div>
 
-    <mat-card *ngIf="mailObj.attachments && mailObj.attachments.length>0">
+    <mat-card *ngIf="mailObj.attachments && mailObj.visible_attachment_count>0">
       <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
       <mat-card-content>
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)">
-              <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
-                <img  matListAvatar
-                  [src]="att.thumbnailURL" />
+              <ng-container *ngIf="!att.internal">
+                <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
+                  <img  matListAvatar
+                    [src]="att.thumbnailURL" />
+                </ng-container>
+                <ng-template #attachment_icon>
+                  <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
+                </ng-template>
+                <mat-grid-tile-footer style="display: flex; text-align: center">
+                    <span>{{att.filename}}</span>
+                    <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
+                      matTooltip="Decrypt message"
+                      (click)="decryptAttachment(i);$event.stopPropagation()"
+                    ><mat-icon svgIcon="lock-open"></mat-icon></button>
+                    <button mat-icon-button
+                      (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
+                    ><mat-icon svgIcon="cloud-download"></mat-icon></button>
+                </mat-grid-tile-footer>
               </ng-container>
-              <ng-template #attachment_icon>
-                <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
-              </ng-template>
-              <mat-grid-tile-footer style="display: flex; text-align: center">
-                  <span>{{att.filename}}</span>
-                  <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
-                    matTooltip="Decrypt message"
-                    (click)="decryptAttachment(i);$event.stopPropagation()"
-                  ><mat-icon svgIcon="lock-open"></mat-icon></button>
-                  <button mat-icon-button
-                    (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
-                  ><mat-icon svgIcon="cloud-download"></mat-icon></button>
-              </mat-grid-tile-footer>
           </mat-grid-tile>
         </mat-grid-list>
 

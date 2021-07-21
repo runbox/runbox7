@@ -51,6 +51,10 @@ import { OnscreenComponent } from './onscreen.component';
       {
         path: '',
         component: OnscreenComponent,
+      },
+      {
+        path: ':meetingCode',
+        component: OnscreenComponent,
       }
     ]),
   ],

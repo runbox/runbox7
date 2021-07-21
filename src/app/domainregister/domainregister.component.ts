@@ -18,31 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { timeout } from 'rxjs/operators';
-// --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
-// This file is part of Runbox 7 App.
-// 
-// Runbox 7 App is free software: You can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Runbox 7 App is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with Runbox 7 App. If not, see <https://www.gnu.org/licenses/>.
-// ---------- END RUNBOX LICENSE ----------
-
 import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 export interface ElementUserDomain {
   created: string;
@@ -854,6 +836,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   constructor(
     private http: HttpClient,
     public snackBar: MatSnackBar,
+    private rmmapi: RunboxWebmailAPI,
   ) {
     this.is_loading.tld_list = true;
     this.dataSourceTld = new MatTableDataSource<ElementTld>();
@@ -878,8 +861,8 @@ export class DomainRegisterComponent implements AfterViewInit {
       this.activate_purchase_privacy();
     });
     //    this.list_hosted_domains();
-    this.http.get('/rest/v1/me').subscribe(res => {
-      this.is_trial = res['result']['is_trial'];
+    this.rmmapi.me.subscribe(me => {
+      this.is_trial = me.is_trial;
     });
   }
 

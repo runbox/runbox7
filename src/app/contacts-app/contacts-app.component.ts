@@ -322,7 +322,9 @@ export class ContactsAppComponent {
 
         if (typeof e === 'string') {
             message = e;
-        } else if (e.error.error) {
+        } else if (e instanceof Error) {
+            message = 'Error: ' + e.message;
+        } else if (e?.error?.error) {
             message = e.error.error;
         } else if (e.status === 500) {
             message = 'Internal server error';

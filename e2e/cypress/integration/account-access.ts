@@ -36,9 +36,9 @@ describe('Account access control', () => {
     it('should be able to access account security as a main account', () => {
         cy.visit('/account/');
         cy.get('mat-expansion-panel-header').contains('Security').click();
-        cy.get('mat-list-item').contains('Security').click();
+        cy.get('mat-list-item').contains('Two-Factor Authentication').click();
 
-        cy.url().should('include', '/account/security');
+        cy.url().should('include', '/account/2fa');
     });
 
     it('should be able to access account security as a subaccount', () => {
@@ -46,8 +46,8 @@ describe('Account access control', () => {
 
         cy.visit('/account/');
         cy.get('mat-expansion-panel-header').contains('Security').click();
-        cy.get('mat-list-item').contains('Security').click();
+        cy.get('mat-list-item').contains('Two-Factor Authentication').click();
 
-        cy.url().should('include', '/account/security');
+        cy.url().should('include', '/account/2fa');
     });
 });

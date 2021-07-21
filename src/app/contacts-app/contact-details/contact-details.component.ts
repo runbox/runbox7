@@ -23,18 +23,23 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
-import { ErrorDialog, ConfirmDialog } from '../../dialog/dialog.module';
+import { ErrorDialog, ConfirmDialog, SimpleInputDialog, SimpleInputDialogParams } from '../../dialog/dialog.module';
 import { filter, take } from 'rxjs/operators';
 
 import { ContactsService } from '../contacts.service';
 import { MobileQueryService } from '../../mobile-query.service';
 import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
 import { AppSettings, AppSettingsService } from '../../app-settings';
+import { DraftDeskService } from '../../compose/draftdesk.service';
+import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
+import { OnscreenComponent } from '../../onscreen/onscreen.component';
+import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 @Component({
     selector: 'app-contact-details',
     styleUrls: ['../contacts-app.component.scss'],
     templateUrl: './contact-details.component.html',
+    providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}],
 })
 export class ContactDetailsComponent {
     contact: Contact;
@@ -69,10 +74,13 @@ export class ContactDetailsComponent {
         public mobileQuery: MobileQueryService,
         public settingsService: AppSettingsService,
         private fb: FormBuilder,
+        private rmmapi: RunboxWebmailAPI,
         private router: Router,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
         private contactsservice: ContactsService,
+        private draftDeskService: DraftDeskService,
+        private location: Location,
     ) {
         this.contactForm = this.createForm();
 
@@ -154,7 +162,11 @@ export class ContactDetailsComponent {
         this.initializeFormArray('phones',    () => this.createEmailFG());
         this.initializeFormArray('related',   () => this.createEmailFG());
 
-        this.contactForm.patchValue(this.contact.toDict());
+        const formValue = this.contact.toDict();
+        for (const email of formValue.emails) {
+            email.canVideoCall = email.value.match(/@runbox\.\w+$/);
+        }
+        this.contactForm.patchValue(formValue);
 
         if (this.contact.show_as_company()) {
             this.contactIcon = 'domain';
@@ -227,8 +239,9 @@ export class ContactDetailsComponent {
 
     createEmailFG(types = []): FormGroup {
         return this.fb.group({
-            types: this.fb.control(types),
-            value: this.fb.control(''),
+            types:        this.fb.control(types),
+            value:        this.fb.control(''),
+            canVideoCall: this.fb.control(false),
         });
     }
 
@@ -383,5 +396,21 @@ export class ContactDetailsComponent {
 
     showUploadDialog() {
         this.picUploadInput.nativeElement.click();
+    }
+
+    async newVideoCall(email: string) {
+        const name = await this.dialog.open(SimpleInputDialog, {
+            data: new SimpleInputDialogParams(
+                'Meeting invitation',
+                'Pick a name for your meeting',
+                'Meeting name (optional)',
+            )
+        }).afterClosed().toPromise();
+        const me = await this.rmmapi.me.toPromise();
+        const meetingCode = OnscreenComponent.generateMeetingName(name, me.uid.toString());
+        const meetingUrl = new URL(this.location.prepareExternalUrl(`/onscreen/${meetingCode}`), window.location.origin);
+        this.draftDeskService.newVideoCallInvite(email, meetingUrl).then(() => {
+            this.router.navigate(['/compose']);
+        });
     }
 }

@@ -123,14 +123,20 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.draftDeskservice.froms[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
-                if ( from.is_signature_html ) {
-                    this.model.useHTML = true;
-                }
                 if ( !this.has_pasted_signature && from.signature ) {
                     this.has_pasted_signature = true;
                     this.signature = from.signature;
                     this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
+                    if ( from.is_signature_html ) {
+                        this.model.useHTML = true;
+                        this.model.html = this.signature.concat('\n\n', this.model.html || this.model.msg_body);
+                    }
                 }
+            }
+            // This.. shouldnt happen as only have content if reply/fwd
+            if (this.model.useHTML && !this.model.html) {
+                this.model.html = this.model.msg_body;
+                console.log('Copied msg body to html attribute');
             }
             if (this.model.cc.length > 0) {
                 this.hasCC = true;
@@ -173,19 +179,26 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
                         this.signature = new_signature;
                         if (this.formGroup.value.useHTML && this.editor) {
-                            this.editor.setContent(msg_body);
+                            this.model.html.replace(rgx, new_signature);
+                            this.editor.setContent(this.model.html);
                         } else {
                             this.formGroup.controls.msg_body.setValue(msg_body);
                         }
                     } else if ( !this.signature && from.signature) {
+                        this.has_pasted_signature = true;
                         const msg_body = from.signature.concat('\n\n', this.model.msg_body);
                         this.signature = from.signature;
-                        if (this.formGroup.value.useHTML && this.editor) {
-                            this.editor.setContent(msg_body);
+                        if (from.is_signature_html || (this.formGroup.value.useHTML && this.editor)) {
+                            this.model.html = this.signature.concat('\n\n', this.model.html);
+                            if (!this.formGroup.value.useHTML) {
+                                this.formGroup.controls.msg_body.setValue(true);
+                                this.htmlToggled();
+                            } else {
+                                this.editor.setContent(this.model.html);
+                            }
                         } else {
                             this.formGroup.controls.msg_body.setValue(msg_body);
                         }
-                        this.formGroup.controls.useHTML.setValue( from.is_signature_html );
                     }
                 }
             });
@@ -371,7 +384,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     model.subject = result.headers.subject;
                     if (result.text) {
                         if (result.text.html) {
-                            model.msg_body = result.text.html;
+                            model.html = result.text.html;
+                            model.msg_body = result.text.text;
                             model.useHTML = true;
                         } else {
                             model.msg_body = result.text.text;
@@ -406,25 +420,30 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 setup: editor => {
                     this.editor = editor;
                     editor.on('Change', () => {
-                        this.formGroup.controls['msg_body'].setValue(editor.getContent());
+                        this.formGroup.controls['msg_body'].setValue(editor.getContent({ format: 'text' }));
+                        this.model.html = editor.getContent();
                     });
                 },
                 init_instance_callback: (editor) => {
                     editor.setContent(
-                        this.formGroup.value.msg_body ?
-                            this.formGroup.value.msg_body.replace(/\n/g, '<br />\n') :
-                            ''
+                        this.model.html
+                            ? this.model.html
+                            :
+                            this.formGroup.value.msg_body
+                            ? this.formGroup.value.msg_body.replace(/\n/g, '<br />\n')
+                            :  ''
                     );
                 }
             };
             this.tinymce_plugin.create(options);
         } else {
             if (this.editor) {
+                this.model.html = this.editor.getContent();
                 const textContent = this.editor.getContent({ format: 'text' });
                 this.tinymce_plugin.remove(this.editor);
                 this.editor = null;
 
-                console.log('Back to pain text');
+                console.log('Back to plain text');
 
                 this.formGroup.controls['msg_body'].setValue(
                     textContent
@@ -537,7 +556,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
         this.model.from = this.formGroup.value.from;
         this.model.subject = this.formGroup.value.subject;
-        this.model.msg_body = this.formGroup.value.msg_body;
+        this.model.msg_body = this.formGroup.value.useHTML
+            ? this.model.html
+            : this.formGroup.value.msg_body;
         this.model.useHTML = this.formGroup.value.useHTML;
 
         if (this.model.useHTML && this.editor) {

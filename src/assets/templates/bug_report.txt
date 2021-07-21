@@ -2,7 +2,9 @@ Thank you for filing a bug report for Runbox 7.
 
 Please enter details for each mandatory item below (marked with an asterisk *), and any other items you think are relevant. Some of the entries are automatically detected and you do not need to change these.
 
-Please note that this bug report feature should not be used to send support requests. Please use Help > Support in the Runbox 7 menu if you have inquiries that are account-specific or that require a response.
+Note that Runbox 7 is open source software and that this bug report may be used in a public issue tracker (https://github.com/runbox/) after personally identifiable information has been redacted.
+
+Please do not utilize this feature to send support requests. If you have inquiries that are account-specific or that require a response, use the Help item in the Runbox 7 menu instead.
 
 
 Basic information
