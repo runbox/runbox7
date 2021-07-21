@@ -89,174 +89,169 @@ import { AccountSettingsComponent } from '../account-details/account-settings.co
 import { StorageDataComponent } from '../account-details/storage-data.component';
 
 @NgModule({
-  declarations: [
-    AccountAppComponent,
-    PersonalDetailsComponent,
-    AccountSettingsComponent,
-    StorageDataComponent,
-    AccountReceiptComponent,
-    AccountRenewalsComponent,
-    AccountRenewalsAutorenewToggleComponent,
-    AccountRenewalsRenewNowButtonComponent,
-    AccountTransactionsComponent,
-    AccountUpgradesComponent,
-    BitpayPaymentDialogComponent,
-    ComponentCardComponent,
-    PaymentMethodComponent,
-    PaypalBillingAgreementsComponent,
-    PaypalHandlerComponent,
-    PaypalPaymentDialogComponent,
-    ProductComponent,
-    ShoppingCartComponent,
-    StripeAddCardDialogComponent,
-    StripePaymentDialogComponent,
-    SubAccountRenewalDialogComponent,
-    RunboxTimerComponent,
-    CreditCardsComponent,
-    CryptoPaymentDescriptionComponent,
-    NoProductsForSubaccountsComponent,
-    AccountWelcomeComponent,
-  ],
-  imports: [
-    BrowserAnimationsModule,
-    CommonModule,
-    ClipboardModule,
-    FormsModule,
-    MenuModule,
-    MatBadgeModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDatepickerModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatProgressSpinnerModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatTableModule,
-    MatTabsModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatAutocompleteModule,
-    ReactiveFormsModule,
-    RunboxCommonModule,
-    AccountSecurityModule,
-    ProfilesModule,
-    QRCodeModule,
-    RouterModule.forChild([
-      {
-        path: 'account',
-        canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
-        children: [
-          {
-            path: '', outlet: 'headertoolbar',
-            component: HeaderToolbarComponent
-          },
-          {
-            path: '',
-            component: AccountAppComponent,
-            children: [
-              {
-                  path: '',
-                  component: AccountWelcomeComponent,
-              },
-              {
-                  path: 'plans',
-                  component: AccountUpgradesComponent,
-              },
-              {
-                  path: 'addons',
-                  redirectTo: 'plans',
-              },
-              {
-                  path: 'upgrades',
-                  redirectTo: 'plans',
-              },
-              {
-                  path: 'subscriptions',
-                  component: AccountRenewalsComponent,
-              },
-              {
-                  path: 'renewals',
-                  redirectTo: 'subscriptions',
-              },
-              {
-                  path: 'payments',
-                  component: AccountTransactionsComponent,
-              },
-              {
-                  path: 'transactions',
-                  redirectTo: 'payments',
-              },
-              {
-                  path: 'receipt/:id',
-                  component: AccountReceiptComponent,
-              },
-              {
-                  path: 'cart',
-                  component: ShoppingCartComponent,
-              },
-              {
-                  path: 'billing_agreements',
-                  component: PaypalBillingAgreementsComponent,
-              },
-              {
-                  path: 'paypal/:action',
-                  component: PaypalHandlerComponent,
-              },
-              {
-                  path: 'credit_cards',
-                  component: CreditCardsComponent
-              },
-              {
-                  path: 'security',
-                  component: AccountSecurityComponent,
-              },
-              {
-                  path: 'identities',
-                  component: ProfilesComponent,
-              },
-              {
-                  path: 'not-for-subaccounts',
-                  component: NoProductsForSubaccountsComponent,
-              },
-                { path: 'components',
-                  redirectTo: '' },
-              {
-                  path: 'details',
-                  component: PersonalDetailsComponent,
-              },
-              {
-                  path: 'storage',
-                  component: StorageDataComponent,
-              },
-              {
-                  path: 'account_settings',
-                  component: AccountSettingsComponent,
-              },
-            ]
-          }
-        ]
-      }
-    ]),
-  ],
-  entryComponents: [
-    BitpayPaymentDialogComponent,
-    PaypalPaymentDialogComponent,
-    StripeAddCardDialogComponent,
-    StripePaymentDialogComponent,
-  ],
-  providers: [
-    CartService,
-    PaymentsService,
-    { provide: ErrorHandler, useClass: SentryErrorHandler },
-  ],
-  bootstrap: []
+    declarations: [
+        AccountAppComponent,
+        PersonalDetailsComponent,
+        AccountSettingsComponent,
+        StorageDataComponent,
+        AccountReceiptComponent,
+        AccountRenewalsComponent,
+        AccountRenewalsAutorenewToggleComponent,
+        AccountRenewalsRenewNowButtonComponent,
+        AccountTransactionsComponent,
+        AccountUpgradesComponent,
+        BitpayPaymentDialogComponent,
+        ComponentCardComponent,
+        PaymentMethodComponent,
+        PaypalBillingAgreementsComponent,
+        PaypalHandlerComponent,
+        PaypalPaymentDialogComponent,
+        ProductComponent,
+        ShoppingCartComponent,
+        StripeAddCardDialogComponent,
+        StripePaymentDialogComponent,
+        SubAccountRenewalDialogComponent,
+        RunboxTimerComponent,
+        CreditCardsComponent,
+        CryptoPaymentDescriptionComponent,
+        NoProductsForSubaccountsComponent,
+        AccountWelcomeComponent,
+    ],
+    imports: [
+        BrowserAnimationsModule,
+        CommonModule,
+        ClipboardModule,
+        FormsModule,
+        MenuModule,
+        MatBadgeModule,
+        MatButtonModule,
+        MatCardModule,
+        MatDatepickerModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatTableModule,
+        MatTabsModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatAutocompleteModule,
+        ReactiveFormsModule,
+        RunboxCommonModule,
+        AccountSecurityModule,
+        ProfilesModule,
+        QRCodeModule,
+        RouterModule.forChild([
+            {
+                path: 'account',
+                canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
+                children: [
+                    {
+                        path: '',
+                        outlet: 'headertoolbar',
+                        component: HeaderToolbarComponent,
+                    },
+                    {
+                        path: '',
+                        component: AccountAppComponent,
+                        children: [
+                            {
+                                path: '',
+                                component: AccountWelcomeComponent,
+                            },
+                            {
+                                path: 'plans',
+                                component: AccountUpgradesComponent,
+                            },
+                            {
+                                path: 'addons',
+                                redirectTo: 'plans',
+                            },
+                            {
+                                path: 'upgrades',
+                                redirectTo: 'plans',
+                            },
+                            {
+                                path: 'subscriptions',
+                                component: AccountRenewalsComponent,
+                            },
+                            {
+                                path: 'renewals',
+                                redirectTo: 'subscriptions',
+                            },
+                            {
+                                path: 'payments',
+                                component: AccountTransactionsComponent,
+                            },
+                            {
+                                path: 'transactions',
+                                redirectTo: 'payments',
+                            },
+                            {
+                                path: 'receipt/:id',
+                                component: AccountReceiptComponent,
+                            },
+                            {
+                                path: 'cart',
+                                component: ShoppingCartComponent,
+                            },
+                            {
+                                path: 'billing_agreements',
+                                component: PaypalBillingAgreementsComponent,
+                            },
+                            {
+                                path: 'paypal/:action',
+                                component: PaypalHandlerComponent,
+                            },
+                            {
+                                path: 'credit_cards',
+                                component: CreditCardsComponent,
+                            },
+                            {
+                                path: 'security',
+                                component: AccountSecurityComponent,
+                            },
+                            {
+                                path: 'identities',
+                                component: ProfilesComponent,
+                            },
+                            {
+                                path: 'not-for-subaccounts',
+                                component: NoProductsForSubaccountsComponent,
+                            },
+                            { path: 'components', redirectTo: '' },
+                            {
+                                path: 'details',
+                                component: PersonalDetailsComponent,
+                            },
+                            {
+                                path: 'storage',
+                                component: StorageDataComponent,
+                            },
+                            {
+                                path: 'account_settings',
+                                component: AccountSettingsComponent,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ]),
+    ],
+    entryComponents: [
+        BitpayPaymentDialogComponent,
+        PaypalPaymentDialogComponent,
+        StripeAddCardDialogComponent,
+        StripePaymentDialogComponent
+    ],
+    providers: [CartService, PaymentsService, { provide: ErrorHandler, useClass: SentryErrorHandler }],
+    bootstrap: [],
 })
-
-export class AccountAppModule { }
+export class AccountAppModule {}
