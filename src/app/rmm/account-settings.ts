@@ -21,10 +21,10 @@ import { Observable } from 'rxjs';
 import { RMM } from '../rmm';
 
 export interface AccountSettingsInterface {
-    runbox_offers: boolean;
-    bandwidth_summary: boolean;
-    delete_trash: boolean;
-    detele_spam: boolean;
+    send_news_offers: boolean;
+    send_bandwidth_summary: boolean;
+    empty_trash: boolean;
+    empty_spam: boolean;
 }
 
 export class AccountSettings {

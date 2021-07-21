@@ -27,6 +27,7 @@ import { RunboxDomain } from './rmm/runbox_domain';
 import { AccountSecurity } from './rmm/account-security';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AccountStorage } from './rmm/account-storage';
+import { AccountSettings } from './rmm/account-settings';
 
 export { AllIdentities, Identity } from './rmm/profile';
 
@@ -43,6 +44,7 @@ export class RMM {
     public runbox_domain: RunboxDomain;
     public account_security: AccountSecurity;
     public account_storage: AccountStorage;
+    public account_settings: AccountSettings;
     constructor(
         public http: HttpClient,
         public snackBar: MatSnackBar,
@@ -55,11 +57,12 @@ export class RMM {
         this.email = new Email(this);
         this.account_security = new AccountSecurity(this);
         this.account_storage = new AccountStorage(this);
+        this.account_settings = new AccountSettings(this);
     }
 
     public show_error ( message, action ) {
         this.snackBar.open(message, action, {
-          duration: 2000,
+            duration: 2000,
         });
     }
 

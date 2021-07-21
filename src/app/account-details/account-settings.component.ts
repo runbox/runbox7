@@ -18,18 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-
-export interface AccountSettings {
-    description: string;
-    status: boolean;
-}
-
-const SETTINGS_DATA: AccountSettings[] = [
-    { description: 'Send news about offers from Runbox:', status: false },
-    { description: 'Send bandwidth summary when you are close to reaching the limit:', status: false },
-    { description: 'Automatically delete messages from Trash after 30 days (recommended):', status: true },
-    { description: 'Automatically delete messages from Spam folder after 30 days (recommended):', status: true },
-];
+import { AsyncSubject } from 'rxjs';
+import { share, timeout } from 'rxjs/operators';
+import { RMM } from '../rmm';
+import { AccountSettingsInterface } from '../rmm/account-settings';
 
 @Component({
     selector: 'app-account-settings-component',
@@ -38,7 +30,61 @@ const SETTINGS_DATA: AccountSettings[] = [
 })
 export class AccountSettingsComponent {
     displayedColumns: string[] = ['description', 'status'];
-    dataSource = SETTINGS_DATA;
+    settings = new AsyncSubject<AccountSettingsInterface[]>();
+    settingsArray = [];
+    values = {};
 
-    constructor() {}
+    descriptions = {
+        empty_trash: 'Automatically delete messages from Trash after 30 days (recommended):',
+        empty_spam: 'Automatically delete messages from Spam folder after 30 days (recommended):',
+        send_bandwidth_summary: 'Send bandwidth summary when you are close to reaching the limit:',
+        send_news_offers: 'Send news about offers from Runbox:',
+    };
+
+    constructor(public app: RMM) {}
+
+    async ngOnInit() {
+        this.app.account_settings.load().subscribe((settings) => {
+            Object.keys(settings.result).forEach((key) =>
+                this.settingsArray.push({
+                    key: key,
+                    description: this.descriptions[key],
+                    status: settings.result[key],
+                })
+            );
+
+            // This will keep the table ordered the same way every time
+            this.settingsArray = this.settingsArray.sort((a, b) => (a.key < b.key ? -1 : 1));
+
+            const props = this.settingsArray.map((s) => {
+                return s;
+            });
+
+            props.reverse();
+            this.settings.next(props);
+            this.settings.complete();
+        });
+    }
+
+    change_values(row_obj, boolean) {
+        this.settingsArray.filter((value, key) => {
+            if (value.key === row_obj.key) {
+                Object.assign(this.values, { [value.key]: boolean });
+            }
+        });
+    }
+
+    update() {
+        const req = this.app.ua.http.put('/rest/v1/account/settings', this.values).pipe(timeout(60000), share());
+        req.subscribe((reply) => {
+            if (reply['status'] === 'success') {
+                this.app.show_error('Settings updated', 'Dismiss');
+            } else if (reply['status'] === 'error') {
+                const error = reply['field_errors'][Object.keys(reply['field_errors'])[0]];
+                this.app.show_error(error, 'Dismiss');
+                return;
+            }
+        });
+        return req;
+    }
 }
