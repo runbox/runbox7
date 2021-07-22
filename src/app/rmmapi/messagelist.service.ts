@@ -266,10 +266,13 @@ export class MessageListService {
                     msg.folder === fld);
             });
 
-        if (hasChanges) {
-            this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
-            this.refreshFolderList();
-        }
+        // Update the folderlist every index update, regardless of
+        // known changes rmm7messageactions.updateMessages changes
+        // messagelist data, then updates the backend, so applyChanges
+        // won't have anything to do unless its pulling changes
+        // made from outside of runbox7 (eg via IMAP)
+        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        this.refreshFolderList();
     }
 
     // When emptying the trash we delete from here first
