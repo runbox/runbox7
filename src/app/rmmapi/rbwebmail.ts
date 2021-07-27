@@ -236,11 +236,14 @@ export class RunboxWebmailAPI {
             } else {
                 const messagePromise = new Promise<MessageContents>((resolve, reject) => {
                     this.http.get('/rest/v1/email/' + messageId)
-                    .pipe(
-                        map((r: any) => r.result),
-                    ).subscribe((result) => {
-                        this.messageCache.set(messageId, result);
-                        resolve(Object.assign( new MessageContents(), result));
+                        .subscribe((response) => {
+                        if (response['status'] === 'success') {
+                            this.messageCache.set(messageId, response['result']);
+                            resolve(Object.assign( new MessageContents(), response['result']));
+                        } else {
+                            delete this.messageContentsRequestCache[messageId];
+                            reject(response);
+                        }
                     }, err => {
                         delete this.messageContentsRequestCache[messageId];
                         reject(err);
