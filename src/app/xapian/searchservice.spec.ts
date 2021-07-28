@@ -267,6 +267,7 @@ describe('SearchService', () => {
 
         req = httpMock.expectOne('/rest/v1/email/' + testMessageId);
         req.flush({
+            status: 'success',
             result: {
                 text: {
                     text: 'message body test text SecretSauceFormula'
