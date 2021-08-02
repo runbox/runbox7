@@ -189,12 +189,10 @@ export class MessageListService {
     public applyChanges(msgInfos: MessageInfo[], delMsgInfos: number[]) {
         const filterFolders: { [folder: string]: boolean } = {};
 
-        let hasChanges = false;
         // New messages
         msgInfos
             .filter((msg) => this.messagesById[msg.id] === undefined)
             .forEach((msg) => {
-                hasChanges = true;
                 this.messagesById[msg.id] = msg;
                 if (!this.folderMessageLists[msg.folder]) {
                     this.folderMessageLists[msg.folder] = [];
@@ -215,7 +213,6 @@ export class MessageListService {
                 this.messagesById[msg.id].folder !== msg.folder
             )
             .forEach((msg) => {
-                hasChanges = true;
                 filterFolders[this.messagesById[msg.id].folder] = true;
                 this.messagesById[msg.id].folder = msg.folder;
 
@@ -239,7 +236,6 @@ export class MessageListService {
                 this.messagesById[msg.id].seenFlag !== msg.seenFlag
             )
             .forEach((msg) => {
-                hasChanges = true;
                 this.messagesById[msg.id].seenFlag = msg.seenFlag;
             });
 
@@ -248,7 +244,6 @@ export class MessageListService {
             .forEach((msgId) => {
                 const msg = this.messagesById[msgId];
                 if (msg && this.folderMessageLists[msg.folder]) {
-                    hasChanges = true;
                     const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
 
                     if (delFolderMessageIndex > -1) {
@@ -266,10 +261,13 @@ export class MessageListService {
                     msg.folder === fld);
             });
 
-        if (hasChanges) {
-            this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
-            this.refreshFolderList();
-        }
+        // Update the folderlist every index update, regardless of
+        // known changes rmm7messageactions.updateMessages changes
+        // messagelist data, then updates the backend, so applyChanges
+        // won't have anything to do unless its pulling changes
+        // made from outside of runbox7 (eg via IMAP)
+        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        this.refreshFolderList();
     }
 
     // When emptying the trash we delete from here first

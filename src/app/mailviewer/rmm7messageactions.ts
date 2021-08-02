@@ -46,7 +46,12 @@ export class RMM7MessageActions implements MessageActions {
                          ) {
         args['updateLocal'](args['messageIds']);
         args['updateRemote'](args['messageIds']).subscribe((data) => {
-            this.searchService.updateIndexWithNewChanges();
+            const updateFrom = data['result']['changed_time'] || 0;
+            this.searchService.updateIndexWithNewChanges({
+                start_message: 'Refreshing index after user action',
+                list_messages_args: [0, 0, updateFrom * 1000, RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE, true],
+                set_next_update_time: false,
+            });
             if (args['afterwards']) {
                 args['afterwards'](data);
             }

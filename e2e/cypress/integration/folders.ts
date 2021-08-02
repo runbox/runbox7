@@ -22,8 +22,9 @@ describe('Folder management', () => {
             .find('button.mat-icon-button[mattooltip="Folder actions"]')
             .click();
 
-        cy.server();
-        cy.route('PUT', '/rest/v1/email_folder/empty').as('emptyTrashReq');
+        cy.intercept({
+            method: 'PUT',
+            path: '/rest/v1/email_folder/empty'}).as('emptyTrashReq');
         cy.contains('div.mat-menu-content button', 'Empty trash').click();
         cy.wait('@emptyTrashReq');
     });

@@ -144,11 +144,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
         let user_dtstart = this._dtstart;
         // can't convert items with no tz set, so assume default (utc)
         if (this._dtstart.zone) {
-            console.log('start: convert from: ' + user_dtstart.zone.tzid);
-            console.log('offset: ' + user_dtstart.zone.utcOffset(user_dtstart));
-            console.log('start: convert to  : ' + this.timezone);
-            console.log('have timezone? : ' + ICAL.TimezoneService.has(this.timezone));
-            console.log('offset: ' + ICAL.TimezoneService.get(this.timezone).utcOffset(user_dtstart));
+            // console.log('start: convert from: ' + user_dtstart.zone.tzid);
+            // console.log('offset: ' + user_dtstart.zone.utcOffset(user_dtstart));
+            // console.log('start: convert to  : ' + this.timezone);
+            // console.log('have timezone? : ' + ICAL.TimezoneService.has(this.timezone));
+            // console.log('offset: ' + ICAL.TimezoneService.get(this.timezone).utcOffset(user_dtstart));
             user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 
