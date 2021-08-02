@@ -66,16 +66,16 @@ export class AccountSettingsComponent {
         });
     }
 
-    change_values(row_obj, boolean) {
+    change_values(row_obj, setting_value) {
         this.settingsArray.filter((value, key) => {
             if (value.key === row_obj.key) {
-                Object.assign(this.values, { [value.key]: boolean });
+                Object.assign(this.values, { [value.key]: setting_value });
             }
         });
     }
 
     update() {
-        const req = this.app.ua.http.put('/rest/v1/account/settings', this.values).pipe(timeout(60000), share());
+        const req = this.app.ua.http.post('/rest/v1/account/settings', this.values).pipe(timeout(60000), share());
         req.subscribe((reply) => {
             if (reply['status'] === 'success') {
                 this.app.show_error('Settings updated', 'Dismiss');

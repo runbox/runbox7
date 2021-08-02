@@ -13,8 +13,8 @@
                 <th mat-header-cell *matHeaderCellDef>Option</th>
                 <td mat-cell *matCellDef="let data">
                     <mat-radio-group aria-label="Select an option">
-                        <mat-radio-button value="yes" [checked]="data.status ? 'checked' : null" (click)="change_values(data, true)">Yes</mat-radio-button>
-                        <mat-radio-button value="no" [checked]="!data.status ? 'checked' : null" (click)="change_values(data, false)">No</mat-radio-button>
+                        <mat-radio-button value="yes" [checked]="data.status ? 'checked' : null" (click)="change_values(data, 1)">Yes</mat-radio-button>
+                        <mat-radio-button value="no" [checked]="!data.status ? 'checked' : null" (click)="change_values(data, 0)">No</mat-radio-button>
                     </mat-radio-group>
                 </td>
             </ng-container>
