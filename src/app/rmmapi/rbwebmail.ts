@@ -422,8 +422,8 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public moveToFolder(messageIds: number[], folderId: number): Observable<any> {
-        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: folderId });
+    public moveToFolder(messageIds: number[], toFolderId: number, fromFolderId: number): Observable<any> {
+        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: toFolderId, from_folder_id: fromFolderId });
     }
 
     public trainSpam(params): Observable<any> {

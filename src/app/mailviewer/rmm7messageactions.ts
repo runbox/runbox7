@@ -70,8 +70,11 @@ export class RMM7MessageActions implements MessageActions {
                         this.messageListService.moveMessages(msgIds, folderPath);
                         this.mailViewerComponent.close();
                     },
-                    updateRemote: (msgIds: number[]) =>
-                        this.messageListService.rmmapi.moveToFolder(msgIds, folder)
+                    updateRemote: (msgIds: number[]) => {
+                        const userFolders = this.messageListService.folderListSubject.value;
+                        const currentFolderId = userFolders.find(fld => fld.folderName === this.messageListService.currentFolder).folderId;
+                        return this.messageListService.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
+                    }
                 });
             }
         });
