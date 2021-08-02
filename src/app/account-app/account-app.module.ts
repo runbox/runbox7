@@ -87,6 +87,7 @@ import { ManageServicesComponent } from '../account-security/manage-services.com
 import { AppPasswordsComponent } from '../account-security/app-passwords.component';
 import { LastLoginsComponent } from '../account-security/last-logins.component';
 import { SessionsComponent } from '../account-security/sessions.component';
+import { AccountPasswordComponent } from '../account-security/account-password.component';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { DomainRegisterComponent } from '../domainregister/domainregister.component';
 
@@ -222,6 +223,10 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                             {
                                 path: 'security',
                                 redirectTo: '2fa',
+                            },
+                            {
+                                path: 'account_password',
+                                component: AccountPasswordComponent,
                             },
                             {
                                 path: '2fa',
