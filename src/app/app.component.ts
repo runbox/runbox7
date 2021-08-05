@@ -712,14 +712,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         this.searchService.deleteMessages(msgIds);
-        this.updateSearch(true);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
         } else {
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName);
         }
         this.clearSelection();
-        if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+        if (this.singlemailviewer && this.singlemailviewer.messageId && msgIds.includes(this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
       },
@@ -750,21 +749,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
       if (this.canvastable.rows instanceof SearchMessageDisplay) {
-        this.canvastable.rows.rows = args[1];
+        this.canvastable.updateRows(args[1]);
       } else {
         this.canvastable.rows = new SearchMessageDisplay(...args);
       }
     }
     if (displayType === 'messagelist') {
       if (this.canvastable.rows instanceof MessageList) {
-        this.canvastable.rows.rows = args[0];
+        this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new MessageList(...args);
       }
     }
     if (displayType === 'websocketlist') {
       if (this.canvastable.rows instanceof WebSocketSearchMailList) {
-        this.canvastable.rows.rows = args[0];
+        this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new WebSocketSearchMailList(...args);
       }
@@ -785,6 +784,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public clearSelection() {
     this.canvastable.rows.clearSelection();
+    this.canvastable.hasChanges = true;
     this.showSelectOperations = false;
     this.showSelectMarkOpMenu = false;
   }
