@@ -295,7 +295,7 @@
     </mat-progress-bar>
 
     <div [hidden]="hasChildRouterOutlet">
-      <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': !mailViewerOnRightSide && singlemailviewer ? singlemailviewer.height: 0}">
+      <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
         <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
       </div>
 
