@@ -309,14 +309,14 @@
       </iframe>
     </div>
 
-    <mat-card *ngIf="mailObj.attachments && mailObj.visible_attachment_count>0">
+    <mat-card *ngIf="showAttachments">
       <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
       <mat-card-content>
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)">
-              <ng-container *ngIf="!att.internal">
+              <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
                 <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
                   <img  matListAvatar
                     [src]="att.thumbnailURL" />

@@ -162,6 +162,16 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     return this._messageId;
   }
 
+  private get showAttachments() {
+    // Show attachments section IIF:
+    // We have any attachments at all AND
+    // we have non-inline (image) attachments OR
+    // we're not viewing in HTML
+    return this.mailObj.attachments.length > 0 && (
+      this.mailObj.visible_attachment_count > 0 || !(this.mailContentHTML && this.showHTML && this.SUPPORTS_IFRAME_SANDBOX)
+    );
+  }
+
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
