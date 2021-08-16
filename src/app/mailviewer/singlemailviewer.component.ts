@@ -158,11 +158,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  public get resizerHeight() {
+    return this.resizer ? this.resizer.currentHeight : 0;
+  }
+
   public get messageId() {
     return this._messageId;
   }
 
-  private get showAttachments() {
+  public get showAttachments() {
     // Show attachments section IIF:
     // We have any attachments at all AND
     // we have non-inline (image) attachments OR
@@ -177,7 +181,12 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
-    this.previousHeightPercentage = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    this.previousHeightPercentage = storedHeightPercentage > 100
+      ? 100
+      : storedHeightPercentage < 0
+        ? 0
+      : storedHeightPercentage;
   }
 
   public ngAfterViewInit() {
@@ -195,9 +204,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             localStorage.removeItem(resizerHeightKey);
           }
           if (this.previousHeightPercentage) {
-            this.resizer.resizePercentage(this.previousHeightPercentage);
+            resizer.first.resizePercentage(this.previousHeightPercentage);
           } else {
-            this.resizer.resizePercentage(50);
+            resizer.first.resizePercentage(50);
           }
         }
       }, 0);
