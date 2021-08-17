@@ -278,6 +278,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.updateTime();
   }
 
+  public get canvasTableBtmOffset() {
+    return this.singlemailviewer && this.singlemailviewer.adjustableHeight
+      ? this.singlemailviewer.resizerHeight
+      : 0;
+  }
+
   ngDoCheck(): void {
     if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +

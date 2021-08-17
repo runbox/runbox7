@@ -39,6 +39,10 @@ export class HorizResizerDirective implements OnInit {
 
     }
 
+    get currentHeight() {
+        return this.el.nativeElement.getBoundingClientRect().height;
+    }
+
     ngOnInit(): void {
         if (!this.resizableDisabled) {
             this.el.nativeElement.style['border-top'] = `${this.resizableGrabHeight}px solid darkgrey`;
@@ -65,7 +69,14 @@ export class HorizResizerDirective implements OnInit {
 
                 this.isFullHeight = newTop - parentOffsetTop < this.fullHeightThreshold;
                 const newHeight = elementRect.bottom - newTop;
-                const percentage = Math.round(newHeight / fullheight * 100);
+                let percentage = Math.round(newHeight / fullheight * 100);
+
+                // This is apparently possible - unclear how!
+                if (percentage > 100 ) {
+                    percentage = 100;
+                } else if (percentage < 0) {
+                    percentage = 0;
+                }
 
                 this.resized.emit(percentage);
             };

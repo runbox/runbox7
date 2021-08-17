@@ -887,6 +887,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private enforceScrollLimit() {
+    // currently selected row in the centre:
+    if (this.rows.openedRowIndex) {
+      this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
+    }
     if (this.topindex < 0) {
       this.topindex = 0;
     } else if (this.rows.rowCount() < this.maxVisibleRows) {
@@ -998,6 +1002,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         this.ctx.scale(devicePixelRatio, devicePixelRatio);
       }
       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
+      this.enforceScrollLimit();
       this.hasChanges = true;
       if (this.canv.clientWidth < this.autoRowWrapModeWidth) {
         this.rowWrapMode = true;
