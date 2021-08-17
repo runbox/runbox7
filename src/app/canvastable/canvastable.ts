@@ -886,11 +886,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
-  private enforceScrollLimit() {
+  // When loading a url with a fragment containing a msg id - scroll to there
+  public jumpToOpenMessage() {
     // currently selected row in the centre:
     if (this.rows.openedRowIndex) {
       this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
     }
+  }
+
+  private enforceScrollLimit() {
     if (this.topindex < 0) {
       this.topindex = 0;
     } else if (this.rows.rowCount() < this.maxVisibleRows) {

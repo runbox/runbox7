@@ -367,6 +367,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (fragment !== this.fragment) {
           this.fragment = fragment;
           this.selectMessageFromFragment(fragment);
+          this.canvastable.jumpToOpenMessage();
         }
       }
     );
