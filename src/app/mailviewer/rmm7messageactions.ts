@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MoveMessageDialogComponent } from '../actions/movemessage.action';
@@ -67,9 +68,10 @@ export class RMM7MessageActions implements MessageActions {
                     messageIds: [this.mailViewerComponent.messageId],
                     updateLocal: (msgIds: number[]) => {
                         let folderPath;
-                        this.messageListService.folderListSubject.subscribe(folders => {
-                            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
-                        });
+                        this.messageListService.folderListSubject.pipe(take(1))
+                            .subscribe((folders) => {
+                                folderPath = folders.find(fld => fld.folderId === folder).folderPath;
+                            });
                         console.log('Moving to folder', folderPath, this.mailViewerComponent.messageId);
                         this.searchService.moveMessagesToFolder(msgIds, folderPath);
                         this.messageListService.moveMessages(msgIds, folderPath);
