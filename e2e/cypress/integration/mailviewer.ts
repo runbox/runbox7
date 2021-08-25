@@ -7,12 +7,24 @@ describe('Interacting with mailviewer', () => {
 
     beforeEach(() => {
         localStorage.setItem('localSearchPromptDisplayed221', 'true');
+        localStorage.setItem('messageSubjectDragTipShown', 'true');
+        indexedDB.deleteDatabase('messageCache');
+    });
+
+    it('Loading an email with loading errors displays an error', () => {
+        cy.intercept('/rest/v1/email/14').as('get14');
+        cy.visit('/');
+        cy.wait('@get14', {'timeout':10000});
+        cy.visit('/#Inbox:14');
+
+        cy.get('simple-snack-bar').contains('Email content missing');
     });
 
     it('can open an email and go back and forth in browser history', () => {
+        cy.intercept('/rest/v1/email/9').as('get9');
         cy.visit('/');
 
-        cy.wait(1000); // should be long enough for the canvas to appear
+        cy.wait('@get9', {'timeout':10000});
         canvas().click(400, 300);
 
         cy.hash().should('equal', '#Inbox:9');
