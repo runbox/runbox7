@@ -930,9 +930,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         let folderPath;
-        this.messagelistservice.folderListSubject.subscribe(folders => {
-          folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
-        });
+        const folders = this.messagelistservice.folderListSubject.value;
+        folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
+
         // FIXME: Make a "not indexed folder list" somewhere!?
         // moveMessagesToFolder cant see these cos not in index
         if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
@@ -962,9 +962,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           messageIds: messageIds,
           updateLocal: (msgIds: number[]) => {
             let folderPath;
-            this.messagelistservice.folderListSubject.subscribe(folders => {
-              folderPath = folders.find(fld => fld.folderId === folder).folderPath;
-            });
+            const folders = this.messagelistservice.folderListSubject.value;
+            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
             console.log('Moving to folder', folderPath, messageIds);
             // FIXME: Make a "not indexed folder list" somewhere!?
             // moveMessagesToFolder cant see these cos not in index
