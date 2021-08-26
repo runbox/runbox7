@@ -73,6 +73,18 @@ export class MessageListService {
     ) {
         this.refreshFolderList();
 
+        this.folderListSubject
+            .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+                return prev.length === curr.length
+                    && prev.every((f, index) =>
+                        f.folderId === curr[index].folderId
+                        && f.totalMessages === curr[index].totalMessages
+                        && f.newMessages === curr[index].newMessages);
+            }))
+            .subscribe((folders) => {
+                // Will fallback on the folder counters set above for folders not in the search index
+                this.refreshFolderCounts();
+            });
         rmmapi.messageFlagChangeSubject.pipe(
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
             ).subscribe((msgFlagChange) => {
@@ -128,25 +140,23 @@ export class MessageListService {
                         : []
                 );
 
-                this.folderListSubject.pipe(take(1)).subscribe((folders) => {
-                    const folderCounts = {};
-                    for (const folder of folders) {
-                        const path = folder.folderPath;
-                        const xapianPath = path.replace(/\//g, '.');
+                const folders = this.folderListSubject.value;
+                const folderCounts = {};
+                for (const folder of folders) {
+                    const path = folder.folderPath;
+                    const xapianPath = path.replace(/\//g, '.');
 
-                        if (xapianFolders.has(xapianPath)) {
-                            const res = searchservice.api.getFolderMessageCounts(xapianPath);
-
-                            folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
-                        } else {
-                            folderCounts[path] = FolderMessageCountEntry.of(folder);
-                        }
+                    if (xapianFolders.has(xapianPath)) {
+                        const res = searchservice.api.getFolderMessageCounts(xapianPath);
+                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
+                    } else {
+                        folderCounts[path] = FolderMessageCountEntry.of(folder);
                     }
-                    this.folderCounts = folderCounts;
-                    this.folderMessageCountSubject.next(folderCounts);
+                }
+                this.folderCounts = folderCounts;
+                this.folderMessageCountSubject.next(folderCounts);
 
-                    resolve();
-                });
+                resolve();
             });
         });
     }
@@ -154,9 +164,6 @@ export class MessageListService {
     public refreshFolderList(): Promise<FolderListEntry[]> {
         return new Promise((resolve, _) => {
             this.rmmapi.getFolderList()
-                .pipe(distinctUntilChanged((prev, curr) =>
-                     prev.length === curr.length
-                     && prev.map(f => f.folderId).join('') === curr.map(f => f.folderId).join('')))
                 .subscribe((folders) => {
                     const trashfolder = folders.find(folder => folder.folderType === 'trash');
                     if (trashfolder) {
@@ -168,11 +175,9 @@ export class MessageListService {
                     }
 
                     this.folderListSubject.next(folders);
-                    // Will fallback on the folder counters set above for folders not in the search index
-                    this.refreshFolderCounts();
-                resolve(folders);
-            });
-       });
+                    resolve(folders);
+                });
+        });
     }
 
     public requestMoreData(currentlimit: number) {

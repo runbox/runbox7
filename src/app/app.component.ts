@@ -41,7 +41,7 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
@@ -312,8 +312,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
 
-    this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
-      map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
+    // Only update if actual changes found (else folderlist redraw takes 3sec or more)
+    this.displayedFolders =
+      this.messagelistservice.folderListSubject
+        .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+          return prev.length === curr.length
+            && prev.every((f, index) =>
+              f.folderId === curr[index].folderId
+              && f.totalMessages === curr[index].totalMessages
+              && f.newMessages === curr[index].newMessages);
+        }))
+        .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
 
     this.canvastable.scrollLimitHit.subscribe((limit) =>
@@ -930,9 +939,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         let folderPath;
-        this.messagelistservice.folderListSubject.subscribe(folders => {
-          folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
-        });
+        const folders = this.messagelistservice.folderListSubject.value;
+        folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
+
         // FIXME: Make a "not indexed folder list" somewhere!?
         // moveMessagesToFolder cant see these cos not in index
         if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
@@ -962,9 +971,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           messageIds: messageIds,
           updateLocal: (msgIds: number[]) => {
             let folderPath;
-            this.messagelistservice.folderListSubject.subscribe(folders => {
-              folderPath = folders.find(fld => fld.folderId === folder).folderPath;
-            });
+            const folders = this.messagelistservice.folderListSubject.value;
+            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
             console.log('Moving to folder', folderPath, messageIds);
             // FIXME: Make a "not indexed folder list" somewhere!?
             // moveMessagesToFolder cant see these cos not in index
