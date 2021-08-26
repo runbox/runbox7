@@ -29,17 +29,19 @@
             width: 100%;
         }
     }
-    .contactIcon mat-icon {
+    .contact mat-icon {
         margin-right: 10px;
-        font-size: 40px;
-        width: 40px;
+        font-size: 30px;
+        width: 30px;
         height: auto;
+	line-height: 18px;
     }
-    .contact h5 {
+    .contact h4 {
         display: inline;
         margin: 10px 0;
     }
     .messages {
+	margin-left: 4em;
         font-size: 0.75em;
     }
     .subject {
