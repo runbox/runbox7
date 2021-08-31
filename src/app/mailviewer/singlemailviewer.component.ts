@@ -433,8 +433,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           if (isImage) {
             att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
             if (html) {
-              html = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
-              att.internal = true;
+              const newHtml = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
+              if (newHtml !== html) {
+                att.internal = true;
+                html = newHtml;
+              }
             }
           }
         }
