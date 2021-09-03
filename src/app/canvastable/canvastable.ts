@@ -891,6 +891,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     // currently selected row in the centre:
     if (this.rows.openedRowIndex) {
       this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
+      this.enforceScrollLimit();
     }
   }
 
