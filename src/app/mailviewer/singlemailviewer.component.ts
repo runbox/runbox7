@@ -42,7 +42,7 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
 
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
@@ -135,7 +135,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public messagelistservice: MessageListService,
     public mobileQuery: MobileQueryService,
     private router: Router,
-    private snackBar: MatSnackBar,
+    private snackBar: RunboxContactSupportSnackBar,
   ) {
   }
 
@@ -300,7 +300,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       map((messageContents) => {
         const res: any = Object.assign({}, messageContents);
         if (res.status === 'warning') {
-          console.log('Error with email');
           // Skip if we previously had an issue loading this messge
           throw new Error(res.errors.join('.'));
         }
@@ -418,8 +417,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         );
       },
       err => {
-        console.log('Caught error, snackbaring..');
-        this.snackBar.open(err, 'Dismiss');
+        this.snackBar.open(err);
       }
       );
   }
