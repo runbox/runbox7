@@ -464,6 +464,19 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   print() {
+    // Can't access print view inside iFrame, so we need to 
+    // temporary hide buttons while the view is rendering
+    const messageContents = document.getElementById('messageContents');
+    const buttons = messageContents.getElementsByTagName('button');
+    const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
+
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'none';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'none';
+    }
+
     let printablecontent = this.messageContents.nativeElement.innerHTML;
     if (this.htmliframe) {
       printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
@@ -475,6 +488,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         { type: 'text/html' }
       )
     );
+
+    // Unhiding buttons
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'flex';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'inline';
+    }
   }
 
   /**
