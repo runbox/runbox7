@@ -36,7 +36,7 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     }
 
-    checkLogin(): Promise<boolean> {
+    checkLogin(stateUrl): Promise<boolean> {
         return new Promise<boolean>((resolve, _reject) => {
             this.isLoggedIn().pipe(take(1)).subscribe(
                 success => {
@@ -70,8 +70,13 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
         this.urlBeforeLogin = state.url;
 
+        if (this.urlBeforeLogin === '/changelog') {
+            console.log("helo");
+            return true;
+        }
+
         // Asynchronously check in whether the user is logged in or not
-        const loginCheck = this.checkLogin();
+        const loginCheck = this.checkLogin(this.urlBeforeLogin);
 
         // We don't want the success of the navigation to depend on the async check above every time,
         // as that would add precious time to every route switch, causing noticable and annoying delays.
