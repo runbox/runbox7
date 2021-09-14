@@ -89,7 +89,12 @@ export class MessageList extends MessageDisplay {
         name: 'Subject',
         sortColumn: null,
         getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
-        draggable: true
+        draggable: true,
+        getContentPreviewText: (rowIndex): string => {
+          const ret = this.getRow(rowIndex).plaintext;
+          return ret ? ret.trim() : '';
+        },
+        // tooltipText: 'Tip: Drag subject to a folder to move message(s)'
       },
       {
         sortColumn: null,

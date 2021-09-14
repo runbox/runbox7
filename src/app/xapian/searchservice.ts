@@ -1229,5 +1229,18 @@ export class SearchService {
         return this.currentDocData;
     }
 
-}
+  // fetch message contents, we actually only want the "text.text" part here
+  // then we can use it for previews and search, both with/without local index
+  // skip haschanges/updates if we already saw this one ..
+  public updateMessageText(messageId: number): boolean {
+    if (!this.messageTextCache.has(messageId)) {
+      this.rmmapi.getMessageContents(messageId).subscribe((content) => {
+        this.messageTextCache.set(messageId, content.text.text);
+        this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
+      });
+      return true;
+    }
+    return false;
+  }
 
+}

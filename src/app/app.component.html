@@ -219,7 +219,7 @@
 
         <mat-menu #tableViewOptionsMenu="matMenu">
           <mat-list>
-            <ng-container *ngIf="dataReady">
+            <!-- <ng-container *ngIf="dataReady"> -->
               <!-- currently only supporting threading / unread for local index -->
               <mat-list-item>
                 <mat-checkbox
@@ -258,7 +258,7 @@
                   Unread only
                 </mat-checkbox>
               </mat-list-item>
-            </ng-container>
+            <!-- </ng-container> -->
 
             <mat-list-item *ngIf="!mobileQuery.matches">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
