@@ -786,6 +786,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.rows = new WebSocketSearchMailList(...args);
       }
     }
+    this.filterMessageDisplay();
 
     // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
     // in canvastable, and anyway get CV to just read the columns itself
@@ -798,6 +799,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // messages updated, check if we need to select a message from the fragment
     this.selectMessageFromFragment(this.fragment);
+  }
+
+  public filterMessageDisplay() {
+    const options = new Map();
+    options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
+    options.set('searchText', this.searchText);
+    this.canvastable.rows.filterBy(options);
+    this.canvastable.hasChanges = true;
   }
 
   public clearSelection() {
@@ -1099,8 +1108,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   // FIXME: Why do we run this when searchText is empty?
+  // FIXME: move updateSearch (for index searches) into
+  // searchmessagedisplay filterBy ?
   updateSearch(always?: boolean, noscroll?: boolean) {
     if (!this.dataReady || this.showingWebSocketSearchResults) {
+      // May have changed unread checkbox so reset / filter message display
+      this.filterMessageDisplay();
       return;
     }
     const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';

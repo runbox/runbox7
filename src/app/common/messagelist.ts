@@ -62,6 +62,14 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  // filter visible rows by whatever options the frontend has
+  filterBy(options: Map<String, any>) {
+    this.rows = this._rows;
+    if (options.has('unreadOnly') && options.get('unreadOnly')) {
+      this.rows = this._rows.filter((msg) => !msg.seenFlag);
+    }
+  }
+
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
     const columns: CanvasTableColumn[] = [
       {

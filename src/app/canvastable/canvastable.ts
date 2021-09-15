@@ -839,7 +839,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public updateRows(newList) {
-    this.rows.rows = newList;
+    this.rows.setRows(newList);
     this.enforceScrollLimit();
     this.hasChanges = true;
   }
