@@ -241,7 +241,7 @@
                 [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
                 class="tableViewOptionsMenuElement"
               >
-                <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" matTooltip="Threaded conversation view"></mat-icon>
+                <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
                 Threaded view
               </mat-checkbox>
             </mat-list-item>
@@ -253,7 +253,7 @@
                 [disabled]="viewmode==='conversations'"
                 class="tableViewOptionsMenuElement"
               >
-                <mat-icon  svgIcon="email-mark-as-unread" class="tableViewOptionsMenuElement" matTooltip="Unread messages only"></mat-icon>
+                <mat-icon  svgIcon="email-mark-as-unread" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
                 Unread only
               </mat-checkbox>
             </mat-list-item>

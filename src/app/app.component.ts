@@ -89,7 +89,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   viewmode = 'messages';
   keepMessagePaneOpen = true;
   conversationGroupingCheckbox = false;
+  conversationGroupingToolTip = 'Threaded conversation view';
   unreadMessagesOnlyCheckbox = false;
+  unreadOnlyToolTip = 'Unread messages only';
 
   indexDocCount = 0;
 
@@ -760,6 +762,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.searchService.deleteLocalIndex().subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
 
+      this.updateTooltips();
       this.snackBar.open('The index has been deleted from your device', 'Dismiss');
     });
   }
@@ -1107,6 +1110,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
+  updateTooltips() {
+    this.unreadOnlyToolTip = this.viewmode === 'conversations'
+      ? 'Leave threaded mode to view unread only'
+      : 'Unread messages only';
+    this.conversationGroupingToolTip = !this.showingSearchResults
+      ? 'Synchronise the index to see threaded view'
+      :  this.unreadMessagesOnlyCheckbox
+        ? 'Leave unread only to see threaded view'
+        : 'Threaded conversation view';
+  }
+
   // FIXME: Why do we run this when searchText is empty?
   // FIXME: move updateSearch (for index searches) into
   // searchmessagedisplay filterBy ?
@@ -1118,6 +1132,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
     const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
     localStorage.setItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+    this.updateTooltips();
 
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
@@ -1274,6 +1289,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             } else {
               this.usewebsocketsearch = true;
             }
+            this.updateTooltips();
           });
         }
       })
