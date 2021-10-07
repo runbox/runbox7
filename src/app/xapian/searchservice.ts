@@ -203,6 +203,9 @@ export class SearchService {
           this.initSubject.complete();
         }
       });
+
+    this.searchResultsSubject.subscribe(() =>
+      this.messagelistservice.refreshFolderCounts());
   }
 
   public init() {
