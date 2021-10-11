@@ -52,14 +52,14 @@
             </span>
             <ng-template #defaultName>
                 <span [ngSwitch]="contact.kind">
-                    <span *ngSwitchCase="kind.GROUP"> New group   </span>
-                    <span *ngSwitchDefault>           New contact </span>
+                    <span *ngSwitchCase="kind.GROUP"> New Group   </span>
+                    <span *ngSwitchDefault>           New Contact </span>
                 </span>
             </ng-template>
         </span>
     </h2>
     <form [formGroup]="contactForm">
-        <h3> Basic information </h3>
+        <h3> Basic Information </h3>
         <div *ngIf="contact.kind !== kind.INVIDIDUAL">
             <mat-form-field>
                 <input matInput formControlName="full_name" placeholder="Name">
@@ -166,30 +166,26 @@
         </div>
 
         <app-contact-details-fa-viewer
-            title="Email addresses"
+            title="Email Addresses"
             [hidden]="false"
 
             [inputFG]="contactForm"
             faName="emails"
             (newElementClicked)="newEmail()"
-            layout="simple"
+            (startVideoCall)="newVideoCall($event)"
 
             valuePlaceholder="E-mail address"
             deleteDescription="Delete this address"
             addNewDescription="Add a new e-mail address"
-
-            actionIcon="email"
-            actionDescription="Send an email to this address"
         >
         </app-contact-details-fa-viewer>
 
         <app-contact-details-fa-viewer
-            title="Phone numbers"
+            title="Phone Numbers"
 
             [inputFG]="contactForm"
             faName="phones"
             (newElementClicked)="newPhone()"
-            layout="simple"
 
             valuePlaceholder="Phone number"
             deleteDescription="Delete this phone number"
@@ -203,14 +199,10 @@
             [inputFG]="contactForm"
             faName="urls"
             (newElementClicked)="newUrl()"
-            layout="simple"
 
             valuePlaceholder="Website address"
             deleteDescription="Delete this address"
             addNewDescription="Add a new address"
-
-            actionIcon="link"
-            actionDescription="Visit this website"
         >
         </app-contact-details-fa-viewer>
 
@@ -220,7 +212,6 @@
             [inputFG]="contactForm"
             faName="addresses"
             (newElementClicked)="newAdr()"
-            layout="complex"
 
             deleteDescription="Delete this address"
             addNewDescription="Add a new address"
@@ -233,7 +224,6 @@
             [inputFG]="contactForm"
             faName="related"
             (newElementClicked)="newRelative()"
-            layout="simple"
 
             valuePlaceholder="Name"
             deleteDescription="Delete this relative"

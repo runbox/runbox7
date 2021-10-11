@@ -192,6 +192,7 @@ export class FolderListComponent implements OnChanges {
         };
 
         treedata.forEach(node => sortSubfolders(node));
+        treedata.sort((a, b) => a.data.priority - b.data.priority);
 
         this.dataSource.data = treedata;
     }

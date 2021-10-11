@@ -259,10 +259,7 @@ export class ContactsService implements OnDestroy {
                     this.informationLog.next('Contact modified successfuly');
                     console.log('Contact modified');
                     this.reload().then(() => resolve(contact.id));
-                }, e => {
-                    this.apiErrorHandler(e);
-                    reject();
-                });
+                }, e => reject(e));
             } else {
                 if (!contact.id) {
                     contact.id = uuidv4().toUpperCase();
@@ -276,12 +273,11 @@ export class ContactsService implements OnDestroy {
                     } else {
                         resolve(contact.id);
                     }
-                }, e => {
-                    this.apiErrorHandler(e);
-                    reject();
-                });
+                }, e => reject(e));
             }
         });
+
+        promise.catch(e => this.apiErrorHandler(e));
 
         promise.finally(() => this.activities.end(Activity.SavingContact));
 

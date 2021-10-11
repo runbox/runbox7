@@ -1,5 +1,5 @@
 section {
-    padding: 50px;
+    padding: 30px 50px;
 }
 mat-icon.category {
     margin: 0;
@@ -12,7 +12,7 @@ mat-card a {
     text-decoration: none;
 }
 h3 {
-    margin: 10px 10px 20px 0;
+    margin-bottom: 10px;
     font-size: 18px;
     line-height: 20px;
 }
@@ -32,9 +32,6 @@ mat-card.settingsItem {
     height: 200px;
     border: 2px solid #f4f4f4;
     padding: 20px;
-}
-mat-card.settingsItem:hover {
-    border: 2px solid lightblue;
 }
 mat-card.settingsItem mat-icon {
     margin-right: 5px;

@@ -41,7 +41,7 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
@@ -89,7 +89,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   viewmode = 'messages';
   keepMessagePaneOpen = true;
   conversationGroupingCheckbox = false;
+  conversationGroupingToolTip = 'Threaded conversation view';
   unreadMessagesOnlyCheckbox = false;
+  unreadOnlyToolTip = 'Unread messages only';
 
   indexDocCount = 0;
 
@@ -278,6 +280,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.updateTime();
   }
 
+  public get canvasTableBtmOffset() {
+    return this.singlemailviewer && this.singlemailviewer.adjustableHeight
+      ? this.singlemailviewer.resizerHeight
+      : 0;
+  }
+
   ngDoCheck(): void {
     if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
@@ -306,8 +314,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
 
-    this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
-      map(folders => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
+    // Only update if actual changes found (else folderlist redraw takes 3sec or more)
+    this.displayedFolders =
+      this.messagelistservice.folderListSubject
+        .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+          return prev.length === curr.length
+            && prev.every((f, index) =>
+              f.folderId === curr[index].folderId
+              && f.totalMessages === curr[index].totalMessages
+              && f.newMessages === curr[index].newMessages);
+        }))
+        .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
 
     this.canvastable.scrollLimitHit.subscribe((limit) =>
@@ -361,6 +378,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (fragment !== this.fragment) {
           this.fragment = fragment;
           this.selectMessageFromFragment(fragment);
+          this.canvastable.jumpToOpenMessage();
         }
       }
     );
@@ -401,7 +419,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             idx => idx < this.canvastable.rows.rowCount()
         ).map(idx => this.canvastable.rows.getRowMessageId(idx));
         this.rmmapi.downloadMessages(messageIds).then(
-            () => this.canvastable.hasChanges = true,
+          (newMessages) => {
+            if (newMessages.length > 0) {
+              this.canvastable.hasChanges = true;
+            }
+            for (const msg of newMessages) {
+              this.searchService.updateMessageText(msg.id);
+            }
+          }
         );
     });
 
@@ -608,7 +633,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
       },
       updateRemote: (msgIds: number[]) => {
-        const res = this.rmmapi.trainSpam({is_spam: params.is_spam, messages: messageIds});
+        const userFolders = this.messagelistservice.folderListSubject.value;
+        const currentFolderId = userFolders.find(fld => fld.folderName === this.messagelistservice.currentFolder).folderId;
+        const res = this.rmmapi.trainSpam({is_spam: params.is_spam, from_folder_id: currentFolderId, messages: messageIds});
         res.subscribe(data => {
           if ( data.status === 'error' ) {
             snackBarRef.dismiss();
@@ -710,14 +737,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         this.searchService.deleteMessages(msgIds);
-        this.updateSearch(true);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
         } else {
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName);
         }
         this.clearSelection();
-        if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
+        if (this.singlemailviewer && this.singlemailviewer.messageId && msgIds.includes(this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
       },
@@ -741,6 +767,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.searchService.deleteLocalIndex().subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
 
+      this.updateTooltips();
       this.snackBar.open('The index has been deleted from your device', 'Dismiss');
     });
   }
@@ -748,25 +775,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
       if (this.canvastable.rows instanceof SearchMessageDisplay) {
-        this.canvastable.rows.rows = args[1];
+        this.canvastable.updateRows(args[1]);
       } else {
         this.canvastable.rows = new SearchMessageDisplay(...args);
       }
     }
     if (displayType === 'messagelist') {
       if (this.canvastable.rows instanceof MessageList) {
-        this.canvastable.rows.rows = args[0];
+        this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new MessageList(...args);
       }
     }
     if (displayType === 'websocketlist') {
       if (this.canvastable.rows instanceof WebSocketSearchMailList) {
-        this.canvastable.rows.rows = args[0];
+        this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new WebSocketSearchMailList(...args);
       }
     }
+    this.filterMessageDisplay();
 
     // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
     // in canvastable, and anyway get CV to just read the columns itself
@@ -781,8 +809,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.selectMessageFromFragment(this.fragment);
   }
 
+  public filterMessageDisplay() {
+    const options = new Map();
+    options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
+    options.set('searchText', this.searchText);
+    this.canvastable.rows.filterBy(options);
+    this.canvastable.hasChanges = true;
+  }
+
   public clearSelection() {
     this.canvastable.rows.clearSelection();
+    this.canvastable.hasChanges = true;
     this.showSelectOperations = false;
     this.showSelectMarkOpMenu = false;
   }
@@ -921,9 +958,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         let folderPath;
-        this.messagelistservice.folderListSubject.subscribe(folders => {
-          folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
-        });
+        const folders = this.messagelistservice.folderListSubject.value;
+        folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
+
         // FIXME: Make a "not indexed folder list" somewhere!?
         // moveMessagesToFolder cant see these cos not in index
         if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
@@ -932,7 +969,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
       },
-      updateRemote: (msgIds: number[]) => this.rmmapi.moveToFolder(messageIds, folderId)
+      updateRemote: (msgIds: number[]) => {
+        const userFolders = this.messagelistservice.folderListSubject.value;
+        const currentFolderId = userFolders.find(fld => fld.folderName === this.messagelistservice.currentFolder).folderId;
+        return this.rmmapi.moveToFolder(messageIds, folderId, currentFolderId);
+      }
     });
   }
 
@@ -949,9 +990,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           messageIds: messageIds,
           updateLocal: (msgIds: number[]) => {
             let folderPath;
-            this.messagelistservice.folderListSubject.subscribe(folders => {
-              folderPath = folders.find(fld => fld.folderId === folder).folderPath;
-            });
+            const folders = this.messagelistservice.folderListSubject.value;
+            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
             console.log('Moving to folder', folderPath, messageIds);
             // FIXME: Make a "not indexed folder list" somewhere!?
             // moveMessagesToFolder cant see these cos not in index
@@ -963,8 +1003,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             this.clearSelection();
             this.canvastable.rows.clearOpenedRow();
           },
-          updateRemote: (msgIds: number[]) =>
-            this.messagelistservice.rmmapi.moveToFolder(msgIds, folder)
+          updateRemote: (msgIds: number[]) => {
+            const userFolders = this.messagelistservice.folderListSubject.value;
+            const currentFolderId = userFolders.find(fld => fld.folderName === this.messagelistservice.currentFolder).folderId;
+            return this.messagelistservice.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
+          }
         });
       }
     });
@@ -1072,13 +1115,29 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
+  updateTooltips() {
+    this.unreadOnlyToolTip = this.viewmode === 'conversations'
+      ? 'Leave threaded mode to view unread only'
+      : 'Unread messages only';
+    this.conversationGroupingToolTip = !this.showingSearchResults
+      ? 'Synchronise the index to see threaded view'
+      :  this.unreadMessagesOnlyCheckbox
+        ? 'Leave unread only to see threaded view'
+        : 'Threaded conversation view';
+  }
+
   // FIXME: Why do we run this when searchText is empty?
+  // FIXME: move updateSearch (for index searches) into
+  // searchmessagedisplay filterBy ?
   updateSearch(always?: boolean, noscroll?: boolean) {
     if (!this.dataReady || this.showingWebSocketSearchResults) {
+      // May have changed unread checkbox so reset / filter message display
+      this.filterMessageDisplay();
       return;
     }
     const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
     localStorage.setItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+    this.updateTooltips();
 
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
@@ -1235,6 +1294,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             } else {
               this.usewebsocketsearch = true;
             }
+            this.updateTooltips();
           });
         }
       })

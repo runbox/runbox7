@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { DraftDeskService, DraftFormModel } from '../compose/draftdesk.service';
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MoveMessageDialogComponent } from '../actions/movemessage.action';
@@ -46,7 +47,12 @@ export class RMM7MessageActions implements MessageActions {
                          ) {
         args['updateLocal'](args['messageIds']);
         args['updateRemote'](args['messageIds']).subscribe((data) => {
-            this.searchService.updateIndexWithNewChanges();
+            const updateFrom = data['result']['changed_time'] || 0;
+            this.searchService.updateIndexWithNewChanges({
+                start_message: 'Refreshing index after user action',
+                list_messages_args: [0, 0, updateFrom * 1000, RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE, true],
+                set_next_update_time: false,
+            });
             if (args['afterwards']) {
                 args['afterwards'](data);
             }
@@ -62,16 +68,20 @@ export class RMM7MessageActions implements MessageActions {
                     messageIds: [this.mailViewerComponent.messageId],
                     updateLocal: (msgIds: number[]) => {
                         let folderPath;
-                        this.messageListService.folderListSubject.subscribe(folders => {
-                            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
-                        });
+                        this.messageListService.folderListSubject.pipe(take(1))
+                            .subscribe((folders) => {
+                                folderPath = folders.find(fld => fld.folderId === folder).folderPath;
+                            });
                         console.log('Moving to folder', folderPath, this.mailViewerComponent.messageId);
                         this.searchService.moveMessagesToFolder(msgIds, folderPath);
                         this.messageListService.moveMessages(msgIds, folderPath);
                         this.mailViewerComponent.close();
                     },
-                    updateRemote: (msgIds: number[]) =>
-                        this.messageListService.rmmapi.moveToFolder(msgIds, folder)
+                    updateRemote: (msgIds: number[]) => {
+                        const userFolders = this.messageListService.folderListSubject.value;
+                        const currentFolderId = userFolders.find(fld => fld.folderName === this.messageListService.currentFolder).folderId;
+                        return this.messageListService.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
+                    }
                 });
             }
         });
@@ -102,11 +112,11 @@ export class RMM7MessageActions implements MessageActions {
     public forward(useHTML: boolean) {
         ProgressDialog.open(this.dialog);
         this.draftDeskService.newDraft(
-            DraftFormModel.forward(this.mailViewerComponent.mailObj, this.draftDeskService.froms, useHTML),
-            () => {
-                this.mailViewerComponent.close('goToDraftDesk');
-                ProgressDialog.close();
-            });
+            DraftFormModel.forward(this.mailViewerComponent.mailObj, this.draftDeskService.froms, useHTML)
+        ).then(() => {
+            this.mailViewerComponent.close('goToDraftDesk');
+            ProgressDialog.close();
+        });
     }
 
     public markSeen(seen_flag_value = 1) {

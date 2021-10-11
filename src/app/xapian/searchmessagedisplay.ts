@@ -43,6 +43,9 @@ export class SearchMessageDisplay extends MessageDisplay {
     return this.searchService.getMessageIdFromDocId(this.rows[index][0]);
   }
 
+  filterBy(options: Map<String, any>) {
+  }
+
   // columns
   // app is a Component (currently)
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {

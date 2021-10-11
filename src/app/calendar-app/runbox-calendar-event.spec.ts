@@ -22,6 +22,10 @@ import * as moment from 'moment';
 import * as ICAL from 'ical.js';
 
 describe('RunboxCalendarEvent', () => {
+    beforeEach(() => {
+       ICAL.TimezoneService.reset();
+    });
+
     it('should be possible to create a new event', () => {
         const newEvent = RunboxCalendarEvent.newEmpty();
         newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
@@ -40,7 +44,8 @@ describe('RunboxCalendarEvent', () => {
                     [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
                     [ 'summary', {}, 'text',  'One-time event' ],
                 ] ]
-          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date())
+          , 'Europe/London' // user's timezone for display
         );
         sut.recurringFrequency = 'WEEKLY';
         expect(sut.recurringFrequency).toBe('WEEKLY', 'recurrence seems to be set');
@@ -65,6 +70,7 @@ describe('RunboxCalendarEvent', () => {
                     [ 'summary', {}, 'text',  'One-time event' ],
                 ] ]
           ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+          'Europe/London' // user's timezone for display
         );
         sut.recurringFrequency = 'WEEKLY';
         sut.recurInterval = 2;
@@ -83,7 +89,8 @@ describe('RunboxCalendarEvent', () => {
                     [ 'dtend',   {}, 'date',  moment().toISOString().split('T')[0] ],
                     [ 'summary', {}, 'text',  'One-time event' ],
                 ] ]
-          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+          ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date())
+          , 'Europe/London' // user's timezone for display
         );
         sut.recurringFrequency = 'MONTHLY';
         sut.recurInterval = 1; // the default
@@ -106,6 +113,7 @@ describe('RunboxCalendarEvent', () => {
                     [ 'summary', {}, 'text',  'One-time event' ],
                 ] ]
           ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+          'Europe/London' // user's timezone for display
         );
         // Every 2nd Monday of every month
         sut.recurringFrequency = 'MONTHLY';
@@ -128,6 +136,7 @@ describe('RunboxCalendarEvent', () => {
                     [ 'summary', {}, 'text',  'One-time event' ],
                 ] ]
           ]])), ICAL.Time.fromJSDate(new Date()), ICAL.Time.fromJSDate(new Date()),
+          'Europe/London' // user's timezone for display
         );
         // Every 2nd of February of every year
         sut.recurringFrequency = 'YEARLY';
@@ -152,6 +161,7 @@ describe('RunboxCalendarEvent', () => {
                     [ 'rrule',   {}, 'recur', { 'freq': 'WEEKLY' } ],
                 ]
             ])), ICAL.Time.fromDateString('2021-02-01'), ICAL.Time.fromDateString('2021-02-01'),
+          'Europe/London' // user's timezone for display
         );
 
         const future = moment('2021-01-25').add(1, 'week').add(3, 'day');
@@ -184,6 +194,7 @@ describe('RunboxCalendarEvent', () => {
                   [ 'rrule',   {}, 'recur', { 'freq': 'WEEKLY' } ],
                 ]
             ])), ICAL.Time.fromDateTimeString('2021-02-01T09:00:00'), ICAL.Time.fromDateTimeString('2021-02-01T10:00:00'),
+          'Europe/London' // user's timezone for display
         );
         // Move this one an hour later
         const future = moment('2021-02-01T10:00:00');
@@ -206,33 +217,77 @@ describe('RunboxCalendarEvent', () => {
 
     it('should be possible to add a special case to a recurring event (with timezone)', () => {
          // mostly taken straight out of the jCal spec: https://tools.ietf.org/html/rfc7265#page-30
-        const jcal = ICAL.parse(
+      const jcal = ICAL.parse(
 `BEGIN:VCALENDAR
+CALSCALE:GREGORIAN
+PRODID:-//Ximian//NONSGML Evolution Calendar//EN
 VERSION:2.0
 BEGIN:VTIMEZONE
-TZID:Europe/London
+TZID:/freeassociation.sourceforge.net/Europe/Berlin
+X-LIC-LOCATION:Europe/Berlin
 BEGIN:DAYLIGHT
-TZOFFSETFROM:+0000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
-DTSTART:19810329T010000
-TZNAME:BST
-TZOFFSETTO:+0100
+TZNAME:CEST
+DTSTART:19800404T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;UNTIL=19800406T010000Z;BYDAY=1SU;BYMONTH=4
 END:DAYLIGHT
 BEGIN:STANDARD
+TZNAME:CET
+DTSTART:19800926T030000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;UNTIL=19950924T010000Z;BYDAY=-1SU;BYMONTH=9
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+DTSTART:19810328T020000
 TZOFFSETFROM:+0100
-RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
-DTSTART:19961027T020000
-TZNAME:GMT
-TZOFFSETTO:+0000
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+DTSTART:19961031T030000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VTIMEZONE
+TZID:/citadel.org/20210210_1/America/New_York
+LAST-MODIFIED:20210210T123706Z
+X-LIC-LOCATION:America/New_York
+X-PROLEPTIC-TZNAME:LMT
+BEGIN:DAYLIGHT
+TZNAME:EDT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+DTSTART:20070311T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:EST
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+DTSTART:20071104T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-DTEND;TZID=Europe/London:20201101T100000
-UID:unittestcase3
-DTSTAMP:20201012T113203Z
-SUMMARY:Daily recurring
-DTSTART;TZID=Europe/London:20201101T090000
+UID:d26dc8b107af7c7ca9fb4c239085c9e19c4677fc
+DTSTAMP:20201116T115037Z
+DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:
+ 20210514T090000
+DTEND;TZID=/freeassociation.sourceforge.net/Europe/Berlin:
+ 20210514T100000
+SEQUENCE:2
+SUMMARY:Test: Berlin at 9am
 RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5
+TRANSP:OPAQUE
+CLASS:PUBLIC
+CREATED:20210511T111559Z
+LAST-MODIFIED:20210511T111559Z
 END:VEVENT
 END:VCALENDAR`
         );
@@ -241,7 +296,7 @@ END:VCALENDAR`
          if (ical.getFirstSubcomponent('vtimezone')) {
              for (const tzComponent of ical.getAllSubcomponents('vtimezone')) {
                  const tz = new ICAL.Timezone({
-                     tzid:      tzComponent.getFirstPropertyValue('tzid'),
+                   tzid: tzComponent.getFirstPropertyValue('tzid'),
                      component: tzComponent,
                  });
 
@@ -258,14 +313,24 @@ END:VCALENDAR`
          const sut = new RunboxCalendarEvent(
              'testcal/unittestcase3',
              new ICAL.Event(vevent),
-             ICAL.Time.fromDateTimeString('2006-01-03T12:00:00', dtstartProp),
+             ICAL.Time.fromDateTimeString('2021-05-15T09:00:00', dtstartProp),
              undefined, // defined by duration instead
+             // calendar.service replaces "America/New_York" with the unique one
+             '/citadel.org/20210210_1/America/New_York' // user's timezone for display
          );
-         // Move this one an hour later
-         const future = moment('2006-01-03T13:00:00');
+      console.log('sut tz :' + sut.timezone);
+      // verify timezone event has sane start/end dates
+      // This should be in the user's tz (Europe/London in this test)
+      console.log('event start :' + sut.start.toISOString());
+      // 3am New York
+      expect(sut.start.toISOString()).toBe('2021-05-15T03:00:00.000Z');
+      // Move this one an hour later
+      // TZ?
+      const future = moment('2021-05-15T04:00:00');
+      const future_end = moment('2021-05-15T05:00:00');
          sut.updateEvent(
              future,
-             undefined,
+             future_end,
              sut.calendar,
              RecurSaveType.THIS_ONLY,
              'Moved daily event one hour', undefined, undefined,
@@ -275,8 +340,9 @@ END:VCALENDAR`
              undefined, undefined, undefined, // and optional params..
          );
 
-         expect(sut.toIcal()).toContain('SUMMARY:Moved daily event one hour');
-         expect(sut.toIcal()).toContain('RECURRENCE-ID;TZID=Europe/London:20060103T120000');
-         expect(sut.toIcal()).toContain('DTSTART;TZID=Europe/London:20060103T130000');
+      expect(sut.toIcal()).toContain('SUMMARY:Moved daily event one hour');
+      // Length of line causes a newline, see RFC sec 3.1
+      expect(sut.toIcal()).toContain('RECURRENCE-ID;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T\r\n 090000');
+      expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000');
      });
 });

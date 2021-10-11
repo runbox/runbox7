@@ -62,6 +62,14 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  // filter visible rows by whatever options the frontend has
+  filterBy(options: Map<String, any>) {
+    this.rows = this._rows;
+    if (options.has('unreadOnly') && options.get('unreadOnly')) {
+      this.rows = this._rows.filter((msg) => !msg.seenFlag);
+    }
+  }
+
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
     const columns: CanvasTableColumn[] = [
       {
@@ -89,7 +97,12 @@ export class MessageList extends MessageDisplay {
         name: 'Subject',
         sortColumn: null,
         getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
-        draggable: true
+        draggable: true,
+        getContentPreviewText: (rowIndex): string => {
+          const ret = this.getRow(rowIndex).plaintext;
+          return ret ? ret.trim() : '';
+        },
+        // tooltipText: 'Tip: Drag subject to a folder to move message(s)'
       },
       {
         sortColumn: null,

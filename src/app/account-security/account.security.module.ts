@@ -42,17 +42,27 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    AccountSecurityComponent,
     ModalPasswordComponent,
     ModalUnlockcodeComponent,
 } from './account.security.component';
 import { RunboxComponentModule } from '../runbox-components/runbox-component.module';
+import { TwoFactorAuthenticationComponent } from './two-factor-authentication.component';
+import { ManageServicesComponent } from './manage-services.component';
+import { AppPasswordsComponent } from './app-passwords.component';
+import { LastLoginsComponent } from './last-logins.component';
+import { SessionsComponent } from './sessions.component';
+import { AccountPasswordComponent } from './account-password.component';
 
 @NgModule({
     declarations: [
       ModalUnlockcodeComponent,
-      AccountSecurityComponent,
       ModalPasswordComponent,
+      AccountPasswordComponent,
+      TwoFactorAuthenticationComponent,
+      ManageServicesComponent,
+      AppPasswordsComponent,
+      LastLoginsComponent,
+      SessionsComponent,
     ],
     imports: [
     CommonModule,
@@ -88,5 +98,3 @@ import { RunboxComponentModule } from '../runbox-components/runbox-component.mod
     bootstrap: []
 })
 export class AccountSecurityModule { }
-
-

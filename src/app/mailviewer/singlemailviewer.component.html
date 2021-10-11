@@ -187,33 +187,35 @@
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div style="position: absolute; right: 3px;">
+      <div id="headerButtons" style="position: absolute; right: 3px;">
         <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
-        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-vertical"></mat-icon></button>
+        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-horizontal"></mat-icon></button>
       </div>
       <ng-container *ngIf="!showAllHeaders">
-        <div class="messageHeaderRow">
-          <div class="messageHeaderFrom">
-            From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+        <div class="messageHeaders">
+          <div class="messageHeaderRow">
+            <div class="messageHeaderFrom">
+              From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div class="messageHeaderRow">
-          <div class="messageHeaderDate">Time:</div>
-          <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
-        </div>
-        <div *ngIf="mailObj.to" class="messageHeaderRow">
-          <div class="messageHeaderTo">
-            To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+          <div class="messageHeaderRow">
+            <div class="messageHeaderDate">Time:</div>
+            <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
           </div>
-        </div>
-        <div *ngIf="mailObj.cc" class="messageHeaderRow">
-          <div class="messageHeaderCC">
-            CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.to" class="messageHeaderRow">
+            <div class="messageHeaderTo">
+              To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div *ngIf="mailObj.bcc"class="messageHeaderRow">
-          <div class="messageHeaderBCC">
-            BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.cc" class="messageHeaderRow">
+            <div class="messageHeaderCC">
+              CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+            </div>
+          </div>
+          <div *ngIf="mailObj.bcc"class="messageHeaderRow">
+            <div class="messageHeaderBCC">
+              BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -253,7 +255,7 @@
     </span>
 
     <!---->
-    <div *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
+    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
       style="display: flex; font-size: 12px;">
       <span style="flex-grow: 1"></span>
       <span>
@@ -272,14 +274,14 @@
     </div>
 
     <!-- We have an HTML message -->
-    <div *ngIf="showHTML && !htmlObjectURL">
+    <div *ngIf="showHTML && !SUPPORTS_IFRAME_SANDBOX">
       <div class="notificationContainer">
 	<span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
       </div>
       <div [innerHTML]="mailContentHTML"></div>
     </div>
 
-    <div *ngIf="showHTML && htmlObjectURL" class="notificationContainer">
+    <div *ngIf="showHTML && SUPPORTS_IFRAME_SANDBOX" class="notificationContainer">
       <span class="inMessageNotification">This HTML message has been sanitized for your security.</span>
     </div>
 
@@ -297,41 +299,44 @@
     <div *ngIf="!showHTML && mailObj.text !== 'undefined'" id="messageContent" style="white-space: pre-wrap" [innerHTML]='mailObj.text'>
     </div>
 
-    <div *ngIf="mailContentHTML && showHTML && htmlObjectURL" class="iframe-container">
+    <div *ngIf="mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX" class="iframe-container">
       <iframe
 	        #htmliframe
-          [src]="htmlObjectURL"
+          [srcdoc]="mailContentHTML"
           (load)="adjustIframeHTMLHeight()"
           sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          scrolling="no"
           id="iframe"
 	    >
       </iframe>
     </div>
 
-    <mat-card *ngIf="mailObj.attachments && mailObj.attachments.length>0">
+    <mat-card *ngIf="showAttachments">
       <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
       <mat-card-content>
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)">
-              <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
-                <img  matListAvatar
-                  [src]="att.thumbnailURL" />
+              <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
+                <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
+                  <img  matListAvatar
+                    [src]="att.thumbnailURL" />
+                </ng-container>
+                <ng-template #attachment_icon>
+                  <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
+                </ng-template>
+                <mat-grid-tile-footer style="display: flex; text-align: center">
+                    <span>{{att.filename}}</span>
+                    <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
+                      matTooltip="Decrypt message"
+                      (click)="decryptAttachment(i);$event.stopPropagation()"
+                    ><mat-icon svgIcon="lock-open"></mat-icon></button>
+                    <button mat-icon-button
+                      (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
+                    ><mat-icon svgIcon="cloud-download"></mat-icon></button>
+                </mat-grid-tile-footer>
               </ng-container>
-              <ng-template #attachment_icon>
-                <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
-              </ng-template>
-              <mat-grid-tile-footer style="display: flex; text-align: center">
-                  <span>{{att.filename}}</span>
-                  <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
-                    matTooltip="Decrypt message"
-                    (click)="decryptAttachment(i);$event.stopPropagation()"
-                  ><mat-icon svgIcon="lock-open"></mat-icon></button>
-                  <button mat-icon-button
-                    (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
-                  ><mat-icon svgIcon="cloud-download"></mat-icon></button>
-              </mat-grid-tile-footer>
           </mat-grid-tile>
         </mat-grid-list>
 

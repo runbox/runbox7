@@ -49,6 +49,7 @@ export class DraftFormModel {
     reply_to: string = null;
     subject: string = null;
     msg_body = '';
+    html: string;
     preview: string;
     in_reply_to: string;
     reply_to_id: string = null;
@@ -130,11 +131,11 @@ export class DraftFormModel {
         } else if (!useHTML && !mailObj.rawtext) {
             ret.msg_body = '';
         } else {
-            ret.msg_body =
+            ret.html =
                 `<br /><div style="padding-left: 10px; border-left: black solid 1px">
                     <hr style="width: 100%" />
                     ${mailObj.origMailHeaderHTML}<br />
-                    ${mailObj.html}
+                    ${mailObj.sanitized_html}
                 </div>`;
             ret.useHTML = true;
         }
@@ -158,12 +159,12 @@ export class DraftFormModel {
             ret.msg_body = '\n\n----------------------------------------------\nForwarded message:\n' +
                 mailObj.origMailHeaderText + '\n\n' + mailObj.rawtext;
         } else {
-            ret.msg_body =
+            ret.html =
                 `<br />
                 <hr style="width: 100%" />
                 Forwarded message:<br />
                 ${mailObj.origMailHeaderHTML}<br />
-                ${mailObj.html}`;
+                ${mailObj.sanitized_html}`;
             ret.useHTML = true;
         }
         ret.attachments = mailObj.attachments.map((attachment, ndx) =>
@@ -261,8 +262,8 @@ export class DraftDeskService {
         const draftObj = DraftFormModel.create(
             -1,
             this.froms[0],
-            '"Runbox Support" <support@runbox.com>',
-            'Runbox 7 bug report'
+            '"Runbox 7 Bug Reports" <bugs@runbox.com>',
+            'Runbox 7 Bug Report'
         );
         const template = await this.http.get('assets/templates/bug_report.txt',
                                              {responseType: 'text'}).toPromise();
@@ -288,46 +289,61 @@ export class DraftDeskService {
         body = body.replace('%%ONMOBILE%%', on_mobile ? 'Mobile Browser' : '');
 
         draftObj.msg_body = body;
-        this.draftModels.splice(0, 0, draftObj );
+
+        await this.newDraft(draftObj);
     }
 
-    public newDraft(model: DraftFormModel, callback?: Function) {
-        const afterPrepare = () => {
-            this.draftModels.splice(0, 0, model);
-            if (callback) {
-                setTimeout(() => callback(), 0);
-            }
-        };
-        if (model.attachments && model.attachments.length > 0 ) {
-            from(model.attachments
-                .map((att, ndx) => {
-                    if (att instanceof ForwardedAttachment) {
-                        return this.rmmapi.copyAttachmentToDraft(att.messageId, att.attachmentIndex)
-                            .pipe(
-                                map(ret => {
-                                    ret.file = ret.filename;
+    public async newVideoCallInvite(to: string, url: URL) {
+        const template = await this.http.get('assets/templates/video_call.txt',
+                                             {responseType: 'text'}).toPromise();
+        const draftObj = DraftFormModel.create(
+            -1,
+            this.froms[0],
+            to,
+            "Let's have a video call"
+        );
+        draftObj.msg_body = template.replace('%%URL%%', url.toString());
 
-                                    model.attachments[ndx] = ret;
-                                    if (model.useHTML && att.contentId) {
-                                        const draftUrl = `/ajax/download_draft_attachment?filename=${ret.filename}`;
+        await this.newDraft(draftObj);
+    }
 
-                                        model.msg_body = model.msg_body.replace(`unsafe:cid:${att.contentId}`, draftUrl);
-                                    }
-                                    return true;
-                                })
-                            );
-                    } else {
-                        return of(true);
-                    }
-                })
-            ).pipe(
-                mergeMap(m => m.pipe(take(1)), 1),
-                bufferCount(model.attachments.length)
-            ).subscribe(() => {
+    public newDraft(model: DraftFormModel): Promise<void> {
+        return new Promise((resolve, _) => {
+            const afterPrepare = () => {
+                this.draftModels.splice(0, 0, model);
+                setTimeout(() => resolve(), 0);
+            };
+            if (model.attachments && model.attachments.length > 0 ) {
+                from(model.attachments
+                    .map((att, ndx) => {
+                        if (att instanceof ForwardedAttachment) {
+                            return this.rmmapi.copyAttachmentToDraft(att.messageId, att.attachmentIndex)
+                                .pipe(
+                                    map(ret => {
+                                        ret.file = ret.filename;
+
+                                        model.attachments[ndx] = ret;
+                                        if (model.useHTML && att.contentId) {
+                                            const draftUrl = `/ajax/download_draft_attachment?filename=${ret.filename}`;
+
+                                            model.msg_body = model.msg_body.replace(`unsafe:cid:${att.contentId}`, draftUrl);
+                                        }
+                                        return true;
+                                    })
+                                );
+                        } else {
+                            return of(true);
+                        }
+                    })
+                ).pipe(
+                    mergeMap(m => m.pipe(take(1)), 1),
+                    bufferCount(model.attachments.length)
+                ).subscribe(() => {
+                    afterPrepare();
+                });
+            } else {
                 afterPrepare();
-            });
-        } else {
-            afterPrepare();
-        }
+            }
+        });
     }
 }

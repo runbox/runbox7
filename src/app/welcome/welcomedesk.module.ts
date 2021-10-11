@@ -19,9 +19,10 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WelcomeDeskComponent } from './welcomedesk.component';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { WelcomeDeskComponent } from './welcomedesk.component';
 
 @NgModule({
   declarations: [WelcomeDeskComponent],
@@ -29,6 +30,7 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     RouterModule,
     MatIconModule,
+    MatCardModule,
   ]
 })
 export class WelcomeDeskModule { }

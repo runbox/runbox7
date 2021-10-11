@@ -1,0 +1,51 @@
+@media(min-width: 1024px) {
+    
+    .limitedTimeOffer,
+    .productCardSpecial {
+	margin: 2% 25%;
+    }
+}
+
+@media(max-width: 1023px) {
+    
+    .limitedTimeOffer,
+    .productCardSpecial {
+	margin: 2% 10%;
+    }
+}
+
+@media(max-width: 813px) {
+    
+    .limitedTimeOffer,
+    .productCardSpecial {
+	margin: 2% 0;
+    }
+}
+
+.limitedTimeOffer h2 {
+    white-space: nowrap;
+}
+
+mat-icon.limitedTimeOffer {
+    margin: 0;
+    width: auto;
+    border: none;
+    color: primary;
+    font-size: 40px;
+    line-height: 12px;
+}
+
+#productGrid, .productGrid {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.productCard {
+    margin: 10px;
+    flex: 1 1 360px;
+}
+
+.productCardSpecial {
+    text-align: center;
+}

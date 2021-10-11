@@ -149,6 +149,7 @@ export class MessageTextContents {
 
 export class MessageContents {
     text: MessageTextContents;
+    version = 1;
 }
 
 export class MessageFlagChange {
@@ -238,11 +239,14 @@ export class RunboxWebmailAPI {
             } else {
                 const messagePromise = new Promise<MessageContents>((resolve, reject) => {
                     this.http.get('/rest/v1/email/' + messageId)
-                    .pipe(
-                        map((r: any) => r.result),
-                    ).subscribe((result) => {
-                        this.messageCache.set(messageId, result);
-                        resolve(<MessageContents>result);
+                        .subscribe((response) => {
+                        if (response['status'] === 'success') {
+                            this.messageCache.set(messageId, response['result']);
+                            resolve(Object.assign( new MessageContents(), response['result']));
+                        } else {
+                            delete this.messageContentsRequestCache[messageId];
+                            reject(response);
+                        }
                     }, err => {
                         delete this.messageContentsRequestCache[messageId];
                         reject(err);
@@ -487,8 +491,8 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public moveToFolder(messageIds: number[], folderId: number): Observable<any> {
-        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: folderId });
+    public moveToFolder(messageIds: number[], toFolderId: number, fromFolderId: number): Observable<any> {
+        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: toFolderId, from_folder_id: fromFolderId });
     }
 
     public trainSpam(params): Observable<any> {

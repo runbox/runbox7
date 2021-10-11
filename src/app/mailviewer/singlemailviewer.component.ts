@@ -19,7 +19,7 @@
 
 import { catchError, map } from 'rxjs/operators';
 import {
-  SecurityContext, Component, Input, OnInit, Output, EventEmitter, ViewChild,
+  Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
   QueryList,
   ElementRef,
@@ -36,7 +36,6 @@ import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MobileQueryService } from '../mobile-query.service';
 
-import { SafeUrl } from '@angular/platform-browser';
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { MessageContents, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
@@ -44,7 +43,6 @@ import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 
-const SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
@@ -112,12 +110,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public err: any;
 
   public mailContentHTML: string = null;
-  public htmlObjectURL: SafeUrl = null;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
   public showHTML = false;
   public showAllHeaders = false;
+
+  public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 
   height = 0;
   previousHeight: number;
@@ -161,8 +160,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  public get resizerHeight() {
+    return this.resizer ? this.resizer.currentHeight : 0;
+  }
+
   public get messageId() {
     return this._messageId;
+  }
+
+  public get showAttachments() {
+    // Show attachments section IIF:
+    // We have any attachments at all AND
+    // we have non-inline (image) attachments OR
+    // we're not viewing in HTML
+    return this.mailObj.attachments.length > 0 && (
+      this.mailObj.visible_attachment_count > 0 || !(this.mailContentHTML && this.showHTML && this.SUPPORTS_IFRAME_SANDBOX)
+    );
   }
 
   public ngOnInit() {
@@ -170,7 +183,12 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
-    this.previousHeightPercentage = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    this.previousHeightPercentage = storedHeightPercentage > 100
+      ? 100
+      : storedHeightPercentage < 0
+        ? 0
+      : storedHeightPercentage;
   }
 
   public ngAfterViewInit() {
@@ -188,9 +206,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             localStorage.removeItem(resizerHeightKey);
           }
           if (this.previousHeightPercentage) {
-            this.resizer.resizePercentage(this.previousHeightPercentage);
+            resizer.first.resizePercentage(this.previousHeightPercentage);
           } else {
-            this.resizer.resizePercentage(50);
+            resizer.first.resizePercentage(50);
           }
         }
       }, 0);
@@ -324,7 +342,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   private processMessageContents(messageContents: MessageContents): Mail {
-      console.log('processMessageContents processing', messageContents);
+    console.log('processMessageContents processing', messageContents);
     const res: any = Object.assign({}, messageContents);
     res.subject = res.headers.subject;
     res.from = res.headers.from.value;
@@ -351,27 +369,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
-    this.generateAttachmentURLs(res.attachments);
+    res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
+    res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
     // Remove style tag otherwise angular sanitazion will display style tag content as text
 
     if (res.text.html) {
-      const styleFilterRegexp = new RegExp(/(<style[\S\s]*?>[\S\s]*?<\/style>)/ig);
-      const rawhtml = '' + res.text.html;
-      let filteredhtml = rawhtml;
-      filteredhtml = filteredhtml.replace(styleFilterRegexp, '');
-      filteredhtml = this.domSanitizer.sanitize(SecurityContext.HTML, filteredhtml);
-
-      res.html = filteredhtml;
-
-      // Use HTML rest endpoint
-      if (SUPPORTS_IFRAME_SANDBOX) {
-        this.htmlObjectURL = this.domSanitizer.bypassSecurityTrustResourceUrl('/rest/v1/email/' + this.messageId + '/html');
-      } else {
-        this.htmlObjectURL = null;
-      }
+      // Pre-sanitized, however we need to escape ampersands and
+      // quotes for srcdoc, let angular do it:
+//          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
+      res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
     } else {
-      this.htmlObjectURL = null;
       res.html = null;
     }
 
@@ -420,10 +428,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     return res;
   }
 
-  generateAttachmentURLs(attachments: any[]) {
+  generateAttachmentURLs(attachments: any[], html: string): string {
     if (attachments) {
       attachments.forEach((att, ndx) => {
         let isImage = false;
+        att.internal = false;
         if (att.contentType && att.contentType.indexOf('image/') === 0) {
           isImage = true;
         }
@@ -439,10 +448,18 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
                             '?download=true';
           if (isImage) {
             att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
+            if (html) {
+              const newHtml = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
+              if (newHtml !== html) {
+                att.internal = true;
+                html = newHtml;
+              }
+            }
           }
         }
       });
     }
+    return html;
   }
 
   saveShowHTMLDecision() {
@@ -463,6 +480,23 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   print() {
+    // Can't access print view inside iFrame, so we need to 
+    // temporary hide buttons while the view is rendering
+    const messageContents = document.getElementById('messageContents');
+    const buttons = messageContents.getElementsByTagName('button');
+    const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
+    const contactButtons = messageContents.getElementsByTagName('mat-icon') as HTMLCollectionOf<HTMLElement>;
+
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'none';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'none';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'none';
+    }
+
     let printablecontent = this.messageContents.nativeElement.innerHTML;
     if (this.htmliframe) {
       printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
@@ -474,6 +508,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         { type: 'text/html' }
       )
     );
+
+    // Unhiding buttons
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'flex';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'inline';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'inline-block';
+    }
   }
 
   /**
@@ -497,7 +542,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
               this.mailObj.text = parsed.text;
               this.mailObj.subject = parsed.subject;
               this.mailContentHTML = parsed.html;
-              this.generateAttachmentURLs(parsed.attachments);
+              this.mailContentHTML = this.generateAttachmentURLs(parsed.attachments, parsed.html);
               this.mailObj.attachments = parsed.attachments;
 
               console.log(parsed);

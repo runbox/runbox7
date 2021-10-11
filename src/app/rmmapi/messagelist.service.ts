@@ -73,6 +73,18 @@ export class MessageListService {
     ) {
         this.refreshFolderList();
 
+        this.folderListSubject
+            .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+                return prev.length === curr.length
+                    && prev.every((f, index) =>
+                        f.folderId === curr[index].folderId
+                        && f.totalMessages === curr[index].totalMessages
+                        && f.newMessages === curr[index].newMessages);
+            }))
+            .subscribe((folders) => {
+                // Will fallback on the folder counters set above for folders not in the search index
+                this.refreshFolderCounts();
+            });
         rmmapi.messageFlagChangeSubject.pipe(
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
             ).subscribe((msgFlagChange) => {
@@ -128,25 +140,23 @@ export class MessageListService {
                         : []
                 );
 
-                this.folderListSubject.pipe(take(1)).subscribe((folders) => {
-                    const folderCounts = {};
-                    for (const folder of folders) {
-                        const path = folder.folderPath;
-                        const xapianPath = path.replace(/\//g, '.');
+                const folders = this.folderListSubject.value;
+                const folderCounts = {};
+                for (const folder of folders) {
+                    const path = folder.folderPath;
+                    const xapianPath = path.replace(/\//g, '.');
 
-                        if (xapianFolders.has(xapianPath)) {
-                            const res = searchservice.api.getFolderMessageCounts(xapianPath);
-
-                            folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
-                        } else {
-                            folderCounts[path] = FolderMessageCountEntry.of(folder);
-                        }
+                    if (xapianFolders.has(xapianPath)) {
+                        const res = searchservice.api.getFolderMessageCounts(xapianPath);
+                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
+                    } else {
+                        folderCounts[path] = FolderMessageCountEntry.of(folder);
                     }
-                    this.folderCounts = folderCounts;
-                    this.folderMessageCountSubject.next(folderCounts);
+                }
+                this.folderCounts = folderCounts;
+                this.folderMessageCountSubject.next(folderCounts);
 
-                    resolve();
-                });
+                resolve();
             });
         });
     }
@@ -154,9 +164,6 @@ export class MessageListService {
     public refreshFolderList(): Promise<FolderListEntry[]> {
         return new Promise((resolve, _) => {
             this.rmmapi.getFolderList()
-                .pipe(distinctUntilChanged((prev, curr) =>
-                     prev.length === curr.length
-                     && prev.map(f => f.folderId).join('') === curr.map(f => f.folderId).join('')))
                 .subscribe((folders) => {
                     const trashfolder = folders.find(folder => folder.folderType === 'trash');
                     if (trashfolder) {
@@ -168,11 +175,9 @@ export class MessageListService {
                     }
 
                     this.folderListSubject.next(folders);
-                    // Will fallback on the folder counters set above for folders not in the search index
-                    this.refreshFolderCounts();
-                resolve(folders);
-            });
-       });
+                    resolve(folders);
+                });
+        });
     }
 
     public requestMoreData(currentlimit: number) {
@@ -189,12 +194,10 @@ export class MessageListService {
     public applyChanges(msgInfos: MessageInfo[], delMsgInfos: number[]) {
         const filterFolders: { [folder: string]: boolean } = {};
 
-        let hasChanges = false;
         // New messages
         msgInfos
             .filter((msg) => this.messagesById[msg.id] === undefined)
             .forEach((msg) => {
-                hasChanges = true;
                 this.messagesById[msg.id] = msg;
                 if (!this.folderMessageLists[msg.folder]) {
                     this.folderMessageLists[msg.folder] = [];
@@ -215,7 +218,6 @@ export class MessageListService {
                 this.messagesById[msg.id].folder !== msg.folder
             )
             .forEach((msg) => {
-                hasChanges = true;
                 filterFolders[this.messagesById[msg.id].folder] = true;
                 this.messagesById[msg.id].folder = msg.folder;
 
@@ -239,7 +241,6 @@ export class MessageListService {
                 this.messagesById[msg.id].seenFlag !== msg.seenFlag
             )
             .forEach((msg) => {
-                hasChanges = true;
                 this.messagesById[msg.id].seenFlag = msg.seenFlag;
             });
 
@@ -248,7 +249,6 @@ export class MessageListService {
             .forEach((msgId) => {
                 const msg = this.messagesById[msgId];
                 if (msg && this.folderMessageLists[msg.folder]) {
-                    hasChanges = true;
                     const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
 
                     if (delFolderMessageIndex > -1) {
@@ -266,10 +266,13 @@ export class MessageListService {
                     msg.folder === fld);
             });
 
-        if (hasChanges) {
-            this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
-            this.refreshFolderList();
-        }
+        // Update the folderlist every index update, regardless of
+        // known changes rmm7messageactions.updateMessages changes
+        // messagelist data, then updates the backend, so applyChanges
+        // won't have anything to do unless its pulling changes
+        // made from outside of runbox7 (eg via IMAP)
+        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        this.refreshFolderList();
     }
 
     // When emptying the trash we delete from here first

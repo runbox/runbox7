@@ -59,11 +59,9 @@ export class DraftDeskComponent implements OnInit, AfterViewInit {
             mergeMap(() => this.route.queryParams),
             map((queryparams) => {
                 if (queryparams['to']) {
-                    this.draftDeskservice.newDraft(DraftFormModel.create(-1, this.draftDeskservice.froms[0],
-                        queryparams['to'],
-                        ''),
-                        () => this.updateDraftsInView()
-                    );
+                    this.draftDeskservice.newDraft(
+                        DraftFormModel.create(-1, this.draftDeskservice.froms[0], queryparams['to'], '')
+                    ).then(() => this.updateDraftsInView());
                 } else if (queryparams['new']) {
                     this.newDraft();
                 } else {

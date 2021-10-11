@@ -24,6 +24,7 @@ import { MessageContents } from './rbwebmail';
 @Injectable()
 export class MessageCache {
     db: Dexie;
+    message_version = 3;
 
     constructor() {
         try {
@@ -40,7 +41,7 @@ export class MessageCache {
 
     async get(id: number): Promise<MessageContents> {
         return this.db?.table('messages').get(id).then(
-            result => result,
+            result => Object.assign(new MessageContents(), result).version === this.message_version ? result : null,
             _error => null,
         );
     }
@@ -68,6 +69,7 @@ export class MessageCache {
     }
 
     set(id: number, contents: MessageContents): void {
+        contents.version = this.message_version;
         this.db?.table('messages').put(contents, id).catch(
             _err => {},
         );
