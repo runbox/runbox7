@@ -131,6 +131,8 @@ export class MessageListService {
     // This will only be definitely correct (for trash+spam) if we have recently
     // updated the folderlist - never call this directly, always call
     // refreshFolderList
+    // folderMessageCountSubject is used by the folderlist component
+    // directly, so only update when actual changes happen
     public refreshFolderCounts(): Promise<void> {
         return new Promise((resolve, _) => {
             return this.searchservice.pipe(take(1)).subscribe(searchservice => {
@@ -142,6 +144,7 @@ export class MessageListService {
 
                 const folders = this.folderListSubject.value;
                 const folderCounts = {};
+                let countsChanged = false;
                 for (const folder of folders) {
                     const path = folder.folderPath;
                     const xapianPath = path.replace(/\//g, '.');
@@ -152,9 +155,21 @@ export class MessageListService {
                     } else {
                         folderCounts[path] = FolderMessageCountEntry.of(folder);
                     }
+
+                    // Ensure we don't redraw the folder list ui component
+                    // when nothing has changed
+                    // (could also use a distinct on the subject..)
+                    if (!this.folderCounts
+                        || !this.folderCounts[path]
+                        || this.folderCounts[path].unread !== folderCounts[path].unread
+                        || this.folderCounts[path].total !== folderCounts[path].total) {
+                        countsChanged = true;
+                    }
                 }
-                this.folderCounts = folderCounts;
-                this.folderMessageCountSubject.next(folderCounts);
+                if (countsChanged) {
+                    this.folderMessageCountSubject.next(folderCounts);
+                    this.folderCounts = folderCounts;
+                }
 
                 resolve();
             });
