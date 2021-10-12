@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, from, Subject, AsyncSubject } from 'rxjs';
-import { share } from 'rxjs/operators';
+import { Observable, from, of, Subject, AsyncSubject, throwError } from 'rxjs';
+import { catchError, concatMap, share, map, mergeMap, tap } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 
@@ -29,9 +29,8 @@ import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { map, mergeMap } from 'rxjs/operators';
 
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
@@ -180,6 +179,10 @@ export class RunboxWebmailAPI {
 
     private messageContentsRequestCache = new LRUMessageCache<Promise<MessageContents>>();
 
+    // Track which messageids we're already fetching
+    // Else we attempt to refetch the same ones a fair bit on start-up
+    private downloadingMessages: number[] = [];
+
     constructor(
         private http: HttpClient,
         private ngZone: NgZone,
@@ -253,6 +256,69 @@ export class RunboxWebmailAPI {
                 return messagePromise;
             }
         }));
+    }
+
+    public downloadMessages(messageIds: number[]): Promise<MessageContents[]> {
+        const cached = this.messageCache.checkIds([...messageIds]);
+        return cached.then((inCache) => {
+            // Filter out items we already have
+            // or are busy fetching
+            const missingMessages = messageIds.filter(
+                (msgId) => !inCache.includes(msgId)
+                    && !this.downloadingMessages.includes(msgId)
+            );
+
+            const messagePromises = [];
+            if (missingMessages.length > 0) {
+                this.downloadingMessages = this.downloadingMessages.concat(missingMessages);
+                messagePromises.push(
+                    new Promise((resolve, reject) => {
+                        this.http.get(`/rest/v1/email/download/${missingMessages.join(',')}`).pipe(
+                            catchError((err: HttpErrorResponse) => throwError(err.message)),
+                            concatMap((res: any) => {
+                                if (res.status === 'success') {
+                                    return of(res.result);
+                                } else {
+                                    return throwError(res.errors[0]);
+                                }
+                            }),
+                        ).subscribe(
+                            (result: any) => {
+                                for (const resultKey of Object.keys(result)) {
+                                    const msgid = parseInt(resultKey, 10);
+                                    console.log('RMMAPI Got some result:', result);
+                                    const contents = result[msgid]?.json;
+                                    if (contents) {
+                                        console.log(`RMMAPI setting cache for msgid = ${msgid}`);
+                                        this.messageCache.set(msgid, contents);
+                                    } else {
+                                        this.deleteCachedMessageContents(msgid);
+                                    }
+                                    const msgIndex = this.downloadingMessages
+                                        .findIndex((id) => msgid === id);
+                                    if (msgIndex > -1) {
+                                        this.downloadingMessages.splice(msgIndex, 1);
+                                    }
+                                }
+                                resolve();
+                            },
+                            (err: Error) => {
+                                for (const msgid of missingMessages) {
+                                    this.deleteCachedMessageContents(msgid);
+                                    const msgIndex = this.downloadingMessages
+                                        .findIndex((id) => msgid === id);
+                                    if (msgIndex > -1) {
+                                        this.downloadingMessages.splice(msgIndex, 1);
+                                    }
+                                }
+                                reject(err);
+                            }
+                        );
+                    })
+                );
+            }
+            return Promise.all(messagePromises);
+        });
     }
 
     public updateLastOn(): Observable<any> {

@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {
   Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
@@ -37,7 +37,7 @@ import { ProgressDialog } from '../dialog/progress.dialog';
 import { MobileQueryService } from '../mobile-query.service';
 
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { MessageContents, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
@@ -70,6 +70,8 @@ export class ShowHTMLDialogComponent {
 
   }
 }
+
+type Mail = any;
 
 @Component({
   moduleId: 'angular2/app/mailviewer/',
@@ -104,7 +106,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public downloadProgress: number;
 
-  public mailObj: any;
+  public mailObj: Mail;
   public err: any;
 
   public mailContentHTML: string = null;
@@ -213,10 +215,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     });
 
     // messageHeaderHTML loads after message is loaded
-    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTML: ElementRef) => {
+    this.messageHeaderHTMLQuery.changes.subscribe((forwardHeader: QueryList<ElementRef>) => {
       setTimeout(() => {
-          this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
-          this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
+          const nativeElement = forwardHeader.first?.nativeElement;
+          if (nativeElement) {
+            this.mailObj.origMailHeaderHTML = '<table>' + nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderText = nativeElement.innerText;
+          }
       }, 0);
     });
 
@@ -295,93 +300,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // ProgressDialog.open(this.dialog);
 
     this.rbwebmailapi.getMessageContents(this.messageId).pipe(
-      map((messageContents) => {
-        const res: any = Object.assign({}, messageContents);
-        res.subject = res.headers.subject;
-        res.from = res.headers.from.value;
-        res.to = res.headers.to ? res.headers.to.value : '';
-        res.cc = res.headers.cc ? res.headers.cc.value : '';
-
-        res.date = (
-          (arr: string[]): Date =>
-            new Date(
-              parseInt(arr[1], 10),
-              parseInt(arr[2], 10) - 1,
-              parseInt(arr[3], 10),
-              parseInt(arr[4], 10),
-              parseInt(arr[5], 10),
-              parseInt(arr[6], 10),
-              parseInt(arr[7], 10)
-            )
-        )
-          (
-            new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
-              '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
-              .exec(res.headers.date)
-          );
-
-        res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
-
-        res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
-        res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
-
-
-        // Remove style tag otherwise angular sanitazion will display style tag content as text
-
-        if (res.text.html) {
-          // Pre-sanitized, however we need to escape ampersands and
-          // quotes for srcdoc, let angular do it:
-//          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
-          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
-        } else {
-          res.html = null;
-        }
-
-        /**
-         * Transform the links so that they are clickable
-         */
-        let text = res.text.text;
-        res.rawtext = text;
-        text = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-        const LINKY_URL_REGEXP =
-          /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/i,
-          MAILTO_REGEXP = /^mailto:/i;
-
-        let match;
-        let raw = text;
-        const html = [];
-        let url;
-        let i;
-
-        while ((match = raw.match(LINKY_URL_REGEXP))) {
-          // We can not end in these as they are sometimes found at the end of the sentence
-          url = match[0];
-          // if we did not match ftp/http/www/mailto then assume mailto
-          if (!match[2] && !match[4]) {
-            url = (match[3] ? 'http://' : 'mailto:') + url;
-          }
-          i = match.index;
-          html.push(raw.substr(0, i));
-          ((u, t) => {
-            html.push('<a ');
-            html.push('target="_blank" rel="noopener"');
-            html.push('href="',
-              u.replace(/"/g, '&quot;'),
-              '">');
-            html.push(t);
-            html.push('</a>');
-          })(url, match[0].replace(MAILTO_REGEXP, ''));
-
-          raw = raw.substring(i + match[0].length);
-        }
-        html.push(raw);
-        text = html.join('');
-
-        res.text = text;
-        return res;
-      }))
-      .subscribe((res) => {
+      catchError((err: Error) => {
+        console.warn(`Error loading message ${this.messageId}: ${err.toString()}, retrying`);
+        return this.rbwebmailapi.getMessageContents(this.messageId, true);
+      }),
+      map((res: MessageContents) => this.processMessageContents(res))
+    ).subscribe(
+      (res: Mail) => {
         if (res.html) {
           this.mailContentHTML = res.html;
           if (
@@ -407,9 +332,100 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
             this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
           }
-        }, 0
-        );
-      });
+        }, 0);
+      },
+      (err: any) => {
+        this.err = err.toString();
+        console.log('RB7_singlemailviewer getMessageContents() got an error', err.toString());
+      },
+    );
+  }
+
+  private processMessageContents(messageContents: MessageContents): Mail {
+    console.log('processMessageContents processing', messageContents);
+    const res: any = Object.assign({}, messageContents);
+    res.subject = res.headers.subject;
+    res.from = res.headers.from.value;
+    res.to = res.headers.to ? res.headers.to.value : '';
+    res.cc = res.headers.cc ? res.headers.cc.value : '';
+
+    res.date = (
+      (arr: string[]): Date =>
+        new Date(
+          parseInt(arr[1], 10),
+          parseInt(arr[2], 10) - 1,
+          parseInt(arr[3], 10),
+          parseInt(arr[4], 10),
+          parseInt(arr[5], 10),
+          parseInt(arr[6], 10),
+          parseInt(arr[7], 10)
+        )
+    )
+      (
+        new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
+          '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
+          .exec(res.headers.date)
+      );
+
+    res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
+
+    res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
+    res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
+
+    // Remove style tag otherwise angular sanitazion will display style tag content as text
+
+    if (res.text.html) {
+      // Pre-sanitized, however we need to escape ampersands and
+      // quotes for srcdoc, let angular do it:
+//          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
+      res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
+    } else {
+      res.html = null;
+    }
+
+    /**
+     * Transform the links so that they are clickable
+     */
+    let text = res.text.text;
+    res.rawtext = text;
+    text = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const LINKY_URL_REGEXP =
+      /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/i,
+      MAILTO_REGEXP = /^mailto:/i;
+
+    let match;
+    let raw = text;
+    const html = [];
+    let url;
+    let i;
+
+    while ((match = raw.match(LINKY_URL_REGEXP))) {
+      // We can not end in these as they are sometimes found at the end of the sentence
+      url = match[0];
+      // if we did not match ftp/http/www/mailto then assume mailto
+      if (!match[2] && !match[4]) {
+        url = (match[3] ? 'http://' : 'mailto:') + url;
+      }
+      i = match.index;
+      html.push(raw.substr(0, i));
+      ((u, t) => {
+        html.push('<a ');
+        html.push('target="_blank" rel="noopener"');
+        html.push('href="',
+          u.replace(/"/g, '&quot;'),
+          '">');
+        html.push(t);
+        html.push('</a>');
+      })(url, match[0].replace(MAILTO_REGEXP, ''));
+
+      raw = raw.substring(i + match[0].length);
+    }
+    html.push(raw);
+    text = html.join('');
+
+    res.text = text;
+    return res;
   }
 
   generateAttachmentURLs(attachments: any[], html: string): string {

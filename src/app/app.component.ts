@@ -418,11 +418,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const messageIds = rowIndexes.filter(
             idx => idx < this.canvastable.rows.rowCount()
         ).map(idx => this.canvastable.rows.getRowMessageId(idx));
-        for (const id of messageIds) {
-          if (this.searchService.updateMessageText(id)) {
-            this.canvastable.hasChanges = true;
+        this.rmmapi.downloadMessages(messageIds).then(
+          (newMessages) => {
+            if (newMessages.length > 0) {
+              this.canvastable.hasChanges = true;
+            }
+            for (const msg of newMessages) {
+              this.searchService.updateMessageText(msg.id);
+            }
           }
-        }
+        );
     });
 
       if ('serviceWorker' in navigator) {

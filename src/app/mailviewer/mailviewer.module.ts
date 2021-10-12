@@ -36,11 +36,13 @@ import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemail
 import { ResizerModule } from '../directives/resizer.module';
 import { AvatarBarComponent } from './avatar-bar.component';
 import { ContactCardComponent } from './contactcard.component';
+import { RunboxCommonModule } from '../common/common.module';
 export { SingleMailViewerComponent } from './singlemailviewer.component';
 
 @NgModule({
     imports: [
         CommonModule,
+        RunboxCommonModule,
         FormsModule,
         MatCheckboxModule,
         MatButtonModule,

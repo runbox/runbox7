@@ -30,10 +30,9 @@
             You will be notified with an email when the process is finished.
         </div>
     </span>
-    <span *ngIf="state === 'failed'">
-        There was an error creating your payment. <br>
-        Try again later, or contact Runbox Support at support@runbox.com.
-    </span>
+    <app-runbox-contact-support *ngIf="state === 'failed'">
+        There was an error creating your payment.
+    </app-runbox-contact-support>
 </div>
 <div mat-dialog-actions style="justify-content: space-between;">
     <button mat-flat-button (click)="close(false)"> Cancel </button>
