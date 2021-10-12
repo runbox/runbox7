@@ -20,11 +20,11 @@
                 <mat-grid-tile colspan="4" rowspan="2">
                     <span class="float-left">{{item.profile.from_name}}</span>
                 </mat-grid-tile>
-                <mat-grid-tile colspan="2" rowspan="2">
+                <mat-grid-tile *ngIf="item.profile.reference.folder" colspan="2" rowspan="2">
                     <span class="float-right">Origin:</span>
                 </mat-grid-tile>
-                <mat-grid-tile colspan="4" rowspan="2">
-                    <span class="float-left">{{ item.profile.type == 'aliases' ? 'RMM6 Alias' : item.profile.reference.folder ? 'RMM6 Folder: ' + item.profile.reference.folder : 'Runbox7'}}</span>
+                <mat-grid-tile *ngIf="item.profile.reference.folder" colspan="4" rowspan="2">
+                    <span class="float-left">{{ 'Runbox 6 Folder: ' + item.profile.reference.folder}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">Reply To:</span>
