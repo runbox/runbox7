@@ -25,6 +25,7 @@ import { Subject } from 'rxjs';
 import { RMM } from '../rmm';
 import { map } from 'rxjs/operators';
 import { AccountDetailsInterface } from '../rmm/account-details';
+import { ModalPasswordComponent } from '../account-security/account.security.component';
 import * as moment from 'moment';
 import 'moment-timezone';
 import * as ct from 'countries-and-timezones';
@@ -46,6 +47,7 @@ export class PersonalDetailsComponent {
     countriesAndTimezones: CountryAndTimezone[] = [];
     timezones: string[] = moment.tz.names();
     detailsForm = this.createForm();
+    modal_password_ref;
 
     details: Subject<AccountDetailsInterface> = new Subject();
 
@@ -65,6 +67,12 @@ export class PersonalDetailsComponent {
         this.loadDetails();
         this.loadCountryList();
         this.loadSelectFields();
+    }
+
+    ngOnInit() {
+        if (!this.rmm.account_security.user_password) {
+            this.show_modal_password();
+        }
     }
 
     private createForm(): FormGroup {
@@ -118,6 +126,11 @@ export class PersonalDetailsComponent {
     }
 
     public update() {
+        if (!this.rmm.account_security.user_password) {
+            this.show_modal_password();
+            return;
+        }
+
         const updates = {};
         for (const name of Object.keys(this.detailsForm.controls)) {
             const ctl = this.detailsForm.get(name);
@@ -132,6 +145,7 @@ export class PersonalDetailsComponent {
                 updates[name] = this.selectedCountry;
             }
         }
+        updates['password'] = this.rmm.account_security.user_password;
 
         this.http
             .post('/rest/v1/account/details', updates)
@@ -141,5 +155,18 @@ export class PersonalDetailsComponent {
             });
 
         this.rmm.show_error('Account details updated', 'Dismiss');
+    }
+
+    show_modal_password() {
+        this.modal_password_ref = this.dialog.open(ModalPasswordComponent, {
+            width: '600px',
+            disableClose: true,
+            data: { password: null },
+        });
+        this.modal_password_ref.afterClosed().subscribe((result) => {
+            if (result && result['password']) {
+                this.rmm.account_security.user_password = result['password'];
+            }
+        });
     }
 }
