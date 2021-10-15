@@ -19,12 +19,21 @@
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { Subject, Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { RMM } from '../rmm';
+import { map } from 'rxjs/operators';
 import { AccountDetailsInterface } from '../rmm/account-details';
 import * as moment from 'moment';
 import 'moment-timezone';
+import * as ct from 'countries-and-timezones';
+
+interface CountryAndTimezone {
+    id: string;
+    name: string;
+    timezones: string[];
+}
 
 @Component({
     selector: 'app-personal-details-component',
@@ -34,43 +43,28 @@ import 'moment-timezone';
 export class PersonalDetailsComponent {
     hide = true;
     myControl = new FormControl();
+    countriesAndTimezones: CountryAndTimezone[] = [];
     timezones: string[] = moment.tz.names();
-    filteredTimezones: Observable<string[]>;
+    detailsForm = this.createForm();
 
     details: Subject<AccountDetailsInterface> = new Subject();
 
-    detailsForm = this.createForm();
+    selectedCountry: any;
+    selectedTimezone: any;
 
-    constructor(private fb: FormBuilder, private http: HttpClient) {
+    constructor(
+        private fb: FormBuilder,
+        private http: HttpClient,
+        public dialog: MatDialog,
+        public rmm: RMM,
+    ) {
         this.details.subscribe((details: AccountDetailsInterface) => {
             this.detailsForm.patchValue(details);
         });
 
         this.loadDetails();
-    }
-
-    ngOnInit() {
-        this.filteredTimezones = this.myControl.valueChanges.pipe(
-            startWith(''),
-            map((value) => this._filter(value)),
-        );
-    }
-
-    private _filter(value: string): string[] {
-        const filterValue = value.toLowerCase();
-
-        return this.timezones.filter((option) =>
-            option.toLowerCase().includes(filterValue),
-        );
-    }
-
-    private loadDetails() {
-        this.http
-            .get('/rest/v1/account/details')
-            .pipe(map((res: HttpResponse<any>) => res['result']))
-            .subscribe((details) => {
-                this.details.next(details);
-            });
+        this.loadCountryList();
+        this.loadSelectFields();
     }
 
     private createForm(): FormGroup {
@@ -90,12 +84,52 @@ export class PersonalDetailsComponent {
         });
     }
 
+    loadCountryList() {
+        for (const country in ct.getAllCountries()) {
+            if (country) {
+                const ctObject = {
+                    id: country,
+                    name: ct.getAllCountries()[country].name,
+                    timezones: ct.getAllCountries()[country].timezones,
+                };
+                this.countriesAndTimezones.push(ctObject);
+            }
+        }
+    }
+
+    private loadDetails() {
+        this.http
+            .get('/rest/v1/account/details')
+            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .subscribe((details) => {
+                this.details.next(details);
+            });
+    }
+
+    private loadSelectFields() {
+        this.http
+            .get('/rest/v1/account/details')
+            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .toPromise()
+            .then((data) => {
+                this.selectedCountry = data.country;
+                this.selectedTimezone = data.timezone;
+            });
+    }
+
     public update() {
         const updates = {};
         for (const name of Object.keys(this.detailsForm.controls)) {
             const ctl = this.detailsForm.get(name);
+
+            // Select fields can't be marked as 'dirty', so it
+            // needs a specified case for Countries and Timezones
             if (ctl.dirty) {
                 updates[name] = ctl.value;
+            } else if (name === 'timezone') {
+                updates[name] = this.selectedTimezone;
+            } else if (name === 'country') {
+                updates[name] = this.selectedCountry;
             }
         }
 
@@ -105,5 +139,7 @@ export class PersonalDetailsComponent {
             .subscribe((details) => {
                 this.details.next(details);
             });
+
+        this.rmm.show_error('Account details updated', 'Dismiss');
     }
 }

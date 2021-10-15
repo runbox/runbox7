@@ -58,16 +58,19 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Country</mat-label>
-                    <input type="text" matInput formControlName="country">
+                    <mat-select [(value)]="selectedCountry">
+                        <mat-option *ngFor="let country of countriesAndTimezones" [value]="country.id">
+                            {{ country.name }}
+                        </mat-option>
+                    </mat-select>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Time zone</mat-label>
-                    <input type="text" matInput formControlName="timezone" [formControl]="myControl" [matAutocomplete]="auto">
-                    <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option *ngFor="let timezone of filteredTimezones | async" [value]="timezone">
+                    <mat-select [(value)]="selectedTimezone">
+                        <mat-option *ngFor="let timezone of timezones" [value]="timezone">
                             {{ timezone }}
                         </mat-option>
-                    </mat-autocomplete>
+                    </mat-select>
                 </mat-form-field>
             </div>
             <div class="action-buttons">
