@@ -731,8 +731,17 @@ mat-sidenav-container {
 
 /* List screen */
 
+#searchBarContainer {
+    @media(max-width: 340px) {
+        padding: 0;
+    }
+}
+
 #searchField {
     margin: 12px 20px 0 20px;
+    @media(max-width: 340px) {
+        margin: 12px 5px 0;
+    }
 }
 
 #searchField .mat-input-element {

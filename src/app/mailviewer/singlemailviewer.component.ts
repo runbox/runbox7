@@ -158,8 +158,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  public get resizerHeight() {
+    return this.resizer ? this.resizer.currentHeight : 0;
+  }
+
   public get messageId() {
     return this._messageId;
+  }
+
+  public get showAttachments() {
+    // Show attachments section IIF:
+    // We have any attachments at all AND
+    // we have non-inline (image) attachments OR
+    // we're not viewing in HTML
+    return this.mailObj.attachments.length > 0 && (
+      this.mailObj.visible_attachment_count > 0 || !(this.mailContentHTML && this.showHTML && this.SUPPORTS_IFRAME_SANDBOX)
+    );
   }
 
   public ngOnInit() {
@@ -167,7 +181,12 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
-    this.previousHeightPercentage = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    this.previousHeightPercentage = storedHeightPercentage > 100
+      ? 100
+      : storedHeightPercentage < 0
+        ? 0
+      : storedHeightPercentage;
   }
 
   public ngAfterViewInit() {
@@ -185,9 +204,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             localStorage.removeItem(resizerHeightKey);
           }
           if (this.previousHeightPercentage) {
-            this.resizer.resizePercentage(this.previousHeightPercentage);
+            resizer.first.resizePercentage(this.previousHeightPercentage);
           } else {
-            this.resizer.resizePercentage(50);
+            resizer.first.resizePercentage(50);
           }
         }
       }, 0);
@@ -414,8 +433,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           if (isImage) {
             att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
             if (html) {
-              html = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
-              att.internal = true;
+              const newHtml = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
+              if (newHtml !== html) {
+                att.internal = true;
+                html = newHtml;
+              }
             }
           }
         }
@@ -442,6 +464,23 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   print() {
+    // Can't access print view inside iFrame, so we need to 
+    // temporary hide buttons while the view is rendering
+    const messageContents = document.getElementById('messageContents');
+    const buttons = messageContents.getElementsByTagName('button');
+    const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
+    const contactButtons = messageContents.getElementsByTagName('mat-icon') as HTMLCollectionOf<HTMLElement>;
+
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'none';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'none';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'none';
+    }
+
     let printablecontent = this.messageContents.nativeElement.innerHTML;
     if (this.htmliframe) {
       printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
@@ -453,6 +492,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         { type: 'text/html' }
       )
     );
+
+    // Unhiding buttons
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'flex';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'inline';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'inline-block';
+    }
   }
 
   /**

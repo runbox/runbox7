@@ -54,6 +54,7 @@ describe('RBWebMail', () => {
         const httpTestingController = TestBed.inject(HttpTestingController);
         let req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
+            status: 'success',
             result: {
                 id: 123,
                 subject: 'test'
@@ -76,6 +77,7 @@ describe('RBWebMail', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
+            status: 'success',
             result: {
                 id: 123,
                 subject: 'test2'
@@ -93,6 +95,7 @@ describe('RBWebMail', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
+            status: 'success',
             result: {
                 id: 123,
                 subject: 'test3'

@@ -187,33 +187,35 @@
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div style="position: absolute; right: 3px;">
+      <div id="headerButtons" style="position: absolute; right: 3px;">
         <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
-        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-vertical"></mat-icon></button>
+        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-horizontal"></mat-icon></button>
       </div>
       <ng-container *ngIf="!showAllHeaders">
-        <div class="messageHeaderRow">
-          <div class="messageHeaderFrom">
-            From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+        <div class="messageHeaders">
+          <div class="messageHeaderRow">
+            <div class="messageHeaderFrom">
+              From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div class="messageHeaderRow">
-          <div class="messageHeaderDate">Time:</div>
-          <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
-        </div>
-        <div *ngIf="mailObj.to" class="messageHeaderRow">
-          <div class="messageHeaderTo">
-            To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+          <div class="messageHeaderRow">
+            <div class="messageHeaderDate">Time:</div>
+            <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
           </div>
-        </div>
-        <div *ngIf="mailObj.cc" class="messageHeaderRow">
-          <div class="messageHeaderCC">
-            CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.to" class="messageHeaderRow">
+            <div class="messageHeaderTo">
+              To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div *ngIf="mailObj.bcc"class="messageHeaderRow">
-          <div class="messageHeaderBCC">
-            BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.cc" class="messageHeaderRow">
+            <div class="messageHeaderCC">
+              CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+            </div>
+          </div>
+          <div *ngIf="mailObj.bcc"class="messageHeaderRow">
+            <div class="messageHeaderBCC">
+              BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -253,7 +255,7 @@
     </span>
 
     <!---->
-    <div *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
+    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
       style="display: flex; font-size: 12px;">
       <span style="flex-grow: 1"></span>
       <span>
@@ -309,14 +311,14 @@
       </iframe>
     </div>
 
-    <mat-card *ngIf="mailObj.attachments && mailObj.visible_attachment_count>0">
+    <mat-card *ngIf="showAttachments">
       <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
       <mat-card-content>
         <mat-grid-list [cols]="attachmentAreaCols">
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)">
-              <ng-container *ngIf="!att.internal">
+              <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
                 <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
                   <img  matListAvatar
                     [src]="att.thumbnailURL" />

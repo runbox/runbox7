@@ -143,6 +143,11 @@ export class SearchService {
   currentXapianDocId: number;
   currentDocData: SearchIndexDocumentData;
 
+  /**
+   * what the indexer update is currently working on
+   */
+  currentIndexUpdateMessageIds = new Set();
+
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
        private snackbar: MatSnackBar,
@@ -198,6 +203,9 @@ export class SearchService {
           this.initSubject.complete();
         }
       });
+
+    this.searchResultsSubject.subscribe(() =>
+      this.messagelistservice.refreshFolderCounts());
   }
 
   public init() {
@@ -690,12 +698,22 @@ export class SearchService {
   /**
    * Polling loop (every 10th sec)
    */
-  async updateIndexWithNewChanges() {
+  async updateIndexWithNewChanges(next_update?: {
+    start_message: string,
+    list_messages_args: [number, number, number, number, boolean, string?],
+    set_next_update_time: boolean }) {
     clearTimeout(this.indexUpdateIntervalId);
 
     await this.persistIndex().toPromise();
 
-    console.log('Getting latest messages from server after', new Date(this.indexLastUpdateTime));
+    if (next_update == null) {
+      next_update = {
+        start_message: 'Getting latest messages from server after ' + (new Date(this.indexLastUpdateTime)).toString(),
+        list_messages_args: [0, 0, this.indexLastUpdateTime, RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE, true],
+        set_next_update_time: true,
+      };
+    }
+    console.log(next_update['start_message']);
 
     try {
       const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
@@ -722,9 +740,19 @@ export class SearchService {
         ).toPromise();
       }
 
-      let msginfos = await this.rmmapi.listAllMessages(0, 0, this.indexLastUpdateTime,
-            RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-            true).toPromise();
+      let msginfos = await this.rmmapi.listAllMessages(...next_update['list_messages_args']).toPromise();
+
+      if (this.currentIndexUpdateMessageIds.size > 0) {
+        // if an index update is already running, check we arent
+        // updating the same messages
+
+        const notIn = msginfos.filter((msg) => !this.currentIndexUpdateMessageIds.has(msg.id));
+        if (notIn.length !== msginfos.length) {
+          console.log('Attempted to update index data that was already in progress, skipping');
+          msginfos = [];
+        }
+      }
+      msginfos.forEach((msg) => this.currentIndexUpdateMessageIds.add(msg.id));
 
       const deletedMessages = await this.rmmapi.listDeletedMessagesSince(
         new Date(
@@ -968,8 +996,9 @@ export class SearchService {
           deletedMessages ? deletedMessages : []
         );
 
-          // Find latest date in result set and use as since parameter for getting new changes from server
+        // Find latest date in result set and use as since parameter for getting new changes from server
 
+        if (next_update['set_next_update_time']) {
           let newLastUpdateTime = 0;
           msginfos.forEach(msginfo => {
             if (msginfo.changedDate && msginfo.changedDate.getTime() > newLastUpdateTime) {
@@ -983,12 +1012,14 @@ export class SearchService {
             this.indexLastUpdateTime = newLastUpdateTime;
           }
         }
-      } catch (err) {
-        console.error('Failed updating with new changes (will retry in 10 secs)', err);
       }
-      this.notifyOnNewMessages = true;
-      this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
+    } catch (err) {
+      console.error('Failed updating with new changes (will retry in 10 secs)', err);
     }
+    this.currentIndexUpdateMessageIds.clear();
+    this.notifyOnNewMessages = true;
+    this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
+  }
 
     checkIfDownloadableIndexExists(): Observable<boolean> {
       return this.httpclient.get('/mail/download_xapian_index?exists=check').pipe(
@@ -1201,5 +1232,18 @@ export class SearchService {
         return this.currentDocData;
     }
 
-}
+  // fetch message contents, we actually only want the "text.text" part here
+  // then we can use it for previews and search, both with/without local index
+  // skip haschanges/updates if we already saw this one ..
+  public updateMessageText(messageId: number): boolean {
+    if (!this.messageTextCache.has(messageId)) {
+      this.rmmapi.getMessageContents(messageId).subscribe((content) => {
+        this.messageTextCache.set(messageId, content.text.text);
+        this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
+      });
+      return true;
+    }
+    return false;
+  }
 
+}

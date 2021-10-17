@@ -60,7 +60,7 @@
     "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.0.tgz",
     "rxjs": "^6.6.7",
     "rxjs-compat": "^6.5.5",
-    "tinymce": "^5.6.2",
+    "tinymce": "^5.7.1",
     "ts-md5": "^1.2.7",
     "zone.js": "^0.10.3"
   },
@@ -73,7 +73,7 @@
     "@types/jasminewd2": "^2.0.8",
     "@types/node": "~10.12.18",
     "codelyzer": "^6.0.0",
-    "cypress": "^6.8.0",
+    "cypress": "^7.7.0",
     "cypress-file-upload": "^4.0.6",
     "cypress-terminal-report": "^1.2.1",
     "jasmine-core": "~3.6.0",

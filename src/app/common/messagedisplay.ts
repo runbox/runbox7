@@ -26,9 +26,19 @@ export abstract class MessageDisplay {
   // public selectedRowIds: { [key: number]: boolean } = {};
   public hasChanges: boolean;
 
+  // ALL rows
+  public _rows = [];
+  // Rows for actual display
   public rows = [];
 
   constructor(rows: any) {
+    this._rows = rows;
+    // default to all rows, see filterBy for reduced sets
+    this.rows = rows;
+  }
+
+  setRows(rows: any) {
+    this._rows = rows;
     this.rows = rows;
   }
 
@@ -168,6 +178,9 @@ export abstract class MessageDisplay {
   clearOpenedRow() {
     this.openedRowIndex = null;
   }
+
+  // filtering:
+  abstract filterBy(options: Map<String, any>);
 
   // columns
   abstract getCanvasTableColumns(app: any): CanvasTableColumn[];

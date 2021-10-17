@@ -18,6 +18,10 @@
     border-bottom: 1px solid #e8e8e8;
 }
 
+.messageHeaders {
+    padding-left: 14px;
+}
+
 .messageHeaderDate {
     font-size: 12px;
 }
