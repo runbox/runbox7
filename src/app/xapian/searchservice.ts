@@ -1242,8 +1242,10 @@ export class SearchService {
   public updateMessageText(messageId: number): boolean {
     if (!this.messageTextCache.has(messageId)) {
       this.rmmapi.getMessageContents(messageId).subscribe((content) => {
-        this.messageTextCache.set(messageId, content.text.text);
-        this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
+        if (content['status'] === 'success') {
+          this.messageTextCache.set(messageId, content.text.text);
+          this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
+        }
       });
       return true;
     }
