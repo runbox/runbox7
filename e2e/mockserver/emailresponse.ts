@@ -1,4 +1,4 @@
-export const mail_message_obj = {
+export const mail_message_obj: { status: string, errors?: string[], result?: any } = {
     'status': 'success',
     'result': {
         'folder': 'Inbox',

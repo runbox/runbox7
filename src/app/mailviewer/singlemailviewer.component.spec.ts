@@ -34,6 +34,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -74,6 +75,7 @@ describe('SingleMailViewerComponent', () => {
         MatTooltipModule,
         MatDividerModule,
         MatExpansionModule,
+        MatSnackBarModule,
         RouterTestingModule
       ],
       declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent, MatIcon],

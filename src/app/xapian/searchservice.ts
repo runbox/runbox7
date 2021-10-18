@@ -951,8 +951,12 @@ export class SearchService {
               return new SearchIndexDocumentUpdate(messageId, async () => {
                 try {
                   const docIdTerm = `Q${messageId}`;
-                  const messageText = (await this.rmmapi.getMessageContents(messageId).toPromise()).text.text;
-                  this.api.addTextToDocument(docIdTerm, true, messageText);
+                  const msg = (await this.rmmapi.getMessageContents(messageId).toPromise());
+                  if (msg.status === 'success') {
+                    this.api.addTextToDocument(docIdTerm, true, msg.text.text);
+                  }
+                  // There may have been known backend warnings, so
+                  // don't keep repeating the attempt
                   this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
                 } catch (e) {
                   console.error('Failed to add text to document', messageId, e);

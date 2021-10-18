@@ -149,8 +149,10 @@ export class MessageTextContents {
 }
 
 export class MessageContents {
-    text: MessageTextContents;
-    version = 1;
+    text?: MessageTextContents;
+    version = 4;
+    status: 'success';
+    errors: [];
 }
 
 export class MessageFlagChange {
@@ -238,9 +240,20 @@ export class RunboxWebmailAPI {
                     this.http.get('/rest/v1/email/' + messageId)
                         .subscribe((response) => {
                         if (response['status'] === 'success') {
-                            this.messageCache.set(messageId, response['result']);
-                            resolve(Object.assign( new MessageContents(), response['result']));
+                            const msg = Object.assign( new MessageContents(), response['result']);
+                            msg.status = response['status'];
+                            this.messageCache.set(messageId, msg);
+                            resolve(msg);
+                        } else if (response['status'] === 'warning') {
+                            // exists but we couldnt fetch it all
+                            const msg = Object.assign( new MessageContents());
+                            msg.status = response['status'];
+                            msg.errors = response['errors'];
+                            this.messageCache.set(messageId, msg);
+                            resolve(msg);
                         } else {
+                            // doesnt even seem to exist?
+                            this.showBackendErrors(response);
                             delete this.messageContentsRequestCache[messageId];
                             reject(response);
                         }
@@ -329,18 +342,26 @@ export class RunboxWebmailAPI {
 
     subscribeShowBackendErrors(req: any) {
         req.subscribe((res: any) => {
-            if (res.status === 'error') {
-                if (res.errors && res.errors.length) {
-                    const error_msg = res.errors.map((key) => {
-                        return this.rblocale.translate(key).replace('_', ' ');
-                    }).join('. ');
-                    const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
-                    this.snackBar.open(error_formatted, 'Dismiss');
-                } else {
-                    this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
-                }
-            }
+            this.showBackendErrors(res);
         });
+    }
+
+    showBackendErrors(res: any) {
+        if (res.status === 'error' || res.status === 'warning') {
+            if (res.errors && res.errors.length) {
+                const error_msg = res.errors.map((key) => {
+                    let loc = this.rblocale.translate(key).replace('_', ' ');
+                    if (loc.length === 0) {
+                        loc = key;
+                    }
+                    return loc;
+                }).join('. ');
+                const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
+                this.snackBar.open(error_formatted, 'Dismiss');
+            } else {
+                this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
+            }
+        }
     }
 
     createFolder(parentFolderId: number, newFolderName: string): Observable<boolean> {

@@ -42,6 +42,7 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
+import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
 
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
@@ -134,6 +135,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public messagelistservice: MessageListService,
     public mobileQuery: MobileQueryService,
     private router: Router,
+    private snackBar: RunboxContactSupportSnackBar,
   ) {
   }
 
@@ -297,6 +299,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.rbwebmailapi.getMessageContents(this.messageId).pipe(
       map((messageContents) => {
         const res: any = Object.assign({}, messageContents);
+        if (res.status === 'warning') {
+          // Skip if we previously had an issue loading this messge
+          throw new Error(res.errors.join('.'));
+        }
         res.subject = res.headers.subject;
         res.from = res.headers.from.value;
         res.to = res.headers.to ? res.headers.to.value : '';
@@ -409,7 +415,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           }
         }, 0
         );
-      });
+      },
+      err => {
+        this.snackBar.open(err);
+      }
+      );
   }
 
   generateAttachmentURLs(attachments: any[], html: string): string {
