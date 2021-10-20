@@ -115,11 +115,27 @@
     </div>
     <div class="settingsRow">
       <mat-card class="settingsItem">
-        <a href="/mail/account" target="rmm6" [matTooltip]="rmm6tooltip">
+        <a routerLink="/account/details">
           <h4>
-            <mat-icon svgIcon="account-details"></mat-icon> Account Details
+            <mat-icon svgIcon="face"></mat-icon> Personal Details
           </h4>
-          <p>View and update your personal information and account preferences.</p>
+          <p>Update your name, address, alternative email address, and other details.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/storage">
+          <h4>
+            <mat-icon svgIcon="view-list"></mat-icon> Storage and Data
+          </h4>
+          <p>View your account's usage, quotas, and storage details.</p>
+        </a>
+      </mat-card>
+      <mat-card class="settingsItem">
+        <a routerLink="/account/preferences">
+          <h4>
+            <mat-icon svgIcon="cog"></mat-icon> Preferences
+          </h4>
+          <p>Change your Trash, Spam, and marketing preferences.</p>
         </a>
       </mat-card>
       <mat-card *ngIf="isMainAccount" class="settingsItem">
@@ -146,7 +162,7 @@
           <h4>
             <mat-icon svgIcon="form-textbox-password"></mat-icon> Account Password
           </h4>
-          <p>Change password for your account.</p>
+          <p>Change the password for your account.</p>
         </a>
       </mat-card>
       <mat-card class="settingsItem">

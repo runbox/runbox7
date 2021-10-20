@@ -1,0 +1,81 @@
+<section class="mat-typography">
+    <h1>Account Details</h1>
+    <!-- <p>Account created: //ACCOUNT CREATED//</p> -->
+    <p>We encourage you to keep the information as current as possible in case we need to contact you about your
+        account.</p>
+
+    <div class="container">
+        <form [formGroup]="detailsForm">
+            <h2><strong>Personal Details</strong></h2>
+            <div class="form-container form-personal">
+                <mat-form-field>
+                    <mat-label>First name</mat-label>
+                    <input type="text" matInput formControlName="first_name">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Last name</mat-label>
+                    <input type="text" matInput formControlName="last_name">
+                </mat-form-field>
+            </div>
+            <div class="form-container form-contact">
+                <mat-form-field>
+                    <mat-label>Alternative email address</mat-label>
+                    <input type="email" matInput formControlName="email_alternative">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Phone number (optional)</mat-label>
+                    <input type="tel" matInput formControlName="phone_number">
+                </mat-form-field>
+            </div>
+            <h3><strong>Company information</strong></h3>
+            <div class="form-container form-company">
+                <mat-form-field>
+                    <mat-label>Company (optional)</mat-label>
+                    <input type="text" matInput formControlName="company">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Organization number (optional)</mat-label>
+                    <input type="text" matInput formControlName="org_number">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>VAT number (optional)</mat-label>
+                    <input type="text" matInput matInput formControlName="vat_number">
+                </mat-form-field>
+            </div>
+            <h3><strong>Address details</strong></h3>
+            <div class="form-container form-address">
+                <mat-form-field>
+                    <mat-label>Address</mat-label>
+                    <input type="text" matInput formControlName="street_address">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>City</mat-label>
+                    <input type="text" matInput formControlName="city">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Postal/Zip code</mat-label>
+                    <input type="text" matInput formControlName="postal_code">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Country</mat-label>
+                    <mat-select [(value)]="selectedCountry">
+                        <mat-option *ngFor="let country of countriesAndTimezones" [value]="country.id">
+                            {{ country.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Time zone</mat-label>
+                    <mat-select [(value)]="selectedTimezone">
+                        <mat-option *ngFor="let timezone of timezones" [value]="timezone">
+                            {{ timezone }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="action-buttons">
+                <button mat-raised-button color="primary" (click)="update()">Save Details</button>
+            </div>
+        </form>
+    </div>
+</section>
