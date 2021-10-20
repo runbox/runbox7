@@ -270,7 +270,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                                 component: StorageDataComponent,
                             },
                             {
-                                path: 'account_settings',
+                                path: 'preferences',
                                 component: AccountSettingsComponent,
                             },
                             {
