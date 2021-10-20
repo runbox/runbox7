@@ -26,8 +26,6 @@ import { RMM } from '../rmm';
 import { map } from 'rxjs/operators';
 import { AccountDetailsInterface } from '../rmm/account-details';
 import { ModalPasswordComponent } from '../account-security/account.security.component';
-import * as moment from 'moment';
-import 'moment-timezone';
 import * as ct from 'countries-and-timezones';
 
 interface CountryAndTimezone {
@@ -45,7 +43,7 @@ export class PersonalDetailsComponent {
     hide = true;
     myControl = new FormControl();
     countriesAndTimezones: CountryAndTimezone[] = [];
-    timezones: string[] = moment.tz.names();
+    timezones: string[];
     detailsForm = this.createForm();
     modal_password_ref;
 
@@ -67,6 +65,7 @@ export class PersonalDetailsComponent {
         this.loadDetails();
         this.loadCountryList();
         this.loadSelectFields();
+        this.loadTimezones();
     }
 
     ngOnInit() {
@@ -103,6 +102,14 @@ export class PersonalDetailsComponent {
                 this.countriesAndTimezones.push(ctObject);
             }
         }
+    }
+
+    loadTimezones() {
+        this.http
+            .get('/rest/v1/timezones')
+            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .toPromise()
+            .then((data) => this.timezones = data.timezones);
     }
 
     private loadDetails() {
