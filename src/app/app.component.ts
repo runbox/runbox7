@@ -586,7 +586,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.unreadMessagesOnlyCheckbox,
       this.mobileQuery.matches
     );
-    this.router.navigate(['/compose']);
+    this.router.navigate(['/compose'], {fragment: 'bug-report'});
    }
 
   saveMessagePaneSetting(): void {
