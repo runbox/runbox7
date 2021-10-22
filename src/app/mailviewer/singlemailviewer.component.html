@@ -181,7 +181,7 @@
   </mat-toolbar>
   <div *ngIf="mailObj" #messageContents id="messageContents">
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
-      <mat-expansion-panel-header title="Toggle message headers">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle message headers">
 	      <mat-panel-title>
           <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
@@ -191,8 +191,8 @@
         <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
         <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-horizontal"></mat-icon></button>
       </div>
+      <div class="messageHeaders">
       <ng-container *ngIf="!showAllHeaders">
-        <div class="messageHeaders">
           <div class="messageHeaderRow">
             <div class="messageHeaderFrom">
               From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
@@ -217,23 +217,23 @@
               BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
             </div>
           </div>
-        </div>
-      </ng-container>
-      <table *ngIf="showAllHeaders">
-        <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
-          <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
-          <td style="vertical-align: top;">
+        </ng-container>
+        <table *ngIf="showAllHeaders">
+          <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
+            <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
+            <td style="vertical-align: top;">
               <span *ngIf="header.value.html" [innerHTML]="header.value.html"></span>
               <span *ngIf="header.value.unsubscribe">
                 Unsubscribe:
                 <a [href]="header.value.unsubscribe.url">
-                    {{header.value.unsubscribe.url}}
+                  {{header.value.unsubscribe.url}}
                 </a>
               </span>
               <span *ngIf="!header.value.html && !header.value.unsubscribe">{{header.value | json}}</span>
-          </td>
-        </tr>
-      </table>
+            </td>
+          </tr>
+        </table>
+      </div>
 
     </mat-expansion-panel>
 
