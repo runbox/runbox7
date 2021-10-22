@@ -986,6 +986,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private dopaint() {
+    const devicePixelRatio = window.devicePixelRatio;
     if (this.canv.width !== this.wantedCanvasWidth ||
       this.canv.height !== this.wantedCanvasHeight) {
 
@@ -994,7 +995,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
        * otherwise reducing column widths so that the scrollbar
        * disappears indicates a change of height and triggers resize
        */
-      const devicePixelRatio = window.devicePixelRatio;
 
       this.canv.style.width = (this.wantedCanvasWidth / devicePixelRatio) + 'px';
       this.canv.style.height = (this.wantedCanvasHeight / devicePixelRatio) + 'px';
@@ -1002,10 +1002,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.canv.width = this.wantedCanvasWidth;
       this.canv.height = this.wantedCanvasHeight;
 
-      // -- Disabled scaling after moving resizing of canvas to inside paint routine
-      if (devicePixelRatio !== 1) {
-        this.ctx.scale(devicePixelRatio, devicePixelRatio);
-      }
       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
       this.enforceScrollLimit();
       this.hasChanges = true;
@@ -1016,6 +1012,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
 
       this.canvasResizedSubject.next(widthChanged);
+    }
+
+    if (devicePixelRatio !== 1) {
+      // This is not scale() as that would keep multiplying
+      // Moved out of above if() statement as something (!?)
+      // was resetting transform, still not sure what
+      this.ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     }
 
     this.ctx.textBaseline = 'middle';
