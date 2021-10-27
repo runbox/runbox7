@@ -70,7 +70,8 @@
 }
 
 #messageContent {
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: scroll;
     margin: 0 2%;
     width: 96%;
     white-space: pre-wrap;
