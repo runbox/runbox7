@@ -198,7 +198,6 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 0,
         getFormattedValue: (val) => ''
       });
-      
 
     }
     return columns;
