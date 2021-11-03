@@ -134,7 +134,7 @@ export class DraftFormModel {
             ret.html =
                 `<br /><div style="padding-left: 10px; border-left: black solid 1px">
                     <hr style="width: 100%" />
-                    ${mailObj.origMailHeaderHTML}<br />
+                    ${mailObj.origReplyHeaderHTML}<br />
                     ${mailObj.sanitized_html}
                 </div>`;
             ret.useHTML = true;

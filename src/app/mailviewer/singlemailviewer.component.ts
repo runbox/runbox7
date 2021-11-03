@@ -97,6 +97,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('messageContents') messageContents: ElementRef;
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
+  @ViewChild('replyMessageHeader') replyHeaderHTML: ElementRef;
+  @ViewChildren('replyMessageHeader') replyHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
   @ViewChildren('forwardMessageHeader') messageHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
@@ -219,6 +221,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       setTimeout(() => {
           this.mailObj.origMailHeaderHTML = this.messageHeaderHTML.nativeElement.innerHTML;
           this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
+      }, 0);
+    });
+
+    this.replyHeaderHTMLQuery.changes.subscribe((replyHeaderHTML: ElementRef) => {
+      setTimeout(() => {
+          this.mailObj.origReplyHeaderHTML = this.replyHeaderHTML.nativeElement.innerHTML;
+          this.mailObj.origReplyHeaderText = this.replyHeaderHTML.nativeElement.innerText;
       }, 0);
     });
 
