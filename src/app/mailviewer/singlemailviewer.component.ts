@@ -217,7 +217,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // messageHeaderHTML loads after message is loaded
     this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTML: ElementRef) => {
       setTimeout(() => {
-          this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+          this.mailObj.origMailHeaderHTML = this.messageHeaderHTML.nativeElement.innerHTML;
           this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
       }, 0);
     });
@@ -410,7 +410,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         setTimeout(() => {
           // If forwarding HTML copy mail header from the visible mail viewer header
           if (this.messageHeaderHTML) {
-            this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderHTML = this.messageHeaderHTML.nativeElement.innerHTML;
             this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
           }
         }, 0

@@ -162,7 +162,7 @@ export class DraftFormModel {
             ret.html =
                 `<br />
                 <hr style="width: 100%" />
-                Forwarded message:<br />
+                ---------- Forwarded message ----------<br />
                 ${mailObj.origMailHeaderHTML}<br />
                 ${mailObj.sanitized_html}`;
             ret.useHTML = true;

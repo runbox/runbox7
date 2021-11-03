@@ -241,17 +241,15 @@
     <!-- Used when forwarding mail - do not delete -->
 
     <span style="display: none" #forwardMessageHeader>
-      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt;<br />
-      Time:{{mailObj.date | date:'yyyy-MM-dd HH:mm'}}<br />
-      To:
-      <ng-container *ngIf="mailObj.to">
-            <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </ng-container>
-      <br />
-      <ng-container *ngIf="mailObj.cc">
-        <span>Cc:</span><span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </ng-container>
-      {{mailObj.subject}}
+      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; <br />
+      Time: {{mailObj.date | date:'yyyy-MM-dd HH:mm'}} <br />
+      Subject: {{mailObj.subject}} <br />
+      <span *ngIf="mailObj.to">
+        To: <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
+      </span> <br />
+      <span *ngIf="mailObj.cc">
+        Cc: <span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
+      </span> <br />
     </span>
 
     <!---->
