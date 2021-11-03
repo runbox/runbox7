@@ -237,6 +237,32 @@
 
     </mat-expansion-panel>
 
+    <mat-expansion-panel *ngIf="showAttachments" [expanded]="mobileQuery.matches ? false : true" id="attachmentsListHeader">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle attachments list">
+	    <mat-panel-title>
+          <div id="messageHeaderSubject">List attachments</div>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <ng-container>
+        <mat-list>
+          <mat-list-item
+            *ngFor="let att of mailObj.attachments; let i=index"
+            (click)="openAttachment(att)">
+            <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
+              <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
+                <img  matListAvatar
+                      [src]="att.thumbnailURL" />
+              </ng-container>
+              <ng-template #attachment_icon>
+                <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
+              </ng-template>
+              <span>{{att.filename}}</span>
+            </ng-container>
+          </mat-list-item>
+        </mat-list>
+      </ng-container>
+    </mat-expansion-panel>
+    <mat-divider></mat-divider>
 
     <!-- Used when forwarding mail - do not delete -->
 
@@ -314,7 +340,7 @@
       </iframe>
     </div>
 
-    <mat-card *ngIf="showAttachments">
+    <mat-card #attachmentsSection *ngIf="showAttachments">
       <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
       <mat-card-content>
         <mat-grid-list [cols]="attachmentAreaCols">
