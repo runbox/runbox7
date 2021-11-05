@@ -187,6 +187,18 @@ export class SearchMessageDisplay extends MessageDisplay {
         });
       }
 
+      // Empty col enables the final col to be resized (ugh..)
+      columns.push({
+        sortColumn: null,
+        name: '',
+        textAlign: 2,
+        rowWrapModeHidden: true,
+        font: '16px \'Material Icons\'',
+        getValue: (rowIndex) => '',
+        width: 0,
+        getFormattedValue: (val) => ''
+      });
+
     }
     return columns;
   }
