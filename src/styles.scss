@@ -116,7 +116,7 @@ ul.square-list li {
 /* Generic MD styles */
 
 .mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>* {
-    padding: 0px 10px !important;
+    padding: 10px 10px !important;
     font-weight: 400;
 }
 
@@ -130,7 +130,13 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .mat-line, .mat-tree-node {
-    font-size: 16px  !important;
+    min-height: 36px !important;
+    font-size: 15px !important;
+}
+
+.mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
+    height: auto !important;
+    font-size: 14px !important;
 }
 
 mat-icon {
@@ -812,6 +818,13 @@ mat-sidenav-container {
     text-align: center;
 }
 
+#messageHeaderSubject {
+    font-size: 16px !important;
+}
+
+#messageContent {
+    font-size: 15px !important;
+}
 
 /* Message action button row */
 @media(max-width: 812px) {
@@ -820,8 +833,11 @@ mat-sidenav-container {
     }
 }
 
-mat-expansion-panel {
+mat-expansion-panel, mat-expansion-panel-header {
     box-shadow: none !important;
+    height: 36px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
 }
 
 .mat-expansion-panel-body {
