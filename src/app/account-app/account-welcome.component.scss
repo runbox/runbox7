@@ -4,6 +4,9 @@ mat-icon.category {
     height: auto;
     line-height: 24px;
 }
+mat-card {
+    padding: 10px 20px;
+}
 mat-card a {
     color: inherit;
     text-decoration: none;
@@ -15,8 +18,9 @@ h3 {
 }
 h4 {
     margin: 0 0 5px 0;
-    font-size: 15px;
-    font-weight: bold;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 30px;
 }
 div.settingsRow {
     display: flex;
@@ -25,15 +29,15 @@ div.settingsRow {
 }
 mat-card.settingsItem {
     display: flex;
-    width: 160px;
-    height: 130px;
+    width: 180px;
+    height: 125px;
     margin: 0 10px 10px 0;
 }
 mat-card.settingsItem mat-icon {
-    margin-right: 2px;
+    float: left;
+    margin-right: 5px;
     width: 26px;
-    height: auto;
-    line-height: 14px;
+    height: 26px;
 }
 div.divider {
     clear: both;
