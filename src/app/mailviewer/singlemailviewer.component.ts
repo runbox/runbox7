@@ -217,18 +217,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     });
 
     // messageHeaderHTML loads after message is loaded
-    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTML: ElementRef) => {
-      setTimeout(() => {
-          this.mailObj.origMailHeaderHTML = this.messageHeaderHTML.nativeElement.innerHTML;
-          this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
-      }, 0);
+    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTMLList: QueryList<ElementRef>) => {
+      this.mailObj.origMailHeaderHTML = messageHeaderHTMLList.first.nativeElement.innerHTML;
+      this.mailObj.origMailHeaderText = messageHeaderHTMLList.first.nativeElement.innerText;
     });
 
-    this.replyHeaderHTMLQuery.changes.subscribe((replyHeaderHTML: ElementRef) => {
-      setTimeout(() => {
-          this.mailObj.origReplyHeaderHTML = this.replyHeaderHTML.nativeElement.innerHTML;
-          this.mailObj.origReplyHeaderText = this.replyHeaderHTML.nativeElement.innerText;
-      }, 0);
+    this.replyHeaderHTMLQuery.changes.subscribe((replyHeaderHTMLList: QueryList<ElementRef>) => {
+      this.mailObj.origReplyHeaderHTML = replyHeaderHTMLList.first.nativeElement.innerHTML;
+      this.mailObj.origReplyHeaderText = replyHeaderHTMLList.first.nativeElement.innerText;
     });
 
     this.afterViewInit.emit(this.messageId);
