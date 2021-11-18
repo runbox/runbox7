@@ -474,7 +474,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.htmliframe) {
       const iframe = document.getElementById('iframe');
       const newHeight = this.htmliframe.nativeElement.contentWindow.document.body.scrollHeight;
-      iframe.style.cssText = `height: ${newHeight + 20}px !important`;
+      iframe.style.cssText = `height: ${newHeight + 70}px !important`;
     }
   }
 
