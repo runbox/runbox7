@@ -61,7 +61,7 @@
     "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.0.tgz",
     "rxjs": "^6.6.7",
     "rxjs-compat": "^6.5.5",
-    "tinymce": "^5.9.0",
+    "tinymce": "^5.10.0",
     "ts-md5": "^1.2.7",
     "zone.js": "^0.10.3"
   },
