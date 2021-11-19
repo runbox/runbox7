@@ -115,8 +115,12 @@ ul.square-list li {
 
 /* Generic MD styles */
 
-.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>* {
-    padding: 10px 10px !important;
+mat-list-item .mat-list-item-content {
+    min-height: 36px !important;
+}
+
+.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>*, mat-list-item .mat-list-text {
+    height: 15px;
     font-weight: 400;
 }
 
@@ -132,6 +136,10 @@ mat-list-item p.mat-line mat-icon {
 .mat-line, .mat-tree-node {
     min-height: 36px !important;
     font-size: 15px !important;
+}
+
+.mat-list-base {
+    padding-top: 0px !important;
 }
 
 .mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
@@ -679,15 +687,7 @@ mat-sidenav-container {
 
 /* Folders */
 
-.mailFolder {
-    vertical-align: middle;
-}
-
-.mailFolder mat-icon {
-    margin-bottom: 1px !important;
-}
-
-.mailFolder span {
+.mailFolder div, .mailFolder span {
     height: 1em;
     vertical-align: middle;
 }
@@ -738,7 +738,7 @@ mat-sidenav-container {
 app-popular-recipients, app-saved-searches {
     mat-expansion-panel-header span {
 	align-items: center;
-	height: 15px;
+	height: 17px;
     }
 }
 

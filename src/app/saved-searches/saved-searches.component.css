@@ -11,7 +11,7 @@ mat-expansion-panel {
 
 mat-expansion-panel-header mat-icon {
     padding-left: 10px;
-    padding-right: 20px;
+    padding-right: 13px;
 }
 
 mat-expansion-panel-header .headerText {
