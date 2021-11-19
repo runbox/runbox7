@@ -14,8 +14,12 @@
 
 #messageHeader {
     margin-bottom: 10px;
-    overflow: auto;
+    overflow: hidden;
     border-bottom: 1px solid #e8e8e8;
+}
+
+.messageHeaders {
+    padding-left: 2%;
 }
 
 .messageHeaderDate {
@@ -66,7 +70,6 @@
 }
 
 #messageContent {
-    overflow: hidden;
     margin: 0 2%;
     width: 96%;
     white-space: pre-wrap;
@@ -96,6 +99,7 @@
     border: 0;
     height: 0px;
     width: 100%;
+    margin-bottom: -10px;
 }
 
 .menuradiobutton {

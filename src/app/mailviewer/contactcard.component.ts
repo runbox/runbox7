@@ -28,7 +28,7 @@ import { AppSettingsService } from '../app-settings';
     // tslint:disable-next-line:component-selector
     selector: 'rmm7-contact-card',
     template: `
-        <a [ngStyle]="{ 'border-bottom': (contactsEntry ? '1px solid' : '1px dashed') }"
+        <a [ngStyle]="{ 'border-bottom': (contactsEntry ? '1px solid' : '' ) }"
             (click)="clicked()"
             [matTooltip]="contactsEntry ? 'Show contact' : 'Add to contacts'"
         >
@@ -37,8 +37,8 @@ import { AppSettingsService } from '../app-settings';
               [src]="avatarUrl" alt=""
             >
             {{contact.name}} &lt;{{contact.address}}&gt;
-            <mat-icon *ngIf="contactsEntry" svgIcon="account"></mat-icon>
-            <mat-icon *ngIf="!contactsEntry" svgIcon="account-plus"></mat-icon>
+            <mat-icon style="transform: scale(0.7);" *ngIf="contactsEntry" svgIcon="account"></mat-icon>
+            <mat-icon style="transform: scale(0.7);" *ngIf="!contactsEntry" svgIcon="account-plus"></mat-icon>
         </a>
     `,
 })

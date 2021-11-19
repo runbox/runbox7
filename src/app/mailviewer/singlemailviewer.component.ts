@@ -42,6 +42,7 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
+import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
 
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const resizerHeightKey = 'rmm7resizerheight';
@@ -96,6 +97,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('messageContents') messageContents: ElementRef;
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
+  @ViewChild('replyMessageHeader') replyHeaderHTML: ElementRef;
+  @ViewChildren('replyMessageHeader') replyHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
   @ViewChildren('forwardMessageHeader') messageHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
@@ -134,6 +137,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public messagelistservice: MessageListService,
     public mobileQuery: MobileQueryService,
     private router: Router,
+    private snackBar: RunboxContactSupportSnackBar,
   ) {
   }
 
@@ -213,11 +217,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     });
 
     // messageHeaderHTML loads after message is loaded
-    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTML: ElementRef) => {
-      setTimeout(() => {
-          this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
-          this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
-      }, 0);
+    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTMLList: QueryList<ElementRef>) => {
+      this.mailObj.origMailHeaderHTML = messageHeaderHTMLList.first.nativeElement.innerHTML;
+      this.mailObj.origMailHeaderText = messageHeaderHTMLList.first.nativeElement.innerText;
+    });
+
+    this.replyHeaderHTMLQuery.changes.subscribe((replyHeaderHTMLList: QueryList<ElementRef>) => {
+      this.mailObj.origReplyHeaderHTML = replyHeaderHTMLList.first.nativeElement.innerHTML;
+      this.mailObj.origReplyHeaderText = replyHeaderHTMLList.first.nativeElement.innerText;
     });
 
     this.afterViewInit.emit(this.messageId);
@@ -297,6 +304,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.rbwebmailapi.getMessageContents(this.messageId).pipe(
       map((messageContents) => {
         const res: any = Object.assign({}, messageContents);
+        if (res.status === 'warning') {
+          // Skip if we previously had an issue loading this messge
+          throw new Error(res.errors.join('.'));
+        }
         res.subject = res.headers.subject;
         res.from = res.headers.from.value;
         res.to = res.headers.to ? res.headers.to.value : '';
@@ -404,12 +415,16 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         setTimeout(() => {
           // If forwarding HTML copy mail header from the visible mail viewer header
           if (this.messageHeaderHTML) {
-            this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderHTML = this.messageHeaderHTML.nativeElement.innerHTML;
             this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
           }
         }, 0
         );
-      });
+      },
+      err => {
+        this.snackBar.open(err);
+      }
+      );
   }
 
   generateAttachmentURLs(attachments: any[], html: string): string {
@@ -433,8 +448,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           if (isImage) {
             att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
             if (html) {
-              html = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
-              att.internal = true;
+              const newHtml = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
+              if (newHtml !== html) {
+                att.internal = true;
+                html = newHtml;
+              }
             }
           }
         }
@@ -456,11 +474,28 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.htmliframe) {
       const iframe = document.getElementById('iframe');
       const newHeight = this.htmliframe.nativeElement.contentWindow.document.body.scrollHeight;
-      iframe.style.cssText = `height: ${newHeight + 20}px !important`;
+      iframe.style.cssText = `height: ${newHeight + 70}px !important`;
     }
   }
 
   print() {
+    // Can't access print view inside iFrame, so we need to 
+    // temporary hide buttons while the view is rendering
+    const messageContents = document.getElementById('messageContents');
+    const buttons = messageContents.getElementsByTagName('button');
+    const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
+    const contactButtons = messageContents.getElementsByTagName('mat-icon') as HTMLCollectionOf<HTMLElement>;
+
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'none';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'none';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'none';
+    }
+
     let printablecontent = this.messageContents.nativeElement.innerHTML;
     if (this.htmliframe) {
       printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
@@ -472,6 +507,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         { type: 'text/html' }
       )
     );
+
+    // Unhiding buttons
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'flex';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'inline';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'inline-block';
+    }
   }
 
   /**

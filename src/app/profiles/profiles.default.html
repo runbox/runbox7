@@ -5,7 +5,7 @@
         <mat-form-field id="default-identity-form">
             <mat-select [(value)]="selected" [(ngModel)]="selected">
                 <mat-option class="identity-profile" *ngFor="let profile of profiles" [value]="profile">
-                    {{profile.email}}
+                    {{profile.nameAndAddress}}
                 </mat-option>
             </mat-select>
             <mat-error *ngIf="field_errors?.from_priorities">

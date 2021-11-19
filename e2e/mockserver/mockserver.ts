@@ -250,6 +250,15 @@ END:VCALENDAR
                     message_obj.result.headers['cc'] = to;
                     message_obj.result.headers['subject'] = "";
                 }
+                // This one warns, we couldnt find it!
+                if (mailid === '14') {
+                    message_obj = {
+                        'status':'warning',
+                        'errors': [
+                            'Email content missing'
+                        ]
+                    };
+                }
 
                 if (requesturl.endsWith('/html')) {
                     response.end(message_obj.result.text.html);
@@ -404,6 +413,9 @@ END:VCALENDAR
         inboxlines.push(`13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>		709	n	 `);
 
+        // id=14: broken email
+        inboxlines.push(`14	1548071425	1547830046	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
 
         return inboxlines.join('\n');
     }

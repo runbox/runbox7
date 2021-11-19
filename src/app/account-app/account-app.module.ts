@@ -72,6 +72,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+
 import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { AccountSecurityModule } from '../account-security/account.security.module';
@@ -82,6 +84,9 @@ import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
 import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
+import { PersonalDetailsComponent } from '../account-details/personal-details.component';
+import { AccountSettingsComponent } from '../account-details/account-settings.component';
+import { StorageDataComponent } from '../account-details/storage-data.component';
 import { TwoFactorAuthenticationComponent } from '../account-security/two-factor-authentication.component';
 import { ManageServicesComponent } from '../account-security/manage-services.component';
 import { AppPasswordsComponent } from '../account-security/app-passwords.component';
@@ -94,6 +99,9 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
 @NgModule({
     declarations: [
         AccountAppComponent,
+        PersonalDetailsComponent,
+        AccountSettingsComponent,
+        StorageDataComponent,
         AccountReceiptComponent,
         AccountRenewalsComponent,
         AccountRenewalsAutorenewToggleComponent,
@@ -142,6 +150,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
         MatTabsModule,
         MatToolbarModule,
         MatTooltipModule,
+        MatAutocompleteModule,
         ReactiveFormsModule,
         RunboxCommonModule,
         RunboxComponentModule,
@@ -253,8 +262,16 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                                 component: DomainRegisterComponent,
                             },
                             {
-                                path: 'domainregistration',
-                                component: DomainRegisterComponent,
+                                path: 'details',
+                                component: PersonalDetailsComponent,
+                            },
+                            {
+                                path: 'storage',
+                                component: StorageDataComponent,
+                            },
+                            {
+                                path: 'preferences',
+                                component: AccountSettingsComponent,
                             },
                             {
                                 path: 'not-for-subaccounts',

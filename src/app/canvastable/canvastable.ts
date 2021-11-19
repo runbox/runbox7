@@ -158,6 +158,16 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   //  public _rows: any[] = [];
   public _rows: MessageDisplay;
 
+  columnWidthsDefaults = {
+    '':        40,
+    'Date':    110,
+    'To':      300,
+    'From':    300,
+    'Subject': 300,
+    'Size':    80,
+    'Count':   80,
+  };
+
   public hasSortColumns = false;
   public _columns: CanvasTableColumn[] = [];
   public get columns(): CanvasTableColumn[] { return this._columns; }
@@ -239,9 +249,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private calculateColumnWidths(columns: CanvasTableColumn[]) {
+    const colWidthSet = columns.map((col) => col.name).filter((cname) => cname.length > 0).join(',');
     for (const c of columns) {
       // try the stored settings, then an existing value, then 100px just in case
-      c.width = this.columnWidths[c.name] || c.width || 100;
+      c.width = this.columnWidths[colWidthSet]
+        ? this.columnWidths[colWidthSet][c.name]
+        : this.columnWidthsDefaults[c.name] || c.width || 100;
     }
   }
 
@@ -839,7 +852,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public updateRows(newList) {
-    this.rows.rows = newList;
+    this.rows.setRows(newList);
     this.enforceScrollLimit();
     this.hasChanges = true;
   }
@@ -891,6 +904,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     // currently selected row in the centre:
     if (this.rows.openedRowIndex) {
       this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
+      this.enforceScrollLimit();
     }
   }
 
@@ -985,6 +999,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private dopaint() {
+    const devicePixelRatio = window.devicePixelRatio;
     if (this.canv.width !== this.wantedCanvasWidth ||
       this.canv.height !== this.wantedCanvasHeight) {
 
@@ -993,7 +1008,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
        * otherwise reducing column widths so that the scrollbar
        * disappears indicates a change of height and triggers resize
        */
-      const devicePixelRatio = window.devicePixelRatio;
 
       this.canv.style.width = (this.wantedCanvasWidth / devicePixelRatio) + 'px';
       this.canv.style.height = (this.wantedCanvasHeight / devicePixelRatio) + 'px';
@@ -1001,10 +1015,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.canv.width = this.wantedCanvasWidth;
       this.canv.height = this.wantedCanvasHeight;
 
-      // -- Disabled scaling after moving resizing of canvas to inside paint routine
-      if (devicePixelRatio !== 1) {
-        this.ctx.scale(devicePixelRatio, devicePixelRatio);
-      }
       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
       this.enforceScrollLimit();
       this.hasChanges = true;
@@ -1015,6 +1025,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
 
       this.canvasResizedSubject.next(widthChanged);
+    }
+
+    if (devicePixelRatio !== 1) {
+      // This is not scale() as that would keep multiplying
+      // Moved out of above if() statement as something (!?)
+      // was resetting transform, still not sure what
+      this.ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     }
 
     this.ctx.textBaseline = 'middle';
@@ -1394,15 +1411,7 @@ export class CanvasTableContainerComponent implements OnInit {
   sortColumn = 0;
   sortDescending = false;
 
-  columnWidths = {
-    '':        40,
-    'Date':    110,
-    'To':      300,
-    'From':    300,
-    'Subject': 300,
-    'Size':    80,
-    'Count':   80,
-  };
+  columnWidths = {};
 
   @Input() configname = 'default';
   @Input() canvastableselectlistener: CanvasTableSelectListener;
@@ -1418,17 +1427,29 @@ export class CanvasTableContainerComponent implements OnInit {
   private selectAllTimeout;
 
   constructor(private renderer: Renderer2) {
-    const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
+    const oldSavedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
+    if (oldSavedColumnWidths) {
+      const colWidthSet = Object.keys(JSON.parse(oldSavedColumnWidths)).filter((col) => col.length > 0).join(',');
+      const newColWidths = {};
+      newColWidths[colWidthSet] = JSON.parse(oldSavedColumnWidths);
+      localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(newColWidths));
+      localStorage.removeItem('canvasNamedColumnWidths');
+    }
+
+    const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidthsBySet');
     if (savedColumnWidths) {
       this.columnWidths = JSON.parse(savedColumnWidths);
     }
   }
 
   saveColumnWidths() {
+    const newColWidths = {};
+    const colWidthSet = this.canvastable.columns.map((col) => col.name).filter((cname) => cname.length > 0).join(',');
     for (const c of this.canvastable.columns) {
-      this.columnWidths[c.name] = c.width;
+      newColWidths[c.name] = c.width;
     }
-    localStorage.setItem('canvasNamedColumnWidths', JSON.stringify(this.columnWidths));
+    this.columnWidths[colWidthSet] = newColWidths;
+    localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(this.columnWidths));
   }
 
   ngOnInit() {

@@ -43,6 +43,9 @@ export class SearchMessageDisplay extends MessageDisplay {
     return this.searchService.getMessageIdFromDocId(this.rows[index][0]);
   }
 
+  filterBy(options: Map<String, any>) {
+  }
+
   // columns
   // app is a Component (currently)
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
@@ -183,6 +186,18 @@ export class SearchMessageDisplay extends MessageDisplay {
           width: 200
         });
       }
+
+      // Empty col enables the final col to be resized (ugh..)
+      columns.push({
+        sortColumn: null,
+        name: '',
+        textAlign: 2,
+        rowWrapModeHidden: true,
+        font: '16px \'Material Icons\'',
+        getValue: (rowIndex) => '',
+        width: 0,
+        getFormattedValue: (val) => ''
+      });
 
     }
     return columns;

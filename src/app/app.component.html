@@ -167,7 +167,7 @@
       </div>
   </mat-sidenav>
   <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
-    <mat-toolbar style="display: flex">
+    <mat-toolbar id="searchBarContainer" style="display: flex">
       <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
           <mat-icon svgIcon="menu"></mat-icon>
       </button>
@@ -219,46 +219,44 @@
 
         <mat-menu #tableViewOptionsMenu="matMenu">
           <mat-list>
-            <ng-container *ngIf="dataReady">
-              <!-- currently only supporting threading / unread for local index -->
-              <mat-list-item>
-                <mat-checkbox
-                  *ngIf="canvastable"
-                  [(ngModel)]="canvastable.showContentTextPreview"
-                  matLine
-                  (change)="saveContentPreviewSetting()"
-                  (click)="$event.stopPropagation()"
-                  class="tableViewOptionsMenuElement"
-                >
-                  <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
-                  Inline previews
-                </mat-checkbox>
-              </mat-list-item>
-              <mat-list-item>
-                <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
-                  matLine
-                  (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
-                  (click)="$event.stopPropagation()"
-                  [disabled]="unreadMessagesOnlyCheckbox"
-                  class="tableViewOptionsMenuElement"
-                >
-                  <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" matTooltip="Threaded conversation view"></mat-icon>
-                  Threaded view
-                </mat-checkbox>
-              </mat-list-item>
-              <mat-list-item>
-                <mat-checkbox [(ngModel)]="unreadMessagesOnlyCheckbox"
-                  matLine
-                  (change)="updateSearch(true)"
-                  (click)="$event.stopPropagation()"
-                  [disabled]="viewmode==='conversations'"
-                  class="tableViewOptionsMenuElement"
-                >
-                  <mat-icon  svgIcon="email-mark-as-unread" class="tableViewOptionsMenuElement" matTooltip="Unread messages only"></mat-icon>
-                  Unread only
-                </mat-checkbox>
-              </mat-list-item>
-            </ng-container>
+            <mat-list-item>
+              <mat-checkbox
+                *ngIf="canvastable"
+                [(ngModel)]="canvastable.showContentTextPreview"
+                matLine
+                (change)="saveContentPreviewSetting()"
+                (click)="$event.stopPropagation()"
+                class="tableViewOptionsMenuElement"
+              >
+                <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
+                Inline previews
+              </mat-checkbox>
+            </mat-list-item>
+            <!-- currently only supporting threading for local index -->
+            <mat-list-item>
+              <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
+                matLine
+                (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
+                (click)="$event.stopPropagation()"
+                [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
+                class="tableViewOptionsMenuElement"
+              >
+                <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
+                Threaded view
+              </mat-checkbox>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-checkbox [(ngModel)]="unreadMessagesOnlyCheckbox"
+                matLine
+                (change)="updateSearch(true)"
+                (click)="$event.stopPropagation()"
+                [disabled]="viewmode==='conversations'"
+                class="tableViewOptionsMenuElement"
+              >
+                <mat-icon  svgIcon="email-mark-as-unread" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
+                Unread only
+              </mat-checkbox>
+            </mat-list-item>
 
             <mat-list-item *ngIf="!mobileQuery.matches">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"

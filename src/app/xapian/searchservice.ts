@@ -203,6 +203,9 @@ export class SearchService {
           this.initSubject.complete();
         }
       });
+
+    this.searchResultsSubject.subscribe(() =>
+      this.messagelistservice.refreshFolderCounts());
   }
 
   public init() {
@@ -948,8 +951,12 @@ export class SearchService {
               return new SearchIndexDocumentUpdate(messageId, async () => {
                 try {
                   const docIdTerm = `Q${messageId}`;
-                  const messageText = (await this.rmmapi.getMessageContents(messageId).toPromise()).text.text;
-                  this.api.addTextToDocument(docIdTerm, true, messageText);
+                  const msg = (await this.rmmapi.getMessageContents(messageId).toPromise());
+                  if (msg.status === 'success') {
+                    this.api.addTextToDocument(docIdTerm, true, msg.text.text);
+                  }
+                  // There may have been known backend warnings, so
+                  // don't keep repeating the attempt
                   this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
                 } catch (e) {
                   console.error('Failed to add text to document', messageId, e);
@@ -1229,5 +1236,20 @@ export class SearchService {
         return this.currentDocData;
     }
 
-}
+  // fetch message contents, we actually only want the "text.text" part here
+  // then we can use it for previews and search, both with/without local index
+  // skip haschanges/updates if we already saw this one ..
+  public updateMessageText(messageId: number): boolean {
+    if (!this.messageTextCache.has(messageId)) {
+      this.rmmapi.getMessageContents(messageId).subscribe((content) => {
+        if (content['status'] === 'success') {
+          this.messageTextCache.set(messageId, content.text.text);
+          this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
+        }
+      });
+      return true;
+    }
+    return false;
+  }
 
+}

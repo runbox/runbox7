@@ -22,7 +22,7 @@ import { Component, Input } from '@angular/core';
 @Component({
     selector: 'app-runbox-contact-support',
     template: `
-<div>
+<div class="support-snackbar">
     <div> <ng-content></ng-content> </div>
     <div> {{ suggestion }}, or contact Runbox Support at support@runbox.com. </div>
 </div>

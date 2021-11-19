@@ -78,7 +78,7 @@
               <p>Please enter your OTP code.</p>
               <br />
               <mat-form-field>
-		<input matInput placeholder="One-time password" name="otp" id="otp" inputmode="numeric" ngModel />
+		<input matInput placeholder="One-time password" name="otp" id="otp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
@@ -86,16 +86,9 @@
             </ng-container>                    
             <ng-container *ngIf="twofactormethodgroup.value==='unlock_code'">
               <p>Please enter your unlock code.</p>
-	      <p>If you chose a security question and answer when setting up 2FA, enter those as well.</p>
               <br />
               <mat-form-field style="width: 100%">
 		<input matInput type="password" placeholder="Unlock code" name="unlock_code" ngModel />
-              </mat-form-field>
-              <h4>Security question</h4>
-              <p>{{unlock_question}}</p>
-              <br />
-              <mat-form-field style="width: 100%">
-		<input matInput type="password" placeholder="Security answer" name="unlock_answer" ngModel />
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit">Unlock</button>
             </ng-container>

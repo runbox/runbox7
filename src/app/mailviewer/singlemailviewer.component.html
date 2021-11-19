@@ -181,57 +181,59 @@
   </mat-toolbar>
   <div *ngIf="mailObj" #messageContents id="messageContents">
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
-      <mat-expansion-panel-header title="Toggle message headers">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle message headers">
 	      <mat-panel-title>
           <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div style="position: absolute; right: 3px;">
+      <div id="headerButtons" style="position: absolute; right: 3px;">
         <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
-        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-vertical"></mat-icon></button>
+        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-horizontal"></mat-icon></button>
       </div>
+      <div class="messageHeaders">
       <ng-container *ngIf="!showAllHeaders">
-        <div class="messageHeaderRow">
-          <div class="messageHeaderFrom">
-            From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+          <div class="messageHeaderRow">
+            <div class="messageHeaderFrom">
+              From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div class="messageHeaderRow">
-          <div class="messageHeaderDate">Time:</div>
-          <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
-        </div>
-        <div *ngIf="mailObj.to" class="messageHeaderRow">
-          <div class="messageHeaderTo">
-            To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+          <div class="messageHeaderRow">
+            <div class="messageHeaderDate">Time:</div>
+            <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
           </div>
-        </div>
-        <div *ngIf="mailObj.cc" class="messageHeaderRow">
-          <div class="messageHeaderCC">
-            CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.to" class="messageHeaderRow">
+            <div class="messageHeaderTo">
+              To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div *ngIf="mailObj.bcc"class="messageHeaderRow">
-          <div class="messageHeaderBCC">
-            BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.cc" class="messageHeaderRow">
+            <div class="messageHeaderCC">
+              CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-      </ng-container>
-      <table *ngIf="showAllHeaders">
-        <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
-          <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
-          <td style="vertical-align: top;">
+          <div *ngIf="mailObj.bcc"class="messageHeaderRow">
+            <div class="messageHeaderBCC">
+              BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+            </div>
+          </div>
+        </ng-container>
+        <table *ngIf="showAllHeaders">
+          <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
+            <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
+            <td style="vertical-align: top;">
               <span *ngIf="header.value.html" [innerHTML]="header.value.html"></span>
               <span *ngIf="header.value.unsubscribe">
                 Unsubscribe:
                 <a [href]="header.value.unsubscribe.url">
-                    {{header.value.unsubscribe.url}}
+                  {{header.value.unsubscribe.url}}
                 </a>
               </span>
               <span *ngIf="!header.value.html && !header.value.unsubscribe">{{header.value | json}}</span>
-          </td>
-        </tr>
-      </table>
+            </td>
+          </tr>
+        </table>
+      </div>
 
     </mat-expansion-panel>
 
@@ -239,21 +241,25 @@
     <!-- Used when forwarding mail - do not delete -->
 
     <span style="display: none" #forwardMessageHeader>
-      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt;<br />
-      Time:{{mailObj.date | date:'yyyy-MM-dd HH:mm'}}<br />
-      To:
-      <ng-container *ngIf="mailObj.to">
-            <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </ng-container>
-      <br />
-      <ng-container *ngIf="mailObj.cc">
-        <span>Cc:</span><span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </ng-container>
-      {{mailObj.subject}}
+      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; <br />
+      Time: {{mailObj.date | date:'yyyy-MM-dd HH:mm'}} <br />
+      Subject: {{mailObj.subject}} <br />
+      <span *ngIf="mailObj.to">
+        To: <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
+      </span> <br />
+      <span *ngIf="mailObj.cc">
+        Cc: <span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
+      </span> <br />
+    </span>
+
+    <!-- Used when replying to mail - do not delete -->
+
+    <span style="display: none" #replyMessageHeader>
+      On {{mailObj.date | date:'yyyy-MM-dd HH:mm'}}, {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; wrote:
     </span>
 
     <!---->
-    <div *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
+    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
       style="display: flex; font-size: 12px;">
       <span style="flex-grow: 1"></span>
       <span>
@@ -303,7 +309,6 @@
           [srcdoc]="mailContentHTML"
           (load)="adjustIframeHTMLHeight()"
           sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          scrolling="no"
           id="iframe"
 	    >
       </iframe>

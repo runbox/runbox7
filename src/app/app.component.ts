@@ -89,7 +89,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   viewmode = 'messages';
   keepMessagePaneOpen = true;
   conversationGroupingCheckbox = false;
+  conversationGroupingToolTip = 'Threaded conversation view';
   unreadMessagesOnlyCheckbox = false;
+  unreadOnlyToolTip = 'Unread messages only';
 
   indexDocCount = 0;
 
@@ -417,7 +419,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             idx => idx < this.canvastable.rows.rowCount()
         ).map(idx => this.canvastable.rows.getRowMessageId(idx));
         for (const id of messageIds) {
-            this.rmmapi.getMessageContents(id).subscribe(() => this.canvastable.hasChanges = true);
+          if (this.searchService.updateMessageText(id)) {
+            this.canvastable.hasChanges = true;
+          }
         }
     });
 
@@ -582,7 +586,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.unreadMessagesOnlyCheckbox,
       this.mobileQuery.matches
     );
-    this.router.navigate(['/compose']);
+    this.router.navigate(['/compose'], {fragment: 'bug-report'});
    }
 
   saveMessagePaneSetting(): void {
@@ -758,6 +762,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.searchService.deleteLocalIndex().subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
 
+      this.updateTooltips();
       this.snackBar.open('The index has been deleted from your device', 'Dismiss');
     });
   }
@@ -784,6 +789,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.rows = new WebSocketSearchMailList(...args);
       }
     }
+    this.filterMessageDisplay();
 
     // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
     // in canvastable, and anyway get CV to just read the columns itself
@@ -796,6 +802,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // messages updated, check if we need to select a message from the fragment
     this.selectMessageFromFragment(this.fragment);
+  }
+
+  public filterMessageDisplay() {
+    const options = new Map();
+    options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
+    options.set('searchText', this.searchText);
+    this.canvastable.rows.filterBy(options);
+    this.canvastable.hasChanges = true;
   }
 
   public clearSelection() {
@@ -1096,13 +1110,29 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
+  updateTooltips() {
+    this.unreadOnlyToolTip = this.viewmode === 'conversations'
+      ? 'Leave threaded mode to view unread only'
+      : 'Unread messages only';
+    this.conversationGroupingToolTip = !this.showingSearchResults
+      ? 'Synchronise the index to see threaded view'
+      :  this.unreadMessagesOnlyCheckbox
+        ? 'Leave unread only to see threaded view'
+        : 'Threaded conversation view';
+  }
+
   // FIXME: Why do we run this when searchText is empty?
+  // FIXME: move updateSearch (for index searches) into
+  // searchmessagedisplay filterBy ?
   updateSearch(always?: boolean, noscroll?: boolean) {
     if (!this.dataReady || this.showingWebSocketSearchResults) {
+      // May have changed unread checkbox so reset / filter message display
+      this.filterMessageDisplay();
       return;
     }
     const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
     localStorage.setItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+    this.updateTooltips();
 
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
@@ -1259,6 +1289,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             } else {
               this.usewebsocketsearch = true;
             }
+            this.updateTooltips();
           });
         }
       })
