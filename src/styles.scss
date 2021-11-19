@@ -735,6 +735,13 @@ mat-sidenav-container {
     background-color: mat-color($rmm-default-accent, 50) !important;
 }
 
+app-popular-recipients, app-saved-searches {
+    mat-expansion-panel-header span {
+	align-items: center;
+	height: 15px;
+    }
+}
+
 /* List screen */
 
 #searchField {
@@ -835,9 +842,6 @@ mat-sidenav-container {
 
 mat-expansion-panel, mat-expansion-panel-header {
     box-shadow: none !important;
-    height: 36px !important;
-    padding-top: 2px !important;
-    padding-bottom: 2px !important;
 }
 
 .mat-expansion-panel-body {
