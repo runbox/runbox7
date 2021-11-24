@@ -748,14 +748,14 @@ app-popular-recipients, app-saved-searches {
 /* List screen */
 
 #searchBarContainer {
-    height: 50px;
+    height: 55px;
     @media(max-width: 340px) {
         padding: 0;
     }
 }
 
 #searchBarContainer .mat-icon-button {
-    height: 30px;
+    height: 40px;
 }
 
 #searchField {
@@ -770,7 +770,7 @@ app-popular-recipients, app-saved-searches {
 }
 
 #searchField .mat-form-field-infix {
-    line-height: 1.8em;
+    line-height: 1.25em;
     padding: 0.25em 0;
 }
 
@@ -817,7 +817,7 @@ app-popular-recipients, app-saved-searches {
 
 #canvasTableContainerArea {
     position: absolute;
-    top: 73px;
+    top: 55px;
     left: 0px;
     right: 0px;
 }
@@ -852,6 +852,10 @@ app-popular-recipients, app-saved-searches {
 }
 
 /* Message action button row */
+single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
+    height: 55px !important;
+}
+
 @media(max-width: 812px) {
     single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
 	height: 40px !important;
@@ -864,6 +868,11 @@ mat-expansion-panel, mat-expansion-panel-header {
 
 .mat-expansion-panel-body {
     padding: 0 !important;
+}
+
+/* Header area */
+#messageContents .mat-expansion-panel-header.mat-expanded {
+    height: 50px;
 }
 
 /* Compose */
