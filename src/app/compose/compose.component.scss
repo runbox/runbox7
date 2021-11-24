@@ -4,7 +4,7 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 
 #messageTextArea textarea {
     box-sizing: border-box;
-    width: 100%;
+//    width: 100%;
     border: 1px solid #949494;
     padding: 10px;
 }
@@ -15,7 +15,7 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 
 .draft-title {
     flex-grow: 1;
-    font-size: 24px;
+    font-size: 20px;
     padding-right: 30px;
 }
 
@@ -27,7 +27,9 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 }
 
 .draftPreview {
-    max-height: 100px;
+    margin: 0 10px 10px 0;
+    min-height: 100px;
+    max-height: 150px;
     overflow: hidden;
 
     span {
@@ -39,7 +41,7 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 }
 
 mat-form-field {
-    width: 100%;
+//    width: 100%;
 }
 
 .dropzonehighlight {
@@ -73,7 +75,7 @@ mat-form-field {
 }
 
 .fieldRecipient {
-    width: 100%;
+//    width: 100%;
     display: flex;
     overflow: hidden;
     flex-direction: row;

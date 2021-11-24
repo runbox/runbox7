@@ -877,6 +877,20 @@ mat-expansion-panel, mat-expansion-panel-header {
 
 /* Compose */
 
+.draftdesk-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+compose {
+    flex-grow: 1;
+    width: 100%
+}
+
+compose.draftPreviewContainer {
+    width: 50%
+}
+
 @media(min-width: 1025px) {
     compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
     width: 45vw !important;
