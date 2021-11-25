@@ -8,14 +8,15 @@
 
     <ng-template #productsTable>
 
-      <p>
-	These are the subscriptions associated with your account.
-      </p>
-      <p>
-	You may renew any of them at any time, which will add the new period to the end of your current subscription.
-      </p>
+        <p>
+            These are the subscriptions associated with your account.
+        </p>
+        <p>
+            You may renew any of them at any time, which will add the new period to the end of your current
+            subscription.
+        </p>
 
-      <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
+        <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
                 <td mat-cell *matCellDef="let p">
