@@ -45,8 +45,8 @@ export class LoginComponent implements OnInit {
     constructor(private httpclient: HttpClient,
         private router: Router,
         private authservice: RMMAuthGuardService,
-	public progressService: ProgressService,
-	public rmmapi: RunboxWebmailAPI
+        public progressService: ProgressService,
+        public rmmapi: RunboxWebmailAPI
     ) {
 
     }
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
 
         this.rmmapi.me.subscribe(me => {
             this.user_is_trial = me.is_trial;
-      	});
+        });
     }
 
     public onTwoFactorSubmit(theform) {
