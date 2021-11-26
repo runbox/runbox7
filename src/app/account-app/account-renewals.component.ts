@@ -19,7 +19,6 @@
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -31,8 +30,8 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 import * as moment from 'moment';
 
-const columnsDefault = ['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
-const columnsMobile = ['expansionIndicator', 'name', 'smallhints'];
+const columnsDefault = ['renewal_name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
+const columnsMobile = ['renewal_name'];
 
 // TODO define it as an interface
 type ActiveProduct = any;
@@ -40,13 +39,6 @@ type ActiveProduct = any;
 @Component({
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
-    animations: [
-        trigger('detailExpand', [
-            state('collapsed', style({height: '0px', minHeight: '0'})),
-            state('expanded', style({height: '*'})),
-            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-        ]),
-    ],
 })
 export class AccountRenewalsComponent {
     active_products: ActiveProduct[] = [];
@@ -116,12 +108,6 @@ export class AccountRenewalsComponent {
                 this.snackbar.open('Failed to determine domain for the product. Try again later or contact Runbox Support', 'Okay');
             },
         );
-    }
-
-    rowClicked(p: ActiveProduct) {
-        if (this.mobileQuery.matches) {
-            this.expandedProduct = this.expandedProduct === p ? null : p;
-        }
     }
 
     showSubsDialog(p: ActiveProduct) {

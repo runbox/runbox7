@@ -1103,14 +1103,35 @@ tr.regularRow td {
 div.expandedDetails {
     overflow: hidden;
     display: flex;
+    min-height: 0;
+    @media only screen and (min-width: 1025px) {
+        height: 0px;
+    }
 }
+
+    td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
+        @media only screen and (max-width: 1024px) {
+            padding-bottom: 10px;
+        }
+        @media only screen and (max-width: 500px) {
+            padding: 0 10px 10px;
+        }
+    }
+    
+    td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
+        @media only screen and (max-width: 1024px) {
+            background-color: #f5f5f5;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+        @media only screen and (max-width: 500px) {
+            padding: 10px 13px 10px;
+        }
+    }
 
 table.detailsTable {
     width: 100%;
-}
-
-table.detailsTable tr td:first-of-type {
-    font-weight: bold;
 }
 
 table.detailsTable tr td:nth-of-type(2) {

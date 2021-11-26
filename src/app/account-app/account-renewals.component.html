@@ -16,12 +16,12 @@
             subscription.
         </p>
 
-        <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
-            <ng-container matColumnDef="name">
+        <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows class="renewalsTable">
+            <ng-container matColumnDef="renewal_name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
                 <td mat-cell *matCellDef="let p">
                     {{ p.name }}
-                    <strong *ngIf="p.pid === current_subscription"> – your current subscription </strong>
+                    <span *ngIf="p.pid === current_subscription"> – your current subscription </span>
                 </td>
             </ng-container>
             <ng-container matColumnDef="quantity">
@@ -60,13 +60,6 @@
                     </mat-error>
                 </td>
             </ng-container>
-            <ng-container matColumnDef="smallhints">
-                <th mat-header-cell *matHeaderCellDef> </th>
-                <td mat-cell *matCellDef="let p">
-                    <mat-icon *ngIf="p.expired" svgIcon="cancel"></mat-icon>
-                    <mat-icon *ngIf="p.expires_soon" svgIcon="alert"></mat-icon>
-                </td>
-            </ng-container>
             <ng-container matColumnDef="recur">
                 <th mat-header-cell *matHeaderCellDef> Auto Renew </th>
                 <td mat-cell *matCellDef="let p">
@@ -83,18 +76,9 @@
                     </app-account-renewals-renew-now-button-component>
                 </td>
             </ng-container>
-            <ng-container matColumnDef="expansionIndicator">
-                <th mat-header-cell *matHeaderCellDef> </th>
-                <td mat-cell *matCellDef="let p">
-                    <mat-icon *ngIf="p == expandedProduct; else expandedProduct" svgIcon="chevron-down"></mat-icon>
-                    <ng-template #notExpanded>
-                        <mat-icon svgIcon="chevron-right"></mat-icon>
-                    </ng-template>
-                </td>
-            </ng-container>
             <ng-container matColumnDef="expandedDetails">
                 <td mat-cell *matCellDef="let p" [attr.colspan]="displayedColumns.length">
-                    <div class="expandedDetails" [@detailExpand]="p == expandedProduct ? 'expanded' : 'collapsed'">
+                    <div class="expandedDetails">
                         <!-- yo dawg, I heard you like tables -->
                         <table class="detailsTable">
                             <tr>
@@ -122,9 +106,9 @@
                             <tr>
                                 <td> </td>
                                 <td>
-                                    <strong *ngIf="p.expired">
+                                    <span *ngIf="p.expired">
                                         (expired {{ p.active_until.fromNow() }})
-                                    </strong>
+                                    </span>
                                     <mat-error *ngIf="p.expires_soon" style="font-weight: bold;">
                                         (expires {{ p.active_until.fromNow() }})
                                     </mat-error>
@@ -151,7 +135,7 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"
                 [ngStyle]="{ 'display': mobileQuery.matches ? 'none' : null }">
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="regularRow" (click)="rowClicked(row)">
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="regularRow">
             </tr>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetails']" class="detailsRow"></tr>
         </table>
