@@ -23,6 +23,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 
@@ -37,13 +38,15 @@ export class LoginComponent implements OnInit {
 
     accountExpired = false;
     twofactor: any = false;
+    user_is_trial = true;
     unlock_question: string;
     login_error_html: string;
 
     constructor(private httpclient: HttpClient,
         private router: Router,
         private authservice: RMMAuthGuardService,
-        public progressService: ProgressService
+	public progressService: ProgressService,
+	public rmmapi: RunboxWebmailAPI
     ) {
 
     }
@@ -52,6 +55,10 @@ export class LoginComponent implements OnInit {
         this.authservice.isLoggedIn()
             .pipe(filter(res => res === true))
             .subscribe(() => this.router.navigateByUrl('/'));
+
+        this.rmmapi.me.subscribe(me => {
+            this.user_is_trial = me.is_trial;
+      	});
     }
 
     public onTwoFactorSubmit(theform) {
