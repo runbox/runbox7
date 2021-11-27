@@ -55,10 +55,6 @@ export class LoginComponent implements OnInit {
         this.authservice.isLoggedIn()
             .pipe(filter(res => res === true))
             .subscribe(() => this.router.navigateByUrl('/'));
-
-        this.rmmapi.me.subscribe(me => {
-            this.user_is_trial = me.is_trial;
-        });
     }
 
     public onTwoFactorSubmit(theform) {
