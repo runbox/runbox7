@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
 
     accountExpired = false;
     twofactor: any = false;
-    user_is_trial = true;
+    user_is_trial = false;
     unlock_question: string;
     login_error_html: string;
 
