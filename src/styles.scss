@@ -120,7 +120,8 @@ mat-list-item .mat-list-item-content {
 }
 
 .mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>*, mat-list-item .mat-list-text {
-    height: 15px;
+    height: 22px;
+    line-height: 22px;
     font-weight: 400;
 }
 
@@ -145,6 +146,10 @@ mat-list-item p.mat-line mat-icon {
 .mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
     height: auto !important;
     font-size: 14px !important;
+}
+
+.mat-menu-content .mat-list-item {
+    height: 32px !important;
 }
 
 mat-icon {
