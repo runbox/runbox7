@@ -34,11 +34,15 @@
 	  <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
 	</div>
 	<button mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
-	<p *ngIf='accountExpired && user_is_trial' class='login_error_html'>
+	<p *ngIf='accountSuspended' class='login_error_html'>
+          Your Runbox account has been suspended. <br>
+          Please contact <a href="https://support.runbox.com">Runbox Support</a>.
+	</p>
+	<p *ngIf='accountExpiredTrial' class='login_error_html'>
           Your Runbox trial account has expired. <br>
           Go to <a routerLink="/account/plans">Plans & Upgrades</a> to reopen it now!
 	</p>
-	<p *ngIf='accountExpired && !user_is_trial' class='login_error_html'>
+	<p *ngIf='accountExpiredSubscription' class='login_error_html'>
           Your Runbox subscription has expired. <br>
           Go to <a routerLink="/account/subscriptions">Your Subscriptions</a> to renew it now!
 	</p>
