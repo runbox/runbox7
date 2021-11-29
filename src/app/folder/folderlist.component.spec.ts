@@ -18,7 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent } from './folderlist.component';
-import { FolderListEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FolderListEntry } from '../common/folderlistentry';
 import { BehaviorSubject, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TestBed } from '@angular/core/testing';

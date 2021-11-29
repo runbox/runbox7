@@ -22,6 +22,7 @@ import { Observable, from, Subject, AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { FolderListEntry } from '../common/folderlistentry';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
@@ -50,27 +51,6 @@ export class MessageFields {
     folder_id: number;
     from: string;
     to: string;
-}
-
-export class FolderListEntry {
-    isExpandable?: boolean;
-    priority?: number; // for sorting order
-
-    constructor(
-        public folderId: number,
-        public newMessages: number,
-        public totalMessages: number,
-        public folderType: string,
-        public folderName: string,
-        public folderPath: string,
-        public folderLevel: number) {
-    }
-}
-
-export class FolderStatsEntry {
-    total: number;
-    total_unseen: number;
-    total_seen: number;
 }
 
 export class Alias {
@@ -288,6 +268,8 @@ export class RunboxWebmailAPI {
         );
     }
 
+  // FIXME: duplicated in restapi_standalone (no gui) for web worker
+  // make there be no duplicates!
     public listAllMessages(page: number,
         sinceid: number = 0,
         sincechangeddate: number = 0,
@@ -397,20 +379,6 @@ export class RunboxWebmailAPI {
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
-    }
-
-    folderStats(folderName: string): Observable<FolderStatsEntry> {
-        const req = this.http.get('/rest/v1/email_folder/stats/' + folderName).pipe(share());
-        this.subscribeShowBackendErrors(req);
-        return req.pipe(
-            map((response: any) => {
-                const fse = new FolderStatsEntry();
-                fse.total = response.result.stats.total;
-                fse.total_unseen = response.result.stats.total_unseen;
-                fse.total_seen = response.result.stats.total_seen;
-                return fse;
-            })
-        );
     }
 
     updateFolderCounts(folderName: string): Observable<any> {

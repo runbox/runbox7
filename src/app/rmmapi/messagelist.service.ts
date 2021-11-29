@@ -23,8 +23,9 @@ import { throwError as observableThrowError, BehaviorSubject, ReplaySubject, Asy
 import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operators';
 
 import { MessageInfo } from '../common/messageinfo';
+import { FolderListEntry } from '../common/folderlistentry';
 
-import { RunboxWebmailAPI, FolderListEntry } from './rbwebmail';
+import { RunboxWebmailAPI } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
 
 export class FolderMessageCountEntry {
@@ -56,6 +57,7 @@ export class MessageListService {
     folderMessageLists: { [folder: string]: MessageInfo[] } = {};
     messagesById: { [id: number]: MessageInfo } = {};
     folderCounts: FolderMessageCountMap;
+    staleFolders: { [name: string]: boolean } = {};
 
     trashFolderName = 'Trash';
     spamFolderName = 'Spam';
@@ -333,6 +335,15 @@ export class MessageListService {
         messageIds.forEach((msgId) => {
             const msg = this.messagesById[msgId];
             if (!msg) {
+                // we only have T/S messages now, so if index on
+                // might not have this one
+                // artificial count update
+                if (folderName === this.spamFolderName || folderName === this.trashFolderName) {
+                    this.folderCounts[folderName].total++;
+                }
+                if (this.currentFolder === this.spamFolderName || this.currentFolder === this.trashFolderName) {
+                    this.folderCounts[folderName].total--;
+                }
                 return;
             }
             if (msg.folder === folderName) {
@@ -379,7 +390,8 @@ export class MessageListService {
                 this.folderCounts[folderName].unread++;
             }
         });
-        // Message counts update
+      // Message counts update
+      console.log('msl moveMessages updating folderCounts');
         this.folderMessageCountSubject.next(this.folderCounts);
         // current folder contents update
         this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
@@ -393,6 +405,9 @@ export class MessageListService {
         const folder = this.currentFolder;
         if (!this.folderMessageLists[folder]) {
             this.folderMessageLists[folder] = [];
+        }
+        if (this.staleFolders[folder]) {
+            resetContents = true;
         }
         const messageList = this.folderMessageLists[folder];
         const sinceid = !resetContents && messageList.length > 0 ? messageList[messageList.length - 1].id : 0;
@@ -417,5 +432,19 @@ export class MessageListService {
                 this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
                 this.fetchInProgress = false;
             });
+    }
+
+    /*
+     * After index worker updates, tell messagelist management which
+     * folders had changes (and thus should be refreshed
+     */
+
+    public updateStaleFolders(folders: string[]) {
+        folders.forEach((f) => this.staleFolders[f] = true);
+        // check if current visible folder has updates
+        // refresh if localsearch not activated (aka setCurrentFolder)
+        if (this.staleFolders[this.currentFolder]) {
+            this.fetchFolderMessages();
+        }
     }
 }

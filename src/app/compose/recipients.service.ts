@@ -79,7 +79,7 @@ export class RecipientsService {
             }
         });
 
-        searchService.indexUpdatedSubject.subscribe(() => this.updateRecentlyUsed());
+        searchService.indexReloadedSubject.subscribe(() => this.updateRecentlyUsed());
 
         contactsService.contactsSubject.subscribe(contacts => {
             this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Contacts);
