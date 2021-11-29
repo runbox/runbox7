@@ -23,7 +23,6 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 
@@ -36,7 +35,9 @@ import { ProgressService } from '../http/progress.service';
 
 export class LoginComponent implements OnInit {
 
-    accountExpired = false;
+    accountSuspended = false;
+    accountExpiredTrial = false;
+    accountExpiredSubscription = false;
     twofactor: any = false;
     user_is_trial = false;
     unlock_question: string;
@@ -45,8 +46,7 @@ export class LoginComponent implements OnInit {
     constructor(private httpclient: HttpClient,
         private router: Router,
         private authservice: RMMAuthGuardService,
-        public progressService: ProgressService,
-        public rmmapi: RunboxWebmailAPI
+        public progressService: ProgressService
     ) {
 
     }
@@ -134,8 +134,14 @@ export class LoginComponent implements OnInit {
         if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
             this.login_error_html = '<p>' + error_msgs_1fa[loginresonseobj.code] + '</p>';
         }
-        if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
-            this.accountExpired = true;
+        if (loginresonseobj.user_status === '1' && loginresonseobj.error) {
+            this.accountSuspended = true;
+        } else if (loginresonseobj.user_status === '2' && loginresonseobj.error) {
+            this.accountExpiredTrial = true;
+        } else if (loginresonseobj.user_status === '3' && loginresonseobj.error) {
+            this.accountExpiredTrial = true;
+        } else if (loginresonseobj.user_status === '4' && loginresonseobj.error) {
+            this.accountExpiredSubscription = true;
         } else {
             this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
         }
