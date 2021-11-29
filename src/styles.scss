@@ -46,14 +46,6 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
-.mat-typography {
-    padding-top: 20px;
-}
-
-mat-form-field {
-    /* This is for iOS not to zoom in when focusing on text fields */
-    font-size: 16px !important;
-}
 
 /* Generic styles */
 
@@ -113,7 +105,21 @@ ul.square-list li {
     margin-left: 5px;
 }
 
+p {
+    font-size: 15px;
+}
+
+
 /* Generic MD styles */
+
+.mat-typography {
+    padding-top: 20px;
+}
+
+mat-form-field {
+    /* This is for iOS not to zoom in when focusing on text fields */
+    font-size: 15px !important;
+}
 
 mat-list-item .mat-list-item-content {
     min-height: 36px !important;
@@ -152,6 +158,10 @@ mat-list-item p.mat-line mat-icon {
     height: 32px !important;
 }
 
+.mat-menu-panel .mat-list-item {
+    height: 48px !important;
+}
+
 mat-icon {
     align-items: center;
     vertical-align: middle !important;
@@ -181,6 +191,10 @@ mat-chip.mat-chip.mat-standard-chip {
     background-color: #f5f5f5;
 }
 
+.mat-expansion-panel-header {
+    height: 36px;
+}
+
 /* Generic custom styles */
 
 .mat-dialog-container {
@@ -199,7 +213,7 @@ mat-grid-tile.tableTitle {
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .primaryContentButton {
@@ -793,6 +807,10 @@ app-popular-recipients, app-saved-searches {
     height: 40px;
 }
 
+.mat-checkbox-label {
+    font-size: 15px;
+}
+
 #threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
     line-height: 0px;
 }
@@ -875,7 +893,7 @@ mat-expansion-panel, mat-expansion-panel-header {
     padding: 0 !important;
 }
 
-/* Header area */
+/* Message header area */
 #messageContents .mat-expansion-panel-header.mat-expanded {
     height: 50px;
 }
