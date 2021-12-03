@@ -38,8 +38,11 @@ export class LoginComponent implements OnInit {
     accountSuspended = false;
     accountExpiredTrial = false;
     accountExpiredSubscription = false;
+    accountCanceled = false;
+    accountClosed = false;
+    accountError = false;
+    
     twofactor: any = false;
-    user_is_trial = false;
     unlock_question: string;
     login_error_html: string;
 
@@ -134,16 +137,20 @@ export class LoginComponent implements OnInit {
         if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
             this.login_error_html = '<p>' + error_msgs_1fa[loginresonseobj.code] + '</p>';
         }
-        if (loginresonseobj.user_status === '1' && loginresonseobj.error) {
+        if (loginresonseobj.user_status === '1') {
             this.accountSuspended = true;
-        } else if (loginresonseobj.user_status === '2' && loginresonseobj.error) {
+        } else if (loginresonseobj.user_status === '2') {
             this.accountExpiredTrial = true;
-        } else if (loginresonseobj.user_status === '3' && loginresonseobj.error) {
+        } else if (loginresonseobj.user_status === '3') {
             this.accountExpiredTrial = true;
-        } else if (loginresonseobj.user_status === '4' && loginresonseobj.error) {
+        } else if (loginresonseobj.user_status === '4') {
             this.accountExpiredSubscription = true;
+	} else if (loginresonseobj.user_status === '5') {
+            this.accountCanceled = true;
+	} else if (loginresonseobj.user_status > 5) {
+            this.accountClosed = true;
         } else {
-            this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
+	    this.accountError = true;
         }
     }
 
