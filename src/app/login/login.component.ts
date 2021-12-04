@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
     accountCanceled = false;
     accountClosed = false;
     accountError = false;
-    
+
     twofactor: any = false;
     unlock_question: string;
     login_error_html: string;
@@ -145,12 +145,12 @@ export class LoginComponent implements OnInit {
             this.accountExpiredTrial = true;
         } else if (loginresonseobj.user_status === '4') {
             this.accountExpiredSubscription = true;
-	} else if (loginresonseobj.user_status === '5') {
+        } else if (loginresonseobj.user_status === '5') {
             this.accountCanceled = true;
-	} else if (loginresonseobj.user_status > 5) {
+        } else if (loginresonseobj.user_status > 5) {
             this.accountClosed = true;
         } else {
-	    this.accountError = true;
+            this.accountError = true;
         }
     }
 
