@@ -968,6 +968,15 @@ compose .mat-standard-chip {
     margin-top: 35px;
 }
 
+/* Contacts */
+
+.contactListControls {
+    .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
+	height: 48px !important;
+    }
+}    
+
+
 /* Calendar */
 
 app-calendar-app-component mat-nav-list button {
