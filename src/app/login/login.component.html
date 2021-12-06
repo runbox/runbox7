@@ -46,6 +46,17 @@
           Your Runbox subscription has expired. <br>
           Go to <a routerLink="/account/subscriptions">Your Subscriptions</a> to renew it now!
 	</p>
+	<p *ngIf='accountCanceled' class='login_error_html'>
+          Your Runbox account has been canceled. <br>
+          Please contact <a href="https://support.runbox.com">Runbox Support</a>.
+	</p>
+	<p *ngIf='accountClosed' class='login_error_html'>
+          This Runbox account has been closed. <br>
+	</p>
+	<p *ngIf='accountError' class='login_error_html'>
+          An unknown error has occurred. <br>
+	  Please contact <a href="https://support.runbox.com">Runbox Support</a>.
+	</p>
 	<div id="createAccount" class="login-link">
 	  <a href="/signup?runbox7=1">Create new account</a>
   </div>
