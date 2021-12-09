@@ -21,19 +21,19 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can open an email and go back and forth in browser history', () => {
-        cy.intercept('/rest/v1/email/9').as('get9');
+        cy.intercept('/rest/v1/email/11').as('get11');
         cy.visit('/');
 
-        cy.wait('@get9', {'timeout':10000});
+        cy.wait('@get11', {'timeout':10000});
         canvas().click(400, 300);
 
-        cy.hash().should('equal', '#Inbox:9');
+        cy.hash().should('equal', '#Inbox:11');
         cy.go('back');
-        cy.hash().should('not.contain', 'Inbox:9');
+        cy.hash().should('not.contain', 'Inbox:11');
         /* TODO: apparently forward broke at some point
          * in headless mode. Works normally in a proper browser
         cy.go('forward');
-        cy.hash().should('equal', '#Inbox:9');
+        cy.hash().should('equal', '#Inbox:11');
         cy.get('button[mattooltip="Close"]').click();
         cy.hash().should('equal', '#Inbox');
         */
