@@ -578,7 +578,6 @@ rmm-headertoolbar {
 }
 
 .mainMenu a, mat-menu a, .mat-nav-list a {
-    line-height: 20px;
     padding: 0;
     text-decoration: none;
     font-weight: 400;
@@ -663,6 +662,10 @@ mat-sidenav-container {
 #sidenavLogoContainer {
     background-color: mat-color($rmm-default-primary) !important;
     margin-top: -4px;
+
+    .mat-button .mat-ripple-element {
+	opacity: 0; // Override lower opacity in theme
+    }
 }
 
 #sidenavLogoButton {
