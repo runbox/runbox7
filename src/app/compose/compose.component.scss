@@ -4,13 +4,14 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 
 #messageTextArea textarea {
     box-sizing: border-box;
-//    width: 100%;
+    width: 100%;
     border: 1px solid #949494;
     padding: 10px;
 }
 
 .draft-card {
     margin-bottom: 20px;
+    width: 100
 }
 
 .draft-title {
@@ -38,10 +39,6 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-}
-
-mat-form-field {
-//    width: 100%;
 }
 
 .dropzonehighlight {
