@@ -455,7 +455,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           }
         }
         this.hoverRowIndex = newHoverRowIndex;
-        this.updateDragImage(newHoverRowIndex);
+        // this.updateDragImage(newHoverRowIndex);
       }
 
       if (this.dragSelectionDirectionIsDown === null) {
@@ -605,6 +605,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     let dragImageDestY = 0;
 
     // FIXME move to message_display??
+    //. If: selectedRowIndex is visible (not sure how it wont be!)
+    // and its actually selected, add it to the dragImage
+    
     this.rows.rows
       .forEach((row, ndx) => {
         if (
@@ -624,16 +627,29 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     dragImageCanvas.height = dragImageYCoords.length * this.rowheight;
 
     const dragContext = dragImageCanvas.getContext('2d');
-    dragImageYCoords.forEach(ycoords =>
-      dragContext.drawImage(this.canv,
-        0, ycoords[0], this.canv.width - 20, this.rowheight,
-        0,
-        ycoords[1],
+    dragImageYCoords.forEach(ycoords => {
+      // const image = this.ctx.getImageData(0, ycoords[0], this.canv.width - 20, this.rowheight);
+      // dragContext.putImageData(image, 0, ycoords[1]);
+      dragContext.drawImage(
+        // Source
+        this.canv,
+        // source origin/start coords
+        0, ycoords[0],
+        // source width/height
+        this.canv.width - 20, this.rowheight,
+        // destination coords
+        0, ycoords[1],
+        // destination width/height (could be scaled but isnt)
         this.canv.width - 20, this.rowheight
-      ));
+      )
+    });
+    dragImageCanvas.style.display='inline';
 
-    // const dragImage = document.getElementById('thedragimage') as HTMLImageElement;
-    // dragImage.src = dragImageCanvas.toDataURL();
+    const dragImage = document.getElementById('thebackupdragimage') as HTMLImageElement;
+    dragImage.src = dragImageCanvas.toDataURL();
+    dragImageCanvas.width=0;
+    dragImageCanvas.height=0;
+    dragImage.style.display='none';
   }
 
   public dragColumnOverlay(event: DragEvent) {
@@ -641,10 +657,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const selectedColIndex = this.getColIndexByClientX(event.clientX - canvrect.left);
     const selectedRowIndex = this.getRowIndexByClientY(event.clientY);
 
+    // if we're doing a drag not from the checkbox col .. 
     if (!this.columns[selectedColIndex].checkbox) {
       event.dataTransfer.dropEffect = 'move';
-      event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
+      const dImage = document.getElementById('thebackupdragimage') as HTMLImageElement;
+      dImage.style.display='inline';
+      event.dataTransfer.setDragImage(dImage, 0, 0);
+      // dImage.style.display='none';
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
+      // unselect this row (only?)
       this.selectListener.rowSelected(selectedRowIndex, -1);
     } else {
       event.preventDefault();
