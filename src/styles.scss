@@ -46,14 +46,6 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
-.mat-typography {
-    padding-top: 20px;
-}
-
-mat-form-field {
-    /* This is for iOS not to zoom in when focusing on text fields */
-    font-size: 16px !important;
-}
 
 /* Generic styles */
 
@@ -113,14 +105,34 @@ ul.square-list li {
     margin-left: 5px;
 }
 
+p {
+    font-size: 15px;
+}
+
+
 /* Generic MD styles */
 
-.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>* {
-    padding: 0px 10px !important;
+.mat-typography {
+    padding-top: 20px;
+}
+
+mat-form-field {
+    /* This is for iOS not to zoom in when focusing on text fields */
+    font-size: 15px !important;
+}
+
+mat-list-item .mat-list-item-content {
+    min-height: 36px !important;
+}
+
+.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>*, mat-list-item .mat-list-text {
+    height: 1.3em;
+    line-height: 22px;
     font-weight: 400;
 }
 
 mat-list-item p.mat-line mat-icon {
+    padding-right: 8px !important;
     padding-bottom: 8px !important;
 }
 
@@ -130,12 +142,25 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .mat-line, .mat-tree-node {
-    font-size: 16px  !important;
+    min-height: 36px !important;
+    font-size: 15px !important;
 }
 
-mat-icon {
-    align-items: center;
-    vertical-align: middle !important;
+.mat-list-base {
+    padding-top: 0px !important;
+}
+
+.mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
+    height: auto !important;
+    font-size: 14px !important;
+}
+
+.mat-menu-content .mat-list-item {
+    height: 32px !important;
+}
+
+.mat-menu-panel .mat-list-item {
+    height: 48px !important;
 }
 
 .mat-header-cell {
@@ -162,6 +187,23 @@ mat-chip.mat-chip.mat-standard-chip {
     background-color: #f5f5f5;
 }
 
+.mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
+    height: 36px;
+
+    .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
+	height: 1.8em !important;
+	min-height: 1.8em !important;
+    }
+}
+
+.mat-expansion-panel-header.mat-expanded {
+    height: 36px;
+}
+
+mat-icon {
+    vertical-align: middle;
+}
+
 /* Generic custom styles */
 
 .mat-dialog-container {
@@ -180,7 +222,7 @@ mat-grid-tile.tableTitle {
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .primaryContentButton {
@@ -536,7 +578,6 @@ rmm-headertoolbar {
 }
 
 .mainMenu a, mat-menu a, .mat-nav-list a {
-    line-height: 20px;
     padding: 0;
     text-decoration: none;
     font-weight: 400;
@@ -592,7 +633,6 @@ mat-sidenav-container {
 
 #toggleFolderPaneIcon {
     overflow: visible;
-    height: 70px !important;
 }
 
 @media (min-width: 1025px) {
@@ -622,6 +662,10 @@ mat-sidenav-container {
 #sidenavLogoContainer {
     background-color: mat-color($rmm-default-primary) !important;
     margin-top: -4px;
+
+    .mat-button .mat-ripple-element {
+	opacity: 0; // Override lower opacity in theme
+    }
 }
 
 #sidenavLogoButton {
@@ -640,6 +684,10 @@ mat-sidenav-container {
 #sidenavGreetingContent {
     margin: 5px 0;
     font-size: 12px !important;
+}
+
+#sidenavGreetingContent p, #sidenavGreetingContent a {
+    line-height: 1.2em;
 }
 
 #logoSidenav {
@@ -673,15 +721,7 @@ mat-sidenav-container {
 
 /* Folders */
 
-.mailFolder {
-    vertical-align: middle;
-}
-
-.mailFolder mat-icon {
-    margin-bottom: 1px !important;
-}
-
-.mailFolder span {
+.mailFolder div, .mailFolder span {
     height: 1em;
     vertical-align: middle;
 }
@@ -729,31 +769,44 @@ mat-sidenav-container {
     background-color: mat-color($rmm-default-accent, 50) !important;
 }
 
+app-popular-recipients, app-saved-searches {
+    mat-expansion-panel-header span {
+	align-items: center;
+	height: 17px;
+    }
+}
+
 /* List screen */
 
 #searchBarContainer {
+    height: 55px;
     @media(max-width: 340px) {
         padding: 0;
     }
 }
 
+#searchBarContainer .mat-icon-button {
+    height: 40px;
+}
+
 #searchField {
-    margin: 12px 20px 0 20px;
+    margin: 0px 20px 0 20px;
     @media(max-width: 340px) {
-        margin: 12px 5px 0;
+        margin: 0px 5px 0 5px;
     }
 }
 
-#searchField .mat-input-element {
-    line-height: 1.8em;
+#searchField .mat-form-field-wrapper {
+    padding-bottom: 0.5em;
 }
 
 #searchField .mat-form-field-infix {
-    line-height: 1.8em;
+    line-height: 1.25em;
+    padding: 0.25em 0;
 }
 
 #searchField .mat-form-field-underline {
-    bottom: 1.5em;
+    bottom: 0.75em;
 }
 
 #searchField mat-icon {
@@ -764,6 +817,10 @@ mat-sidenav-container {
 #threadedCheckbox, #unreadCheckbox {
     margin: 10px 20px 0 0;
     height: 40px;
+}
+
+.mat-checkbox-label {
+    font-size: 15px;
 }
 
 #threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
@@ -795,7 +852,7 @@ mat-sidenav-container {
 
 #canvasTableContainerArea {
     position: absolute;
-    top: 73px;
+    top: 55px;
     left: 0px;
     right: 0px;
 }
@@ -821,15 +878,26 @@ mat-sidenav-container {
     text-align: center;
 }
 
+#messageHeaderSubject {
+    font-size: 16px !important;
+}
+
+#messageContent {
+    font-size: 15px !important;
+}
 
 /* Message action button row */
+single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
+    height: 55px !important;
+}
+
 @media(max-width: 812px) {
     single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
 	height: 40px !important;
     }
 }
 
-mat-expansion-panel {
+mat-expansion-panel, mat-expansion-panel-header {
     box-shadow: none !important;
 }
 
@@ -837,7 +905,24 @@ mat-expansion-panel {
     padding: 0 !important;
 }
 
+/* Message header area */
+#messageContents .mat-expansion-panel-header.mat-expanded {
+    height: 50px;
+}
+
 /* Compose */
+
+.draftdesk-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+compose {
+    flex-grow: 1;
+}
+
+compose.draftPreviewContainer {
+}
 
 @media(min-width: 1025px) {
     compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
@@ -892,6 +977,15 @@ compose .mat-standard-chip {
 .domreg .default_margintop {
     margin-top: 35px;
 }
+
+/* Contacts */
+
+.contactListControls {
+    .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
+	height: 48px !important;
+    }
+}    
+
 
 /* Calendar */
 

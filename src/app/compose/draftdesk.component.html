@@ -1,5 +1,5 @@
 <div class="draftdesk-container">
-    <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView"></compose>
+    <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView" [ngClass]="{'draftPreviewContainer': !editing}"></compose>
     <div *ngIf="hasMoreDrafts" class="has-more-drafts">            
         <button mat-icon-button mat-tooltip="Show more" (click)="showMore()" style="transform: scale(4,4);">
             <mat-icon svgIcon="dots-horizontal"></mat-icon>
