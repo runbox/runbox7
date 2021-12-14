@@ -188,7 +188,7 @@ mat-chip.mat-chip.mat-standard-chip {
 }
 
 .mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
-    height: 36px;
+    min-height: 36px;
 
     .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
 	height: 1.8em !important;
