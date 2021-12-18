@@ -1078,6 +1078,36 @@ app-calendar-event-editor-dialog p {
     background: mat-color($rmm-default-accent);
 }
 
+#specialOffer {
+    width: 100%;
+    border: 1px solid mat-color($rmm-default-primary);
+    text-align: center;
+}
+
+#specialOffer h1 {
+    margin: 10px 0 0 -100px;
+    font-size: 40px;
+    text-transform: uppercase !important;
+    line-height: 1.5em;
+    color: mat-color($rmm-default-primary);
+}
+
+#specialOffer h2 {
+    margin: 10px 0 10px -100px;
+    color: mat-color($rmm-default-primary);
+}
+
+#specialOffer h3 {
+    margin: 0 0 0 -100px;
+    color: mat-color($rmm-default-primary);
+}
+
+#specialOffer p.description {
+    font-size: 14px;
+    color: mat-color($rmm-default-primary);
+}
+
+
 /* Runbox components */
 
 .dev.runbox-components .nice_green_timer {
