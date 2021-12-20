@@ -130,6 +130,7 @@
         <app-payment-method
             logo="/_img/pay/stripe-logo.png"
             logo_alt="Stripe logo"
+	    disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('stripe')"
           >
             <p>
@@ -143,6 +144,7 @@
         <app-payment-method
             logo="/_img/pay/bitcoin.png"
             logo_alt="Bitcoin logo"
+	    disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('bitpay')"
         >
             <p>
