@@ -97,10 +97,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('messageContents') messageContents: ElementRef;
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
-  @ViewChild('replyMessageHeader') replyHeaderHTML: ElementRef;
-  @ViewChildren('replyMessageHeader') replyHeaderHTMLQuery: QueryList<ElementRef>;
-  @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
-  @ViewChildren('forwardMessageHeader') messageHeaderHTMLQuery: QueryList<ElementRef>;
+  @ViewChild('replyMessageHeader', {read: ElementRef}) replyHeaderHTML: ElementRef;
+  @ViewChildren('replyMessageHeader', {read: ElementRef}) replyHeaderHTMLQuery: QueryList<ElementRef>;
+  @ViewChild('forwardMessageHeader', {read: ElementRef}) messageHeaderHTML: ElementRef;
+  @ViewChildren('forwardMessageHeader', {read: ElementRef}) messageHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
   @ViewChildren(HorizResizerDirective) resizerQuery: QueryList<HorizResizerDirective>;
   @ViewChild('toolbarButtonContainer') toolbarButtonContainer: ElementRef;
@@ -218,13 +218,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     // messageHeaderHTML loads after message is loaded
     this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTMLList: QueryList<ElementRef>) => {
-      this.mailObj.origMailHeaderHTML = messageHeaderHTMLList.first.nativeElement.innerHTML;
-      this.mailObj.origMailHeaderText = messageHeaderHTMLList.first.nativeElement.innerText;
+      if (this.messageHeaderHTML) {
+        this.mailObj.origMailHeaderHTML = messageHeaderHTMLList.first.nativeElement.innerHTML;
+        this.mailObj.origMailHeaderText = messageHeaderHTMLList.first.nativeElement.innerText;
+      }
     });
 
     this.replyHeaderHTMLQuery.changes.subscribe((replyHeaderHTMLList: QueryList<ElementRef>) => {
-      this.mailObj.origReplyHeaderHTML = replyHeaderHTMLList.first.nativeElement.innerHTML;
-      this.mailObj.origReplyHeaderText = replyHeaderHTMLList.first.nativeElement.innerText;
+      if (this.replyHeaderHTML) {
+        this.mailObj.origReplyHeaderHTML = replyHeaderHTMLList.first.nativeElement.innerHTML;
+        this.mailObj.origReplyHeaderText = replyHeaderHTMLList.first.nativeElement.innerText;
+      }
     });
 
     this.afterViewInit.emit(this.messageId);
