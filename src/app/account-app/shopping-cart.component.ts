@@ -132,6 +132,10 @@ export class ShoppingCartComponent implements OnInit {
                 });
             }
         });
+        // Holiday Offer 2021
+        this.cart.add(
+            new ProductOrder(401, 1)
+        );
     }
 
     calculateTotal(items: CartItem[]) {

@@ -16,6 +16,14 @@
             subscription.
         </p>
 
+	<div id="specialOffer">
+	  <img src="assets/giftbox.png" style="width: 100px; height: auto; margin: 10px -100px 0 20px;" align="left" />
+	  <h2>Special Holiday Offer:</h2>
+	  <h3>Through December 2021 All Purchases Get</h3>
+	  <h1>1 Free Medium Sub-Account</h1>
+	  <p class="description">The additional free account will be added when you proceed to the <a routerLink="/account/cart">Shopping Cart</a>.</p>
+	</div>
+
         <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows class="renewalsTable">
             <ng-container matColumnDef="renewal_name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
