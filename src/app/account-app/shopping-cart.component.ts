@@ -104,10 +104,6 @@ export class ShoppingCartComponent implements OnInit {
     }
 
     ngOnInit() {
-        // Holiday Offer 2021
-        this.cart.add(
-            new ProductOrder(401, 1)
-        );
         this.route.queryParams.subscribe(params => {
             const forParam = params['for'];
             if (forParam) {
@@ -136,6 +132,10 @@ export class ShoppingCartComponent implements OnInit {
                 });
             }
         });
+	// Holiday Offer 2021
+        this.cart.add(
+            new ProductOrder(401, 1)
+        );
     }
 
     calculateTotal(items: CartItem[]) {
