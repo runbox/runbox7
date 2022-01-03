@@ -21,14 +21,6 @@
     </p>
 </div>
 
-<div id="specialOffer">
-  <img src="assets/giftbox.png" style="width: 100px; height: auto; margin: 10px -100px 0 20px;" align="left" />
-  <h2>Special Holiday Offer:</h2>
-  <h3>Through December 2021 All Purchases Get</h3>
-  <h1>1 Free Medium Sub-Account</h1>
-  <p class="description">The additional account can be used free of charge for one year,<br/>after which it will recur at the regular price of USD 24.95 (EUR 19.95) unless you decide to cancel it.</p>
-</div>
-
 <table mat-table [dataSource]="items" [ngStyle]="{ width: '100%' }" *ngIf="items.length > 0" multiTemplateDataRows>
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Product </th>
