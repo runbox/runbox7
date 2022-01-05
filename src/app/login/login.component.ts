@@ -149,6 +149,8 @@ export class LoginComponent implements OnInit {
             this.accountCanceled = true;
         } else if (loginresonseobj.user_status > 5) {
             this.accountClosed = true;
+        } else if (loginresonseobj.error) {
+            this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
         } else {
             this.accountError = true;
         }
