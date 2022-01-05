@@ -455,7 +455,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           }
         }
         this.hoverRowIndex = newHoverRowIndex;
-        // this.updateDragImage(newHoverRowIndex);
+        this.updateDragImage(newHoverRowIndex);
       }
 
       if (this.dragSelectionDirectionIsDown === null) {
@@ -601,54 +601,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private updateDragImage(selectedRowIndex: number) {
-    const dragImageYCoords: number[][] = [];
-    let dragImageDestY = 0;
-
-    // FIXME move to message_display??
-    //. If: selectedRowIndex is visible (not sure how it wont be!)
-    // and its actually selected, add it to the dragImage
-    
-    this.rows.rows
-      .forEach((row, ndx) => {
-        if (
-          ndx >= this.topindex && (ndx - this.topindex) <= (this.canv.height / this.rowheight)
-          &&
-          (this.rows.isSelectedRow(ndx) || ndx === selectedRowIndex)
-        ) {
-          const dragImageDataY = Math.floor((ndx - this.topindex) * this.rowheight);
-          dragImageYCoords.push([dragImageDataY, dragImageDestY]);
-
-          dragImageDestY += this.rowheight;
-        }
-      });
-
-    const dragImageCanvas = document.getElementById('thedragimage') as HTMLCanvasElement;
-    dragImageCanvas.width = this.canv.width - 20;
-    dragImageCanvas.height = dragImageYCoords.length * this.rowheight;
-
-    const dragContext = dragImageCanvas.getContext('2d');
-    dragImageYCoords.forEach(ycoords => {
-      // const image = this.ctx.getImageData(0, ycoords[0], this.canv.width - 20, this.rowheight);
-      // dragContext.putImageData(image, 0, ycoords[1]);
-      dragContext.drawImage(
-        // Source
-        this.canv,
-        // source origin/start coords
-        0, ycoords[0],
-        // source width/height
-        this.canv.width - 20, this.rowheight,
-        // destination coords
-        0, ycoords[1],
-        // destination width/height (could be scaled but isnt)
-        this.canv.width - 20, this.rowheight
-      )
-    });
-    dragImageCanvas.style.display='inline';
-
     const dragImage = document.getElementById('thebackupdragimage') as HTMLImageElement;
-    dragImage.src = dragImageCanvas.toDataURL();
-    dragImageCanvas.width=0;
-    dragImageCanvas.height=0;
+    dragImage.src = 'assets/icons/blackicon-48x48.png';
     dragImage.style.display='none';
   }
 
