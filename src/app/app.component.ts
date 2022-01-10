@@ -259,7 +259,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
     const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-    
+
     if (mobileQuery.screenSize !== ScreenSize.Desktop) {
       if (storedMailViewerOrientationSettingMobile) {
         this.mailViewerOnRightSide = (storedMailViewerOrientationSettingMobile === 'false' ? false : true);
@@ -267,11 +267,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.mailViewerOnRightSide = false;
       }
     }
-    
+
     mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
       changeDetectorRef.detectChanges();
-      
+
       if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
