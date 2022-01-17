@@ -150,6 +150,11 @@ export class LoginComponent implements OnInit {
         } else if (loginresonseobj.user_status > 5) {
             this.accountClosed = true;
         } else {
+            if (loginresonseobj.error) {
+                this.login_error_html = `<p>${loginresonseobj.error}</p>`;
+                return;
+            }
+            // displays "unknown error msg"
             this.accountError = true;
         }
     }
