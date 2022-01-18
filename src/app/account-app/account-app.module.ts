@@ -222,7 +222,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                                 component: PaypalHandlerComponent,
                             },
                             {
-                                path: 'credit_cards',
+                                path: 'payment_cards',
                                 component: CreditCardsComponent,
                             },
                             {
