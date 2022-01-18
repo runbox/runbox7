@@ -129,7 +129,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   sideMenuOpened = true;
 
-  hasChildRouterOutlet: boolean;
+  hasChildRouterOutlet = false;
   canvastable: CanvasTableComponent;
 
   fragment: string;
@@ -367,6 +367,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.route.fragment.subscribe(
       fragment => {
         if (!fragment) {
+          // This also runs when we load '/compose' .. but doesnt need to
           this.messagelistservice.setCurrentFolder('Inbox');
           if (this.singlemailviewer) {
             this.singlemailviewer.close();
@@ -876,10 +877,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   searchFor(text) {
-    if (!this.selectedFolder) {
-        // resetSearch=false, to make sure selectFolder doesn't call us back
-        this.selectFolder('Inbox', false);
-    }
     if (text !== this.searchText) {
       this.searchText = text;
       if (this.usewebsocketsearch) {
@@ -907,6 +904,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.hasChildRouterOutlet = yes;
     if (yes) {
       this.selectedFolder = null;
+    } else {
+      // reset the default Folder
+      this.selectedFolder = 'Inbox';
     }
   }
 
@@ -1020,14 +1020,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  selectFolder(folder: string, resetSearch = true): void {
+  selectFolder(folder: string): void {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
-    if (resetSearch) {
-      this.searchFor('');
-    }
+    this.searchFor('');
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }

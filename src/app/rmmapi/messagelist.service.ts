@@ -119,11 +119,10 @@ export class MessageListService {
         this.searchservice.pipe(take(1)).subscribe(searchservice => {
             if (!searchservice.localSearchActivated ||
                 folder === this.spamFolderName ||
-                folder === this.trashFolderName) {
+                folder === this.trashFolderName ) {
                 // Always fetch fresh folder listing when setting current folder
-                this.folderMessageLists[folder] = [];
 
-                this.fetchFolderMessages();
+                this.fetchFolderMessages(true);
             }
         });
     }
@@ -385,7 +384,7 @@ export class MessageListService {
         this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
     }
 
-    public fetchFolderMessages() {
+    public fetchFolderMessages(resetContents = false) {
         if (this.fetchInProgress) {
             return;
         }
@@ -395,7 +394,7 @@ export class MessageListService {
             this.folderMessageLists[folder] = [];
         }
         const messageList = this.folderMessageLists[folder];
-        const sinceid = messageList.length > 0 ? messageList[messageList.length - 1].id : 0;
+        const sinceid = !resetContents && messageList.length > 0 ? messageList[messageList.length - 1].id : 0;
         this.rmmapi.listAllMessages(0, sinceid, 0,
             RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE
             , true, folder)
@@ -407,7 +406,11 @@ export class MessageListService {
                 }))
             .subscribe((res) => {
                 if (res && res.length > 0) {
-                    this.folderMessageLists[folder] = messageList.concat(res);
+                    if (resetContents) {
+                      this.folderMessageLists[folder] = res;
+                    } else {
+                        this.folderMessageLists[folder] = messageList.concat(res);
+                    }
                     res.forEach((m: MessageInfo) => this.messagesById[m.id] = m);
                 }
                 this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
