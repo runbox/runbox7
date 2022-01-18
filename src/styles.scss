@@ -1225,6 +1225,13 @@ tr.regularRow td {
     border-bottom-width: 0;
 }
 
+tr.regularRow td.mat-cell:first-of-type {
+    padding-left: 0px;
+}
+tr.regularRow td.mat-cell:last-of-type {
+    padding-right: 0px;
+}
+
 div.expandedDetails {
     overflow: hidden;
     display: flex;
