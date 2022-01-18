@@ -117,7 +117,7 @@ describe('Composing emails', () => {
         cy.visit('/#Inbox:12');
         cy.get('single-mail-viewer').should('exist');
         const address = 'testmail@testmail.com';
-        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
+        cy.get('.messageHeaderTo rmm7-contact-card span').contains(address, { matchCase: false });
         cy.get('button[mattooltip="Reply"]').click();
         cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
     });
