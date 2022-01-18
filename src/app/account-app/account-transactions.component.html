@@ -71,7 +71,7 @@
                                 <td> Receipt </td>
                                 <td>
                                     <button mat-button class="contentButton" routerLink="/account/receipt/{{ t.tid }}" class="contentButton">
-                                      Show receipt </button>
+                                    Show receipt </button>
                                 </td>
                             </tr>
                         </table>
@@ -83,7 +83,7 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="regularRow" (click)="rowClicked(row)">
             </tr>
 
-            <tr mat-row *matRowDef="let row; columns: ['expandedDetails']" class="detailsRow"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetails']" class="detailsRow" style="height: 0px"></tr>
         </table>
 
     </div>
