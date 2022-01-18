@@ -51,7 +51,7 @@ import { from, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
-import { MobileQueryService } from './mobile-query.service';
+import { MobileQueryService, ScreenSize } from './mobile-query.service';
 import { ProgressService } from './http/progress.service';
 import { RMM } from './rmm';
 import { environment } from '../environments/environment';
@@ -257,9 +257,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.resetColumns();
     });
 
-    this.sideMenuOpened = !mobileQuery.matches;
-    this.mobileQuery.changed.subscribe(onMobile => {
-      this.sideMenuOpened = !onMobile;
+    this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
+    const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+
+    if (mobileQuery.screenSize !== ScreenSize.Desktop) {
+      if (storedMailViewerOrientationSettingMobile) {
+        this.mailViewerOnRightSide = (storedMailViewerOrientationSettingMobile === 'false' ? false : true);
+      } else {
+        this.mailViewerOnRightSide = false;
+      }
+    }
+
+    mobileQuery.screenSizeChanged.subscribe(size => {
+      this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
       changeDetectorRef.detectChanges();
 
       if (this.sideMenuOpened) {
@@ -269,12 +279,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.mailViewerRightSideWidth = '35%';
       }
 
-      if (onMobile) {
+      if (size !== ScreenSize.Desktop) {
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = localStorage
               .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
+      console.log(this.mailViewerOnRightSide);
     });
 
     this.updateTime();

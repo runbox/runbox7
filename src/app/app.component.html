@@ -356,6 +356,7 @@
 <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
 </mat-sidenav-container>
 
+<!-- This will cause an error in dev mode with the async pipe, should not be present however in production -->
 <div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"
     *ngIf="progressService.httpRequestInProgress | async"
     >
