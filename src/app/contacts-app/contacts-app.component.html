@@ -115,7 +115,8 @@
                     ></app-contact-list>
 
                     <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
-                        <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} contact(s) not migrated yet </a>
+                      <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
+                        <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} Runbox 6 contacts have not been migrated yet </a>
                     </mat-list-item>
                 </mat-nav-list>
             </div>

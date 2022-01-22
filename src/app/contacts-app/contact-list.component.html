@@ -46,7 +46,7 @@
         </mat-list-item>
     </mat-expansion-panel>
 
-    <mat-list-item class="contactSelect">
+    <mat-list-item *ngIf="contacts.length > 0" class="contactSelect">
         <mat-checkbox
             [(ngModel)]="selectingMultiple"
             (change)="onSelectMultipleChange()"
@@ -97,9 +97,7 @@
 
     <mat-list-item *ngIf="contacts.length === 0" class="contactListButton contactListHint">
         <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
-        <p mat-line>
-            your contacts will be visible here
-        </p>
+        There are no contacts yet. Import or add contacts to show them here.
     </mat-list-item>
 
     <mat-list-item *ngIf="shownContacts.length != contacts.length">
