@@ -543,7 +543,7 @@ rmm-headertoolbar {
 }
 
 #logo {
-    margin: 0px 10px 3px 20px;
+    margin: 2px 10px 1px 20px;
     width: 125px;
     height: auto;
     transition: filter 0.5s;
@@ -596,10 +596,10 @@ rmm-headertoolbar {
 }
 
 .mainMenu:hover {
-    margin-top: -5px;
+    margin-top: -10px;
 
     .mainMenuDesc {
-	margin-top: 0px;
+	margin-top: -3px;
     }
 }
 
@@ -962,6 +962,10 @@ compose input.mat-chip-input {
 
 compose .mat-standard-chip {
     padding: 5px 10px !important;
+}
+
+compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-field-wrapper, compose #fieldSubject .mat-form-field-wrapper {
+    padding-bottom: 0.5em;
 }
 
 /* Dom reg */
