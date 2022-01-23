@@ -66,13 +66,9 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
     font-size: 20px;
 }
 
-#fieldFrom {
-    overflow: hidden;
-}
 
 
 .fieldRecipient {
-//    width: 100%;
     display: flex;
     overflow: hidden;
     flex-direction: row;

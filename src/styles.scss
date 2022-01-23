@@ -968,19 +968,14 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
     padding-bottom: 0.5em;
 }
 
-/* Dom reg */
+#fieldFrom, #fieldSubject {
+    overflow: hidden;
 
-.domreg .mat-card-header-text {
-    width: 100%;
+    .mat-form-field-infix {
+	padding-bottom: 4px;
+    }
 }
 
-.domreg .long_placeholder label {
-    white-space: normal !important;
-}
-
-.domreg .default_margintop {
-    margin-top: 35px;
-}
 
 /* Contacts */
 
@@ -1060,6 +1055,20 @@ app-calendar-event-editor-dialog p {
 
 .upcomingEventCard {
     margin: 10px;
+}
+
+/* Dom reg */
+
+.domreg .mat-card-header-text {
+    width: 100%;
+}
+
+.domreg .long_placeholder label {
+    white-space: normal !important;
+}
+
+.domreg .default_margintop {
+    margin-top: 35px;
 }
 
 /* Payment */
