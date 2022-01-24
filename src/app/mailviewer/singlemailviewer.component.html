@@ -35,7 +35,7 @@
       </button>
       <ng-container *ngIf="morebuttonindex>5">
         <button *ngIf="mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
-        <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
+        <mat-icon svgIcon="email-open"></mat-icon>
         </button>
         <button *ngIf="mailObj.seen_flag===0" mat-icon-button matTooltip="Mark read" (click)="messageActionsHandler.markSeen(1)">
         <mat-icon svgIcon="email-check"></mat-icon>
