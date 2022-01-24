@@ -543,7 +543,7 @@ rmm-headertoolbar {
 }
 
 #logo {
-    margin: 0px 10px 3px 20px;
+    margin: 2px 10px 1px 20px;
     width: 125px;
     height: auto;
     transition: filter 0.5s;
@@ -596,10 +596,10 @@ rmm-headertoolbar {
 }
 
 .mainMenu:hover {
-    margin-top: -5px;
+    margin-top: -10px;
 
     .mainMenuDesc {
-	margin-top: 0px;
+	margin-top: -3px;
     }
 }
 
@@ -983,19 +983,18 @@ compose .mat-standard-chip {
     padding: 5px 10px !important;
 }
 
-/* Dom reg */
-
-.domreg .mat-card-header-text {
-    width: 100%;
+compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-field-wrapper, compose #fieldSubject .mat-form-field-wrapper {
+    padding-bottom: 0.5em;
 }
 
-.domreg .long_placeholder label {
-    white-space: normal !important;
+#fieldFrom, #fieldSubject {
+    overflow: hidden;
+
+    .mat-form-field-infix {
+	padding-bottom: 4px;
+    }
 }
 
-.domreg .default_margintop {
-    margin-top: 35px;
-}
 
 /* Contacts */
 
@@ -1075,6 +1074,20 @@ app-calendar-event-editor-dialog p {
 
 .upcomingEventCard {
     margin: 10px;
+}
+
+/* Dom reg */
+
+.domreg .mat-card-header-text {
+    width: 100%;
+}
+
+.domreg .long_placeholder label {
+    white-space: normal !important;
+}
+
+.domreg .default_margintop {
+    margin-top: 35px;
 }
 
 /* Payment */
