@@ -25,30 +25,25 @@ import { Component } from '@angular/core';
 <div class="mainTextContent">
     <h1> Welcome to Runbox 7 Contacts </h1>
     <p>
-        Here you can view and modify your contact list. If it's your first time here,
-        you may want to check out the
+        Runbox 7 Contacts lets you easily import, manage, and synchronize all your contacts.
+    </p>
+    <p>
+        If it's your first time here, you may want to check out the
         <a routerLink="/contacts/settings" class="contentButton"><mat-icon svgIcon="cog"></mat-icon> Settings </a>
-        button at the top left corner to migrate your contacts to CardDAV, the storage engine for Runbox 7 Contacts.
+        button in the left pane menu.
     </p>
     <p>
-        This will greatly enhance the contacts' capabilities and allow you to synchronize them with other devices.
-	See the Settings for more details about that.
+	There you can migrate your existing contacts and they will then be stored in CardDAV,  the storage engine for Runbox 7 Contacts.
     </p>
     <p>
-        The <a routerLink="/contacts/new" class="contentButton"><mat-icon svgIcon="account-plus"></mat-icon>New Contact </a>
-        button will allow you to add new contacts to your contact list.
-	Note that they will then be added to CardDAV and will <b>not</b> be visible in Runbox 6.
-    </p>
-    <p>Eventually all Runbox 6 contacts will be migrated to Runbox 7, and the support for these "old" contacts will be removed.
+        All your contacts will then appear here and you can synchronize them with your other devices.
     </p>
     <p>
-        The contacts on the left have the <mat-icon svgIcon="email"> </mat-icon> icon next to them (as long as they have an email address),
-	and clicking that icon will allow you to instantly write an email to the given contact.
+        Use the <a routerLink="/contacts/new" class="contentButton"><mat-icon svgIcon="account-plus"></mat-icon> New Contact </a>
+        button to add new contacts to Runbox 7. Note that they will then be added to CardDAV and will not be visible in Runbox 6.
     </p>
     <p>
-        We hope you'll enjoy using the new Contacts interface. Be sure to visit
-        <a href="https://community.runbox.com/c/runbox-7"> our community forum </a>
-        if you have any questions or encounter any problems!
+        The contacts on the left with an <mat-icon svgIcon="email"> </mat-icon> icon next to them can be clicked to write an email to the given contact.
     </p>
 </div>
     `

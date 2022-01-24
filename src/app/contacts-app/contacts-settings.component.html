@@ -14,7 +14,20 @@
 
 <div class="mainTextContent">
     <div>
-        <h3> General settings </h3>
+      <div *ngIf="oldContacts">
+        <h3> Contact migration </h3>
+        
+        <p>
+            You have <strong>{{ oldContacts }}</strong> Runbox 6 contacts that have not been migrated yet.
+        </p>
+        <p>
+            The migration is already started, but it may take a little while.
+            If you think it's taking too long, please contact Runbox Support at
+            <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">support@runbox.com</a>.
+        </p>
+    </div>
+
+    <h3> General settings </h3>
         <div>
             <mat-checkbox [(ngModel)]="contactsservice.settings.showDragHelpers"> Show drag helpers </mat-checkbox>
             <p style="font-size: small;"> Enable this if you have trouble dragging contacts on your browser </p>
@@ -38,7 +51,7 @@
         </div>
     </div>
     <div *ngIf="syncSettings | async as sync; else syncLoading">
-        <h3> Your CardDAV settings </h3>
+        <h3> Your contacts client (CardDAV) settings </h3>
 
         <p>
             Use this URL in a CardDAV client on your device to synchronize your contacts:
@@ -47,32 +60,23 @@
         <code> {{ sync.carddav_url }} </code>
 
         <p>
-            Remember to use your <strong>full username</strong> as your login
-            – <code>{{ sync.carddav_username }}</code>.
+            Remember to use your <strong>full username</strong> as your login: <code>{{ sync.carddav_username }}</code>.
         </p>
         <p>
-            The password is just your regular account password.
-        </p>
-    </div>
-
-    <div *ngIf="oldContacts">
-        <h3> Contact migration </h3>
-        
-        <p>
-            You have <strong>{{ oldContacts }}</strong> Runbox 6 contacts that has not been migrated yet.
-        </p>
-        <p>
-            The migration is already started, but it may take a while.
-            If you think it's taking too long, please contact Runbox Support at
-            <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">support@runbox.com</a>.
+            The password is your Runbox account password.
         </p>
     </div>
 
     <div>
-        <h3> Contact export </h3>
-
-        <a mat-button href="/rest/v1/addresses_contact/vcf">
-            Click here to download all your contacts as a VCF file
-        </a>
+      <h3> Contact export </h3>
+      <p>
+        You control your own data and you may export them at any time.
+      </p>
+      <p>
+        All your contacts can be downloaded as a VCF file by clicking the button below.
+      </p>
+      <button mat-raised-button color="primary"  href="/rest/v1/addresses_contact/vcf">
+	Export Contacts
+      </button>
     </div>
 </div>
