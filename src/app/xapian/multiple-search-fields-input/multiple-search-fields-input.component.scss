@@ -1,0 +1,13 @@
+mat-form-field, mat-checkbox {
+    width: 200px;
+    padding-right: 5px;
+}
+
+#multipleSearchFieldsClose, #multipleSearchFieldsHelp {
+    height: 30px;
+    width: 30px;
+}
+
+#multipleSearchFieldsContainer mat-form-field {
+    height: 20px;
+}

@@ -173,12 +173,6 @@
       </button>
 
       <ng-container *ngIf="!hasChildRouterOutlet">
-        <app-multiple-search-fields-input
-          *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
-          [currentFolder]="selectedFolder"
-          (close)="showMultipleSearchFields = false"
-          (searchexpression)="searchFor($event)">
-        </app-multiple-search-fields-input>
         <mat-form-field id="searchField" style="flex-grow: 1" floatLabel="auto"
           *ngIf="searchService.downloadProgress===null">
           <input matInput #searchInputField type="text"
@@ -211,7 +205,7 @@
             <mat-icon svgIcon="close"></mat-icon>
           </button>
         </mat-form-field>
-
+	
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
           matTooltip="Back to conversations list">
           <mat-icon svgIcon="arrow-left"></mat-icon>
@@ -281,7 +275,6 @@
     <mat-progress-bar *ngIf="searchService.downloadProgress!==null"
         [mode]="searchService.downloadProgress===0 ? 'indeterminate' : 'determinate'"
         [value]="searchService.downloadProgress">
-
     </mat-progress-bar>
 
     <mat-progress-bar *ngIf="websocketsearchservice.searchInProgress" mode="indeterminate">
@@ -292,7 +285,14 @@
       [value]="searchService.partitionDownloadProgress*100">
     </mat-progress-bar>
 
-    <div [hidden]="hasChildRouterOutlet">
+	<app-multiple-search-fields-input
+          *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
+          [currentFolder]="selectedFolder"
+          (close)="showMultipleSearchFields = false"
+          (searchexpression)="searchFor($event)">
+        </app-multiple-search-fields-input>
+
+	<div [hidden]="hasChildRouterOutlet">
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
         <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
       </div>
