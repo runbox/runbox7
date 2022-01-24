@@ -814,6 +814,25 @@ app-popular-recipients, app-saved-searches {
     line-height: 20px !important;
 }
 
+#multipleSearchFieldsContainer {
+      position: absolute;
+      top: 45px;
+      right: 15px;
+      z-index: 9999;
+      height: auto;
+      background-color: white;
+      border: #aaa solid 1px;
+      padding: 0 10px 5px 10px;
+
+      .mat-form-field-wrapper {
+	  padding-bottom: 1em;
+      }
+
+      .mat-form-field-infix {
+	  padding-bottom: 3px;
+      }
+}
+
 #threadedCheckbox, #unreadCheckbox {
     margin: 10px 20px 0 0;
     height: 40px;
