@@ -253,7 +253,7 @@
                 [disabled]="viewmode==='conversations'"
                 class="tableViewOptionsMenuElement"
               >
-                <mat-icon  svgIcon="email-mark-as-unread" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
+                <mat-icon  svgIcon="email-open" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
                 Unread only
               </mat-checkbox>
             </mat-list-item>
@@ -338,7 +338,7 @@
 
     <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
       <button mat-fab matTooltip="Mark unread" (click)="setReadStatus(false)">
-          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
+          <mat-icon svgIcon="email-open"></mat-icon>
       </button>
       <button mat-fab matTooltip="Mark read" (click)="setReadStatus(true)">
           <mat-icon svgIcon="email-check"></mat-icon>
