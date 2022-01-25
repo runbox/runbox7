@@ -95,6 +95,16 @@ export abstract class MessageDisplay {
     });
   }
 
+  public removeMessages(messageIds: number[]) {
+    const filteredRows = [];
+    this.rows.forEach((value, index) => {
+      if (!messageIds.includes(this.getRowMessageId(index))) {
+        filteredRows.push(value);
+      }
+    });
+    this.rows = filteredRows;
+  }
+
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     this.hasChanges = false;
     if (!this.rowExists(rowIndex)) {
@@ -153,7 +163,7 @@ export abstract class MessageDisplay {
   }
 
   rowExists(index: number): boolean {
-    return this.rows[index] ? true : false;
+    return this.rows[index] && this.getRowMessageId(index) > 0 ? true : false;
   }
 
   isBoldRow(index: number): boolean {

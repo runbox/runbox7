@@ -621,6 +621,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       updateLocal: (msgIds: number[]) => {
         // Move to spam folder (delete from index), set spam flag
         if (params.is_spam) {
+          // remove from message display
+          this.canvastable.rows.removeMessages(messageIds);
           this.searchService.deleteMessages(msgIds);
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.spamFolderName, true);
         } else {
@@ -743,6 +745,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
+        // remove from message display
+        this.canvastable.rows.removeMessages(messageIds);
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -971,6 +975,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // moveMessagesToFolder cant see these cos not in index
         if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
           this.selectedFolder !== this.messagelistservice.trashFolderName) {
+          // remove from current message display
+          this.canvastable.rows.removeMessages(messageIds);
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1003,6 +1009,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             // moveMessagesToFolder cant see these cos not in index
             if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
               this.selectedFolder !== this.messagelistservice.trashFolderName) {
+              // remove from current message display
+              this.canvastable.rows.removeMessages(messageIds);
               this.searchService.moveMessagesToFolder(msgIds, folderPath);
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);

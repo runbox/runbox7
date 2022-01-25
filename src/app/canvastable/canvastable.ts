@@ -1297,7 +1297,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             (10 / this.fontheight) : 1)) - this.colpaddingleft); // We've already added colpaddingleft above
         }
       } else {
-        break;
+        // skipping rows we've removed while canvas was updating....
+        console.log('Skipped repainting a row as its data is missing, continuing anyway');
       }
       if (this.showContentTextPreview) {
         const contentTextPreviewColumn = this.columns
