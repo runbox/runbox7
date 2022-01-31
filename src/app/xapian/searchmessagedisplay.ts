@@ -40,7 +40,15 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowMessageId(index: number): number {
-    return this.searchService.getMessageIdFromDocId(this.rows[index][0]);
+    let msgId = 0;
+    try {
+      msgId = this.searchService.getMessageIdFromDocId(this.rows[index][0]);
+    } catch (e) {
+      // This shouldnt happen, it means something changed the stored
+      // data without updating the messagedisplay rows.
+      console.log('Tried to lookup ' + index + ' in searchIndex, isnt there! ' + e);
+    }
+    return msgId;
   }
 
   filterBy(options: Map<String, any>) {
