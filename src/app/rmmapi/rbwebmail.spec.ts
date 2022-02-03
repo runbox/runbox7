@@ -244,13 +244,13 @@ describe('RBWebMail', () => {
             (f: FolderListEntry) => f.folderPath === 'HTML'
         ).folderLevel).toBe(0);
         expect(folders.find(
-            (f: FolderListEntry) => f.folderPath === 'HTML/lalala'
+            (f: FolderListEntry) => f.folderPath === 'HTML.lalala'
         ).folderLevel).toBe(1);
         expect(folders.find(
-            (f: FolderListEntry) => f.folderPath === 'HTML/lalala/Tester'
+            (f: FolderListEntry) => f.folderPath === 'HTML.lalala.Tester'
         ).folderLevel).toBe(2);
         expect(folders.find(
-            (f: FolderListEntry) => f.folderPath === 'HTML/lalala/hohohohahaha/subtest'
+            (f: FolderListEntry) => f.folderPath === 'HTML.lalala.hohohohahaha.subtest'
         ).folderLevel).toBe(3);
     });
 
@@ -631,11 +631,11 @@ describe('RBWebMail', () => {
         expect(folders[0].folderId).toBe(3692896);
         expect(folders.length).toBe(22);
         expect(folders.findIndex(folder => folder.folderPath === 'HTML')).toBe(10);
-        expect(folders[11].folderPath).toBe('HTML/lalala');
+        expect(folders[11].folderPath).toBe('HTML.lalala');
         expect(folders[11].folderLevel).toBe(1);
-        expect(folders[12].folderPath).toBe('HTML/lalala/Tester');
+        expect(folders[12].folderPath).toBe('HTML.lalala.Tester');
         expect(folders[12].folderLevel).toBe(2);
-        expect(folders[15].folderPath).toBe('HTML/lalala/hohohohahaha/subtest');
+        expect(folders[15].folderPath).toBe('HTML.lalala.hohohohahaha.subtest');
         expect(folders[15].folderLevel).toBe(3);
     });
 });

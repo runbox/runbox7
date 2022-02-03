@@ -79,7 +79,7 @@ export class RMM7MessageActions implements MessageActions {
                     },
                     updateRemote: (msgIds: number[]) => {
                         const userFolders = this.messageListService.folderListSubject.value;
-                        const currentFolderId = userFolders.find(fld => fld.folderName === this.messageListService.currentFolder).folderId;
+                        const currentFolderId = userFolders.find(fld => fld.folderPath === this.messageListService.currentFolder).folderId;
                         return this.messageListService.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
                     }
                 });

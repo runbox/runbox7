@@ -319,7 +319,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
-      if (!this.showingSearchResults && !this.showingWebSocketSearchResults) {
+      if (!this.showingSearchResults && !this.showingWebSocketSearchResults
+         && res && res.length > 0) {
         this.setMessageDisplay('messagelist', this.messagelist);
         this.canvastable.hasChanges = true;
       }
@@ -643,7 +644,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       },
       updateRemote: (msgIds: number[]) => {
         const userFolders = this.messagelistservice.folderListSubject.value;
-        const currentFolderId = userFolders.find(fld => fld.folderName === this.messagelistservice.currentFolder).folderId;
+        const currentFolderId = userFolders.find(fld => fld.folderPath === this.messagelistservice.currentFolder).folderId;
         const res = this.rmmapi.trainSpam({is_spam: params.is_spam, from_folder_id: currentFolderId, messages: messageIds});
         res.subscribe(data => {
           if ( data.status === 'error' ) {
@@ -983,7 +984,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       },
       updateRemote: (msgIds: number[]) => {
         const userFolders = this.messagelistservice.folderListSubject.value;
-        const currentFolderId = userFolders.find(fld => fld.folderName === this.messagelistservice.currentFolder).folderId;
+        const currentFolderId = userFolders.find(fld => fld.folderPath === this.messagelistservice.currentFolder).folderId;
         return this.rmmapi.moveToFolder(messageIds, folderId, currentFolderId);
       }
     });
@@ -1019,7 +1020,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           },
           updateRemote: (msgIds: number[]) => {
             const userFolders = this.messagelistservice.folderListSubject.value;
-            const currentFolderId = userFolders.find(fld => fld.folderName === this.messagelistservice.currentFolder).folderId;
+            const currentFolderId = userFolders.find(fld => fld.folderPath === this.messagelistservice.currentFolder).folderId;
             return this.messagelistservice.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
           }
         });
@@ -1093,10 +1094,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.updateSearch(true);
         this.canvastable.scrollTop();
       }, 0);
-  }
-
-  convertFolderPath(str) {
-    return '/' + str.replace(/\./g, '/');
   }
 
   resetColumns() {
