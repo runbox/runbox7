@@ -93,6 +93,10 @@ describe('SearchService', () => {
         }
     };
 
+    beforeAll(function() {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 999999;
+    });
+
     beforeEach((() => {
         TestBed.configureTestingModule({
           imports: [

@@ -280,11 +280,11 @@ export class SearchService {
             this.localSearchActivated = true;
             this.initSubject.next(true);
 
-            FS.syncfs(true, () => {
+            FS.syncfs(true, async () => {
               console.log('Loading partitions');
               this.openStoredPartitions();
+              await this.updateIndexWithNewChanges();
               this.searchResultsSubject.next();
-              this.updateIndexWithNewChanges();
             });
 
 
@@ -1144,7 +1144,7 @@ export class SearchService {
                 tap(() => {
                   console.log(`Opening partition ${p.folder}`);
                   this.api.addFolderXapianIndex(`${this.partitionsdir}/${p.folder}`);
-                  this.searchResultsSubject.next();
+//                  this.searchResultsSubject.next();
                 }),
                 map(() => true)
               );
@@ -1159,9 +1159,10 @@ export class SearchService {
               );
           })
         ).pipe(
-          tap(() => {
+          tap(async () => {
             this.partitionDownloadProgress = null;
-            this.updateIndexWithNewChanges();
+            await this.updateIndexWithNewChanges();
+            this.searchResultsSubject.next();
           })
         );
     }
