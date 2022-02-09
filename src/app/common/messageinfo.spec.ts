@@ -73,4 +73,41 @@ describe('MessageInfo', () => {
         expect(removeCalled).toBeFalsy();
         expect(addCalled).toBeTruthy();
     });
+
+    it('test AddMessageToIndex with bad dates', () => {
+        const msg = new MessageInfo(2,
+            new Date(),
+            new Date(-1 * 3600 * 24 * 1000),
+            'Inbox',
+            false,
+            false,
+            false,
+            MailAddressInfo.parse('test@example.com'),
+            MailAddressInfo.parse('test2@example.com'),
+            [],
+            [],
+            'Test bad date subject',
+            'The bad date text',
+            50,
+            false
+            );
+
+        let addCalled = false;
+        const indexingtools = new IndexingTools({
+            addSortableEmailToXapianIndex: () => {
+                addCalled = true;
+            },
+        }  as any);
+
+        indexingtools.addMessageToIndex(msg);
+        expect(addCalled).toBeTruthy();
+
+        addCalled = false;
+        // msg.messageDate = new Date(2040,1,1);
+        msg.messageDate = new Date(2211667200000);
+        indexingtools.addMessageToIndex(msg);
+        expect(addCalled).toBeTruthy();
+
+    });
+
 });

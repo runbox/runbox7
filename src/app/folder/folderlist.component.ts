@@ -365,8 +365,8 @@ export class FolderListComponent implements OnChanges {
         let destinationParent = '';
 
         const getParentFromFolderPath = folderPath => {
-            const pathArr = folderPath.split('/');
-            return pathArr.slice(0, pathArr.length - 1).join('/');
+            const pathArr = folderPath.split('.');
+            return pathArr.slice(0, pathArr.length - 1).join('.');
         };
 
         let moveCount = 1;
@@ -432,7 +432,7 @@ export class FolderListComponent implements OnChanges {
             const folder = folders[sourceIndex + n];
 
             folder.folderPath =
-                `${destinationParent}${destinationParent.length > 0 ? '/' : ''}` +
+                `${destinationParent}${destinationParent.length > 0 ? '.' : ''}` +
                 `${folder.folderPath.substring(sourceParent.length ? sourceParent.length + 1 : 0)}`;
             folder.folderLevel = folder.folderLevel - sourceFolderLevel + destinationFolderLevel;
         }

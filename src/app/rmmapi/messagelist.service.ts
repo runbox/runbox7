@@ -89,13 +89,14 @@ export class MessageListService {
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
             ).subscribe((msgFlagChange) => {
                 if (msgFlagChange.seenFlag === true || msgFlagChange.seenFlag === false) {
-                    const msg = this.messagesById[msgFlagChange.id];
-                    const msgSeenFlag = msg.seenFlag;
+                    const mfc = this.messagesById[msgFlagChange.id];
+                    const msgSeenFlag = mfc.seenFlag;
                     this.messagesById[msgFlagChange.id].seenFlag = msgFlagChange.seenFlag;
                     if (msgSeenFlag !== this.messagesById[msgFlagChange.id].seenFlag) {
-                        this.folderCounts[msg.folder].unread = msgFlagChange.seenFlag === true
-                            ? this.folderCounts[msg.folder].unread - 1
-                            : this.folderCounts[msg.folder].unread + 1;
+                        const msgFolder = this.messagesById[mfc.id].folder;
+                        this.folderCounts[msgFolder].unread = msgFlagChange.seenFlag === true
+                            ? this.folderCounts[msgFolder].unread - 1
+                            : this.folderCounts[msgFolder].unread + 1;
                         // remove from cache so that it will be
                         // refetched with the new status when we next
                         // visit it
@@ -146,10 +147,9 @@ export class MessageListService {
                 let countsChanged = false;
                 for (const folder of folders) {
                     const path = folder.folderPath;
-                    const xapianPath = path.replace(/\//g, '.');
 
-                    if (xapianFolders.has(xapianPath)) {
-                        const res = searchservice.api.getFolderMessageCounts(xapianPath);
+                    if (xapianFolders.has(path)) {
+                        const res = searchservice.api.getFolderMessageCounts(path);
                         folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
                     } else {
                         folderCounts[path] = FolderMessageCountEntry.of(folder);

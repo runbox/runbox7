@@ -64,7 +64,6 @@ export class FolderListEntry {
         public folderName: string,
         public folderPath: string,
         public folderLevel: number) {
-        this.folderPath = folderPath.replace(/\./g, '/');
     }
 }
 
@@ -294,7 +293,7 @@ export class RunboxWebmailAPI {
                     '&sinceid=' + sinceid +
                     '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
                     '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-                    (folder ? '&folder=' + folder.replace(/\//g, '.') : '') +
+                    (folder ? '&folder=' + folder : '') +
                     '&avoidcacheuniqueparam=' + new Date().getTime();
 
         return this.http.get(url, { responseType: 'text' }).pipe(

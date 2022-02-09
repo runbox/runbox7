@@ -203,11 +203,11 @@ describe('SearchService', () => {
         );
         xapianapi.commitXapianUpdates();
         xapianapi.closeXapianDatabase();
-        const indexLastUpdateTime = new Date().getTime();
+        const indexLastUpdateTime = new Date().getTime() - 60000;
         FS.writeFile('indexLastUpdateTime', '' +  indexLastUpdateTime, { encoding: 'utf8' });
 
         await new Promise(resolve => FS.syncfs(false, resolve));
-        console.log('index created');
+        console.log('index created using ' + indexLastUpdateTime);
 
         FS.chdir('..');
         FS.unmount('/' + localdir);
@@ -247,8 +247,11 @@ describe('SearchService', () => {
                 mockrequest.urlWithParams.indexOf('/mail/download_xapian_index?' +
             'listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(indexLastUpdateTime / 1000) +
             '&pagesize=' + RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE + '&skipcontent=1&avoidcacheuniqueparam=') === 0);
-        const testMessageTime = indexLastUpdateTime + 1; // message time must be later so that indexLastUpdateTime is updated
-        req.flush(testMessageId + '\t' + testMessageTime + '\t1561389614\tInbox\t1\t0\t0\t' +
+        // message timestamps are in seconds:
+        // message time must be later so that indexLastUpdateTime is updated
+        const testMessageTime = Math.round(indexLastUpdateTime / 1000) + 2;
+        console.log('testMessageTime now ' + testMessageTime);
+        req.flush(testMessageId + '\t' +  testMessageTime + '\t' + testMessageTime + '\tInbox\t1\t0\t0\t' +
             'Cloud Web Services <cloud-marketing-email-replies@cloudsuperhosting.com>\ttest@example.com	Analyse Data at Scale\ty');
 
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -265,6 +268,8 @@ describe('SearchService', () => {
 
         expect(searchService.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1).length).toBe(1);
 
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         req = httpMock.expectOne('/rest/v1/email/' + testMessageId);
         req.flush({
             status: 'success',
@@ -275,14 +280,16 @@ describe('SearchService', () => {
             }
         });
 
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         for (let n = 0; n < 10; n++) {
             if (indexLastUpdateTime !== searchService.indexLastUpdateTime) {
                 break;
             }
-            console.log('wait for polling server and update index', n);
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        expect(searchService.indexLastUpdateTime).toBe(testMessageTime * 1000);
+        // Rounding fun:
+        expect(Math.round(searchService.indexLastUpdateTime / 1000)).toBe( testMessageTime);
 
         expect(searchService.api.sortedXapianQuery('SecretSauceFormula', 0, 0, 0, 100, -1).length).toBe(1);
         expect(searchService.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1).length).toBe(0);

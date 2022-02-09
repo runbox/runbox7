@@ -269,6 +269,9 @@ export class SearchService {
 
             try {
               this.indexLastUpdateTime = parseInt(FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }), 10);
+              if (this.indexLastUpdateTime > new Date().getTime()) {
+                this.indexLastUpdateTime = new Date().getTime();
+              }
             } catch (e) {
               if (!this.updateIndexLastUpdateTime()) {
                 // Corrupt xapian index - delete it and subscribe to changes (fallback to websocket search)
@@ -341,8 +344,12 @@ export class SearchService {
                       .match(/([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])/)
                       .map((val, ndx) => ndx > 0 ? parseInt(val, 10) : 0);
 
-        const latestSearchIndexDate = new Date(dateParts[1], dateParts[2] - 1, dateParts[3]);
+        let latestSearchIndexDate = new Date(dateParts[1], dateParts[2] - 1, dateParts[3]);
+        // In case we get emails with dates far in the future!
         console.log('Latest search index date is', latestSearchIndexDate);
+        if (latestSearchIndexDate > new Date()) {
+          latestSearchIndexDate = new Date();
+        }
         this.indexLastUpdateTime = latestSearchIndexDate.getTime();
       } catch (e) {
         console.log('Corrupt Xapian index', e);
@@ -1012,6 +1019,10 @@ export class SearchService {
               newLastUpdateTime = msginfo.messageDate.getTime();
             }
           });
+          // In case we get emails with dates far in the future!
+          if (newLastUpdateTime > new Date().getTime()) {
+            newLastUpdateTime = new Date().getTime();
+          }
           if (newLastUpdateTime > this.indexLastUpdateTime) {
             this.indexLastUpdateTime = newLastUpdateTime;
           }
