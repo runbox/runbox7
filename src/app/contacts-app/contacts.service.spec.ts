@@ -37,7 +37,7 @@ describe('ContactsService', () => {
 
     it('should allow looking up avatars according to settings', async () => {
         const storage = new StorageService(rmmapi);
-        storage.set('webmailSettings', { avatars: 'remote' });
+        storage.set('mailSettings', { avatars: 'remote' });
         const sut = new ContactsService(rmmapi, new AppSettingsService(storage), storage);
         await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -52,7 +52,7 @@ describe('ContactsService', () => {
         avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
         expect(avatarUrl).toBeFalsy();
 
-        storage.set('webmailSettings', { avatars: 'local' });
+        storage.set('mailSettings', { avatars: 'local' });
         await new Promise(resolve => setTimeout(resolve, 0));
 
         avatarUrl = await sut.lookupAvatar('test@runbox.com');
@@ -61,14 +61,14 @@ describe('ContactsService', () => {
         avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
         expect(avatarUrl).toBeFalsy();
 
-        storage.set('webmailSettings', { avatars: 'none' });
+        storage.set('mailSettings', { avatars: 'none' });
         await new Promise(resolve => setTimeout(resolve, 0));
 
         avatarUrl = await sut.lookupAvatar('test@runbox.com');
         expect(avatarUrl).toBeFalsy();
 
         // can enable it back again
-        storage.set('webmailSettings', { avatars: 'remote' });
+        storage.set('mailSettings', { avatars: 'remote' });
         await new Promise(resolve => setTimeout(resolve, 0));
         avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
         expect(avatarUrl).toMatch(/gravatar/);

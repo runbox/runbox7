@@ -2,12 +2,12 @@
 
 <h4 align="center">
   <br><a href="https://runbox.com/app"><img src="src/assets/runbox7_blue_dark.png" alt="Runbox 7" width="400"></a>
-  <br>Building the fastest webmail app on the planet<br><br>
+  <br>Building the fastest mail app on the planet<br><br>
 </h4>
 
 Welcome to the Runbox 7 project!
 
-Runbox 7 is a next generation webmail app that combines the instant experience of email clients with the versatility of web browsers.
+Runbox 7 is a next generation mail app that combines the instant experience of email clients with the versatility of web browsers.
 
 The app is written in Angular 2+ and HTML5 Canvas, using a Perl backend with MySQL storage. This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.6.8.
 

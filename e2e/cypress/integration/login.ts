@@ -16,7 +16,7 @@ describe('Login', () => {
         cy.get('div.loginSection mat-progress-bar').should('exist');
     }
 
-    function expectWebmail() {
+    function expectmail() {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
         cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
         cy.get('confirm-dialog .mat-dialog-actions button mat-icon[svgIcon="cancel"]').click().should(() => {
@@ -32,7 +32,7 @@ describe('Login', () => {
         enterCredentials();
         clickLogin();
 
-        expectWebmail();
+        expectmail();
     });
 
     it('should log in with 2fa', () => {
@@ -47,6 +47,6 @@ describe('Login', () => {
         cy.get('input[data-placeholder="Timed one-time password"]').type('123456');
         clickLogin();
 
-        expectWebmail();
+        expectmail();
     });
 });

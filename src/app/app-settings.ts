@@ -62,6 +62,6 @@ export class AppSettingsService {
     }
 
     public store(): void {
-        this.storage.set('webmailSettings', this.settings);
+        this.storage.set('mailSettings', this.settings);
     }
 }
