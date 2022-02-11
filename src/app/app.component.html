@@ -39,7 +39,7 @@
       <div style="display: flex;">
         <div id="sidenavGreeting">
             <p>Good {{timeOfDay}}, {{(rmmapi.me | async)?.user_address}}.</p>
-            <p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please <a href="https://community.runbox.com/" target="forum" class="textLink">visit our forum</a> for help, suggestions, and more information.</p>
+            <p id="sidenavGreetingContent"><a routerLink="/welcome" class="textLink">Welcome</a> to Runbox 7 (beta)! Please see <a href="https://help.runbox.com/runbox-7-webmail-new-features/" target="help" class="textLink">help</a> and our <a href="https://community.runbox.com/" target="forum" class="textLink">forum</a> for support and suggestions.</p>
             <p *ngIf="experimentalFeatureEnabled">
                 <a routerLink="/onscreen" class="textLink"> (Experimental) create a video call </a>
             </p>
