@@ -1,139 +1,337 @@
 <section class="mat-typography">
-    <app-runbox-section>
-        <div runbox-section-header>
-            <h1 class="runbox-section-header">Last Logins</h1>
-        </div>
-        <div runbox-section-content class="runbox-section-content" id="last-logins">
-            <div class="logins-form">
-                <mat-form-field>
-                    <mat-label>Service</mat-label>
-                    <mat-select name="acl_service" [(ngModel)]="acl_service">
-                        <mat-option value="" selected>Any</mat-option>
-                        <mat-option *ngFor="let service of rmm.account_security.service.services_translation | keyvalue"
-                            [value]="service.key">
-                            {{ rmm.account_security.service.services_translation[service.key].name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                    <mat-label>Status</mat-label>
-                    <mat-select name="acl_status" [(ngModel)]="acl_status">
-                        <mat-option value="" selected>Any</mat-option>
-                        <mat-option value="1">Success</mat-option>
-                        <mat-option value="0">Failure</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                    <mat-label>Period</mat-label>
-                    <mat-select name="acl_period" [(ngModel)]="acl_period">
-                        <mat-option value="1h" selected>1 hour</mat-option>
-                        <mat-option value="1d">1 day</mat-option>
-                        <mat-option value="7d">1 week</mat-option>
-                        <mat-option value="1m">1 month</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                    <mat-label>Filter IPs</mat-label>
-                    <mat-select name="acl_filter_ips" [(ngModel)]="acl_filter_ips">
-                        <mat-option value="">None</mat-option>
-                        <mat-option value="not in" selected>Exclude IPs</mat-option>
-                        <mat-option value="in">Include IPs</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                    <input matInput name="acl_ip" placeholder="Enter IP or select from list" [(ngModel)]="acl_ip"
-                        (ngModelChange)="acl_ip_changed()">
-                </mat-form-field>
-                <div class="action-buttons">
-                    <button mat-raised-button class="primaryContentButton" (click)="acl_clear()"
-                        [disabled]="!is_acl_clear_enabled">Clear</button>
-                    <button mat-raised-button class="primaryContentButton" (click)="acl_update()"
-                        [disabled]="is_busy_list_logins">Update</button>
-                </div>
+    <div class="container">
+        <app-runbox-section>
+            <div runbox-section-header>
+                <h1 class="runbox-section-header">Access Control</h1>
             </div>
-            <!-- header -->
-            <div class="grid-table" *ngIf="rmm.account_security.acl.results_logins_list">
-                <mat-grid-list cols="6" rowHeight="50px">
-                    <mat-grid-tile>
-                        <h4>Service</h4>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <h4>Login</h4>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <h4>IP</h4>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <h4>Hostname</h4>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <h4>Time</h4>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <h4>Status</h4>
-                    </mat-grid-tile>
-                </mat-grid-list>
-                <div style='max-height: 500px;'>
-                    <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
-                        <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
-                    </div>
-                    <div *ngFor="let result of rmm.account_security.acl.results_logins_list">
-                        <mat-grid-list class="grid-results" cols="6" rowHeight="30px">
-                            <mat-grid-tile>
-                                {{ rmm.account_security.service.services_translation[result.service].name }}
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                {{ result.login }}
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                {{ result.ip }}
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                {{ result.hostname || '-' }}
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                {{ result.created }}
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                                {{ result.success === 1 ? 'success' : 'fail' }}
-                            </mat-grid-tile>
-                            <!-- <mat-grid-tile>
-                        <span *ngIf="result.success === 0"><button mat-raised-button class="primaryContentButton" (click)="ip_always_block(result)">Always block</button></span>
-                        </mat-grid-tile> -->
-                        </mat-grid-list>
-                    </div>
-                </div>
+            <div runbox-section-content>
+                <p>In this section you can review your last logins and access control lists, and manage the IP addresses
+                    that should have access to your account.<br><br>
+                    We recommend that you read the instructions below before making any changes.</p>
             </div>
+        </app-runbox-section>
 
-            <div *ngIf="rmm.account_security.acl.results_logins_list">
-                <div class="table-mobile" *ngFor="let result of rmm.account_security.acl.results_logins_list">
-                    <div class="table-mobile-row">
-                        <span class="row-title">Service:</span>
-                        <span>{{ rmm.account_security.service.services_translation[result.service].name }}</span>
-                    </div>
-                    <div class="table-mobile-row">
-                        <span class="row-title">Login:</span>
-                        <span>{{ result.login }}</span>
-                    </div>
-                    <div class="table-mobile-row">
-                        <span class="row-title">IP:</span>
-                        <span>{{ result.ip }}</span>
-                    </div>
-                    <div class="table-mobile-row">
-                        <span class="row-title">Hostname:</span>
-                        <span>{{ result.hostname || '-' }}</span>
-                    </div>
-                    <div class="table-mobile-row">
-                        <span class="row-title">Time:</span>
-                        <span>{{ result.created }}</span>
-                    </div>
-                    <div class="table-mobile-row">
-                        <span class="row-title">Status:</span>
-                        <span>{{ result.success === 1 ? 'success' : 'fail' }}</span>
-                    </div>
-                    <mat-divider></mat-divider>
-                </div>
+        <app-runbox-section style="overflow-y: scroll;">
+            <div runbox-section-header>
+                <h2 class="runbox-section-header">Last Logins</h2>
             </div>
-        </div>
-    </app-runbox-section>
+            <div runbox-section-content class="runbox-section-content" id="last-logins">
+                <div class="logins-form">
+                    <mat-form-field>
+                        <mat-label>Service</mat-label>
+                        <mat-select name="acl_service" [(ngModel)]="acl_service">
+                            <mat-option value="" selected>Any</mat-option>
+                            <mat-option
+                                *ngFor="let service of rmm.account_security.service.services_translation | keyvalue"
+                                [value]="service.key">
+                                {{ rmm.account_security.service.services_translation[service.key].name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Status</mat-label>
+                        <mat-select name="acl_status" [(ngModel)]="acl_status">
+                            <mat-option value="" selected>Any</mat-option>
+                            <mat-option value="1">Success</mat-option>
+                            <mat-option value="0">Failure</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Period</mat-label>
+                        <mat-select name="acl_period" [(ngModel)]="acl_period">
+                            <mat-option value="1h" selected>1 hour</mat-option>
+                            <mat-option value="1d">1 day</mat-option>
+                            <mat-option value="7d">1 week</mat-option>
+                            <mat-option value="1m">1 month</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Filter IPs</mat-label>
+                        <mat-select name="acl_filter_ips" [(ngModel)]="acl_filter_ips">
+                            <mat-option value="">None</mat-option>
+                            <mat-option value="not in" selected>Exclude IPs</mat-option>
+                            <mat-option value="in">Include IPs</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput name="acl_ip" placeholder="Enter IP or select from list" [(ngModel)]="acl_ip"
+                            (ngModelChange)="acl_ip_changed()">
+                    </mat-form-field>
+                    <div class="action-buttons">
+                        <button mat-raised-button class="primaryContentButton" (click)="acl_clear()"
+                            [disabled]="!is_acl_clear_enabled">Clear</button>
+                        <button mat-raised-button class="primaryContentButton" (click)="acl_update()"
+                            [disabled]="is_busy_list_logins">Update</button>
+                    </div>
+                </div>
+
+                <div style='max-height: 500px; overflow-y: scroll;'>
+                    <table mat-table *ngIf="rmm.account_security.acl.results_logins_list"
+                        [dataSource]="rmm.account_security.acl.results_logins_list">
+                        <!-- Service Column -->
+                        <ng-container matColumnDef="service">
+                            <th mat-header-cell *matHeaderCellDef> Service </th>
+                            <td mat-cell *matCellDef="let login"> {{ login.service }} </td>
+                        </ng-container>
+
+                        <!-- Login Column -->
+                        <ng-container matColumnDef="login">
+                            <th mat-header-cell *matHeaderCellDef> Login </th>
+                            <td mat-cell *matCellDef="let login"> {{ login.login }} </td>
+                        </ng-container>
+
+                        <!-- IP Column -->
+                        <ng-container matColumnDef="ip">
+                            <th mat-header-cell *matHeaderCellDef> IP </th>
+                            <td mat-cell *matCellDef="let login"> {{ login.ip }} </td>
+                        </ng-container>
+
+                        <!-- Hostname Column -->
+                        <ng-container matColumnDef="hostname">
+                            <th mat-header-cell *matHeaderCellDef> Hostname </th>
+                            <td mat-cell *matCellDef="let login"> {{ login.hostname || '-' }} </td>
+                        </ng-container>
+
+                        <!-- Time Column -->
+                        <ng-container matColumnDef="time">
+                            <th mat-header-cell *matHeaderCellDef> Time </th>
+                            <td mat-cell *matCellDef="let login"> {{ login.created }} </td>
+                        </ng-container>
+
+                        <!-- Status Column -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef> Status </th>
+                            <td mat-cell *matCellDef="let login"> {{ login.success === 1 ? 'success' : 'failed' }} </td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let login"> <a *ngIf="login.success === 0" class="textLink"
+                                    (click)="ip_always_block(login)"> Block </a> </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="lastLoginsColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: lastLoginsColumns;"></tr>
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell cell-center-content" colspan="9999">
+                                No results for this filter
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div *ngIf="is_busy_list_logins" style="display: flex; justify-content: center">
+                    <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+                </div>
+
+                <!-- <div *ngIf="rmm.account_security.acl.results_logins_list">
+                    <div class="table-mobile" *ngFor="let result of rmm.account_security.acl.results_logins_list">
+                        <div class="table-mobile-row">
+                            <span class="row-title">Service:</span>
+                            <span>{{ rmm.account_security.service.services_translation[result.service].name }}</span>
+                        </div>
+                        <div class="table-mobile-row">
+                            <span class="row-title">Login:</span>
+                            <span>{{ result.login }}</span>
+                        </div>
+                        <div class="table-mobile-row">
+                            <span class="row-title">IP:</span>
+                            <span>{{ result.ip }}</span>
+                        </div>
+                        <div class="table-mobile-row">
+                            <span class="row-title">Hostname:</span>
+                            <span>{{ result.hostname || '-' }}</span>
+                        </div>
+                        <div class="table-mobile-row">
+                            <span class="row-title">Time:</span>
+                            <span>{{ result.created }}</span>
+                        </div>
+                        <div class="table-mobile-row">
+                            <span class="row-title">Status:</span>
+                            <span>{{ result.success === 1 ? 'success' : 'fail' }}</span>
+                        </div>
+                        <mat-divider></mat-divider>
+                    </div>
+                </div> -->
+            </div>
+        </app-runbox-section>
+
+        <app-runbox-section>
+            <div runbox-section-header>
+                <h2 class="runbox-section-header">Access Control List</h2>
+            </div>
+            <div runbox-section-content class="runbox-section-content" id="access-control-list">
+                <p>The IPs and IP ranges below indicate one or more IP addresses allowed or denied access to your
+                    account.
+                    Allowed IPs have higher priority than Denied IPs. Therefore you can allow an IP from within a range
+                    that
+                    you have otherwise denied.</p>
+                <!-- <p>Overwrite sub-account IP rules:</p>
+
+            <div>
+                <mat-form-field id="acl-sub-account-select">
+                    <mat-select [(value)]="is_overwrite_subaccount_ip_rules">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <button type="submit" (click)="update_overwride_subaccount_rules()" mat-raised-button color="primary">
+                    Save
+                </button>
+            </div> -->
+
+                <p>Rules are valid for accounts: <strong>{{(rmmapi.me | async)?.user_address}}</strong></p>
+
+                <table mat-table *ngIf="rmm.account_security.acl.results_rules"
+                    [dataSource]="rmm.account_security.acl.results_rules">
+                    <!-- Rule Column -->
+                    <ng-container matColumnDef="rule">
+                        <th mat-header-cell *matHeaderCellDef> Rule </th>
+                        <td mat-cell *matCellDef="let rule"> {{ rule.rule }} </td>
+                    </ng-container>
+
+                    <!-- IP Column -->
+                    <ng-container matColumnDef="ip">
+                        <th mat-header-cell *matHeaderCellDef> IP </th>
+                        <td mat-cell *matCellDef="let rule"> {{ rule.ip }} </td>
+                    </ng-container>
+
+                    <!-- Label Column -->
+                    <ng-container matColumnDef="label">
+                        <th mat-header-cell *matHeaderCellDef> Label </th>
+                        <td mat-cell *matCellDef="let rule"> {{ rule.label }} </td>
+                    </ng-container>
+
+                    <!-- Action Column -->
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let rule"> <a class="textLink"
+                                (click)="acl_remove_rule(rule)">Remove</a> </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="rulesColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: rulesColumns;"></tr>
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell cell-center-content" colspan="9999">
+                            No IPs allowed/denied
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </app-runbox-section>
+
+        <app-runbox-section>
+            <div runbox-section-header>
+                <h2 class="runbox-section-header">Manage IPs</h2>
+            </div>
+            <div runbox-section-content class="runbox-section-content" id="manage-ips">
+                <p>Enter one specific IP (e.g. 1.2.3.4) or an IP range (e.g. 1-24.2.3.4-55 or 200.*.*.*), then choose
+                    Allow
+                    or Deny. Currently supports IPv4 only.</p>
+
+                <p>One common type of rule is to deny *.*.*.* (all IPs) and only allow for example 12.34.56.78, which
+                    could
+                    be your own IP or the IP of an Internet connection you want access from. Be careful so that you
+                    don't
+                    lock yourself out.</p>
+
+                <p>The rules below affect the following accounts/sub-accounts: <strong>{{(rmmapi.me |
+                        async)?.user_address}}</strong></p>
+
+                <form [formGroup]="addRuleForm" (ngSubmit)="submit_rule_form(addRuleForm.value)" class="flex-vertical">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Rule</mat-label>
+                        <mat-select formControlName="rule">
+                            <mat-option value="allow">Allow</mat-option>
+                            <mat-option value="deny">Deny</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>IP</mat-label>
+                        <input matInput formControlName="ip">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Label</mat-label>
+                        <input matInput formControlName="label">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" type="submit">Submit</button>
+                </form>
+            </div>
+        </app-runbox-section>
+
+        <app-runbox-section>
+            <div runbox-section-header>
+                <h2 class="runbox-section-header">Blocked IPs</h2>
+            </div>
+            <div runbox-section-content class="runbox-section-content" id="blocked-ips">
+                <p>The list below shows currently blocked IP addresses for your account.</p>
+
+                <p>The authentication service determines if a particular IP address should be allowed to access the
+                    service or whether it should be blocked from further attempts by using a set of internal rules. It
+                    also determines which IP addresses may be treated with less caution as they are your legitimate IP
+                    addresses.
+                </p>
+
+                <p>If you change any of your account passwords, remember to update all the devices that are connecting
+                    to your account as failed logins may lead to blocked IPs.</p>
+
+                <p><strong>Unblock:</strong> Unblocks an IP address.</p>
+
+                <p><strong>Block:</strong> When this option is selected any further attempts to log in from this IP
+                    address will be rejected.</p>
+
+                <p><strong>Allow:</strong> This option will not prevent the IP address from being blocked in the future.
+                    Wrong passwords will fail but will not increase the failed login attempts count that leads to a
+                    blocked IP address.</p>
+
+
+                <table mat-table *ngIf="rmm.account_security.acl.results_blocked"
+                    [dataSource]="rmm.account_security.acl.results_blocked">
+                    <!-- Service Column -->
+                    <ng-container matColumnDef="service">
+                        <th mat-header-cell *matHeaderCellDef> Service </th>
+                        <td mat-cell *matCellDef="let blocked"> {{ blocked.service }} </td>
+                    </ng-container>
+
+                    <!-- IP Column -->
+                    <ng-container matColumnDef="ip">
+                        <th mat-header-cell *matHeaderCellDef> IP </th>
+                        <td mat-cell *matCellDef="let blocked"> {{ blocked.ip }} </td>
+                    </ng-container>
+
+                    <!-- Username Column -->
+                    <ng-container matColumnDef="username">
+                        <th mat-header-cell *matHeaderCellDef> Username </th>
+                        <td mat-cell *matCellDef="let blocked"> {{ blocked.login }} </td>
+                    </ng-container>
+
+                    <!-- Failed attempts Column -->
+                    <ng-container matColumnDef="failed">
+                        <th mat-header-cell *matHeaderCellDef> Failed attempts </th>
+                        <td mat-cell *matCellDef="let blocked"> {{ blocked.failed_attempts }} </td>
+                    </ng-container>
+
+                    <!-- Action Column -->
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let blocked"> <a class="textLink"
+                                (click)="ip_unblock(blocked)">Unblock</a> | <a class="textLink"
+                                (click)="ip_always_block(blocked)">Block</a> | <a class="textLink"
+                                (click)="ip_never_block(blocked)">Allow</a>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="blockedIpsColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: blockedIpsColumns;"></tr>
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell cell-center-content" colspan="9999">
+                            No IPs blocked
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </app-runbox-section>
+    </div>
 </section>

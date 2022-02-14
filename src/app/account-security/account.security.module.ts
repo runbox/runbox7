@@ -52,6 +52,8 @@ import { AppPasswordsComponent } from './app-passwords.component';
 import { LastLoginsComponent } from './last-logins.component';
 import { SessionsComponent } from './sessions.component';
 import { AccountPasswordComponent } from './account-password.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
     declarations: [
@@ -89,6 +91,8 @@ import { AccountPasswordComponent } from './account-password.component';
     MenuModule,
     QRCodeModule,
     RunboxComponentModule,
+    ReactiveFormsModule,
+    MatPaginatorModule,
     ],
     entryComponents: [
       ModalPasswordComponent,
