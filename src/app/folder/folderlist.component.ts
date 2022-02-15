@@ -146,7 +146,11 @@ export class FolderListComponent implements OnChanges {
     }
 
     ngOnChanges(): void {
-        this.folders.subscribe(folders => this.updateFolderTree(folders));
+      this.folders.subscribe(folders => {
+        if (folders.length > 0) {
+          this.updateFolderTree(folders);
+        }
+      });
     }
 
     private updateFolderTree(folders: FolderListEntry[]) {

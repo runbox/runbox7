@@ -82,7 +82,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   lastSearchText = '';
   searchText = '';
-  dataReady: boolean;
+  dataReady = false;
 
   usewebsocketsearch = false;
 
@@ -315,7 +315,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable = this.canvastablecontainer.canvastable;
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
-    this.resetColumns();
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
@@ -401,19 +400,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   ngAfterViewInit() {
     this.searchService.searchResultsSubject.subscribe(() => {
       console.log('Redrawing after search results update');
-      this.updateSearch(true, true);
+      this.afterLoadIndex();
     });
 
     this.searchService.noLocalIndexFoundSubject.subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
       this.promptLocalSearch();
-    });
-
-    this.searchService.initSubject.subscribe((res) => {
-      this.dataReady = false;
-      if (res) {
-        setTimeout(() => this.afterLoadIndex(), 0);
-      }
     });
 
     this.router.events.pipe(
@@ -931,10 +923,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public downloadIndexFromServer() {
     this.searchService.downloadIndexFromServer().subscribe((res) => {
       if (res) {
-        this.afterLoadIndex();
         this.searchService.downloadPartitions().subscribe();
       } else {
-
+        console.log('Index download failed');
       }
     });
   }
