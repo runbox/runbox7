@@ -83,20 +83,21 @@ export class MessageListService {
             }))
             .subscribe((folders) => {
                 // Will fallback on the folder counters set above for folders not in the search index
-                this.refreshFolderCounts();
+                if (folders.length > 0 ) {
+                    this.refreshFolderCounts();
+                }
             });
         rmmapi.messageFlagChangeSubject.pipe(
                 filter((msgFlagChange) => this.messagesById[msgFlagChange.id] ? true : false)
             ).subscribe((msgFlagChange) => {
                 if (msgFlagChange.seenFlag === true || msgFlagChange.seenFlag === false) {
-                    const mfc = this.messagesById[msgFlagChange.id];
-                    const msgSeenFlag = mfc.seenFlag;
+                    const msg = this.messagesById[msgFlagChange.id];
+                    const msgSeenFlag = msg.seenFlag;
                     this.messagesById[msgFlagChange.id].seenFlag = msgFlagChange.seenFlag;
                     if (msgSeenFlag !== this.messagesById[msgFlagChange.id].seenFlag) {
-                        const msgFolder = this.messagesById[mfc.id].folder;
-                        this.folderCounts[msgFolder].unread = msgFlagChange.seenFlag === true
-                            ? this.folderCounts[msgFolder].unread - 1
-                            : this.folderCounts[msgFolder].unread + 1;
+                        this.folderCounts[msg.folder].unread = msgFlagChange.seenFlag === true
+                            ? this.folderCounts[msg.folder].unread - 1
+                            : this.folderCounts[msg.folder].unread + 1;
                         // remove from cache so that it will be
                         // refetched with the new status when we next
                         // visit it
