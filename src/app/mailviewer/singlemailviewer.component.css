@@ -6,12 +6,6 @@
     border-top: 1px solid darkgrey !important;
 }							       
 
-.messageHeightIcon {
-    font-size: 50px;
-    margin-left: -5px;
-    margin-right: 15px;
-}
-
 #messageHeader {
     margin-bottom: 10px;
     overflow: hidden;
