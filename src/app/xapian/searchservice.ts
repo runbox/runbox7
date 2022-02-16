@@ -1056,13 +1056,14 @@ export class SearchService {
           catchError(() =>
             of(new DownloadableSearchIndexMap())
           ),
-          map((searchindexmap: DownloadableSearchIndexMap) => {
+          map(async (searchindexmap: DownloadableSearchIndexMap) => {
             partitions = searchindexmap.partitions.filter((p, ndx) => ndx > 0);
             totalSize = partitions.reduce((prev, curr) => prev +
               curr.files.reduce((p, c) => c.uncompressedsize + p, 0), 0);
             if (totalSize === 0) {
               console.log('No extra search index partitions');
-              this.updateIndexWithNewChanges();
+              await this.updateIndexWithNewChanges();
+              this.searchResultsSubject.next();
             }
             return totalSize;
           }),
@@ -1155,7 +1156,6 @@ export class SearchService {
                 tap(() => {
                   console.log(`Opening partition ${p.folder}`);
                   this.api.addFolderXapianIndex(`${this.partitionsdir}/${p.folder}`);
-//                  this.searchResultsSubject.next();
                 }),
                 map(() => true)
               );

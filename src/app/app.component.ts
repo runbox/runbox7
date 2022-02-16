@@ -925,7 +925,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (res) {
         this.searchService.downloadPartitions().subscribe();
       } else {
-
+        console.log('Index download failed');
       }
     });
   }
