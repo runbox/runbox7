@@ -580,7 +580,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         }
         try {
           this.dopaint();
-          this.repaintDoneSubject.next();
+          if (this.rows) {
+            this.repaintDoneSubject.next();
+          }
         } catch (e) {
           console.log(e);
         }
@@ -778,7 +780,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
-    if (!this.canv) {
+    if (!this.canv || this._columns.length === 0) {
       return;
     }
 
@@ -911,9 +913,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   private enforceScrollLimit() {
     if (this.topindex < 0) {
       this.topindex = 0;
-    } else if (this.rows.rowCount() < this.maxVisibleRows) {
+    } else if (this.rows && this.rows.rowCount() < this.maxVisibleRows) {
       this.topindex = 0;
-    } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
+    } else if (this.rows && this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
       this.topindex = this.rows.rowCount() - this.maxVisibleRows;
       // send max rows hit events (use to fetch more data)
       this.scrollLimitHit.next(this.rows.rowCount());
@@ -1057,7 +1059,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       colx += col.width;
     }
 
-    if (this.rows.rowCount() < 1) {
+    if (!this.rows || this.rows.rowCount() < 1) {
       return;
     }
 
