@@ -398,7 +398,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngAfterViewInit() {
-    this.searchService.searchResultsSubject.subscribe(() => {
+    this.searchService.indexUpdatedSubject.subscribe(() => {
       console.log('Redrawing after search results update');
       this.afterLoadIndex();
     });

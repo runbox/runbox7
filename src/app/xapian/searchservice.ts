@@ -84,7 +84,7 @@ export class SearchService {
   public noLocalIndexFoundSubject: AsyncSubject<any> = new AsyncSubject();
 
   // This is fired when UI should refresh the search ( search results altered )
-  public searchResultsSubject: Subject<any> = new Subject();
+  public indexUpdatedSubject: Subject<any> = new Subject();
 
   public localSearchActivated = false;
   public downloadProgress: number = null;
@@ -204,7 +204,7 @@ export class SearchService {
         }
       });
 
-    this.searchResultsSubject.subscribe(() =>
+    this.indexUpdatedSubject.subscribe(() =>
       this.messagelistservice.refreshFolderCounts());
   }
 
@@ -287,7 +287,7 @@ export class SearchService {
               console.log('Loading partitions');
               this.openStoredPartitions();
               await this.updateIndexWithNewChanges();
-              this.searchResultsSubject.next();
+              this.indexUpdatedSubject.next();
             });
 
 
@@ -575,7 +575,7 @@ export class SearchService {
           this.messageProcessingInProgressSubject.complete();
           this.messageProcessingInProgressSubject = null;
 
-          this.searchResultsSubject.next();
+          this.indexUpdatedSubject.next();
         }
       };
       if (this.persistIndexInProgressSubject) {
@@ -1063,7 +1063,7 @@ export class SearchService {
             if (totalSize === 0) {
               console.log('No extra search index partitions');
               await this.updateIndexWithNewChanges();
-              this.searchResultsSubject.next();
+              this.indexUpdatedSubject.next();
             }
             return totalSize;
           }),
@@ -1173,7 +1173,7 @@ export class SearchService {
           tap(async () => {
             this.partitionDownloadProgress = null;
             await this.updateIndexWithNewChanges();
-            this.searchResultsSubject.next();
+            this.indexUpdatedSubject.next();
           })
         );
     }

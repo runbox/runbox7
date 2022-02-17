@@ -115,7 +115,7 @@ export class StartDeskComponent implements OnInit {
             _err  => this.ownAddresses.next(new Set([])),
         );
         this.searchService.initSubject.pipe(filter(enabled => enabled)).subscribe(() => this.updateCommsOverview());
-        this.searchService.searchResultsSubject.subscribe(() => this.updateCommsOverview());
+        this.searchService.indexUpdatedSubject.subscribe(() => this.updateCommsOverview());
     }
 
     public async updateCommsOverview(): Promise<void> {
