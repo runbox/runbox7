@@ -398,9 +398,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngAfterViewInit() {
-    this.searchService.searchResultsSubject.subscribe(() => {
+    this.searchService.indexUpdatedSubject.subscribe(() => {
       console.log('Redrawing after search results update');
-      this.afterLoadIndex();
+      this.afterUpdateIndex();
     });
 
     this.searchService.noLocalIndexFoundSubject.subscribe(() => {
@@ -899,14 +899,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  public afterLoadIndex() {
-    this.resetColumns();
+  public afterUpdateIndex() {
     this.dataReady = true;
 
     this.showingWebSocketSearchResults = false;
     this.usewebsocketsearch = false;
 
-    this.updateSearch(true);
+    // don't scroll to top when redrawing after index updates
+    this.updateSearch(true, true);
 
   }
 
