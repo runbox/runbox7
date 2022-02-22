@@ -774,16 +774,15 @@ export class SearchService {
           const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
                 .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
           const folderPath = currentFolder.folderPath;
-          const xapianPath = folderPath.replace(/\//g, '.');
 
           // do this once per folder, and only if the folder is actually indexed
           if (
-              this.api.listFolders().find(f => f[0] === xapianPath) &&
-              this.folderCountDiscrepanciesCheckedCount[folderPath] === 0
+              this.api.listFolders().find(f => f[0] === folderPath) &&
+              !this.folderCountDiscrepanciesCheckedCount[folderPath]
           ) {
             this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
 
-            const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(xapianPath);
+            const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
             if (
                 numberOfMessages !== currentFolder.totalMessages ||
                 numberOfUnreadMessages !== currentFolder.newMessages
