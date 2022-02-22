@@ -844,6 +844,7 @@ export class SearchService {
 
         msginfos.forEach(msginfo => {
             const uniqueIdTerm = `Q${msginfo.id}`;
+            let msgIsTrashed = false;
             const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
             if (
               docid === 0 && // document not found in the index
@@ -893,7 +894,9 @@ export class SearchService {
                     // Folder changed
                     const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
                     if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash')) {
+                      console.log('Delete doc from index as now in Trash');
                       addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
+                      msgIsTrashed = true;
                     } else {
                       addSearchIndexDocumentUpdate(() => this.api.changeDocumentsFolder(uniqueIdTerm, msginfo.folder));
                     }
@@ -908,36 +911,38 @@ export class SearchService {
                 }
               });
 
-              if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-              } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-              }
+              if (!msgIsTrashed) {
+                if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
+                } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
+                }
 
-              if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-              } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-              }
+                if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
+                } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
+                }
 
-              if (msginfo.seenFlag && !messageStatusInIndex.seen) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-              } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-              }
+                if (msginfo.seenFlag && !messageStatusInIndex.seen) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
+                } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
+                }
 
-              if (msginfo.deletedFlag && !messageStatusInIndex.deleted) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
-              } else if (!msginfo.deletedFlag && messageStatusInIndex.deleted) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+                if (msginfo.deletedFlag && !messageStatusInIndex.deleted) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+                } else if (!msginfo.deletedFlag && messageStatusInIndex.deleted) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+                }
               }
             }
           });
