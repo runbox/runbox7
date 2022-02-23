@@ -1263,6 +1263,9 @@ export class SearchService {
           if (this.messagelistservice.messagesById[messageId]) {
             this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
           }
+        } else {
+          // stop repeatedly looking up broken ones
+          this.messageTextCache.set(messageId, '');
         }
       });
       return true;
