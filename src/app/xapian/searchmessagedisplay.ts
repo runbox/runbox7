@@ -145,7 +145,6 @@ export class SearchMessageDisplay extends MessageDisplay {
           sortColumn: 3,
           name: 'Size',
           rowWrapModeHidden: true,
-          textAlign: 1,
           getValue: (rowIndex): string => {
             return  `${this.searchService.api.getNumericValue(this.getRowId(rowIndex), 3)}`;
           },

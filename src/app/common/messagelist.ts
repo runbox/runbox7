@@ -108,7 +108,6 @@ export class MessageList extends MessageDisplay {
         sortColumn: null,
         name: 'Size',
         rowWrapModeHidden: true,
-        textAlign: 1,
         getValue: (rowIndex: number): number => this.getRow(rowIndex).size,
         getFormattedValue: MessageTableRowTool.formatBytes,
       },
