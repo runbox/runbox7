@@ -153,6 +153,17 @@ export class SearchMessageDisplay extends MessageDisplay {
             'This message is marked for deletion by an IMAP client' : null
         });
 
+        if (app.displayFolderColumn) {
+          columns.push({
+            sortColumn: null,
+            name: 'Folder',
+            rowWrapModeHidden: true,
+            getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder.replace(/\./g, '/'),
+            width: 200
+          });
+        }
+
+      // Attachment flag column
       columns.push({
         sortColumn: null,
         name: '',
@@ -163,6 +174,8 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 35,
         getFormattedValue: (val) => val ? '\uE226' : ''
       });
+
+      // Answered flag column
       columns.push({
         sortColumn: null,
         name: '',
@@ -173,6 +186,8 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 35,
         getFormattedValue: (val) => val ? '\uE15E' : ''
       });
+
+      // Flagged flag column
       columns.push({
         sortColumn: null,
         name: '',
@@ -183,29 +198,6 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 35,
         getFormattedValue: (val) => val ? '\uE153' : ''
       });
-
-      if (app.displayFolderColumn) {
-        columns.push({
-          sortColumn: null,
-          name: 'Folder',
-          rowWrapModeHidden: true,
-          getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder.replace(/\./g, '/'),
-          width: 200
-        });
-      }
-
-      // Empty col enables the final col to be resized (ugh..)
-      columns.push({
-        sortColumn: null,
-        name: '',
-        textAlign: 2,
-        rowWrapModeHidden: true,
-        font: '16px \'Material Icons\'',
-        getValue: (rowIndex) => '',
-        width: 0,
-        getFormattedValue: (val) => ''
-      });
-
     }
     return columns;
   }
