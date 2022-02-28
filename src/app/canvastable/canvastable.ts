@@ -704,7 +704,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       selectedColIndex = -1;
     }
 
-    if (selectedColIndex !== this.visibleColumnSeparatorIndex) {
+    if (selectedColIndex !== this.visibleColumnSeparatorIndex && !this.rowWrapMode) {
       if (selectedColIndex > 0) {
         this.canv.style.cursor = 'col-resize';
       } else {
