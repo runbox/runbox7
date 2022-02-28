@@ -774,16 +774,15 @@ export class SearchService {
           const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
                 .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
           const folderPath = currentFolder.folderPath;
-          const xapianPath = folderPath.replace(/\//g, '.');
 
           // do this once per folder, and only if the folder is actually indexed
           if (
-              this.api.listFolders().find(f => f[0] === xapianPath) &&
-              this.folderCountDiscrepanciesCheckedCount[folderPath] === 0
+              this.api.listFolders().find(f => f[0] === folderPath) &&
+              !this.folderCountDiscrepanciesCheckedCount[folderPath]
           ) {
             this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
 
-            const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(xapianPath);
+            const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
             if (
                 numberOfMessages !== currentFolder.totalMessages ||
                 numberOfUnreadMessages !== currentFolder.newMessages
@@ -845,6 +844,7 @@ export class SearchService {
 
         msginfos.forEach(msginfo => {
             const uniqueIdTerm = `Q${msginfo.id}`;
+            let msgIsTrashed = false;
             const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
             if (
               docid === 0 && // document not found in the index
@@ -894,7 +894,9 @@ export class SearchService {
                     // Folder changed
                     const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
                     if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash')) {
+                      console.log('Delete doc from index as now in Trash');
                       addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
+                      msgIsTrashed = true;
                     } else {
                       addSearchIndexDocumentUpdate(() => this.api.changeDocumentsFolder(uniqueIdTerm, msginfo.folder));
                     }
@@ -909,36 +911,38 @@ export class SearchService {
                 }
               });
 
-              if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-              } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-              }
+              if (!msgIsTrashed) {
+                if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
+                } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
+                }
 
-              if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-              } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-              }
+                if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
+                } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
+                }
 
-              if (msginfo.seenFlag && !messageStatusInIndex.seen) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-              } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-              }
+                if (msginfo.seenFlag && !messageStatusInIndex.seen) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
+                } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
+                }
 
-              if (msginfo.deletedFlag && !messageStatusInIndex.deleted) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
-              } else if (!msginfo.deletedFlag && messageStatusInIndex.deleted) {
-                addSearchIndexDocumentUpdate(() =>
-                  this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+                if (msginfo.deletedFlag && !messageStatusInIndex.deleted) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+                } else if (!msginfo.deletedFlag && messageStatusInIndex.deleted) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
+                }
               }
             }
           });
@@ -1259,6 +1263,9 @@ export class SearchService {
           if (this.messagelistservice.messagesById[messageId]) {
             this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
           }
+        } else {
+          // stop repeatedly looking up broken ones
+          this.messageTextCache.set(messageId, '');
         }
       });
       return true;

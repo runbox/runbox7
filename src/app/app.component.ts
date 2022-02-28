@@ -133,6 +133,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   canvastable: CanvasTableComponent;
 
   fragment: string;
+  jumpToFragment = false;
 
   messagelist: Array<MessageInfo> = [];
 
@@ -321,6 +322,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults
          && res && res.length > 0) {
         this.setMessageDisplay('messagelist', this.messagelist);
+        if (this.jumpToFragment) {
+          this.selectMessageFromFragment(this.fragment);
+          this.canvastable.jumpToOpenMessage();
+          this.jumpToFragment = false;
+        }
         this.canvastable.hasChanges = true;
       }
     });
@@ -389,8 +395,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
         if (fragment !== this.fragment) {
           this.fragment = fragment;
-          this.selectMessageFromFragment(fragment);
-          this.canvastable.jumpToOpenMessage();
+          if (this.canvastable.rows) {
+            this.selectMessageFromFragment(this.fragment);
+            this.canvastable.jumpToOpenMessage();
+          } else {
+            this.jumpToFragment = true;
+          }
         }
       }
     );
@@ -816,15 +826,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public filterMessageDisplay() {
-    const options = new Map();
-    options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
-    options.set('searchText', this.searchText);
-    this.canvastable.rows.filterBy(options);
-    this.canvastable.hasChanges = true;
+    if (this.canvastable.rows) {
+      const options = new Map();
+      options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
+      options.set('searchText', this.searchText);
+      this.canvastable.rows.filterBy(options);
+      this.canvastable.hasChanges = true;
+    }
   }
 
   public clearSelection() {
-    this.canvastable.rows.clearSelection();
+    if (this.canvastable.rows) {
+      this.canvastable.rows.clearSelection();
+    }
     this.canvastable.hasChanges = true;
     this.showSelectOperations = false;
     this.showSelectMarkOpMenu = false;
