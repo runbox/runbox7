@@ -237,6 +237,24 @@
 
     </mat-expansion-panel>
 
+    <mat-expansion-panel *ngIf="showAttachments" id="attachmentsListHeader">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle attachment list">
+        <p mat-line>
+          <mat-icon mat-list-icon svgIcon="attachment"></mat-icon> <span> Attachment List</span>
+        </p>
+      </mat-expansion-panel-header>
+    
+      <ng-container>
+        <mat-list>
+          <mat-list-item class="link-pointer" *ngFor="let att of mailObj.attachments; let i=index" (click)="openAttachment(att)">
+            <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
+              <mat-icon mat-list-icon svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon> <span>{{att.filename}}</span>
+            </ng-container>
+          </mat-list-item>
+        </mat-list>
+      </ng-container>
+    </mat-expansion-panel>
+    <mat-divider></mat-divider>
 
     <!-- Used when forwarding mail - do not delete -->
 
