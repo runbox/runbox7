@@ -121,3 +121,10 @@ mat-grid-tile:hover {
     overflow: hidden; 
     white-space: nowrap;
 }
+
+.htmlButtons {
+    display: flex;
+    height: 30px;
+    font-size: 12px;
+    align-items: center;
+}

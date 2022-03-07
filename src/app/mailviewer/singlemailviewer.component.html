@@ -258,9 +258,7 @@
       On {{mailObj.date | date:'yyyy-MM-dd HH:mm'}}, {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; wrote:
     </span>
 
-    <!---->
-    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
-      style="display: flex; font-size: 12px;">
+    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'">
       <span style="flex-grow: 1"></span>
       <span>
         <mat-checkbox color="warn"
