@@ -7,9 +7,7 @@
 }							       
 
 #messageHeader {
-    margin-bottom: 10px;
     overflow: hidden;
-    border-bottom: 1px solid #e8e8e8;
 }
 
 .messageHeaders {
@@ -66,6 +64,7 @@
 #messageContent {
     margin: 0 2%;
     width: 96%;
+    margin-top: 10px;
     white-space: pre-wrap;
 }
 
@@ -109,4 +108,25 @@ mat-grid-tile:hover {
     #buttonPrint {
 	display: none;
     }
+}
+
+.icon-bigger {
+    transform: scale(2);
+}
+
+.string-ellipsis {
+    text-overflow: ellipsis; 
+    overflow: hidden; 
+    white-space: nowrap;
+}
+
+.htmlButtons {
+    display: flex;
+    height: 30px;
+    font-size: 12px;
+    align-items: center;
+}
+
+.link-pointer {
+    cursor: pointer;
 }

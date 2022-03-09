@@ -237,6 +237,24 @@
 
     </mat-expansion-panel>
 
+    <mat-expansion-panel *ngIf="showAttachments" id="attachmentsListHeader">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle attachment list">
+        <p mat-line>
+          <mat-icon mat-list-icon svgIcon="attachment"></mat-icon> <span> Attachment List</span>
+        </p>
+      </mat-expansion-panel-header>
+    
+      <ng-container>
+        <mat-list>
+          <mat-list-item class="link-pointer" *ngFor="let att of mailObj.attachments; let i=index" (click)="openAttachment(att)">
+            <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
+              <mat-icon mat-list-icon svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon> <span>{{att.filename}}</span>
+            </ng-container>
+          </mat-list-item>
+        </mat-list>
+      </ng-container>
+    </mat-expansion-panel>
+    <mat-divider></mat-divider>
 
     <!-- Used when forwarding mail - do not delete -->
 
@@ -258,9 +276,7 @@
       On {{mailObj.date | date:'yyyy-MM-dd HH:mm'}}, {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; wrote:
     </span>
 
-    <!---->
-    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
-      style="display: flex; font-size: 12px;">
+    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'">
       <span style="flex-grow: 1"></span>
       <span>
         <mat-checkbox color="warn"
@@ -314,23 +330,23 @@
       </iframe>
     </div>
 
-    <mat-card *ngIf="showAttachments">
-      <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
+    <mat-card #attachmentsSection *ngIf="showAttachments">
       <mat-card-content>
-        <mat-grid-list [cols]="attachmentAreaCols">
+        <mat-grid-list [cols]="attachmentAreaCols" gutterSize="5px">
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
-            (click)="openAttachment(att)">
+            (click)="openAttachment(att)"
+            style="max-width: 150px">
               <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
                 <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
                   <img  matListAvatar
                     [src]="att.thumbnailURL" />
                 </ng-container>
                 <ng-template #attachment_icon>
-                  <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
+                  <mat-icon class="icon-bigger" matListAvatar svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
                 </ng-template>
-                <mat-grid-tile-footer style="display: flex; text-align: center">
-                    <span>{{att.filename}}</span>
+                <mat-grid-tile-footer style="display: flex; text-align: center; justify-content: space-between;">
+                    <span class="string-ellipsis">{{att.filename}}</span>
                     <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
                       matTooltip="Decrypt message"
                       (click)="decryptAttachment(i);$event.stopPropagation()"

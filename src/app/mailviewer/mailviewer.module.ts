@@ -26,6 +26,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
@@ -51,6 +52,7 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         ResizerModule,
         MatIconModule,
         MatGridListModule,
+        MatListModule,
         MatToolbarModule,
         MatTooltipModule,
         MatDividerModule,

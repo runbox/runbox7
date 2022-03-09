@@ -245,7 +245,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.morebuttonindex = Math.floor(
         toolbarwidth / TOOLBAR_BUTTON_WIDTH
       ) - 1;
-      this.attachmentAreaCols = Math.floor(toolbarwidth / 200) + 1;
+      this.attachmentAreaCols = Math.floor(toolbarwidth / 150) + 1;
     }
   }
   public changeOrientation(orientation: string) {
