@@ -316,6 +316,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable = this.canvastablecontainer.canvastable;
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
+    this.resetColumns();
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
