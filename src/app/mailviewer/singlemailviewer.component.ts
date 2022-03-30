@@ -46,6 +46,7 @@ import { loadLocalMailParser } from './mailparser';
 import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
 
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
+const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
@@ -112,10 +113,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public err: any;
 
   public mailContentHTML: string = null;
+  public mailContentHTMLWithImages: string = null;
+  public mailContentHTMLWithoutImages: string = null;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
   public showHTML = false;
+  public showImagesDecision = 'never';
+  public showImages = false;
   public showAllHeaders = false;
 
   public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
@@ -184,6 +189,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
+    this.showImagesDecision = localStorage.getItem(showImagesDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
     const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
@@ -303,6 +309,19 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  public toggleImages(event) {
+    event.preventDefault();
+
+    this.showImages = !this.showImages;
+    if (this.showImages) {
+      this.mailContentHTMLWithoutImages = this.mailContentHTML;
+      this.mailContentHTML = this.mailContentHTMLWithImages;
+    } else {
+      this.mailContentHTMLWithImages = this.mailContentHTML;
+      this.mailContentHTML = this.mailContentHTMLWithoutImages;
+    }
+  }
+
   public fetchMessageJSON() {
     // ProgressDialog.open(this.dialog);
 
@@ -339,6 +358,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
         res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
+        res.sanitized_html_with_images = this.generateAttachmentURLs(res.attachments, res.sanitized_html_with_images);
         res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
 
@@ -347,8 +367,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (res.text.html) {
           // Pre-sanitized, however we need to escape ampersands and
           // quotes for srcdoc, let angular do it:
-//          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
           res.html = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html));
+          res.html_with_images = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html_with_images));
         } else {
           res.html = null;
         }
@@ -401,6 +421,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       .subscribe((res) => {
         if (res.html) {
           this.mailContentHTML = res.html;
+          this.mailContentHTMLWithoutImages = res.html;
+          this.mailContentHTMLWithImages = res.html_with_images;
           if (
             // res.has_sent_mail_to === '1' || // We have sent mail to this sender before, so let's trust the HTML and show it by default
             // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] ||
@@ -622,6 +644,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.fullMailDownloaded = false;
       this._messageId = id;
       this.showHTML = false;
+      this.showImages = false;
       this.mailContentHTML = null;
 
       if (!id) {
