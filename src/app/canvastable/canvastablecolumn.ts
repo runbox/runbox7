@@ -23,7 +23,6 @@
 
 export interface CanvasTableColumn {
   name: string;
-  columnSectionName?: string;
   footerText?: string;
 
   width?: number;
@@ -33,7 +32,6 @@ export interface CanvasTableColumn {
   tooltipText?: string | ((rowobj: any) => string);
   draggable?: boolean;
   sortColumn: number;
-  excelCellAttributes?: any;
   rowWrapModeHidden?: boolean;
   rowWrapModeMuted?: boolean;
   rowWrapModeChipCounter?: boolean; // E.g. for displaying number of messages in conversation in a "chip"/"badge"
@@ -41,11 +39,8 @@ export interface CanvasTableColumn {
   textAlign?: number; // default = left, 1 = right, 2 = center
   getContentPreviewText?: (rowobj: any) => string;
 
-  compareValue?: (a: any, b: any) => number;
-  setValue?: (rowobj: any, val: any) => void;
   getValue(rowobj: any): any;
 
-  footerSumReduce?(prev: number, curr: number): number;
   getFormattedValue?(val: any): string;
 }
 

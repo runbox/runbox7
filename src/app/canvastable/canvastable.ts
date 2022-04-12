@@ -68,16 +68,6 @@ export class FloatingTooltip {
   }
 }
 
-export class CanvasTableColumnSection {
-  constructor(
-    public columnSectionName: string,
-    public width: number,
-    public leftPos: number,
-    public backgroundColor: string) {
-
-  }
-}
-
 export namespace CanvasTable {
   export enum RowSelect {
     Visible = 'visible',
@@ -175,8 +165,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     if (this._columns !== columns) {
       this.calculateColumnWidths(columns);
       this._columns = columns;
-      this.recalculateColumnSections();
-      this.calculateColumnFooterSums();
       this.hasSortColumns = columns.filter(col => col.sortColumn !== null).length > 0;
       this.hasChanges = true;    }
   }
@@ -217,8 +205,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public hasChanges: boolean;
 
   private formattedValueCache: { [key: string]: string; } = {};
-
-  public columnSections: CanvasTableColumnSection[] = [];
 
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
 
@@ -819,7 +805,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
     }
 
-    this.recalculateColumnSections();
     this.hasChanges = true;
   }
 
@@ -847,7 +832,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public set rows(rows: MessageDisplay) {
     if (this._rows !== rows) {
       this._rows = rows;
-      this.calculateColumnFooterSums();
 
       this.hasChanges = true;
     }
@@ -865,39 +849,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public set showContentTextPreview(showContentTextPreview: boolean) {
     this._showContentTextPreview = showContentTextPreview;
-    this.hasChanges = true;
-  }
-
-  public calculateColumnFooterSums(): void {
-    this.columns.forEach((col) => {
-      if (col.footerSumReduce) {
-        col.footerText = col.getFormattedValue(
-          // FIXME: message display class
-          this.rows.rows.reduce((prev, row) => col.footerSumReduce(prev, col.getValue(row)), 0)
-        );
-      }
-    });
-  }
-
-  public recalculateColumnSections(): void {
-    let leftX = 0;
-    this.columnSections = this.columns.reduce((accumulated, current) => {
-      let ret;
-      if (accumulated.length === 0 ||
-        accumulated[accumulated.length - 1].columnSectionName !== current.columnSectionName) {
-
-        ret = accumulated.concat([
-          new CanvasTableColumnSection(current.columnSectionName,
-            current.width,
-            leftX,
-            current.backgroundColor)]);
-      } else if (accumulated.length > 0 && accumulated[accumulated.length - 1].columnSectionName === current.columnSectionName) {
-        accumulated[accumulated.length - 1].width += current.width;
-        ret = accumulated;
-      }
-      leftX += current.width;
-      return ret;
-    }, []);
     this.hasChanges = true;
   }
 
