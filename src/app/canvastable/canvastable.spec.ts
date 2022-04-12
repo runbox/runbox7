@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -40,12 +40,14 @@ describe('canvastable', () => {
         fixture.componentInstance.canvastable.columns = [
             {
                 name: 'Column1',
+                cacheKey: 'col1',
                 sortColumn: null,
                 getValue: (row) => row.col1,
                 width: 200
             },
             {
                 name: 'Column2',
+                cacheKey: 'col2',
                 sortColumn: null,
                 getValue: (row) => row.col2,
                 width: 200,
