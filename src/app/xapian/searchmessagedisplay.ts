@@ -64,17 +64,15 @@ export class SearchMessageDisplay extends MessageDisplay {
         cacheKey: 'selectbox',
         rowWrapModeHidden: false,
         getValue: (rowIndex): any => this.isSelectedRow(rowIndex),
-        checkbox: true,
+        checkbox: true
       },
       {
         name: 'Date',
         cacheKey: 'date',
         sortColumn: 2,
         rowWrapModeMuted : true,
-        getValue: (rowIndex): string => {
-          const datestring = this.searchService.api.getStringValue(this.getRowId(rowIndex), 2);
-          return MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring);
-        },
+        getValue: (rowIndex): string => this.searchService.api.getStringValue(this.getRowId(rowIndex), 2),
+        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring)
       },
       (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
         name: 'To',
@@ -166,7 +164,7 @@ export class SearchMessageDisplay extends MessageDisplay {
             name: 'Folder',
             cacheKey: 'folder',
             rowWrapModeHidden: true,
-            getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder.replace(/\./g, '/'),
+            getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder,
             width: 200
           });
         }

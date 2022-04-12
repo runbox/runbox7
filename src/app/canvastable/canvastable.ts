@@ -1074,6 +1074,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           } else {
             formattedVal = '' + val;
+            this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           }
           if (this.rowWrapMode && col.rowWrapModeHidden) {
             continue;

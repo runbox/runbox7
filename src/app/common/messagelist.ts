@@ -86,7 +86,8 @@ export class MessageList extends MessageDisplay {
         cacheKey: 'date',
         sortColumn: null,
         rowWrapModeMuted: true,
-        getValue: (rowIndex: number): string => MessageTableRowTool.formatTimestamp(this.getRow(rowIndex).messageDate.toJSON()),
+        getValue: (rowIndex: number): string => this.getRow(rowIndex).messageDate.toJSON(),
+        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestamp(datestring)
       },
       {
         name: app.selectedFolder === 'Sent' ? 'To' : 'From',
