@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -1066,7 +1066,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             val = '';
           }
           let formattedVal: string;
-          const formattedValueCacheKey: string = colindex + ':' + val;
+          const formattedValueCacheKey: string = col.cacheKey + ':' + val;
           if (this.formattedValueCache[formattedValueCacheKey]) {
             formattedVal = this.formattedValueCache[formattedValueCacheKey];
           } else if (('' + val).length > 0 && col.getFormattedValue) {

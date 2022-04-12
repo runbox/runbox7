@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -23,6 +23,8 @@
 
 export interface CanvasTableColumn {
   name: string;
+  cacheKey: string;
+
   footerText?: string;
 
   width?: number;
