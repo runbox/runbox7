@@ -24,7 +24,7 @@ import { MessageContents } from './rbwebmail';
 @Injectable()
 export class MessageCache {
     db: Dexie;
-    message_version = 4;
+    message_version = 5;
 
     constructor() {
         try {

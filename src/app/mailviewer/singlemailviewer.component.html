@@ -276,7 +276,7 @@
       On {{mailObj.date | date:'yyyy-MM-dd HH:mm'}}, {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; wrote:
     </span>
 
-    <div class="htmlButtons" *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'">
+    <div class="htmlButtons" *ngIf="mailContentHTML">
       <span style="flex-grow: 1"></span>
       <span>
         <mat-checkbox color="warn"
@@ -285,6 +285,13 @@
           matTooltip="Toggle HTML view"
           >
           HTML
+        </mat-checkbox>
+        <mat-checkbox *ngIf="showHTML" color="warn"
+          (click)="toggleImages($event)"
+          [checked]="showImages"
+          matTooltip="Toggle HTML Images"
+          >
+          Show Images
         </mat-checkbox>
         <button mat-icon-button color="warn" (click)="showHTMLWarningDialog()"
           matTooltip="Only show HTML from trusted senders" style="margin-right: 5px">
