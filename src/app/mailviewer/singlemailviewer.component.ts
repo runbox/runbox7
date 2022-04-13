@@ -27,6 +27,7 @@ import {
   DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import DOMPurify from 'dompurify';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatButtonToggle } from '@angular/material/button-toggle';
@@ -347,7 +348,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           // Pre-sanitized, however we need to escape ampersands and
           // quotes for srcdoc, let angular do it:
 //          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
-          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
+          res.html = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html));
         } else {
           res.html = null;
         }
@@ -393,7 +394,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         html.push(raw);
         text = html.join('');
 
-        res.text = text;
+        // res.text = text;
+        res.text = res.text.textAsHtml;
         return res;
       }))
       .subscribe((res) => {
