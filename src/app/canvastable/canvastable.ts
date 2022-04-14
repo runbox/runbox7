@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -64,16 +64,6 @@ export class FloatingTooltip {
     public width: number,
     public height: number,
     public tooltipText: string) {
-
-  }
-}
-
-export class CanvasTableColumnSection {
-  constructor(
-    public columnSectionName: string,
-    public width: number,
-    public leftPos: number,
-    public backgroundColor: string) {
 
   }
 }
@@ -175,8 +165,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     if (this._columns !== columns) {
       this.calculateColumnWidths(columns);
       this._columns = columns;
-      this.recalculateColumnSections();
-      this.calculateColumnFooterSums();
       this.hasSortColumns = columns.filter(col => col.sortColumn !== null).length > 0;
       this.hasChanges = true;    }
   }
@@ -217,8 +205,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public hasChanges: boolean;
 
   private formattedValueCache: { [key: string]: string; } = {};
-
-  public columnSections: CanvasTableColumnSection[] = [];
 
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
 
@@ -819,7 +805,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
     }
 
-    this.recalculateColumnSections();
     this.hasChanges = true;
   }
 
@@ -847,7 +832,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public set rows(rows: MessageDisplay) {
     if (this._rows !== rows) {
       this._rows = rows;
-      this.calculateColumnFooterSums();
 
       this.hasChanges = true;
     }
@@ -865,39 +849,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public set showContentTextPreview(showContentTextPreview: boolean) {
     this._showContentTextPreview = showContentTextPreview;
-    this.hasChanges = true;
-  }
-
-  public calculateColumnFooterSums(): void {
-    this.columns.forEach((col) => {
-      if (col.footerSumReduce) {
-        col.footerText = col.getFormattedValue(
-          // FIXME: message display class
-          this.rows.rows.reduce((prev, row) => col.footerSumReduce(prev, col.getValue(row)), 0)
-        );
-      }
-    });
-  }
-
-  public recalculateColumnSections(): void {
-    let leftX = 0;
-    this.columnSections = this.columns.reduce((accumulated, current) => {
-      let ret;
-      if (accumulated.length === 0 ||
-        accumulated[accumulated.length - 1].columnSectionName !== current.columnSectionName) {
-
-        ret = accumulated.concat([
-          new CanvasTableColumnSection(current.columnSectionName,
-            current.width,
-            leftX,
-            current.backgroundColor)]);
-      } else if (accumulated.length > 0 && accumulated[accumulated.length - 1].columnSectionName === current.columnSectionName) {
-        accumulated[accumulated.length - 1].width += current.width;
-        ret = accumulated;
-      }
-      leftX += current.width;
-      return ret;
-    }, []);
     this.hasChanges = true;
   }
 
@@ -1115,7 +1066,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             val = '';
           }
           let formattedVal: string;
-          const formattedValueCacheKey: string = colindex + ':' + val;
+          const formattedValueCacheKey: string = col.cacheKey + ':' + val;
           if (this.formattedValueCache[formattedValueCacheKey]) {
             formattedVal = this.formattedValueCache[formattedValueCacheKey];
           } else if (('' + val).length > 0 && col.getFormattedValue) {
@@ -1123,6 +1074,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           } else {
             formattedVal = '' + val;
+            this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           }
           if (this.rowWrapMode && col.rowWrapModeHidden) {
             continue;

@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -61,26 +61,28 @@ export class SearchMessageDisplay extends MessageDisplay {
       {
         sortColumn: null,
         name: '',
+        cacheKey: 'selectbox',
         rowWrapModeHidden: false,
         getValue: (rowIndex): any => this.isSelectedRow(rowIndex),
-        checkbox: true,
+        checkbox: true
       },
       {
         name: 'Date',
+        cacheKey: 'date',
         sortColumn: 2,
         rowWrapModeMuted : true,
-        getValue: (rowIndex): string => {
-          const datestring = this.searchService.api.getStringValue(this.getRowId(rowIndex), 2);
-          return MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring);
-        },
+        getValue: (rowIndex): string => this.searchService.api.getStringValue(this.getRowId(rowIndex), 2),
+        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring)
       },
       (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
         name: 'To',
+        cacheKey: 'from',
         sortColumn: null,
         getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', '),
       } :
         {
           name: 'From',
+          cacheKey: 'from',
           sortColumn: 0,
           getValue: (rowIndex): string => {
             return this.searchService.getDocData(this.getRowId(rowIndex)).from;
@@ -88,6 +90,7 @@ export class SearchMessageDisplay extends MessageDisplay {
         },
       {
           name: 'Subject',
+          cacheKey: 'subject',
           sortColumn: 1,
           getValue: (rowIndex): string => {
             return this.searchService.getDocData(this.getRowId(rowIndex)).subject;
@@ -124,6 +127,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push(
         {
           name: 'Count',
+          cacheKey: 'count',
           sortColumn: null,
           rowWrapModeChipCounter: true,
           getValue: (rowIndex): string => {
@@ -144,6 +148,7 @@ export class SearchMessageDisplay extends MessageDisplay {
         {
           sortColumn: 3,
           name: 'Size',
+          cacheKey: 'size',
           rowWrapModeHidden: true,
           getValue: (rowIndex): string => {
             return  `${this.searchService.api.getNumericValue(this.getRowId(rowIndex), 3)}`;
@@ -157,8 +162,9 @@ export class SearchMessageDisplay extends MessageDisplay {
           columns.push({
             sortColumn: null,
             name: 'Folder',
+            cacheKey: 'folder',
             rowWrapModeHidden: true,
-            getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder.replace(/\./g, '/'),
+            getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder,
             width: 200
           });
         }
@@ -167,6 +173,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push({
         sortColumn: null,
         name: '',
+        cacheKey: 'attachment',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
@@ -179,6 +186,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push({
         sortColumn: null,
         name: '',
+        cacheKey: 'answered',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
@@ -191,6 +199,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push({
         sortColumn: null,
         name: '',
+        cacheKey: 'flagged',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',

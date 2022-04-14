@@ -46,6 +46,7 @@ const XAPIAN_TERM_SEEN = 'XFseen';
 const XAPIAN_TERM_ANSWERED = 'XFanswered';
 const XAPIAN_TERM_DELETED = 'XFdeleted';
 const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
+const XAPIAN_TERM_HASATTACHMENTS = 'XFattachment';
 
 export const XAPIAN_GLASS_WR = 'xapianglasswr';
 
@@ -874,7 +875,8 @@ export class SearchService {
                 flagged: false,
                 seen: false,
                 answered: false,
-                deleted: false
+                deleted: false,
+                attachments: false
               };
               const documentTermList = (Module.documenttermlistresult as string[]);
               const addSearchIndexDocumentUpdate = (func: () => void) =>
@@ -908,6 +910,8 @@ export class SearchService {
                   messageStatusInIndex.answered = true;
                 } else if (term === XAPIAN_TERM_DELETED) {
                   messageStatusInIndex.deleted = true;
+                } else if (term === XAPIAN_TERM_HASATTACHMENTS) {
+                  messageStatusInIndex.attachments = true;
                 }
               });
 
@@ -943,7 +947,15 @@ export class SearchService {
                   addSearchIndexDocumentUpdate(() =>
                     this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
                 }
-              }
+
+                if (msginfo.attachment && !messageStatusInIndex.attachments) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_HASATTACHMENTS));
+                } else if (!msginfo.attachment && messageStatusInIndex.attachments) {
+                  addSearchIndexDocumentUpdate(() =>
+                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_HASATTACHMENTS));
+                }
+}
             }
           });
 
@@ -1233,7 +1245,7 @@ export class SearchService {
                   this.currentDocData.answered = true;
                 } else if (s === XAPIAN_TERM_DELETED) {
                   this.currentDocData.deleted = true;
-                } else if (s === 'XFattachment') {
+                } else if (s === XAPIAN_TERM_HASATTACHMENTS) {
                   this.currentDocData.attachment = true;
                 } else if (s.indexOf('XRECIPIENT') === 0) {
                   const recipient = s.substring('XRECIPIENT:'.length);
