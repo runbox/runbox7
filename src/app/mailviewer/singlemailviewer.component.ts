@@ -358,7 +358,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
         res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
-        res.sanitized_html_with_images = this.generateAttachmentURLs(res.attachments, res.sanitized_html_with_images);
+        res.sanitized_html_without_images = this.generateAttachmentURLs(res.attachments, res.sanitized_html_without_images);
         res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
 
@@ -368,7 +368,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           // Pre-sanitized, however we need to escape ampersands and
           // quotes for srcdoc, let angular do it:
           res.html = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html));
-          res.html_with_images = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html_with_images));
+          res.html_without_images = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html_without_images));
         } else {
           res.html = null;
         }
@@ -420,9 +420,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       }))
       .subscribe((res) => {
         if (res.html) {
-          this.mailContentHTML = res.html;
-          this.mailContentHTMLWithoutImages = res.html;
-          this.mailContentHTMLWithImages = res.html_with_images;
+          this.mailContentHTML = res.html_without_images;
+          this.mailContentHTMLWithoutImages = res.html_without_images;
+          this.mailContentHTMLWithImages = res.html;
           if (
             // res.has_sent_mail_to === '1' || // We have sent mail to this sender before, so let's trust the HTML and show it by default
             // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] ||
