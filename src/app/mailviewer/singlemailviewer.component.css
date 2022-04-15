@@ -127,6 +127,10 @@ mat-grid-tile:hover {
     align-items: center;
 }
 
+.htmlButtons mat-checkbox {
+    padding-left: 10px;
+}
+    
 .link-pointer {
     cursor: pointer;
 }
