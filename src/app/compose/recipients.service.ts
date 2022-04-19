@@ -26,7 +26,7 @@ import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { Recipient } from './recipient';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import * as moment from 'moment';
+import moment from 'moment';
 
 enum RecipientOrigin {
     Search = 'search',

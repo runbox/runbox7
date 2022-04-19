@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 export class EventOverview {
     ongoing: boolean;

@@ -37,7 +37,7 @@ import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
 import { MessageCache } from './messagecache';
 import { LRUMessageCache } from './lru-message-cache';
-import * as moment from 'moment';
+import moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 
 export class MessageFields {

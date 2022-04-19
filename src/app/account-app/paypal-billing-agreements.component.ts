@@ -22,7 +22,7 @@ import { MatTable } from '@angular/material/table';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject } from 'rxjs';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
     selector: 'app-account-paypal-billing-agreements-component',

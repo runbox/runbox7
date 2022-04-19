@@ -26,8 +26,8 @@ import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent, RecurSaveType } from './runbox-calendar-event';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
-import * as moment from 'moment';
-import * as ICAL from 'ical.js';
+import moment from 'moment';
+import ICAL from 'ical.js';
 
 @Component({
     selector: 'app-calendar-event-editor-dialog',

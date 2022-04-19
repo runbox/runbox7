@@ -25,7 +25,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
-import * as moment from 'moment';
+import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { Md5 } from 'ts-md5/dist/md5';
 import { AppSettings, AppSettingsService } from '../app-settings';

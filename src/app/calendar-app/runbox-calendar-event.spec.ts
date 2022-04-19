@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { RunboxCalendarEvent, RecurSaveType } from './runbox-calendar-event';
-import * as moment from 'moment';
-import * as ICAL from 'ical.js';
+import moment from 'moment';
+import ICAL from 'ical.js';
 
 describe('RunboxCalendarEvent', () => {
     beforeEach(() => {

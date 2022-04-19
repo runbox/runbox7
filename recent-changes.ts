@@ -2,7 +2,7 @@
 // remember about: node src/build/build-changelog.js
 
 import { changelog, ChangelogEntry, EntryType } from './src/app/changelog/changes';
-import * as moment from 'moment';
+import moment from 'moment';
 
 const numDays = parseInt(process.argv[2] || '7')
 
