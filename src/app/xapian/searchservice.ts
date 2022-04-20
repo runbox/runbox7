@@ -366,6 +366,10 @@ export class SearchService {
   }
 
   public deleteLocalIndex(): Observable<any> {
+    if (!this.localSearchActivated) {
+      console.log('Tried to delete local index when it is not present');
+      return;
+    }
     this.localSearchActivated = false;
 
     return new Observable((observer) => {
@@ -1046,6 +1050,15 @@ export class SearchService {
       }
     } catch (err) {
       console.error('Failed updating with new changes (will retry in 10 secs)', err);
+      if (this.messageProcessingInProgressSubject &&
+        this.messageProcessingInProgressSubject.isStopped) {
+        // stopped/errored because localSearchActivated changed
+        // during processing, reset
+        this.messageProcessingInProgressSubject = null;
+        this.pendingMessagesToProcess = null;
+        this.processMessageHistoryProgress = null;
+        this.processMessageIndex = 0;
+      }
     }
     this.currentIndexUpdateMessageIds.clear();
     this.notifyOnNewMessages = true;
