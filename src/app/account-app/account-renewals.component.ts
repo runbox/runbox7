@@ -28,7 +28,7 @@ import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 const columnsDefault = ['renewal_name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
 const columnsMobile = ['renewal_name'];

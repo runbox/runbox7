@@ -21,7 +21,7 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { Contact } from '../contacts-app/contact';
 import { SearchService, SearchIndexDocumentData } from '../xapian/searchservice';

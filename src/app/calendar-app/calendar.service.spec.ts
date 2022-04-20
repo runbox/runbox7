@@ -23,8 +23,8 @@ import { CalendarService } from './calendar.service';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import * as moment from 'moment';
-import * as ICAL from 'ical.js';
+import moment from 'moment';
+import ICAL from 'ical.js';
 
 describe('CalendarService', () => {
     let dav_events: any;

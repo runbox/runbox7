@@ -28,8 +28,8 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, ReplaySubject, AsyncSubject } from 'rxjs';
 
-import * as moment from 'moment';
-import * as ICAL from 'ical.js';
+import moment from 'moment';
+import ICAL from 'ical.js';
 
 enum Activity {
     LoadingCache        = 'Loading local cache',
