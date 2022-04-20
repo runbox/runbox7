@@ -73,7 +73,7 @@
       </mat-list-item>
 
       <mat-list-item (click)="overview()" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}"
-        *ngIf="dataReady"
+        *ngIf="searchService.localSearchActivated && dataReady"
       >
         <mat-icon mat-list-icon svgIcon="blur" class="folderIconStandard"></mat-icon>
         <p mat-line class="folderName">Overview</p>
@@ -86,7 +86,7 @@
         [ngStyle]="{ 'display': settingsService.settings.showPopularRecipients ? 'block' : 'none' }"
         (recipientClicked)="searchFor($event)"
     >
-        <mat-list-item *ngIf="!dataReady" (click)="downloadIndexFromServer()">
+        <mat-list-item *ngIf="!searchService.localSearchActivated && dataReady" (click)="downloadIndexFromServer()">
             Synchronize index in order to use this feature
         </mat-list-item>
     </app-popular-recipients>
@@ -113,7 +113,7 @@
 
     <mat-divider></mat-divider>
 
-    <mat-nav-list *ngIf="dataReady">
+    <mat-nav-list *ngIf="searchService.localSearchActivated && dataReady">
       <mat-list-item
         (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">
@@ -122,7 +122,7 @@
       </mat-list-item>
     </mat-nav-list>
 
-    <mat-nav-list *ngIf="(xapianLoaded | async) && !dataReady && searchService.downloadProgress===null">
+    <mat-nav-list *ngIf="(xapianLoaded | async) && !dataReady && !searchService.localSearchActivated && searchService.downloadProgress===null">
       <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
         <mat-icon  svgIcon="sync" mat-list-icon></mat-icon>
         <p mat-line>Synchronize index</p>
