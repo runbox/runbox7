@@ -20,7 +20,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { Subject } from 'rxjs';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
     selector: 'app-calendar-overview',

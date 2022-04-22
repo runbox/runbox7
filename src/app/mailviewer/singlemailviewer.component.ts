@@ -45,6 +45,7 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
 
+// const DOMPurify = require('dompurify');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
 const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
@@ -145,6 +146,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     private router: Router,
     private snackBar: RunboxContactSupportSnackBar,
   ) {
+    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+      // set all elements owning target to target=_blank
+      if ('target' in node) {
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener');
+      }
+    });
   }
 
   public close(actionstring?: string) {
@@ -415,7 +423,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         text = html.join('');
 
         // res.text = text;
-        res.text = res.text.textAsHtml;
+        res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
         return res;
       }))
       .subscribe((res) => {

@@ -17,6 +17,8 @@
       "dom"
     ],
     "module": "es2020",
-    "baseUrl": "./"
+      "baseUrl": "./",
+      "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

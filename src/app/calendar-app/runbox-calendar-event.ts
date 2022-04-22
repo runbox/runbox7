@@ -20,9 +20,9 @@
 import { CalendarEvent } from 'angular-calendar';
 import { EventColor } from 'calendar-utils';
 
-import * as moment from 'moment';
+import moment from 'moment';
 import 'moment-timezone';
-import * as ICAL from 'ical.js';
+import ICAL from 'ical.js';
 
 import { EventOverview } from './event-overview';
 
