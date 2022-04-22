@@ -27,6 +27,7 @@ import { ChangelogEntry, EntryType, changelog } from './changes';
 
 @Component({
     selector: 'app-changelog',
+      styleUrls: ['changelog.component.scss'],
     templateUrl: './changelog.component.html',
 })
 export class ChangelogComponent implements AfterViewInit, OnInit {
