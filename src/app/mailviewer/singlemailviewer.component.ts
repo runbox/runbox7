@@ -345,6 +345,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         res.to = res.headers.to ? res.headers.to.value : '';
         res.cc = res.headers.cc ? res.headers.cc.value : '';
 
+        // RFC 5322 says "Date" and "From" are the only 2 required fields
+        // and yet we get emails without em.
+        if (!res.headers.date) {
+          res.headers.date = '1970-01-01T00:00:00.000Z';
+        }
         res.date = (
           (arr: string[]): Date =>
             new Date(
