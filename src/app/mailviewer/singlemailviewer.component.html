@@ -286,13 +286,16 @@
           >
           HTML
         </mat-checkbox>
-        <mat-checkbox *ngIf="showHTML" color="warn"
-          (click)="toggleImages($event)"
-          [checked]="showImages"
-          matTooltip="Toggle HTML Images"
+        <mat-checkbox *ngIf="showHTML && !showImages" color="warn"
+          [(ngModel)]="showImagesThisSender"
+          matTooltip="Always show external images for this sender"
           >
-          Show Images
+          Always for this sender
         </mat-checkbox>
+        <button *ngIf="showHTML && !showImages" mat-icon-button color="warn" (click)="showExternalImages($event)"
+          matTooltip="Show External Images" style="margin-right: 5px">
+          <mat-icon svgIcon="image"></mat-icon>
+        </button>
         <button mat-icon-button color="warn" (click)="showHTMLWarningDialog()"
           matTooltip="Only show HTML from trusted senders" style="margin-right: 5px">
           <mat-icon color="warn" svgIcon="alert"></mat-icon>

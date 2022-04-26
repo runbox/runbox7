@@ -44,10 +44,11 @@ import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
+import { ContactsService } from '../contacts-app/contacts.service';
+import { Contact, ContactKind } from '../contacts-app/contact';
 
 // const DOMPurify = require('dompurify');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
-const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
@@ -120,9 +121,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public showHTMLDecision = 'dontask';
   public showHTML = false;
-  public showImagesDecision = 'never';
+  public showImagesThisSender = false;
   public showImages = false;
   public showAllHeaders = false;
+
+  contacts: Contact[] = [];
 
   public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 
@@ -145,6 +148,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public mobileQuery: MobileQueryService,
     private router: Router,
     private snackBar: RunboxContactSupportSnackBar,
+    private contactsservice: ContactsService,
   ) {
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
       // set all elements owning target to target=_blank
@@ -152,6 +156,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         node.setAttribute('target', '_blank');
         node.setAttribute('rel', 'noopener');
       }
+    });
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      console.log('MailViewer: got the contacts!');
+      this.contacts = contacts;
     });
   }
 
@@ -197,7 +205,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
-    this.showImagesDecision = localStorage.getItem(showImagesDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
     const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
@@ -315,18 +322,41 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = false;
       this.showHTML = false;
     }
+    // Show images if we previously for the current sender
+    this.showImagesForThisSender(this.mailObj.from[0].address);
   }
 
-  public toggleImages(event) {
+  public showExternalImages(event) {
     event.preventDefault();
 
     this.showImages = !this.showImages;
+    if (this.showImagesThisSender) {
+      // do we already have them as a contact:
+      let contact = this.contacts.find((c) => c.primary_email() === this.mailObj.from[0].address);
+      if (!contact) {
+        contact = new Contact({ email: this.mailObj.from[0].address});
+        contact.kind = ContactKind.SETTINGSONLY;
+        this.contacts.push(contact);
+      }
+      contact.show_external_html = true;
+      this.contactsservice.saveContact(contact);
+    }
+    // Show images if we previously / just stored it for the current sender
+    this.showImagesForThisSender(this.mailObj.from[0].address);
+    // Turn on anyway (regardless of sender stored value)
     if (this.showImages) {
-      this.mailContentHTMLWithoutImages = this.mailContentHTML;
       this.mailContentHTML = this.mailContentHTMLWithImages;
-    } else {
-      this.mailContentHTMLWithImages = this.mailContentHTML;
-      this.mailContentHTML = this.mailContentHTMLWithoutImages;
+    }
+  }
+
+  public showImagesForThisSender(email: string): boolean {
+    if (!this.showHTML) {
+      return false;
+    }
+    const contact = this.contacts.find((c) => c.primary_email() === email);
+    if (contact && contact.show_external_html) {
+      this.showImages = true;
+      this.mailContentHTML = this.mailContentHTMLWithImages;
     }
   }
 
@@ -442,6 +472,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             this.showHTMLDecision === 'alwaysshowhtml') {
 
             this.showHTML = true;
+            // Show images if we previously for the current sender
+            this.showImagesForThisSender(res.from[0].address);
           }
         } else {
           this.mailContentHTML = null;
