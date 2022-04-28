@@ -206,7 +206,8 @@ export class ContactsAppComponent {
 
     filterContacts(): void {
         this.shownContacts = this.contacts.filter(c => {
-            if (c.kind === ContactKind.GROUP) {
+            if (c.kind === ContactKind.GROUP
+              || c.kind === ContactKind.SETTINGSONLY) {
                 return false;
             }
 

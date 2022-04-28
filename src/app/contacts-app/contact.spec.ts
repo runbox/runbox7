@@ -301,4 +301,14 @@ END:VCARD`);
         sut = Contact.fromVcard(null, sut.vcard());
         expect(sut.photo).toBe(uri);
     });
+
+    it('can create a SETTINGSONLY contact', () => {
+        const sut = new Contact({});
+        sut.kind = ContactKind.SETTINGSONLY;
+        sut.show_external_html = true;
+        expect(() => sut.vcard()).not.toThrow();
+
+        expect(sut.vcard()).toContain('X-SHOWEXTERNALHTML:true');
+        expect(sut.vcard()).toContain('settingsonly');
+    });
 });

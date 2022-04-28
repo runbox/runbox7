@@ -249,9 +249,16 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-  saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
+  async saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
         this.activities.begin(Activity.SavingContact);
 
+        // In case we're editing a hidden contact (settings only)
+        const existing = await this.lookupContact(contact.primary_email());
+        if (existing) {
+            contact.id = existing.id;
+            contact.url = existing.url;
+            contact.show_external_html = existing.show_external_html;
+        }
         const promise = new Promise<string>((resolve, reject) => {
             if (contact.url) {
                 console.log('Modifying contact', contact.id);

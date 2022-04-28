@@ -44,12 +44,40 @@ import { MobileQueryService } from '../mobile-query.service';
 import { ProgressService } from '../http/progress.service';
 import { StorageService } from '../storage.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Contact, ContactKind } from '../contacts-app/contact';
 import { ContactCardComponent } from './contactcard.component';
 import { MessageActions } from './messageactions';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { AvatarBarComponent } from './avatar-bar.component';
+
+export class ContactsServiceMock {
+    public contactsSubject = of([
+        new Contact({
+            id: 5,
+            nick: 'test',
+            first_name: 'firstname',
+            last_name: 'lastname',
+            email: 'test@example.com'
+        }),
+        new Contact({
+            id: 6,
+            nick: 'fred@bloggs.com',
+            show_external_html: true,
+            kind: ContactKind.SETTINGSONLY,
+            emails: [{ types: ['home'], value: 'fred@bloggs.com' }]
+        })
+    ]);
+
+    lookupAvatar(_email: string) {
+        return Promise.resolve(null);
+    }
+
+    lookupContact(_email: string) {
+        return Promise.resolve(null);
+    }
+}
 
 describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
@@ -117,14 +145,7 @@ describe('SingleMailViewerComponent', () => {
             }));
           }
         } },
-        { provide: ContactsService, useValue: {
-            lookupAvatar(_email: string) {
-              return Promise.resolve(null);
-            },
-            lookupContact(_email: string) {
-              return Promise.resolve(null);
-            }
-        } },
+        { provide: ContactsService, useClass: ContactsServiceMock },
         { provide: ProgressService, useValue: {} }
       ]
     })
