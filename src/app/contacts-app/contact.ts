@@ -503,6 +503,7 @@ export class Contact {
         }
     }
 
+    // Flag for "always show external links/images from this sender
     get show_external_html(): boolean {
         if (this.component.hasProperty('x-showexternalhtml')) {
             return this.component.getFirstPropertyValue('x-showexternalhtml') === 'true';
@@ -514,6 +515,17 @@ export class Contact {
         this.setPropertyValue('x-showexternalhtml', value.toString());
     }
 
+    // Flag for "always show html content from this sender
+    get show_html(): boolean {
+        if (this.component.hasProperty('x-showhtml')) {
+            return this.component.getFirstPropertyValue('x-showhtml') === 'true';
+        }
+        return false;
+    }
+
+    set show_html(value: boolean) {
+        this.setPropertyValue('x-showhtml', value.toString());
+    }
 
     toDict(): any {
         return {

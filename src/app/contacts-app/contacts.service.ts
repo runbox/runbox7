@@ -310,6 +310,20 @@ export class ContactsService implements OnDestroy {
         ).then(() => this.reload());
     }
 
+    async findOrUpdateContact(email, newKind, properties: any) {
+        let contact = await this.lookupContact(email);
+        if (!contact) {
+            contact = new Contact({ email: email });
+            contact.kind = newKind;
+        }
+        for (const key in properties) {
+            if (properties[key] !== null && properties[key] !== '') {
+                contact[key] = properties[key];
+            }
+        }
+        this.saveContact(contact);
+    }
+
     // returns an URL or null if no avatar is available
     async lookupAvatar(email: string): Promise<string> {
         if (this.settingsService.settings.avatars === AppSettings.AvatarSource.NONE) {
