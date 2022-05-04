@@ -295,9 +295,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     event.preventDefault();
 
     this.showImages = !this.showImages;
-    // Show images if we previously / just stored it for the current sender
-    this.showImagesForThisSender(this.mailObj.from[0].address);
-    // Turn on anyway (regardless of sender stored value)
+    // turn on:
     if (this.showImages) {
       this.mailContentHTML = this.mailContentHTMLWithImages;
     } else {
@@ -309,12 +307,12 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     event.preventDefault();
 
     if (this.showHTML) {
-      this.showHTMLDecision = 'always';
+      this.showHTMLDecision = 'alwaysshowhtml';
       localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
     }
 
     if (this.showImages) {
-      this.showImagesDecision = 'always';
+      this.showImagesDecision = 'alwaysshowimages';
       localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
     }
     this.snackBar.open('Saved globally', 'Ok', {
