@@ -79,11 +79,21 @@
           <mat-radio-group
             style="display: inline-flex; flex-direction: column"
             [(ngModel)]="showHTMLDecision" (change)="saveShowHTMLDecision()">
-              <mat-radio-button class="menuradiobutton" value="dontask">
+            <mat-radio-button class="menuradiobutton" value="dontask">
                 Toggle HTML
               </mat-radio-button>
-              <mat-radio-button class="menuradiobutton" value="alwaysshowhtml">
+            <mat-radio-button class="menuradiobutton" value="alwaysshowhtml">
                 Always show HTML
+              </mat-radio-button>
+          </mat-radio-group>
+          <mat-radio-group
+            style="display: inline-flex; flex-direction: column"
+            [(ngModel)]="showImagesDecision" (change)="saveShowImagesDecision()">
+              <mat-radio-button class="menuradiobutton" value="dontask">
+                Toggle Images
+              </mat-radio-button>
+              <mat-radio-button class="menuradiobutton" value="alwaysshowimages">
+                Always show Images
               </mat-radio-button>
           </mat-radio-group>
       </mat-menu>
@@ -279,24 +289,47 @@
     <div class="htmlButtons" *ngIf="mailContentHTML">
       <span style="flex-grow: 1"></span>
       <span>
-        <mat-checkbox color="warn"
+        <mat-radio-group
+          aria-label="Toggle Plain/HTML view"
+          matTooltip="Toggle Plain/HTML view"
+          [value]="showHTML ? 'HTML' : 'Plain'"
+          >
+        <mat-radio-button
           (click)="toggleHtml($event)"
-          [checked]="showHTML"
+          value="Plain"
+          matTooltip="Toggle Plain Text view"
+          >
+          Plain
+        </mat-radio-button>
+        <mat-radio-button
+          (click)="toggleHtml($event)"
+          value="HTML"
           matTooltip="Toggle HTML view"
           >
           HTML
-        </mat-checkbox>
-        <mat-checkbox *ngIf="showHTML" color="warn"
-          (click)="toggleImages($event)"
+        </mat-radio-button>
+        </mat-radio-group>
+        <mat-checkbox *ngIf="showHTML"
+          (click)="showExternalImages($event)"
           [checked]="showImages"
-          matTooltip="Toggle HTML Images"
+          matTooltip="Show external images"
           >
-          Show Images
+          With Images
         </mat-checkbox>
-        <button mat-icon-button color="warn" (click)="showHTMLWarningDialog()"
-          matTooltip="Only show HTML from trusted senders" style="margin-right: 5px">
-          <mat-icon color="warn" svgIcon="alert"></mat-icon>
+        <span>Save for:</span>
+        <button
+          [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionGlobal($event)"
+          >
+          All Email
         </button>
+        <button
+          [ngClass]="savedForThisSender ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionForThisSender($event)"
+          >
+          This Sender
+        </button>
+        <mat-icon color="warn" svgIcon="alert"></mat-icon>
       </span>
     </div>
 

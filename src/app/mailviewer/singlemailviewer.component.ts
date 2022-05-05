@@ -31,7 +31,8 @@ import DOMPurify from 'dompurify';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatButtonToggle } from '@angular/material/button-toggle';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
@@ -44,6 +45,10 @@ import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
 import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
+import { ContactsService } from '../contacts-app/contacts.service';
+import { Contact, ContactKind } from '../contacts-app/contact';
+import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
+// import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
 
 // const DOMPurify = require('dompurify');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
@@ -53,27 +58,6 @@ const resizerPercentageKey = 'rmm7resizerpercentage';
 
 const TOOLBAR_BUTTON_WIDTH = 40;
 
-@Component({
-  template: `
-      <h3 mat-dialog-title>Really show HTML version?</h3>
-      <mat-dialog-content>
-          <p>Showing HTML formatted messages may send tracking information to the sender,
-          and may also expose you to security threats.
-	  You should only show the HTML version if you trust the sender.</p>
-
-          <!-- <p><button mat-raised-button (click)="dialogRef.close()">No</button></p>
-          <p><button mat-raised-button (click)="dialogRef.close('once')">Yes, only this time</button></p> -->
-          <p><button mat-raised-button (click)="dialogRef.close('dontask')">Manually toggle HTML</button></p>
-          <p><button mat-raised-button (click)="dialogRef.close('alwaysshowhtml')">Always show HTML if available</button></p>
-
-      </mat-dialog-content>
-  `
-})
-export class ShowHTMLDialogComponent {
-  constructor(public dialogRef: MatDialogRef<ShowHTMLDialogComponent>) {
-
-  }
-}
 
 @Component({
   moduleId: 'angular2/app/mailviewer/',
@@ -83,7 +67,6 @@ export class ShowHTMLDialogComponent {
   styleUrls: ['singlemailviewer.component.css']
 })
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
-  static rememberHTMLChosenForMessagesIds: { [messageId: number]: boolean } = {};
 
   _messageId = null; // Message id or filename
 
@@ -119,10 +102,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
+  public showImagesDecision = 'dontask';
   public showHTML = false;
-  public showImagesDecision = 'never';
   public showImages = false;
+  public savedForThisSender = false;
+  public savedAlways = false;
   public showAllHeaders = false;
+
+  contacts: Contact[] = [];
 
   public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 
@@ -144,7 +131,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public messagelistservice: MessageListService,
     public mobileQuery: MobileQueryService,
     private router: Router,
-    private snackBar: RunboxContactSupportSnackBar,
+    private supportSnackBar: RunboxContactSupportSnackBar,
+    private snackBar: MatSnackBar,
+    private contactsservice: ContactsService,
   ) {
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
       // set all elements owning target to target=_blank
@@ -152,6 +141,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         node.setAttribute('target', '_blank');
         node.setAttribute('rel', 'noopener');
       }
+    });
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      console.log('MailViewer: got the contacts!');
+      this.contacts = contacts;
     });
   }
 
@@ -197,7 +190,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
-    this.showImagesDecision = localStorage.getItem(showImagesDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
     const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
@@ -286,48 +278,111 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public toggleHtml(event) {
     event.preventDefault();
 
+    this.savedAlways = false;
+    this.savedForThisSender = false;
     if (!this.showHTML) {
-      if (SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] !== undefined) {
+      console.log(this.showHTMLDecision);
+      const decisionObservable = this.showHTMLDecision ?
+        of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
+
+      decisionObservable.subscribe(result => {
+        localStorage.setItem(showHtmlDecisionKey, result);
+        this.showHTMLDecision = result;
         this.showHTML = true;
-        ProgressDialog.open(this.dialog);
-      } else {
-
-        console.log(this.showHTMLDecision);
-        const decisionObservable = this.showHTMLDecision ?
-          of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
-
-        decisionObservable.subscribe(result => {
-          switch (result) {
-            case 'dontask':
-            case 'alwaysshowhtml':
-              localStorage.setItem(showHtmlDecisionKey, result);
-              this.showHTMLDecision = result;
-            // tslint:disable-next-line:no-switch-case-fall-through
-            case 'once':
-              // ProgressDialog.open(this.dialog);
-              // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = true;
-              break;
-          }
-          this.showHTML = result ? true : false;
-        });
-      }
+      });
     } else {
-      // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = false;
       this.showHTML = false;
     }
   }
 
-  public toggleImages(event) {
+  public showExternalImages(event) {
     event.preventDefault();
 
     this.showImages = !this.showImages;
+    this.savedAlways = false;
+    this.savedForThisSender = false;
+    // turn on:
     if (this.showImages) {
-      this.mailContentHTMLWithoutImages = this.mailContentHTML;
       this.mailContentHTML = this.mailContentHTMLWithImages;
     } else {
-      this.mailContentHTMLWithImages = this.mailContentHTML;
       this.mailContentHTML = this.mailContentHTMLWithoutImages;
     }
+  }
+
+  public saveDecisionGlobal(event) {
+    event.preventDefault();
+
+    if (this.showHTML) {
+      this.showHTMLDecision = 'alwaysshowhtml';
+      localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
+    }
+
+    if (this.showImages) {
+      this.showImagesDecision = 'alwaysshowimages';
+      localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
+    }
+    this.savedAlways = true;
+    this.snackBar.open('Saved globally', 'Ok', {
+      duration: 3000,
+    });
+  }
+
+  // Store current showHTML / showImages settings for the current sender
+  public async saveDecisionForThisSender(event) {
+    event.preventDefault();
+
+    await this.contactsservice.findOrUpdateContact(
+      this.mailObj.from[0].address,
+      ContactKind.SETTINGSONLY,
+      {
+        show_html: this.showHTML,
+        show_external_html: this.showImages
+      }
+    );
+
+    this.savedForThisSender = true;
+    this.snackBar.open('Saved for this sender', 'Ok', {
+      duration: 3000,
+    });
+  }
+
+  public showHTMLForThisSender(email: string): boolean {
+    if (this.showHTMLDecision
+        && this.showHTMLDecision === 'alwaysshowhtml') {
+      this.showHTML = true;
+      this.savedAlways = true;
+      return;
+    }
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      const contact = contacts.find((c) => c.primary_email() === email);
+      if (contact && contact.show_html) {
+        this.showHTML = true;
+        this.savedForThisSender = true;
+      } else {
+        this.showHTML = false;
+      }
+    });
+  }
+
+  public showImagesForThisSender(email: string): boolean {
+    if (this.showImagesDecision
+        && this.showImagesDecision === 'alwaysshowimages') {
+      this.showImages = true;
+      this.savedAlways = true;
+      this.mailContentHTML = this.mailContentHTMLWithImages;
+      return;
+    }
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      const contact = contacts.find((c) => c.primary_email() === email);
+      if (contact && contact.show_external_html) {
+        this.showImages = true;
+        this.savedForThisSender = true;
+        this.mailContentHTML = this.mailContentHTMLWithImages;
+      } else {
+        this.showImages = false;
+        this.mailContentHTML = this.mailContentHTMLWithoutImages;
+      }
+    });
   }
 
   public fetchMessageJSON() {
@@ -433,16 +488,16 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       }))
       .subscribe((res) => {
         if (res.html) {
+          // default to no images
           this.mailContentHTML = res.html_without_images;
           this.mailContentHTMLWithoutImages = res.html_without_images;
           this.mailContentHTMLWithImages = res.html;
-          if (
-            // res.has_sent_mail_to === '1' || // We have sent mail to this sender before, so let's trust the HTML and show it by default
-            // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] ||
-            this.showHTMLDecision === 'alwaysshowhtml') {
 
-            this.showHTML = true;
-          }
+          // if we have it on globally or for this sender:
+          this.showHTMLForThisSender(res.from[0].address);
+          // Show images if we previously saved for the current sender
+          // or set it globally
+          this.showImagesForThisSender(res.from[0].address);
         } else {
           this.mailContentHTML = null;
         }
@@ -463,7 +518,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         );
       },
       err => {
-        this.snackBar.open(err);
+        this.supportSnackBar.open(err);
       }
       );
   }
@@ -506,11 +561,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.showHTMLDecision) {
       localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
     } else {
-      SingleMailViewerComponent.rememberHTMLChosenForMessagesIds = {};
       localStorage.removeItem(showHtmlDecisionKey);
     }
   }
 
+  saveShowImagesDecision() {
+    if (this.showImagesDecision) {
+      localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
+    } else {
+      localStorage.removeItem(showImagesDecisionKey);
+    }
+  }
   adjustIframeHTMLHeight() {
     if (this.htmliframe) {
       const iframe = document.getElementById('iframe');
@@ -689,6 +750,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  // FIXME: Why do we have this (called from orange triangle icon)
+  // AND the htmlSettingsMenu radio buttons!?
   showHTMLWarningDialog() {
     this.dialog.open(ShowHTMLDialogComponent).afterClosed()
       .subscribe(result => {

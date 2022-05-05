@@ -249,9 +249,16 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-  saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
+  async saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
         this.activities.begin(Activity.SavingContact);
 
+        // In case we're editing a hidden contact (settings only)
+        const existing = await this.lookupContact(contact.primary_email());
+        if (existing) {
+            contact.id = existing.id;
+            contact.url = existing.url;
+            contact.show_external_html = existing.show_external_html;
+        }
         const promise = new Promise<string>((resolve, reject) => {
             if (contact.url) {
                 console.log('Modifying contact', contact.id);
@@ -301,6 +308,20 @@ export class ContactsService implements OnDestroy {
                 () => this.activities.end(Activity.DeletingContacts)
             ))
         ).then(() => this.reload());
+    }
+
+    async findOrUpdateContact(email, newKind, properties: any) {
+        let contact = await this.lookupContact(email);
+        if (!contact) {
+            contact = new Contact({ email: email });
+            contact.kind = newKind;
+        }
+        for (const key in properties) {
+            if (properties[key] !== null && properties[key] !== '') {
+                contact[key] = properties[key];
+            }
+        }
+        this.saveContact(contact);
     }
 
     // returns an URL or null if no avatar is available

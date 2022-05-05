@@ -44,9 +44,9 @@ describe('Composing emails', () => {
         cy.wait(1000);
         cy.visit('/#Inbox:1');
         cy.get('single-mail-viewer').should('exist');
-        cy.get('mat-checkbox[mattooltip="Toggle HTML view"]').click();
+        cy.get('mat-radio-button[mattooltip="Toggle HTML view"]').click();
         cy.contains('Manually toggle HTML').click();
-        cy.get('mat-checkbox[mattooltip="Toggle HTML view"] input').should('be.checked');
+        cy.get('mat-radio-button[mattooltip="Toggle HTML view"] input').should('be.checked');
         cy.get('button[mattooltip="Reply"]').click();
         // we assume that this is the tinymce frame
         cy.get('iframe').should('exist');
