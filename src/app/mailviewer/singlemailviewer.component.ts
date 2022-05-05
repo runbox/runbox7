@@ -105,6 +105,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public showImagesDecision = 'dontask';
   public showHTML = false;
   public showImages = false;
+  public savedForThisSender = false;
+  public savedAlways = false;
   public showAllHeaders = false;
 
   contacts: Contact[] = [];
@@ -276,6 +278,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public toggleHtml(event) {
     event.preventDefault();
 
+    this.savedAlways = false;
+    this.savedForThisSender = false;
     if (!this.showHTML) {
       console.log(this.showHTMLDecision);
       const decisionObservable = this.showHTMLDecision ?
@@ -295,6 +299,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     event.preventDefault();
 
     this.showImages = !this.showImages;
+    this.savedAlways = false;
+    this.savedForThisSender = false;
     // turn on:
     if (this.showImages) {
       this.mailContentHTML = this.mailContentHTMLWithImages;
@@ -315,6 +321,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.showImagesDecision = 'alwaysshowimages';
       localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
     }
+    this.savedAlways = true;
     this.snackBar.open('Saved globally', 'Ok', {
       duration: 3000,
     });
@@ -333,6 +340,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       }
     );
 
+    this.savedForThisSender = true;
     this.snackBar.open('Saved for this sender', 'Ok', {
       duration: 3000,
     });
@@ -342,12 +350,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.showHTMLDecision
         && this.showHTMLDecision === 'alwaysshowhtml') {
       this.showHTML = true;
+      this.savedAlways = true;
       return;
     }
     this.contactsservice.contactsSubject.subscribe(contacts => {
       const contact = contacts.find((c) => c.primary_email() === email);
       if (contact && contact.show_html) {
         this.showHTML = true;
+        this.savedForThisSender = true;
       } else {
         this.showHTML = false;
       }
@@ -358,6 +368,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.showImagesDecision
         && this.showImagesDecision === 'alwaysshowimages') {
       this.showImages = true;
+      this.savedAlways = true;
       this.mailContentHTML = this.mailContentHTMLWithImages;
       return;
     }
@@ -365,6 +376,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       const contact = contacts.find((c) => c.primary_email() === email);
       if (contact && contact.show_external_html) {
         this.showImages = true;
+        this.savedForThisSender = true;
         this.mailContentHTML = this.mailContentHTMLWithImages;
       } else {
         this.showImages = false;

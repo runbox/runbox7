@@ -79,18 +79,10 @@
           <mat-radio-group
             style="display: inline-flex; flex-direction: column"
             [(ngModel)]="showHTMLDecision" (change)="saveShowHTMLDecision()">
-            <mat-radio-button
-              class="menuradiobutton"
-              value="dontask"
-              matTooltip="Toggle Plain Text view"
-              >
+            <mat-radio-button class="menuradiobutton" value="dontask">
                 Toggle HTML
               </mat-radio-button>
-            <mat-radio-button
-              class="menuradiobutton"
-              value="alwaysshowhtml"
-              matTooltip="Toggle HTML view"
-              >
+            <mat-radio-button class="menuradiobutton" value="alwaysshowhtml">
                 Always show HTML
               </mat-radio-button>
           </mat-radio-group>
@@ -305,12 +297,14 @@
         <mat-radio-button
           (click)="toggleHtml($event)"
           value="Plain"
+          matTooltip="Toggle Plain Text view"
           >
           Plain
         </mat-radio-button>
         <mat-radio-button
           (click)="toggleHtml($event)"
           value="HTML"
+          matTooltip="Toggle HTML view"
           >
           HTML
         </mat-radio-button>
@@ -322,13 +316,18 @@
           >
           With Images
         </mat-checkbox>
-        <button *ngIf="showHTML" mat-stroked-button
-          (click)="saveDecisionGlobal($event)">
-          Always
+        <span>Save for:</span>
+        <button
+          [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionGlobal($event)"
+          >
+          All Email
         </button>
-        <button *ngIf="showHTML" mat-stroked-button
-          (click)="saveDecisionForThisSender($event)">
-          For This Sender
+        <button
+          [ngClass]="savedForThisSender ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionForThisSender($event)"
+          >
+          This Sender
         </button>
         <mat-icon color="warn" svgIcon="alert"></mat-icon>
       </span>
