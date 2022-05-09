@@ -769,24 +769,27 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public deleteLocalIndex() {
-    this.usewebsocketsearch = true;
-    this.canvastable.topindex = 0;
-    this.canvastable.rows = null;
-    this.viewmode = 'messages';
-    this.dataReady = false;
-    this.showingSearchResults = false;
-    this.searchText = '';
+    if (this.searchService.localSearchActivated || this.dataReady) {
+      this.usewebsocketsearch = true;
+      this.canvastable.topindex = 0;
+      this.canvastable.rows = null;
+      this.viewmode = 'messages';
+      this.dataReady = false;
+      this.showingSearchResults = false;
+      this.searchText = '';
 
-    this.resetColumns();
+      this.resetColumns();
 
-    this.usage.report('local-index-deleted');
+      this.usage.report('local-index-deleted');
 
-    this.searchService.deleteLocalIndex().subscribe(() => {
-      this.messagelistservice.fetchFolderMessages();
+      this.searchService.deleteLocalIndex().subscribe(() => {
+        // this.messagelistservice.fetchFolderMessages();
+        this.setMessageDisplay('messagelist', this.messagelist);
 
-      this.updateTooltips();
-      this.snackBar.open('The index has been deleted from your device', 'Dismiss');
-    });
+        this.updateTooltips();
+        this.snackBar.open('The index has been deleted from your device', 'Dismiss');
+      });
+    }
   }
 
   public setMessageDisplay(displayType: string, ...args) {
