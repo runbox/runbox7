@@ -309,14 +309,14 @@
             HTML
           </mat-radio-button>
         </mat-radio-group>
-	<mat-checkbox *ngIf="showHTML"
-		      (click)="showExternalImages($event)"
-		      [checked]="showImages"
-		      matTooltip="Show external images"
-		      >
-	</mat-checkbox>
+	    <mat-checkbox *ngIf="showHTML"
+            (click)="showExternalImages($event)"
+            [checked]="showImages"
+            matTooltip="Show external images"
+		    >
+	    </mat-checkbox>
         <mat-checkbox *ngIf="!showHTML"
-	  color="gray"
+          color="gray"
           matTooltip="Show external images (in HTML view)"
           >
         </mat-checkbox>
@@ -324,14 +324,14 @@
         <button
           [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
           (click)="saveDecisionGlobal($event)"
-	  matTooltip="Save setting for all senders"
+          matTooltip="Save setting for all senders"
           >
           All senders
         </button>
         <button
           [ngClass]="savedForThisSender ? 'mat-flat-button' : 'mat-raised-button'"
           (click)="saveDecisionForThisSender($event)"
-	  matTooltip="Save setting for this sender"
+          matTooltip="Save setting for this sender"
           >
           This sender
         </button>
