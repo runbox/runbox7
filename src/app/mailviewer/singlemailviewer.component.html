@@ -289,47 +289,53 @@
     <div class="htmlButtons" *ngIf="mailContentHTML">
       <span style="flex-grow: 1"></span>
       <span>
+	Show:
         <mat-radio-group
           aria-label="Toggle Plain/HTML view"
-          matTooltip="Toggle Plain/HTML view"
           [value]="showHTML ? 'HTML' : 'Plain'"
           >
-        <mat-radio-button
-          (click)="toggleHtml($event)"
-          value="Plain"
-          matTooltip="Toggle Plain Text view"
-          >
-          Plain
-        </mat-radio-button>
-        <mat-radio-button
-          (click)="toggleHtml($event)"
-          value="HTML"
-          matTooltip="Toggle HTML view"
-          >
-          HTML
-        </mat-radio-button>
+          <mat-radio-button
+            (click)="toggleHtml($event)"
+            value="Plain"
+            matTooltip="Toggle Plain Text view"
+            >
+            Text
+          </mat-radio-button>
+          <mat-radio-button
+            (click)="toggleHtml($event)"
+            value="HTML"
+            matTooltip="Toggle HTML view"
+            >
+            HTML
+          </mat-radio-button>
         </mat-radio-group>
-        <mat-checkbox *ngIf="showHTML"
-          (click)="showExternalImages($event)"
-          [checked]="showImages"
-          matTooltip="Show external images"
+	<mat-checkbox *ngIf="showHTML"
+		      (click)="showExternalImages($event)"
+		      [checked]="showImages"
+		      matTooltip="Show external images"
+		      >
+	</mat-checkbox>
+        <mat-checkbox *ngIf="!showHTML"
+	  color="gray"
+          matTooltip="Show external images (in HTML view)"
           >
-          With Images
         </mat-checkbox>
-        <span>Save for:</span>
+        <span> Images for </span>
         <button
           [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
           (click)="saveDecisionGlobal($event)"
+	  matTooltip="Save setting for all senders"
           >
-          All Email
+          All senders
         </button>
         <button
           [ngClass]="savedForThisSender ? 'mat-flat-button' : 'mat-raised-button'"
           (click)="saveDecisionForThisSender($event)"
+	  matTooltip="Save setting for this sender"
           >
-          This Sender
+          This sender
         </button>
-        <mat-icon color="warn" svgIcon="alert"></mat-icon>
+        <mat-icon color="warn" svgIcon="alert" matTooltip="Only show HTML messages from trusted senders"></mat-icon>
       </span>
     </div>
 

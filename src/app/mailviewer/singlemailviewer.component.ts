@@ -64,7 +64,7 @@ const TOOLBAR_BUTTON_WIDTH = 40;
   // tslint:disable-next-line:component-selector
   selector: 'single-mail-viewer',
   templateUrl: 'singlemailviewer.component.html',
-  styleUrls: ['singlemailviewer.component.css']
+  styleUrls: ['singlemailviewer.component.scss']
 })
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
 
@@ -322,7 +322,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
     }
     this.savedAlways = true;
-    this.snackBar.open('Saved globally', 'Ok', {
+    this.snackBar.open('Setting saved for all senders', 'OK', {
       duration: 3000,
     });
   }
@@ -341,7 +341,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     );
 
     this.savedForThisSender = true;
-    this.snackBar.open('Saved for this sender', 'Ok', {
+    this.snackBar.open('Setting saved for this sender', 'OK', {
       duration: 3000,
     });
   }
