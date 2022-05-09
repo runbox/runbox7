@@ -600,7 +600,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     let printablecontent = this.messageContents.nativeElement.innerHTML;
     if (this.htmliframe) {
-      printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
+      printablecontent = printablecontent.replace(/\<iframe[^]*\<\/iframe\>/g,
         this.htmliframe.nativeElement.contentWindow.document.documentElement.innerHTML
       );
     }
