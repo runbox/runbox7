@@ -935,6 +935,13 @@ mat-expansion-panel, mat-expansion-panel-header {
     height: 50px;
 }
 
+/* Message display options */
+.htmlButtons {
+    .mat-radio-label-content {
+	padding: 0 5px !important;
+    }
+}
+
 /* Compose */
 
 .draftdesk-container {

@@ -122,15 +122,21 @@ mat-grid-tile:hover {
 
 .htmlButtons {
     display: flex;
-    height: 30px;
-    font-size: 12px;
+    min-height: 30px;
+    font-size: 14px;
     align-items: center;
+
+    .mat-raised-button, .mat-flat-button {
+	width: 90px;
+	line-height: 24px;
+	padding: 0;
+    }
+    .mat-flat-button {
+	box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
+    }
 }
 
-.htmlButtons mat-checkbox {
-    padding-left: 10px;
-}
-    
+
 .link-pointer {
     cursor: pointer;
 }
