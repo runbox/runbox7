@@ -924,7 +924,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.usewebsocketsearch = false;
 
     // don't scroll to top when redrawing after index updates
-    this.updateSearch(true, true);
+    if (!this.hasChildRouterOutlet) {
+      this.updateSearch(true, true);
+    }
 
   }
 
