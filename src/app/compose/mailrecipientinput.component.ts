@@ -135,6 +135,7 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
         const value = (input.value || '').trim();
 
         if (this.auto.isOpen || this.addedFromAutoComplete) {
+            this.addedFromAutoComplete = false;
             return;
         }
         if (value) {
