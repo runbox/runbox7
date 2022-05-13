@@ -518,6 +518,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         );
       },
       err => {
+        console.log('Error fetching message: ' + this.messageId);
+        console.log(err);
         this.supportSnackBar.open(err);
       }
       );
