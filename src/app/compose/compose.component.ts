@@ -151,9 +151,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 });
             }
         } else {
-            this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
-                this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''
-            );
+          this.rmmapi.getMessageContents(this.model.mid).subscribe(
+            msgObj =>
+              this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '',
+            err => {
+              console.error('Error fetching message: ' + this.model.mid);
+              console.error(err);
+              if (typeof(err) === 'string') {
+                this.snackBar.open(err);
+              } else {
+                this.snackBar.open(err.errors.join('.'));
+              }
+            });
         }
 
         this.formGroup = this.formBuilder.group(this.model);
@@ -404,7 +413,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
                     this.htmlToggled();
                 }, err => {
+                  console.error('Error fetching message: ' + this.model.mid);
+                  console.error(err);
+                  if (typeof(err) === 'string') {
                     this.snackBar.open(`Error opening draft for editing ${err}`, 'OK');
+                  } else {
+                    this.snackBar.open(`Error opening draft for editing ${err.errors.join('.')}`, 'OK');
+                  }
                 });
         } else {
             this.editing = true;

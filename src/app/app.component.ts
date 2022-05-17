@@ -435,7 +435,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const rowIndexes = this.canvastable.getVisibleRowIndexes();
         const messageIds = rowIndexes.filter(
             idx => idx < this.canvastable.rows.rowCount()
-        ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+        ).map(idx => this.canvastable.rows.getRowMessageId(idx)
+        ).filter(id => id > 0);
         for (const id of messageIds) {
           if (this.searchService.updateMessageText(id)) {
             this.canvastable.hasChanges = true;

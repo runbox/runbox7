@@ -1290,9 +1290,15 @@ export class SearchService {
           }
         } else {
           // stop repeatedly looking up broken ones
+          console.error(`DataError in updateMessageText ${messageId}`, content['errors']);
           this.messageTextCache.set(messageId, '');
         }
-      });
+      },
+     (err) => {
+       console.error(`HTTPError in updateMessageText ${messageId}`, err);
+       // stop repeatedly looking up broken ones
+       this.messageTextCache.set(messageId, '');
+     });
       return true;
     }
     return false;
