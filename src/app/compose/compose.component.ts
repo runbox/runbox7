@@ -159,7 +159,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
               console.error(err);
               if (typeof(err) === 'string') {
                 this.snackBar.open(err);
-              } else {
+              } else if (err.hasOwnProperty('errors')) {
                 this.snackBar.open(err.errors.join('.'));
               }
             });
@@ -417,7 +417,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                   console.error(err);
                   if (typeof(err) === 'string') {
                     this.snackBar.open(`Error opening draft for editing ${err}`, 'OK');
-                  } else {
+                  } else if (err.hasOwnProperty('errors')) {
                     this.snackBar.open(`Error opening draft for editing ${err.errors.join('.')}`, 'OK');
                   }
                 });

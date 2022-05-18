@@ -394,7 +394,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (res.status === 'warning') {
           // status === 'error' already displayed in showBackendErrors?
           // Skip if we previously had an issue loading this messge
-          throw new Error(res);
+          throw res;
         }
         res.subject = res.headers.subject;
         res.from = res.headers.from.value;
@@ -523,10 +523,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         // httperror e.message, or status:error,errors:['strings']
         console.error(err);
         if (typeof(err) === 'string') {
+          // HTTPErrorResponse as a string
           this.supportSnackBar.open(err);
-        } else {
+        } else if (err.hasOwnProperty('errors')) {
+          // Our own error object from rest api
           this.supportSnackBar.open(err.errors.join('.'));
         }
+        // close the viewer pane
+        this.close();
+        // else - not outputting normal JS errors!
       }
       );
   }
@@ -737,8 +742,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       setTimeout(() => {
         if (this.messageContents) {
           this.messageContents.nativeElement.scroll(0, 0);
-        } else {
-          this.close();
         }
         // Only care about the horizontal pane height in horizontal mode
         if (this.adjustableHeight && this.resizer) {
