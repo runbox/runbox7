@@ -194,9 +194,12 @@ END:VCALENDAR
         this.server = createServer((request, response) => {
             const e2eFixture = request.url.match(/\/rest\/e2e\/(\w+)/);
             if (e2eFixture) {
+                log(e2eFixture[1]);
                 const command = e2eFixture[1];
                 if (command === 'logout') {
+                    log('ms pre: logout');
                     this.loggedIn = false;
+                    log('ms post: logout');
                 }
                 if (command === 'require2fa') {
                     this.challenge2fa = true;
@@ -205,6 +208,7 @@ END:VCALENDAR
                     this.challenge2fa = false;
                 }
                 response.end();
+                return;
             }
 
             if (!this.loggedIn && request.url !== '/ajax_mfa_authenticate') {
@@ -293,6 +297,7 @@ END:VCALENDAR
                             log('2fa challenge');
                             response.end(JSON.stringify(this.auth_challenge_2fa()));
                             this.challenge2fa = false;
+                            return;
                         } else {
                             this.loggedIn = true;
                             log('authenticate');
@@ -301,7 +306,8 @@ END:VCALENDAR
                                         'message': 'Success',
                                         'code': 200
                                     }
-                                ));
+                            ));
+                            return;
                         }
                         }, 1000);
                     break;
