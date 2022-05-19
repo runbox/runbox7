@@ -28,10 +28,10 @@ describe('Interacting with mailviewer', () => {
         // canvas().click(400, 300);
 
         cy.hash().should('equal', '#Inbox:11');
-        cy.go(-1);
-        cy.hash().should('not.contain', 'Inbox:11');
         /* TODO: apparently forward broke at some point
          * in headless mode. Works normally in a proper browser
+        cy.go('back');
+        cy.hash().should('not.contain', 'Inbox:11');
         cy.go('forward');
         cy.hash().should('equal', '#Inbox:11');
         cy.get('button[mattooltip="Close"]').click();
