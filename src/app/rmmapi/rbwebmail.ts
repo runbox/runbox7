@@ -347,6 +347,7 @@ export class RunboxWebmailAPI {
 
     showBackendErrors(res: any) {
         if (res.status === 'error' || res.status === 'warning') {
+            console.log(res);
             if (res.errors && res.errors.length) {
                 const error_msg = res.errors.map((key) => {
                     let loc = this.rblocale.translate(key).replace('_', ' ');

@@ -324,8 +324,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
          && res && res.length > 0) {
         this.setMessageDisplay('messagelist', this.messagelist);
         if (this.jumpToFragment) {
-          this.selectMessageFromFragment(this.fragment);
-          this.canvastable.jumpToOpenMessage();
+          if (this.router.url !== `/#${this.fragment}`) {
+            this.selectMessageFromFragment(this.fragment);
+            this.canvastable.jumpToOpenMessage();
+          }
           this.jumpToFragment = false;
         }
         this.canvastable.hasChanges = true;
@@ -435,7 +437,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const rowIndexes = this.canvastable.getVisibleRowIndexes();
         const messageIds = rowIndexes.filter(
             idx => idx < this.canvastable.rows.rowCount()
-        ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+        ).map(idx => this.canvastable.rows.getRowMessageId(idx)
+        ).filter(id => id > 0);
         for (const id of messageIds) {
           if (this.searchService.updateMessageText(id)) {
             this.canvastable.hasChanges = true;
@@ -798,6 +801,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.updateRows(args[1]);
       } else {
         this.canvastable.rows = new SearchMessageDisplay(...args);
+        // messages updated, check if we need to select a message from the fragment
+        this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'messagelist') {
@@ -805,6 +810,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new MessageList(...args);
+        // messages updated, check if we need to select a message from the fragment
+        this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'websocketlist') {
@@ -812,6 +819,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new WebSocketSearchMailList(...args);
+        // messages updated, check if we need to select a message from the fragment
+        this.selectMessageFromFragment(this.fragment);
       }
     }
     this.filterMessageDisplay();
@@ -825,8 +834,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // NB this triggers hasChanged for us and forces a redraw
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
-    // messages updated, check if we need to select a message from the fragment
-    this.selectMessageFromFragment(this.fragment);
   }
 
   public filterMessageDisplay() {
@@ -850,7 +857,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public selectRowByMessageId(messageId: number) {
     const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
-    if (matchingRowIndex >= -1) {
+    if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
     } else {
       this.singlemailviewer.close();
@@ -1337,8 +1344,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // navigating to the same page does not fire off our fragment.subscribe
     if (fragment !== this.fragment) {
       this.fragment = fragment;
+      this.router.navigate(['/'], { fragment });
     }
-    this.router.navigate(['/'], { fragment });
   }
 }
 

@@ -1290,9 +1290,20 @@ export class SearchService {
           }
         } else {
           // stop repeatedly looking up broken ones
+          if (content.hasOwnProperty('errors')) {
+            // this is an error restapi generated
+            console.error(`DataError in updateMessageText ${messageId}`, content['errors']);
+          }
+          // even if we dont know where it came from, still dont retry
+          // it this session
           this.messageTextCache.set(messageId, '');
         }
-      });
+      },
+     (err) => {
+       console.error(`HTTPError in updateMessageText ${messageId}`, err);
+       // stop repeatedly looking up broken ones
+       this.messageTextCache.set(messageId, '');
+     });
       return true;
     }
     return false;
