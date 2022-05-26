@@ -752,7 +752,15 @@ export class SearchService {
         ).toPromise();
       }
 
-      let msginfos = await this.rmmapi.listAllMessages(...next_update['list_messages_args']).toPromise();
+      let msginfos = [];
+      try {
+        msginfos = await this.rmmapi.listAllMessages(...next_update['list_messages_args']).toPromise();
+      } catch (err) {
+        console.error(err);
+        if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
+          console.log(err.errors);
+        }
+      }
 
       if (this.currentIndexUpdateMessageIds.size > 0) {
         // if an index update is already running, check we arent
@@ -797,9 +805,18 @@ export class SearchService {
                   (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
                     not matching with index for current folder`);
 
-              const folderMessages = await this.rmmapi.listAllMessages(0, 0, 0,
-                MAX_DISCREPANCY_CHECK_LIMIT,
-                true, folderPath).toPromise();
+              let folderMessages = [];
+              try {
+                folderMessages = await this.rmmapi.listAllMessages(
+                  0, 0, 0,
+                  MAX_DISCREPANCY_CHECK_LIMIT,
+                  true, folderPath).toPromise();
+              } catch (err) {
+                console.error(err);
+                if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
+                  console.log(err.errors);
+                }
+              }
               msginfos = msginfos.concat(folderMessages);
 
               const folderMessageIDS: {[messageId: number]: boolean} = {};

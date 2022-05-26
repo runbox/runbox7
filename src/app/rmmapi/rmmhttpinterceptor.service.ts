@@ -84,6 +84,7 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                     if (e.status === 403) {
                         console.log('Forbidden');
                         this.checkAccountStatus();
+                        return throwError(e.message);
                     } else if (e.status === 502 || e.status === 504) {
                         // Bad Gateway / Gateway Timeout
                         this.rmmoffline.is_offline = true;
