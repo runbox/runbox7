@@ -21,7 +21,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
-import { mergeMap, map } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 
 const MAX_DRAFTS_IN_VIEW = 10;

@@ -25,7 +25,7 @@ import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { RMM } from '../rmm';
-import { Observable, from, of, AsyncSubject, BehaviorSubject } from 'rxjs';
+import { from, of, BehaviorSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 export class ForwardedAttachment {
