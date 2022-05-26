@@ -321,7 +321,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults
-         && res && res.length > 0) {
+         && res) {
         this.setMessageDisplay('messagelist', this.messagelist);
         if (this.jumpToFragment) {
           if (this.router.url !== `/#${this.fragment}`) {
