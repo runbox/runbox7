@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -19,13 +19,14 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { MessageListService } from '../rmmapi/messagelist.service';
 import { RMM } from '../rmm';
-import { from, of, AsyncSubject } from 'rxjs';
-import { map, mergeMap, bufferCount, take } from 'rxjs/operators';
+import { Observable, from, of, AsyncSubject, BehaviorSubject } from 'rxjs';
+import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 export class ForwardedAttachment {
     constructor(
@@ -99,12 +100,12 @@ export class DraftFormModel {
         if (all) {
             ret.to = ret.to.concat(mailObj.to
                 .filter((addr) =>
-                        froms.find(fromObj => fromObj.email === addr.address) ? false : true
+                    froms.find(fromObj => fromObj.email === addr.address) ? false : true
                        )
                 .map((addr) => {
                     return new MailAddressInfo(addr.name, addr.address);
                 })
-            );
+                                  );
             if (mailObj.cc) {
                 ret.cc = mailObj.cc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
@@ -195,60 +196,104 @@ export class DraftFormModel {
 
 @Injectable()
 export class DraftDeskService {
-    draftModels: DraftFormModel[] = [];
-    draftsRefreshed: AsyncSubject<boolean> = new AsyncSubject();
-    froms: FromAddress[] = [];
+    draftModels: BehaviorSubject<DraftFormModel[]> = new BehaviorSubject([]);
+    fromsSubject: BehaviorSubject<FromAddress[]> = new BehaviorSubject([]);
+    isEditing = -1;
+    previousPageUrl = '/';
+    shouldReturnToPreviousPage = false;
 
-    constructor(public rmmapi: RunboxWebmailAPI, private http: HttpClient, private rmm: RMM) {
+    constructor(public rmmapi: RunboxWebmailAPI,
+                private messagelistservice: MessageListService,
+                private http: HttpClient,
+                private rmm: RMM) {
         this.rmm.profile.profiles.subscribe((_) =>
             this.refreshFroms());
-        this.refreshDrafts().then(() => {
-            this.draftsRefreshed.next(true);
-            this.draftsRefreshed.complete();
-        });
+
+        this.messagelistservice.refreshFolderList();
+        this.messagelistservice.folderListSubject
+            .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+                return prev.length === curr.length
+                    && prev.every((f, index) =>
+                        f.folderId === curr[index].folderId
+                        && f.totalMessages === curr[index].totalMessages
+                        && f.newMessages === curr[index].newMessages);
+            }))
+            .subscribe((folders) => {
+                this.refreshDrafts();
+            });
     }
 
-    public async refreshFroms(): Promise<FromAddress[]> {
-        const froms = await this.rmmapi.getFromAddress().toPromise();
-        this.froms = froms.sort((a, b) => {
-            if (a.type === 'main') {
-                return -1;
-            } else if (b.type === 'main') {
-                return 1;
-            } else if (a.type === 'aliases') {
-                return -1;
-            } else if (b.type === 'aliases') {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-        this.froms = froms.sort((a, b) => {
-            return a.priority - b.priority;
-        });
-        return froms;
+    // default identity for creating an email
+    public mainIdentity(): FromAddress {
+        return this.fromsSubject.value[0];
     }
 
-    private async refreshDrafts(): Promise<DraftFormModel[]> {
-        await this.refreshFroms();
-
-        const messages = await this.rmmapi
-            .listAllMessages(0, 0, 0, 100, true, 'Drafts')
-            .toPromise();
-
-        return this.draftModels =
-            messages.map((msgInfo) =>
-                DraftFormModel.create(msgInfo.id,
-                    this.froms[0],
-                    msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
-                        addr.address : addr.name + '<' + addr.address + '>').join(','),
-                    msgInfo.subject, null)
+    public refreshFroms() {
+        this.rmmapi.getFromAddress().pipe(
+            map((froms) => {
+                froms.sort((a, b) => {
+                    if (a.type === 'main') {
+                        return -1;
+                    } else if (b.type === 'main') {
+                        return 1;
+                    } else if (a.type === 'aliases') {
+                        return -1;
+                    } else if (b.type === 'aliases') {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+                froms.sort((a, b) => {
+                    return a.priority - b.priority;
+                });
+                return froms;
+            })).subscribe(
+                froms => this.fromsSubject.next(froms),
+                err => {
+                    console.error(err);
+                }
             );
     }
 
+    private refreshDrafts() {
+        this.refreshFroms();
+        this.fromsSubject
+            .subscribe(froms => {
+                if (froms.length > 0) {
+                    // Only update if drafts actually changed
+                    this.rmmapi.listAllMessages(0, 0, 0, 100, true, 'Drafts')
+                    .pipe(distinctUntilChanged((prev: any[], curr: any[]) => {
+                        return prev.length === curr.length
+                            && prev.every((m, index) =>
+                                m.id === curr[index].id);
+                    }))
+                    .subscribe(messages => {
+                        const newDrafts = [];
+                        messages.map((msgInfo) =>
+                            newDrafts.push(
+                                DraftFormModel.create(
+                                    msgInfo.id,
+                                    froms[0],
+                                    msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
+                                        addr.address : addr.name + '<' + addr.address + '>').join(','),
+                                    msgInfo.subject, null)
+                            )
+                                    );
+                        this.draftModels.next(newDrafts);
+                    });
+            }
+        },
+                                    err => {
+                                        console.log(err);
+                                    }
+        );
+    }
+
     public deleteDraft(messageId: number) {
-        this.draftModels = this.draftModels
-            .filter(dm => dm.mid !== messageId);
+        let models = this.draftModels.value;
+        models = models.filter(dm => dm.mid !== messageId);
+        this.draftModels.next(models);
     }
 
     public async newBugReport(
@@ -261,7 +306,7 @@ export class DraftDeskService {
     ) {
         const draftObj = DraftFormModel.create(
             -1,
-            this.froms[0],
+            this.fromsSubject.value[0],
             '"Runbox 7 Bug Reports" <bugs@runbox.com>',
             'Runbox 7 Bug Report'
         );
@@ -298,7 +343,7 @@ export class DraftDeskService {
                                              {responseType: 'text'}).toPromise();
         const draftObj = DraftFormModel.create(
             -1,
-            this.froms[0],
+            this.fromsSubject.value[0],
             to,
             "Let's have a video call"
         );
@@ -310,7 +355,9 @@ export class DraftDeskService {
     public newDraft(model: DraftFormModel): Promise<void> {
         return new Promise((resolve, _) => {
             const afterPrepare = () => {
-                this.draftModels.splice(0, 0, model);
+                const models = this.draftModels.value;
+                models.splice(0, 0, model);
+                this.draftModels.next(models);
                 setTimeout(() => resolve(), 0);
             };
             if (model.attachments && model.attachments.length > 0 ) {

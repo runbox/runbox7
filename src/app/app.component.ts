@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -424,6 +424,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
+      if (this.router.url !== '/compose?new=true'
+         && this.router.url !== '/compose') {
+        this.draftDeskService.previousPageUrl = this.router.url;
+      }
       this.composeSelected = this.router.url === '/compose?new=true';
       this.draftsSelected = this.router.url === '/compose';
       this.overviewSelected = this.router.url === '/overview';
