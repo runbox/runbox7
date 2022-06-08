@@ -56,9 +56,15 @@ export class DraftDeskComponent implements OnInit {
                         DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
             ).then(() => this.updateDraftsInView());
                 } else if (params['new']) {
-                    this.newDraft();
+                    // Can't create a new draft until froms has been loaded
+                    const froms = this.draftDeskservice.fromsSubject.value;
+                    // subscribe((froms) => {
+                        if (froms.length > 0) {
+                            this.newDraft();
+                        }
+                    // });
                     this.draftDeskservice.shouldReturnToPreviousPage = true;
-                    this.router.navigate(['/compose']);
+                    // this.router.navigate(['/compose']);
                 }
             });
     }

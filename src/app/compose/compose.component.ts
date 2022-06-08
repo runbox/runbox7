@@ -671,6 +671,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.draftDeskservice.isEditing = newMid;
                     }
                     this.model.mid = newMid;
+                    this.draftDeskservice.composingNewDraft = null;
                 }
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
 

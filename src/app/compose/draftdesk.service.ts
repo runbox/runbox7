@@ -199,6 +199,7 @@ export class DraftDeskService {
     draftModels: BehaviorSubject<DraftFormModel[]> = new BehaviorSubject([]);
     fromsSubject: BehaviorSubject<FromAddress[]> = new BehaviorSubject([]);
     isEditing = -1;
+    composingNewDraft: DraftFormModel;
     previousPageUrl = '/';
     shouldReturnToPreviousPage = false;
 
@@ -269,6 +270,7 @@ export class DraftDeskService {
                                 m.id === curr[index].id);
                     }))
                     .subscribe(messages => {
+                        // need to keep any in-progress drafts!
                         const newDrafts = [];
                         messages.map((msgInfo) =>
                             newDrafts.push(
@@ -279,7 +281,10 @@ export class DraftDeskService {
                                         addr.address : addr.name + '<' + addr.address + '>').join(','),
                                     msgInfo.subject, null)
                             )
-                                    );
+                        );
+                        if (this.composingNewDraft !== undefined) {
+                            newDrafts.splice(0, 0, this.composingNewDraft);
+                        }
                         this.draftModels.next(newDrafts);
                     });
             }
@@ -355,9 +360,11 @@ export class DraftDeskService {
     public newDraft(model: DraftFormModel): Promise<void> {
         return new Promise((resolve, _) => {
             const afterPrepare = () => {
-                const models = this.draftModels.value;
-                models.splice(0, 0, model);
-                this.draftModels.next(models);
+                this.composingNewDraft = model;
+                // const drafts = this.draftModels.value;
+                // drafts.splice(0, 0, this.composingNewDraft);
+                // this.draftModels.next(drafts);
+                this.refreshDrafts();
                 setTimeout(() => resolve(), 0);
             };
             if (model.attachments && model.attachments.length > 0 ) {
