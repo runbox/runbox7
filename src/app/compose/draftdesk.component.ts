@@ -35,6 +35,7 @@ export class DraftDeskComponent implements OnInit {
     public draftModelsInView: DraftFormModel[];
     public hasMoreDrafts = false;
     public currentMaxDraftsInView: number = MAX_DRAFTS_IN_VIEW;
+    private hasInitialized = false;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
@@ -57,12 +58,13 @@ export class DraftDeskComponent implements OnInit {
             ).then(() => this.updateDraftsInView());
                 } else if (params['new']) {
                     // Can't create a new draft until froms has been loaded
-                    const froms = this.draftDeskservice.fromsSubject.value;
-                    // subscribe((froms) => {
-                        if (froms.length > 0) {
+                    // FIXME: This needs to only happen once (after froms loaded)
+                    this.draftDeskservice.fromsSubject.subscribe((froms) => {
+                        if (froms.length > 0 && !this.hasInitialized) {
                             this.newDraft();
+                            this.hasInitialized = true;
                         }
-                    // });
+                    });
                     this.draftDeskservice.shouldReturnToPreviousPage = true;
                     // this.router.navigate(['/compose']);
                 }
