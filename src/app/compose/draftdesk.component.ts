@@ -44,7 +44,7 @@ export class DraftDeskComponent implements OnInit {
         public draftDeskservice: DraftDeskService) {
 
         this.draftDeskservice.draftModels.subscribe(
-            drafts => this.draftModelsInView = drafts,
+            drafts => this.draftModelsInView = drafts.slice(0, this.currentMaxDraftsInView),
             err => console.log(err)
         );
     }
@@ -55,7 +55,7 @@ export class DraftDeskComponent implements OnInit {
                 if (params['to']) {
                     this.draftDeskservice.newDraft(
                         DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
-            ).then(() => this.updateDraftsInView());
+                    ).then(() => this.updateDraftsInView());
                 } else if (params['new']) {
                     // Can't create a new draft until froms has been loaded
                     // FIXME: This needs to only happen once (after froms loaded)
@@ -65,8 +65,6 @@ export class DraftDeskComponent implements OnInit {
                             this.hasInitialized = true;
                         }
                     });
-                    this.draftDeskservice.shouldReturnToPreviousPage = true;
-                    // this.router.navigate(['/compose']);
                 }
             });
     }

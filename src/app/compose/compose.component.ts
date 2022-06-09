@@ -406,6 +406,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
                     this.model = model;
                     this.editing = true;
+                    this.draftDeskservice.shouldReturnToPreviousPage = false;
 
                     this.formGroup.patchValue(this.model, { emitEvent: false });
 
@@ -467,8 +468,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public trashDraft() {
         const snackBarRef = this.snackBar.open('Deleting');
+        this.draftDeskservice.isEditing = -1;
+        this.draftDeskservice.composingNewDraft = null;
         this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
-            this.draftDeskservice.isEditing = -1;
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
             this.exitIfNeeded();
@@ -477,9 +479,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     exitIfNeeded() {
         if (this.draftDeskservice.shouldReturnToPreviousPage) {
-            // stored in router.events in app.component.ts
-            this.draftDeskservice.shouldReturnToPreviousPage = false;
-            this.router.navigateByUrl(this.draftDeskservice.previousPageUrl);
+            this.location.back();
+        } else {
+            // default to true (turned off when we edit a draft)
+            this.draftDeskservice.shouldReturnToPreviousPage = true;
         }
     }
 
@@ -541,6 +544,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public close() {
         this.editing = false;
         this.draftDeskservice.isEditing = -1;
+        this.draftDeskservice.composingNewDraft = null;
         this.exitIfNeeded();
     }
 

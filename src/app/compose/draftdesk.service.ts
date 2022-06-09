@@ -200,8 +200,7 @@ export class DraftDeskService {
     fromsSubject: BehaviorSubject<FromAddress[]> = new BehaviorSubject([]);
     isEditing = -1;
     composingNewDraft: DraftFormModel;
-    previousPageUrl = '/';
-    shouldReturnToPreviousPage = false;
+    shouldReturnToPreviousPage = true;
 
     constructor(public rmmapi: RunboxWebmailAPI,
                 private messagelistservice: MessageListService,
@@ -282,7 +281,7 @@ export class DraftDeskService {
                                     msgInfo.subject, null)
                             )
                         );
-                        if (this.composingNewDraft !== undefined) {
+                        if (this.composingNewDraft) {
                             newDrafts.splice(0, 0, this.composingNewDraft);
                         }
                         this.draftModels.next(newDrafts);
