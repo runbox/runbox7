@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -100,19 +100,29 @@ export class RMM7MessageActions implements MessageActions {
     }
 
     public reply(useHTML: boolean) {
-        this.draftDeskService.newDraft(DraftFormModel.reply(this.mailViewerComponent.mailObj, this.draftDeskService.froms, false, useHTML));
-        this.mailViewerComponent.close('goToDraftDesk');
+      this.draftDeskService.newDraft(DraftFormModel.reply(
+        this.mailViewerComponent.mailObj,
+        this.draftDeskService.fromsSubject.value,
+        false,
+        useHTML
+      ));
+      this.mailViewerComponent.close('goToDraftDesk');
     }
 
     public replyToAll(useHTML: boolean) {
-        this.draftDeskService.newDraft(DraftFormModel.reply(this.mailViewerComponent.mailObj, this.draftDeskService.froms, true, useHTML));
-        this.mailViewerComponent.close('goToDraftDesk');
+      this.draftDeskService.newDraft(DraftFormModel.reply(
+        this.mailViewerComponent.mailObj,
+        this.draftDeskService.fromsSubject.value,
+        true,
+        useHTML
+      ));
+      this.mailViewerComponent.close('goToDraftDesk');
     }
 
     public forward(useHTML: boolean) {
         ProgressDialog.open(this.dialog);
         this.draftDeskService.newDraft(
-            DraftFormModel.forward(this.mailViewerComponent.mailObj, this.draftDeskService.froms, useHTML)
+          DraftFormModel.forward(this.mailViewerComponent.mailObj, this.draftDeskService.fromsSubject.value, useHTML)
         ).then(() => {
             this.mailViewerComponent.close('goToDraftDesk');
             ProgressDialog.close();

@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -76,8 +76,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     saveErrorMessage: string;
 
-    shouldReturnToPreviousPage = false;
-
     // here we keep the suggestions we get from RecipientsService
     suggestedRecipients: MailAddressInfo[] = [];
     // and here we keep suggestedRecipients but filtered
@@ -110,17 +108,17 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     ngOnInit() {
-        if (this.model.isUnsaved()) {
+        if (this.model.isUnsaved()
+            || this.model.mid === this.draftDeskservice.isEditing) {
             this.editing = true;
             this.isUnsaved = true;
-            this.shouldReturnToPreviousPage = true;
-            const from: FromAddress = this.draftDeskservice.froms.find((f) =>
+            const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
             this.has_pasted_signature = false;
             if (!from) {
-                this.model.from = this.draftDeskservice.froms && this.draftDeskservice.froms.length > 0 ?
-                    this.draftDeskservice.froms[0].nameAndAddress : '';
+                this.model.from = this.draftDeskservice.fromsSubject.value && this.draftDeskservice.fromsSubject.value.length > 0 ?
+                    this.draftDeskservice.fromsSubject.value[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
                 if ( !this.has_pasted_signature && from.signature ) {
@@ -178,7 +176,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.formGroup.controls.from.valueChanges
             .pipe(debounceTime(1000))
             .subscribe((selected_from_address) => {
-                const from: FromAddress = this.draftDeskservice.froms.find((f) =>
+                const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
                     f.nameAndAddress === selected_from_address);
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
@@ -408,6 +406,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
                     this.model = model;
                     this.editing = true;
+                    this.draftDeskservice.shouldReturnToPreviousPage = false;
 
                     this.formGroup.patchValue(this.model, { emitEvent: false });
 
@@ -469,6 +468,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public trashDraft() {
         const snackBarRef = this.snackBar.open('Deleting');
+        this.draftDeskservice.isEditing = -1;
+        this.draftDeskservice.composingNewDraft = null;
         this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
@@ -477,8 +478,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     exitIfNeeded() {
-        if (this.shouldReturnToPreviousPage) {
+        if (this.draftDeskservice.shouldReturnToPreviousPage) {
             this.location.back();
+        } else {
+            // default to true (turned off when we edit a draft)
+            this.draftDeskservice.shouldReturnToPreviousPage = true;
         }
     }
 
@@ -487,6 +491,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public cancelDraft() {
+        this.draftDeskservice.isEditing = -1;
         this.draftDeleted.emit(this.model.mid);
         this.exitIfNeeded();
     }
@@ -538,6 +543,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public close() {
         this.editing = false;
+        this.draftDeskservice.isEditing = -1;
+        this.draftDeskservice.composingNewDraft = null;
         this.exitIfNeeded();
     }
 
@@ -582,7 +589,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.model.preview = DraftFormModel.trimmedPreview(this.model.msg_body);
         }
 
-        const from = this.draftDeskservice.froms.find(
+        const from = this.draftDeskservice.fromsSubject.value.find(
             (f) => this.model.from === f.nameAndAddress);
         this.model.reply_to = from.reply_to;
         if (send) {
@@ -614,6 +621,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
                     this.snackBar.open(res[1], null, { duration: 3000 });
 
+                    this.draftDeskservice.isEditing = -1;
                     this.draftDeleted.emit(this.model.mid);
 
                     this.dialogService.closeProgressDialog();
@@ -659,9 +667,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 });
             }
             )).subscribe((res: any) => {
-                    if (res.mid) {
-                        this.model.mid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
+                if (res.mid) {
+                    const newMid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
+                    if (this.model.isUnsaved()) {
+                        // We saved in the middle of editing, store the mid so
+                        // we can continue after the drafts update
+                        this.draftDeskservice.isEditing = newMid;
                     }
+                    this.model.mid = newMid;
+                    this.draftDeskservice.composingNewDraft = null;
+                }
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
 
                     this.isUnsaved = false;

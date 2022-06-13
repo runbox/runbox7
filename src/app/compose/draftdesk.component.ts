@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -17,11 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
-import { mergeMap, map } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 
 const MAX_DRAFTS_IN_VIEW = 10;
@@ -32,10 +31,11 @@ const MAX_DRAFTS_IN_VIEW = 10;
     providers: [RecipientsService],
     styleUrls: ['draftdesk.component.scss']
 })
-export class DraftDeskComponent implements OnInit, AfterViewInit {
+export class DraftDeskComponent implements OnInit {
     public draftModelsInView: DraftFormModel[];
     public hasMoreDrafts = false;
     public currentMaxDraftsInView: number = MAX_DRAFTS_IN_VIEW;
+    private hasInitialized = false;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
@@ -43,36 +43,34 @@ export class DraftDeskComponent implements OnInit, AfterViewInit {
         private route: ActivatedRoute,
         public draftDeskservice: DraftDeskService) {
 
+        this.draftDeskservice.draftModels.subscribe(
+            drafts => this.draftModelsInView = drafts.slice(0, this.currentMaxDraftsInView),
+            err => console.log(err)
+        );
     }
 
     ngOnInit() {
-        if (this.draftDeskservice.draftModels.length > MAX_DRAFTS_IN_VIEW) {
-            this.draftModelsInView = this.draftDeskservice.draftModels.slice(0, MAX_DRAFTS_IN_VIEW);
-            this.hasMoreDrafts = true;
-        } else {
-            this.draftModelsInView = this.draftDeskservice.draftModels;
-        }
-    }
-
-    ngAfterViewInit() {
-        this.draftDeskservice.draftsRefreshed.pipe(
-            mergeMap(() => this.route.queryParams),
-            map((queryparams) => {
-                if (queryparams['to']) {
+        this.route.queryParams
+            .subscribe(params => {
+                if (params['to']) {
                     this.draftDeskservice.newDraft(
-                        DraftFormModel.create(-1, this.draftDeskservice.froms[0], queryparams['to'], '')
+                        DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
                     ).then(() => this.updateDraftsInView());
-                } else if (queryparams['new']) {
-                    this.newDraft();
-                } else {
-                    this.updateDraftsInView();
+                } else if (params['new']) {
+                    // Can't create a new draft until froms has been loaded
+                    // FIXME: This needs to only happen once (after froms loaded)
+                    this.draftDeskservice.fromsSubject.subscribe((froms) => {
+                        if (froms.length > 0 && !this.hasInitialized) {
+                            this.newDraft();
+                            this.hasInitialized = true;
+                        }
+                    });
                 }
-            })
-        ).subscribe();
+            });
     }
 
     updateDraftsInView() {
-        this.draftModelsInView = this.draftDeskservice.draftModels.slice(0, this.currentMaxDraftsInView);
+        this.draftModelsInView = this.draftDeskservice.draftModels.value.slice(0, this.currentMaxDraftsInView);
     }
 
     draftDeleted(messageId) {
@@ -85,13 +83,13 @@ export class DraftDeskComponent implements OnInit, AfterViewInit {
     }
 
     newDraft() {
-        this.draftDeskservice.newDraft(DraftFormModel.create(-1, this.draftDeskservice.froms[0], null, ''));
+        this.draftDeskservice.newDraft(DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], null, ''));
         this.updateDraftsInView();
     }
 
     showMore() {
         this.currentMaxDraftsInView += MAX_DRAFTS_IN_VIEW;
         this.updateDraftsInView();
-        this.hasMoreDrafts = this.currentMaxDraftsInView < this.draftDeskservice.draftModels.length;
+        this.hasMoreDrafts = this.currentMaxDraftsInView < this.draftDeskservice.draftModels.value.length;
     }
 }

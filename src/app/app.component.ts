@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -321,13 +321,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (!this.showingSearchResults && !this.showingWebSocketSearchResults
-         && res && res.length > 0) {
+         && res) {
         this.setMessageDisplay('messagelist', this.messagelist);
-        if (this.jumpToFragment) {
-          if (this.router.url !== `/#${this.fragment}`) {
+        if (this.jumpToFragment && res.length > 0) {
             this.selectMessageFromFragment(this.fragment);
             this.canvastable.jumpToOpenMessage();
-          }
           this.jumpToFragment = false;
         }
         this.canvastable.hasChanges = true;
@@ -398,7 +396,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
         if (fragment !== this.fragment) {
           this.fragment = fragment;
-          if (this.canvastable.rows) {
+          if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
             this.selectMessageFromFragment(this.fragment);
             this.canvastable.jumpToOpenMessage();
           } else {
@@ -837,7 +835,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public filterMessageDisplay() {
-    if (this.canvastable.rows) {
+    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
       const options = new Map();
       options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
       options.set('searchText', this.searchText);
@@ -847,7 +845,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public clearSelection() {
-    if (this.canvastable.rows) {
+    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
       this.canvastable.rows.clearSelection();
     }
     this.canvastable.hasChanges = true;

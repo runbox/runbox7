@@ -32,7 +32,7 @@
     <mat-card-subtitle>                
         <mat-form-field floatPlaceholder="always" *ngIf="editing" style="width: 100%" id="fieldFrom">
             <mat-select placeholder="From" formControlName="from">
-                <mat-option *ngFor="let from of draftDeskservice.froms" [value]="from.nameAndAddress">
+                <mat-option *ngFor="let from of draftDeskservice.fromsSubject.value" [value]="from.nameAndAddress">
                     {{from.nameAndAddress}}
                 </mat-option>
             </mat-select>

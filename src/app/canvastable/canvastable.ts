@@ -855,7 +855,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // When loading a url with a fragment containing a msg id - scroll to there
   public jumpToOpenMessage() {
     // currently selected row in the centre:
-    if (this.rows.openedRowIndex) {
+    if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
       this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
       this.enforceScrollLimit();
     }
