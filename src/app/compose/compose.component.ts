@@ -108,8 +108,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     ngOnInit() {
-        if (this.model.isUnsaved()
-            || this.model.mid === this.draftDeskservice.isEditing) {
+        if (this.model.isUnsaved()) {
             this.editing = true;
             this.isUnsaved = true;
             const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
@@ -150,8 +149,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
         } else {
           this.rmmapi.getMessageContents(this.model.mid).subscribe(
-            msgObj =>
-              this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '',
+              msgObj => {
+                  this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '';
+                  // Re just auto-saved + reloaded this one, so keep editing it
+                  if (this.model.mid === this.draftDeskservice.isEditing) {
+                      this.editing = true;
+                  }
+
+              },
             err => {
               console.error('Error fetching message: ' + this.model.mid);
               console.error(err);
@@ -479,10 +484,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     exitIfNeeded() {
         if (this.draftDeskservice.shouldReturnToPreviousPage) {
+            this.draftDeskservice.shouldReturnToPreviousPage = false;
             this.location.back();
-        } else {
-            // default to true (turned off when we edit a draft)
-            this.draftDeskservice.shouldReturnToPreviousPage = true;
         }
     }
 
