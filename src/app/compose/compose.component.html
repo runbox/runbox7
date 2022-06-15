@@ -100,7 +100,7 @@
         <mat-form-field *ngIf="editing" floatPlaceholder="auto" id="fieldSubject">
             <input matInput placeholder="Subject" name="subject" formControlName="subject" />
         </mat-form-field>                     
-        <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}" (dragover)="draggingOverDropZone=true" (dragleave)="draggingOverDropZone=false" (drop)="dropFiles($event)" id="dropZone">
+        <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}"  id="dropZone">
             <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>            
             <mat-progress-bar *ngIf="uploadprogress!=null"                               
                 mode="determinate"

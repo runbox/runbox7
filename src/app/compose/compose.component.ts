@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {
-    Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit
+    Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit, NgZone
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -61,12 +61,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     editorContent: string;
     hasCC = false;
     hasBCC = false;
+    dragLeaveTimeout = null;
     public showDropZone = false;
     public draggingOverDropZone = false;
     public editing = false;
     public isUnsaved = false;
     public uploadprogress: number = null;
-    public uploadingFiles: File[] = null;
+    public uploadingFiles: FileList = null;
     public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
@@ -97,6 +98,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private dialogService: DialogService,
         recipientservice: RecipientsService,
         public settingsService: AppSettingsService,
+        private _ngZone: NgZone,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -150,7 +152,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         } else {
           this.rmmapi.getMessageContents(this.model.mid).subscribe(
               msgObj => {
-                  this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '';
+                  this.model.preview = msgObj.text && msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '';
                   // Re just auto-saved + reloaded this one, so keep editing it
                   if (this.model.mid === this.draftDeskservice.isEditing) {
                       this.loadDraft(msgObj);
@@ -216,22 +218,54 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             });
 
         this.formGroup.valueChanges.subscribe(_ => this.updateSuggestions());
+
+        this._ngZone.runOutsideAngular(() => {
+            window.addEventListener(
+                'drop', this.dropFiles.bind(this)
+            );
+            // window.addEventListener(
+            //     'dragend', this._onDragEnd.bind(this)
+            // );
+            window.addEventListener(
+                'dragover', this.onDragOver.bind(this)
+            );
+            // window.addEventListener(
+            //     'dragenter', this._onDragEnter.bind(this)
+            // );
+            window.addEventListener(
+                'dragleave', this.onDragLeave.bind(this)
+            );
+        });
     }
 
     ngAfterViewInit() {
-        let dragLeaveTimeout = null;
-        window.addEventListener('dragleave', () => {
-            if (!dragLeaveTimeout) {
-                // Drag leave events are fired all the time - so add some throttling on them
-                dragLeaveTimeout = setTimeout(() => this.hideDropZone(), 100);
+        if (this.model.mid <= -1) {
+            this.htmlToggled();
+        }
+    }
+
+    onDragLeave(event: DragEvent) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!this.dragLeaveTimeout) {
+            // Drag leave events are fired all the time - so add some throttling on them
+            this.dragLeaveTimeout = setTimeout(() => {
+                this.hideDropZone();
+            }, 100);
+        }
+        return false;
+    }
+
+    onDragOver(event: DragEvent) {
+        event.stopImmediatePropagation();
+        if (!this.draggingOverDropZone) {
+            this.draggingOverDropZone = true;
+            if (this.showDropZone) {
+                event.preventDefault();
+                return false;
             }
-        });
-
-        window.addEventListener('drop', () => this.hideDropZone());
-        window.addEventListener('dragover', (event) => {
             const dt = event.dataTransfer;
-
-            if (dt.types) {
+            if (dt.types && !this.showDropZone) {
                 let foundFilesType = false;
                 for (let n = 0; n < dt.types.length; n++) {
                     if (dt.types[n] === 'Files' || dt.types[n] === 'application/x-moz-file') {
@@ -241,17 +275,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }
                 if (foundFilesType) {
                     event.preventDefault();
-                    if (dragLeaveTimeout) {
-                        clearTimeout(dragLeaveTimeout);
-                        dragLeaveTimeout = null;
+                    if (this.dragLeaveTimeout) {
+                        clearTimeout(this.dragLeaveTimeout);
+                        this.dragLeaveTimeout = null;
                     }
                     this.showDropZone = true;
                 }
             }
-        });
-
-        if (this.model.mid <= -1) {
-            this.htmlToggled();
         }
     }
 
@@ -270,8 +300,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public hideDropZone() {
-        this.draggingOverDropZone = false;
-        this.showDropZone = false;
+        if (this.showDropZone) {
+            this.draggingOverDropZone = false;
+            this.showDropZone = false;
+        }
     }
 
     addRecipientFromSuggestions(recipient: MailAddressInfo) {
@@ -296,10 +328,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
     }
 
-    public dropFiles(event) {
+    public dropFiles(event: DragEvent) {
         event.preventDefault();
-        this.uploadFiles(event.dataTransfer.files);
-        this.hideDropZone();
+        event.stopImmediatePropagation();
+        if (!this.uploadingFiles) {
+            this.uploadFiles(event.dataTransfer.files);
+            this.hideDropZone();
+        }
     }
 
 
@@ -308,7 +343,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.submit();
     }
 
-    public uploadFiles(files: File[]) {
+    public uploadFiles(files: FileList) {
         this.uploadprogress = 0;
         this.uploadingFiles = files;
         const formdata: FormData = new FormData();
@@ -597,7 +632,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
 
         const from = this.draftDeskservice.fromsSubject.value.find(
-            (f) => this.model.from === f.nameAndAddress);
+            (f) => this.model.from === f.nameAndAddress || this.model.from === f.email);
         this.model.reply_to = from.reply_to;
         if (send) {
             if (this.model.useHTML) {
