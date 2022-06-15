@@ -153,7 +153,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                   this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '';
                   // Re just auto-saved + reloaded this one, so keep editing it
                   if (this.model.mid === this.draftDeskservice.isEditing) {
-                      this.editing = true;
+                      this.loadDraft(msgObj);
                   }
 
               },
@@ -364,58 +364,62 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.uploadingFiles = null;
     }
 
+    public loadDraft(msgObj) {
+        const model = new DraftFormModel();
+        model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
+        model.attachments = msgObj.attachments.map((att) => Object.assign({
+            file_url: att.filename,
+            file: att.filename
+        }, att));
+
+        const from: any = msgObj.headers.from;
+        if (from) {
+            model.from = from.value && from.value[0] ?
+                from.value[0].name !== 'undefined' ? from.text : from.value[0].address
+            : null;
+        }
+        if (msgObj.headers.to) {
+            model.to = msgObj.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+        }
+        if (msgObj.headers.cc) {
+            model.cc = msgObj.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+            this.hasCC = true;
+        }
+        if (msgObj.headers.bcc) {
+            model.bcc = msgObj.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+            this.hasBCC = true;
+        }
+
+        model.subject = msgObj.headers.subject;
+        if (msgObj.text) {
+            if (msgObj.text.html) {
+                model.html = msgObj.text.html;
+                model.msg_body = msgObj.text.text;
+                model.useHTML = true;
+            } else {
+                model.msg_body = msgObj.text.text;
+            }
+            model.preview = msgObj.text.text;
+        }
+
+        if (!model.msg_body) {
+            model.msg_body = '';
+        }
+
+        this.model = model;
+        this.editing = true;
+        this.draftDeskservice.shouldReturnToPreviousPage = false;
+
+        this.formGroup.patchValue(this.model, { emitEvent: false });
+
+        this.htmlToggled();
+    }
+
     public editDraft() {
         if (this.model.mid > 0) {
             this.rmmapi.getMessageContents(this.model.mid, true)
                 .subscribe((result: any) => {
-                    const model = new DraftFormModel();
-                    model.mid = typeof result.mid === 'string' ? parseInt(result.mid, 10) : result.mid;
-                    model.attachments = result.attachments.map((att) => Object.assign({
-                        file_url: att.filename,
-                        file: att.filename
-                    }, att));
-
-                    const from: any = result.headers.from;
-                    if (from) {
-                        model.from = from.value && from.value[0] ?
-                            from.value[0].name !== 'undefined' ? from.text : from.value[0].address
-                            : null;
-                    }
-                    if (result.headers.to) {
-                        model.to = result.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                    }
-                    if (result.headers.cc) {
-                        model.cc = result.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                        this.hasCC = true;
-                    }
-                    if (result.headers.bcc) {
-                        model.bcc = result.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                        this.hasBCC = true;
-                    }
-
-                    model.subject = result.headers.subject;
-                    if (result.text) {
-                        if (result.text.html) {
-                            model.html = result.text.html;
-                            model.msg_body = result.text.text;
-                            model.useHTML = true;
-                        } else {
-                            model.msg_body = result.text.text;
-                        }
-                        model.preview = result.text.text;
-                    }
-
-                    if (!model.msg_body) {
-                        model.msg_body = '';
-                    }
-
-                    this.model = model;
-                    this.editing = true;
-                    this.draftDeskservice.shouldReturnToPreviousPage = false;
-
-                    this.formGroup.patchValue(this.model, { emitEvent: false });
-
-                    this.htmlToggled();
+                    this.loadDraft(result);
                 }, err => {
                   console.error('Error fetching message: ' + this.model.mid);
                   console.error(err);
