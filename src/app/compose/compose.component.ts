@@ -258,7 +258,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     onDragOver(event: DragEvent) {
         event.stopImmediatePropagation();
-        if (!this.draggingOverDropZone) {
+        if (!this.draggingOverDropZone && !this.showDropZone) {
             this.draggingOverDropZone = true;
             if (this.showDropZone) {
                 event.preventDefault();
@@ -280,6 +280,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.dragLeaveTimeout = null;
                     }
                     this.showDropZone = true;
+                    this.draggingOverDropZone = false;
                 }
             }
         }
