@@ -221,17 +221,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         this._ngZone.runOutsideAngular(() => {
             window.addEventListener(
-                'drop', this.dropFiles.bind(this)
-            );
-            // window.addEventListener(
-            //     'dragend', this._onDragEnd.bind(this)
-            // );
-            window.addEventListener(
                 'dragover', this.onDragOver.bind(this)
             );
-            // window.addEventListener(
-            //     'dragenter', this._onDragEnter.bind(this)
-            // );
             window.addEventListener(
                 'dragleave', this.onDragLeave.bind(this)
             );
@@ -245,7 +236,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     onDragLeave(event: DragEvent) {
-        event.preventDefault();
+        // only do this once on any event in the window, else the whole thing
+        // flickers
         event.stopImmediatePropagation();
         if (!this.dragLeaveTimeout) {
             // Drag leave events are fired all the time - so add some throttling on them
@@ -256,32 +248,29 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         return false;
     }
 
+    // on Drag over - entire window, if contains files, show the drop zone
     onDragOver(event: DragEvent) {
-        event.stopImmediatePropagation();
-        if (!this.draggingOverDropZone && !this.showDropZone) {
-            this.draggingOverDropZone = true;
-            if (this.showDropZone) {
-                event.preventDefault();
-                return false;
+        if (this.showDropZone) {
+            event.preventDefault();
+            return false;
+        }
+        const dt = event.dataTransfer;
+        if (dt.types) {
+            let foundFilesType = false;
+            for (let n = 0; n < dt.types.length; n++) {
+                if (dt.types[n] === 'Files' || dt.types[n] === 'application/x-moz-file') {
+                    foundFilesType = true;
+                    break;
+                }
             }
-            const dt = event.dataTransfer;
-            if (dt.types && !this.showDropZone) {
-                let foundFilesType = false;
-                for (let n = 0; n < dt.types.length; n++) {
-                    if (dt.types[n] === 'Files' || dt.types[n] === 'application/x-moz-file') {
-                        foundFilesType = true;
-                        break;
-                    }
+            if (foundFilesType) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                if (this.dragLeaveTimeout) {
+                    clearTimeout(this.dragLeaveTimeout);
+                    this.dragLeaveTimeout = null;
                 }
-                if (foundFilesType) {
-                    event.preventDefault();
-                    if (this.dragLeaveTimeout) {
-                        clearTimeout(this.dragLeaveTimeout);
-                        this.dragLeaveTimeout = null;
-                    }
-                    this.showDropZone = true;
-                    this.draggingOverDropZone = false;
-                }
+                this.showDropZone = true;
             }
         }
     }
@@ -301,10 +290,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public hideDropZone() {
-        if (this.showDropZone) {
-            this.draggingOverDropZone = false;
-            this.showDropZone = false;
-        }
+      this.draggingOverDropZone = false;
+      this.showDropZone = false;
     }
 
     addRecipientFromSuggestions(recipient: MailAddressInfo) {
@@ -403,6 +390,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public loadDraft(msgObj) {
         const model = new DraftFormModel();
         model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
+        this.draftDeskservice.isEditing = model.mid;
         model.attachments = msgObj.attachments.map((att) => Object.assign({
             file_url: att.filename,
             file: att.filename

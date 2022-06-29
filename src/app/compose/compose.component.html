@@ -100,7 +100,7 @@
         <mat-form-field *ngIf="editing" floatPlaceholder="auto" id="fieldSubject">
             <input matInput placeholder="Subject" name="subject" formControlName="subject" />
         </mat-form-field>                     
-        <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}"  id="dropZone">
+        <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}" (dragover)="draggingOverDropZone=true" (dragleave)="draggingOverDropZone=false" (drop)="dropFiles($event)" id="dropZone">
             <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>            
             <mat-progress-bar *ngIf="uploadprogress!=null"                               
                 mode="determinate"
@@ -123,7 +123,7 @@
               <a [href]="'/rest/v1/email/'+model.mid+'/viewdraft/'+i+'/?filename='+attachment.file+'&origfilename='+displayWithoutRBWUL(attachment.file)">{{displayWithoutRBWUL(attachment.file)}} ({{attachment.size}})</a>
               <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon svgIcon="delete"></mat-icon></button>
             </ng-container>
-          </div>      
+          </div>
         </section>      
         <span [hidden]="editing">
             {{this.model.preview}}
