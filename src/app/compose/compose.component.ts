@@ -390,6 +390,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public loadDraft(msgObj) {
         const model = new DraftFormModel();
         model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
+        this.draftDeskservice.isEditing = model.mid;
         model.attachments = msgObj.attachments.map((att) => Object.assign({
             file_url: att.filename,
             file: att.filename
