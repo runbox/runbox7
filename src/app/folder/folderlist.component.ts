@@ -45,6 +45,7 @@ export enum DropPosition {
 export class CreateFolderEvent {
     parentId: number;
     name:     string;
+    order:    number[];
 }
 
 export class MoveFolderEvent {
@@ -187,17 +188,6 @@ export class FolderListComponent implements OnChanges {
             previousNode = folderNode;
         });
 
-        // Descend into each folder and order its subfolders, but only the direct children.
-        // We need to avoid the situation where sorting would put children above their parents
-        // as that'd mangle the output.
-        const sortSubfolders = (node: FolderNode) => {
-            node.children.sort((a, b) => a.data.priority - b.data.priority);
-            node.children.forEach(child => sortSubfolders(child));
-        };
-
-        treedata.forEach(node => sortSubfolders(node));
-        treedata.sort((a, b) => a.data.priority - b.data.priority);
-
         this.dataSource.data = treedata;
     }
 
@@ -273,7 +263,8 @@ export class FolderListComponent implements OnChanges {
             map(folders => folders.find(fld => fld.folderPath === this.selectedFolder))
         ).subscribe(selectedFolder => {
             const parentFolderId = selectedFolder && selectedFolder.folderType === 'user' ? selectedFolder.folderId : 0;
-            const parentFolderName = this.selectedFolder.replace(/\./g, ' / ');
+            const parentFolderName = this.selectedFolder;
+            // const parentFolderName = this.selectedFolder.replace(/\./g, ' / ');
 
             const dialogRef = this.dialog.open(SimpleInputDialog, {
                 data:
@@ -288,12 +279,20 @@ export class FolderListComponent implements OnChanges {
             );
             dialogRef.afterClosed().pipe(
                 filter(res => res && res.length > 0),
-            ).subscribe(
-                newFolderName => this.createFolder.emit({
-                    parentId: parentFolderId,
-                    name:     newFolderName,
-                })
-            );
+            ).subscribe(newFolderName => {
+                // order needs to be: this.folders, with newFolder inserted
+                // after its parent .. put a "-1" there
+                this.folders.pipe(take(1)).subscribe((folders) => {
+                    const order = folders.map(folder => folder.folderId);
+                    const parentInd = order.findIndex((ind) => parentFolderId);
+                    order.splice(parentInd > -1 ? parentInd : 0, 0, -1);
+                    this.createFolder.emit({
+                        parentId: parentFolderId,
+                        name:     newFolderName,
+                        order:    order,
+                    });
+                });
+            });
         });
     }
 
@@ -309,12 +308,18 @@ export class FolderListComponent implements OnChanges {
         );
         dialogRef.afterClosed().pipe(
             filter(res => res && res.length > 0),
-        ).subscribe(
-            newFolderName => this.createFolder.emit({
-                parentId: folder.folderId,
-                name:     newFolderName,
-            })
-        );
+        ).subscribe(newFolderName => {
+            this.folders.pipe(take(1)).subscribe((folders) => {
+                const order = folders.map(f => f.folderId);
+                const parentInd = order.findIndex((ind) => folder.folderId);
+                order.splice(parentInd > -1 ? parentInd : 0, 0, -1);
+                this.createFolder.emit({
+                    parentId: folder.folderId,
+                    name:     newFolderName,
+                    order:    order,
+                });
+            });
+        });
     }
 
     renameFolderDialog(folder: FolderListEntry): void {
