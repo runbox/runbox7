@@ -258,7 +258,7 @@ describe('SearchService', () => {
         req.flush(testMessageId + '\t' +  testMessageTime + '\t' + testMessageTime + '\tInbox\t1\t0\t0\t' +
             'Cloud Web Services <cloud-marketing-email-replies@cloudsuperhosting.com>\ttest@example.com	Analyse Data at Scale\ty');
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const sincechangeddate = new Date(indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000);
         const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
@@ -268,7 +268,7 @@ describe('SearchService', () => {
             message_ids: []
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         expect(searchService.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1).length).toBe(1);
 

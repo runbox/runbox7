@@ -67,6 +67,12 @@ export class FolderListEntry {
     }
 }
 
+export class FolderStatsEntry {
+    total: number;
+    total_unseen: number;
+    total_seen: number;
+}
+
 export class Alias {
     constructor(
         public id: number,
@@ -388,6 +394,24 @@ export class RunboxWebmailAPI {
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
+    }
+
+    folderStats(folderName: string): Observable<FolderStatsEntry> {
+        const req = this.http.get('/rest/v1/email_folder/stats/' + folderName).pipe(share());
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(
+            map((response: any) => {
+                const fse = new FolderStatsEntry();
+                fse.total = response.result.stats.total;
+                fse.total_unseen = response.result.stats.total_unseen;
+                fse.total_seen = response.result.stats.total_seen;
+                return fse;
+            })
+        );
+    }
+
+    updateFolderCounts(folderName: string): Observable<any> {
+        return this.http.post('/rest/v1/email_folder/stats/' + folderName, {});
     }
 
     moveFolder(folderId: number, newParentFolderId: number, ordered_ids?: number[]): Observable<boolean> {
