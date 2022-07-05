@@ -513,7 +513,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   createFolder(newFolder: CreateFolderEvent) {
     this.rmmapi.createFolder(
-      newFolder.parentId, newFolder.name
+      newFolder.parentId, newFolder.name, newFolder.order
     ).subscribe(() => {
       this.messagelistservice.refreshFolderList();
     });

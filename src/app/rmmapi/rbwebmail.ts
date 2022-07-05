@@ -370,10 +370,11 @@ export class RunboxWebmailAPI {
         }
     }
 
-    createFolder(parentFolderId: number, newFolderName: string): Observable<boolean> {
+    createFolder(parentFolderId: number, newFolderName: string, order: number[]): Observable<boolean> {
         const req = this.http.post('/rest/v1/email_folder/create', {
             'new_folder': newFolderName,
-            'to_folder': parentFolderId
+            'to_folder': parentFolderId,
+            'ordered_ids': order
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
