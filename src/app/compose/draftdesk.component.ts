@@ -32,7 +32,7 @@ const MAX_DRAFTS_IN_VIEW = 10;
     styleUrls: ['draftdesk.component.scss']
 })
 export class DraftDeskComponent implements OnInit {
-    public draftModelsInView: DraftFormModel[];
+    public draftModelsInView: DraftFormModel[] = [];
     public hasMoreDrafts = false;
     public currentMaxDraftsInView: number = MAX_DRAFTS_IN_VIEW;
     private hasInitialized = false;
@@ -44,7 +44,7 @@ export class DraftDeskComponent implements OnInit {
         public draftDeskservice: DraftDeskService) {
 
         this.draftDeskservice.draftModels.subscribe(
-            drafts => this.draftModelsInView = drafts.slice(0, this.currentMaxDraftsInView),
+            drafts => this.updateDraftsInView(),
             err => console.log(err)
         );
     }
@@ -70,7 +70,42 @@ export class DraftDeskComponent implements OnInit {
     }
 
     updateDraftsInView() {
-        this.draftModelsInView = this.draftDeskservice.draftModels.value.slice(0, this.currentMaxDraftsInView);
+        if (this.draftModelsInView.length > 0) {
+            // need to apply C(R)UD instead of setting the new array:
+            // Add any new ones
+            const newEntries = this.draftDeskservice.draftModels.value.filter(
+                (msg) => !this.draftModelsInView.some(
+                    (dMsg) => dMsg.mid === msg.mid));
+            // Update any changed ones
+            const changedEntries = new Map;
+            this.draftDeskservice.draftModels.value.filter(
+                (msg) => this.draftModelsInView.some(
+                    (dMsg) => dMsg.mid === msg.mid && dMsg.message_date !== msg.message_date))
+                .forEach((msg) => changedEntries.set(msg.mid, msg));
+            // Delete any removed ones
+            const deletedEntries = this.draftModelsInView.filter(
+                (dMsg) => !this.draftDeskservice.draftModels.value.some(
+                    (msg) => msg.mid === dMsg.mid))
+                .map((msg) => msg.mid);
+            // Actual updates:
+            this.draftModelsInView.map((msg) => {
+                if (changedEntries.has(msg.mid)) {
+                    const entry = changedEntries.get(msg.mid);
+                    msg.to = entry.to;
+                    msg.cc = entry.cc;
+                    msg.subject = entry.subject;
+                    msg.msg_body = entry.msg_body;
+                    msg.useHTML = entry.useHTML;
+                    msg.attachments = entry.attachments;
+                    msg.message_date = entry.message_date;
+                }
+            });
+            this.draftModelsInView.splice(0, 0, ...newEntries);
+            deletedEntries.forEach(
+                (dMsgId) => this.draftModelsInView.splice(this.draftModelsInView.findIndex((dMsg) => dMsg.mid === dMsgId), 1));
+        } else {
+            this.draftModelsInView = this.draftDeskservice.draftModels.value.slice(0, this.currentMaxDraftsInView);
+        }
     }
 
     draftDeleted(messageId) {

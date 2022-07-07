@@ -59,8 +59,13 @@ export class DraftFormModel {
     useHTML = false;
     save = 'Save';
     attachments: any[];
+    message_date = null;
 
-    public static create(draftId: number, fromAddress: FromAddress, to: string, subject: string, preview?: string): DraftFormModel {
+    public static create(draftId: number,
+                         fromAddress: FromAddress,
+                         to: string, subject: string,
+                         preview?: string,
+                         message_date?: Date): DraftFormModel {
         const ret = new DraftFormModel();
         ret.from = fromAddress.email;
         ret.mid = draftId;
@@ -278,7 +283,7 @@ export class DraftDeskService {
                                     froms[0],
                                     msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
                                         addr.address : addr.name + '<' + addr.address + '>').join(','),
-                                    msgInfo.subject, null)
+                                    msgInfo.subject, null, msgInfo.messageDate)
                             )
                         );
                         if (this.composingNewDraft) {
