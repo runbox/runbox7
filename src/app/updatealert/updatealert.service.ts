@@ -45,19 +45,19 @@ export class UpdateAlertService {
                 dialog.open(UpdateAlertComponent, { data: ev });
             });
 
-            this.checkForUpdates();
+            this.ngZone.runOutsideAngular(() => {
+                this.checkForUpdates();
+                setTimeout(() => this.ngZone.run(() =>
+                    this.checkForUpdates()
+                ), 5 * 60 * 1000);
+            });
         }
     }
 
     checkForUpdates() {
-        // Check for updates every minute
-        this.ngZone.runOutsideAngular(() =>
-            setTimeout(() => this.ngZone.run(() => {
-                console.log(' checking for updates');
-                this.swupdate.checkForUpdate()
-                    .then(() => this.checkForUpdates())
-                    .catch((err) => console.log('Unable to check for updates', err));
-            }), 60 * 1000)
-        );
+        console.log(' checking for updates');
+        this.swupdate.checkForUpdate()
+            .then(() => this.checkForUpdates())
+            .catch((err) => console.log('Unable to check for updates', err));
     }
 }
