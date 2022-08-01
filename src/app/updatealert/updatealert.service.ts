@@ -17,17 +17,19 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Injectable, NgZone } from '@angular/core';
+import { ApplicationRef, Injectable } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatDialog } from '@angular/material/dialog';
 import { UpdateAlertComponent } from './updatealert.component';
 import { environment } from '../../environments/environment';
+import { concat, timer } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 @Injectable()
 export class UpdateAlertService {
     constructor(
+        private appRef: ApplicationRef,
         private swupdate: SwUpdate,
-        private ngZone: NgZone,
         dialog: MatDialog
     ) {
         if (environment.production) {
@@ -36,12 +38,12 @@ export class UpdateAlertService {
                 dialog.open(UpdateAlertComponent, { data: ev });
             });
 
-            this.ngZone.runOutsideAngular(() => {
-                this.checkForUpdates();
-                setTimeout(() => this.ngZone.run(() =>
-                    this.checkForUpdates()
-                ), 5 * 60 * 1000);
-            });
+            const appIsStable = this.appRef.isStable.pipe(first(isStable => isStable === true));
+            const everyFiveMins = timer(0, 5 * 60 * 1000);
+            const everyFiveMinsOnceAppIsStable = concat(appIsStable, everyFiveMins);
+            everyFiveMinsOnceAppIsStable.subscribe(() =>
+                this.checkForUpdates()
+            );
         }
     }
 
