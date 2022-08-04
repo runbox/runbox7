@@ -112,9 +112,9 @@
                     </p>
                     <p>
                         <span><strong>Label:</strong></span>
-                        <mat-form-field *ngIf="rmm.me.data">
-                            <input matInput name="totp_label" (ngModel)="rmm.account_security.tfa.totp_label"
-                                placeholder="Label" readonly [value]="'Runbox: ' + rmm.me.data.username">
+                        <mat-form-field>
+                            <input matInput name="totp_label" [value]="rmm.account_security.tfa.totp_label"
+                                disabled="" readonly >
                         </mat-form-field>
                     </p>
                 </div>

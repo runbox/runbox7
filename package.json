@@ -58,6 +58,7 @@
     "moment": "^2.29.2",
     "moment-timezone": "^0.5.28",
     "npm": "^7.3.0",
+    "otpauth": "^8.0.1",
     "rrule": "^2.6.4",
     "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.0.tgz",
     "rxjs": "^6.6.7",

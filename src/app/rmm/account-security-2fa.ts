@@ -19,6 +19,7 @@
 import { timeout, share } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { RMM } from '../rmm';
+import * as OTPAuth from 'otpauth';
 
 export class AccountSecurity2fa {
     user_password: string;
@@ -58,6 +59,7 @@ export class AccountSecurity2fa {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
                 return;
             }
+            // this.totp_label = 'Runbox' + this.app.me.data.username;
             return;
           },
           error => {
@@ -139,14 +141,13 @@ export class AccountSecurity2fa {
     totp_regenerate(data) {
         this.is_busy = true;
         this.new_totp_code = this.generate_totp_code();
-        this.totp_label = 'Runbox: ' + this.app.me.data.username;
-        const device = 'totp';
-        const qr_code_url = new URL(window.location.protocol + '//' + window.location.hostname);
-        qr_code_url.pathname = '/ajax/ajax_mfa_qr_code_generator';
-        qr_code_url.searchParams.set('device', device);
-        qr_code_url.searchParams.set('label', this.totp_label);
-        qr_code_url.searchParams.set('secret', this.new_totp_code);
-        this.generate_qr_code(device, this.app.account_security.tfa.totp_label, this.new_totp_code);
+        this.totp_label = this.app.me.data.username;
+        const otpa = new OTPAuth.TOTP({
+            issuer: 'Runbox',
+            label: this.totp_label,
+            secret: this.new_totp_code
+        });
+        this.qr_code_value = new URL(otpa.toString());
     }
 
     generate_totp_code() {
@@ -161,21 +162,16 @@ export class AccountSecurity2fa {
 
     random_string(chars, length) { // ['a','b', 1, 3, 'Z'], 10
         let random_string = '';
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        const charslen = chars.length;
         for ( let i = 0; i < length ; i++ ) {
-            const rnd = Math.random();
-            const len = chars.length;
-            const num = Math.floor(rnd * len);
+            const rnd = array[i];
+            const num = Math.floor(rnd % charslen);
             const chr = chars[ num ].toString();
             random_string += chr;
         }
         return random_string;
-    }
-
-
-    generate_qr_code( device_2fa, device_label, code ) {
-        this.qr_code_value = new URL('otpauth://');
-        this.qr_code_value.pathname = '//' + [device_2fa, encodeURI(device_label)].join('/');
-        this.qr_code_value.searchParams.set('secret', encodeURI(code));
     }
 
     otp_update(data): Observable<any> {
