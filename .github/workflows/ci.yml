@@ -6,6 +6,8 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        env:
+            NODE_OPTIONS: "--max-old-space-size=2048"
         strategy:
             matrix:
                 phase: ['lint', 'policy', 'unit', 'e2e', 'build']

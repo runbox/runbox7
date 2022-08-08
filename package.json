@@ -23,7 +23,7 @@
     "start-e2e-server": "start-test mockserver 15000 start-use-mockserver",
     "run-cypress-tests": "cypress run",
     "cypress-e2e": "start-test start-e2e-server 4201 run-cypress-tests",
-    "ci-tests": "node run-ci-tests.js"
+    "ci-tests": "CHOKIDAR_USEPOLLING=1 node run-ci-tests.js"
   },
   "dependencies": {
     "@angular/animations": "11.2.8",
@@ -58,6 +58,7 @@
     "moment": "^2.29.2",
     "moment-timezone": "^0.5.28",
     "npm": "^7.3.0",
+    "otpauth": "^8.0.1",
     "rrule": "^2.6.4",
     "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.0.tgz",
     "rxjs": "^6.6.7",
