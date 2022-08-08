@@ -23,7 +23,7 @@
     "start-e2e-server": "start-test mockserver 15000 start-use-mockserver",
     "run-cypress-tests": "cypress run",
     "cypress-e2e": "start-test start-e2e-server 4201 run-cypress-tests",
-    "ci-tests": "node run-ci-tests.js"
+    "ci-tests": "CHOKIDAR_USEPOLLING=1 node run-ci-tests.js"
   },
   "dependencies": {
     "@angular/animations": "11.2.8",
