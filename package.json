@@ -55,7 +55,7 @@
     "dompurify": "^2.3.6",
     "ical.js": "^1.4.0",
     "material-design-icons": "^3.0.1",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.28",
     "npm": "^7.3.0",
     "otpauth": "^8.0.1",
