@@ -121,11 +121,16 @@ mat-form-field {
     font-size: 15px !important;
 }
 
-mat-list-item .mat-list-item-content {
+/* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
+mat-list-item .mat-list-item-content,
+a[mat-list-item] .mat-list-item-content {
     min-height: 36px !important;
 }
 
-.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>*, mat-list-item .mat-list-text {
+.mat-list[dense] .mat-list-item .mat-list-text, 
+.mat-nav-list[dense] .mat-list-item .mat-list-text>*,
+mat-list-item .mat-list-text,
+a[mat-list-item] .mat-list-text {
     height: 1.3em;
     line-height: 22px;
     font-weight: 400;
