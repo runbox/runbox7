@@ -621,7 +621,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     const snackBarRef = this.snackBar.open( msg );
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
+    // ensure valid IDs
+    const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,

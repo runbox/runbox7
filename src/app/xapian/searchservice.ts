@@ -780,25 +780,29 @@ not matching with index for current folder`);
 
     try {
       const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
-                    .map(idstring => {
-                      const msgobj = this.pendingIndexVerifications[idstring];
-                      return {
-                        id: parseInt(msgobj.id.substring(1), 10),
-                        flagged: msgobj.flagged ? 1 : 0,
-                        seen: msgobj.seen ? 1 : 0,
-                        answered: msgobj.answered ? 1 : 0,
-                        deleted: msgobj.deleted ? 1 : 0,
-                        folder: msgobj.folder
-                      };
-                    }
-        );
+        .map(idstring => {
+          const msgobj = this.pendingIndexVerifications[idstring];
+          const msgId = parseInt(msgobj.id.substring(1), 10);
+          return {
+            id: parseInt(msgobj.id.substring(1), 10),
+            flagged: msgobj.flagged ? 1 : 0,
+            seen: msgobj.seen ? 1 : 0,
+            answered: msgobj.answered ? 1 : 0,
+            deleted: msgobj.deleted ? 1 : 0,
+            folder: msgobj.folder
+          };
+        }
+      );
+      // Ensure there are no empty ID's in the array of objects
+      const filteredpendingIndexVerificationArray = pendingIndexVerificationsArray
+        .filter(msgobj => Number.isInteger(msgobj.id));
 
       this.pendingIndexVerifications = {};
 
-      if (pendingIndexVerificationsArray.length > 0) {
+      if (filteredpendingIndexVerificationArray.length > 0) {
         await this.httpclient.post('/rest/v1/searchindex/verifymessages',
             {
-              indexEntriesToVerify: pendingIndexVerificationsArray
+              indexEntriesToVerify: filteredpendingIndexVerificationArray
             }
         ).toPromise();
       }
