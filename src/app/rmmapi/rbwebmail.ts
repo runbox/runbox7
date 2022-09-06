@@ -257,8 +257,10 @@ export class RunboxWebmailAPI {
                             this.messageCache.set(messageId, msg);
                             resolve(msg);
                         } else {
-                            // doesnt even seem to exist?
-                            this.showBackendErrors(response);
+                            // We load message data at unexpected times
+                            // for the user, don't display a generic error yet
+                            console.log('Error loading message ' + messageId);
+                            console.log(response);
                             delete this.messageContentsRequestCache[messageId];
                             reject(response);
                         }
