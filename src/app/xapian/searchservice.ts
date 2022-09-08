@@ -782,7 +782,6 @@ not matching with index for current folder`);
       const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
         .map(idstring => {
           const msgobj = this.pendingIndexVerifications[idstring];
-          const msgId = parseInt(msgobj.id.substring(1), 10);
           return {
             id: parseInt(msgobj.id.substring(1), 10),
             flagged: msgobj.flagged ? 1 : 0,
