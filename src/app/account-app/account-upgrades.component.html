@@ -7,16 +7,21 @@
     </h4>
 
     <p>
-      Here you can subscribe to Runbox, or change an existing subscription plan according to your needs.
+      Here you can pay for your Runbox subscription or change an existing subscription plan according to your needs.
+    </p>
     <p>
-      Note: When selecting a subscription plan for your main account, please note that your current email disk usage is
-      {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
+      For sub-account plans, please see Sub-Acounts further down.
     </p>
 
     <br />
 
     <h2> Main Account Plans </h2>
-    
+
+    <p>
+      Note: When selecting a subscription plan for your main account, please note that your current email disk usage is
+      {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
+    </p>
+
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0">
         <mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star
