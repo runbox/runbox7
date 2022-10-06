@@ -28,7 +28,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 import { FolderStatsEntry } from '../common/folderstatsentry';
 import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
-import { MessageAction } from './messageactions';
+import { PostMessageAction } from './messageactions';
 
 declare var FS;
 declare var IDBFS;
@@ -149,7 +149,7 @@ class SearchIndexService {
         db.close();
         console.log('Worker: Req failed');
         observer.next(false);
-        // observer.next({'action': MessageAction.dbOpen, 'hasLocalindex': false});
+        // observer.next({'action': PostMessageAction.dbOpen, 'hasLocalindex': false});
       }
     });
   }
@@ -202,13 +202,13 @@ class SearchIndexService {
             }
 
             this.localSearchActivated = true;
-            ctx.postMessage({'action': MessageAction.localSearchActivated, 'value': this.localSearchActivated });
+            ctx.postMessage({'action': PostMessageAction.localSearchActivated, 'value': this.localSearchActivated });
 
             FS.syncfs(true, async () => {
               console.log('Worker: Loading partitions');
               this.openStoredPartitions();
               await this.updateIndexWithNewChanges();
-              ctx.postMessage({'action': MessageAction.indexUpdated});
+              ctx.postMessage({'action': PostMessageAction.indexUpdated});
             });
 
 
@@ -314,7 +314,7 @@ class SearchIndexService {
           })
         )
       ).subscribe(() => {
-        ctx.postMessage({'action': MessageAction.indexDeleted});
+        ctx.postMessage({'action': PostMessageAction.indexDeleted});
         observer.next();
       });
     });
@@ -712,7 +712,7 @@ not matching with rest api counts for current folder`);
           m.folder === 'Inbox' &&
           m.messageDate.getTime() > this.indexLastUpdateTime);
         if (newmessages.length > 0) {
-          postMessage({'action': MessageAction.newMessagesNotification,
+          postMessage({'action': PostMessageAction.newMessagesNotification,
                        'newMessages': newmessages });
         }
       }
@@ -729,7 +729,7 @@ not matching with rest api counts for current folder`);
           msginfos.forEach((msg) => folders.add(msg.folder));
           // only got ids for deleted messages
           // deletedMessages.forEach((msg) => folders.add(msg.folder));
-          ctx.postMessage({'action': MessageAction.updateMessageListService,
+          ctx.postMessage({'action': PostMessageAction.updateMessageListService,
                           'foldersUpdated': Array.from(folders) });
         }
         // Update folder lists + counts
@@ -820,8 +820,8 @@ not matching with rest api counts for current folder`);
       let hasProgressSnackBar = false;
       if (this.pendingMessagesToProcess.length > 10) {
         hasProgressSnackBar = true;
-        ctx.postMessage({'action': MessageAction.openProgressSnackBar });
-        ctx.postMessage({'action': MessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
+        ctx.postMessage({'action': PostMessageAction.openProgressSnackBar });
+        ctx.postMessage({'action': PostMessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
       }
 
       const processMessage = async () => {
@@ -834,11 +834,11 @@ not matching with rest api counts for current folder`);
 
           console.log('Worker: Adding to (or removing from) index', (this.pendingMessagesToProcess.length - this.processMessageIndex), 'to go');
           if (hasProgressSnackBar) {
-            ctx.postMessage({'action': MessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
+            ctx.postMessage({'action': PostMessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
           }
 
           // TODO: it'd be more efficient to just update the cache instead of forcing the redownload
-          ctx.postMessage({'action': MessageAction.refreshContentCache,
+          ctx.postMessage({'action': PostMessageAction.refreshContentCache,
                            'messageId': this.pendingMessagesToProcess[this.processMessageIndex].id});
 
           const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
@@ -860,7 +860,7 @@ not matching with rest api counts for current folder`);
           await this.persistIndex().toPromise();
 
           if (hasProgressSnackBar) {
-            ctx.postMessage({'action': MessageAction.closeProgressSnackBar});
+            ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
             hasProgressSnackBar = false;
           }
 
@@ -871,7 +871,7 @@ not matching with rest api counts for current folder`);
           this.messageProcessingInProgressSubject.complete();
           this.messageProcessingInProgressSubject = null;
 
-          ctx.postMessage({'action': MessageAction.indexUpdated});
+          ctx.postMessage({'action': PostMessageAction.indexUpdated});
         }
       };
       if (this.persistIndexInProgressSubject) {
@@ -969,7 +969,7 @@ const searchIndexService = new SearchIndexService();
 ctx.addEventListener('message', ({ data }) => {
   console.log('Message to worker ');
   console.log(data);
-  if (data['action'] === MessageAction.opendb) {
+  if (data['action'] === PostMessageAction.opendb) {
     searchIndexService.localdir = data['localdir'];
     searchIndexService.partitionsdir = data['partitionsdir'];
     const idbrequest: IDBOpenDBRequest =
@@ -983,24 +983,24 @@ ctx.addEventListener('message', ({ data }) => {
         },
       );
     };
-  } else if (data['action'] === MessageAction.updateIndexWithNewChanges) {
+  } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
     searchIndexService.updateIndexWithNewChanges(data['args']);
-  } else if (data['action'] === MessageAction.deleteLocalIndex) {
+  } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
     console.log('Worker: deleting local index...');
     searchIndexService.deleteLocalIndex().subscribe(() => {
       console.log('Worker: sub to local index delete');
       searchIndexService.updateIndexWithNewChanges();
     });
-  } else if (data['action'] === MessageAction.folderListUpdate) {
+  } else if (data['action'] === PostMessageAction.folderListUpdate) {
     searchIndexService.folderList = data['value'];
-  } else if (data['action'] === MessageAction.messageCache) {
+  } else if (data['action'] === PostMessageAction.messageCache) {
     // Add / update the text of a message which we can add to the search index
     searchIndexService.messageTextCache.set(data['msgId'], data['value']);
-  } else if (data['action'] === MessageAction.moveMessagesToFolder) {
+  } else if (data['action'] === PostMessageAction.moveMessagesToFolder) {
     searchIndexService.moveMessagesToFolder(data['messageIds'], data['value']);
-  } else if (data['action'] === MessageAction.deleteMessages) {
+  } else if (data['action'] === PostMessageAction.deleteMessages) {
     searchIndexService.deleteMessages(data['messageIds']);
-  } else if (data['action'] === MessageAction.addMessageToIndex) {
+  } else if (data['action'] === PostMessageAction.addMessageToIndex) {
     const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
 
     data['msginfos'].forEach((msgInfo) => {
@@ -1016,7 +1016,7 @@ ctx.addEventListener('message', ({ data }) => {
     if (searchIndexDocumentUpdates.length > 0) {
       searchIndexService.postMessagesToXapianWorker(searchIndexDocumentUpdates);
     }
-  } else if (data['action'] === MessageAction.addTermToDocument) {
+  } else if (data['action'] === PostMessageAction.addTermToDocument) {
     searchIndexService.postMessagesToXapianWorker([
       new SearchIndexDocumentUpdate(data['messageId'], async () => {
         try {
@@ -1026,7 +1026,7 @@ ctx.addEventListener('message', ({ data }) => {
           console.error(e);
         }
       }) ]);
-  } else if (data['action'] === MessageAction.removeTermFromDocument) {
+  } else if (data['action'] === PostMessageAction.removeTermFromDocument) {
     searchIndexService.postMessagesToXapianWorker([
       new SearchIndexDocumentUpdate(data['messageId'], async () => {
         try {

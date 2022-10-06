@@ -48,7 +48,7 @@ export function listAllMessages(
     if (!response.ok) {
       throw new Error('Failed to fetch download_xapian_index?listallmessages ' + response.statusText);
     }
-    return response.text()
+    return response.text();
   })
     .then((txt) => txt.length > 0 ? txt.split('\n') : [])
     .then((lines) => {
@@ -112,7 +112,7 @@ export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number
     if (!response.ok) {
       throw new Error(`Failed to fetch /rest/v1/list/deleted_messages/${datestring} ` + response.statusText);
     }
-    return response.json()
+    return response.json();
   })
     .then((r) => {
       return r.message_ids as number[];
@@ -137,7 +137,7 @@ export function folderStats(folderName: string): Promise<FolderStatsEntry> {
     if (!response.ok) {
       throw new Error(`Failed to fetch /rest/v1/email_folder/stats/${folderName} ` + response.statusText);
     }
-    return response.json()
+    return response.json();
   })
     .then((res) => {
       return res.map((r: any) => {

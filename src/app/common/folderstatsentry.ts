@@ -18,17 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 /// <reference lib="webworker.importscripts" />
-export class FolderListEntry {
-    isExpandable?: boolean;
-    priority?: number; // for sorting order
-
-    constructor(
-        public folderId: number,
-        public newMessages: number,
-        public totalMessages: number,
-        public folderType: string,
-        public folderName: string,
-        public folderPath: string,
-        public folderLevel: number) {
-    }
+export class FolderStatsEntry {
+    total: number;
+    total_unseen: number;
+    total_seen: number;
 }

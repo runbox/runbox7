@@ -35,7 +35,7 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
-import { MessageAction } from './messageactions';
+import { PostMessageAction } from './messageactions';
 
 declare var FS;
 declare var IDBFS;
@@ -129,28 +129,25 @@ export class SearchService {
       this.indexWorker.onmessage = ({ data }) => {
         console.log('Message from worker '),
         console.log(data);
-        if (data['action'] === MessageAction.localSearchActivated) {
+        if (data['action'] === PostMessageAction.localSearchActivated) {
           this.localSearchActivated = data['value'];
         } else if (data['action'] === 'indexUpdated') {
           this.indexUpdatedSubject.next();
-        } else if (data['action'] === MessageAction.refreshContentCache) {
+        } else if (data['action'] === PostMessageAction.refreshContentCache) {
           this.rmmapi.deleteCachedMessageContents(data['messageId']);
-        } else if (data['action'] === MessageAction.openProgressSnackBar) {
+        } else if (data['action'] === PostMessageAction.openProgressSnackBar) {
           this.progressSnackBar = this.snackbar.openFromComponent(SyncProgressComponent);
-        } else if (data['action'] === MessageAction.updateProgressSnackBar) {
+        } else if (data['action'] === PostMessageAction.updateProgressSnackBar) {
           this.progressSnackBar.instance.messagetextsubject.next(data['value']);
-        } else if (data['action'] === MessageAction.closeProgressSnackBar) {
+        } else if (data['action'] === PostMessageAction.closeProgressSnackBar) {
           this.progressSnackBar.dismiss();
-        } else if (data['action'] === MessageAction.updateMessageListService) {
-          // Need to figure out if we send over all the data to update the
-          // MessageList, or just a set of message ids?
-          // Meanwhile refreshFolders (which refreshes the count)
+        } else if (data['action'] === PostMessageAction.updateMessageListService) {
           this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
           this.messagelistservice.refreshFolderList();
-        } else if (data['action'] === MessageAction.indexDeleted) {
+        } else if (data['action'] === PostMessageAction.indexDeleted) {
           ProgressDialog.close();
           this.messagelistservice.fetchFolderMessages();
-        } else if (data['action'] === MessageAction.newMessagesNotification) {
+        } else if (data['action'] === PostMessageAction.newMessagesNotification) {
           if (this.notifyOnNewMessages && 'Notification' in window &&
             window['Notification']['permission'] === 'granted') {
             const newMessagesTitle = data['newmessages'].length > 1 ?
@@ -216,7 +213,7 @@ export class SearchService {
         } else {
           // We have no local index - but still need the polling loop here
           this.indexLastUpdateTime = new Date().getTime(); // Set the last update time to now since we don't have a local index
-          this.indexWorker.postMessage({'action': MessageAction.updateIndexWithNewChanges});
+          this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges});
           this.noLocalIndexFoundSubject.next(true);
           this.noLocalIndexFoundSubject.complete();
           this.initSubject.next(false);
@@ -252,7 +249,7 @@ export class SearchService {
               && f.newMessages === curr[index].newMessages);
         }))
         .subscribe((folders) =>
-          this.indexWorker.postMessage({'action': MessageAction.folderListUpdate, 'value': folders })
+          this.indexWorker.postMessage({'action': PostMessageAction.folderListUpdate, 'value': folders })
     );
   }
 
@@ -273,13 +270,13 @@ export class SearchService {
           if (msgFlagChange.flaggedFlag !== null) {
             if (msgFlagChange.flaggedFlag === true) {
               this.indexWorker.postMessage(
-              {'action': MessageAction.addTermToDocument,
+              {'action': PostMessageAction.addTermToDocument,
                'messageId': msgFlagChange.id,
                'term': 'XFflagged'
                 });
             } else {
               this.indexWorker.postMessage(
-              {'action': MessageAction.removeTermFromDocument,
+              {'action': PostMessageAction.removeTermFromDocument,
                'messageId': msgFlagChange.id,
                'term': 'XFflagged'
               });
@@ -287,13 +284,13 @@ export class SearchService {
           } else if (msgFlagChange.seenFlag !== null) {
             if (msgFlagChange.seenFlag === true) {
               this.indexWorker.postMessage(
-              {'action': MessageAction.addTermToDocument,
+              {'action': PostMessageAction.addTermToDocument,
                'messageId': msgFlagChange.id,
                'term': 'XFseen'
                 });
             } else {
               this.indexWorker.postMessage(
-              {'action': MessageAction.removeTermFromDocument,
+              {'action': PostMessageAction.removeTermFromDocument,
                'messageId': msgFlagChange.id,
                'term': 'XFseen'
               });
@@ -388,7 +385,7 @@ export class SearchService {
     this.persistIndex().subscribe(() =>
       this.indexWorker.postMessage({ 'localdir': this.localdir,
                                      'partitionsdir': this.partitionsdir,
-                                     'action': MessageAction.opendb
+                                     'action': PostMessageAction.opendb
                                    }));
   }
 
@@ -450,7 +447,7 @@ export class SearchService {
       ProgressDialog.open(this.dialog);
 
       this.api.closeXapianDatabase();
-      this.indexWorker.postMessage({'action': MessageAction.deleteLocalIndex});
+      this.indexWorker.postMessage({'action': PostMessageAction.deleteLocalIndex});
 
       console.log('Closing indexed dbs');
       // ---- Hack for emscripten not closing databases
@@ -554,7 +551,7 @@ export class SearchService {
       return;
     }
     this.indexWorker.postMessage(
-      {'action': MessageAction.moveMessagesToFolder,
+      {'action': PostMessageAction.moveMessagesToFolder,
        'messageIds': messageIds,
        'value': destinationfolderPath });
   }
@@ -567,7 +564,7 @@ export class SearchService {
       return;
     }
     this.indexWorker.postMessage(
-      {'action': MessageAction.deleteMessages,
+      {'action': PostMessageAction.deleteMessages,
        'messageIds': messageIds });
   }
 
@@ -864,7 +861,7 @@ export class SearchService {
         if (content['status'] === 'success') {
           this.messageTextCache.set(messageId, content.text.text);
           // Send to the messageCache in the worker, so we can add the text to the index:
-          this.indexWorker.postMessage({'action': MessageAction.messageCache, 'msgId': messageId, 'value':  content.text.text });
+          this.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'msgId': messageId, 'value':  content.text.text });
           if (this.messagelistservice.messagesById[messageId]) {
             this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
           }
