@@ -166,7 +166,7 @@ export class AccountRenewalsAutorenewToggleComponent {
     selector: 'app-account-renewals-renew-now-button-component',
     template: `
 <span *ngIf="p.can_renew; else renewIfDomain">
-    <button mat-raised-button (click)="clicked.emit()" *ngIf="!p.ordered" color="primary">
+    <button mat-raised-button (click)="clicked.emit()" *ngIf="!p.ordered" color="primary" id="renewButton">
         Renew  <mat-icon svgIcon="cart" color="accent"></mat-icon>
     </button>
     <span *ngIf="p.ordered">
@@ -174,7 +174,7 @@ export class AccountRenewalsAutorenewToggleComponent {
     </span>
 </span>
 <ng-template #renewIfDomain>
-    <button mat-raised-button *ngIf="p.subtype === 'domain'; else renewNA" color="primary" (click)="clicked.emit()">
+    <button mat-raised-button *ngIf="p.subtype === 'domain'; else renewNA" color="primary" (click)="clicked.emit()" id="renewButton">
         Renew <mat-icon svgIcon="open-in-new"></mat-icon>
     </button>
 </ng-template>
