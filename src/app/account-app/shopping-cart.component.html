@@ -153,15 +153,15 @@
 
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <p>
-                    <button mat-raised-button (click)="initiatePayment('paypal')">
+                    <button mat-raised-button (click)="initiatePayment('paypal')" color="primary">
                         Pay with Paypal
                     </button>
                 </p>
                 <p>
-                    This will be a one-time payment – your products will not be renewed automatically.
+                    This will be a one-time payment -- your products will not be renewed automatically.
                 </p>
                 <p>
-                    <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')">
+                    <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')" color="primary">
                         Send us money directly
                     </button>
                 </p>
