@@ -48,28 +48,25 @@ mat-card-actions {
         </div>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
-        <button mat-button *ngIf="!purchased; else unpurchase"
-		class="mat-raised-button"
+        <button mat-raised-button *ngIf="!purchased; else unpurchase"
 		color="primary"
-            (click)="order()"
-        >
+		(click)="order()"
+		>
             Purchase for {{ p.price | number:'1.2-2' }} {{ currency || "USD" }}
         </button>
         <ng-template #unpurchase>
-            <button mat-button
-		class="mat-raised-button"
-		color="primary"
-                (click)="unorder()"
-            >
+            <button mat-raised-button
+		    color="primary"
+                    (click)="unorder()"
+		    >
                 Remove from cart
             </button>
         </ng-template>
     </mat-card-actions>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
-        <button mat-button (click)="order()"
-	    class="mat-raised-button"
-	    color="primary"
-	>
+        <button mat-raised-button (click)="order()"
+		color="primary"
+		>
             Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
         </button>
     </mat-card-actions>
