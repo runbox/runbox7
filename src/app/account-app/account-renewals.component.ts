@@ -166,8 +166,8 @@ export class AccountRenewalsAutorenewToggleComponent {
     selector: 'app-account-renewals-renew-now-button-component',
     template: `
 <span *ngIf="p.can_renew; else renewIfDomain">
-    <button mat-button (click)="clicked.emit()" *ngIf="!p.ordered" class="contentButton">
-        Renew <mat-icon svgIcon="cart"></mat-icon>
+    <button mat-button (click)="clicked.emit()" *ngIf="!p.ordered" class="mat-raised-button" color="primary">
+        Renew  <mat-icon svgIcon="cart" color="accent"></mat-icon>
     </button>
     <span *ngIf="p.ordered">
         Added to shopping cart
