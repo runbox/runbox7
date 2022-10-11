@@ -54,8 +54,8 @@
                 </p>
             </mat-card-content>
             <mat-card-actions *ngIf="!cc.removing">
-                <button mat-button (click)="cc.removing = true" class="contentButton"> Forget </button>
-                <button mat-button *ngIf="defaultCard !== cc.id" (click)="makeCardDefault(cc)" class="contentButton"> Make default </button>
+                <button mat-button (click)="cc.removing = true" class="mat-raised-button" color="primary"> Forget </button>
+                <button mat-button *ngIf="defaultCard !== cc.id" (click)="makeCardDefault(cc)"  class="mat-raised-button" color="primary"> Make default </button>
             </mat-card-actions>
             <mat-card-actions *ngIf="cc.removing">
                 <span style="padding: 0 16px">Are you sure?</span>
