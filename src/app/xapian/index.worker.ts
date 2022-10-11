@@ -363,6 +363,7 @@ class SearchIndexService {
     currentFolder: FolderListEntry,
     numberOfMessages: number,
     numberOfUnreadMessages: number): Promise<any[]> {
+    let folderMessages = [];
     if (
       numberOfMessages !== currentFolder.totalMessages ||
         numberOfUnreadMessages !== currentFolder.newMessages) {
@@ -371,7 +372,6 @@ class SearchIndexService {
 (${numberOfUnreadMessages} vs ${currentFolder.newMessages})
 not matching with index for current folder`);
 
-      let folderMessages = [];
       try {
         folderMessages = await listAllMessages(
           0, 0, 0,
@@ -397,7 +397,7 @@ not matching with index for current folder`);
         if (!folderMessageIDS[rmmMessageId]) {
           /*
            * For messages present in the index but not in the server folder list, request index verification from the server -
-           * which means that the server either will update the changed_date timestamp of the message, or the deleted timestamp
+           * which means that the server either will update the changeddate timestamp of the message, or the deleted timestamp
            * if the message was deleted.
            */
           this.pendingIndexVerifications[rmmMessageId] = {
@@ -406,8 +406,9 @@ not matching with index for current folder`);
           } as SearchIndexDocumentData;
         }
       });
-      return folderMessages;
+      console.log(folderMessages);
     }
+    return folderMessages;
   }
 
   /**
@@ -498,7 +499,7 @@ not matching with index for current folder`);
           const folderPath = currentFolder.folderPath;
 
           // do this once per folder, and only if the folder is actually indexed
-          if (this.folderCountDiscrepanciesCheckedCount[folderPath] === 0) {
+          if (!this.folderCountDiscrepanciesCheckedCount[folderPath]) {
             this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
 
             // Compare xapian index counts with rest api folder list:
@@ -511,7 +512,7 @@ not matching with index for current folder`);
             } else {
               // Compare rest api counts with rest api folder list:
               folderStats(folderPath).then((stats: FolderStatsEntry) => {
-                if (
+                if (stats && 
                   stats.total !== currentFolder.totalMessages ||
                     stats.total_unseen !== currentFolder.newMessages) {
                   console.log(`number of messages
@@ -935,6 +936,7 @@ not matching with rest api counts for current folder`);
           const dotSeparatedDestinationfolderPath = destinationfolderPath.replace(/\//g, '.');
           this.postMessagesToXapianWorker(messageIds.map(mid =>
             new SearchIndexDocumentUpdate(mid, () => {
+              // console.log(`moving message ${mid} to ${dotSeparatedDestinationfolderPath}`);
                 try {
                   this.api.changeDocumentsFolder('Q' + mid, dotSeparatedDestinationfolderPath);
                 } catch (e) {
@@ -984,6 +986,8 @@ ctx.addEventListener('message', ({ data }) => {
       );
     };
   } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
+    clearTimeout(searchIndexService.indexUpdateIntervalId);
+  } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
     searchIndexService.updateIndexWithNewChanges(data['args']);
   } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
     console.log('Worker: deleting local index...');
@@ -1038,6 +1042,8 @@ ctx.addEventListener('message', ({ data }) => {
           console.error(e);
         }
       }) ]);
+  } else if (data['action'] === PostMessageAction.setCurrentFolder) {
+    searchIndexService.currentFolder = data['folder'];
   }
   console.log('Dealt with message');
 });

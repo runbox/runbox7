@@ -177,7 +177,6 @@ export class SearchService {
         map((me) => {
           this.localdir = 'rmmsearchservice' + me.uid;
           this.partitionsdir = '/partitions' + this.localdir;
-          // this.openDBOnWorker();
         }),
         mergeMap(() =>
           new Observable<any>((observer) => {
@@ -236,7 +235,7 @@ export class SearchService {
     this.indexReloadedSubject.subscribe(() => {
       console.log('searchservice updating folderCounts');
       // we're sending both "indexUpdated", and "updateMessageListService"
-      // this.messagelistservice.refreshFolderCounts();
+      this.messagelistservice.refreshFolderCounts();
       // this.messagelistservice.refreshFolderList();
     });
 
@@ -350,7 +349,6 @@ export class SearchService {
             FS.syncfs(true, async () => {
               console.log('Loading partitions');
               this.openStoredPartitions();
-//              this.indexUpdatedSubject.next();
             });
 
 
@@ -463,7 +461,8 @@ export class SearchService {
   }
 
   public downloadIndexFromServer(): Observable<boolean> {
-    clearTimeout(this.indexUpdateIntervalId);
+    this.indexWorker.postMessage({'action': PostMessageAction.stopIndexUpdates });
+    // clearTimeout(this.indexUpdateIntervalId);
     this.notifyOnNewMessages = false; // we don't want notification on first message update after index load
     this.init();
 
@@ -471,14 +470,9 @@ export class SearchService {
         mergeMap(() => this.checkIfDownloadableIndexExists()),
         mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.api.initXapianIndex(XAPIAN_GLASS_WR);
+          this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
           this.localSearchActivated = true;
           this.indexLastUpdateTime = 0;
-          // this.indexWorker.postMessage({ 'localdir': this.localdir,
-          //                                'partitionsdir': this.partitionsdir,
-          //                                'action': 'opendb'
-          //                              });
-          // this.updateIndexWithNewChanges();
           observer.next(true);
           return;
         }
@@ -526,7 +520,7 @@ export class SearchService {
           mergeMap(() => downloadAndWriteFile('termlist.glass', 3)),
           mergeMap(() => downloadAndWriteFile('postlist.glass', 4)),
         ).subscribe(() => {
-            this.api.initXapianIndex(XAPIAN_GLASS_WR);
+            this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
             this.messagelistservice.refreshFolderList();
@@ -659,7 +653,6 @@ export class SearchService {
             if (totalSize === 0) {
               console.log('No extra search index partitions');
               this.openDBOnWorker();
-              // await this.updateIndexWithNewChanges();
               this.indexReloadedSubject.next();
             }
             return totalSize;
@@ -770,7 +763,6 @@ export class SearchService {
           tap(async () => {
             this.partitionDownloadProgress = null;
             this.openDBOnWorker();
-//            this.indexWorker.postMessage({ 'action': 'updateIndexWithNewChanges' });
             this.indexReloadedSubject.next();
           })
         );
@@ -850,6 +842,12 @@ export class SearchService {
           // }
         }
         return this.currentDocData;
+    }
+
+  public setCurrentFolder(folder: string) {
+      this.indexWorker.postMessage({
+        'action': PostMessageAction.setCurrentFolder,
+        'folder': folder });
     }
 
   // fetch message contents, we actually only want the "text.text" part here

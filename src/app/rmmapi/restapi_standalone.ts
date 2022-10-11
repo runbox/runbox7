@@ -123,7 +123,7 @@ export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number
     });
 }
 
-export function folderStats(folderName: string): Promise<FolderStatsEntry> {
+export function folderStats(folderName: string): Promise<void | FolderStatsEntry> {
   const url = `/rest/v1/email_folder/stats/${folderName}`;
 
   return fetch (
@@ -140,13 +140,16 @@ export function folderStats(folderName: string): Promise<FolderStatsEntry> {
     return response.json();
   })
     .then((res) => {
-      return res.map((r: any) => {
+      console.log('Worker: folderStats');
+      console.log(res);
+//      return res.map((r: any) => {
         const fse = new FolderStatsEntry();
-        fse.total = r.result.stats.total;
-        fse.total_unseen = r.result.stats.total_unseen;
-        fse.total_seen = r.result.stats.total_seen;
+        fse.total = res.result.stats.total;
+        fse.total_unseen = res.result.stats.total_unseen;
+        fse.total_seen = res.result.stats.total_seen;
         return fse;
-      });
+      //      });
+    
     })
     .catch(
       (error) => console.error(error)

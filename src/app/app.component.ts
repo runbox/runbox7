@@ -641,9 +641,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           if (this.searchService.localSearchActivated) {
             this.searchService.indexWorker.postMessage(
               {'action': 'addMessageToIndex',
-               'args': {
                  'msginfos': [ messageIds.map((msgId) => this.messagelistservice.messagesById[msgId])]
-                 }
                 });
           }
           // FIXME: constant for "inbox"?

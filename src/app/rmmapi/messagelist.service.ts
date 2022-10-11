@@ -121,6 +121,8 @@ export class MessageListService {
     public setCurrentFolder(folder: string) {
         this.currentFolder = folder;
         this.searchservice.pipe(take(1)).subscribe(searchservice => {
+            // searchservice / index worker uses currentFolder for checking counts
+            searchservice.setCurrentFolder(folder);
             if (!searchservice.localSearchActivated ||
                 folder === this.spamFolderName ||
                 folder === this.trashFolderName ) {

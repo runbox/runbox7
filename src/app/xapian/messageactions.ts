@@ -29,6 +29,7 @@ export enum PostMessageAction {
   newMessagesNotification = 'newMessagesNotification',
   opendb = 'opendb',
   updateIndexWithNewChanges = 'updateIndexWithNewChanges',
+  stopIndexUpdates = 'stopIndexUpdates',
   deleteLocalIndex = 'deleteLocalIndex',
   folderListUpdate = 'folderListUpdate',
   messageCache = 'messageCache',
@@ -36,5 +37,6 @@ export enum PostMessageAction {
   deleteMessages = 'deleteMessages',
   addMessageToIndex = 'addMessageToIndex',
   addTermToDocument = 'addTermToDocument',
-  removeTermFromDocument = 'removeTermFromDocument'
+  removeTermFromDocument = 'removeTermFromDocument',
+  setCurrentFolder = 'setCurrentFolder'
 }
