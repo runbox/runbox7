@@ -34,7 +34,7 @@
             <ng-container matColumnDef="receipt">
                 <th mat-header-cell *matHeaderCellDef> Receipt </th>
                 <td mat-cell *matCellDef="let t">
-                    <button mat-button routerLink="/account/receipt/{{ t.tid }}" class="mat-raised-button" color="primary"> Show receipt </button>
+                    <button mat-raised-button routerLink="/account/receipt/{{ t.tid }}" color="primary"> Show receipt </button>
                 </td>
             </ng-container>
             <ng-container matColumnDef="expansionIndicator">
