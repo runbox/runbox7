@@ -42,7 +42,7 @@ export class AccountTransactionsComponent implements OnInit {
     transactions = new AsyncSubject<Transaction[]>();
     expandedTransaction: Transaction;
 
-    columnsDefault = ['amount', 'status', 'method', 'time', 'time-desc', 'receipt'];
+    columnsDefault = ['time', 'time-desc', 'amount', 'status', 'method', 'receipt'];
     columnsMobile  = ['expansionIndicator', 'time', 'amount', 'statusIcon'];
 
     displayedColumns: string[];
