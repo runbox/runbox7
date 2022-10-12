@@ -140,16 +140,11 @@ export function folderStats(folderName: string): Promise<void | FolderStatsEntry
     return response.json();
   })
     .then((res) => {
-      console.log('Worker: folderStats');
-      console.log(res);
-//      return res.map((r: any) => {
         const fse = new FolderStatsEntry();
         fse.total = res.result.stats.total;
         fse.total_unseen = res.result.stats.total_unseen;
         fse.total_seen = res.result.stats.total_seen;
         return fse;
-      //      });
-    
     })
     .catch(
       (error) => console.error(error)

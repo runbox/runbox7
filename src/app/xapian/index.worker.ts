@@ -512,7 +512,7 @@ not matching with index for current folder`);
             } else {
               // Compare rest api counts with rest api folder list:
               folderStats(folderPath).then((stats: FolderStatsEntry) => {
-                if (stats && 
+                if (stats &&
                   stats.total !== currentFolder.totalMessages ||
                     stats.total_unseen !== currentFolder.newMessages) {
                   console.log(`number of messages

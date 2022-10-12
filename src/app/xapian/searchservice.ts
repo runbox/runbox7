@@ -462,7 +462,6 @@ export class SearchService {
 
   public downloadIndexFromServer(): Observable<boolean> {
     this.indexWorker.postMessage({'action': PostMessageAction.stopIndexUpdates });
-    // clearTimeout(this.indexUpdateIntervalId);
     this.notifyOnNewMessages = false; // we don't want notification on first message update after index load
     this.init();
 
