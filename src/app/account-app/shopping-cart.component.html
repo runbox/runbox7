@@ -10,12 +10,12 @@
 
     <p>
         How about you treat yourself to an
-        <button mat-button routerLink="/account/plans" class="contentButton">
-            <mat-icon svgIcon="hot-tub"> </mat-icon> upgrade
+        <button mat-raised-button routerLink="/account/plans" color="primary">
+            <mat-icon svgIcon="hot-tub" color="accent"> </mat-icon> upgrade
         </button>
         or go ahead and
-        <button mat-button routerLink="/account/subscriptions" class="contentButton">
-            <mat-icon svgIcon="autorenew"> </mat-icon> renew
+        <button mat-raised-button routerLink="/account/subscriptions"  color="primary">
+            <mat-icon svgIcon="autorenew" color="accent"> </mat-icon> renew
         </button>
         some of your products and lock in today's prices?
     </p>
@@ -87,13 +87,12 @@
 </table>
 
 <div *ngIf="missingProducts.length > 0" style="text-align: center;">
-    Some of the products added to your cart ({{ missingProductsString }})
-    are not currently available for purchase. <br>
-    If the product list above is missing something you wanted to renew,
-    contact Runbox Support at
+    <p>Some of the products added to your cart ({{ missingProductsString }}) are not currently available for purchase. <br>
+    If the product list above is missing something you wanted to renew, contact Runbox Support at
     <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">
         support@runbox.com
     </a>.
+    </p>
 </div>
 
 <div *ngIf="items.length > 0 && orderError === undefined">
@@ -154,15 +153,15 @@
 
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <p>
-                    <button mat-raised-button (click)="initiatePayment('paypal')">
+                    <button mat-raised-button (click)="initiatePayment('paypal')" color="primary">
                         Pay with Paypal
                     </button>
                 </p>
                 <p>
-                    This will be a one-time payment – your products will not be renewed automatically.
+                    This will be a one-time payment -- your products will not be renewed automatically.
                 </p>
                 <p>
-                    <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')">
+                    <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')" color="primary">
                         Send us money directly
                     </button>
                 </p>

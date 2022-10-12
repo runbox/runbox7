@@ -1268,7 +1268,7 @@ canvastable {
 
 // helpers for multi-row mobile-friendly mat-tables
 tr.detailsRow {
-    height: 0;
+    height: 0 !important;
 }
 
 tr.regularRow td {
@@ -1291,26 +1291,30 @@ div.expandedDetails {
     }
 }
 
-    td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
-        @media only screen and (max-width: 1024px) {
-            padding-bottom: 10px;
-        }
-        @media only screen and (max-width: 500px) {
-            padding: 0 10px 10px;
-        }
+td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
+    @media only screen and (max-width: 1024px) {
+        padding-bottom: 10px;
     }
-    
-    td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
-        @media only screen and (max-width: 1024px) {
-            background-color: #f5f5f5;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            font-weight: bold;
-        }
-        @media only screen and (max-width: 500px) {
-            padding: 10px 13px 10px;
-        }
+    @media only screen and (max-width: 500px) {
+        padding: 0 10px 10px;
     }
+}
+
+td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
+    @media only screen and (max-width: 1024px) {
+        background-color: #f5f5f5;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-weight: bold;
+    }
+    @media only screen and (max-width: 500px) {
+        padding: 10px 13px 10px;
+    }
+}
+
+table.renewalsTable td, table.paymentsTable td {
+    padding: 5px 10px 0px 10px !important;
+}    
 
 table.detailsTable {
     width: 100%;

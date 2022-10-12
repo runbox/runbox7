@@ -10,7 +10,15 @@
 	    Click "Show receipt" to view more details about each payment.
 	</p>
 
-        <table mat-table [dataSource]="transactions" [ngStyle]="{ width: '100%' }" multiTemplateDataRows>
+        <table mat-table [dataSource]="transactions" [ngStyle]="{ width: '100%' }" class="paymentsTable" multiTemplateDataRows>
+            <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef> Date </th>
+                <td mat-cell *matCellDef="let t" style="font-weight: bold"> {{ t.time.format('YYYY-MM-DD') }} </td>
+            </ng-container>
+            <ng-container matColumnDef="time-desc">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let t"> ({{ t.time.fromNow() }}) </td>
+            </ng-container>
             <ng-container matColumnDef="amount">
                 <th mat-header-cell *matHeaderCellDef> Amount </th>
                 <td mat-cell *matCellDef="let t"> {{ t.amount }} {{ t.currency }} </td>
@@ -23,18 +31,10 @@
                 <th mat-header-cell *matHeaderCellDef> Method </th>
                 <td mat-cell *matCellDef="let t"> {{ methods[t.method] }} </td>
             </ng-container>
-            <ng-container matColumnDef="time">
-                <th mat-header-cell *matHeaderCellDef> Date </th>
-                <td mat-cell *matCellDef="let t"> {{ t.time.format('YYYY-MM-DD') }} </td>
-            </ng-container>
-            <ng-container matColumnDef="time-desc">
-                <th mat-header-cell *matHeaderCellDef> </th>
-                <td mat-cell *matCellDef="let t"> ({{ t.time.fromNow() }}) </td>
-            </ng-container>
             <ng-container matColumnDef="receipt">
                 <th mat-header-cell *matHeaderCellDef> Receipt </th>
                 <td mat-cell *matCellDef="let t">
-                    <button mat-button routerLink="/account/receipt/{{ t.tid }}" class="contentButton"> Show receipt </button>
+                    <button mat-raised-button routerLink="/account/receipt/{{ t.tid }}" color="primary"> Show receipt </button>
                 </td>
             </ng-container>
             <ng-container matColumnDef="expansionIndicator">

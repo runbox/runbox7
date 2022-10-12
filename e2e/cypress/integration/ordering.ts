@@ -4,7 +4,7 @@ describe('Ordering products', () => {
     it('can place an order', () => {
         cy.visit('/account/plans');
 
-        cy.get('#productGrid .contentButton').contains('Purchase').click();
+        cy.get('#productGrid #purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
     });
 
@@ -27,11 +27,11 @@ describe('Ordering products', () => {
 
         cy.get('#shoppingCartButton').should('not.exist');
 
-        cy.get('.productGrid .contentButton').contains('Purchase').click();
+        cy.get('.productGrid #purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
-        cy.get('.productGrid .contentButton').contains('Purchase').click();
+        cy.get('.productGrid #purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
