@@ -37,6 +37,12 @@
                     </span>
                 </td>
             </ng-container>
+            <ng-container matColumnDef="price">
+                <th mat-header-cell *matHeaderCellDef> Price </th>
+                <td mat-cell *matCellDef="let p">
+                    {{ p.currency }} {{ p.price }}
+                </td>
+            </ng-container>
             <ng-container matColumnDef="active_from">
                 <th mat-header-cell *matHeaderCellDef> Active From </th>
                 <td mat-cell *matCellDef="let p">

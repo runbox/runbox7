@@ -30,7 +30,7 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
 import moment from 'moment';
 
-const columnsDefault = ['renewal_name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
+const columnsDefault = ['renewal_name', 'quantity', 'price', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
 const columnsMobile = ['renewal_name'];
 
 // TODO define it as an interface
