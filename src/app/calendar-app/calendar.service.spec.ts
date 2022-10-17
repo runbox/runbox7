@@ -107,13 +107,13 @@ END:VCALENDAR
         getVTimezone:      (tzname: string) => of(timezone),
         modifyCalendarEvent: (e: RunboxCalendarEvent) => {
             calls.modifyCalendarEvent++;
-            dav_events[e.id] = e;
+            dav_events[e.id] = {'calendar': e._calendar, 'id': e.id, 'ical': e.toIcal()};
             return of(e);
         },
         addCalendarEvent: (e: RunboxCalendarEvent) => {
             calls.addCalendarEvent++;
             e.id = 'random';
-            dav_events[e.id] = e;
+            dav_events[e.id] = {'calendar': e._calendar, 'id': e.id, 'ical': e.toIcal()};
             return of(e);
         },
         deleteCalendarEvent: (id: string) => {
