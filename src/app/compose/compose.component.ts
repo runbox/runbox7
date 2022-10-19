@@ -306,6 +306,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public onFilesSelected(event) {
         this.uploadFiles(event.target.files);
+        this.attachmentFileUploadInput.nativeElement.value = '';
     }
 
     public displayWithoutRBWUL(filename: string): string {
