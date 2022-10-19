@@ -66,6 +66,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public draggingOverDropZone = false;
     public editing = false;
     public isUnsaved = false;
+    public savingInProgress = false;
     public uploadprogress: number = null;
     public uploadingFiles: FileList = null;
     public uploadRequest: Subscription = null;
@@ -581,6 +582,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send: boolean = false) {
+        if (this.savingInProgress) {
+            return;
+        }
+        this.savingInProgress = true;
         if (send) {
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
@@ -656,6 +661,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.draftDeskservice.isEditing = -1;
                     this.draftDeleted.emit(this.model.mid);
 
+                    this.savingInProgress = false;
                     this.dialogService.closeProgressDialog();
                     this.exitToTable();
                 }, (err) => {
@@ -669,6 +675,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         `Error sending: ${msg}`,
                         'Dismiss'
                     );
+                    this.savingInProgress = false;
                     this.dialogService.closeProgressDialog();
                 });
         } else {
@@ -715,6 +722,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.saved = new Date();
                     this.saveErrorMessage = null;
 
+                    this.savingInProgress = false;
                     if (send) {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
@@ -726,6 +734,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                                 .map(fieldname =>
                                     `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
                     }
+                    this.savingInProgress = false;
                     this.saveErrorMessage = `Error saving draft: ${msg}`;
                 });
         }

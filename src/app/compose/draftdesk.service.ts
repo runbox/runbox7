@@ -50,7 +50,7 @@ export class DraftFormModel {
     reply_to: string = null;
     subject: string = null;
     msg_body = '';
-    html: string;
+    html = '';
     preview: string;
     in_reply_to: string;
     reply_to_id: string = null;
