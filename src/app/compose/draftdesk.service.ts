@@ -102,7 +102,8 @@ export class DraftFormModel {
         }
 
         // If all, also add all the other To/CC folks:
-        if (all) {
+        // Guard: sometimes mailObj.to is not an array!?
+        if (all && mailObj.to && Array.isArray(mailObj.to)) {
             ret.to = ret.to.concat(mailObj.to
                 .filter((addr) =>
                     froms.find(fromObj => fromObj.email === addr.address) ? false : true
@@ -187,11 +188,15 @@ export class DraftFormModel {
     }
 
     private setFromForResponse(mailObj, froms: FromAddress[]): void {
-        this.from = (
-            [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
-            ) || { address: froms[0].email }
-        ).address.toLowerCase();
+        if (froms.length > 0) {
+            this.from = (
+                [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
+                    addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
+                ) || { address: froms[0].email }
+            ).address.toLowerCase();
+        } else {
+            console.error('DraftDesk: No froms passed to setFromForResponse');
+        }
     }
 
     private setSubjectForResponse(mailObj, prefix): void {

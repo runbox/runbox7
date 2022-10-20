@@ -146,8 +146,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
             if (this.model.replying) {
                 setTimeout(() => {
-                    this.messageTextArea.nativeElement.setSelectionRange(0, 0);
-                    this.messageTextArea.nativeElement.focus();
+                    if (!this.model.useHTML) {
+                        this.messageTextArea.nativeElement.setSelectionRange(0, 0);
+                        this.messageTextArea.nativeElement.focus();
+                    }
                 });
             }
         } else {
@@ -393,10 +395,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const model = new DraftFormModel();
         model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
         this.draftDeskservice.isEditing = model.mid;
-        model.attachments = msgObj.attachments.map((att) => Object.assign({
-            file_url: att.filename,
-            file: att.filename
-        }, att));
+        model.attachments = msgObj.attachments
+            ? msgObj.attachments.map((att) => Object.assign({
+                file_url: att.filename,
+                file: att.filename
+            }, att))
+            : [];
 
         const from: any = msgObj.headers.from;
         if (from) {
@@ -626,9 +630,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.model.preview = DraftFormModel.trimmedPreview(this.model.msg_body);
         }
 
+        // this.model.from should have a value (cos it defaults)
         const from = this.draftDeskservice.fromsSubject.value.find(
             (f) => this.model.from === f.nameAndAddress || this.model.from === f.email);
-        this.model.reply_to = from.reply_to;
+        let draft_from = this.model.from;
+        if (!from) {
+            console.log(`Compose: Could not find ${this.model.from} in ${this.draftDeskservice.fromsSubject.value}`);
+        } else {
+            this.model.reply_to = from.reply_to;
+            draft_from = from && from.id ?
+                from.name + '%' + from.email + '%' + from.id + '%' + from.folder :
+                from.email;
+        }
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
@@ -642,9 +655,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             // Use old form based API for sending as JSON api doesn't support this
             this.rmmapi.saveDraft(Object.assign(
                 {}, this.model, {
-                    from: from && from.id ?
-                        from.name + '%' + from.email + '%' + from.id + '%' + from.folder :
-                        from.email
+                    from: draft_from
                 }
             ), send)
                 .subscribe((res) => {
