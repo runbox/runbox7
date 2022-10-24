@@ -265,7 +265,7 @@ export class RunboxWebmailAPI {
                             reject(response);
                         }
                     }, err => {
-                        delete this.messageContentsRequestCache[messageId];
+                        this.deleteCachedMessageContents(messageId);
                         reject(err);
                     });
                 });
