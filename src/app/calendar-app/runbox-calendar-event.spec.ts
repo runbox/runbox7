@@ -34,7 +34,34 @@ describe('RunboxCalendarEvent', () => {
         newEvent.location = 'Somewhere';
 
         // test things addEvent calls:
-      expect(newEvent.toIcal()).toMatch(/BEGIN:VEVENT/);
+        expect(newEvent.toIcal()).toMatch(/BEGIN:VEVENT/);
+    });
+    it('should be possible to create a new event, without times', () => {
+        const newEvent = RunboxCalendarEvent.newEmpty();
+        newEvent.updateEvent(
+            moment().date(1).hours(0).seconds(0).milliseconds(0),
+            moment().date(2).hours(0).seconds(0).milliseconds(0),
+            true,
+            'Home',
+            RecurSaveType.ALL_OCCURENCES,
+            'New Event',
+            'Somewhere',
+          '',
+          false,
+          '',
+          0,
+          [],
+          [],
+          []
+        );
+
+        // test things addEvent calls:
+        expect(newEvent.toIcal()).toMatch(/BEGIN:VEVENT/);
+      // check date not time:
+      const now = ICAL.Time.fromJSDate(moment().date(1).toDate());
+      expect(newEvent.toIcal()).not.toContain(now.toICALString());
+      now.isDate = true;
+      expect(newEvent.toIcal()).toContain(now.toICALString());
     });
     it('should be possible to add/edit/remove a WEEKLY recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
@@ -169,6 +196,7 @@ describe('RunboxCalendarEvent', () => {
         sut.updateEvent(
             future,
             future,
+            false,
             sut.calendar,
             RecurSaveType.THIS_ONLY,
             'Moved weekly event', undefined, undefined,
@@ -201,6 +229,7 @@ describe('RunboxCalendarEvent', () => {
         sut.updateEvent(
             future,
             future,
+            false,
             sut.calendar,
             RecurSaveType.THIS_ONLY,
             'Moved weekly event one hour', undefined, undefined,
@@ -331,6 +360,7 @@ END:VCALENDAR`
          sut.updateEvent(
              future,
              future_end,
+             false,
              sut.calendar,
              RecurSaveType.THIS_ONLY,
              'Moved daily event one hour', undefined, undefined,

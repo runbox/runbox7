@@ -388,6 +388,7 @@ export class EventEditorDialogComponent {
         this.event.updateEvent(
             dtstart,
             dtend,
+            this.event_allDay,
             this.calendarFC.value,
             this.recur_save_type,
             this.event_title,
