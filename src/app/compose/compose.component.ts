@@ -486,7 +486,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                             ? this.formGroup.value.msg_body.replace(/\n/g, '<br />\n')
                             :  ''
                     );
-                }
+                },
+                image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
+                    title: this.displayWithoutRBWUL(att.file),
+                    value: '/ajax/download_draft_attachment?filename=' + att.file
+                })) : []),
+
             };
             this.tinymce_plugin.create(options);
         } else {
