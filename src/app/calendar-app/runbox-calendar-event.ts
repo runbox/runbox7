@@ -59,6 +59,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
     private _dtstart: ICAL.Time;
     private _dtend: ICAL.Time;
 
+    // store user's selection of allDay setting while updating the event
+    // required cos neither Moment nor Date have a "date only" functionality
+    // ICAL.Time does tho!
+    private _allDay: boolean;
+
     get calendar(): string {
         return this._calendar;
     }
@@ -107,13 +112,11 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // to now *start* from this new date
     // If set on an exception, only changes that exception
     set dtstart(value: moment.Moment) {
-        const allDay = this.allDay;
         // check this before we update:
         if (this._dtstart.toJSDate().toString() === this.recurStart.toString()) {
             this._dtstart = this.momentToIcalTime(value, this.event.startDate ? this.event.startDate.zone : null);
             this.event.startDate = this._dtstart;
         }
-        this.allDay = allDay;
     }
 
     get dtend(): moment.Moment {
@@ -128,12 +131,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // FIXME: Does this change an ICAL.Time with no date (isDate=true) to
     // one with a time? (as a side effect that is)
     set dtend(value: moment.Moment) {
-        const allDay = this.allDay;
         if (value && this._dtstart.toJSDate().toString() === this.recurStart.toString()) {
             this._dtend = this.momentToIcalTime(value, this.event.endDate ? this.event.endDate.zone : undefined);
             this.event.endDate = this._dtend;
         }
-        this.allDay = allDay;
     }
 
     // angular-calendar compatibility
@@ -444,6 +445,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     updateEvent(
         dtstart:        moment.Moment,
         dtend:          moment.Moment,
+        allDay:         boolean,
         calendar:       string,
         recur_save_type: RecurSaveType,
         title:          string,
@@ -467,6 +469,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 description,
                 location);
         } else {
+            this._allDay     = allDay;
             this.dtstart     = dtstart;
             this.dtend       = dtend;
             this.calendar    = calendar;
@@ -601,17 +604,20 @@ export class RunboxCalendarEvent implements CalendarEvent {
             }
             const ical_time = ICAL.Time.fromJSDate(input.toDate());
             ical_time.zone = zone;
+            ical_time.isDate = this._allDay;
             return ical_time;
         }
         // input is date in user timezone, convert to target timezone
         const ical_tztime = ICAL.Time.fromJSDate(input.toDate());
         if (ICAL.TimezoneService.has(this.timezone)) {
             ical_tztime.zone = ICAL.TimezoneService.get(this.timezone);
+            ical_tztime.isDate = this._allDay;
             return ical_tztime.convertToZone(zone);
         } else {
             // Hmm this (should?) only get hit if zone wasnt loaded
             // eg in tests!?
             ical_tztime.zone = zone;
+            ical_tztime.isDate = this._allDay;
             return ical_tztime;
         }
     }
