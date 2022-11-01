@@ -37,10 +37,10 @@ export class TinyMCEPlugin {
                     'visualblocks visualchars fullscreen image link template codesample ' +
                     'table charmap hr pagebreak ' +
                     'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
-                    'textpattern help code paste'),
+                    'textpattern help code'),
                 toolbar: (options.toolbar || 'formatselect | bold italic strikethrough forecolor backcolor codesample | ' +
                         'link image | alignleft aligncenter alignright alignjustify  | ' +
-                        'numlist bullist outdent indent | removeformat | addcomment | code | paste'),
+                        'numlist bullist outdent indent | removeformat | addcomment | code'),
                 codesample_languages: (options.codesample_languages || [
                             {text: 'HTML/XML', value: 'markup'},
                             {text: 'JavaScript', value: 'javascript'},
@@ -54,7 +54,6 @@ export class TinyMCEPlugin {
                             {text: 'C++', value: 'cpp'}
                         ]),
                 contextmenu: false,
-                paste_data_images: true,
                 image_list: (options.image_list || []),
                 menubar: (options.menubar || false),
                 setup: (options.setup),
