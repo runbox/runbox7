@@ -109,8 +109,7 @@
                         [contacts]="shownContacts"
                         [categories]="categories"
                         [allowDragging]="true"
-                        [showDragHelpers]="contactsservice.settings.showDragHelpers"
-                        [sideMenu] = "sideMenu"
+                        [showDragHelpers]="contactsservice.showDragHelpers"
                         (selectionUpdated)="onContactsSelected($event)"
                     ></app-contact-list>
 

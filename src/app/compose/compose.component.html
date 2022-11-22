@@ -64,7 +64,7 @@
             > BCC </button>
         </div>
         <div class="recipientSuggestionContainer"
-           [ngStyle]="{ 'display': settingsService.settings.showPopularRecipients ? 'block' : 'none' }"
+           [ngStyle]="{ 'display': showPopularRecipients ? 'block' : 'none' }"
            *ngIf="suggestedRecipients.length > 0 && editing"
         >
             <span>Recently used</span>

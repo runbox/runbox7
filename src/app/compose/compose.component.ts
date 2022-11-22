@@ -37,11 +37,13 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-import { AppSettingsService } from '../app-settings';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
+import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 
 declare const tinymce: any;
 declare const MailParser;
+
+const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 
 @Component({
     moduleId: 'angular2/app/compose/',
@@ -86,6 +88,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     filteredSuggestions: MailAddressInfo[] = [];
 
     public formGroup: UntypedFormGroup;
+    showPopularRecipients = true;
 
     @Input() model: DraftFormModel = new DraftFormModel();
     @Output() draftDeleted: EventEmitter<number> = new EventEmitter();
@@ -99,7 +102,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private location: Location,
         private dialogService: DialogService,
         recipientservice: RecipientsService,
-        public settingsService: AppSettingsService,
+        public preferenceService: PreferencesService,
         private _ngZone: NgZone,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
@@ -108,6 +111,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         recipientservice.recentlyUsed.subscribe(suggestions => {
             this.suggestedRecipients = suggestions;
             this.updateSuggestions();
+        });
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
         });
     }
 

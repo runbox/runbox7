@@ -97,7 +97,7 @@ END:VCALENDAR
     let storage: StorageService;
     let sut: CalendarService;
 
-    const rmmapi = {
+    const rmmapi = <unknown>{
         me: of({ uid: 1, timezone: 'Europe/London' }),
         getCalendars: () => of([
             { id: 'test',  displayname: 'Test',  syncToken: 'asdf' },

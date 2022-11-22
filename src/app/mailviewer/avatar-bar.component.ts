@@ -22,7 +22,7 @@ import { ReplaySubject} from 'rxjs';
 import { take } from 'rxjs/operators';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
-import { AppSettingsService } from '../app-settings';
+import { PreferencesService } from '../common/preferences.service';
 
 @Component({
     selector: 'app-avatar-bar',
@@ -65,11 +65,11 @@ export class AvatarBarComponent implements OnInit {
     ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);
 
     constructor(
-        settingsService: AppSettingsService,
+        preferenceService:  PreferencesService,
         private contactsservice: ContactsService,
         private rmmapi: RunboxWebmailAPI,
     ) {
-        settingsService.settingsSubject.subscribe(_ => this.ngOnChanges());
+        preferenceService.preferences.subscribe(_ => this.ngOnChanges());
     }
 
     ngOnInit() {

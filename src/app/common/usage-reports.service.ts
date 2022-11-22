@@ -19,18 +19,23 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AppSettingsService, AppSettings } from '../app-settings';
+import { AppSettings } from '../app-settings';
 import { SearchService } from '../xapian/searchservice';
+import { PreferencesService } from '../common/preferences.service';
 
 @Injectable({ providedIn: 'root' })
 export class UsageReportsService {
     lastReportFor = new Map<string, number>();
+    preferences: Map<string, any> = new Map();
 
     constructor(
         private http: HttpClient,
-        private settingsService: AppSettingsService,
+        public preferenceService: PreferencesService,
         private searchService: SearchService,
     ) {
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.preferences = prefs;
+        });
         setInterval(() => this.gatherStats(), 15 * 60 * 1000);
         this.gatherStats();
     }
@@ -47,16 +52,16 @@ export class UsageReportsService {
     }
 
     private gatherStats() {
-        if (this.settingsService.settings.showPopularRecipients) {
+        if (this.preferences.get(`${this.preferenceService.prefGroup}:showPopularRecipients`)) {
             this.report('popularRecipients');
         }
-        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.REMOTE) {
+        if (this.preferences.get(`${this.preferenceService.prefGroup}:avatarSource`) === AppSettings.AvatarSource.REMOTE) {
             this.report('remoteAvatars');
         }
         if (this.searchService.localSearchActivated) {
             this.report('usesLocalIndex');
         }
-        if (localStorage.getItem('rmm7showhtmldecision') === 'alwaysshowhtml') {
+        if (this.preferences.get(`${this.preferenceService.prefGroup}:rmm7showhtmldecision`) === 'alwaysshowhtml') {
             this.report('alwaysShowHtmlEmails');
         }
     }

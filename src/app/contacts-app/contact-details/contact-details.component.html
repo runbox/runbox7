@@ -13,7 +13,7 @@
 
 <div class="mainTextContent" *ngIf="contact">
     <h2>
-        <span class="contactDetailsPicture" *ngIf="settingsService.settings.avatars != AvatarSource.NONE">
+        <span class="contactDetailsPicture" *ngIf="avatarSource != AvatarSource.NONE">
             <img
                 *ngIf="contactPhotoURI; else uploadPicture"
                 class="contactDetailsPicture"
@@ -23,7 +23,7 @@
             <ng-template #uploadPicture>
                 <button mat-stroked-button
                     matTooltip="Consider enabling remote avatars in settings"
-                    [matTooltipDisabled]="settingsService.settings.avatars == AvatarSource.REMOTE"
+                    [matTooltipDisabled]="avatarSource == AvatarSource.REMOTE"
                     (click)="showUploadDialog()"
                 >
                     <mat-icon svgIcon="account-box-outline"></mat-icon>
@@ -118,7 +118,7 @@
                         (dragstart)="memberDragged($event, idx)"
                     >
                         <span *ngIf="member.id; else not_contact">
-                            <mat-icon *ngIf="contactsservice.settings.showDragHelpers"
+                            <mat-icon *ngIf="contactsservice.showDragHelpers"
                                       draggable="true" (dragstart)="memberDragged($event, idx)" svgIcon="drag">
                             </mat-icon>
                             <button mat-button routerLink="/contacts/{{ member.id }}" matTooltip="View details">
