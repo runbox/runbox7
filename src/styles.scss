@@ -89,7 +89,7 @@ h4.runbox-section-header {
 }
 
 h5, .mat-typography h5 {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 th {
@@ -106,7 +106,7 @@ ul.square-list li {
 }
 
 p {
-    font-size: 15px;
+    font-size: 13px;
 }
 
 
@@ -118,13 +118,13 @@ p {
 
 mat-form-field {
     /* This is for iOS not to zoom in when focusing on text fields */
-    font-size: 15px !important;
+    font-size: 13px !important;
 }
 
 /* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
 mat-list-item .mat-list-item-content,
 a[mat-list-item] .mat-list-item-content {
-    min-height: 36px !important;
+    min-height: 24px !important;
 }
 
 .mat-list[dense] .mat-list-item .mat-list-text, 
@@ -147,8 +147,9 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .mat-line, .mat-tree-node {
-    min-height: 36px !important;
-    font-size: 15px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    font-size: 13px !important;
 }
 
 .mat-list-base {
@@ -157,7 +158,7 @@ mat-list-item p.mat-line mat-icon {
 
 .mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
     height: auto !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
 }
 
 .mat-menu-content .mat-list-item {
@@ -165,7 +166,7 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .mat-menu-panel .mat-list-item {
-    height: 48px !important;
+    height: 36px !important;
 }
 
 .mat-header-cell {
@@ -193,7 +194,8 @@ mat-chip.mat-chip.mat-standard-chip {
 }
 
 .mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
-    min-height: 36px;
+    min-height: 24px;
+    height: 36px;
 
     .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
 	height: 1.8em !important;
@@ -211,6 +213,14 @@ mat-icon {
 
 /* Generic custom styles */
 
+.appPageHeader * {
+    float: left;
+}
+
+.appPageHeader h1 {
+    margin-top: 5px;
+}
+
 .mat-dialog-container {
     max-width: 550px;
 }
@@ -226,7 +236,7 @@ mat-grid-tile.tableTitle {
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
-    font-size: 15px;
+    font-size: 13px;
     color: #000;
 
     mat-icon {
@@ -442,7 +452,7 @@ div.loginScreen {
     min-height: 20px;
     padding: 0 10px 0.7em;
     color: #f00;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 div.loginScreen .login_error_html p {
@@ -473,7 +483,7 @@ div.loginScreen mat-button-toggle button {
 
 div.loginScreen .login-link {
     margin: 0 0 5px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 div.loginScreen .login-link a {
@@ -581,6 +591,8 @@ rmm-headertoolbar {
 }
 
 .mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
+    height: 36px !important;
+    line-height: 36px !important;
     color: mat-color($rmm-default-primary) !important;
 }
 
@@ -640,6 +652,11 @@ mat-sidenav-container {
 #sideMenu {
     flex-grow: 1;
     border-right: 1px solid rgba(0, 0, 0, 0.12);
+
+    mat-icon {
+	width: 20px;
+	height: 20px;
+    }
 }
 
 #toggleFolderPaneIcon {
@@ -689,7 +706,7 @@ mat-sidenav-container {
 
 #sidenavGreeting p {
     margin-bottom: 5px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 #sidenavGreetingContent {
@@ -718,6 +735,11 @@ mat-sidenav-container {
     }
 }
 
+h3.sideNavHeader {
+    margin: 20px 0 10px 0;
+    padding-left: 20px;
+}
+
 .mat-nav-list a.textLink {
     color: mat-color($rmm-default-primary);
     text-decoration: underline;
@@ -732,6 +754,10 @@ mat-sidenav-container {
 
 /* Folders */
 
+#folderListHeader {
+    height: 30px;
+}
+    
 .mailFolder div, .mailFolder span {
     height: 1em;
     vertical-align: middle;
@@ -787,6 +813,11 @@ app-popular-recipients, app-saved-searches {
     }
 }
 
+app-saved-searches .mat-list-base[dense] .mat-list-item {
+    height: 30px;
+}
+
+
 /* List screen */
 
 #searchBarContainer {
@@ -797,6 +828,7 @@ app-popular-recipients, app-saved-searches {
 }
 
 #searchBarContainer .mat-icon-button {
+    margin: 0 2px;
     height: 40px;
 }
 
@@ -825,10 +857,18 @@ app-popular-recipients, app-saved-searches {
     line-height: 20px !important;
 }
 
+#searchField input {
+    font-size: 16px;
+}
+
+#searchField label {
+    font-size: 14px;
+}
+
 #multipleSearchFieldsContainer {
       position: absolute;
       top: 45px;
-      right: 15px;
+      right: 13px;
       z-index: 9999;
       height: auto;
       background-color: white;
@@ -850,7 +890,7 @@ app-popular-recipients, app-saved-searches {
 }
 
 .mat-checkbox-label {
-    font-size: 15px;
+    font-size: 13px;
 }
 
 #threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
@@ -876,7 +916,7 @@ app-popular-recipients, app-saved-searches {
     text-align: center;
     font-family: "Avenir Next Pro Regular ", "Helvetica Neue", sans-serif;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 13px;
     color: #949494;
 }
 
@@ -893,14 +933,6 @@ app-popular-recipients, app-saved-searches {
 
 /* Read screen */
 
-.noMessageSelectedNotification {
-    margin-top: 25%;
-    font-size: 20px;
-    font-style: italic;
-    color: #bbb;
-    text-align: center;
-}
-
 .inMessageNotification {
     font-size: 12px;
     font-style: italic;
@@ -913,7 +945,7 @@ app-popular-recipients, app-saved-searches {
 }
 
 #messageContent {
-    font-size: 15px !important;
+    font-size: 13px !important;
 }
 
 /* Message action button row */
@@ -937,7 +969,7 @@ mat-expansion-panel, mat-expansion-panel-header {
 
 /* Message header area */
 #messageContents .mat-expansion-panel-header.mat-expanded {
-    height: 50px;
+    height: 36px;
 }
 
 /* Message display options */
@@ -986,7 +1018,7 @@ compose .mat-form-field-underline, compose input.mat-chip-input {
 
 compose .mat-card-title {
     margin-bottom: 0px !important;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 compose .mat-card-subtitle {
@@ -1021,6 +1053,10 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 	height: 48px !important;
     }
 }    
+
+.contactList .mat-form-field-infix {
+    font-size: 16px;
+}
 
 
 /* Calendar */
@@ -1154,7 +1190,7 @@ app-calendar-event-editor-dialog p {
 }
 
 #specialOffer p.description {
-    font-size: 14px;
+    font-size: 13px;
     color: mat-color($rmm-default-primary);
 }
 
@@ -1206,7 +1242,7 @@ app-calendar-event-editor-dialog p {
 .dev.runbox-components .nice_blue_timer .timeunit {
     height: 30px;
     display: inline-flex;
-    margin-right: 15px;
+    margin-right: 13px;
     justify-content: center;
     align-items: center;
 }

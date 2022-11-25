@@ -8,7 +8,6 @@
   <mat-form-field>
     <input matInput formControlName="to" type="text" placeholder="To"  />
   </mat-form-field>
-  <button mat-icon-button (click)="closePanel()" id="multipleSearchFieldsClose"><mat-icon svgIcon="close"></mat-icon></button>
   <br />
   <mat-form-field>
     <input matInput formControlName="subject" type="text" placeholder="Subject"  />
@@ -16,8 +15,11 @@
   <mat-form-field>
     <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)"  />
   </mat-form-field>
-  <mat-checkbox formControlName="currentfolderonly">Current folder</mat-checkbox>
+  <nobr>
+  <mat-checkbox id="currentfolderonly" formControlName="currentfolderonly">Current folder</mat-checkbox>
   <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#Search_parameters">
     <mat-icon svgIcon="help-circle"></mat-icon>    
   </a>
+  <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()"><mat-icon svgIcon="close"></mat-icon></button>
+  </nobr>
 </div>

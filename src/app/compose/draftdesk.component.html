@@ -1,11 +1,19 @@
 <div class="draftdesk-container">
-    <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView" [ngClass]="{'draftPreviewContainer': !editing}"></compose>
-    <div *ngIf="hasMoreDrafts" class="has-more-drafts">            
-        <button mat-icon-button mat-tooltip="Show more" (click)="showMore()" style="transform: scale(4,4);">
-            <mat-icon svgIcon="dots-horizontal"></mat-icon>
-        </button>        
-    </div>
-    <div *ngIf="draftModelsInView.length === 0" class="noMessageSelectedNotification" style="width: 100%">
-      No drafts
-    </div>
+  <div class="appPageHeader">
+    <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
+      <mat-icon svgIcon="menu"></mat-icon>
+    </button>
+    
+    <h1>Draft Desk</h1>
+  </div>
+  
+  <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView" [ngClass]="{'draftPreviewContainer': !editing}"></compose>
+  <div *ngIf="hasMoreDrafts" class="has-more-drafts">            
+    <button mat-icon-button mat-tooltip="Show more" (click)="showMore()" style="transform: scale(4,4);">
+      <mat-icon svgIcon="dots-horizontal"></mat-icon>
+    </button>        
+  </div>
+  <div *ngIf="draftModelsInView.length === 0" class="noMessageSelectedNotification" style="width: 100%">
+    No drafts
+  </div>
 </div>

@@ -168,10 +168,6 @@
   </mat-sidenav>
   <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
     <mat-toolbar id="searchBarContainer" style="display: flex">
-      <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
-          <mat-icon svgIcon="menu"></mat-icon>
-      </button>
-
       <ng-container *ngIf="!hasChildRouterOutlet">
         <mat-form-field id="searchField" style="flex-grow: 1" floatLabel="auto"
           *ngIf="searchService.downloadProgress===null">

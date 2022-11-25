@@ -23,7 +23,7 @@ import { Component } from '@angular/core';
     selector: 'app-contacts-welcome',
     template: `
 <div class="mainTextContent">
-    <h1> Welcome to Runbox 7 Contacts </h1>
+    <h1> Runbox 7 Contacts </h1>
     <p>
         Runbox 7 Contacts lets you easily import, manage, and synchronize all your contacts.
     </p>
