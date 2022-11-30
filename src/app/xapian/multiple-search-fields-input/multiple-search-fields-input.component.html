@@ -15,11 +15,11 @@
   <mat-form-field>
     <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)"  />
   </mat-form-field>
-  <nobr>
-  <mat-checkbox id="currentfolderonly" formControlName="currentfolderonly">Current folder</mat-checkbox>
-  <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#Search_parameters">
-    <mat-icon svgIcon="help-circle"></mat-icon>    
-  </a>
-  <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()"><mat-icon svgIcon="close"></mat-icon></button>
-  </nobr>
+  <span style="white-space: nowrap;">
+    <mat-checkbox id="currentfolderonly" formControlName="currentfolderonly">Current folder</mat-checkbox>
+    <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#Search_parameters">
+      <mat-icon svgIcon="help-circle"></mat-icon>    
+    </a>
+    <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()"><mat-icon svgIcon="close"></mat-icon></button>
+  </span>
 </div>

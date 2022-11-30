@@ -1,19 +1,20 @@
 .draftdesk-container {
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
     padding: 15px;
+
+    .appPageHeader {
+	position: absolute;
+	top: 8px;
+	left: 70px;
+    }
 }
 
 .draftPreviewContainer {
-    position: absolute;
+    position: relative;
     top: 55px;
     bottom: 0px;
     left: 0px;
     right: 0px;
-    padding: 10px;
+    padding: 0px;
 }
 
 @media only screen and (max-width: 768px) {

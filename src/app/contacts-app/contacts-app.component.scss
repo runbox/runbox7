@@ -61,7 +61,7 @@ mat-list-item.contactListButton {
 
 .contactListControls {
     height: 24px !important;
-    padding-top: 10px !important;
+    padding-top: 00px !important;
     
     &:hover {
         background-color: #fff;
@@ -71,10 +71,6 @@ mat-list-item.contactListButton {
     &:active {
         background-color: #fff;
     }
-}
-
-#contactListControlsSearch {
-    height: 36px !important;
 }
 
 .selectedGroupLabel {
