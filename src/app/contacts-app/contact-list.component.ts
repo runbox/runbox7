@@ -33,6 +33,7 @@ export class ContactListComponent {
     @Input() categories: string[] = [];
     @Input() allowDragging = false;
     @Input() showDragHelpers = false;
+    @Input() sideMenu = false;
 
     @Output() selectionUpdated = new EventEmitter<SelectionEvent>();
 
