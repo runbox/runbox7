@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 import { Contact } from './contact';
 
 type SelectionEvent = Set<string>;
@@ -33,7 +34,7 @@ export class ContactListComponent {
     @Input() categories: string[] = [];
     @Input() allowDragging = false;
     @Input() showDragHelpers = false;
-    @Input() sideMenu = false;
+    @Input() sideMenu: MatSidenav;
 
     @Output() selectionUpdated = new EventEmitter<SelectionEvent>();
 
