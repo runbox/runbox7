@@ -113,7 +113,7 @@ p {
 /* Generic MD styles */
 
 .mat-typography {
-    padding-top: 10px;
+    padding-top: 0px;
 }
 
 mat-form-field {
@@ -214,10 +214,11 @@ mat-icon {
 /* Generic custom styles */
 
 .appPageHeader * {
+    float: left;
 }
 
 .appPageHeader h1 {
-    margin-top: 5px;
+    margin-top: 8px;
 }
 
 .mat-dialog-container {
@@ -612,6 +613,7 @@ rmm-headertoolbar {
 
 .mainMenuDesc {
     margin: 20px 0 0 0;
+    font-size: 15px;
     line-height: 12px;
     color: #fff;
     transition: margin-top 0.25s;
