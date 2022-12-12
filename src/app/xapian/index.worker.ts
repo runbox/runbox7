@@ -130,16 +130,16 @@ class SearchIndexService {
           .objectStore('FILE_DATA')
           .get('/' + this.localdir + '/xapianglasswr/iamglass');
         req.onsuccess = () => {
-          console.log(`Worker: opened ${this.localdir}`);
+          // console.log(`Worker: opened ${this.localdir}`);
           // Don't need these observer results.
-          console.log(req);
+          // console.log(req);
           if (req.result !== undefined) {
-            console.log('Worker: Req defined, running init()');
+            // console.log('Worker: Req defined, running init()');
             this.init();
             observer.next(true);
           } else {
             // we shouldnt get here cos we only open index on worker if it exists in main thread
-            console.log('Worker: Req undefined');
+            // console.log('Worker: Req undefined');
             observer.next(false);
           }
           db.close();
@@ -147,7 +147,7 @@ class SearchIndexService {
       } catch (e) {
         console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
-        console.log('Worker: Req failed');
+        // console.log('Worker: Req failed');
         observer.next(false);
         // observer.next({'action': PostMessageAction.dbOpen, 'hasLocalindex': false});
       }
@@ -155,9 +155,7 @@ class SearchIndexService {
   }
 
   init() {
-    console.log('Worker: Init indexes');
     if (this.initcalled) {
-      console.log('Init was called already?');
       return;
     }
     this.initcalled = true;
@@ -205,7 +203,7 @@ class SearchIndexService {
             ctx.postMessage({'action': PostMessageAction.localSearchActivated, 'value': this.localSearchActivated });
 
             FS.syncfs(true, async () => {
-              console.log('Worker: Loading partitions');
+              // console.log('Worker: Loading partitions');
               this.openStoredPartitions();
               await this.updateIndexWithNewChanges();
               ctx.postMessage({'action': PostMessageAction.indexUpdated});
@@ -231,7 +229,6 @@ class SearchIndexService {
       FS.readdir(this.partitionsdir).forEach((f) => {
         if ( f !== '.' && f !== '..' &&
           FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-          console.log('adding partition ', f);
 
           this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
         }
@@ -279,7 +276,6 @@ class SearchIndexService {
           if ( f !== '.' && f !== '..') {
 
             if (FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-              console.log('Worker: Removing directory', f);
               FS.readdir(`${this.partitionsdir}/${f}`)
                 .filter((ent: string) => ent.charAt(0) !== '.').forEach(partitionFile =>
                 FS.unlink(`${this.partitionsdir}/${f}/${partitionFile}`)
@@ -300,14 +296,14 @@ class SearchIndexService {
       // ----------------------
 
       new Observable(o => {
-        console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
+        // console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
         const req = self.indexedDB.deleteDatabase('/' + this.localdir);
         req.onsuccess = () =>
           o.next();
       }).pipe(
         mergeMap(() =>
           new Observable(o => {
-            console.log('Worker: Deleting indexeddb database', this.partitionsdir);
+            // console.log('Worker: Deleting indexeddb database', this.partitionsdir);
             const req = self.indexedDB.deleteDatabase(this.partitionsdir);
             req.onsuccess = () =>
               o.next();
@@ -336,8 +332,8 @@ class SearchIndexService {
 
     if (results.length > 0) {
       try {
-        console.log(results);
-        console.log(this.api.getStringValue(results[0][0], 2));
+        // console.log(results);
+        // console.log(this.api.getStringValue(results[0][0], 2));
         // Get date of latest message
         const dateParts = this.api.getStringValue(results[0][0], 2)
                       .match(/([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])/)
@@ -354,7 +350,7 @@ class SearchIndexService {
       }
     } else {
       this.indexLastUpdateTime = 0;
-      console.log('Worker: Empty Xapian index');
+      // console.log('Worker: Empty Xapian index');
     }
     return true;
   }
@@ -406,7 +402,7 @@ not matching with index for current folder`);
           } as SearchIndexDocumentData;
         }
       });
-      console.log(folderMessages);
+      // console.log(folderMessages);
     }
     return folderMessages;
   }
@@ -420,7 +416,7 @@ not matching with index for current folder`);
     set_next_update_time: boolean }) {
     clearTimeout(this.indexUpdateIntervalId);
 
-    console.log('Worker: updateIndexWithNewChanges');
+    // console.log('Worker: updateIndexWithNewChanges');
 
     if (next_update == null) {
       next_update = {
@@ -780,7 +776,7 @@ not matching with rest api counts for current folder`);
   }
 
   persistIndex(): Observable<boolean> {
-    console.log(`Persist: ${this.indexNotPersisted} localSearch: ${this.localSearchActivated}`);
+    // console.log(`Persist: ${this.indexNotPersisted} localSearch: ${this.localSearchActivated}`);
     if (!this.indexNotPersisted || !this.localSearchActivated) {
       return of(false);
     } else {
@@ -791,11 +787,11 @@ not matching with rest api counts for current folder`);
 
         FS.writeFile('indexLastUpdateTime', '' + this.indexLastUpdateTime, { encoding: 'utf8' });
         FS.syncfs(false, () => {
-          console.log('Worker: Syncd files:');
-          console.log(FS.stat(XAPIAN_GLASS_WR));
+          // console.log('Worker: Syncd files:');
+          // console.log(FS.stat(XAPIAN_GLASS_WR));
           FS.readdir(this.partitionsdir).forEach((f) => {
-            console.log(`${f}`);
-            console.log(FS.stat(`${this.partitionsdir}/${f}`));
+            // console.log(`${f}`);
+            // console.log(FS.stat(`${this.partitionsdir}/${f}`));
           });
             this.persistIndexInProgressSubject.next(true);
             this.persistIndexInProgressSubject.complete();
@@ -817,7 +813,7 @@ not matching with rest api counts for current folder`);
       this.pendingMessagesToProcess = newMessagesToProcess;
       this.messageProcessingInProgressSubject = new AsyncSubject();
 
-      const getProgressSnackBarMessageText = () => `Worker: Syncing ${this.processMessageIndex} / ${this.pendingMessagesToProcess.length}`;
+      const getProgressSnackBarMessageText = () => `Syncing ${this.processMessageIndex} / ${this.pendingMessagesToProcess.length}`;
       let hasProgressSnackBar = false;
       if (this.pendingMessagesToProcess.length > 10) {
         hasProgressSnackBar = true;
@@ -980,7 +976,7 @@ ctx.addEventListener('message', ({ data }) => {
       searchIndexService.loadSearchIndexes(idbrequest.result).subscribe(
         result => {
           // main threead is also opening it so we dont need to report back
-          console.log('Worker: loaded search indexes ', result);
+          // console.log('Worker: loaded search indexes ', result);
           // ctx.postMessage(result);
         },
       );
@@ -990,9 +986,9 @@ ctx.addEventListener('message', ({ data }) => {
   } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
     searchIndexService.updateIndexWithNewChanges(data['args']);
   } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
-    console.log('Worker: deleting local index...');
+    // console.log('Worker: deleting local index...');
     searchIndexService.deleteLocalIndex().subscribe(() => {
-      console.log('Worker: sub to local index delete');
+      // console.log('Worker: sub to local index delete');
       searchIndexService.updateIndexWithNewChanges();
     });
   } else if (data['action'] === PostMessageAction.folderListUpdate) {

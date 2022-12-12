@@ -127,8 +127,8 @@ export class SearchService {
       this.indexWorker = new Worker('./index.worker', { type: 'module' });
 
       this.indexWorker.onmessage = ({ data }) => {
-        console.log('Message from worker '),
-        console.log(data);
+        // console.log('Message from worker '),
+        // console.log(data);
         if (data['action'] === PostMessageAction.localSearchActivated) {
           this.localSearchActivated = data['value'];
         } else if (data['action'] === 'indexUpdated') {
@@ -222,18 +222,18 @@ export class SearchService {
 
     this.indexUpdatedSubject.subscribe(() => {
       FS.syncfs(true, () => {
-          console.log('Main: Syncd files:');
-          console.log(FS.stat(XAPIAN_GLASS_WR));
+          // console.log('Main: Syncd files:');
+          // console.log(FS.stat(XAPIAN_GLASS_WR));
           FS.readdir(this.partitionsdir).forEach((f) => {
-            console.log(`${f}`);
-            console.log(FS.stat(`${this.partitionsdir}/${f}`));
+            // console.log(`${f}`);
+            // console.log(FS.stat(`${this.partitionsdir}/${f}`));
           });
         this.api.reloadXapianDatabase();
         this.indexReloadedSubject.next();
       });
     });
     this.indexReloadedSubject.subscribe(() => {
-      console.log('searchservice updating folderCounts');
+      // console.log('searchservice updating folderCounts');
       // we're sending both "indexUpdated", and "updateMessageListService"
       this.messagelistservice.refreshFolderCounts();
       // this.messagelistservice.refreshFolderList();
@@ -299,7 +299,7 @@ export class SearchService {
           } else {
             console.error('Empty flag change message', msgFlagChange);
           }
-          console.log('Flag Change: local index');
+          // console.log('Flag Change: local index');
       });
 
     // open for reading (for canvastable comms)
@@ -347,7 +347,7 @@ export class SearchService {
             this.initSubject.next(true);
 
             FS.syncfs(true, async () => {
-              console.log('Loading partitions');
+              // console.log('Loading partitions');
               this.openStoredPartitions();
             });
 
@@ -371,7 +371,7 @@ export class SearchService {
       FS.readdir(this.partitionsdir).forEach((f) => {
         if ( f !== '.' && f !== '..' &&
           FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-          console.log('adding partition ', f);
+          // console.log('adding partition ', f);
 
           this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
         }
@@ -406,8 +406,8 @@ export class SearchService {
 
     if (results.length > 0) {
       try {
-        console.log(results);
-        console.log(this.api.getStringValue(results[0][0], 2));
+        // console.log(results);
+        // console.log(this.api.getStringValue(results[0][0], 2));
         // Get date of latest message
         const dateParts = this.api.getStringValue(results[0][0], 2)
                       .match(/([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])/)
@@ -476,7 +476,7 @@ export class SearchService {
           return;
         }
 
-        console.log('Download index');
+        // console.log('Download index');
 
         this.downloadProgress = 0;
         let loaded = 0;
@@ -566,7 +566,7 @@ export class SearchService {
    * when starting from scratch (else the worker does all the persisting)
    */
     persistIndex(): Observable<boolean> {
-    console.log(`Persist: localSearch: ${this.localSearchActivated}`);
+    // console.log(`Persist: localSearch: ${this.localSearchActivated}`);
       if (!this.localSearchActivated) {
         return of(false);
       } else {
@@ -577,11 +577,11 @@ export class SearchService {
 
           FS.writeFile('indexLastUpdateTime', '' + this.indexLastUpdateTime, { encoding: 'utf8' });
           FS.syncfs(false, () => {
-            console.log('Syncd files:');
-            console.log(FS.stat(XAPIAN_GLASS_WR));
+            // console.log('Syncd files:');
+            // console.log(FS.stat(XAPIAN_GLASS_WR));
             FS.readdir(this.partitionsdir).forEach((f) => {
-              console.log(`${f}`);
-              console.log(FS.stat(`${this.partitionsdir}/${f}`));
+              // console.log(`${f}`);
+              // console.log(FS.stat(`${this.partitionsdir}/${f}`));
             });
             this.persistIndexInProgressSubject.next(true);
             this.persistIndexInProgressSubject.complete();
@@ -630,7 +630,7 @@ export class SearchService {
             map((stat: any) => {
               this.serverIndexSize = stat.size;
               this.serverIndexSizeUncompressed = stat.uncompressedsize;
-              console.log('Downloadable index exists: ' + stat.exists);
+              // console.log('Downloadable index exists: ' + stat.exists);
               return stat.exists;
             })
           );
@@ -650,7 +650,7 @@ export class SearchService {
             totalSize = partitions.reduce((prev, curr) => prev +
               curr.files.reduce((p, c) => c.uncompressedsize + p, 0), 0);
             if (totalSize === 0) {
-              console.log('No extra search index partitions');
+              // console.log('No extra search index partitions');
               this.openDBOnWorker();
               this.indexReloadedSubject.next();
             }
@@ -743,7 +743,7 @@ export class SearchService {
                 ),
                 bufferCount(p.files.length),
                 tap(() => {
-                  console.log(`Opening partition ${p.folder}`);
+                  // console.log(`Opening partition ${p.folder}`);
                   this.api.addFolderXapianIndex(`${this.partitionsdir}/${p.folder}`);
                 }),
                 map(() => true)
