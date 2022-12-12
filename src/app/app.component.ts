@@ -36,7 +36,8 @@ import { HttpClient } from '@angular/common/http';
 import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './common/messageinfo';
 import { MessageList } from './common/messagelist';
-import { RunboxWebmailAPI, FolderListEntry, MessageFlagChange } from './rmmapi/rbwebmail';
+import { FolderListEntry } from './common/folderlistentry';
+import { RunboxWebmailAPI, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
@@ -409,8 +410,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngAfterViewInit() {
-    this.searchService.indexUpdatedSubject.subscribe(() => {
+    this.searchService.indexReloadedSubject.subscribe(() => {
       console.log('Redrawing after search results update');
+      // this.searchService.api.reloadXapianDatabase();
       this.afterUpdateIndex();
     });
 
@@ -637,10 +639,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         } else {
           // move back to inbox
           if (this.searchService.localSearchActivated) {
-            msgIds.forEach((msgId) => {
-              const msgInfo = this.messagelistservice.messagesById[msgId];
-              this.searchService.indexingTools.addMessageToIndex(msgInfo);
-            });
+            this.searchService.indexWorker.postMessage(
+              {'action': 'addMessageToIndex',
+                 'msginfos': [ messageIds.map((msgId) => this.messagelistservice.messagesById[msgId])]
+                });
           }
           // FIXME: constant for "inbox"?
           this.messagelistservice.moveMessages(msgIds, 'Inbox', true);
@@ -786,8 +788,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.usage.report('local-index-deleted');
 
       this.searchService.deleteLocalIndex().subscribe(() => {
+        // moved to searchservice indexDeleted message
         // this.messagelistservice.fetchFolderMessages();
-        this.setMessageDisplay('messagelist', this.messagelist);
+        // this.setMessageDisplay('messagelist', this.messagelist);
 
         this.updateTooltips();
         this.snackBar.open('The index has been deleted from your device', 'Dismiss');
@@ -950,7 +953,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public downloadIndexFromServer() {
     this.searchService.downloadIndexFromServer().subscribe((res) => {
       if (res) {
-        this.searchService.downloadPartitions().subscribe();
+        this.searchService.downloadPartitions().subscribe(() => {
+          // this.searchService.openDBOnWorker();
+        });
       } else {
         console.log('Index download failed');
       }

@@ -19,7 +19,8 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FolderListEntry } from '../common/folderlistentry';
 import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
