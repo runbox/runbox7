@@ -68,6 +68,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       },
       {
         name: 'Date',
+        draggable: true,
         cacheKey: 'date',
         sortColumn: 2,
         rowWrapModeMuted : true,
@@ -76,12 +77,14 @@ export class SearchMessageDisplay extends MessageDisplay {
       },
       (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
         name: 'To',
+        draggable: true,
         cacheKey: 'from',
         sortColumn: null,
         getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', '),
       } :
         {
           name: 'From',
+          draggable: true,
           cacheKey: 'from',
           sortColumn: 0,
           getValue: (rowIndex): string => {
@@ -127,6 +130,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push(
         {
           name: 'Count',
+          draggable: true,
           cacheKey: 'count',
           sortColumn: null,
           rowWrapModeChipCounter: true,
@@ -147,6 +151,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push(
         {
           sortColumn: 3,
+          draggable: true,
           name: 'Size',
           cacheKey: 'size',
           rowWrapModeHidden: true,

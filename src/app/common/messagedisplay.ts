@@ -116,7 +116,7 @@ export abstract class MessageDisplay {
     // Drag&Drop, if we click to drag, we don't want to change the state of
     // the selection.
     // UNLESS: no messages are selected, then we select+drag one.
-    if (columnIndex == -1) {
+    if (columnIndex === -1) {
       if (this.isSelectedRow(rowIndex)) {
         return;
       }

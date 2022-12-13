@@ -87,7 +87,8 @@ export class MessageList extends MessageDisplay {
         sortColumn: null,
         rowWrapModeMuted: true,
         getValue: (rowIndex: number): string => this.getRow(rowIndex).messageDate.toJSON(),
-        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestamp(datestring)
+        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestamp(datestring),
+        draggable: true
       },
       {
         name: app.selectedFolder === 'Sent' ? 'To' : 'From',
@@ -96,6 +97,7 @@ export class MessageList extends MessageDisplay {
         getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
+        draggable: true
       },
       {
         name: 'Subject',
@@ -116,6 +118,7 @@ export class MessageList extends MessageDisplay {
         rowWrapModeHidden: true,
         getValue: (rowIndex: number): number => this.getRow(rowIndex).size,
         getFormattedValue: MessageTableRowTool.formatBytes,
+        draggable: true
       },
       {
         sortColumn: null,
