@@ -116,7 +116,7 @@ describe('Composing emails', () => {
 
     it('Send email on contacts page, composes an email', () => {
         cy.visit('/contacts');
-        cy.contains('Welcome to Runbox 7 Contacts');
+        cy.contains('Runbox 7 Contacts');
         cy.contains('Patrick Postcode').click();
         cy.contains('Send an email to this address').click();
         cy.location().should((loc) => {
