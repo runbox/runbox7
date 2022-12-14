@@ -128,7 +128,7 @@ describe('Composing emails', () => {
 
     it('closing a new email from contacts list, should return to contacts', () => {
         cy.visit('/contacts');
-        cy.contains('Welcome to Runbox 7 Contacts');
+        cy.contains('Runbox 7 Contacts');
         cy.contains('Patrick Postcode').click();
         cy.contains('Send an email to this address').click();
         // NB if we skip checking exist, we get an issue clicking the button
