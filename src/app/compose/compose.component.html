@@ -4,15 +4,16 @@
             {{model.subject ? model.subject : "New message"}}
         </div>
         <div class="draft-buttons">
+	    <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML" matTooltip="Use HTML (rich text)">HTML</mat-checkbox>
             <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachDesktop" (click)="attachFilesClicked()">
-                <mat-icon svgIcon="attachment"></mat-icon>
+                <mat-icon svgIcon="attachment" style="transform: rotate(90deg)"></mat-icon>
             </button>
             <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" id="saveDraft" (click)="submit()">
                 <mat-icon *ngIf="saved" svgIcon="cloud-check"></mat-icon>
                 <mat-icon *ngIf="!saved && !saveErrorMessage" svgIcon="content-save"></mat-icon>
                 <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage" svgIcon="content-save-alert"></mat-icon>
             </button>
-            <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to trash" id="trashDraft" (click)="trashDraft()">
+            <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to Trash" id="trashDraft" (click)="trashDraft()">
                 <mat-icon svgIcon="delete"></mat-icon>
             </button>
             <button *ngIf="editing" mat-icon-button matTooltip="Close draft" id="closeDraft" (click)="close()">
@@ -131,7 +132,6 @@
             
         <div [hidden]="!editing">
             <div class="draft-buttons">
-                <mat-checkbox *ngIf="editing" formControlName="useHTML" (change)="htmlToggled()" id="useHTML">HTML</mat-checkbox>    
                 <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachMobile" (click)="attachFilesClicked()">
                     <mat-icon svgIcon="attachment"></mat-icon>
                 </button>

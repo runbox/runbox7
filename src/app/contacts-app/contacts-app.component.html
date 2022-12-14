@@ -6,7 +6,10 @@
         fixedTopGap="0"
         id="sideMenu"
         style="width: 330px"
-    >
+		 >
+      
+      <h3 class="sideNavHeader">Contacts Menu</h3>
+
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
 
@@ -86,10 +89,6 @@
     <mat-sidenav-content>
         <div id="contactsPageTop"></div>
         <mat-toolbar *ngIf="mobileQuery.matches" style="display: flex; justify-content: space-between;">
-            <button mat-icon-button (click)="sidemenu.toggle()">
-                <mat-icon svgIcon="menu"></mat-icon>
-            </button>
-
             <span *ngIf="!showingDetails">
                 <span *ngIf="shownGroup; else showingAll">
                     Showing group <button mat-stroked-button (click)="showDetails(true)"> {{ shownGroup.display_name() }} </button>
@@ -111,6 +110,7 @@
                         [categories]="categories"
                         [allowDragging]="true"
                         [showDragHelpers]="contactsservice.settings.showDragHelpers"
+                        [sideMenu] = "sideMenu"
                         (selectionUpdated)="onContactsSelected($event)"
                     ></app-contact-list>
 

@@ -14,12 +14,6 @@
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
-        <mat-toolbar>
-            <button mat-icon-button (click)="sidemenu.toggle()">
-                <mat-icon svgIcon="menu"></mat-icon>
-            </button>
-            <ng-content select="[toolbar]"></ng-content>
-        </mat-toolbar>
         <ng-content></ng-content>
     </mat-sidenav-content>
 </mat-sidenav-container>

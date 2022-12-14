@@ -1,14 +1,19 @@
 <ng-container>
-    <mat-list-item class="contactListControls">
+    <mat-toolbar id="searchBarContainer" style="display: flex">
+      <button mat-icon-button (click)="sideMenu.toggle()">
+        <mat-icon svgIcon="menu"></mat-icon>
+      </button>
+      <mat-list-item class="contactListControls" id="contactListControlsSearch">
         <mat-form-field mat-line>
-            <mat-label> Search </mat-label>
-            <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
-            <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
-                <mat-icon svgIcon="close"></mat-icon>
-            </button>
+          <mat-label> Search </mat-label>
+          <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
+          <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
+            <mat-icon svgIcon="close"></mat-icon>
+          </button>
         </mat-form-field>
-    </mat-list-item>
-
+      </mat-list-item>
+    </mat-toolbar>
+    
     <mat-expansion-panel class="contactFiltering">
         <mat-expansion-panel-header>
             <mat-panel-title>

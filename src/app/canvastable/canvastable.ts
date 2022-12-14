@@ -112,10 +112,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   private wantedCanvasWidth = 300;
   private wantedCanvasHeight = 300;
 
-  private _rowheight = 32;
-  private fontheight = 15;
-  private fontheightSmall = 14;
-  private fontheightSmaller = 13;
+  private _rowheight = 28;
+  private fontheight = 14;
+  private fontheightSmall = 13;
+  private fontheightSmaller = 12;
 
   private scrollbarwidth = 12;
 
