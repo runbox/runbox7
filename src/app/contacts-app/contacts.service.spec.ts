@@ -31,6 +31,7 @@ import { ReplaySubject } from 'rxjs';
 class MockPrefService {
   prefs = new Map<string, any>();
   preferences: ReplaySubject<Map<string, any>> = new ReplaySubject(1);
+  public prefGroup = 'Desktop';
 
   set(level: string, key: string, entry: any) {
     this.prefs.set(`${level}:${key}`, entry);
@@ -61,13 +62,19 @@ describe('ContactsService', () => {
     screenSizeChanged: of(ScreenSize.Desktop)
   } as MobileQueryService;
 
-  it('should allow looking up avatars according to settings', async () => {
-    const rmmapi = <unknown>new MockRMMAPI() as RunboxWebmailAPI;
-    const storage = new StorageService(rmmapi);
-    const prefService = <unknown>new MockPrefService() as PreferencesService;
-    const sut = new ContactsService(rmmapi, prefService, storage);
+  let rmmapi: any;
+  let storage: any;
+  const prefService = <unknown>new MockPrefService() as PreferencesService;
+  let sut: any;
 
-    prefService.set('Global', 'avatarSource', 'remote' );
+  beforeEach(async () => {
+    rmmapi = <unknown>new MockRMMAPI() as RunboxWebmailAPI;
+    storage = new StorageService(rmmapi);
+    sut = new ContactsService(rmmapi, prefService, storage);
+  });
+
+  it('should allow looking up remote avatars', () => {
+    prefService.set(prefService.prefGroup, 'avatarSource', 'remote' );
 
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
       // grab gravatar if there's no local picture
@@ -81,8 +88,10 @@ describe('ContactsService', () => {
       avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
       expect(avatarUrl).toBeFalsy();
     });
+  });
 
-    prefService.set('Global', 'avatarSource', 'local');
+  it('should allow looking up local avatars', () => {
+    prefService.set(prefService.prefGroup, 'avatarSource', 'local');
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
       let avatarUrl = await sut.lookupAvatar('test@runbox.com');
       expect(avatarUrl).toMatch(/test.url/);
@@ -90,20 +99,24 @@ describe('ContactsService', () => {
       avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
       expect(avatarUrl).toBeFalsy();
     });
+  });
 
-    prefService.set('Global', 'avatarSource', 'none');
+  it('should allow looking up avatars set to none', () => {
+    prefService.set(prefService.prefGroup, 'avatarSource', 'none');
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
       const avatarUrl = await sut.lookupAvatar('test@runbox.com');
       expect(avatarUrl).toBeFalsy();
     });
+  });
 
+  it('should allow resetting avatar source to remote', () => {
     // can enable it back again
-    prefService.set('Global', 'avatarSource', 'remote');
+    prefService.set(prefService.prefGroup, 'avatarSource', 'remote');
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
       let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
       expect(avatarUrl).toMatch(/gravatar/);
       avatarUrl = await sut.lookupAvatar('test@runbox.com');
       expect(avatarUrl).toMatch(/test.url/);
     });
-  });
+    });
 });
