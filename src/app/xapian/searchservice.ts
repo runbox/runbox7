@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -23,18 +23,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 
 import { Observable, AsyncSubject, Subject, of, from } from 'rxjs';
-import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
+import { mergeMap, map, filter, catchError, tap, take, bufferCount, distinctUntilChanged } from 'rxjs/operators';
 
 import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { DownloadableSearchIndexMap, DownloadablePartition } from 'runbox-searchindex/downloadablesearchindexmap.class';
-import { IndexingTools } from '../common/messageinfo';
+import { FolderListEntry } from '../common/folderlistentry';
 
-import { RunboxWebmailAPI, FolderListEntry, FolderStatsEntry } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
+import { PostMessageAction } from './messageactions';
 
 declare var FS;
 declare var IDBFS;
@@ -45,13 +46,11 @@ const XAPIAN_TERM_FLAGGED = 'XFflagged';
 const XAPIAN_TERM_SEEN = 'XFseen';
 const XAPIAN_TERM_ANSWERED = 'XFanswered';
 const XAPIAN_TERM_DELETED = 'XFdeleted';
-const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
 const XAPIAN_TERM_HASATTACHMENTS = 'XFattachment';
 
 export const XAPIAN_GLASS_WR = 'xapianglasswr';
 
-const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
-
+// FIXME: Also in index.worker.ts
 export class SearchIndexDocumentData {
   id: string;
   from: string;
@@ -66,25 +65,18 @@ export class SearchIndexDocumentData {
   attachment?: boolean;
 }
 
-export class SearchIndexDocumentUpdate {
-  constructor(
-    public id: number,
-    public updateFunction: () => void
-  ) {}
-}
-
 @Injectable({
     providedIn: 'root'
 })
 export class SearchService {
 
   public api: XapianAPI;
-  public indexingTools: IndexingTools;
 
   public initSubject: AsyncSubject<any> = new AsyncSubject();
   public noLocalIndexFoundSubject: AsyncSubject<any> = new AsyncSubject();
 
   // This is fired when UI should refresh the search ( search results altered )
+  public indexReloadedSubject: Subject<any> = new Subject();
   public indexUpdatedSubject: Subject<any> = new Subject();
 
   public localSearchActivated = false;
@@ -99,21 +91,11 @@ export class SearchService {
   public indexLastUpdateTime = 0; // Epoch time
   public indexUpdateIntervalId: any = null;
 
-  // Listing all messages happens in chunks of 1000 - page is controlled here
-  public listAllMessagesPage = 0;
-  public processMessageHistoryCount = 0;
-  public processMessageHistoryProgress = 0;
-  public processMessageHistorySkipLiveTableUpdates = true;
-
-  public skipLiveUpdatesIndexingMessageContent = false;
-
-  numberOfMessagesSyncedLastTime = -1;
-  folderCountDiscrepanciesCheckedCount: {[folderName: string]: number} = {};
+  progressSnackBar: MatSnackBarRef<SyncProgressComponent>;
 
   processedUpdatesMap = {};
 
   lowestindexid = 0;
-
   serverIndexSize = -1;
   serverIndexSizeUncompressed = -1;
 
@@ -125,17 +107,6 @@ export class SearchService {
   partitionDownloadProgress: number = null;
 
   persistIndexInProgressSubject: AsyncSubject<any> = null;
-  indexNotPersisted = false;
-
-  /**
-   * Extra per message verification of index contents to assure that it is in sync with the database
-   * (workaround while waiting for deleted_messages support, but also a good extra check)
-   */
-  pendingIndexVerifications: {[id: string]: SearchIndexDocumentData} = {};
-
-  messageProcessingInProgressSubject: AsyncSubject<any> = null;
-  pendingMessagesToProcess: SearchIndexDocumentUpdate[];
-  processMessageIndex = 0;
 
   /**
    * Used by the canvas table. We store one row at the time so that we don't look up the document data
@@ -144,16 +115,59 @@ export class SearchService {
   currentXapianDocId: number;
   currentDocData: SearchIndexDocumentData;
 
-  /**
-   * what the indexer update is currently working on
-   */
-  currentIndexUpdateMessageIds = new Set();
+  public indexWorker: Worker;
 
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
        private snackbar: MatSnackBar,
        private dialog: MatDialog,
        private messagelistservice: MessageListService) {
+
+    if (typeof Worker !== 'undefined') {
+      this.indexWorker = new Worker('./index.worker', { type: 'module' });
+
+      this.indexWorker.onmessage = ({ data }) => {
+        // console.log('Message from worker '),
+        // console.log(data);
+        if (data['action'] === PostMessageAction.localSearchActivated) {
+          this.localSearchActivated = data['value'];
+        } else if (data['action'] === 'indexUpdated') {
+          this.indexUpdatedSubject.next();
+        } else if (data['action'] === PostMessageAction.refreshContentCache) {
+          this.rmmapi.deleteCachedMessageContents(data['messageId']);
+        } else if (data['action'] === PostMessageAction.openProgressSnackBar) {
+          this.progressSnackBar = this.snackbar.openFromComponent(SyncProgressComponent);
+        } else if (data['action'] === PostMessageAction.updateProgressSnackBar) {
+          this.progressSnackBar.instance.messagetextsubject.next(data['value']);
+        } else if (data['action'] === PostMessageAction.closeProgressSnackBar) {
+          this.progressSnackBar.dismiss();
+        } else if (data['action'] === PostMessageAction.updateMessageListService) {
+          this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
+          this.messagelistservice.refreshFolderList();
+        } else if (data['action'] === PostMessageAction.indexDeleted) {
+          ProgressDialog.close();
+          this.messagelistservice.fetchFolderMessages();
+        } else if (data['action'] === PostMessageAction.newMessagesNotification) {
+          if (this.notifyOnNewMessages && 'Notification' in window &&
+            window['Notification']['permission'] === 'granted') {
+            const newMessagesTitle = data['newmessages'].length > 1 ?
+              `${data['newmessages'].length} new email messages` :
+              `New email message`;
+            try {
+              // tslint:disable-next-line:no-unused-expression
+              new Notification(newMessagesTitle, {
+                body: data['newmessages'][0].from[0].name,
+                icon: 'assets/icons/icon-192x192.png',
+                tag: 'newmessages'
+              });
+            } catch (e) {
+              console.log('Should have displayed notification about new messages:', newMessagesTitle);
+            }
+          }
+        }
+      };
+      console.log('Loaded worker');
+    }
 
       // we need to set it manually; DI won't work because of a cyclic dependency
       this.messagelistservice.searchservice.next(this);
@@ -164,7 +178,7 @@ export class SearchService {
           this.localdir = 'rmmsearchservice' + me.uid;
           this.partitionsdir = '/partitions' + this.localdir;
         }),
-          mergeMap(() =>
+        mergeMap(() =>
           new Observable<any>((observer) => {
             const idbrequest: IDBOpenDBRequest = window.indexedDB.open('/' + this.localdir);
             idbrequest.onsuccess = () => observer.next(idbrequest.result);
@@ -193,11 +207,12 @@ export class SearchService {
         )
       ).subscribe((hasLocalIndex: boolean) => {
         if (hasLocalIndex) {
+          this.openDBOnWorker();
           this.init();
         } else {
           // We have no local index - but still need the polling loop here
           this.indexLastUpdateTime = new Date().getTime(); // Set the last update time to now since we don't have a local index
-          this.updateIndexWithNewChanges();
+          this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges});
           this.noLocalIndexFoundSubject.next(true);
           this.noLocalIndexFoundSubject.complete();
           this.initSubject.next(false);
@@ -205,8 +220,36 @@ export class SearchService {
         }
       });
 
-    this.indexUpdatedSubject.subscribe(() =>
-      this.messagelistservice.refreshFolderCounts());
+    this.indexUpdatedSubject.subscribe(() => {
+      FS.syncfs(true, () => {
+          // console.log('Main: Syncd files:');
+          // console.log(FS.stat(XAPIAN_GLASS_WR));
+          FS.readdir(this.partitionsdir).forEach((f) => {
+            // console.log(`${f}`);
+            // console.log(FS.stat(`${this.partitionsdir}/${f}`));
+          });
+        this.api.reloadXapianDatabase();
+        this.indexReloadedSubject.next();
+      });
+    });
+    this.indexReloadedSubject.subscribe(() => {
+      // console.log('searchservice updating folderCounts');
+      // we're sending both "indexUpdated", and "updateMessageListService"
+      this.messagelistservice.refreshFolderCounts();
+      // this.messagelistservice.refreshFolderList();
+    });
+
+     this.messagelistservice.folderListSubject
+        .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+          return prev.length === curr.length
+            && prev.every((f, index) =>
+              f.folderId === curr[index].folderId
+              && f.totalMessages === curr[index].totalMessages
+              && f.newMessages === curr[index].newMessages);
+        }))
+        .subscribe((folders) =>
+          this.indexWorker.postMessage({'action': PostMessageAction.folderListUpdate, 'value': folders })
+    );
   }
 
   public init() {
@@ -217,37 +260,52 @@ export class SearchService {
 
     this.downloadProgress = 0; // Set indeterminate progress bar
 
-    // Update locally generated index with message seen flag
+    // Update local index with message seen flag
+    // FIXME: Is this seeing a different copy to the one the worker opened?
+    // seems stuff ought to work without this, after the indexUpdate loop
+    // but it doesn't. 
     this.rmmapi.messageFlagChangeSubject
-      .pipe(
-        mergeMap((msgFlagChange) => {
+      .subscribe((msgFlagChange) => {
           if (msgFlagChange.flaggedFlag !== null) {
-            return this.postMessagesToXapianWorker([
-              new SearchIndexDocumentUpdate(
-              msgFlagChange.id,
-                () => this.indexingTools.flagMessage(msgFlagChange.id, msgFlagChange.flaggedFlag)
-            )]);
+            if (msgFlagChange.flaggedFlag === true) {
+              this.indexWorker.postMessage(
+              {'action': PostMessageAction.addTermToDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFflagged'
+                });
+            } else {
+              this.indexWorker.postMessage(
+              {'action': PostMessageAction.removeTermFromDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFflagged'
+              });
+            }
           } else if (msgFlagChange.seenFlag !== null) {
-            return this.postMessagesToXapianWorker([
-              new SearchIndexDocumentUpdate(
-              msgFlagChange.id,
-              () => {
-                this.indexingTools.markMessageSeen(msgFlagChange.id, msgFlagChange.seenFlag);
-                // counts and list to ensure we have uptodate data
-                this.messagelistservice.refreshFolderList();
-              }
-            )]);
+            if (msgFlagChange.seenFlag === true) {
+              this.indexWorker.postMessage(
+              {'action': PostMessageAction.addTermToDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFseen'
+                });
+            } else {
+              this.indexWorker.postMessage(
+              {'action': PostMessageAction.removeTermFromDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFseen'
+              });
+            }
+            // counts and list to ensure we have uptodate data
+            this.messagelistservice.refreshFolderList();
           } else {
             console.error('Empty flag change message', msgFlagChange);
           }
-        })
-      )
-      .subscribe();
+          // console.log('Flag Change: local index');
+      });
 
+    // open for reading (for canvastable comms)
     xapianLoadedSubject.subscribe(() => {
       const initXapianFileSys = () => {
         this.api =  new XapianAPI();
-        this.indexingTools = new IndexingTools(this.api);
 
         FS.mkdir(this.localdir);
         FS.mount(IDBFS, {}, '/' + this.localdir);
@@ -261,6 +319,7 @@ export class SearchService {
           FS.mount(IDBFS, {}, this.partitionsdir);
 
           try {
+            // just fyi, we don't need this for reading
             console.log('Last index timestamp ', FS.stat('xapianglasswr/docdata.glass').mtime);
 
             this.openStoredMainPartition();
@@ -268,6 +327,7 @@ export class SearchService {
             const docCount: number = this.api.getXapianDocCount();
             console.log(docCount, 'docs in Xapian database');
 
+            // Just for checking its sane:
             try {
               this.indexLastUpdateTime = parseInt(FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }), 10);
               if (this.indexLastUpdateTime > new Date().getTime()) {
@@ -276,7 +336,9 @@ export class SearchService {
             } catch (e) {
               if (!this.updateIndexLastUpdateTime()) {
                 // Corrupt xapian index - delete it and subscribe to changes (fallback to websocket search)
-                this.deleteLocalIndex().subscribe(() => this.updateIndexWithNewChanges());
+                // Deal with this on the non-worker side, then tell it to
+                // do the same thing.
+                this.deleteLocalIndex();
                 return;
               }
             }
@@ -285,10 +347,8 @@ export class SearchService {
             this.initSubject.next(true);
 
             FS.syncfs(true, async () => {
-              console.log('Loading partitions');
+              // console.log('Loading partitions');
               this.openStoredPartitions();
-              await this.updateIndexWithNewChanges();
-              this.indexUpdatedSubject.next();
             });
 
 
@@ -311,7 +371,7 @@ export class SearchService {
       FS.readdir(this.partitionsdir).forEach((f) => {
         if ( f !== '.' && f !== '..' &&
           FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-          console.log('adding partition ', f);
+          // console.log('adding partition ', f);
 
           this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
         }
@@ -319,8 +379,16 @@ export class SearchService {
     } catch (e) {}
   }
 
+  public openDBOnWorker() {
+    this.persistIndex().subscribe(() =>
+      this.indexWorker.postMessage({ 'localdir': this.localdir,
+                                     'partitionsdir': this.partitionsdir,
+                                     'action': PostMessageAction.opendb
+                                   }));
+  }
+
   private openStoredMainPartition() {
-    this.api.initXapianIndex(XAPIAN_GLASS_WR);
+    this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
   }
   /**
    * Returns false if unable to get dates from xapian index (corrupt index)
@@ -338,8 +406,8 @@ export class SearchService {
 
     if (results.length > 0) {
       try {
-        console.log(results);
-        console.log(this.api.getStringValue(results[0][0], 2));
+        // console.log(results);
+        // console.log(this.api.getStringValue(results[0][0], 2));
         // Get date of latest message
         const dateParts = this.api.getStringValue(results[0][0], 2)
                       .match(/([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])/)
@@ -365,6 +433,7 @@ export class SearchService {
     return true;
   }
 
+  // Instruction to delete from the user:
   public deleteLocalIndex(): Observable<any> {
     if (!this.localSearchActivated) {
       console.log('Tried to delete local index when it is not present');
@@ -376,71 +445,13 @@ export class SearchService {
       ProgressDialog.open(this.dialog);
 
       this.api.closeXapianDatabase();
-
-      FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
-        if ( f !== '.' && f !== '..') {
-          console.log(f);
-          FS.unlink('xapianglasswr/' + f);
-        }
-      });
-      FS.rmdir(XAPIAN_GLASS_WR);
-      try {
-        FS.unlink('xapianglass');
-      } catch (e) {}
-
-
-
-      // clearTimeout(this.indexUpdateIntervalId);
-
-      let hasPartitionsDir = true;
-      try {
-        FS.stat(this.partitionsdir);
-      } catch (e) {
-        hasPartitionsDir = false;
-      }
-      if (hasPartitionsDir) {
-        FS.readdir(this.partitionsdir).forEach((f) => {
-          if ( f !== '.' && f !== '..') {
-
-            if (FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-              console.log('Removing director', f);
-              FS.readdir(`${this.partitionsdir}/${f}`)
-                .filter((ent: string) => ent.charAt(0) !== '.').forEach(partitionFile =>
-                FS.unlink(`${this.partitionsdir}/${f}/${partitionFile}`)
-              );
-              FS.rmdir(`${this.partitionsdir}/${f}`);
-            } else {
-              FS.unlink(`${this.partitionsdir}/${f}`);
-            }
-          }
-        });
-      }
+      this.indexWorker.postMessage({'action': PostMessageAction.deleteLocalIndex});
 
       console.log('Closing indexed dbs');
       // ---- Hack for emscripten not closing databases
       Object.keys(IDBFS.dbs).forEach(k => IDBFS.dbs[k].close());
       IDBFS.dbs = {};
 
-      // ----------------------
-
-      new Observable(o => {
-        console.log('Deleting indexeddb database', '/' + this.localdir);
-        const req = window.indexedDB.deleteDatabase('/' + this.localdir);
-        req.onsuccess = () =>
-          o.next();
-      }).pipe(
-        mergeMap(() =>
-          new Observable(o => {
-            console.log('Deleting indexeddb database', this.partitionsdir);
-            const req = window.indexedDB.deleteDatabase(this.partitionsdir);
-            req.onsuccess = () =>
-              o.next();
-          })
-        )
-      ).subscribe(() => {
-        ProgressDialog.close();
-        observer.next();
-      });
     });
 
   }
@@ -450,7 +461,7 @@ export class SearchService {
   }
 
   public downloadIndexFromServer(): Observable<boolean> {
-    clearTimeout(this.indexUpdateIntervalId);
+    this.indexWorker.postMessage({'action': PostMessageAction.stopIndexUpdates });
     this.notifyOnNewMessages = false; // we don't want notification on first message update after index load
     this.init();
 
@@ -458,15 +469,14 @@ export class SearchService {
         mergeMap(() => this.checkIfDownloadableIndexExists()),
         mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.api.initXapianIndex(XAPIAN_GLASS_WR);
+          this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
           this.localSearchActivated = true;
           this.indexLastUpdateTime = 0;
-          this.updateIndexWithNewChanges();
           observer.next(true);
           return;
         }
 
-        console.log('Download index');
+        // console.log('Download index');
 
         this.downloadProgress = 0;
         let loaded = 0;
@@ -495,6 +505,7 @@ export class SearchService {
         };
 
         if (this.localSearchActivated) {
+          // FIXME: call indexWorker here?
           this.api.closeXapianDatabase();
         }
         try {
@@ -508,7 +519,7 @@ export class SearchService {
           mergeMap(() => downloadAndWriteFile('termlist.glass', 3)),
           mergeMap(() => downloadAndWriteFile('postlist.glass', 4)),
         ).subscribe(() => {
-            this.api.initXapianIndex(XAPIAN_GLASS_WR);
+            this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
             this.messagelistservice.refreshFolderList();
@@ -521,102 +532,6 @@ export class SearchService {
       })));
   }
 
-  postMessagesToXapianWorker(newMessagesToProcess: SearchIndexDocumentUpdate[]): Observable<any> {
-    if (!this.localSearchActivated) {
-      return of();
-    }
-
-    if (!this.pendingMessagesToProcess) {
-      this.pendingMessagesToProcess = newMessagesToProcess;
-      this.messageProcessingInProgressSubject = new AsyncSubject();
-
-      const getProgressSnackBarMessageText = () => `Syncing ${this.processMessageIndex} / ${this.pendingMessagesToProcess.length}`;
-      let progressSnackBar: MatSnackBarRef<SyncProgressComponent>;
-      if (this.pendingMessagesToProcess.length > 10) {
-        progressSnackBar = this.snackbar.openFromComponent(SyncProgressComponent);
-        progressSnackBar.instance.messagetextsubject.next(getProgressSnackBarMessageText());
-      }
-
-      const processMessage = async () => {
-        if (!this.localSearchActivated) {
-          // Handle that index is deleted in the middle of an indexing process
-          this.messageProcessingInProgressSubject.error('Search index deleted in the middle of indexing process');
-          return;
-        } else if (this.processMessageIndex < this.pendingMessagesToProcess.length) {
-          this.processMessageHistoryProgress = Math.round(this.processMessageIndex * 100 / this.pendingMessagesToProcess.length);
-
-          console.log('Adding to (or removing from) index', (this.pendingMessagesToProcess.length - this.processMessageIndex), 'to go');
-          if (progressSnackBar) {
-            progressSnackBar.instance.messagetextsubject.next(getProgressSnackBarMessageText());
-          }
-
-          // TODO: it'd be more efficient to just update the cache instead of forcing the redownload
-          this.rmmapi.deleteCachedMessageContents(this.pendingMessagesToProcess[this.processMessageIndex].id);
-
-          const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
-          await nextMessage.updateFunction();
-
-          if (this.persistIndexInProgressSubject) {
-            // Wait for persistence of index to finish before doing more work on the index
-            await this.persistIndexInProgressSubject.toPromise();
-          }
-          setTimeout(() => processMessage(), 1);
-
-        } else {
-          console.log('All messages added');
-          this.api.commitXapianUpdates();
-
-          if (progressSnackBar) {
-            progressSnackBar.dismiss();
-          }
-          this.processMessageHistoryProgress = null;
-          this.pendingMessagesToProcess = null;
-          if (this.processMessageIndex > 0) {
-            this.processMessageIndex = 0;
-            this.indexNotPersisted = true;
-          }
-
-          this.messageProcessingInProgressSubject.next(true);
-          this.messageProcessingInProgressSubject.complete();
-          this.messageProcessingInProgressSubject = null;
-
-          this.indexUpdatedSubject.next();
-        }
-      };
-      if (this.persistIndexInProgressSubject) {
-        // Wait for persistence of index to finish before doing more work on the index
-        this.persistIndexInProgressSubject.subscribe(() => processMessage());
-      } else {
-        processMessage();
-      }
-    } else {
-      this.pendingMessagesToProcess = this.pendingMessagesToProcess.concat(newMessagesToProcess);
-    }
-    return this.messageProcessingInProgressSubject;
-
-  }
-
-  persistIndex(): Observable<boolean> {
-    if (!this.indexNotPersisted || !this.localSearchActivated) {
-      return of(false);
-    } else {
-      if (!this.persistIndexInProgressSubject) {
-        this.persistIndexInProgressSubject = new AsyncSubject();
-
-        console.log('Persisting to indexeddb');
-
-        FS.writeFile('indexLastUpdateTime', '' + this.indexLastUpdateTime, { encoding: 'utf8' });
-        FS.syncfs(false, () => {
-            this.persistIndexInProgressSubject.next(true);
-            this.persistIndexInProgressSubject.complete();
-            this.persistIndexInProgressSubject = null;
-            this.indexNotPersisted = false;
-            console.log('Done persisting to indexeddb');
-        });
-      }
-      return this.persistIndexInProgressSubject;
-    }
-  }
 
   /**
    * Move messages instantly in the local index (this does not affect server,
@@ -628,55 +543,58 @@ export class SearchService {
     if (!this.api) {
       return;
     }
-    this.messagelistservice.folderListSubject
-      .pipe(take(1))
-      .subscribe((folders) => {
-        const destinationFolder = folders.find(folder => folder.folderPath === destinationfolderPath);
-
-        if (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash') {
-          this.postMessagesToXapianWorker(messageIds.map(mid =>
-              new SearchIndexDocumentUpdate(mid, () => {
-                try {
-                  this.api.deleteDocumentByUniqueTerm('Q' + mid);
-                  console.log('Deleted msg id search index', mid);
-                } catch (e) {
-                  console.error('Unable to delete message from search index (not found?)', mid);
-                }
-              })
-            )
-          );
-        } else {
-          const dotSeparatedDestinationfolderPath = destinationfolderPath.replace(/\//g, '.');
-          this.postMessagesToXapianWorker(messageIds.map(mid =>
-              new SearchIndexDocumentUpdate(mid, () => {
-                try {
-                  this.api.changeDocumentsFolder('Q' + mid, dotSeparatedDestinationfolderPath);
-                } catch (e) {
-                  console.error('Unable to change index document folder', mid, dotSeparatedDestinationfolderPath,
-                    '(not found since moving from trash/spam folder?');
-                }
-              })
-            )
-          );
-        }
-    });
+    this.indexWorker.postMessage(
+      {'action': PostMessageAction.moveMessagesToFolder,
+       'messageIds': messageIds,
+       'value': destinationfolderPath });
   }
 
-  /**
+    /**
    * Delete messages instantly from the local index ( does not affect server )
    */
   deleteMessages(messageIds: number[]) {
     if (!this.api) {
       return;
     }
-    this.postMessagesToXapianWorker(messageIds.map(mid =>
-          new SearchIndexDocumentUpdate(mid, () =>
-            this.api.deleteDocumentByUniqueTerm('Q' + mid)
-          )
-        )
-    );
+    this.indexWorker.postMessage(
+      {'action': PostMessageAction.deleteMessages,
+       'messageIds': messageIds });
   }
 
+  /**
+   * Persist index, we only do this once in the main thread,
+   * when starting from scratch (else the worker does all the persisting)
+   */
+    persistIndex(): Observable<boolean> {
+    // console.log(`Persist: localSearch: ${this.localSearchActivated}`);
+      if (!this.localSearchActivated) {
+        return of(false);
+      } else {
+        if (!this.persistIndexInProgressSubject) {
+          this.persistIndexInProgressSubject = new AsyncSubject();
+
+          console.log('Persisting to indexeddb');
+
+          FS.writeFile('indexLastUpdateTime', '' + this.indexLastUpdateTime, { encoding: 'utf8' });
+          FS.syncfs(false, () => {
+            // console.log('Syncd files:');
+            // console.log(FS.stat(XAPIAN_GLASS_WR));
+            FS.readdir(this.partitionsdir).forEach((f) => {
+              // console.log(`${f}`);
+              // console.log(FS.stat(`${this.partitionsdir}/${f}`));
+            });
+            this.persistIndexInProgressSubject.next(true);
+            this.persistIndexInProgressSubject.complete();
+            this.persistIndexInProgressSubject = null;
+            // this.indexNotPersisted = false;
+            console.log('Done persisting to indexeddb');
+          });
+        }
+        return this.persistIndexInProgressSubject;
+      }
+  }
+
+  // Also in index.worker.ts
   getFolderQuery(querytext: string, folderPath: string, unreadOnly: boolean): string {
     const folderQuery = (folderName) => 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
 
@@ -707,417 +625,12 @@ export class SearchService {
     ).map((pair: number[]) => pair[0]);
   }
 
-  async compareAndUpdateFolderCounts(
-    currentFolder: FolderListEntry,
-    numberOfMessages: number,
-    numberOfUnreadMessages: number): Promise<any[]> {
-    if (
-      numberOfMessages !== currentFolder.totalMessages ||
-        numberOfUnreadMessages !== currentFolder.newMessages) {
-      console.log(`number of messages
-(${numberOfMessages} vs ${currentFolder.totalMessages} and
-(${numberOfUnreadMessages} vs ${currentFolder.newMessages})
-not matching with index for current folder`);
-
-      let folderMessages = [];
-      try {
-        folderMessages = await this.rmmapi.listAllMessages(
-          0, 0, 0,
-          MAX_DISCREPANCY_CHECK_LIMIT,
-          true, currentFolder.folderPath).toPromise();
-      } catch (err) {
-        console.error(err);
-        if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
-          console.log(err.errors);
-        }
-      }
-
-      const folderMessageIDS: {[messageId: number]: boolean} = {};
-      folderMessages.forEach(msg => folderMessageIDS[msg.id] = true);
-
-      const indexFolderResults = this.api.sortedXapianQuery(
-        this.getFolderQuery('', currentFolder.folderPath, false), 0, 0, 0, MAX_DISCREPANCY_CHECK_LIMIT, -1
-      );
-      indexFolderResults.forEach((searchResultRow: number[]) => {
-        const docdataparts = this.api.getDocumentData(searchResultRow[0]).split('\t');
-        const rmmMessageId = parseInt(docdataparts[0].substring(1), 10);
-
-        if (!folderMessageIDS[rmmMessageId]) {
-          /*
-           * For messages present in the index but not in the server folder list, request index verification from the server -
-           * which means that the server either will update the changed_date timestamp of the message, or the deleted timestamp
-           * if the message was deleted.
-           */
-          this.pendingIndexVerifications[rmmMessageId] = {
-            id: docdataparts[0],
-            folder: currentFolder.folderPath
-          } as SearchIndexDocumentData;
-        }
-      });
-      return folderMessages;
-    }
-  }
-
-  /**
-   * Polling loop (every 10th sec)
-   */
-  async updateIndexWithNewChanges(next_update?: {
-    start_message: string,
-    list_messages_args: [number, number, number, number, boolean, string?],
-    set_next_update_time: boolean }) {
-    clearTimeout(this.indexUpdateIntervalId);
-
-    await this.persistIndex().toPromise();
-
-    if (next_update == null) {
-      next_update = {
-        start_message: 'Getting latest messages from server after ' + (new Date(this.indexLastUpdateTime)).toString(),
-        list_messages_args: [0, 0, this.indexLastUpdateTime, RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE, true],
-        set_next_update_time: true,
-      };
-    }
-    console.log(next_update['start_message']);
-
-    try {
-      const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
-        .map(idstring => {
-          const msgobj = this.pendingIndexVerifications[idstring];
-          return {
-            id: parseInt(msgobj.id.substring(1), 10),
-            flagged: msgobj.flagged ? 1 : 0,
-            seen: msgobj.seen ? 1 : 0,
-            answered: msgobj.answered ? 1 : 0,
-            deleted: msgobj.deleted ? 1 : 0,
-            folder: msgobj.folder
-          };
-        }
-      );
-      // Ensure there are no empty ID's in the array of objects
-      const filteredpendingIndexVerificationArray = pendingIndexVerificationsArray
-        .filter(msgobj => Number.isInteger(msgobj.id));
-
-      this.pendingIndexVerifications = {};
-
-      if (filteredpendingIndexVerificationArray.length > 0) {
-        await this.httpclient.post('/rest/v1/searchindex/verifymessages',
-            {
-              indexEntriesToVerify: filteredpendingIndexVerificationArray
-            }
-        ).toPromise();
-      }
-
-      let msginfos = [];
-      try {
-        msginfos = await this.rmmapi.listAllMessages(...next_update['list_messages_args']).toPromise();
-      } catch (err) {
-        console.error(err);
-        if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
-          console.log(err.errors);
-        }
-      }
-
-      if (this.currentIndexUpdateMessageIds.size > 0) {
-        // if an index update is already running, check we arent
-        // updating the same messages
-
-        const notIn = msginfos.filter((msg) => !this.currentIndexUpdateMessageIds.has(msg.id));
-        if (notIn.length !== msginfos.length) {
-          console.log('Attempted to update index data that was already in progress, skipping');
-          msginfos = [];
-        }
-      }
-      msginfos.forEach((msg) => this.currentIndexUpdateMessageIds.add(msg.id));
-
-      const deletedMessages = await this.rmmapi.listDeletedMessagesSince(
-        new Date(
-          // Subtract timezone offset to get UTC
-          this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
-      ).toPromise();
-
-      if (this.numberOfMessagesSyncedLastTime === 0) {
-          // console.log('No messages to sync, checking counts');
-          // nothing else to do, check for folder count discrepancies
-
-          const currentFolder = (await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise())
-                .find(folder => folder.folderPath === this.messagelistservice.currentFolder);
-          const folderPath = currentFolder.folderPath;
-
-          // do this once per folder, and only if the folder is actually indexed
-          if (!this.folderCountDiscrepanciesCheckedCount[folderPath]) {
-            this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
-
-            // Compare xapian index counts with rest api folder list:
-            if (this.localSearchActivated &&
-              this.api.listFolders().find(f => f[0] === folderPath)
-               ) {
-
-              const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
-              const folderMessages = await this.compareAndUpdateFolderCounts(currentFolder, numberOfMessages, numberOfUnreadMessages);
-              msginfos = msginfos.concat(folderMessages);
-            } else {
-              // Compare rest api counts with rest api folder list:
-              this.rmmapi.folderStats(folderPath).subscribe((stats: FolderStatsEntry) => {
-                    if (
-                      stats.total !== currentFolder.totalMessages ||
-                        stats.total_unseen !== currentFolder.newMessages) {
-                      console.log(`number of messages
-(${stats.total} vs ${currentFolder.totalMessages} and
-(${stats.total_unseen} vs ${currentFolder.newMessages})
-not matching with rest api counts for current folder`);
-                      this.rmmapi.updateFolderCounts(folderPath).subscribe(
-                        (result) => console.log(result.result.result.msg),
-                        (err) => console.log('Error updating folder counts: ' + err.errors.join(',')),
-                      );
-                    }
-              });
-            }
-          }
-        }
-      if (this.localSearchActivated) {
-        const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
-
-        deletedMessages.forEach(msgid => {
-          const uniqueIdTerm = `Q${msgid}`;
-          const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
-          if (docid !== 0) {
-            searchIndexDocumentUpdates.push(
-              new SearchIndexDocumentUpdate(msgid, async () => {
-                try {
-                  this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
-                } catch (e) {
-                  console.error('Unable to delete message from index', msgid);
-                }
-              })
-            );
-          }
-        });
-
-        const folders = await this.messagelistservice.folderListSubject.pipe(take(1)).toPromise();
-
-        msginfos.forEach(msginfo => {
-            const uniqueIdTerm = `Q${msginfo.id}`;
-            let msgIsTrashed = false;
-            const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
-            if (
-              docid === 0 && // document not found in the index
-              msginfo.folder !== this.messagelistservice.spamFolderName &&
-              msginfo.folder !== this.messagelistservice.trashFolderName
-            ) {
-              searchIndexDocumentUpdates.push(
-                new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                  try {
-                    this.indexingTools.addMessageToIndex(msginfo, [
-                      this.messagelistservice.spamFolderName,
-                      this.messagelistservice.trashFolderName
-                    ]);
-                    // Add term about missing body text so that later stage can add this
-                    this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
-                    if (msginfo.deletedFlag) {
-                      this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_DELETED);
-                    }
-                  } catch (e) {
-                    console.error('failed to add message to index', msginfo, e);
-                  }
-                })
-              );
-            } else if (docid !== 0) {
-              this.api.documentXTermList(docid);
-              const messageStatusInIndex = {
-                flagged: false,
-                seen: false,
-                answered: false,
-                deleted: false,
-                attachments: false
-              };
-              const documentTermList = (Module.documenttermlistresult as string[]);
-              const addSearchIndexDocumentUpdate = (func: () => void) =>
-                searchIndexDocumentUpdates.push(
-                  new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                    try {
-                      func();
-                    } catch (err) {
-                      console.error('Error updating doc in searchindex', msginfo, documentTermList, err);
-                    }
-                  }
-                  )
-                );
-              documentTermList.forEach(term => {
-                if (term.indexOf(XAPIAN_TERM_FOLDER) === 0 &&
-                  term.substr(XAPIAN_TERM_FOLDER.length) !== msginfo.folder) {
-                    // Folder changed
-                    const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
-                    if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash')) {
-                      console.log('Delete doc from index as now in Trash');
-                      addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
-                      msgIsTrashed = true;
-                    } else {
-                      addSearchIndexDocumentUpdate(() => this.api.changeDocumentsFolder(uniqueIdTerm, msginfo.folder));
-                    }
-                } else if (term === XAPIAN_TERM_FLAGGED) {
-                  messageStatusInIndex.flagged = true;
-                } else if (term === XAPIAN_TERM_SEEN) {
-                  messageStatusInIndex.seen = true;
-                } else if (term === XAPIAN_TERM_ANSWERED) {
-                  messageStatusInIndex.answered = true;
-                } else if (term === XAPIAN_TERM_DELETED) {
-                  messageStatusInIndex.deleted = true;
-                } else if (term === XAPIAN_TERM_HASATTACHMENTS) {
-                  messageStatusInIndex.attachments = true;
-                }
-              });
-
-              if (!msgIsTrashed) {
-                if (msginfo.answeredFlag && !messageStatusInIndex.answered) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-                } else if (!msginfo.answeredFlag && messageStatusInIndex.answered) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_ANSWERED));
-                }
-
-                if (msginfo.flaggedFlag && !messageStatusInIndex.flagged) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-                } else if (!msginfo.flaggedFlag && messageStatusInIndex.flagged) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_FLAGGED));
-                }
-
-                if (msginfo.seenFlag && !messageStatusInIndex.seen) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-                } else if (!msginfo.seenFlag && messageStatusInIndex.seen) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_SEEN));
-                }
-
-                if (msginfo.deletedFlag && !messageStatusInIndex.deleted) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
-                } else if (!msginfo.deletedFlag && messageStatusInIndex.deleted) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_DELETED));
-                }
-
-                if (msginfo.attachment && !messageStatusInIndex.attachments) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.addTermToDocument(uniqueIdTerm, XAPIAN_TERM_HASATTACHMENTS));
-                } else if (!msginfo.attachment && messageStatusInIndex.attachments) {
-                  addSearchIndexDocumentUpdate(() =>
-                    this.api.removeTermFromDocument(uniqueIdTerm, XAPIAN_TERM_HASATTACHMENTS));
-                }
-}
-            }
-          });
-
-          this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
-
-          if (searchIndexDocumentUpdates.length > 0) {
-            await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
-          }
-
-          // Look up messages with missing body text term and add the missing text to the index
-          const messagesMissingBodyText = this.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1);
-          if (messagesMissingBodyText.length > 0) {
-            await this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
-              const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
-
-              return new SearchIndexDocumentUpdate(messageId, async () => {
-                try {
-                  const docIdTerm = `Q${messageId}`;
-                  const msg = (await this.rmmapi.getMessageContents(messageId).toPromise());
-                  if (msg.status === 'success') {
-                    this.api.addTextToDocument(docIdTerm, true, msg.text.text);
-                  }
-                  // There may have been known backend warnings, so
-                  // don't keep repeating the attempt
-                  this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
-                } catch (e) {
-                  console.error('Failed to add text to document', messageId, e);
-                }
-              });
-            })).toPromise();
-          }
-        }
-
-      if (msginfos && msginfos.length > 0) {
-          // Notify on new messages
-          if (this.notifyOnNewMessages && 'Notification' in window &&
-              window['Notification']['permission'] === 'granted') {
-            const newmessages = msginfos.filter(m =>
-                !m.seenFlag &&
-                m.folder === 'Inbox' &&
-                m.messageDate.getTime() > this.indexLastUpdateTime);
-            if (newmessages.length > 0) {
-              const newMessagesTitle = newmessages.length > 1 ?
-                  `${newmessages.length} new email messages` :
-                  `New email message`;
-              try {
-                  // tslint:disable-next-line:no-unused-expression
-                  new Notification(newMessagesTitle, {
-                    body: newmessages[0].from[0].name,
-                    icon: 'assets/icons/icon-192x192.png',
-                    tag: 'newmessages'
-                  });
-              } catch (e) {
-                console.log('Should have displayed notification about new messages:', newMessagesTitle);
-              }
-            }
-          }
-      }
-
-      if ((msginfos && msginfos.length > 0)
-        || (deletedMessages && deletedMessages.length > 0)) {
-        // Update folder lists + counts
-        this.messagelistservice.applyChanges(
-          msginfos ? msginfos : [],
-          deletedMessages ? deletedMessages : []
-        );
-
-        // Find latest date in result set and use as since parameter for getting new changes from server
-
-        if (next_update['set_next_update_time']) {
-          let newLastUpdateTime = 0;
-          msginfos.forEach(msginfo => {
-            if (msginfo.changedDate && msginfo.changedDate.getTime() > newLastUpdateTime) {
-              newLastUpdateTime = msginfo.changedDate.getTime();
-            }
-            if (msginfo.messageDate && msginfo.messageDate.getTime() > newLastUpdateTime) {
-              newLastUpdateTime = msginfo.messageDate.getTime();
-            }
-          });
-          // In case we get emails with dates far in the future!
-          if (newLastUpdateTime > new Date().getTime()) {
-            newLastUpdateTime = new Date().getTime();
-          }
-          if (newLastUpdateTime > this.indexLastUpdateTime) {
-            this.indexLastUpdateTime = newLastUpdateTime;
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Failed updating with new changes (will retry in 10 secs)', err);
-      if (this.messageProcessingInProgressSubject &&
-        this.messageProcessingInProgressSubject.isStopped) {
-        // stopped/errored because localSearchActivated changed
-        // during processing, reset
-        this.messageProcessingInProgressSubject = null;
-        this.pendingMessagesToProcess = null;
-        this.processMessageHistoryProgress = null;
-        this.processMessageIndex = 0;
-      }
-    }
-    this.currentIndexUpdateMessageIds.clear();
-    this.notifyOnNewMessages = true;
-    this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
-  }
-
     checkIfDownloadableIndexExists(): Observable<boolean> {
       return this.httpclient.get('/mail/download_xapian_index?exists=check').pipe(
             map((stat: any) => {
               this.serverIndexSize = stat.size;
               this.serverIndexSizeUncompressed = stat.uncompressedsize;
-              console.log('Downloadable index exists: ' + stat.exists);
+              // console.log('Downloadable index exists: ' + stat.exists);
               return stat.exists;
             })
           );
@@ -1137,9 +650,9 @@ not matching with rest api counts for current folder`);
             totalSize = partitions.reduce((prev, curr) => prev +
               curr.files.reduce((p, c) => c.uncompressedsize + p, 0), 0);
             if (totalSize === 0) {
-              console.log('No extra search index partitions');
-              await this.updateIndexWithNewChanges();
-              this.indexUpdatedSubject.next();
+              // console.log('No extra search index partitions');
+              this.openDBOnWorker();
+              this.indexReloadedSubject.next();
             }
             return totalSize;
           }),
@@ -1230,7 +743,7 @@ not matching with rest api counts for current folder`);
                 ),
                 bufferCount(p.files.length),
                 tap(() => {
-                  console.log(`Opening partition ${p.folder}`);
+                  // console.log(`Opening partition ${p.folder}`);
                   this.api.addFolderXapianIndex(`${this.partitionsdir}/${p.folder}`);
                 }),
                 map(() => true)
@@ -1248,8 +761,8 @@ not matching with rest api counts for current folder`);
         ).pipe(
           tap(async () => {
             this.partitionDownloadProgress = null;
-            await this.updateIndexWithNewChanges();
-            this.indexUpdatedSubject.next();
+            this.openDBOnWorker();
+            this.indexReloadedSubject.next();
           })
         );
     }
@@ -1292,8 +805,9 @@ not matching with rest api counts for current folder`);
               }
           });
 
-          this.api.documentXTermList(docid);
-          (Module.documenttermlistresult as string[])
+          try {
+            this.api.documentXTermList(docid);
+            (Module.documenttermlistresult as string[])
               .forEach(s => {
                 if (s.indexOf(XAPIAN_TERM_FOLDER) === 0) {
                   this.currentDocData.folder = s.substr(XAPIAN_TERM_FOLDER.length);
@@ -1312,16 +826,27 @@ not matching with rest api counts for current folder`);
                   this.currentDocData.recipients.push(recipient);
                 }
               });
+          } catch (e) {
+            console.log('Failed to get documentXtermList: ',  e);
+          }
           this.currentXapianDocId = docid;
 
-          if (!this.pendingIndexVerifications[this.currentDocData.id]) {
-            if (this.currentDocData.folder === 'Sent' && !this.currentDocData.recipients) {
-              this.currentDocData.folder = 'Sent '; // Force updating index to add recipient term
-            }
-            this.pendingIndexVerifications[this.currentDocData.id] = this.currentDocData;
-          }
+          // We would be setting this locally after a postMessage?
+          // if (!this.pendingIndexVerifications[this.currentDocData.id]) {
+          //   if (this.currentDocData.folder === 'Sent' && !this.currentDocData.recipients) {
+          //     this.currentDocData.folder = 'Sent '; // Force updating index to add recipient term
+          //   }
+          //   // postMessage
+          //   this.pendingIndexVerifications[this.currentDocData.id] = this.currentDocData;
+          // }
         }
         return this.currentDocData;
+    }
+
+  public setCurrentFolder(folder: string) {
+      this.indexWorker.postMessage({
+        'action': PostMessageAction.setCurrentFolder,
+        'folder': folder });
     }
 
   // fetch message contents, we actually only want the "text.text" part here
@@ -1332,11 +857,12 @@ not matching with rest api counts for current folder`);
       this.rmmapi.getMessageContents(messageId).subscribe((content) => {
         if (content['status'] === 'success') {
           this.messageTextCache.set(messageId, content.text.text);
+          // Send to the messageCache in the worker, so we can add the text to the index:
+          this.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'msgId': messageId, 'value':  content.text.text });
           if (this.messagelistservice.messagesById[messageId]) {
             this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
           }
         } else {
-          // stop repeatedly looking up broken ones
           if (content.hasOwnProperty('errors')) {
             // this is an error restapi generated
             console.error(`DataError in updateMessageText ${messageId}`, content['errors']);
@@ -1355,5 +881,4 @@ not matching with rest api counts for current folder`);
     }
     return false;
   }
-
 }

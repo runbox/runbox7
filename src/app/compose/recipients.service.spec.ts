@@ -37,7 +37,7 @@ let testcounter = 1;
 
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();
-    indexUpdatedSubject = new Subject<void>();
+    indexReloadedSubject = new Subject<void>();
     mockedRecentMessages: number[] = [];
     mockedRecipients: { [messageId: number]: { recipients: string[] } } = {};
 
@@ -93,7 +93,7 @@ export class MockSearchService {
 
         this.initSubject.next(true);
         this.initSubject.complete();
-        this.indexUpdatedSubject.next();
+        this.indexReloadedSubject.next();
     }
 
     getMessagesInTimeRange(_start: Date, _end: Date, _folder?: string) {

@@ -18,7 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { FolderListEntry, RunboxWebmailAPI } from './rbwebmail';
+import { RunboxWebmailAPI } from './rbwebmail';
+import { FolderListEntry } from '../common/folderlistentry';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';

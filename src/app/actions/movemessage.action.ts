@@ -19,7 +19,8 @@
 
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { RunboxWebmailAPI, FolderListEntry } from '../rmmapi/rbwebmail';
+import { FolderListEntry } from '../common/folderlistentry';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     template: `
