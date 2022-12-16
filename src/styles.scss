@@ -166,7 +166,7 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .mat-menu-panel .mat-list-item {
-    height: 36px !important;
+    height: 40px !important;
 }
 
 .mat-header-cell {
@@ -701,6 +701,10 @@ mat-sidenav-container {
     width: 100%;
 }
 
+#webmailSettingsMenuButto {
+    margin-right: 10px;
+}
+
 #sidenavGreeting {
     margin-left: 10px;
 }
@@ -757,6 +761,14 @@ h3.sideNavHeader {
 
 #folderListHeader {
     height: 30px;
+    font-size: 13px;
+}
+
+#createFolderButton {
+    margin-right: 14px;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
 }
     
 .mailFolder div, .mailFolder span {
