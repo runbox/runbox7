@@ -150,13 +150,14 @@ export class SearchService {
         } else if (data['action'] === PostMessageAction.newMessagesNotification) {
           if (this.notifyOnNewMessages && 'Notification' in window &&
             window['Notification']['permission'] === 'granted') {
-            const newMessagesTitle = data['newmessages'].length > 1 ?
-              `${data['newmessages'].length} new email messages` :
+            const newMessagesTitle = data.prototype.hasOwnProperty('newMessages')
+              && data['newMessages'].length > 1 ?
+              `${data['newMessages'].length} new email messages` :
               `New email message`;
             try {
               // tslint:disable-next-line:no-unused-expression
               new Notification(newMessagesTitle, {
-                body: data['newmessages'][0].from[0].name,
+                body: data['newMessages'][0].from[0].name,
                 icon: 'assets/icons/icon-192x192.png',
                 tag: 'newmessages'
               });
