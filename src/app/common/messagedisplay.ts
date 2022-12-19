@@ -113,6 +113,15 @@ export abstract class MessageDisplay {
     //    const selectedRowId = this.getRowId(rowIndex);
     const selectedRowId = rowIndex;
 
+    // Drag&Drop, if we click to drag, we don't want to change the state of
+    // the selection.
+    // UNLESS: no messages are selected, then we select+drag one.
+    if (columnIndex === -1) {
+      if (this.isSelectedRow(rowIndex)) {
+        return;
+      }
+    }
+
     // multiSelect just means do these, nothing else:
     // multiSelect is true if we're applying rowSelect in a loop
     this.selectedRowId = selectedRowId;

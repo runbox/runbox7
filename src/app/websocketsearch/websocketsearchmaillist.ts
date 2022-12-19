@@ -63,6 +63,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
             },
             {
                 name: 'Date',
+                draggable: true,
                 cacheKey: 'date',
                 sortColumn: null,
                 rowWrapModeMuted: true,
@@ -70,6 +71,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
             },
             {
                 name: 'From',
+                draggable: true,
                 cacheKey: 'from',
                 sortColumn: null,
                 getValue: (rowIndex: number): string => this.getRow(rowIndex).fromName,
@@ -84,6 +86,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
             },
             {
                 sortColumn: null,
+                draggable: true,
                 name: 'Size',
                 cacheKey: 'size',
                 rowWrapModeHidden: true,
