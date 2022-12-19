@@ -167,6 +167,10 @@ export class SearchService {
           }
         }
       };
+      this.indexWorker.onerror = (error) => {
+        console.error(`Error from worker:  ${error.message}`);
+        console.error(`${error.filename} ${error.lineno}`);
+      };
       console.log('Loaded worker');
     }
 
