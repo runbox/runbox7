@@ -982,9 +982,9 @@ ctx.addEventListener('message', ({ data }) => {
       );
     };
   } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
-    clearTimeout(searchIndexService.indexUpdateIntervalId);
-  } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
     searchIndexService.updateIndexWithNewChanges(data['args']);
+  } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
+    clearTimeout(searchIndexService.indexUpdateIntervalId);
   } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
     // console.log('Worker: deleting local index...');
     searchIndexService.deleteLocalIndex().subscribe(() => {
