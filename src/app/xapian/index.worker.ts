@@ -967,80 +967,84 @@ const searchIndexService = new SearchIndexService();
 ctx.addEventListener('message', ({ data }) => {
   console.log('Message to worker ');
   console.log(data);
-  if (data['action'] === PostMessageAction.opendb) {
-    searchIndexService.localdir = data['localdir'];
-    searchIndexService.partitionsdir = data['partitionsdir'];
-    const idbrequest: IDBOpenDBRequest =
-      self.indexedDB.open('/' + data['localdir']);
-    idbrequest.onsuccess = () => {
-      searchIndexService.loadSearchIndexes(idbrequest.result).subscribe(
-        result => {
-          // main threead is also opening it so we dont need to report back
-          // console.log('Worker: loaded search indexes ', result);
-          // ctx.postMessage(result);
-        },
-      );
-    };
-  } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
-    searchIndexService.updateIndexWithNewChanges(data['args']);
-  } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
-    clearTimeout(searchIndexService.indexUpdateIntervalId);
-  } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
-    // console.log('Worker: deleting local index...');
-    searchIndexService.deleteLocalIndex().subscribe(() => {
-      // console.log('Worker: sub to local index delete');
-      searchIndexService.updateIndexWithNewChanges();
-    });
-  } else if (data['action'] === PostMessageAction.folderListUpdate) {
-    searchIndexService.folderList = data['value'];
-  } else if (data['action'] === PostMessageAction.messageCache) {
-    // Add / update the text of a message which we can add to the search index
-    searchIndexService.messageTextCache.set(data['msgId'], data['value']);
-  } else if (data['action'] === PostMessageAction.moveMessagesToFolder) {
-    searchIndexService.moveMessagesToFolder(data['messageIds'], data['value']);
-  } else if (data['action'] === PostMessageAction.deleteMessages) {
-    searchIndexService.deleteMessages(data['messageIds']);
-  } else if (data['action'] === PostMessageAction.addMessageToIndex) {
-    const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
+  try {
+    if (data['action'] === PostMessageAction.opendb) {
+      searchIndexService.localdir = data['localdir'];
+      searchIndexService.partitionsdir = data['partitionsdir'];
+      const idbrequest: IDBOpenDBRequest =
+        self.indexedDB.open('/' + data['localdir']);
+      idbrequest.onsuccess = () => {
+        searchIndexService.loadSearchIndexes(idbrequest.result).subscribe(
+          result => {
+            // main threead is also opening it so we dont need to report back
+            // console.log('Worker: loaded search indexes ', result);
+            // ctx.postMessage(result);
+          },
+        );
+      };
+    } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
+      searchIndexService.updateIndexWithNewChanges(data['args']);
+    } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
+      clearTimeout(searchIndexService.indexUpdateIntervalId);
+    } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
+      // console.log('Worker: deleting local index...');
+      searchIndexService.deleteLocalIndex().subscribe(() => {
+        // console.log('Worker: sub to local index delete');
+        searchIndexService.updateIndexWithNewChanges();
+      });
+    } else if (data['action'] === PostMessageAction.folderListUpdate) {
+      searchIndexService.folderList = data['value'];
+    } else if (data['action'] === PostMessageAction.messageCache) {
+      // Add / update the text of a message which we can add to the search index
+      searchIndexService.messageTextCache.set(data['msgId'], data['value']);
+    } else if (data['action'] === PostMessageAction.moveMessagesToFolder) {
+      searchIndexService.moveMessagesToFolder(data['messageIds'], data['value']);
+    } else if (data['action'] === PostMessageAction.deleteMessages) {
+      searchIndexService.deleteMessages(data['messageIds']);
+    } else if (data['action'] === PostMessageAction.addMessageToIndex) {
+      const searchIndexDocumentUpdates: SearchIndexDocumentUpdate[] = [];
 
-    data['msginfos'].forEach((msgInfo) => {
-      searchIndexDocumentUpdates.push(
-        new SearchIndexDocumentUpdate(msgInfo.id, async () => {
+      data['msginfos'].forEach((msgInfo) => {
+        searchIndexDocumentUpdates.push(
+          new SearchIndexDocumentUpdate(msgInfo.id, async () => {
+            try {
+              searchIndexService.indexingTools.addMessageToIndex(msgInfo);
+            } catch (e) {
+              console.error(e);
+            }
+          }));
+      });
+      if (searchIndexDocumentUpdates.length > 0) {
+        searchIndexService.postMessagesToXapianWorker(searchIndexDocumentUpdates);
+      }
+    } else if (data['action'] === PostMessageAction.addTermToDocument) {
+      searchIndexService.postMessagesToXapianWorker([
+        new SearchIndexDocumentUpdate(data['messageId'], async () => {
           try {
-            searchIndexService.indexingTools.addMessageToIndex(msgInfo);
+            searchIndexService.api.addTermToDocument(`Q${data['messageId']}`, data['term']);
           } catch (e) {
+            console.error(`Failed to add ${data['term']} to ${data['messageId']}`);
             console.error(e);
           }
-        }));
-      });
-    if (searchIndexDocumentUpdates.length > 0) {
-      searchIndexService.postMessagesToXapianWorker(searchIndexDocumentUpdates);
+        }) ]);
+    } else if (data['action'] === PostMessageAction.removeTermFromDocument) {
+      searchIndexService.postMessagesToXapianWorker([
+        new SearchIndexDocumentUpdate(data['messageId'], async () => {
+          try {
+            searchIndexService.api.removeTermFromDocument(`Q${data['messageId']}`, data['term']);
+          } catch (e) {
+            console.error(`Failed to remove ${data['term']} from ${data['messageId']}`);
+            console.error(data['term']);
+            console.error(data['messageId']);
+            console.error(e);
+          }
+        }) ]);
+    } else if (data['action'] === PostMessageAction.setCurrentFolder) {
+      searchIndexService.currentFolder = data['folder'];
     }
-  } else if (data['action'] === PostMessageAction.addTermToDocument) {
-    searchIndexService.postMessagesToXapianWorker([
-      new SearchIndexDocumentUpdate(data['messageId'], async () => {
-        try {
-          searchIndexService.api.addTermToDocument(`Q${data['messageId']}`, data['term']);
-        } catch (e) {
-          console.error(`Failed to add ${data['term']} to ${data['messageId']}`);
-          console.error(e);
-        }
-      }) ]);
-  } else if (data['action'] === PostMessageAction.removeTermFromDocument) {
-    searchIndexService.postMessagesToXapianWorker([
-      new SearchIndexDocumentUpdate(data['messageId'], async () => {
-        try {
-          searchIndexService.api.removeTermFromDocument(`Q${data['messageId']}`, data['term']);
-        } catch (e) {
-          console.error(`Failed to remove ${data['term']} from ${data['messageId']}`);
-          console.error(data['term']);
-          console.error(data['messageId']);
-          console.error(e);
-        }
-      }) ]);
-  } else if (data['action'] === PostMessageAction.setCurrentFolder) {
-    searchIndexService.currentFolder = data['folder'];
+    console.log('Dealt with message');
+  } catch (e) {
+    console.error('Failed to deal with message: ' + e);
   }
-  console.log('Dealt with message');
 });
 
