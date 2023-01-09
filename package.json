@@ -56,7 +56,7 @@
     "ical.js": "^1.4.0",
     "material-design-icons": "^3.0.1",
     "moment": "^2.29.4",
-    "moment-timezone": "^0.5.28",
+    "moment-timezone": "^0.5.35",
     "npm": "^7.3.0",
     "otpauth": "^8.0.1",
     "rrule": "^2.7.1",
