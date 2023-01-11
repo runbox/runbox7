@@ -46,14 +46,6 @@ $custom-typography: mat-typography-config(
 @include angular-material-typography($custom-typography);
 @include mat-core($custom-typography);
 
-.mat-typography {
-    padding-top: 20px;
-}
-
-mat-form-field {
-    /* This is for iOS not to zoom in when focusing on text fields */
-    font-size: 16px !important;
-}
 
 /* Generic styles */
 
@@ -97,7 +89,7 @@ h4.runbox-section-header {
 }
 
 h5, .mat-typography h5 {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 th {
@@ -113,14 +105,39 @@ ul.square-list li {
     margin-left: 5px;
 }
 
+p {
+    font-size: 13px;
+}
+
+
 /* Generic MD styles */
 
-.mat-list[dense] .mat-list-item .mat-list-text, .mat-nav-list[dense] .mat-list-item .mat-list-text>* {
-    padding: 0px 10px !important;
+.mat-typography {
+    padding-top: 0px;
+}
+
+mat-form-field {
+    /* This is for iOS not to zoom in when focusing on text fields */
+    font-size: 13px !important;
+}
+
+/* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
+mat-list-item .mat-list-item-content,
+a[mat-list-item] .mat-list-item-content {
+    min-height: 24px !important;
+}
+
+.mat-list[dense] .mat-list-item .mat-list-text, 
+.mat-nav-list[dense] .mat-list-item .mat-list-text>*,
+mat-list-item .mat-list-text,
+a[mat-list-item] .mat-list-text {
+    height: 1.3em;
+    line-height: 22px;
     font-weight: 400;
 }
 
 mat-list-item p.mat-line mat-icon {
+    padding-right: 8px !important;
     padding-bottom: 8px !important;
 }
 
@@ -130,12 +147,26 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .mat-line, .mat-tree-node {
-    font-size: 16px  !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    font-size: 13px !important;
 }
 
-mat-icon {
-    align-items: center;
-    vertical-align: middle !important;
+.mat-list-base {
+    padding-top: 0px !important;
+}
+
+.mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
+    height: auto !important;
+    font-size: 13px !important;
+}
+
+.mat-menu-content .mat-list-item {
+    height: 32px !important;
+}
+
+.mat-menu-panel .mat-list-item {
+    height: 40px !important;
 }
 
 .mat-header-cell {
@@ -162,7 +193,33 @@ mat-chip.mat-chip.mat-standard-chip {
     background-color: #f5f5f5;
 }
 
+.mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
+    min-height: 24px;
+    height: 36px;
+
+    .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
+	height: 1.8em !important;
+	min-height: 1.8em !important;
+    }
+}
+
+.mat-expansion-panel-header.mat-expanded {
+    height: 36px;
+}
+
+mat-icon {
+    vertical-align: middle;
+}
+
 /* Generic custom styles */
+
+.appPageHeader * {
+    float: left;
+}
+
+.appPageHeader h1 {
+    margin-top: 8px;
+}
 
 .mat-dialog-container {
     max-width: 550px;
@@ -174,13 +231,19 @@ mat-grid-tile.tableTitle {
 
 .contentButton {
     margin: 0 5px !important;
-    border: 1px solid mat-color($rmm-default-primary) !important;
-    background: white;
-    padding: 5px 10px 3px 10px !important;
+    background: #eeeeee;
+    padding: 5px 0px 3px 3px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
-    font-size: 16px;
+    font-size: 13px;
+    color: #000;
+
+    mat-icon {
+	width: 22px;
+	height: 22px;
+	vertical-align: top;
+    }
 }
 
 .primaryContentButton {
@@ -389,7 +452,7 @@ div.loginScreen {
     min-height: 20px;
     padding: 0 10px 0.7em;
     color: #f00;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 div.loginScreen .login_error_html p {
@@ -420,7 +483,7 @@ div.loginScreen mat-button-toggle button {
 
 div.loginScreen .login-link {
     margin: 0 0 5px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 div.loginScreen .login-link a {
@@ -501,7 +564,7 @@ rmm-headertoolbar {
 }
 
 #logo {
-    margin: 0px 10px 3px 20px;
+    margin: 2px 10px 1px 20px;
     width: 125px;
     height: auto;
     transition: filter 0.5s;
@@ -528,6 +591,8 @@ rmm-headertoolbar {
 }
 
 .mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
+    height: 36px !important;
+    line-height: 36px !important;
     color: mat-color($rmm-default-primary) !important;
 }
 
@@ -536,7 +601,6 @@ rmm-headertoolbar {
 }
 
 .mainMenu a, mat-menu a, .mat-nav-list a {
-    line-height: 20px;
     padding: 0;
     text-decoration: none;
     font-weight: 400;
@@ -549,16 +613,17 @@ rmm-headertoolbar {
 
 .mainMenuDesc {
     margin: 20px 0 0 0;
+    font-size: 15px;
     line-height: 12px;
     color: #fff;
     transition: margin-top 0.25s;
 }
 
 .mainMenu:hover {
-    margin-top: -5px;
+    margin-top: -10px;
 
     .mainMenuDesc {
-	margin-top: 0px;
+	margin-top: -3px;
     }
 }
 
@@ -588,11 +653,15 @@ mat-sidenav-container {
 #sideMenu {
     flex-grow: 1;
     border-right: 1px solid rgba(0, 0, 0, 0.12);
+
+    mat-icon {
+	width: 20px;
+	height: 20px;
+    }
 }
 
 #toggleFolderPaneIcon {
     overflow: visible;
-    height: 70px !important;
 }
 
 @media (min-width: 1025px) {
@@ -622,10 +691,18 @@ mat-sidenav-container {
 #sidenavLogoContainer {
     background-color: mat-color($rmm-default-primary) !important;
     margin-top: -4px;
+
+    .mat-button .mat-ripple-element {
+	opacity: 0; // Override lower opacity in theme
+    }
 }
 
 #sidenavLogoButton {
     width: 100%;
+}
+
+#webmailSettingsMenuButto {
+    margin-right: 10px;
 }
 
 #sidenavGreeting {
@@ -634,12 +711,16 @@ mat-sidenav-container {
 
 #sidenavGreeting p {
     margin-bottom: 5px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 #sidenavGreetingContent {
     margin: 5px 0;
     font-size: 12px !important;
+}
+
+#sidenavGreetingContent p, #sidenavGreetingContent a {
+    line-height: 1.2em;
 }
 
 #logoSidenav {
@@ -659,6 +740,11 @@ mat-sidenav-container {
     }
 }
 
+h3.sideNavHeader {
+    margin: 20px 0 10px 0;
+    padding-left: 20px;
+}
+
 .mat-nav-list a.textLink {
     color: mat-color($rmm-default-primary);
     text-decoration: underline;
@@ -673,15 +759,19 @@ mat-sidenav-container {
 
 /* Folders */
 
-.mailFolder {
-    vertical-align: middle;
+#folderListHeader {
+    height: 30px;
+    font-size: 13px;
 }
 
-.mailFolder mat-icon {
-    margin-bottom: 1px !important;
+#createFolderButton {
+    margin-right: 14px;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
 }
-
-.mailFolder span {
+    
+.mailFolder div, .mailFolder span {
     height: 1em;
     vertical-align: middle;
 }
@@ -729,22 +819,50 @@ mat-sidenav-container {
     background-color: mat-color($rmm-default-accent, 50) !important;
 }
 
-/* List screen */
-
-#searchField {
-    margin: 12px 20px 0 20px;
+app-popular-recipients, app-saved-searches {
+    mat-expansion-panel-header span {
+	align-items: center;
+	height: 17px;
+    }
 }
 
-#searchField .mat-input-element {
-    line-height: 1.8em;
+app-saved-searches .mat-list-base[dense] .mat-list-item {
+    height: 30px;
+}
+
+
+/* List screen */
+
+#searchBarContainer {
+    height: 55px;
+    @media(max-width: 340px) {
+        padding: 0;
+    }
+}
+
+#searchBarContainer .mat-icon-button {
+    margin: 0 2px;
+    height: 40px;
+}
+
+#searchField {
+    margin: 0px 10px 0 10px;
+    @media(max-width: 340px) {
+        margin: 0px 5px 0 5px;
+    }
+}
+
+#searchField .mat-form-field-wrapper {
+    padding-bottom: 0.5em;
 }
 
 #searchField .mat-form-field-infix {
-    line-height: 1.8em;
+    line-height: 1.25em;
+    padding: 0.25em 0;
 }
 
 #searchField .mat-form-field-underline {
-    bottom: 1.5em;
+    bottom: 0.75em;
 }
 
 #searchField mat-icon {
@@ -752,9 +870,40 @@ mat-sidenav-container {
     line-height: 20px !important;
 }
 
+#searchField input {
+    font-size: 16px;
+}
+
+#searchField label {
+    font-size: 14px;
+}
+
+#multipleSearchFieldsContainer {
+      position: absolute;
+      top: 45px;
+      right: 13px;
+      z-index: 9999;
+      height: auto;
+      background-color: white;
+      border: #aaa solid 1px;
+      padding: 0 10px 5px 10px;
+
+      .mat-form-field-wrapper {
+	  padding-bottom: 1em;
+      }
+
+      .mat-form-field-infix {
+	  padding-bottom: 3px;
+      }
+}
+
 #threadedCheckbox, #unreadCheckbox {
     margin: 10px 20px 0 0;
     height: 40px;
+}
+
+.mat-checkbox-label {
+    font-size: 13px;
 }
 
 #threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
@@ -780,13 +929,13 @@ mat-sidenav-container {
     text-align: center;
     font-family: "Avenir Next Pro Regular ", "Helvetica Neue", sans-serif;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 13px;
     color: #949494;
 }
 
 #canvasTableContainerArea {
     position: absolute;
-    top: 73px;
+    top: 55px;
     left: 0px;
     right: 0px;
 }
@@ -797,14 +946,6 @@ mat-sidenav-container {
 
 /* Read screen */
 
-.noMessageSelectedNotification {
-    margin-top: 25%;
-    font-size: 20px;
-    font-style: italic;
-    color: #bbb;
-    text-align: center;
-}
-
 .inMessageNotification {
     font-size: 12px;
     font-style: italic;
@@ -812,15 +953,26 @@ mat-sidenav-container {
     text-align: center;
 }
 
+#messageHeaderSubject {
+    font-size: 16px !important;
+}
+
+#messageContent {
+    font-size: 13px !important;
+}
 
 /* Message action button row */
+single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
+    height: 55px !important;
+}
+
 @media(max-width: 812px) {
     single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
 	height: 40px !important;
     }
 }
 
-mat-expansion-panel {
+mat-expansion-panel, mat-expansion-panel-header {
     box-shadow: none !important;
 }
 
@@ -828,7 +980,31 @@ mat-expansion-panel {
     padding: 0 !important;
 }
 
+/* Message header area */
+#messageContents .mat-expansion-panel-header.mat-expanded {
+    height: 36px;
+}
+
+/* Message display options */
+.htmlButtons {
+    .mat-radio-label-content {
+	padding: 0 5px !important;
+    }
+}
+
 /* Compose */
+
+.draftdesk-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+compose {
+    flex-grow: 1;
+}
+
+compose.draftPreviewContainer {
+}
 
 @media(min-width: 1025px) {
     compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
@@ -855,7 +1031,7 @@ compose .mat-form-field-underline, compose input.mat-chip-input {
 
 compose .mat-card-title {
     margin-bottom: 0px !important;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 compose .mat-card-subtitle {
@@ -870,19 +1046,58 @@ compose .mat-standard-chip {
     padding: 5px 10px !important;
 }
 
-/* Dom reg */
-
-.domreg .mat-card-header-text {
-    width: 100%;
+compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-field-wrapper, compose #fieldSubject .mat-form-field-wrapper {
+    padding-bottom: 0.5em;
 }
 
-.domreg .long_placeholder label {
-    white-space: normal !important;
+#fieldFrom, #fieldSubject {
+    overflow: hidden;
+
+    .mat-form-field-infix {
+	padding-bottom: 4px;
+    }
 }
 
-.domreg .default_margintop {
-    margin-top: 35px;
+
+/* Contacts */
+
+.contactListControls {
+    .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
+	height: 48px !important;
+    }
+}    
+
+.contactList .mat-form-field-infix {
+    font-size: 16px;
 }
+
+#contactListControlsSearch {
+
+    .mat-form-field-label-wrapper {
+        top: -1em;
+    }
+
+    .mat-form-field-label-wrapper label {
+	margin-top: 10px;
+    }
+
+    .mat-list-item-content {
+	padding: 0 !important;
+    }
+
+    .mat-form-field-appearance-legacy .mat-form-field-infix {
+	padding-top: 0 !important;
+    }
+    
+    .mat-form-field-appearance-legacy .mat-form-field-label {
+        top: 0.75em;
+    }
+}
+
+.contactList .contactName p {
+    margin: 0;
+}
+
 
 /* Calendar */
 
@@ -955,6 +1170,20 @@ app-calendar-event-editor-dialog p {
     margin: 10px;
 }
 
+/* Dom reg */
+
+.domreg .mat-card-header-text {
+    width: 100%;
+}
+
+.domreg .long_placeholder label {
+    white-space: normal !important;
+}
+
+.domreg .default_margintop {
+    margin-top: 35px;
+}
+
 /* Payment */
 
 .limitedTimeOffer {
@@ -974,6 +1203,37 @@ app-calendar-event-editor-dialog p {
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
     background: mat-color($rmm-default-accent);
 }
+
+#specialOffer {
+    width: 98%;
+    border: 1px solid mat-color($rmm-default-primary);
+    padding: 10px;
+    text-align: center;
+}
+
+#specialOffer h1 {
+    margin: 10px 0 0 -100px;
+    font-size: 40px;
+    text-transform: uppercase !important;
+    line-height: 1.5em;
+    color: mat-color($rmm-default-primary);
+}
+
+#specialOffer h2 {
+    margin: 10px 0 10px -100px;
+    color: mat-color($rmm-default-primary);
+}
+
+#specialOffer h3 {
+    margin: 0 0 0 -100px;
+    color: mat-color($rmm-default-primary);
+}
+
+#specialOffer p.description {
+    font-size: 13px;
+    color: mat-color($rmm-default-primary);
+}
+
 
 /* Runbox components */
 
@@ -1022,7 +1282,7 @@ app-calendar-event-editor-dialog p {
 .dev.runbox-components .nice_blue_timer .timeunit {
     height: 30px;
     display: inline-flex;
-    margin-right: 15px;
+    margin-right: 13px;
     justify-content: center;
     align-items: center;
 }
@@ -1084,24 +1344,56 @@ canvastable {
 
 // helpers for multi-row mobile-friendly mat-tables
 tr.detailsRow {
-    height: 0;
+    height: 0 !important;
 }
 
 tr.regularRow td {
     border-bottom-width: 0;
 }
 
+tr.regularRow td.mat-cell:first-of-type {
+    padding-left: 0px;
+}
+tr.regularRow td.mat-cell:last-of-type {
+    padding-right: 0px;
+}
+
 div.expandedDetails {
     overflow: hidden;
     display: flex;
+    min-height: 0;
+    @media only screen and (min-width: 1025px) {
+        height: 0px;
+    }
 }
+
+td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
+    @media only screen and (max-width: 1024px) {
+        padding-bottom: 10px;
+    }
+    @media only screen and (max-width: 500px) {
+        padding: 0 10px 10px;
+    }
+}
+
+td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
+    @media only screen and (max-width: 1024px) {
+        background-color: #f5f5f5;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-weight: bold;
+    }
+    @media only screen and (max-width: 500px) {
+        padding: 10px 13px 10px;
+    }
+}
+
+table.renewalsTable td, table.paymentsTable td {
+    padding: 5px 10px 0px 10px !important;
+}    
 
 table.detailsTable {
     width: 100%;
-}
-
-table.detailsTable tr td:first-of-type {
-    font-weight: bold;
 }
 
 table.detailsTable tr td:nth-of-type(2) {

@@ -23,8 +23,8 @@ import { CalendarService } from './calendar.service';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import * as moment from 'moment';
-import * as ICAL from 'ical.js';
+import moment from 'moment';
+import ICAL from 'ical.js';
 
 describe('CalendarService', () => {
     let dav_events: any;
@@ -107,13 +107,13 @@ END:VCALENDAR
         getVTimezone:      (tzname: string) => of(timezone),
         modifyCalendarEvent: (e: RunboxCalendarEvent) => {
             calls.modifyCalendarEvent++;
-            dav_events[e.id] = e;
+            dav_events[e.id] = {'calendar': e._calendar, 'id': e.id, 'ical': e.toIcal()};
             return of(e);
         },
         addCalendarEvent: (e: RunboxCalendarEvent) => {
             calls.addCalendarEvent++;
             e.id = 'random';
-            dav_events[e.id] = e;
+            dav_events[e.id] = {'calendar': e._calendar, 'id': e.id, 'ical': e.toIcal()};
             return of(e);
         },
         deleteCalendarEvent: (id: string) => {

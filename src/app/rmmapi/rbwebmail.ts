@@ -22,6 +22,7 @@ import { Observable, from, Subject, AsyncSubject } from 'rxjs';
 import { share } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { FolderListEntry } from '../common/folderlistentry';
 
 import { Contact } from '../contacts-app/contact';
 import { RunboxCalendar } from '../calendar-app/runbox-calendar';
@@ -37,7 +38,7 @@ import { RMM } from '../rmm';
 import { FromAddress } from './from_address';
 import { MessageCache } from './messagecache';
 import { LRUMessageCache } from './lru-message-cache';
-import * as moment from 'moment';
+import moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 
 export class MessageFields {
@@ -50,22 +51,6 @@ export class MessageFields {
     folder_id: number;
     from: string;
     to: string;
-}
-
-export class FolderListEntry {
-    isExpandable?: boolean;
-    priority?: number; // for sorting order
-
-    constructor(
-        public folderId: number,
-        public newMessages: number,
-        public totalMessages: number,
-        public folderType: string,
-        public folderName: string,
-        public folderPath: string,
-        public folderLevel: number) {
-        this.folderPath = folderPath.replace(/\./g, '/');
-    }
 }
 
 export class Alias {
@@ -149,8 +134,10 @@ export class MessageTextContents {
 }
 
 export class MessageContents {
-    text: MessageTextContents;
-    version = 1;
+    text?: MessageTextContents;
+    version = 4;
+    status: 'success';
+    errors: [];
 }
 
 export class MessageFlagChange {
@@ -236,13 +223,29 @@ export class RunboxWebmailAPI {
             } else {
                 const messagePromise = new Promise<MessageContents>((resolve, reject) => {
                     this.http.get('/rest/v1/email/' + messageId)
-                    .pipe(
-                        map((r: any) => r.result),
-                    ).subscribe((result) => {
-                        this.messageCache.set(messageId, result);
-                        resolve(Object.assign( new MessageContents(), result));
+                        .subscribe((response) => {
+                        if (response['status'] === 'success') {
+                            const msg = Object.assign( new MessageContents(), response['result']);
+                            msg.status = response['status'];
+                            this.messageCache.set(messageId, msg);
+                            resolve(msg);
+                        } else if (response['status'] === 'warning') {
+                            // exists but we couldnt fetch it all
+                            const msg = Object.assign( new MessageContents());
+                            msg.status = response['status'];
+                            msg.errors = response['errors'];
+                            this.messageCache.set(messageId, msg);
+                            resolve(msg);
+                        } else {
+                            // We load message data at unexpected times
+                            // for the user, don't display a generic error yet
+                            console.log('Error loading message ' + messageId);
+                            console.log(response);
+                            delete this.messageContentsRequestCache[messageId];
+                            reject(response);
+                        }
                     }, err => {
-                        delete this.messageContentsRequestCache[messageId];
+                        this.deleteCachedMessageContents(messageId);
                         reject(err);
                     });
                 });
@@ -265,6 +268,8 @@ export class RunboxWebmailAPI {
         );
     }
 
+  // FIXME: duplicated in restapi_standalone (no gui) for web worker
+  // make there be no duplicates!
     public listAllMessages(page: number,
         sinceid: number = 0,
         sincechangeddate: number = 0,
@@ -278,7 +283,7 @@ export class RunboxWebmailAPI {
                     '&sinceid=' + sinceid +
                     '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
                     '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-                    (folder ? '&folder=' + folder.replace(/\//g, '.') : '') +
+                    (folder ? '&folder=' + folder : '') +
                     '&avoidcacheuniqueparam=' + new Date().getTime();
 
         return this.http.get(url, { responseType: 'text' }).pipe(
@@ -326,24 +331,34 @@ export class RunboxWebmailAPI {
 
     subscribeShowBackendErrors(req: any) {
         req.subscribe((res: any) => {
-            if (res.status === 'error') {
-                if (res.errors && res.errors.length) {
-                    const error_msg = res.errors.map((key) => {
-                        return this.rblocale.translate(key).replace('_', ' ');
-                    }).join('. ');
-                    const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
-                    this.snackBar.open(error_formatted, 'Dismiss');
-                } else {
-                    this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
-                }
-            }
+            this.showBackendErrors(res);
         });
     }
 
-    createFolder(parentFolderId: number, newFolderName: string): Observable<boolean> {
+    showBackendErrors(res: any) {
+        if (res.status === 'error' || res.status === 'warning') {
+            console.log(res);
+            if (res.errors && res.errors.length) {
+                const error_msg = res.errors.map((key) => {
+                    let loc = this.rblocale.translate(key).replace('_', ' ');
+                    if (loc.length === 0) {
+                        loc = key;
+                    }
+                    return loc;
+                }).join('. ');
+                const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
+                this.snackBar.open(error_formatted, 'Dismiss');
+            } else {
+                this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
+            }
+        }
+    }
+
+    createFolder(parentFolderId: number, newFolderName: string, order: number[]): Observable<boolean> {
         const req = this.http.post('/rest/v1/email_folder/create', {
             'new_folder': newFolderName,
-            'to_folder': parentFolderId
+            'to_folder': parentFolderId,
+            'ordered_ids': order
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
@@ -364,6 +379,10 @@ export class RunboxWebmailAPI {
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(map((res: any) => res.status === 'success'));
+    }
+
+    updateFolderCounts(folderName: string): Observable<any> {
+        return this.http.post('/rest/v1/email_folder/stats/' + folderName, {});
     }
 
     moveFolder(folderId: number, newParentFolderId: number, ordered_ids?: number[]): Observable<boolean> {
@@ -422,8 +441,8 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public moveToFolder(messageIds: number[], folderId: number): Observable<any> {
-        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: folderId });
+    public moveToFolder(messageIds: number[], toFolderId: number, fromFolderId: number): Observable<any> {
+        return this.http.post('/rest/v1/email/move', { messages: messageIds, folder_id: toFolderId, from_folder_id: fromFolderId });
     }
 
     public trainSpam(params): Observable<any> {

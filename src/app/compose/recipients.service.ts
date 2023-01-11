@@ -26,7 +26,7 @@ import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { Recipient } from './recipient';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import * as moment from 'moment';
+import moment from 'moment';
 
 enum RecipientOrigin {
     Search = 'search',
@@ -79,7 +79,7 @@ export class RecipientsService {
             }
         });
 
-        searchService.searchResultsSubject.subscribe(() => this.updateRecentlyUsed());
+        searchService.indexReloadedSubject.subscribe(() => this.updateRecentlyUsed());
 
         contactsService.contactsSubject.subscribe(contacts => {
             this.recipientsUpdating = this.recipientsUpdating.filter(r => r.origin !== RecipientOrigin.Contacts);

@@ -1,6 +1,6 @@
 <app-runbox-container>
     <nav>
-        <h3 class="settingsmenu">Settings Menu</h3>
+        <h3 class="sideNavHeader">Settings Menu</h3>
         <mat-accordion>
             <!-- MAIL -->
             <mat-expansion-panel>
@@ -81,11 +81,6 @@
                         </p>
                     </mat-list-item>
                 </a>
-                <mat-list-item routerLink="/account/domainregistration">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="border-inside"></mat-icon> <span>Domain Registration</span>
-                    </p>
-                </mat-list-item>
             </mat-expansion-panel>
 
             <!-- ACCOUNT -->
@@ -95,19 +90,25 @@
                         <mat-icon mat-list-icon svgIcon="account-cog"></mat-icon> <span>Account</span>
                     </p>
                 </mat-expansion-panel-header>
-                <a href="/mail/account" target="rmm6">
-                    <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="account-details"></mat-icon> <span>Account
-                                Details</span>
-                        </p>
-                    </mat-list-item>
-                </a>
+                <mat-list-item routerLink="/account/details">
+                    <p mat-line>
+                        <mat-icon mat-list-icon svgIcon="face"></mat-icon> <span>Personal Details</span>
+                    </p>
+                </mat-list-item>
+                <mat-list-item routerLink="/account/storage">
+                    <p mat-line>
+                        <mat-icon mat-list-icon svgIcon="view-list"></mat-icon> <span>Storage and Data</span>
+                    </p>
+                </mat-list-item>
+                <mat-list-item routerLink="/account/preferences">
+                    <p mat-line>
+                        <mat-icon mat-list-icon svgIcon="cog"></mat-icon> <span>Preferences</span>
+                    </p>
+                </mat-list-item>
                 <a href="/mail/account_account" target="rmm6" *ngIf="isMainAccount">
                     <mat-list-item [matTooltip]="rmm6tooltip">
                         <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="account-supervisor"></mat-icon>
-                            <span>Sub-Accounts</span>
+                            <mat-icon mat-list-icon svgIcon="account-supervisor"></mat-icon> <span>Sub-Accounts</span>
                         </p>
                     </mat-list-item>
                 </a>
@@ -120,6 +121,12 @@
                         <mat-icon mat-list-icon svgIcon="security"></mat-icon> <span>Security</span>
                     </p>
                 </mat-expansion-panel-header>
+                <mat-list-item routerLink="/account/account_password">
+                    <p mat-line>
+                        <mat-icon mat-list-icon svgIcon="form-textbox-password"></mat-icon> <span>Account
+                            Password</span>
+                    </p>
+                </mat-list-item>
                 <mat-list-item routerLink="/account/2fa">
                     <p mat-line>
                         <mat-icon mat-list-icon svgIcon="cellphone-lock"></mat-icon> <span>Two-Factor
@@ -172,7 +179,7 @@
                         <mat-icon mat-list-icon svgIcon="receipt"></mat-icon> <span>Payment History</span>
                     </p>
                 </mat-list-item>
-                <mat-list-item routerLink="/account/credit_cards">
+                <mat-list-item routerLink="/account/payment_cards">
                     <p mat-line>
                         <mat-icon mat-list-icon svgIcon="credit-card"></mat-icon> <span>Payment Cards</span>
                     </p>

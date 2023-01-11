@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpClient } from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable,  throwError } from 'rxjs';
 import { catchError, map, finalize } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
@@ -80,12 +80,22 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                 return evt;
             }),
             catchError((e) => {
-                if (e.status === 403) {
-                    console.log('Forbidden');
-                    this.checkAccountStatus();
-                } else if (e.status === 502) {
-                    this.rmmoffline.is_offline = true;
-                    return throwError(e);
+                if (e  instanceof HttpErrorResponse) {
+                    if (e.status === 403) {
+                        console.log('Forbidden');
+                        this.checkAccountStatus();
+                        return throwError(e.message);
+                    } else if (e.status === 502 || e.status === 504) {
+                        // Bad Gateway / Gateway Timeout
+                        this.rmmoffline.is_offline = true;
+                        console.log(e);
+                        return throwError(e.message);
+                    } else {
+                        // Some other kind of HttpErrorResponse
+                        // eg status=200, but json parse failed"
+                        console.error(e);
+                        return throwError(e.message);
+                    }
                 } else {
                     return throwError(e);
                 }

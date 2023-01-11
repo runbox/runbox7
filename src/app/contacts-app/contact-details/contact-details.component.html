@@ -172,14 +172,11 @@
             [inputFG]="contactForm"
             faName="emails"
             (newElementClicked)="newEmail()"
-            layout="simple"
+            (startVideoCall)="newVideoCall($event)"
 
             valuePlaceholder="E-mail address"
             deleteDescription="Delete this address"
             addNewDescription="Add a new e-mail address"
-
-            actionIcon="email"
-            actionDescription="Send an email to this address"
         >
         </app-contact-details-fa-viewer>
 
@@ -189,7 +186,6 @@
             [inputFG]="contactForm"
             faName="phones"
             (newElementClicked)="newPhone()"
-            layout="simple"
 
             valuePlaceholder="Phone number"
             deleteDescription="Delete this phone number"
@@ -203,14 +199,10 @@
             [inputFG]="contactForm"
             faName="urls"
             (newElementClicked)="newUrl()"
-            layout="simple"
 
             valuePlaceholder="Website address"
             deleteDescription="Delete this address"
             addNewDescription="Add a new address"
-
-            actionIcon="link"
-            actionDescription="Visit this website"
         >
         </app-contact-details-fa-viewer>
 
@@ -220,7 +212,6 @@
             [inputFG]="contactForm"
             faName="addresses"
             (newElementClicked)="newAdr()"
-            layout="complex"
 
             deleteDescription="Delete this address"
             addNewDescription="Add a new address"
@@ -233,7 +224,6 @@
             [inputFG]="contactForm"
             faName="related"
             (newElementClicked)="newRelative()"
-            layout="simple"
 
             valuePlaceholder="Name"
             deleteDescription="Delete this relative"

@@ -18,7 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { FolderListEntry, RunboxWebmailAPI } from './rbwebmail';
+import { RunboxWebmailAPI } from './rbwebmail';
+import { FolderListEntry } from '../common/folderlistentry';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -54,6 +55,7 @@ describe('RBWebMail', () => {
         const httpTestingController = TestBed.inject(HttpTestingController);
         let req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
+            status: 'success',
             result: {
                 id: 123,
                 subject: 'test'
@@ -76,6 +78,7 @@ describe('RBWebMail', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
+            status: 'success',
             result: {
                 id: 123,
                 subject: 'test2'
@@ -93,6 +96,7 @@ describe('RBWebMail', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
+            status: 'success',
             result: {
                 id: 123,
                 subject: 'test3'
@@ -241,13 +245,13 @@ describe('RBWebMail', () => {
             (f: FolderListEntry) => f.folderPath === 'HTML'
         ).folderLevel).toBe(0);
         expect(folders.find(
-            (f: FolderListEntry) => f.folderPath === 'HTML/lalala'
+            (f: FolderListEntry) => f.folderPath === 'HTML.lalala'
         ).folderLevel).toBe(1);
         expect(folders.find(
-            (f: FolderListEntry) => f.folderPath === 'HTML/lalala/Tester'
+            (f: FolderListEntry) => f.folderPath === 'HTML.lalala.Tester'
         ).folderLevel).toBe(2);
         expect(folders.find(
-            (f: FolderListEntry) => f.folderPath === 'HTML/lalala/hohohohahaha/subtest'
+            (f: FolderListEntry) => f.folderPath === 'HTML.lalala.hohohohahaha.subtest'
         ).folderLevel).toBe(3);
     });
 
@@ -628,11 +632,11 @@ describe('RBWebMail', () => {
         expect(folders[0].folderId).toBe(3692896);
         expect(folders.length).toBe(22);
         expect(folders.findIndex(folder => folder.folderPath === 'HTML')).toBe(10);
-        expect(folders[11].folderPath).toBe('HTML/lalala');
+        expect(folders[11].folderPath).toBe('HTML.lalala');
         expect(folders[11].folderLevel).toBe(1);
-        expect(folders[12].folderPath).toBe('HTML/lalala/Tester');
+        expect(folders[12].folderPath).toBe('HTML.lalala.Tester');
         expect(folders[12].folderLevel).toBe(2);
-        expect(folders[15].folderPath).toBe('HTML/lalala/hohohohahaha/subtest');
+        expect(folders[15].folderPath).toBe('HTML.lalala.hohohohahaha.subtest');
         expect(folders[15].folderLevel).toBe(3);
     });
 });

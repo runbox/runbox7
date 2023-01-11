@@ -35,7 +35,7 @@
       </button>
       <ng-container *ngIf="morebuttonindex>5">
         <button *ngIf="mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
-        <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
+        <mat-icon svgIcon="email-open"></mat-icon>
         </button>
         <button *ngIf="mailObj.seen_flag===0" mat-icon-button matTooltip="Mark read" (click)="messageActionsHandler.markSeen(1)">
         <mat-icon svgIcon="email-check"></mat-icon>
@@ -79,11 +79,21 @@
           <mat-radio-group
             style="display: inline-flex; flex-direction: column"
             [(ngModel)]="showHTMLDecision" (change)="saveShowHTMLDecision()">
-              <mat-radio-button class="menuradiobutton" value="dontask">
+            <mat-radio-button class="menuradiobutton" value="dontask">
                 Toggle HTML
               </mat-radio-button>
-              <mat-radio-button class="menuradiobutton" value="alwaysshowhtml">
+            <mat-radio-button class="menuradiobutton" value="alwaysshowhtml">
                 Always show HTML
+              </mat-radio-button>
+          </mat-radio-group>
+          <mat-radio-group
+            style="display: inline-flex; flex-direction: column"
+            [(ngModel)]="showImagesDecision" (change)="saveShowImagesDecision()">
+              <mat-radio-button class="menuradiobutton" value="dontask">
+                Toggle Images
+              </mat-radio-button>
+              <mat-radio-button class="menuradiobutton" value="alwaysshowimages">
+                Always show Images
               </mat-radio-button>
           </mat-radio-group>
       </mat-menu>
@@ -98,10 +108,10 @@
             <mat-icon svgIcon="delete"></mat-icon>
             Move to Trash
           </span>
-          <span #deletePermanently2>
+          <ng-template #deletePermanently2>
             <mat-icon svgIcon="delete-forever"></mat-icon>
             Delete permanently
-          </span>
+          </ng-template>
         </button>
         <button *ngIf="morebuttonindex<3" mat-menu-item (click)="messageActionsHandler.reply(showHTML)">
           <mat-icon svgIcon="reply"></mat-icon>
@@ -181,93 +191,151 @@
   </mat-toolbar>
   <div *ngIf="mailObj" #messageContents id="messageContents">
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">
-      <mat-expansion-panel-header title="Toggle message headers">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle message headers">
 	      <mat-panel-title>
           <app-avatar-bar [email]="mailObj"> </app-avatar-bar>
           <div id="messageHeaderSubject">{{mailObj.subject}}</div>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div style="position: absolute; right: 3px;">
+      <div id="headerButtons" style="position: absolute; right: 3px;">
         <button mat-icon-button matTooltip="Show all headers" *ngIf="!showAllHeaders" (click)="showAllHeaders=true"><mat-icon svgIcon="unfold-more-horizontal"></mat-icon></button>
-        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-vertical"></mat-icon></button>
+        <button mat-icon-button matTooltip="Show basic headers" *ngIf="showAllHeaders" (click)="showAllHeaders=false"><mat-icon svgIcon="unfold-less-horizontal"></mat-icon></button>
       </div>
+      <div class="messageHeaders">
       <ng-container *ngIf="!showAllHeaders">
-        <div class="messageHeaderRow">
-          <div class="messageHeaderFrom">
-            From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+          <div class="messageHeaderRow">
+            <div class="messageHeaderFrom">
+              From: <rmm7-contact-card [contact]="mailObj.from[0]"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div class="messageHeaderRow">
-          <div class="messageHeaderDate">Time:</div>
-          <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
-        </div>
-        <div *ngIf="mailObj.to" class="messageHeaderRow">
-          <div class="messageHeaderTo">
-            To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+          <div class="messageHeaderRow">
+            <div class="messageHeaderDate">Time:</div>
+            <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
           </div>
-        </div>
-        <div *ngIf="mailObj.cc" class="messageHeaderRow">
-          <div class="messageHeaderCC">
-            CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.to" class="messageHeaderRow">
+            <div class="messageHeaderTo">
+              To: <rmm7-contact-card *ngFor="let to of mailObj.to" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-        <div *ngIf="mailObj.bcc"class="messageHeaderRow">
-          <div class="messageHeaderBCC">
-            BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+          <div *ngIf="mailObj.cc" class="messageHeaderRow">
+            <div class="messageHeaderCC">
+              CC: <rmm7-contact-card *ngFor="let to of mailObj.cc" [contact]="to"></rmm7-contact-card>
+            </div>
           </div>
-        </div>
-      </ng-container>
-      <table *ngIf="showAllHeaders">
-        <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
-          <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
-          <td style="vertical-align: top;">
+          <div *ngIf="mailObj.bcc"class="messageHeaderRow">
+            <div class="messageHeaderBCC">
+              BCC: <rmm7-contact-card *ngFor="let to of mailObj.bcc" [contact]="to"></rmm7-contact-card>
+            </div>
+          </div>
+        </ng-container>
+        <table *ngIf="showAllHeaders">
+          <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
+            <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
+            <td style="vertical-align: top;">
               <span *ngIf="header.value.html" [innerHTML]="header.value.html"></span>
               <span *ngIf="header.value.unsubscribe">
                 Unsubscribe:
                 <a [href]="header.value.unsubscribe.url">
-                    {{header.value.unsubscribe.url}}
+                  {{header.value.unsubscribe.url}}
                 </a>
               </span>
               <span *ngIf="!header.value.html && !header.value.unsubscribe">{{header.value | json}}</span>
-          </td>
-        </tr>
-      </table>
+            </td>
+          </tr>
+        </table>
+      </div>
 
     </mat-expansion-panel>
 
+    <mat-expansion-panel *ngIf="showAttachments" id="attachmentsListHeader">
+      <mat-expansion-panel-header class="messageHeaders" title="Toggle attachment list">
+        <p mat-line>
+          <mat-icon mat-list-icon svgIcon="attachment"></mat-icon> <span> Attachment List</span>
+        </p>
+      </mat-expansion-panel-header>
+    
+      <ng-container>
+        <mat-list>
+          <mat-list-item class="link-pointer" *ngFor="let att of mailObj.attachments; let i=index" (click)="openAttachment(att)">
+            <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
+              <mat-icon mat-list-icon svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon> <span>{{att.filename}}</span>
+            </ng-container>
+          </mat-list-item>
+        </mat-list>
+      </ng-container>
+    </mat-expansion-panel>
+    <mat-divider></mat-divider>
 
     <!-- Used when forwarding mail - do not delete -->
 
     <span style="display: none" #forwardMessageHeader>
-      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt;<br />
-      Time:{{mailObj.date | date:'yyyy-MM-dd HH:mm'}}<br />
-      To:
-      <ng-container *ngIf="mailObj.to">
-            <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </ng-container>
-      <br />
-      <ng-container *ngIf="mailObj.cc">
-        <span>Cc:</span><span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </ng-container>
-      {{mailObj.subject}}
+      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; <br />
+      Time: {{mailObj.date | date:'yyyy-MM-dd HH:mm'}} <br />
+      Subject: {{mailObj.subject}} <br />
+      <span *ngIf="mailObj.to">
+        To: <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
+      </span> <br />
+      <span *ngIf="mailObj.cc">
+        Cc: <span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
+      </span> <br />
     </span>
 
-    <!---->
-    <div *ngIf="mailContentHTML && showHTMLDecision!=='alwaysshowhtml'"
-      style="display: flex; font-size: 12px;">
+    <!-- Used when replying to mail - do not delete -->
+
+    <span style="display: none" #replyMessageHeader>
+      On {{mailObj.date | date:'yyyy-MM-dd HH:mm'}}, {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; wrote:
+    </span>
+
+    <div class="htmlButtons" *ngIf="mailContentHTML">
       <span style="flex-grow: 1"></span>
       <span>
-        <mat-checkbox color="warn"
-          (click)="toggleHtml($event)"
-          [checked]="showHTML"
-          matTooltip="Toggle HTML view"
+	Show:
+        <mat-radio-group
+          aria-label="Toggle Plain/HTML view"
+          [value]="showHTML ? 'HTML' : 'Plain'"
           >
-          HTML
+          <mat-radio-button
+            (click)="toggleHtml($event)"
+            value="Plain"
+            matTooltip="Toggle Plain Text view"
+            >
+            Text
+          </mat-radio-button>
+          <mat-radio-button
+            (click)="toggleHtml($event)"
+            value="HTML"
+            matTooltip="Toggle HTML view"
+            >
+            HTML
+          </mat-radio-button>
+        </mat-radio-group>
+	    <mat-checkbox *ngIf="showHTML"
+            (click)="showExternalImages($event)"
+            [checked]="showImages"
+            matTooltip="Show external images"
+		    >
+	    </mat-checkbox>
+        <mat-checkbox *ngIf="!showHTML"
+          color="gray"
+          matTooltip="Show external images (in HTML view)"
+          >
         </mat-checkbox>
-        <button mat-icon-button color="warn" (click)="showHTMLWarningDialog()"
-          matTooltip="Only show HTML from trusted senders" style="margin-right: 5px">
-          <mat-icon color="warn" svgIcon="alert"></mat-icon>
+        <span> Images for </span>
+        <button
+          [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionGlobal($event)"
+          matTooltip="Save setting for all senders"
+          >
+          All senders
         </button>
+        <button
+          [ngClass]="savedForThisSender ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionForThisSender($event)"
+          matTooltip="Save setting for this sender"
+          >
+          This sender
+        </button>
+        <mat-icon color="warn" svgIcon="alert" matTooltip="Only show HTML messages from trusted senders"></mat-icon>
       </span>
     </div>
 
@@ -308,23 +376,23 @@
       </iframe>
     </div>
 
-    <mat-card *ngIf="mailObj.attachments && mailObj.visible_attachement_count>0">
-      <mat-card-title><mat-icon svgIcon="attachment"></mat-icon>Attachments</mat-card-title>
+    <mat-card #attachmentsSection *ngIf="showAttachments">
       <mat-card-content>
-        <mat-grid-list [cols]="attachmentAreaCols">
+        <mat-grid-list [cols]="attachmentAreaCols" gutterSize="5px">
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
-            (click)="openAttachment(att)">
-              <ng-container *ngIf="!att.internal">
+            (click)="openAttachment(att)"
+            style="max-width: 150px">
+              <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
                 <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
                   <img  matListAvatar
                     [src]="att.thumbnailURL" />
                 </ng-container>
                 <ng-template #attachment_icon>
-                  <mat-icon matListAvatar  svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
+                  <mat-icon class="icon-bigger" matListAvatar svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
                 </ng-template>
-                <mat-grid-tile-footer style="display: flex; text-align: center">
-                    <span>{{att.filename}}</span>
+                <mat-grid-tile-footer style="display: flex; text-align: center; justify-content: space-between;">
+                    <span class="string-ellipsis">{{att.filename}}</span>
                     <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
                       matTooltip="Decrypt message"
                       (click)="decryptAttachment(i);$event.stopPropagation()"

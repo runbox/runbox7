@@ -20,7 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AsyncSubject } from 'rxjs';
-import * as moment from 'moment';
+import moment from 'moment';
 import { MobileQueryService } from '../mobile-query.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
@@ -42,7 +42,7 @@ export class AccountTransactionsComponent implements OnInit {
     transactions = new AsyncSubject<Transaction[]>();
     expandedTransaction: Transaction;
 
-    columnsDefault = ['amount', 'status', 'method', 'time', 'time-desc', 'receipt'];
+    columnsDefault = ['time', 'time-desc', 'amount', 'status', 'method', 'receipt'];
     columnsMobile  = ['expansionIndicator', 'time', 'amount', 'statusIcon'];
 
     displayedColumns: string[];

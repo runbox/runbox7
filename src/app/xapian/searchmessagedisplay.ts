@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -40,7 +40,18 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowMessageId(index: number): number {
-    return this.searchService.getMessageIdFromDocId(this.rows[index][0]);
+    let msgId = 0;
+    try {
+      msgId = this.searchService.getMessageIdFromDocId(this.rows[index][0]);
+    } catch (e) {
+      // This shouldnt happen, it means something changed the stored
+      // data without updating the messagedisplay rows.
+      console.log('Tried to lookup ' + index + ' in searchIndex, isnt there! ' + e);
+    }
+    return msgId;
+  }
+
+  filterBy(options: Map<String, any>) {
   }
 
   // columns
@@ -50,26 +61,31 @@ export class SearchMessageDisplay extends MessageDisplay {
       {
         sortColumn: null,
         name: '',
+        cacheKey: 'selectbox',
         rowWrapModeHidden: false,
         getValue: (rowIndex): any => this.isSelectedRow(rowIndex),
-        checkbox: true,
+        checkbox: true
       },
       {
         name: 'Date',
+        draggable: true,
+        cacheKey: 'date',
         sortColumn: 2,
         rowWrapModeMuted : true,
-        getValue: (rowIndex): string => {
-          const datestring = this.searchService.api.getStringValue(this.getRowId(rowIndex), 2);
-          return MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring);
-        },
+        getValue: (rowIndex): string => this.searchService.api.getStringValue(this.getRowId(rowIndex), 2),
+        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring)
       },
       (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
         name: 'To',
+        draggable: true,
+        cacheKey: 'from',
         sortColumn: null,
         getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', '),
       } :
         {
           name: 'From',
+          draggable: true,
+          cacheKey: 'from',
           sortColumn: 0,
           getValue: (rowIndex): string => {
             return this.searchService.getDocData(this.getRowId(rowIndex)).from;
@@ -77,6 +93,7 @@ export class SearchMessageDisplay extends MessageDisplay {
         },
       {
           name: 'Subject',
+          cacheKey: 'subject',
           sortColumn: 1,
           getValue: (rowIndex): string => {
             return this.searchService.getDocData(this.getRowId(rowIndex)).subject;
@@ -113,6 +130,8 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push(
         {
           name: 'Count',
+          draggable: true,
+          cacheKey: 'count',
           sortColumn: null,
           rowWrapModeChipCounter: true,
           getValue: (rowIndex): string => {
@@ -132,9 +151,10 @@ export class SearchMessageDisplay extends MessageDisplay {
       columns.push(
         {
           sortColumn: 3,
+          draggable: true,
           name: 'Size',
+          cacheKey: 'size',
           rowWrapModeHidden: true,
-          textAlign: 1,
           getValue: (rowIndex): string => {
             return  `${this.searchService.api.getNumericValue(this.getRowId(rowIndex), 3)}`;
           },
@@ -143,9 +163,22 @@ export class SearchMessageDisplay extends MessageDisplay {
             'This message is marked for deletion by an IMAP client' : null
         });
 
+        if (app.displayFolderColumn) {
+          columns.push({
+            sortColumn: null,
+            name: 'Folder',
+            cacheKey: 'folder',
+            rowWrapModeHidden: true,
+            getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder,
+            width: 200
+          });
+        }
+
+      // Attachment flag column
       columns.push({
         sortColumn: null,
         name: '',
+        cacheKey: 'attachment',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
@@ -153,9 +186,12 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 35,
         getFormattedValue: (val) => val ? '\uE226' : ''
       });
+
+      // Answered flag column
       columns.push({
         sortColumn: null,
         name: '',
+        cacheKey: 'answered',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
@@ -163,9 +199,12 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 35,
         getFormattedValue: (val) => val ? '\uE15E' : ''
       });
+
+      // Flagged flag column
       columns.push({
         sortColumn: null,
         name: '',
+        cacheKey: 'flagged',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
@@ -173,17 +212,6 @@ export class SearchMessageDisplay extends MessageDisplay {
         width: 35,
         getFormattedValue: (val) => val ? '\uE153' : ''
       });
-
-      if (app.displayFolderColumn) {
-        columns.push({
-          sortColumn: null,
-          name: 'Folder',
-          rowWrapModeHidden: true,
-          getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).folder.replace(/\./g, '/'),
-          width: 200
-        });
-      }
-
     }
     return columns;
   }

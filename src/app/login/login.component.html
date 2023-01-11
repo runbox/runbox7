@@ -34,16 +34,35 @@
 	  <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
 	</div>
 	<button mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
-	<p *ngIf='accountExpired' class='login_error_html'>
-          Your account has expired. <br>
-          Go to <a routerLink="/account/components">Account Products</a> to reopen it now!
+	<p *ngIf='accountSuspended' class='login_error_html'>
+          Your Runbox account has been suspended. <br>
+          Please contact <a href="https://support.runbox.com">Runbox Support</a>.
 	</p>
+	<p *ngIf='accountExpiredTrial' class='login_error_html'>
+          Your Runbox trial account has expired. <br>
+          Go to <a routerLink="/account/plans">Plans & Upgrades</a> to reopen it now!
+	</p>
+	<p *ngIf='accountExpiredSubscription' class='login_error_html'>
+          Your Runbox subscription has expired. <br>
+          Go to <a routerLink="/account/subscriptions">Your Subscriptions</a> to renew it now!
+	</p>
+	<p *ngIf='accountCanceled' class='login_error_html'>
+          Your Runbox subscription has been canceled. <br>
+          Please contact <a href="https://support.runbox.com">Runbox Support</a>.
+	</p>
+	<p *ngIf='accountClosed' class='login_error_html'>
+          This Runbox account has been closed. <br>
+	</p>
+	<p *ngIf='accountError' class='login_error_html'>
+          An unknown error has occurred. <br>
+	  Please contact <a href="https://support.runbox.com">Runbox Support</a>.
+	</p>
+	<div id='forgotPassword' class="login-link">
+	  <a href="/pw_reset">Forgot password?</a>
+	</div>
 	<div id="createAccount" class="login-link">
 	  <a href="/signup?runbox7=1">Create new account</a>
-  </div>
-  <div *ngIf='login_error_html' class="login-link" id='forgotPassword'>
-    <a href="/pw_reset">Forgot password</a>
-  </div>
+	</div>
 	<div id="progressBar">
 	  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 	</div>
@@ -78,7 +97,7 @@
               <p>Please enter your OTP code.</p>
               <br />
               <mat-form-field>
-		<input matInput placeholder="One-time password" name="otp" id="otp" inputmode="numeric" ngModel />
+		<input matInput placeholder="One-time password" name="otp" id="otp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
@@ -86,16 +105,9 @@
             </ng-container>                    
             <ng-container *ngIf="twofactormethodgroup.value==='unlock_code'">
               <p>Please enter your unlock code.</p>
-	      <p>If you chose a security question and answer when setting up 2FA, enter those as well.</p>
               <br />
               <mat-form-field style="width: 100%">
 		<input matInput type="password" placeholder="Unlock code" name="unlock_code" ngModel />
-              </mat-form-field>
-              <h4>Security question</h4>
-              <p>{{unlock_question}}</p>
-              <br />
-              <mat-form-field style="width: 100%">
-		<input matInput type="password" placeholder="Security answer" name="unlock_answer" ngModel />
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit">Unlock</button>
             </ng-container>

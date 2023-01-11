@@ -1,0 +1,22 @@
+mat-form-field, mat-checkbox {
+    width: 200px;
+    padding-right: 5px;
+}
+
+#currentfolderonly {
+    width: 140px;
+}
+
+#multipleSearchFieldsClose, #multipleSearchFieldsHelp {
+    height: 30px;
+    width: 30px;
+}
+
+#multipleSearchFieldsHelp, #multipleSearchFieldsClose {
+    text-align: right;
+}
+
+#multipleSearchFieldsContainer mat-form-field {
+    height: 20px;
+}
+

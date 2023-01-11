@@ -124,7 +124,7 @@ export class ContactsAppComponent {
                 }
             } else if (event instanceof NavigationEnd) {
                 const url = router.parseUrl(router.url);
-                const childPath = url.root.children.primary.segments[1]?.path;
+                const childPath = url.root.children.primary?.segments[1]?.path;
                 if (childPath) {
                     this.showingDetails = true;
                     // we can't use this.groups, since at the point this fires they may not be loaded yet
@@ -206,7 +206,8 @@ export class ContactsAppComponent {
 
     filterContacts(): void {
         this.shownContacts = this.contacts.filter(c => {
-            if (c.kind === ContactKind.GROUP) {
+            if (c.kind === ContactKind.GROUP
+              || c.kind === ContactKind.SETTINGSONLY) {
                 return false;
             }
 

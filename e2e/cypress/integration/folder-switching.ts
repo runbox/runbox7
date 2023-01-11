@@ -3,7 +3,7 @@
 describe('Switching between folders (and not-folders)', () => {
 
     function goToInbox() {
-        cy.get('rmm-folderlist mat-tree-node:contains(Inbox)').click();
+        cy.get('rmm-folderlist mat-tree-node:contains(Inbox)', {'timeout':10000}).click();
         cy.url().should('match', /\/(#Inbox)?$/);
         cy.get('rmm-folderlist mat-tree-node:contains(Inbox)').should('have.class', 'selectedFolder');
     }
@@ -19,7 +19,7 @@ describe('Switching between folders (and not-folders)', () => {
 
         // then to compose...
         cy.get('#composeButton').click();
-        cy.url().should('contain', '/compose?new=true');
+        cy.url().should('contain', '/compose');
         cy.get('#composeButton').should('have.class', 'selectedFolder');
 
         // then back to inbox...

@@ -7,7 +7,7 @@ const lines = stdout.toString().split('\n');
 const changes = [];
 
 function find_entry(line) {
-    const m = line.match(/(\w+)\(([^)]+)\):\s(.+)/);
+    const m = line.match(/(build|ci|docs|feat|feature|fix|perf|refactor|refator|style|test)\(([^)]+)\):\s(.+)/);
     if (m) {
         return m.slice(1);
     } else {

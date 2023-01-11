@@ -1,34 +1,33 @@
 <style>
-.payment-row {
-  display: -ms-flexbox;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 5px 10px;
-}
+    .payment-row {
+        display: -ms-flexbox;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 0 5px 10px;
+    }
 
-.payment-field {
-  position: relative;
-  height: 50px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  padding: 5px;
-  box-shadow: 0 1px 3px 0 #bbb;
-  text-align: center;
-}
+    .payment-field {
+        position: relative;
+        height: 50px;
+        padding: 5px;
+        text-align: center;
+    }
 
-.payment-field-big {
-  width: 100%;
-}
+    @media only screen and (max-width: 767px) {
+        .payment-field {
+            font-size: 14px;
+        }
+    }
 
-.payment-field-small {
-  flex: 1 0 25%;
-}
+    .payment-field-big {
+        width: 100%;
+    }
 
-.payment-field-small .mat-form-field {
-  width: 100%;
-}
+    .payment-field-small {
+        flex: 1 0 25%;
+    }
 </style>
 
 <h1 mat-dialog-title>Payment via Stripe</h1>
@@ -39,12 +38,13 @@
     <p>
         Make sure your browser extensions are not blocking access to
         <span style="font-family: monospace">stripe.com</span>, or
-        <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank"> try our legacy payment system instead. </a>
+        <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank"> try our legacy payment system instead.
+        </a>
     </p>
 </ng-template>
 
 <div mat-dialog-content style="max-width: 500px;">
-    <div style="width: 100%; text-align: center">
+    <div style="width: 95%; text-align: center; margin: auto;">
         <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
     </div>
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
@@ -55,18 +55,18 @@
         </div>
         <div class="payment-row">
             <div class="payment-field payment-field-big">
-                <div #cardNumber></div>
                 <label for="cardNumber">Card number</label>
+                <div #cardNumber></div>
             </div>
         </div>
         <div class="payment-row">
             <div class="payment-field payment-field-small">
-                <div #cardExpiry></div>
                 <label for="cardExpiry">Expiration date</label>
+                <div #cardExpiry></div>
             </div>
             <div class="payment-field payment-field-small">
-                <div #cardCvc></div>
                 <label for="cardCvc">CVC code</label>
+                <div #cardCvc></div>
             </div>
             <div class="payment-field payment-field-small StripeElement">
                 <mat-form-field>

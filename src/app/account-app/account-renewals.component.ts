@@ -19,7 +19,6 @@
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -29,10 +28,10 @@ import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
-const columnsDefault = ['name', 'quantity', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
-const columnsMobile = ['expansionIndicator', 'name', 'smallhints'];
+const columnsDefault = ['renewal_name', 'quantity', 'price', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
+const columnsMobile = ['renewal_name'];
 
 // TODO define it as an interface
 type ActiveProduct = any;
@@ -40,13 +39,6 @@ type ActiveProduct = any;
 @Component({
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
-    animations: [
-        trigger('detailExpand', [
-            state('collapsed', style({height: '0px', minHeight: '0'})),
-            state('expanded', style({height: '*'})),
-            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-        ]),
-    ],
 })
 export class AccountRenewalsComponent {
     active_products: ActiveProduct[] = [];
@@ -118,12 +110,6 @@ export class AccountRenewalsComponent {
         );
     }
 
-    rowClicked(p: ActiveProduct) {
-        if (this.mobileQuery.matches) {
-            this.expandedProduct = this.expandedProduct === p ? null : p;
-        }
-    }
-
     showSubsDialog(p: ActiveProduct) {
         const dialogRef = this.dialog.open(SubAccountRenewalDialogComponent, { data: p });
         dialogRef.afterClosed().subscribe(renew => {
@@ -180,15 +166,15 @@ export class AccountRenewalsAutorenewToggleComponent {
     selector: 'app-account-renewals-renew-now-button-component',
     template: `
 <span *ngIf="p.can_renew; else renewIfDomain">
-    <button mat-button (click)="clicked.emit()" *ngIf="!p.ordered" class="contentButton">
-        Renew <mat-icon svgIcon="cart"></mat-icon>
+    <button mat-raised-button (click)="clicked.emit()" *ngIf="!p.ordered" color="primary" id="renewButton">
+        Renew  <mat-icon svgIcon="cart" color="accent"></mat-icon>
     </button>
     <span *ngIf="p.ordered">
         Added to shopping cart
     </span>
 </span>
 <ng-template #renewIfDomain>
-    <button mat-button *ngIf="p.subtype === 'domain'; else renewNA" class="contentButton" (click)="clicked.emit()">
+    <button mat-raised-button *ngIf="p.subtype === 'domain'; else renewNA" color="primary" (click)="clicked.emit()" id="renewButton">
         Renew <mat-icon svgIcon="open-in-new"></mat-icon>
     </button>
 </ng-template>

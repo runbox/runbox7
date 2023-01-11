@@ -1,15 +1,4 @@
-<div [formGroup]="formGroup" style="display: flex;
-      flex-wrap: wrap;
-      position: absolute;
-      bottom: 0px;
-      height: auto;
-      background-color: white;
-      border-top: #aaa solid 1px;
-      border-left: #aaa solid 1px;
-      border-right: #aaa solid 1px;
-      padding: 10px;
-      z-index: 9999">
-  <button mat-icon-button (click)="closePanel()"><mat-icon svgIcon="close"></mat-icon></button>
+<div [formGroup]="formGroup" id="multipleSearchFieldsContainer">
   <mat-form-field>
     <input matInput formControlName="allfieldsandcontent" type="text" placeholder="All fields" />
   </mat-form-field>
@@ -19,14 +8,18 @@
   <mat-form-field>
     <input matInput formControlName="to" type="text" placeholder="To"  />
   </mat-form-field>
+  <br />
   <mat-form-field>
     <input matInput formControlName="subject" type="text" placeholder="Subject"  />
   </mat-form-field>
   <mat-form-field>
     <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)"  />
   </mat-form-field>
-  <mat-checkbox formControlName="currentfolderonly">Current folder</mat-checkbox>
-  <a mat-icon-button target="_blank" href="https://help.runbox.com/new-webmail-search/">
-    <mat-icon svgIcon="help-circle"></mat-icon>    
-  </a>
+  <span style="white-space: nowrap;">
+    <mat-checkbox id="currentfolderonly" formControlName="currentfolderonly">Current folder</mat-checkbox>
+    <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#Search_parameters">
+      <mat-icon svgIcon="help-circle"></mat-icon>    
+    </a>
+    <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()"><mat-icon svgIcon="close"></mat-icon></button>
+  </span>
 </div>

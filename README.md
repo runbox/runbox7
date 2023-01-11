@@ -121,7 +121,7 @@ You can run the individual tests using one of the following commands:
 - `npm run lint`
 - `npm run policy`
 - `npm run test`
-- `npm run e2e`
+- `npm run cypress-e2e`
 
 Or run them all at once with `npm run ci-tests` -- this option will run the tests with the same settings as our CI setup,
 making sure that any errors will be caught before your code becomes public.

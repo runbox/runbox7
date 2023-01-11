@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -68,16 +68,6 @@ export class FloatingTooltip {
   }
 }
 
-export class CanvasTableColumnSection {
-  constructor(
-    public columnSectionName: string,
-    public width: number,
-    public leftPos: number,
-    public backgroundColor: string) {
-
-  }
-}
-
 export namespace CanvasTable {
   export enum RowSelect {
     Visible = 'visible',
@@ -122,10 +112,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   private wantedCanvasWidth = 300;
   private wantedCanvasHeight = 300;
 
-  private _rowheight = 36;
-  private fontheight = 16;
-  private fontheightSmaller = 13;
-  private fontheightSmall = 15;
+  private _rowheight = 28;
+  private fontheight = 14;
+  private fontheightSmall = 13;
+  private fontheightSmaller = 12;
 
   private scrollbarwidth = 12;
 
@@ -158,6 +148,16 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   //  public _rows: any[] = [];
   public _rows: MessageDisplay;
 
+  columnWidthsDefaults = {
+    '':        40,
+    'Date':    110,
+    'To':      300,
+    'From':    300,
+    'Subject': 300,
+    'Size':    80,
+    'Count':   80,
+  };
+
   public hasSortColumns = false;
   public _columns: CanvasTableColumn[] = [];
   public get columns(): CanvasTableColumn[] { return this._columns; }
@@ -165,8 +165,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     if (this._columns !== columns) {
       this.calculateColumnWidths(columns);
       this._columns = columns;
-      this.recalculateColumnSections();
-      this.calculateColumnFooterSums();
       this.hasSortColumns = columns.filter(col => col.sortColumn !== null).length > 0;
       this.hasChanges = true;    }
   }
@@ -208,8 +206,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   private formattedValueCache: { [key: string]: string; } = {};
 
-  public columnSections: CanvasTableColumnSection[] = [];
-
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
 
   public floatingTooltip: FloatingTooltip;
@@ -239,9 +235,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private calculateColumnWidths(columns: CanvasTableColumn[]) {
+    const colWidthSet = columns.map((col) => col.name).filter((cname) => cname.length > 0).join(',');
     for (const c of columns) {
       // try the stored settings, then an existing value, then 100px just in case
-      c.width = this.columnWidths[c.name] || c.width || 100;
+      c.width = this.columnWidths[colWidthSet]
+        ? this.columnWidths[colWidthSet][c.name]
+        : this.columnWidthsDefaults[c.name] || c.width || 100;
     }
   }
 
@@ -567,7 +566,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         }
         try {
           this.dopaint();
-          this.repaintDoneSubject.next();
+          if (this.rows) {
+            this.repaintDoneSubject.next();
+          }
         } catch (e) {
           console.log(e);
         }
@@ -689,7 +690,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       selectedColIndex = -1;
     }
 
-    if (selectedColIndex !== this.visibleColumnSeparatorIndex) {
+    if (selectedColIndex !== this.visibleColumnSeparatorIndex && !this.rowWrapMode) {
       if (selectedColIndex > 0) {
         this.canv.style.cursor = 'col-resize';
       } else {
@@ -765,7 +766,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
-    if (!this.canv) {
+    if (!this.canv || this._columns.length === 0) {
       return;
     }
 
@@ -804,7 +805,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
     }
 
-    this.recalculateColumnSections();
     this.hasChanges = true;
   }
 
@@ -832,10 +832,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public set rows(rows: MessageDisplay) {
     if (this._rows !== rows) {
       this._rows = rows;
-      this.calculateColumnFooterSums();
 
       this.hasChanges = true;
     }
+  }
+
+  public updateRows(newList) {
+    this.rows.setRows(newList);
+    this.enforceScrollLimit();
+    this.hasChanges = true;
   }
 
   public get showContentTextPreview(): boolean {
@@ -847,45 +852,21 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
-  public calculateColumnFooterSums(): void {
-    this.columns.forEach((col) => {
-      if (col.footerSumReduce) {
-        col.footerText = col.getFormattedValue(
-          // FIXME: message display class
-          this.rows.rows.reduce((prev, row) => col.footerSumReduce(prev, col.getValue(row)), 0)
-        );
-      }
-    });
-  }
-
-  public recalculateColumnSections(): void {
-    let leftX = 0;
-    this.columnSections = this.columns.reduce((accumulated, current) => {
-      let ret;
-      if (accumulated.length === 0 ||
-        accumulated[accumulated.length - 1].columnSectionName !== current.columnSectionName) {
-
-        ret = accumulated.concat([
-          new CanvasTableColumnSection(current.columnSectionName,
-            current.width,
-            leftX,
-            current.backgroundColor)]);
-      } else if (accumulated.length > 0 && accumulated[accumulated.length - 1].columnSectionName === current.columnSectionName) {
-        accumulated[accumulated.length - 1].width += current.width;
-        ret = accumulated;
-      }
-      leftX += current.width;
-      return ret;
-    }, []);
-    this.hasChanges = true;
+  // When loading a url with a fragment containing a msg id - scroll to there
+  public jumpToOpenMessage() {
+    // currently selected row in the centre:
+    if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
+      this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
+      this.enforceScrollLimit();
+    }
   }
 
   private enforceScrollLimit() {
     if (this.topindex < 0) {
       this.topindex = 0;
-    } else if (this.rows.rowCount() < this.maxVisibleRows) {
+    } else if (this.rows && this.rows.rowCount() < this.maxVisibleRows) {
       this.topindex = 0;
-    } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
+    } else if (this.rows && this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
       this.topindex = this.rows.rowCount() - this.maxVisibleRows;
       // send max rows hit events (use to fetch more data)
       this.scrollLimitHit.next(this.rows.rowCount());
@@ -971,6 +952,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private dopaint() {
+    const devicePixelRatio = window.devicePixelRatio;
     if (this.canv.width !== this.wantedCanvasWidth ||
       this.canv.height !== this.wantedCanvasHeight) {
 
@@ -979,7 +961,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
        * otherwise reducing column widths so that the scrollbar
        * disappears indicates a change of height and triggers resize
        */
-      const devicePixelRatio = window.devicePixelRatio;
 
       this.canv.style.width = (this.wantedCanvasWidth / devicePixelRatio) + 'px';
       this.canv.style.height = (this.wantedCanvasHeight / devicePixelRatio) + 'px';
@@ -987,11 +968,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.canv.width = this.wantedCanvasWidth;
       this.canv.height = this.wantedCanvasHeight;
 
-      // -- Disabled scaling after moving resizing of canvas to inside paint routine
-      if (devicePixelRatio !== 1) {
-        this.ctx.scale(devicePixelRatio, devicePixelRatio);
-      }
       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
+      this.enforceScrollLimit();
       this.hasChanges = true;
       if (this.canv.clientWidth < this.autoRowWrapModeWidth) {
         this.rowWrapMode = true;
@@ -1000,6 +978,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
 
       this.canvasResizedSubject.next(widthChanged);
+    }
+
+    if (devicePixelRatio !== 1) {
+      // This is not scale() as that would keep multiplying
+      // Moved out of above if() statement as something (!?)
+      // was resetting transform, still not sure what
+      this.ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     }
 
     this.ctx.textBaseline = 'middle';
@@ -1025,7 +1010,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       colx += col.width;
     }
 
-    if (this.rows.rowCount() < 1) {
+    if (!this.rows || this.rows.rowCount() < 1) {
       return;
     }
 
@@ -1081,7 +1066,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             val = '';
           }
           let formattedVal: string;
-          const formattedValueCacheKey: string = colindex + ':' + val;
+          const formattedValueCacheKey: string = col.cacheKey + ':' + val;
           if (this.formattedValueCache[formattedValueCacheKey]) {
             formattedVal = this.formattedValueCache[formattedValueCacheKey];
           } else if (('' + val).length > 0 && col.getFormattedValue) {
@@ -1089,6 +1074,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           } else {
             formattedVal = '' + val;
+            this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           }
           if (this.rowWrapMode && col.rowWrapModeHidden) {
             continue;
@@ -1265,7 +1251,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             (10 / this.fontheight) : 1)) - this.colpaddingleft); // We've already added colpaddingleft above
         }
       } else {
-        break;
+        // skipping rows we've removed while canvas was updating....
+        console.log('Skipped repainting a row as its data is missing, continuing anyway');
       }
       if (this.showContentTextPreview) {
         const contentTextPreviewColumn = this.columns
@@ -1379,15 +1366,7 @@ export class CanvasTableContainerComponent implements OnInit {
   sortColumn = 0;
   sortDescending = false;
 
-  columnWidths = {
-    '':        40,
-    'Date':    110,
-    'To':      300,
-    'From':    300,
-    'Subject': 300,
-    'Size':    80,
-    'Count':   80,
-  };
+  columnWidths = {};
 
   @Input() configname = 'default';
   @Input() canvastableselectlistener: CanvasTableSelectListener;
@@ -1403,17 +1382,29 @@ export class CanvasTableContainerComponent implements OnInit {
   private selectAllTimeout;
 
   constructor(private renderer: Renderer2) {
-    const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
+    const oldSavedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
+    if (oldSavedColumnWidths) {
+      const colWidthSet = Object.keys(JSON.parse(oldSavedColumnWidths)).filter((col) => col.length > 0).join(',');
+      const newColWidths = {};
+      newColWidths[colWidthSet] = JSON.parse(oldSavedColumnWidths);
+      localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(newColWidths));
+      localStorage.removeItem('canvasNamedColumnWidths');
+    }
+
+    const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidthsBySet');
     if (savedColumnWidths) {
       this.columnWidths = JSON.parse(savedColumnWidths);
     }
   }
 
   saveColumnWidths() {
+    const newColWidths = {};
+    const colWidthSet = this.canvastable.columns.map((col) => col.name).filter((cname) => cname.length > 0).join(',');
     for (const c of this.canvastable.columns) {
-      this.columnWidths[c.name] = c.width;
+      newColWidths[c.name] = c.width;
     }
-    localStorage.setItem('canvasNamedColumnWidths', JSON.stringify(this.columnWidths));
+    this.columnWidths[colWidthSet] = newColWidths;
+    localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(this.columnWidths));
   }
 
   ngOnInit() {

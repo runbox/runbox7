@@ -2,7 +2,7 @@
 
 $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 
-#messageTextArea textarea {
+#messageTextArea {
     box-sizing: border-box;
     width: 100%;
     border: 1px solid #949494;
@@ -15,7 +15,7 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 
 .draft-title {
     flex-grow: 1;
-    font-size: 24px;
+    font-size: 20px;
     padding-right: 30px;
 }
 
@@ -27,7 +27,9 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 }
 
 .draftPreview {
-    max-height: 100px;
+    margin: 0 10px 10px 0;
+    min-height: 100px;
+    max-height: 150px;
     overflow: hidden;
 
     span {
@@ -36,10 +38,6 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-}
-
-mat-form-field {
-    width: 100%;
 }
 
 .dropzonehighlight {
@@ -68,12 +66,9 @@ mat-form-field {
     font-size: 20px;
 }
 
-#fieldFrom {
-    overflow: hidden;
-}
+
 
 .fieldRecipient {
-    width: 100%;
     display: flex;
     overflow: hidden;
     flex-direction: row;
@@ -95,13 +90,16 @@ mat-form-field {
 }
 
 .recipientSuggestionContainer {
+    max-height: 90px;
+    overflow: auto;
+    
     span {
         font-size: 12.5px;
     }
 
     .recipientSuggestionList {
         display: flex;
-        overflow: auto;
+	flex-wrap: wrap;
         white-space: nowrap;
 
         .suggestionItem {
@@ -110,7 +108,7 @@ mat-form-field {
         }
 
         div {
-            padding: 5px 0 15px;
+            padding: 2px 0;
         }
     }
 }

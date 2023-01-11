@@ -21,7 +21,7 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { Contact } from '../contacts-app/contact';
 import { SearchService, SearchIndexDocumentData } from '../xapian/searchservice';
@@ -115,7 +115,7 @@ export class StartDeskComponent implements OnInit {
             _err  => this.ownAddresses.next(new Set([])),
         );
         this.searchService.initSubject.pipe(filter(enabled => enabled)).subscribe(() => this.updateCommsOverview());
-        this.searchService.searchResultsSubject.subscribe(() => this.updateCommsOverview());
+        this.searchService.indexReloadedSubject.subscribe(() => this.updateCommsOverview());
     }
 
     public async updateCommsOverview(): Promise<void> {

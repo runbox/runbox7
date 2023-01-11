@@ -35,7 +35,13 @@ import { ProgressService } from '../http/progress.service';
 
 export class LoginComponent implements OnInit {
 
-    accountExpired = false;
+    accountSuspended = false;
+    accountExpiredTrial = false;
+    accountExpiredSubscription = false;
+    accountCanceled = false;
+    accountClosed = false;
+    accountError = false;
+
     twofactor: any = false;
     unlock_question: string;
     login_error_html: string;
@@ -131,10 +137,22 @@ export class LoginComponent implements OnInit {
         if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
             this.login_error_html = '<p>' + error_msgs_1fa[loginresonseobj.code] + '</p>';
         }
-        if (loginresonseobj.user_status > 0 && loginresonseobj.user_status < 5 && loginresonseobj.error) {
-            this.accountExpired = true;
-        } else {
+        if (loginresonseobj.user_status === '1') {
+            this.accountSuspended = true;
+        } else if (loginresonseobj.user_status === '2') {
+            this.accountExpiredTrial = true;
+        } else if (loginresonseobj.user_status === '3') {
+            this.accountExpiredTrial = true;
+        } else if (loginresonseobj.user_status === '4') {
+            this.accountExpiredSubscription = true;
+        } else if (loginresonseobj.user_status === '5') {
+            this.accountCanceled = true;
+        } else if (loginresonseobj.user_status > 5) {
+            this.accountClosed = true;
+        } else if (loginresonseobj.error) {
             this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
+        } else {
+            this.accountError = true;
         }
     }
 

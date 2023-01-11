@@ -5,23 +5,34 @@ describe('Composing emails', () => {
         localStorage.setItem('localSearchPromptDisplayed221', 'true');
     });
 
+    Cypress.config('requestTimeout', 100000);
+
     it('should display draft card', () => {
+        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
-        cy.get('mat-card-actions div').should('contain', 'New message');
+        cy.wait('@listAllmessages', {'timeout':10000});
+        cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
         cy.focused().should('have.attr', 'placeholder', 'To');
     });
 
     it('should update action bar text to subject', () => {
+        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
+        cy.wait('@listAllmessages', {'timeout':10000});
 
-        cy.get('mat-card-actions div').should('contain', 'New message');
+        cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
         cy.get('input[data-placeholder="Subject"]').type('Email about Subject X');
         cy.get('mat-card-actions div').should('contain', 'Subject X');
     });
 
     it('should complain on invalid email address, blur', () => {
+        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
-
+        cy.wait('@listAllmessages', {'timeout':10000});
+        cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
         cy.get('mailrecipient-input input').type('invalidaddress').blur();
         cy.get('mailrecipient-input mat-error').should('contain', 'Please enter a valid email address');
 
@@ -30,8 +41,11 @@ describe('Composing emails', () => {
     });
 
     it('should complain on invalid email address, enter', () => {
+        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
-
+        cy.wait('@listAllmessages', {'timeout':10000});
+        cy.get('mat-card-actions div').should('contain', 'New message');
         cy.get('mailrecipient-input input').type('invalidaddress{enter}');
         cy.get('mailrecipient-input mat-error').should('contain', 'Please enter a valid email address');
 
@@ -40,20 +54,31 @@ describe('Composing emails', () => {
     });
 
     it('should open reply draft with HTML editor', () => {
-        cy.visit('/');
-        cy.wait(1000);
+        indexedDB.deleteDatabase('messageCache');
+        // cy.visit('/');
+        // cy.wait(1000);
+        cy.intercept('/rest/v1/email/1').as('message1requested');
         cy.visit('/#Inbox:1');
+        cy.wait('@message1requested', {'timeout':100000});
         cy.get('single-mail-viewer').should('exist');
-        cy.get('mat-checkbox[mattooltip="Toggle HTML view"]').click();
+        cy.get('mat-radio-button[mattooltip="Toggle HTML view"]').click();
         cy.contains('Manually toggle HTML').click();
-        cy.get('mat-checkbox[mattooltip="Toggle HTML view"] input').should('be.checked');
+        cy.get('mat-radio-button[mattooltip="Toggle HTML view"] input').should('be.checked');
+        // cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.get('button[mattooltip="Reply"]').click();
+        // cy.wait('@listAllmessages', {'timeout':100000});
+        // ensure it loads
+        cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'Testing session timeout');
         // we assume that this is the tinymce frame
-        cy.get('iframe').should('exist');
+        cy.get('iframe', {'timeout':100000}).should('exist');
     });
 
     it('emailing a contact should not use their nickname', () => {
+        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
+        cy.wait('@listAllmessages', {'timeout':10000});
         cy.get('mailrecipient-input input').clear().type('postpat');
         // autocompletion should show the nickname...
         cy.get('mat-option:contains(Postpat)').click();
@@ -62,7 +87,10 @@ describe('Composing emails', () => {
     });
 
     it('closing a newly composed email should return where we started', () => {
+        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+                   // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose');
+        cy.wait('@listAllmessages', {'timeout':10000});
         cy.visit('/compose?new=true');
         
         cy.get('button[mattooltip="Close draft"').click();
@@ -88,7 +116,7 @@ describe('Composing emails', () => {
 
     it('Send email on contacts page, composes an email', () => {
         cy.visit('/contacts');
-        cy.contains('Welcome to Runbox 7 Contacts');
+        cy.contains('Runbox 7 Contacts');
         cy.contains('Patrick Postcode').click();
         cy.contains('Send an email to this address').click();
         cy.location().should((loc) => {
@@ -100,7 +128,7 @@ describe('Composing emails', () => {
 
     it('closing a new email from contacts list, should return to contacts', () => {
         cy.visit('/contacts');
-        cy.contains('Welcome to Runbox 7 Contacts');
+        cy.contains('Runbox 7 Contacts');
         cy.contains('Patrick Postcode').click();
         cy.contains('Send an email to this address').click();
         // NB if we skip checking exist, we get an issue clicking the button
@@ -117,7 +145,7 @@ describe('Composing emails', () => {
         cy.visit('/#Inbox:12');
         cy.get('single-mail-viewer').should('exist');
         const address = 'testmail@testmail.com';
-        cy.get('.messageHeaderTo rmm7-contact-card a').contains(address, { matchCase: false });
+        cy.get('.messageHeaderTo rmm7-contact-card span').contains(address, { matchCase: false });
         cy.get('button[mattooltip="Reply"]').click();
         cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
     });

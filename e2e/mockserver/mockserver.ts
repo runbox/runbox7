@@ -194,9 +194,12 @@ END:VCALENDAR
         this.server = createServer((request, response) => {
             const e2eFixture = request.url.match(/\/rest\/e2e\/(\w+)/);
             if (e2eFixture) {
+                log(e2eFixture[1]);
                 const command = e2eFixture[1];
                 if (command === 'logout') {
+                    log('ms pre: logout');
                     this.loggedIn = false;
+                    log('ms post: logout');
                 }
                 if (command === 'require2fa') {
                     this.challenge2fa = true;
@@ -205,6 +208,7 @@ END:VCALENDAR
                     this.challenge2fa = false;
                 }
                 response.end();
+                return;
             }
 
             if (!this.loggedIn && request.url !== '/ajax_mfa_authenticate') {
@@ -250,6 +254,15 @@ END:VCALENDAR
                     message_obj.result.headers['cc'] = to;
                     message_obj.result.headers['subject'] = "";
                 }
+                // This one warns, we couldnt find it!
+                if (mailid === '14') {
+                    message_obj = {
+                        'status':'warning',
+                        'errors': [
+                            'Email content missing'
+                        ]
+                    };
+                }
 
                 if (requesturl.endsWith('/html')) {
                     response.end(message_obj.result.text.html);
@@ -284,6 +297,7 @@ END:VCALENDAR
                             log('2fa challenge');
                             response.end(JSON.stringify(this.auth_challenge_2fa()));
                             this.challenge2fa = false;
+                            return;
                         } else {
                             this.loggedIn = true;
                             log('authenticate');
@@ -292,7 +306,8 @@ END:VCALENDAR
                                         'message': 'Success',
                                         'code': 200
                                     }
-                                ));
+                            ));
+                            return;
                         }
                         }, 1000);
                     break;
@@ -404,6 +419,9 @@ END:VCALENDAR
         inboxlines.push(`13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	` +
                 `Test2<test2@lalala.no>		709	n	 `);
 
+        // id=14: broken email
+        inboxlines.push(`14	1548071425	1547830046	Inbox	1	0	0	"Test" <test@runbox.com>	` +
+                `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
 
         return inboxlines.join('\n');
     }

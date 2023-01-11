@@ -31,14 +31,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center; align-items: center;">
-        <button mat-flat-button color="primary" (click)="clicked.emit()">Proceed to Payment</button>
+        <button mat-flat-button color="primary" (click)="clicked.emit()" [disabled]="disable_payment">Proceed to Payment</button>
     </mat-card-actions>
 </mat-card>
     `,
 })
 export class PaymentMethodComponent {
-    @Input() logo:     string;
-    @Input() logo_alt: string;
+    @Input() logo:            string;
+    @Input() logo_alt:        string;
+    @Input() disable_payment: boolean;
 
     @Output() clicked = new EventEmitter();
 }

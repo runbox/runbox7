@@ -6,16 +6,12 @@
     border-top: 1px solid darkgrey !important;
 }							       
 
-.messageHeightIcon {
-    font-size: 50px;
-    margin-left: -5px;
-    margin-right: 15px;
+#messageHeader {
+    overflow: hidden;
 }
 
-#messageHeader {
-    margin-bottom: 10px;
-    overflow: auto;
-    border-bottom: 1px solid #e8e8e8;
+.messageHeaders {
+    padding-left: 2%;
 }
 
 .messageHeaderDate {
@@ -52,7 +48,7 @@
 #messageContents {
     overflow: auto;
     position: absolute;
-    top: 65px;
+    top: 55px;
     bottom: 0px;
     left: 0px;
     right: 0px;
@@ -66,9 +62,9 @@
 }
 
 #messageContent {
-    overflow: hidden;
     margin: 0 2%;
     width: 96%;
+    margin-top: 10px;
     white-space: pre-wrap;
 }
 
@@ -96,6 +92,7 @@
     border: 0;
     height: 0px;
     width: 100%;
+    margin-bottom: -10px;
 }
 
 .menuradiobutton {
@@ -111,4 +108,36 @@ mat-grid-tile:hover {
     #buttonPrint {
 	display: none;
     }
+}
+
+.icon-bigger {
+    transform: scale(2);
+}
+
+.string-ellipsis {
+    text-overflow: ellipsis; 
+    overflow: hidden; 
+    white-space: nowrap;
+}
+
+.htmlButtons {
+    display: flex;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 14px;
+    align-items: center;
+
+    .mat-raised-button, .mat-flat-button {
+	width: 90px;
+	line-height: 24px;
+	padding: 0;
+    }
+    .mat-flat-button {
+	box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+}
+
+
+.link-pointer {
+    cursor: pointer;
 }

@@ -26,7 +26,7 @@ import {
   EventEmitter
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
     selector: 'app-runbox-timer',

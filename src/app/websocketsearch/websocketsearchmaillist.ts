@@ -44,29 +44,41 @@ export class WebSocketSearchMailList extends MessageDisplay {
     return msg.id;
   }
 
+  filterBy(options: Map<String, any>) {
+    this.rows = this._rows;
+    if (options.has('unreadOnly') && options.get('unreadOnly')) {
+      this.rows = this._rows.filter((msg) => !msg.seen);
+    }
+  }
 
     public getCanvasTableColumns(app: any): CanvasTableColumn[] {
         const columns: CanvasTableColumn[] = [
             {
                 sortColumn: null,
                 name: '',
+                cacheKey: 'selectbox',
                 rowWrapModeHidden: true,
-              getValue: (rowIndex: number): any => this.isSelectedRow(rowIndex),
+                getValue: (rowIndex: number): any => this.isSelectedRow(rowIndex),
                 checkbox: true,
             },
             {
                 name: 'Date',
+                draggable: true,
+                cacheKey: 'date',
                 sortColumn: null,
                 rowWrapModeMuted: true,
-              getValue: (rowIndex: number): string => this.getRow(rowIndex).dateTime,
+                getValue: (rowIndex: number): string => this.getRow(rowIndex).dateTime,
             },
             {
                 name: 'From',
+                draggable: true,
+                cacheKey: 'from',
                 sortColumn: null,
                 getValue: (rowIndex: number): string => this.getRow(rowIndex).fromName,
             },
             {
                 name: 'Subject',
+                cacheKey: 'subject',
                 sortColumn: null,
                 getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
                 draggable: true
@@ -74,9 +86,10 @@ export class WebSocketSearchMailList extends MessageDisplay {
             },
             {
                 sortColumn: null,
+                draggable: true,
                 name: 'Size',
+                cacheKey: 'size',
                 rowWrapModeHidden: true,
-                textAlign: 1,
                 getValue: (rowIndex: number): number => this.getRow(rowIndex).size,
                 getFormattedValue: MessageTableRowTool.formatBytes,
             }

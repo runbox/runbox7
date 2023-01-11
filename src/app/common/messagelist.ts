@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -62,11 +62,20 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  // filter visible rows by whatever options the frontend has
+  filterBy(options: Map<String, any>) {
+    this.rows = this._rows;
+    if (options.has('unreadOnly') && options.get('unreadOnly')) {
+      this.rows = this._rows.filter((msg) => !msg.seenFlag);
+    }
+  }
+
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
     const columns: CanvasTableColumn[] = [
       {
         sortColumn: null,
         name: '',
+        cacheKey: 'selectbox',
         rowWrapModeHidden: false,
         getValue: (rowIndex: number): any => this.isSelectedRow(rowIndex),
         checkbox: true,
@@ -74,57 +83,75 @@ export class MessageList extends MessageDisplay {
       },
       {
         name: 'Date',
+        cacheKey: 'date',
         sortColumn: null,
         rowWrapModeMuted: true,
-        getValue: (rowIndex: number): string => MessageTableRowTool.formatTimestamp(this.getRow(rowIndex).messageDate.toJSON()),
+        getValue: (rowIndex: number): string => this.getRow(rowIndex).messageDate.toJSON(),
+        getFormattedValue: (datestring) => MessageTableRowTool.formatTimestamp(datestring),
+        draggable: true
       },
       {
         name: app.selectedFolder === 'Sent' ? 'To' : 'From',
+        cacheKey: 'from',
         sortColumn: null,
         getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
+        draggable: true
       },
       {
         name: 'Subject',
+        cacheKey: 'subject',
         sortColumn: null,
         getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
-        draggable: true
+        draggable: true,
+        getContentPreviewText: (rowIndex): string => {
+          const ret = this.getRow(rowIndex).plaintext;
+          return ret ? ret.trim() : '';
+        },
+        // tooltipText: 'Tip: Drag subject to a folder to move message(s)'
       },
       {
         sortColumn: null,
         name: 'Size',
+        cacheKey: 'size',
         rowWrapModeHidden: true,
-        textAlign: 1,
         getValue: (rowIndex: number): number => this.getRow(rowIndex).size,
         getFormattedValue: MessageTableRowTool.formatBytes,
+        draggable: true
       },
       {
         sortColumn: null,
         name: '',
+        cacheKey: 'attachment',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
         getValue: (rowIndex: number): boolean => this.getRow(rowIndex).attachment,
-        getFormattedValue: (val) => val ? '\uE226' : ''
+        getFormattedValue: (val) => val ? '\uE226' : '',
+        tooltipText: 'Attachment'
       },
       {
         sortColumn: null,
         name: '',
+        cacheKey: 'answered',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
         getValue: (rowIndex: number): boolean => this.getRow(rowIndex).answeredFlag,
-        getFormattedValue: (val) => val ? '\uE15E' : ''
+        getFormattedValue: (val) => val ? '\uE15E' : '',
+        tooltipText: 'Answered'
       },
       {
         sortColumn: null,
         name: '',
+        cacheKey: 'flagged',
         textAlign: 2,
         rowWrapModeHidden: true,
         font: '16px \'Material Icons\'',
         getValue: (rowIndex: number): boolean => this.getRow(rowIndex).flaggedFlag,
-        getFormattedValue: (val) => val ? '\uE153' : ''
+        getFormattedValue: (val) => val ? '\uE153' : '',
+        tooltipText: 'Flagged'
       }
     ];
 

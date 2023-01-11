@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {
-    Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit
+    Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit, NgZone
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -61,12 +61,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     editorContent: string;
     hasCC = false;
     hasBCC = false;
+    dragLeaveTimeout = null;
     public showDropZone = false;
     public draggingOverDropZone = false;
     public editing = false;
     public isUnsaved = false;
+    public savingInProgress = false;
     public uploadprogress: number = null;
-    public uploadingFiles: File[] = null;
+    public uploadingFiles: FileList = null;
     public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
@@ -75,8 +77,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     selector: string;
 
     saveErrorMessage: string;
-
-    shouldReturnToPreviousPage = false;
 
     // here we keep the suggestions we get from RecipientsService
     suggestedRecipients: MailAddressInfo[] = [];
@@ -99,6 +99,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private dialogService: DialogService,
         recipientservice: RecipientsService,
         public settingsService: AppSettingsService,
+        private _ngZone: NgZone,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -113,14 +114,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.model.isUnsaved()) {
             this.editing = true;
             this.isUnsaved = true;
-            this.shouldReturnToPreviousPage = true;
-            const from: FromAddress = this.draftDeskservice.froms.find((f) =>
+            const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
             this.has_pasted_signature = false;
             if (!from) {
-                this.model.from = this.draftDeskservice.froms && this.draftDeskservice.froms.length > 0 ?
-                    this.draftDeskservice.froms[0].nameAndAddress : '';
+                this.model.from = this.draftDeskservice.fromsSubject.value && this.draftDeskservice.fromsSubject.value.length > 0 ?
+                    this.draftDeskservice.fromsSubject.value[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
                 if ( !this.has_pasted_signature && from.signature ) {
@@ -146,14 +146,31 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
             if (this.model.replying) {
                 setTimeout(() => {
-                    this.messageTextArea.nativeElement.setSelectionRange(0, 0);
-                    this.messageTextArea.nativeElement.focus();
+                    if (!this.model.useHTML) {
+                        this.messageTextArea.nativeElement.setSelectionRange(0, 0);
+                        this.messageTextArea.nativeElement.focus();
+                    }
                 });
             }
         } else {
-            this.rmmapi.getMessageContents(this.model.mid).subscribe(msgObj =>
-                this.model.preview = msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : ''
-            );
+          this.rmmapi.getMessageContents(this.model.mid).subscribe(
+              msgObj => {
+                  this.model.preview = msgObj.text && msgObj.text.text ? DraftFormModel.trimmedPreview(msgObj.text.text) : '';
+                  // Re just auto-saved + reloaded this one, so keep editing it
+                  if (this.model.mid === this.draftDeskservice.isEditing) {
+                      this.loadDraft(msgObj);
+                  }
+
+              },
+            err => {
+              console.error('Error fetching message: ' + this.model.mid);
+              console.error(err);
+              if (typeof(err) === 'string') {
+                this.snackBar.open(err);
+              } else if (err.hasOwnProperty('errors')) {
+                this.snackBar.open(err.errors.join('.'));
+              }
+            });
         }
 
         this.formGroup = this.formBuilder.group(this.model);
@@ -169,7 +186,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.formGroup.controls.from.valueChanges
             .pipe(debounceTime(1000))
             .subscribe((selected_from_address) => {
-                const from: FromAddress = this.draftDeskservice.froms.find((f) =>
+                const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
                     f.nameAndAddress === selected_from_address);
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
@@ -204,42 +221,60 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             });
 
         this.formGroup.valueChanges.subscribe(_ => this.updateSuggestions());
+
+        this._ngZone.runOutsideAngular(() => {
+            window.addEventListener(
+                'dragover', this.onDragOver.bind(this)
+            );
+            window.addEventListener(
+                'dragleave', this.onDragLeave.bind(this)
+            );
+        });
     }
 
     ngAfterViewInit() {
-        let dragLeaveTimeout = null;
-        window.addEventListener('dragleave', () => {
-            if (!dragLeaveTimeout) {
-                // Drag leave events are fired all the time - so add some throttling on them
-                dragLeaveTimeout = setTimeout(() => this.hideDropZone(), 100);
-            }
-        });
-
-        window.addEventListener('drop', () => this.hideDropZone());
-        window.addEventListener('dragover', (event) => {
-            const dt = event.dataTransfer;
-
-            if (dt.types) {
-                let foundFilesType = false;
-                for (let n = 0; n < dt.types.length; n++) {
-                    if (dt.types[n] === 'Files' || dt.types[n] === 'application/x-moz-file') {
-                        foundFilesType = true;
-                        break;
-                    }
-                }
-                if (foundFilesType) {
-                    event.preventDefault();
-                    if (dragLeaveTimeout) {
-                        clearTimeout(dragLeaveTimeout);
-                        dragLeaveTimeout = null;
-                    }
-                    this.showDropZone = true;
-                }
-            }
-        });
-
         if (this.model.mid <= -1) {
             this.htmlToggled();
+        }
+    }
+
+    onDragLeave(event: DragEvent) {
+        // only do this once on any event in the window, else the whole thing
+        // flickers
+        event.stopImmediatePropagation();
+        if (!this.dragLeaveTimeout) {
+            // Drag leave events are fired all the time - so add some throttling on them
+            this.dragLeaveTimeout = setTimeout(() => {
+                this.hideDropZone();
+            }, 100);
+        }
+        return false;
+    }
+
+    // on Drag over - entire window, if contains files, show the drop zone
+    onDragOver(event: DragEvent) {
+        if (this.showDropZone) {
+            event.preventDefault();
+            return false;
+        }
+        const dt = event.dataTransfer;
+        if (dt.types) {
+            let foundFilesType = false;
+            for (let n = 0; n < dt.types.length; n++) {
+                if (dt.types[n] === 'Files' || dt.types[n] === 'application/x-moz-file') {
+                    foundFilesType = true;
+                    break;
+                }
+            }
+            if (foundFilesType) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                if (this.dragLeaveTimeout) {
+                    clearTimeout(this.dragLeaveTimeout);
+                    this.dragLeaveTimeout = null;
+                }
+                this.showDropZone = true;
+            }
         }
     }
 
@@ -258,8 +293,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public hideDropZone() {
-        this.draggingOverDropZone = false;
-        this.showDropZone = false;
+      this.draggingOverDropZone = false;
+      this.showDropZone = false;
     }
 
     addRecipientFromSuggestions(recipient: MailAddressInfo) {
@@ -274,6 +309,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public onFilesSelected(event) {
         this.uploadFiles(event.target.files);
+        this.attachmentFileUploadInput.nativeElement.value = '';
     }
 
     public displayWithoutRBWUL(filename: string): string {
@@ -284,10 +320,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
     }
 
-    public dropFiles(event) {
+    public dropFiles(event: DragEvent) {
         event.preventDefault();
-        this.uploadFiles(event.dataTransfer.files);
-        this.hideDropZone();
+        event.stopImmediatePropagation();
+        if (!this.uploadingFiles) {
+            this.uploadFiles(event.dataTransfer.files);
+            this.hideDropZone();
+        }
     }
 
 
@@ -296,7 +335,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.submit();
     }
 
-    public uploadFiles(files: File[]) {
+    public uploadFiles(files: FileList) {
         this.uploadprogress = 0;
         this.uploadingFiles = files;
         const formdata: FormData = new FormData();
@@ -352,59 +391,73 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.uploadingFiles = null;
     }
 
+    public loadDraft(msgObj) {
+        const model = new DraftFormModel();
+        model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
+        this.draftDeskservice.isEditing = model.mid;
+        model.attachments = msgObj.attachments
+            ? msgObj.attachments.map((att) => Object.assign({
+                file_url: att.filename,
+                file: att.filename
+            }, att))
+            : [];
+
+        const from: any = msgObj.headers.from;
+        if (from) {
+            model.from = from.value && from.value[0] ?
+                from.value[0].name !== 'undefined' ? from.text : from.value[0].address
+            : null;
+        }
+        if (msgObj.headers.to) {
+            model.to = msgObj.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+        }
+        if (msgObj.headers.cc) {
+            model.cc = msgObj.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+            this.hasCC = true;
+        }
+        if (msgObj.headers.bcc) {
+            model.bcc = msgObj.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
+            this.hasBCC = true;
+        }
+
+        model.subject = msgObj.headers.subject;
+        if (msgObj.text) {
+            if (msgObj.text.html) {
+                model.html = msgObj.text.html;
+                model.msg_body = msgObj.text.text;
+                model.useHTML = true;
+            } else {
+                model.msg_body = msgObj.text.text;
+            }
+            model.preview = msgObj.text.text;
+        }
+
+        if (!model.msg_body) {
+            model.msg_body = '';
+        }
+
+        this.model = model;
+        this.editing = true;
+        this.draftDeskservice.shouldReturnToPreviousPage = false;
+
+        this.formGroup.patchValue(this.model, { emitEvent: false });
+
+        this.htmlToggled();
+    }
+
     public editDraft() {
         if (this.model.mid > 0) {
             this.rmmapi.getMessageContents(this.model.mid, true)
                 .subscribe((result: any) => {
-                    const model = new DraftFormModel();
-                    model.mid = typeof result.mid === 'string' ? parseInt(result.mid, 10) : result.mid;
-                    model.attachments = result.attachments.map((att) => Object.assign({
-                        file_url: att.filename,
-                        file: att.filename
-                    }, att));
-
-                    const from: any = result.headers.from;
-                    if (from) {
-                        model.from = from.value && from.value[0] ?
-                            from.value[0].name !== 'undefined' ? from.text : from.value[0].address
-                            : null;
-                    }
-                    if (result.headers.to) {
-                        model.to = result.headers.to.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                    }
-                    if (result.headers.cc) {
-                        model.cc = result.headers.cc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                        this.hasCC = true;
-                    }
-                    if (result.headers.bcc) {
-                        model.bcc = result.headers.bcc.value.map((entry) => new MailAddressInfo(entry.name, entry.address));
-                        this.hasBCC = true;
-                    }
-
-                    model.subject = result.headers.subject;
-                    if (result.text) {
-                        if (result.text.html) {
-                            model.html = result.text.html;
-                            model.msg_body = result.text.text;
-                            model.useHTML = true;
-                        } else {
-                            model.msg_body = result.text.text;
-                        }
-                        model.preview = result.text.text;
-                    }
-
-                    if (!model.msg_body) {
-                        model.msg_body = '';
-                    }
-
-                    this.model = model;
-                    this.editing = true;
-
-                    this.formGroup.patchValue(this.model, { emitEvent: false });
-
-                    this.htmlToggled();
+                    this.loadDraft(result);
                 }, err => {
+                  console.error('Error fetching message: ' + this.model.mid);
+                  console.error(err);
+                  if (typeof(err) === 'string') {
                     this.snackBar.open(`Error opening draft for editing ${err}`, 'OK');
+                  } else if (err.hasOwnProperty('errors')) {
+                    this.snackBar.open(`Error opening draft for editing ${err.errors.join('.')}`, 'OK');
+                  }
                 });
         } else {
             this.editing = true;
@@ -433,7 +486,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                             ? this.formGroup.value.msg_body.replace(/\n/g, '<br />\n')
                             :  ''
                     );
-                }
+                },
+                image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
+                    title: this.displayWithoutRBWUL(att.file),
+                    value: '/ajax/download_draft_attachment?filename=' + att.file
+                })) : []),
+
             };
             this.tinymce_plugin.create(options);
         } else {
@@ -454,6 +512,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public trashDraft() {
         const snackBarRef = this.snackBar.open('Deleting');
+        this.draftDeskservice.isEditing = -1;
+        this.draftDeskservice.composingNewDraft = null;
         this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
             snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
@@ -462,7 +522,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     exitIfNeeded() {
-        if (this.shouldReturnToPreviousPage) {
+        if (this.draftDeskservice.shouldReturnToPreviousPage) {
+            this.draftDeskservice.shouldReturnToPreviousPage = false;
             this.location.back();
         }
     }
@@ -472,6 +533,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public cancelDraft() {
+        this.draftDeskservice.isEditing = -1;
         this.draftDeleted.emit(this.model.mid);
         this.exitIfNeeded();
     }
@@ -523,10 +585,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public close() {
         this.editing = false;
+        this.draftDeskservice.isEditing = -1;
+        this.draftDeskservice.composingNewDraft = null;
         this.exitIfNeeded();
     }
 
     public submit(send: boolean = false) {
+        if (this.savingInProgress) {
+            return;
+        }
+        this.savingInProgress = true;
         if (send) {
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
@@ -567,9 +635,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.model.preview = DraftFormModel.trimmedPreview(this.model.msg_body);
         }
 
-        const from = this.draftDeskservice.froms.find(
-            (f) => this.model.from === f.nameAndAddress);
-        this.model.reply_to = from.reply_to;
+        // this.model.from should have a value (cos it defaults)
+        const from = this.draftDeskservice.fromsSubject.value.find(
+            (f) => this.model.from === f.nameAndAddress || this.model.from === f.email);
+        let draft_from = this.model.from;
+        if (!from) {
+            console.log(`Compose: Could not find ${this.model.from} in ${this.draftDeskservice.fromsSubject.value}`);
+        } else {
+            this.model.reply_to = from.reply_to;
+            draft_from = from && from.id ?
+                from.name + '%' + from.email + '%' + from.id + '%' + from.folder :
+                from.email;
+        }
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
@@ -583,9 +660,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             // Use old form based API for sending as JSON api doesn't support this
             this.rmmapi.saveDraft(Object.assign(
                 {}, this.model, {
-                    from: from && from.id ?
-                        from.name + '%' + from.email + '%' + from.id + '%' + from.folder :
-                        from.email
+                    from: draft_from
                 }
             ), send)
                 .subscribe((res) => {
@@ -599,8 +674,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
                     this.snackBar.open(res[1], null, { duration: 3000 });
 
+                    this.draftDeskservice.isEditing = -1;
                     this.draftDeleted.emit(this.model.mid);
 
+                    this.savingInProgress = false;
                     this.dialogService.closeProgressDialog();
                     this.exitToTable();
                 }, (err) => {
@@ -614,6 +691,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         `Error sending: ${msg}`,
                         'Dismiss'
                     );
+                    this.savingInProgress = false;
                     this.dialogService.closeProgressDialog();
                 });
         } else {
@@ -644,15 +722,23 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 });
             }
             )).subscribe((res: any) => {
-                    if (res.mid) {
-                        this.model.mid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
+                if (res.mid) {
+                    const newMid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
+                    if (this.model.isUnsaved()) {
+                        // We saved in the middle of editing, store the mid so
+                        // we can continue after the drafts update
+                        this.draftDeskservice.isEditing = newMid;
                     }
+                    this.model.mid = newMid;
+                    this.draftDeskservice.composingNewDraft = null;
+                }
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
 
                     this.isUnsaved = false;
                     this.saved = new Date();
                     this.saveErrorMessage = null;
 
+                    this.savingInProgress = false;
                     if (send) {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
@@ -664,6 +750,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                                 .map(fieldname =>
                                     `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
                     }
+                    this.savingInProgress = false;
                     this.saveErrorMessage = `Error saving draft: ${msg}`;
                 });
         }

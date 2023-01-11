@@ -27,10 +27,12 @@ import {
   DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import DOMPurify from 'dompurify';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatButtonToggle } from '@angular/material/button-toggle';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
@@ -42,44 +44,29 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
+import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
+import { ContactsService } from '../contacts-app/contacts.service';
+import { Contact, ContactKind } from '../contacts-app/contact';
+import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
+// import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
 
+// const DOMPurify = require('dompurify');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
+const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
 const TOOLBAR_BUTTON_WIDTH = 40;
 
-@Component({
-  template: `
-      <h3 mat-dialog-title>Really show HTML version?</h3>
-      <mat-dialog-content>
-          <p>Showing HTML formatted messages may send tracking information to the sender,
-          and may also expose you to security threats.
-	  You should only show the HTML version if you trust the sender.</p>
-
-          <!-- <p><button mat-raised-button (click)="dialogRef.close()">No</button></p>
-          <p><button mat-raised-button (click)="dialogRef.close('once')">Yes, only this time</button></p> -->
-          <p><button mat-raised-button (click)="dialogRef.close('dontask')">Manually toggle HTML</button></p>
-          <p><button mat-raised-button (click)="dialogRef.close('alwaysshowhtml')">Always show HTML if available</button></p>
-
-      </mat-dialog-content>
-  `
-})
-export class ShowHTMLDialogComponent {
-  constructor(public dialogRef: MatDialogRef<ShowHTMLDialogComponent>) {
-
-  }
-}
 
 @Component({
   moduleId: 'angular2/app/mailviewer/',
   // tslint:disable-next-line:component-selector
   selector: 'single-mail-viewer',
   templateUrl: 'singlemailviewer.component.html',
-  styleUrls: ['singlemailviewer.component.css']
+  styleUrls: ['singlemailviewer.component.scss']
 })
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
-  static rememberHTMLChosenForMessagesIds: { [messageId: number]: boolean } = {};
 
   _messageId = null; // Message id or filename
 
@@ -96,8 +83,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('messageContents') messageContents: ElementRef;
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
-  @ViewChild('forwardMessageHeader') messageHeaderHTML: ElementRef;
-  @ViewChildren('forwardMessageHeader') messageHeaderHTMLQuery: QueryList<ElementRef>;
+  @ViewChild('replyMessageHeader', {read: ElementRef}) replyHeaderHTML: ElementRef;
+  @ViewChildren('replyMessageHeader', {read: ElementRef}) replyHeaderHTMLQuery: QueryList<ElementRef>;
+  @ViewChild('forwardMessageHeader', {read: ElementRef}) messageHeaderHTML: ElementRef;
+  @ViewChildren('forwardMessageHeader', {read: ElementRef}) messageHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
   @ViewChildren(HorizResizerDirective) resizerQuery: QueryList<HorizResizerDirective>;
   @ViewChild('toolbarButtonContainer') toolbarButtonContainer: ElementRef;
@@ -108,11 +97,19 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public err: any;
 
   public mailContentHTML: string = null;
+  public mailContentHTMLWithImages: string = null;
+  public mailContentHTMLWithoutImages: string = null;
   public fullMailDownloaded = false;
 
   public showHTMLDecision = 'dontask';
+  public showImagesDecision = 'dontask';
   public showHTML = false;
+  public showImages = false;
+  public savedForThisSender = false;
+  public savedAlways = false;
   public showAllHeaders = false;
+
+  contacts: Contact[] = [];
 
   public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
 
@@ -134,7 +131,21 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     public messagelistservice: MessageListService,
     public mobileQuery: MobileQueryService,
     private router: Router,
+    private supportSnackBar: RunboxContactSupportSnackBar,
+    private snackBar: MatSnackBar,
+    private contactsservice: ContactsService,
   ) {
+    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+      // set all elements owning target to target=_blank
+      if ('target' in node) {
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener');
+      }
+    });
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      console.log('MailViewer: got the contacts!');
+      this.contacts = contacts;
+    });
   }
 
   public close(actionstring?: string) {
@@ -158,8 +169,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  public get resizerHeight() {
+    return this.resizer ? this.resizer.currentHeight : 0;
+  }
+
   public get messageId() {
     return this._messageId;
+  }
+
+  public get showAttachments() {
+    // Show attachments section IIF:
+    // We have any attachments at all AND
+    // we have non-inline (image) attachments OR
+    // we're not viewing in HTML
+    return this.mailObj.attachments.length > 0 && (
+      this.mailObj.visible_attachment_count > 0 || !(this.mailContentHTML && this.showHTML && this.SUPPORTS_IFRAME_SANDBOX)
+    );
   }
 
   public ngOnInit() {
@@ -167,7 +192,12 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
     this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
-    this.previousHeightPercentage = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    this.previousHeightPercentage = storedHeightPercentage > 100
+      ? 100
+      : storedHeightPercentage < 0
+        ? 0
+      : storedHeightPercentage;
   }
 
   public ngAfterViewInit() {
@@ -185,20 +215,27 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             localStorage.removeItem(resizerHeightKey);
           }
           if (this.previousHeightPercentage) {
-            this.resizer.resizePercentage(this.previousHeightPercentage);
+            resizer.first.resizePercentage(this.previousHeightPercentage);
           } else {
-            this.resizer.resizePercentage(50);
+            resizer.first.resizePercentage(50);
           }
         }
       }, 0);
     });
 
     // messageHeaderHTML loads after message is loaded
-    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTML: ElementRef) => {
-      setTimeout(() => {
-          this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
-          this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
-      }, 0);
+    this.messageHeaderHTMLQuery.changes.subscribe((messageHeaderHTMLList: QueryList<ElementRef>) => {
+      if (this.messageHeaderHTML) {
+        this.mailObj.origMailHeaderHTML = messageHeaderHTMLList.first.nativeElement.innerHTML;
+        this.mailObj.origMailHeaderText = messageHeaderHTMLList.first.nativeElement.innerText;
+      }
+    });
+
+    this.replyHeaderHTMLQuery.changes.subscribe((replyHeaderHTMLList: QueryList<ElementRef>) => {
+      if (this.replyHeaderHTML) {
+        this.mailObj.origReplyHeaderHTML = replyHeaderHTMLList.first.nativeElement.innerHTML;
+        this.mailObj.origReplyHeaderText = replyHeaderHTMLList.first.nativeElement.innerText;
+      }
     });
 
     this.afterViewInit.emit(this.messageId);
@@ -215,7 +252,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.morebuttonindex = Math.floor(
         toolbarwidth / TOOLBAR_BUTTON_WIDTH
       ) - 1;
-      this.attachmentAreaCols = Math.floor(toolbarwidth / 200) + 1;
+      this.attachmentAreaCols = Math.floor(toolbarwidth / 150) + 1;
     }
   }
   public changeOrientation(orientation: string) {
@@ -241,35 +278,111 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public toggleHtml(event) {
     event.preventDefault();
 
+    this.savedAlways = false;
+    this.savedForThisSender = false;
     if (!this.showHTML) {
-      if (SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] !== undefined) {
+      console.log(this.showHTMLDecision);
+      const decisionObservable = this.showHTMLDecision ?
+        of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
+
+      decisionObservable.subscribe(result => {
+        localStorage.setItem(showHtmlDecisionKey, result);
+        this.showHTMLDecision = result;
         this.showHTML = true;
-        ProgressDialog.open(this.dialog);
-      } else {
-
-        console.log(this.showHTMLDecision);
-        const decisionObservable = this.showHTMLDecision ?
-          of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
-
-        decisionObservable.subscribe(result => {
-          switch (result) {
-            case 'dontask':
-            case 'alwaysshowhtml':
-              localStorage.setItem(showHtmlDecisionKey, result);
-              this.showHTMLDecision = result;
-            // tslint:disable-next-line:no-switch-case-fall-through
-            case 'once':
-              // ProgressDialog.open(this.dialog);
-              // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = true;
-              break;
-          }
-          this.showHTML = result ? true : false;
-        });
-      }
+      });
     } else {
-      // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] = false;
       this.showHTML = false;
     }
+  }
+
+  public showExternalImages(event) {
+    event.preventDefault();
+
+    this.showImages = !this.showImages;
+    this.savedAlways = false;
+    this.savedForThisSender = false;
+    // turn on:
+    if (this.showImages) {
+      this.mailContentHTML = this.mailContentHTMLWithImages;
+    } else {
+      this.mailContentHTML = this.mailContentHTMLWithoutImages;
+    }
+  }
+
+  public saveDecisionGlobal(event) {
+    event.preventDefault();
+
+    if (this.showHTML) {
+      this.showHTMLDecision = 'alwaysshowhtml';
+      localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
+    }
+
+    if (this.showImages) {
+      this.showImagesDecision = 'alwaysshowimages';
+      localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
+    }
+    this.savedAlways = true;
+    this.snackBar.open('Setting saved for all senders', 'OK', {
+      duration: 3000,
+    });
+  }
+
+  // Store current showHTML / showImages settings for the current sender
+  public async saveDecisionForThisSender(event) {
+    event.preventDefault();
+
+    await this.contactsservice.findOrUpdateContact(
+      this.mailObj.from[0].address,
+      ContactKind.SETTINGSONLY,
+      {
+        show_html: this.showHTML,
+        show_external_html: this.showImages
+      }
+    );
+
+    this.savedForThisSender = true;
+    this.snackBar.open('Setting saved for this sender', 'OK', {
+      duration: 3000,
+    });
+  }
+
+  public showHTMLForThisSender(email: string): boolean {
+    if (this.showHTMLDecision
+        && this.showHTMLDecision === 'alwaysshowhtml') {
+      this.showHTML = true;
+      this.savedAlways = true;
+      return;
+    }
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      const contact = contacts.find((c) => c.primary_email() === email);
+      if (contact && contact.show_html) {
+        this.showHTML = true;
+        this.savedForThisSender = true;
+      } else {
+        this.showHTML = false;
+      }
+    });
+  }
+
+  public showImagesForThisSender(email: string): boolean {
+    if (this.showImagesDecision
+        && this.showImagesDecision === 'alwaysshowimages') {
+      this.showImages = true;
+      this.savedAlways = true;
+      this.mailContentHTML = this.mailContentHTMLWithImages;
+      return;
+    }
+    this.contactsservice.contactsSubject.subscribe(contacts => {
+      const contact = contacts.find((c) => c.primary_email() === email);
+      if (contact && contact.show_external_html) {
+        this.showImages = true;
+        this.savedForThisSender = true;
+        this.mailContentHTML = this.mailContentHTMLWithImages;
+      } else {
+        this.showImages = false;
+        this.mailContentHTML = this.mailContentHTMLWithoutImages;
+      }
+    });
   }
 
   public fetchMessageJSON() {
@@ -278,11 +391,21 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.rbwebmailapi.getMessageContents(this.messageId).pipe(
       map((messageContents) => {
         const res: any = Object.assign({}, messageContents);
+        if (res.status === 'warning') {
+          // status === 'error' already displayed in showBackendErrors?
+          // Skip if we previously had an issue loading this messge
+          throw res;
+        }
         res.subject = res.headers.subject;
         res.from = res.headers.from.value;
         res.to = res.headers.to ? res.headers.to.value : '';
         res.cc = res.headers.cc ? res.headers.cc.value : '';
 
+        // RFC 5322 says "Date" and "From" are the only 2 required fields
+        // and yet we get emails without em.
+        if (!res.headers.date) {
+          res.headers.date = '1970-01-01T00:00:00.000Z';
+        }
         res.date = (
           (arr: string[]): Date =>
             new Date(
@@ -304,6 +427,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
         res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
+        res.sanitized_html_without_images = this.generateAttachmentURLs(res.attachments, res.sanitized_html_without_images);
         res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
 
@@ -312,8 +436,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (res.text.html) {
           // Pre-sanitized, however we need to escape ampersands and
           // quotes for srcdoc, let angular do it:
-//          res.html = this.domSanitizer.sanitize(SecurityContext.SCRIPT, res.sanitized_html);
-          res.html = this.domSanitizer.bypassSecurityTrustHtml(res.sanitized_html);
+          res.html = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html));
+          res.html_without_images = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html_without_images));
         } else {
           res.html = null;
         }
@@ -359,19 +483,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         html.push(raw);
         text = html.join('');
 
-        res.text = text;
+        // res.text = text;
+        res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
         return res;
       }))
       .subscribe((res) => {
         if (res.html) {
-          this.mailContentHTML = res.html;
-          if (
-            // res.has_sent_mail_to === '1' || // We have sent mail to this sender before, so let's trust the HTML and show it by default
-            // SingleMailViewerComponent.rememberHTMLChosenForMessagesIds[this.messageId] ||
-            this.showHTMLDecision === 'alwaysshowhtml') {
+          // default to no images
+          this.mailContentHTML = res.html_without_images;
+          this.mailContentHTMLWithoutImages = res.html_without_images;
+          this.mailContentHTMLWithImages = res.html;
 
-            this.showHTML = true;
-          }
+          // if we have it on globally or for this sender:
+          this.showHTMLForThisSender(res.from[0].address);
+          // Show images if we previously saved for the current sender
+          // or set it globally
+          this.showImagesForThisSender(res.from[0].address);
         } else {
           this.mailContentHTML = null;
         }
@@ -385,12 +512,28 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         setTimeout(() => {
           // If forwarding HTML copy mail header from the visible mail viewer header
           if (this.messageHeaderHTML) {
-            this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderHTML = this.messageHeaderHTML.nativeElement.innerHTML;
             this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
           }
         }, 0
         );
-      });
+      },
+      err => {
+        console.error('Error fetching message: ' + this.messageId);
+        // httperror e.message, or status:error,errors:['strings']
+        console.error(err);
+        if (typeof(err) === 'string') {
+          // HTTPErrorResponse as a string
+          this.supportSnackBar.open(err);
+        } else if (err.hasOwnProperty('errors')) {
+          // Our own error object from rest api
+          this.supportSnackBar.open(err.errors.join('.'));
+        }
+        // close the viewer pane
+        this.close();
+        // else - not outputting normal JS errors!
+      }
+      );
   }
 
   generateAttachmentURLs(attachments: any[], html: string): string {
@@ -414,8 +557,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           if (isImage) {
             att.thumbnailURL = '/rest/v1/email/' + this.messageId + '/attachmentimagethumbnail/' + ndx;
             if (html) {
-              html = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
-              att.internal = true;
+              const newHtml = html.replace(new RegExp('src="cid:' + att.cid), 'src="' + att.downloadURL);
+              if (newHtml !== html) {
+                att.internal = true;
+                html = newHtml;
+              }
             }
           }
         }
@@ -428,23 +574,46 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (this.showHTMLDecision) {
       localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
     } else {
-      SingleMailViewerComponent.rememberHTMLChosenForMessagesIds = {};
       localStorage.removeItem(showHtmlDecisionKey);
     }
   }
 
+  saveShowImagesDecision() {
+    if (this.showImagesDecision) {
+      localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
+    } else {
+      localStorage.removeItem(showImagesDecisionKey);
+    }
+  }
   adjustIframeHTMLHeight() {
     if (this.htmliframe) {
       const iframe = document.getElementById('iframe');
       const newHeight = this.htmliframe.nativeElement.contentWindow.document.body.scrollHeight;
-      iframe.style.cssText = `height: ${newHeight + 20}px !important`;
+      iframe.style.cssText = `height: ${newHeight + 70}px !important`;
     }
   }
 
   print() {
+    // Can't access print view inside iFrame, so we need to 
+    // temporary hide buttons while the view is rendering
+    const messageContents = document.getElementById('messageContents');
+    const buttons = messageContents.getElementsByTagName('button');
+    const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
+    const contactButtons = messageContents.getElementsByTagName('mat-icon') as HTMLCollectionOf<HTMLElement>;
+
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'none';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'none';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'none';
+    }
+
     let printablecontent = this.messageContents.nativeElement.innerHTML;
     if (this.htmliframe) {
-      printablecontent = printablecontent.replace(/\<iframe.*\<\/iframe\>/g,
+      printablecontent = printablecontent.replace(/\<iframe[^]*\<\/iframe\>/g,
         this.htmliframe.nativeElement.contentWindow.document.documentElement.innerHTML
       );
     }
@@ -453,6 +622,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         { type: 'text/html' }
       )
     );
+
+    // Unhiding buttons
+    if (htmlButtons.length) {
+      htmlButtons[0].style.display = 'flex';
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.display = 'inline';
+    }
+    for (let i = 0; i < contactButtons.length; i++) {
+      contactButtons[i].style.display = 'inline-block';
+    }
   }
 
   /**
@@ -551,6 +731,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.fullMailDownloaded = false;
       this._messageId = id;
       this.showHTML = false;
+      this.showImages = false;
       this.mailContentHTML = null;
 
       if (!id) {
@@ -582,6 +763,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  // FIXME: Why do we have this (called from orange triangle icon)
+  // AND the htmlSettingsMenu radio buttons!?
   showHTMLWarningDialog() {
     this.dialog.open(ShowHTMLDialogComponent).afterClosed()
       .subscribe(result => {

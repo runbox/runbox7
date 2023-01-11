@@ -1,12 +1,17 @@
 /// <reference types="cypress" />
 
 describe('Message caching', () => {
-    it('should cache all messages on first time page load', () => {
+    beforeEach(() => {
+        localStorage.setItem('localSearchPromptDisplayed221', 'true');
+        localStorage.setItem('messageSubjectDragTipShown', 'true');
+    });
+
+  it('should cache all messages on first time page load', () => {
         indexedDB.deleteDatabase('messageCache');
         cy.intercept('/rest/v1/email/12').as('message12requested');
 
         cy.visit('/');
-        cy.wait('@message12requested');
+        cy.wait('@message12requested', {'timeout':10000});
         cy.wait(1000); // hopefully this is enough time for all the iDB writes to actually finish
     });
 

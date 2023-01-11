@@ -44,6 +44,7 @@ export class AppPasswordsComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.rmm.account_security.tfa.get();
         this.rmm.account_security.app_pass.list();
 
         if (!this.rmm.account_security.user_password) {

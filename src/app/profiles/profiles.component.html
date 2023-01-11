@@ -14,7 +14,7 @@
 
         <app-profiles-default *ngIf="rmm.profile && profiles" (ev_reload)="ev_reload_emiter($event)">
             <div section-description>
-                <p style="margin-bottom: 0;">Select email you want to use as your Default Identity:</p>
+                <p style="margin-bottom: 0;">Select the email you want to use as your Default Identity:</p>
             </div>
         </app-profiles-default>
         <br>
@@ -23,13 +23,17 @@
             *ngIf="rmm.profile && profiles && profiles.hasOwnProperty('aliases')"
             [values]="profiles.aliases" (ev_reload)="ev_reload_emiter($event)">
             <div section-header>
-                <h2>Aliases</h2>
+                <h2>Identities for Aliases</h2>
             </div>
             <div section-description>
-                <p>Aliases are extra email addresses that deliver to your email account, just as your main email address
-                    does. An alias can't be used to log in or have any storage of its own, and does not work independently from
-                    your account.</p>
-                <p style="color: crimson" *ngIf="rmm.alias?.aliases_counter?.current === rmm.alias?.aliases_counter?.total">You have reached the maximum allowed number of Runbox aliases.</p>
+                <p>Aliases are extra email addresses that deliver to your account, just as your main username/email 
+                    address does. Below are identities you can use if you want to send messages from your aliases. 
+                    These identities can be customised by adding a different From Name, Signature or Reply-to address. 
+                    You can also change the Runbox domain an alias uses. You can't delete these identities as they are 
+                    tied to your aliases but you can manage your aliases by going to Alias Administration.</p>
+                <p style="color: crimson" *ngIf="rmm.alias?.aliases_counter?.current === rmm.alias?.aliases_counter?.total">
+                    You have reached the maximum allowed number of Runbox aliases.
+                </p>
                 <p>To manage your aliases visit <a target="rmm6" href="https://runbox.com/mail/account_alias">Alias Administration</a>.</p>
             </div>
             <div section-buttons>
@@ -47,9 +51,10 @@
                 <h2>Other identities</h2>
             </div>
             <div section-description>
-                <p>An identity allows you to set up a separate profile for sending mail, and is different from an alias.
-                    It is different because it allows you to send email using addresses that are not part of your Runbox
-                    account.</p>
+                <p>Other Identities can be used when you want to send from addresses that are not part of your Runbox 
+                    account. Adding this kind of address (e.g. a work email address) will require verification via 
+                    email that you have access to that account. You can also use Other Identities if you need 
+                    additional identities for you Runbox email addresses.</p>
                 <p>Added identities require verification via an email sent to the given address.</p>
             </div>
             <div section-buttons>

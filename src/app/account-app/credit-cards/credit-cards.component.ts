@@ -23,7 +23,7 @@ import { StripeAddCardDialogComponent } from './stripe-add-card-dialog.component
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
-import * as moment from 'moment';
+import moment from 'moment';
 import { RunboxContactSupportSnackBar } from '../../common/contact-support-snackbar.service';
 
 class CreditCard {

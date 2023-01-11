@@ -26,9 +26,19 @@ export abstract class MessageDisplay {
   // public selectedRowIds: { [key: number]: boolean } = {};
   public hasChanges: boolean;
 
+  // ALL rows
+  public _rows = [];
+  // Rows for actual display
   public rows = [];
 
   constructor(rows: any) {
+    this._rows = rows;
+    // default to all rows, see filterBy for reduced sets
+    this.rows = rows;
+  }
+
+  setRows(rows: any) {
+    this._rows = rows;
     this.rows = rows;
   }
 
@@ -85,6 +95,16 @@ export abstract class MessageDisplay {
     });
   }
 
+  public removeMessages(messageIds: number[]) {
+    const filteredRows = [];
+    this.rows.forEach((value, index) => {
+      if (!messageIds.includes(this.getRowMessageId(index))) {
+        filteredRows.push(value);
+      }
+    });
+    this.rows = filteredRows;
+  }
+
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     this.hasChanges = false;
     if (!this.rowExists(rowIndex)) {
@@ -92,6 +112,15 @@ export abstract class MessageDisplay {
     }
     //    const selectedRowId = this.getRowId(rowIndex);
     const selectedRowId = rowIndex;
+
+    // Drag&Drop, if we click to drag, we don't want to change the state of
+    // the selection.
+    // UNLESS: no messages are selected, then we select+drag one.
+    if (columnIndex === -1) {
+      if (this.isSelectedRow(rowIndex)) {
+        return;
+      }
+    }
 
     // multiSelect just means do these, nothing else:
     // multiSelect is true if we're applying rowSelect in a loop
@@ -143,7 +172,7 @@ export abstract class MessageDisplay {
   }
 
   rowExists(index: number): boolean {
-    return this.rows[index] ? true : false;
+    return this.rows[index] && this.getRowMessageId(index) > 0 ? true : false;
   }
 
   isBoldRow(index: number): boolean {
@@ -168,6 +197,9 @@ export abstract class MessageDisplay {
   clearOpenedRow() {
     this.openedRowIndex = null;
   }
+
+  // filtering:
+  abstract filterBy(options: Map<String, any>);
 
   // columns
   abstract getCanvasTableColumns(app: any): CanvasTableColumn[];

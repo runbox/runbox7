@@ -31,7 +31,7 @@ export class Email {
           data => {
             const reply = data;
             if ( reply['status'] === 'error' ) {
-              this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
+              this.app.show_error( reply['errors'].join( '' ), 'Dismiss' );
               return;
             }
           },

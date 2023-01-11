@@ -79,7 +79,7 @@ export class SearchExpressionBuilderComponent implements OnInit {
     let folder: string;
 
     if (this.currentFolder) {
-      folder = this.currentFolder.replace(/\//g, '\.');
+      folder = this.currentFolder;
     } else {
       // For RMM6
       folder = document.getElementById('rmm_current_folder_name').innerText;

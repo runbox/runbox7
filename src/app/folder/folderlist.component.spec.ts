@@ -18,7 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent } from './folderlist.component';
-import { FolderListEntry, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { FolderListEntry } from '../common/folderlistentry';
 import { BehaviorSubject, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TestBed } from '@angular/core/testing';
@@ -107,7 +108,7 @@ describe('FolderListComponent', () => {
         rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 6, 7, 5]);
-        expect(rearrangedFolders[6].folderPath).toBe('folder3/subsubfolder2');
+        expect(rearrangedFolders[6].folderPath).toBe('folder3.subsubfolder2');
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 1, 2, 2, 0, 1]);
 
         console.log('move folder with id 7 above 1');
@@ -116,7 +117,7 @@ describe('FolderListComponent', () => {
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([7, 5, 1, 2, 3, 4, 6]);
         expect(rearrangedFolders[0].folderPath).toBe('folder3');
-        expect(rearrangedFolders[1].folderPath).toBe('folder3/subsubfolder2');
+        expect(rearrangedFolders[1].folderPath).toBe('folder3.subsubfolder2');
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 1, 0, 0, 1, 2, 2]);
 
         console.log('move folder with id 7 below 1');
@@ -125,7 +126,7 @@ describe('FolderListComponent', () => {
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 5, 2, 3, 4, 6]);
         expect(rearrangedFolders[1].folderPath).toBe('folder3');
-        expect(rearrangedFolders[2].folderPath).toBe('folder3/subsubfolder2');
+        expect(rearrangedFolders[2].folderPath).toBe('folder3.subsubfolder2');
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 1, 0, 1, 2, 2]);
 
         console.log('move folder with id 4 above 7');
@@ -135,7 +136,7 @@ describe('FolderListComponent', () => {
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 7, 5, 2, 3, 6]);
         expect(rearrangedFolders[1].folderPath).toBe('subsubfolder');
         expect(rearrangedFolders[2].folderPath).toBe('folder3');
-        expect(rearrangedFolders[3].folderPath).toBe('folder3/subsubfolder2');
+        expect(rearrangedFolders[3].folderPath).toBe('folder3.subsubfolder2');
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 0, 1, 0, 1, 2]);
 
         console.log('move folder with id 5 below 7');

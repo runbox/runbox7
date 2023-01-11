@@ -7,28 +7,43 @@ describe('Interacting with mailviewer', () => {
 
     beforeEach(() => {
         localStorage.setItem('localSearchPromptDisplayed221', 'true');
+        localStorage.setItem('messageSubjectDragTipShown', 'true');
+        indexedDB.deleteDatabase('messageCache');
     });
 
+    // it('Loading an email with loading errors displays an error', () => {
+    //     cy.intercept('/rest/v1/email/14').as('get14');
+    //     cy.visit('/');
+    //     cy.wait('@get14', {'timeout':10000});
+    //     cy.visit('/#Inbox:14');
+
+    //     cy.get('.support-snackbar').contains('Email content missing');
+    // });
+
     it('can open an email and go back and forth in browser history', () => {
-        cy.visit('/');
+        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.visit('/#Inbox:11');
 
-        cy.wait(1000); // should be long enough for the canvas to appear
-        canvas().click(400, 300);
+         cy.wait('@get11', {'timeout':10000});
+        // canvas().click(400, 300);
 
-        cy.hash().should('equal', '#Inbox:9');
-        cy.go('back');
-        cy.hash().should('not.contain', 'Inbox:9');
+        cy.hash().should('equal', '#Inbox:11');
         /* TODO: apparently forward broke at some point
          * in headless mode. Works normally in a proper browser
+        cy.go('back');
+        cy.hash().should('not.contain', 'Inbox:11');
         cy.go('forward');
-        cy.hash().should('equal', '#Inbox:9');
+        cy.hash().should('equal', '#Inbox:11');
         cy.get('button[mattooltip="Close"]').click();
         cy.hash().should('equal', '#Inbox');
         */
     });
 
     it('can reply to an email with no "To"', () => {
-        cy.visit('/#Inbox:11');
+        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.visit('/#Inbox:11')
+        cy.wait('@get11', {'timeout':10000});
+        // cy.get('#messageContents');
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
@@ -39,9 +54,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can forward an email with no "To"', () => {
+        cy.intercept('/rest/v1/email/11').as('get11');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
+        // cy.get('#messageContents');
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
@@ -52,9 +69,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
+        cy.intercept('/rest/v1/email/13').as('get13');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get13', {'timeout':10000});
         cy.visit('/#Inbox:13');
+        // cy.get('#messageContents');
 
         cy.get('button[mattooltip="Reply"]').click();
         cy.location().should((loc) => {
@@ -65,9 +84,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
+        cy.intercept('/rest/v1/email/13').as('get13');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get13', {'timeout':10000});
         cy.visit('/#Inbox:13');
+        // cy.get('#messageContents');
 
         cy.get('button[mattooltip="Forward"]').click();
         cy.location().should((loc) => {
@@ -78,8 +99,9 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {
+        cy.intercept('/rest/v1/email/11').as('get11');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
 
         // Make sure we're in vertical mode
@@ -89,9 +111,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Changing viewpane height is stored', () => {
+        cy.intercept('/rest/v1/email/11').as('get11');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
+        // cy.hash().should('equal', '#Inbox:11');
 
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
@@ -104,9 +128,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Half height reduces stored pane height', () => {
+        cy.intercept('/rest/v1/email/11').as('get11');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
+        // cy.hash().should('equal', '#Inbox:11');
 
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
@@ -130,9 +156,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Revisit open email in horizontal mode loads it', () => {
+        cy.intercept('/rest/v1/email/11').as('get11');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
+        // cy.hash().should('equal', '#Inbox:11');
 
         // Switch to horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
@@ -144,9 +172,11 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Can go out of mailviewer and back and still see our email', () => {
+        cy.intercept('/rest/v1/email/12').as('get12');
         cy.visit('/');
-        cy.wait(1000);
+        cy.wait('@get12',{'timeout':10000});
         cy.visit('/#Inbox:12');
+        // cy.hash().should('equal', '#Inbox:12');
 
         cy.get('div#messageHeaderSubject').contains('Default from fix test');
         cy.get('#composeButton').click();

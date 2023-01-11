@@ -71,6 +71,7 @@ export enum ContactKind {
     GROUP      = 'group',
     ORG        = 'org',
     LOCATION   = 'location',
+    SETTINGSONLY = 'settingsonly',
 }
 
 // this hack allows us to pretend to have methods for enums
@@ -82,6 +83,7 @@ export namespace ContactKind {
             'group':    ContactKind.GROUP,
             'org':      ContactKind.ORG,
             'location': ContactKind.LOCATION,
+            'settingsonly': ContactKind.SETTINGSONLY,
         };
         return mapping[lowerName] || ContactKind.INVIDIDUAL;
     }
@@ -501,6 +503,30 @@ export class Contact {
         }
     }
 
+    // Flag for "always show external links/images from this sender
+    get show_external_html(): boolean {
+        if (this.component.hasProperty('x-showexternalhtml')) {
+            return this.component.getFirstPropertyValue('x-showexternalhtml') === 'true';
+        }
+        return false;
+    }
+
+    set show_external_html(value: boolean) {
+        this.setPropertyValue('x-showexternalhtml', value.toString());
+    }
+
+    // Flag for "always show html content from this sender
+    get show_html(): boolean {
+        if (this.component.hasProperty('x-showhtml')) {
+            return this.component.getFirstPropertyValue('x-showhtml') === 'true';
+        }
+        return false;
+    }
+
+    set show_html(value: boolean) {
+        this.setPropertyValue('x-showhtml', value.toString());
+    }
+
     toDict(): any {
         return {
             full_name:  this.full_name,
@@ -519,6 +545,7 @@ export class Contact {
             related:    this.related,
             members:    this.members.map(m => m.prop.toJSON()),
             photo:      this.photo,
+            'x-showexternalhtml': this.show_external_html,
         };
     }
 

@@ -20,29 +20,35 @@ import { Component, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { NavigationStart, Router } from '@angular/router';
 import { MobileQueryService } from '../mobile-query.service';
+import { RunboxSidenavService } from './runbox-sidenav.service';
 
 @Component({
     selector: 'app-runbox-container',
     templateUrl: './runbox-container.html',
+    providers: [RunboxSidenavService],
 })
 
 export class RunboxContainerComponent {
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
-    sideMenuOpened: boolean;
+    sideMenuOpened = true;
 
     constructor(
-        public mobileQuery: MobileQueryService,
-               router:      Router,
+        public  mobileQuery:    MobileQueryService,
+        private sidenavService: RunboxSidenavService,
+                router:         Router,
     ) {
-        this.sideMenuOpened = !mobileQuery.matches;
+        this.sidenavService.sideMenuOpenSubject.next(!mobileQuery.matches);
         this.mobileQuery.changed.subscribe((mobile: any) => {
-            this.sideMenuOpened = !mobile;
+            this.sidenavService.sideMenuOpenSubject.next(!mobile);
+        });
+        this.sidenavService.sidenavChangeState.subscribe((state) => {
+            this.sideMenuOpened = state;
         });
 
         router.events.subscribe(event => {
             if (event instanceof NavigationStart) {
                 if (mobileQuery.matches) {
-                    this.sideMenu.close();
+                    this.sidenavService.closeSidenav();
                 }
             }
         });

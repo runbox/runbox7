@@ -26,13 +26,16 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
-import { SingleMailViewerComponent, ShowHTMLDialogComponent } from './singlemailviewer.component';
+import { SingleMailViewerComponent } from './singlemailviewer.component';
+import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
+// import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
 import { ResizerModule } from '../directives/resizer.module';
 import { AvatarBarComponent } from './avatar-bar.component';
 import { ContactCardComponent } from './contactcard.component';
@@ -51,6 +54,7 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         ResizerModule,
         MatIconModule,
         MatGridListModule,
+        MatListModule,
         MatToolbarModule,
         MatTooltipModule,
         MatDividerModule,
@@ -66,7 +70,8 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         ShowHTMLDialogComponent
     ],
     entryComponents: [
-        ShowHTMLDialogComponent
+        ShowHTMLDialogComponent,
+//        ShowImagesDialogComponent,
     ]
 })
 export class MailViewerModule {
