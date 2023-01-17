@@ -400,12 +400,12 @@ function patchIDBFS() {
                                 prepareOne()
                             );
                         } else {
-                            resolve();
+                            resolve(null);
                         }
                     });
                 };
                 if (dst.type === 'local') {
-                    resolve();
+                    resolve(null);
                 } else {
                     prepareOne();
                 }

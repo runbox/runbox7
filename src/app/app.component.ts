@@ -57,7 +57,7 @@ import { ProgressService } from './http/progress.service';
 import { RMM } from './rmm';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
-import { Hotkey, HotkeysService } from 'angular2-hotkeys';
+import { ExtendedKeyboardEvent, Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings, AppSettingsService } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';

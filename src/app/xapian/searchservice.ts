@@ -124,7 +124,7 @@ export class SearchService {
        private messagelistservice: MessageListService) {
 
     if (typeof Worker !== 'undefined') {
-      this.indexWorker = new Worker('./index.worker', { type: 'module' });
+      this.indexWorker = new Worker(new URL('./index.worker', import.meta.url), { type: 'module' });
 
       this.indexWorker.onmessage = ({ data }) => {
         // console.log('Message from worker '),

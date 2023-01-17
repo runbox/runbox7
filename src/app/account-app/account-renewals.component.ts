@@ -125,7 +125,7 @@ export class AccountRenewalsComponent {
                 _ => {
                     p.active = !p.active;
                     p.changingAutorenew = undefined;
-                    resolve();
+                    resolve(null);
                 },
                 _err => {
                     this.snackbar.open('Failed to adjust autorenewal settings. Try again later or contact Runbox Support', 'Okay');

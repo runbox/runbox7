@@ -68,7 +68,7 @@ describe('StorageService', () => {
 
         function runAsyncTasks() {
             // hopefully anyway :)
-            return new Promise(r => setTimeout(() => r(), 0));
+            return new Promise(r => setTimeout(() => r(null), 0));
         }
 
         user1.set('notify-key', undefined);

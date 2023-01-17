@@ -185,7 +185,7 @@ END:VCALENDAR
             const event = events[0];
             event.title = 'Changed!';
             sut.modifyEvent(event);
-            r();
+            r(null);
         }));
 
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
@@ -197,7 +197,7 @@ END:VCALENDAR
             expect(calls.modifyCalendarEvent).toBe(1, '1 modification performed in the API');
             expect(calls.addCalendarEvent   ).toBe(0, 'no events were added');
             expect(calls.deleteCalendarEvent).toBe(0, 'no events were deleted');
-            r();
+            r(null);
         }));
     });
 
@@ -210,7 +210,7 @@ END:VCALENDAR
             expect(events.length).toBe(6, '6 events loaded');
             events[0].calendar = 'test2';
             sut.modifyEvent(events[0]);
-            r();
+            r(null);
         }));
 
         await new Promise(r => sut.eventSubject.pipe(take(1)).subscribe(events => {
@@ -222,7 +222,7 @@ END:VCALENDAR
             expect(calls.modifyCalendarEvent).toBe(0, 'no modifications performed in the API');
             expect(calls.addCalendarEvent   ).toBe(1, '1 event was added');
             expect(calls.deleteCalendarEvent).toBe(1, '1 event was deleted');
-            r();
+            r(null);
         }));
     });
 

@@ -28,7 +28,7 @@ import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinpu
 import { Observable } from 'rxjs';
 import { first, map, filter, take } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import {Hotkey, HotkeysService} from 'angular2-hotkeys';
+import {ExtendedKeyboardEvent, Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 class FolderNode {
     children: FolderNode[];

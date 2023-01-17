@@ -189,7 +189,7 @@ describe('SearchService', () => {
         await new Promise(resolve => {
             console.log('Deleting database');
             const idbreq = window.indexedDB.deleteDatabase('/' + searchService.localdir);
-            idbreq.onsuccess = () => resolve();
+            idbreq.onsuccess = () => resolve(null);
         });
 
         console.log('deleted db', searchService.localdir);
