@@ -26,8 +26,7 @@ import { CommonModule } from '@angular/common';
 @NgModule({
     imports: [MatSnackBarModule, CommonModule],
     declarations: [SyncProgressComponent],
-    providers: [SearchService],
-    entryComponents: [SyncProgressComponent]
+    providers: [SearchService]
 })
 export class LocalSearchIndexModule {
 

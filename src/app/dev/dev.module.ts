@@ -88,12 +88,12 @@ import { ActivityIndicatorDemoComponent } from './activity-indicator.demo.compon
                 path: '',
                 component: DevComponent,
                 children: [
-                    { path: '',                   redirectTo: 'app-runbox-intro' },
+                    { path: '', redirectTo: 'app-runbox-intro' },
                     { path: 'app-activity-indicator', component: ActivityIndicatorDemoComponent },
                     { path: 'app-runbox-container', component: ContainerDemoComponent },
                     { path: 'app-runbox-dynamic', component: RunboxDynamicComponent },
-                    { path: 'app-runbox-intro',   component: RunboxIntroComponent },
-                    { path: 'app-runbox-list',    component: ListDemoComponent },
+                    { path: 'app-runbox-intro', component: RunboxIntroComponent },
+                    { path: 'app-runbox-list', component: ListDemoComponent },
                     { path: 'app-runbox-loading', component: LoadingDemoComponent },
                     { path: 'app-runbox-section', component: SectionDemoComponent },
                     { path: 'app-runbox-slide-toggle', component: SlideToggleDemoComponent },
@@ -102,14 +102,9 @@ import { ActivityIndicatorDemoComponent } from './activity-indicator.demo.compon
             },
         ])
     ],
-    exports: [
-    ],
-    entryComponents: [
-    ],
-    providers: [
-    ],
-    bootstrap: [
-    ]
+    exports: [],
+    providers: [],
+    bootstrap: []
 })
 export class DevModule { }
 

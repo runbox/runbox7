@@ -76,12 +76,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
     declarations: [
         RMM6SearchComponent,
     ],
-    entryComponents: [
-        SearchExpressionBuilderComponent,
-        SingleMailViewerComponent,
-        RMM6SearchComponent
-    ],
-    providers: [ProgressService],
+    providers: [ProgressService]
 })
 export class RMM6Module {
 

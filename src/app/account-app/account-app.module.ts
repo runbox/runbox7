@@ -284,13 +284,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
             },
         ]),
     ],
-    entryComponents: [
-        BitpayPaymentDialogComponent,
-        PaypalPaymentDialogComponent,
-        StripeAddCardDialogComponent,
-        StripePaymentDialogComponent
-    ],
     providers: [CartService, PaymentsService, { provide: ErrorHandler, useClass: SentryErrorHandler }],
-    bootstrap: [],
+    bootstrap: []
 })
 export class AccountAppModule {}

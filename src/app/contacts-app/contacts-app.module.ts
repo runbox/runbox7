@@ -52,65 +52,61 @@ import { GroupPickerDialogComponent } from './group-picker-dialog-component';
 import { VcfImportDialogComponent } from './vcf-import-dialog.component';
 
 @NgModule({
-  declarations: [
-    ContactsAppComponent,
-    ContactButtonComponent,
-    ContactDetailsComponent,
-    ContactListComponent,
-    ContactsSettingsComponent,
-    ContactsWelcomeComponent,
-    ContactPickerDialogComponent,
-    FormArrayEditorComponent,
-    GroupPickerDialogComponent,
-    MultiValueEditorComponent,
-    VcfImportDialogComponent,
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatBadgeModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatExpansionModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatMenuModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MenuModule,
-    RunboxCommonModule,
-    ReactiveFormsModule,
-    RouterModule.forChild([
-      {
-        path: '',
-        component: ContactsAppComponent,
-        children: [
-          {
-              path: '',
-              component: ContactsWelcomeComponent,
-          },
-          {
-              path: 'settings',
-              component: ContactsSettingsComponent,
-          },
-          {
-              path: ':id',
-              component: ContactDetailsComponent,
-          }
-        ]
-      }
-    ])
-  ],
-  entryComponents: [
-    VcfImportDialogComponent,
-  ],
-  providers: [
-  ],
-  bootstrap: []
+    declarations: [
+        ContactsAppComponent,
+        ContactButtonComponent,
+        ContactDetailsComponent,
+        ContactListComponent,
+        ContactsSettingsComponent,
+        ContactsWelcomeComponent,
+        ContactPickerDialogComponent,
+        FormArrayEditorComponent,
+        GroupPickerDialogComponent,
+        MultiValueEditorComponent,
+        VcfImportDialogComponent,
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatBadgeModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatExpansionModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatMenuModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MenuModule,
+        RunboxCommonModule,
+        ReactiveFormsModule,
+        RouterModule.forChild([
+            {
+                path: '',
+                component: ContactsAppComponent,
+                children: [
+                    {
+                        path: '',
+                        component: ContactsWelcomeComponent,
+                    },
+                    {
+                        path: 'settings',
+                        component: ContactsSettingsComponent,
+                    },
+                    {
+                        path: ':id',
+                        component: ContactDetailsComponent,
+                    }
+                ]
+            }
+        ])
+    ],
+    providers: [],
+    bootstrap: []
 })
 export class ContactsAppModule { }

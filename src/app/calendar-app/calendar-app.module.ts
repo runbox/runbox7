@@ -70,62 +70,54 @@ export const MOMENT_FORMATS = {
 };
 
 @NgModule({
-  declarations: [
-    CalendarAppComponent,
-    CalendarOverviewComponent,
-    CalendarEditorDialogComponent,
-    CalendarSettingsDialogComponent,
-    ColorSelectorDialogComponent,
-    DeleteConfirmationDialogComponent,
-    EventEditorDialogComponent,
-    ImportDialogComponent,
-    CalendarEventCardComponent,
-  ],
-  imports: [
-    CommonModule,
-    RunboxCommonModule,
-    FormsModule,
-    MenuModule,
-    MatButtonModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatDialogModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    ReactiveFormsModule,
-    OwlDateTimeModule,
-    OwlNativeDateTimeModule,
-    OwlMomentDateTimeModule,
-    // angular-calendar stuff
-    CalendarModule.forRoot({
-      provide: DateAdapter,
-      useFactory: adapterFactory
-    }),
-    RouterModule.forChild([ { path: '', component: CalendarAppComponent } ])
-  ],
-  entryComponents: [
-    CalendarEditorDialogComponent,
-    CalendarSettingsDialogComponent,
-    ColorSelectorDialogComponent,
-    DeleteConfirmationDialogComponent,
-    EventEditorDialogComponent,
-    ImportDialogComponent,
-  ],
-  providers: [
-    CalendarService,
-    { provide: ErrorHandler, useClass: SentryErrorHandler },
-    { provide: OWL_DATE_TIME_FORMATS, useValue: MOMENT_FORMATS }
-  ],
-  bootstrap: []
+    declarations: [
+        CalendarAppComponent,
+        CalendarOverviewComponent,
+        CalendarEditorDialogComponent,
+        CalendarSettingsDialogComponent,
+        ColorSelectorDialogComponent,
+        DeleteConfirmationDialogComponent,
+        EventEditorDialogComponent,
+        ImportDialogComponent,
+        CalendarEventCardComponent,
+    ],
+    imports: [
+        CommonModule,
+        RunboxCommonModule,
+        FormsModule,
+        MenuModule,
+        MatButtonModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDatepickerModule,
+        MatDialogModule,
+        MatTabsModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        ReactiveFormsModule,
+        OwlDateTimeModule,
+        OwlNativeDateTimeModule,
+        OwlMomentDateTimeModule,
+        // angular-calendar stuff
+        CalendarModule.forRoot({
+            provide: DateAdapter,
+            useFactory: adapterFactory
+        }),
+        RouterModule.forChild([{ path: '', component: CalendarAppComponent }])
+    ],
+    providers: [
+        CalendarService,
+        { provide: ErrorHandler, useClass: SentryErrorHandler },
+        { provide: OWL_DATE_TIME_FORMATS, useValue: MOMENT_FORMATS }
+    ],
+    bootstrap: []
 })
 
 export class CalendarAppModule { }

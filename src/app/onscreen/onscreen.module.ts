@@ -34,36 +34,34 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { OnscreenComponent } from './onscreen.component';
 
 @NgModule({
-  declarations: [
-    OnscreenComponent,
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MenuModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    RouterModule.forChild([
-      {
-        path: '',
-        component: OnscreenComponent,
-      },
-      {
-        path: ':meetingCode',
-        component: OnscreenComponent,
-      }
-    ]),
-  ],
-  entryComponents: [
-  ],
-  providers: [
-    { provide: ErrorHandler, useClass: SentryErrorHandler },
-  ],
-  bootstrap: []
+    declarations: [
+        OnscreenComponent,
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        MenuModule,
+        MatButtonModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        RouterModule.forChild([
+            {
+                path: '',
+                component: OnscreenComponent,
+            },
+            {
+                path: ':meetingCode',
+                component: OnscreenComponent,
+            }
+        ]),
+    ],
+    providers: [
+        { provide: ErrorHandler, useClass: SentryErrorHandler },
+    ],
+    bootstrap: []
 })
 
 export class OnscreenModule { }

@@ -35,9 +35,6 @@ import { UpdateAlertService } from './updatealert.service';
     ],
     providers: [
         UpdateAlertService
-    ],
-    entryComponents: [
-        UpdateAlertComponent
     ]
 })
 export class UpdateAlertModule {

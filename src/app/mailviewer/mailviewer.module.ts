@@ -68,10 +68,6 @@ export { SingleMailViewerComponent } from './singlemailviewer.component';
         ContactCardComponent,
         SingleMailViewerComponent,
         ShowHTMLDialogComponent
-    ],
-    entryComponents: [
-        ShowHTMLDialogComponent,
-//        ShowImagesDialogComponent,
     ]
 })
 export class MailViewerModule {

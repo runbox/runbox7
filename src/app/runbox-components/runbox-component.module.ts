@@ -86,12 +86,8 @@ import { RunboxDynamicBuilderComponent } from './runbox-dynamic-builder';
         RunboxDynamicComponent,
         RunboxDynamicBuilderComponent,
     ],
-    entryComponents: [
-    ],
-    providers: [
-    ],
-    bootstrap: [
-    ]
+    providers: [],
+    bootstrap: []
 })
 
 export class RunboxComponentModule { }

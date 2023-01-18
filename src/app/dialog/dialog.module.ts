@@ -55,16 +55,14 @@ export { ProgressDialog } from './progress.dialog';
         MatIconModule,
         MatProgressSpinnerModule
     ],
-    exports: [
-    ],
+    exports: [],
     declarations: [
         ErrorDialog, InfoDialog, ProgressDialog, ConfirmDialog,
         SimpleInputDialog, ProgressSnackbarComponent
     ],
     providers: [
         DialogService
-    ],
-    entryComponents: [ErrorDialog, InfoDialog, ProgressDialog, SimpleInputDialog, ConfirmDialog, ProgressSnackbarComponent]
+    ]
 })
 export class DialogModule {
 
