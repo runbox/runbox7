@@ -37,7 +37,8 @@ import { ColorSelectorDialogComponent } from './color-selector-dialog.component'
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { ImportDialogComponent } from './import-dialog.component';
-import { OwlDateTimeModule, OwlNativeDateTimeModule } from '@danielmoncada/angular-datetime-picker';
+import { OwlDateTimeModule, OwlNativeDateTimeModule, OWL_DATE_TIME_FORMATS } from '@danielmoncada/angular-datetime-picker';
+import { OwlMomentDateTimeModule } from '@danielmoncada/angular-datetime-picker-moment-adapter';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -56,6 +57,17 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CalendarEventCardComponent } from './calendar-event-card.component';
+
+// See https://momentjs.com/docs/#/displaying/format/
+export const MOMENT_FORMATS = {
+    parseInput: 'l LT',
+    fullPickerInput: 'l LT',
+    datePickerInput: 'l',
+    timePickerInput: 'LT',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+};
 
 @NgModule({
   declarations: [
@@ -92,6 +104,7 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
     ReactiveFormsModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
+    OwlMomentDateTimeModule,
     // angular-calendar stuff
     CalendarModule.forRoot({
       provide: DateAdapter,
@@ -110,6 +123,7 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
   providers: [
     CalendarService,
     { provide: ErrorHandler, useClass: SentryErrorHandler },
+    { provide: OWL_DATE_TIME_FORMATS, useValue: MOMENT_FORMATS }
   ],
   bootstrap: []
 })
