@@ -19,7 +19,7 @@
 
 import { NgModule, ApplicationRef, ComponentFactoryResolver, Injector, NgZone } from '@angular/core';
 import { RMM6AngularGateway } from './rmm6angulargateway';
-import { MailViewerModule, SingleMailViewerComponent } from '../mailviewer/mailviewer.module';
+import { MailViewerModule } from '../mailviewer/mailviewer.module';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
