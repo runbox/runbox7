@@ -63,11 +63,11 @@ declare var assert;
 declare var MEMFS;
 declare var window;
 
-// tslint:disable:curly
-// tslint:disable:no-var-keyword
-// tslint:disable:prefer-const
-// tslint:disable:quotemark
-// tslint:disable:no-shadowed-variable
+/* eslint-disable curly */
+/* eslint-disable no-var */
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/quotes */
+/* eslint-disable @typescript-eslint/no-shadow */
 
 function getFileDataAsTypedArray(node, callback) {
     if (!node.contents) {

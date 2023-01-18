@@ -76,7 +76,7 @@ export namespace CanvasTable {
 }
 
 @Component({
-  // tslint:disable-next-line:component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastable',
   moduleId: 'angular2/app/canvastable/',
   templateUrl: 'canvastable.component.html'
@@ -1351,7 +1351,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 }
 
 @Component({
-  // tslint:disable-next-line:component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastablecontainer',
   templateUrl: 'canvastablecontainer.component.html',
   moduleId: 'angular2/app/canvastable/',
@@ -1437,7 +1437,7 @@ export class CanvasTableContainerComponent implements OnInit {
 
   colresize(clientX: number) {
     if (this.colResizeInitialClientX) {
-      // tslint:disable-next-line:no-unused-expression
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 
       const column: CanvasTableColumn = this.canvastable.columns[this.colResizeColumnIndex];
       if (column && column.width) {

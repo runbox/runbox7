@@ -155,7 +155,7 @@ export class SearchService {
               `${data['newMessages'].length} new email messages` :
               `New email message`;
             try {
-              // tslint:disable-next-line:no-unused-expression
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               new Notification(newMessagesTitle, {
                 body: data['newMessages'][0].from[0].name,
                 icon: 'assets/icons/icon-192x192.png',
@@ -778,7 +778,7 @@ export class SearchService {
     //
     // Abusing the fact that getDocData is called multiple times for the same message,
     // this cache ensures that at least the future calls will get the textcontent synchronously
-    // tslint:disable-next-line:member-ordering // this is temporary and only needed in this context
+    // eslint-disable-next-line @typescript-eslint/member-ordering, 
     messageTextCache = new Map<number, string>();
 
     /**

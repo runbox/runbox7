@@ -27,7 +27,7 @@ import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
 
 @Component({
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'login',
     templateUrl: 'login.component.html',
     moduleId: 'angular2/app/login/'

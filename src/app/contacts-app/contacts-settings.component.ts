@@ -41,7 +41,7 @@ export class ContactsSettingsComponent {
     ) {
         this.rmmapi.getContactsSettings().subscribe(settings => {
             const syncSettings = {};
-            // tslint:disable-next-line:forin
+            // eslint-disable-next-line guard-for-in
             for (const key in settings) {
                 syncSettings[key] = settings[key];
             }

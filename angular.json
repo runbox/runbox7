@@ -23,10 +23,26 @@
                 "input": "node_modules/runbox-searchindex/",
                 "output": "/"
               },
-              { "glob": "**/*", "input": "node_modules/tinymce/skins", "output": "/tinymce/skins/" },
-              { "glob": "**/*", "input": "node_modules/tinymce/themes", "output": "/tinymce/themes/" },
-              { "glob": "**/*", "input": "node_modules/tinymce/plugins", "output": "/tinymce/plugins/" },
-              { "glob": "**/*", "input": "node_modules/@mdi/angular-material", "output": "/assets/" },
+              {
+                "glob": "**/*",
+                "input": "node_modules/tinymce/skins",
+                "output": "/tinymce/skins/"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/tinymce/themes",
+                "output": "/tinymce/themes/"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/tinymce/plugins",
+                "output": "/tinymce/plugins/"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@mdi/angular-material",
+                "output": "/assets/"
+              },
               "src/manifest.json"
             ],
             "styles": [
@@ -115,6 +131,15 @@
               "src/manifest.json"
             ]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     },
@@ -131,9 +156,7 @@
             "main": "src/main-rmm6.ts",
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
-            "assets": [
-              
-            ],
+            "assets": [],
             "styles": [
               "src/styles.scss"
             ],
@@ -195,5 +218,8 @@
     "@schematics/angular:directive": {
       "prefix": "app"
     }
+  },
+  "cli": {
+    "defaultCollection": "@angular-eslint/schematics"
   }
 }

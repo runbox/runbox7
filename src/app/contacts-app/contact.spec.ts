@@ -254,7 +254,7 @@ END:VCARD`);
     });
 
     it('contact with exceptionally empty name shows up as email', () => {
-        // tslint:disable:no-trailing-whitespace
+        /* eslint-disable no-trailing-spaces */
         const sut = Contact.fromVcard(null, `BEGIN:VCARD
 VERSION:3.0
 FN: 

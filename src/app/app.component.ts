@@ -72,7 +72,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 
 @Component({
   moduleId: 'angular2/app/',
-  // tslint:disable-next-line:component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app',
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html'

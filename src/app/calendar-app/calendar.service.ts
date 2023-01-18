@@ -86,7 +86,7 @@ export class CalendarService implements OnDestroy {
                     return;
                 }
                 console.log('Cache version:', cache['version']);
-                // tslint:disable-next-line:triple-equals
+                // eslint-disable-next-line eqeqeq
                 if (cache['version'] != 4) {
                     console.log('Old cache format found, removing');
                     storage.set('caldavCache', undefined);

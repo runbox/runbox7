@@ -63,7 +63,7 @@ export interface ElementTld {
 
 @Component({
   moduleId: 'angular2/app/domainregister/',
-  // tslint:disable-next-line:component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'domain-register',
   templateUrl: 'domainregister.component.html'
 })
@@ -74,7 +74,7 @@ export interface ElementTld {
 export class DomainRegisterComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  // tslint:disable-next-line:no-output-on-prefix
+  // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   // @Input() messageActionsHandler : MessageActions;
   public relativeTop = '50%';
@@ -159,11 +159,11 @@ export class DomainRegisterComponent implements AfterViewInit {
   };
 
   public calculate_total = function () {
-    // tslint:disable-next-line:no-eval
+    // eslint-disable-next-line no-eval
     this.total_price = eval(this.selected_product.price[0].price);
-    // tslint:disable-next-line:no-eval
+    // eslint-disable-next-line no-eval
     if ( this.selected_privacy_product && eval(this.selected_privacy_product)) {
-      // tslint:disable-next-line:no-eval
+      // eslint-disable-next-line no-eval
       this.total_price = this.total_price + eval(this.privacy_products_available[this.selected_product.subscription_interval].price);
     }
     this.total_price = parseFloat(this.total_price).toFixed(2);
@@ -403,7 +403,7 @@ export class DomainRegisterComponent implements AfterViewInit {
 
     if (this.validate()) {
       const products_selected = [this.selected_product.pid];
-      // tslint:disable-next-line:no-eval
+      // eslint-disable-next-line no-eval
       if ( this.selected_privacy_product && eval(this.selected_privacy_product)) {
         products_selected.push(this.privacy_products_available[this.selected_product.subscription_interval].id);
       }
@@ -413,7 +413,7 @@ export class DomainRegisterComponent implements AfterViewInit {
         products: products_selected,
         docs: this.get_docs_values(),
         docs_specific: this.get_specific_docs_values(),
-        // tslint:disable-next-line:no-eval
+        // eslint-disable-next-line no-eval
         total_price: eval(this.total_price), // value diplayed to user must match total value calculated on backend
         tld: d.tld,
         sld: d.sld,
@@ -701,7 +701,7 @@ export class DomainRegisterComponent implements AfterViewInit {
       }
     }
     this.renewal_total_price = 0;
-    // tslint:disable-next-line:forin
+    // eslint-disable-next-line guard-for-in
     for (const prod_type in this.renewal_selected_product) {
       this.renewal_total_price += parseFloat(this.renewal_selected_product[prod_type].price);
     }
@@ -725,7 +725,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     if (this.renewal_selected_product['whois_privacy']) {
       renew.products.push(this.renewal_selected_product['whois_privacy'].id);
     }
-    // tslint:disable-next-line:no-eval
+    // eslint-disable-next-line no-eval
     renew['total_price'] = eval(this.renewal_total_price);
     renew['sld'] = renew.domain.match(/^([^\.]+)\.(.+)$/)[1];
     renew['tld'] = renew.domain.match(/^([^\.]+)\.(.+)$/)[2];
@@ -766,7 +766,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     if ( this.renewal_selected_product['whois_privacy'] ) {
         purchase.products.push(this.renewal_selected_product['whois_privacy'].id);
     }
-    // tslint:disable-next-line:no-eval
+    // eslint-disable-next-line no-eval
     purchase['total_price'] = eval(this.renewal_total_price);
     purchase['sld'] = purchase.domain.match(/^([^\.]+)\.(.+)$/)[1];
     purchase['tld'] = purchase.domain.match(/^([^\.]+)\.(.+)$/)[2];
@@ -799,7 +799,7 @@ export class DomainRegisterComponent implements AfterViewInit {
   }
 
   public load_domreg_hash_data_generic_docs() {
-    // tslint:disable-next-line:forin
+    // eslint-disable-next-line guard-for-in
     for (const k in this.domreg_data.result.data.docs) {
       const docs_values = this.get_docs_hash();
       if (docs_values) {
@@ -969,7 +969,7 @@ export class DomainRegisterComponent implements AfterViewInit {
     // from https://unicode.org/cldr/trac/browser/tags/release-27/common/supplemental/postalCodeData.xml
     return {
       GB: {
-        // tslint:disable-next-line:max-line-length
+        // eslint-disable-next-line max-len
         regex: 'GIR[ ]?0AA|((AB|AL|B|BA|BB|BD|BH|BL|BN|BR|BS|BT|CA|CB|CF|CH|CM|CO|CR|CT|CV|CW|DA|DD|DE|DG|DH|DL|DN|DT|DY|E|EC|EH|EN|EX|FK|FY|G|GL|GY|GU|HA|HD|HG|HP|HR|HS|HU|HX|IG|IM|IP|IV|JE|KA|KT|KW|KY|L|LA|LD|LE|LL|LN|LS|LU|M|ME|MK|ML|N|NE|NG|NN|NP|NR|NW|OL|OX|PA|PE|PH|PL|PO|PR|RG|RH|RM|S|SA|SE|SG|SK|SL|SM|SN|SO|SP|SR|SS|ST|SW|SY|TA|TD|TF|TN|TQ|TR|TS|TW|UB|W|WA|WC|WD|WF|WN|WR|WS|WV|YO|ZE)(\\d[\\dA-Z]?[ ]?\\d[ABD-HJLN-UW-Z]{2}))|BFPO[ ]?\\d{1,4}',
         examples: ['HP8D5QS', 'NP40EO', 'GIR0AA', 'GIR0AA', 'HS1 0DE']
       },

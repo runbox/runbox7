@@ -584,7 +584,7 @@ export class Contact {
             delete properties['email'];
         }
 
-        // tslint:disable-next-line:forin
+        // eslint-disable-next-line guard-for-in
         for (const key in properties) {
             if (properties[key] !== null && properties[key] !== '') {
                 this[key] = properties[key];

@@ -62,7 +62,7 @@ const TOOLBAR_BUTTON_WIDTH = 40;
 
 @Component({
   moduleId: 'angular2/app/mailviewer/',
-  // tslint:disable-next-line:component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'single-mail-viewer',
   templateUrl: 'singlemailviewer.component.html',
   styleUrls: ['singlemailviewer.component.scss']
@@ -71,7 +71,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   _messageId = null; // Message id or filename
 
-  // tslint:disable-next-line:no-output-on-prefix
+  // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   @Output() afterViewInit: EventEmitter<any> = new EventEmitter();
   @Output() orientationChangeRequest: EventEmitter<string> = new EventEmitter();
@@ -774,7 +774,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         switch (result) {
           case 'alwaysshowhtml':
             this.showHTML = true;
-          // tslint:disable-next-line:no-switch-case-fall-through
+          // eslint-disable-next-line no-fallthrough
           case 'dontask':
             localStorage.setItem(showHtmlDecisionKey, result);
             this.showHTMLDecision = result;

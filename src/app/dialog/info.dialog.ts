@@ -41,7 +41,7 @@ export class InfoParams {
             <button mat-icon-button mat-dialog-close><mat-icon svgIcon="check"></mat-icon></button>
         </mat-dialog-actions>`
 })
-// tslint:disable-next-line:component-class-suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class InfoDialog {
     trustedHtml: SafeHtml;
 

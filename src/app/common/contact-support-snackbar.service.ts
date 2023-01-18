@@ -40,7 +40,7 @@ export class RunboxContactSupportSnackBar {
 </app-runbox-contact-support>
     `,
 })
-// tslint:disable-next-line:component-class-suffix // not meant to be used as a component
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class RunboxContactSupportSnackBarContent {
     error: string;
 
