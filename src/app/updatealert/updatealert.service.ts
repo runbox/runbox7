@@ -18,10 +18,11 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable, NgZone } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatDialog } from '@angular/material/dialog';
 import { UpdateAlertComponent } from './updatealert.component';
 import { environment } from '../../environments/environment';
+import {filter, map} from 'rxjs/operators';
 
 @Injectable()
 export class UpdateAlertService {
@@ -32,7 +33,15 @@ export class UpdateAlertService {
     ) {
         if (environment.production) {
             console.log('UpdateAlertService started');
-            swupdate.available.subscribe(ev => {
+            
+            const updatesAvailable = swupdate.versionUpdates.pipe(
+                filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
+                map(evt => ({
+                    type: 'UPDATE_AVAILABLE',
+                    current: evt.currentVersion,
+                    available: evt.latestVersion,
+                })));
+            updatesAvailable.subscribe(ev => {
                 dialog.open(UpdateAlertComponent, { data: ev });
             });
 
