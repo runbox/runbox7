@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -73,7 +73,7 @@ export class ContactDetailsComponent {
         public dialog: MatDialog,
         public mobileQuery: MobileQueryService,
         public settingsService: AppSettingsService,
-        private fb: FormBuilder,
+        private fb: UntypedFormBuilder,
         private rmmapi: RunboxWebmailAPI,
         private router: Router,
         private route: ActivatedRoute,
@@ -207,7 +207,7 @@ export class ContactDetailsComponent {
         });
     }
 
-    createForm(): FormGroup {
+    createForm(): UntypedFormGroup {
         return this.fb.group({
             id:         this.fb.control(''),
             full_name:  this.fb.control(''),
@@ -229,7 +229,7 @@ export class ContactDetailsComponent {
     }
 
     initializeFormArray(property, formGroupCreator): void {
-        const formArray = this.contactForm.get(property) as FormArray;
+        const formArray = this.contactForm.get(property) as UntypedFormArray;
         formArray.clear();
         for (let i = 0; i < this.contact[property].length; i++) {
             const formGroup = formGroupCreator();
@@ -237,7 +237,7 @@ export class ContactDetailsComponent {
         }
     }
 
-    createEmailFG(types = []): FormGroup {
+    createEmailFG(types = []): UntypedFormGroup {
         return this.fb.group({
             types:        this.fb.control(types),
             value:        this.fb.control(''),
@@ -245,7 +245,7 @@ export class ContactDetailsComponent {
         });
     }
 
-    createAdrFG(types = []): FormGroup {
+    createAdrFG(types = []): UntypedFormGroup {
         return this.fb.group({
             types: this.fb.control(types),
             value: this.fb.group({
@@ -258,8 +258,8 @@ export class ContactDetailsComponent {
         });
     }
 
-    addFGtoFA(fg: FormGroup, faName: string): void {
-        const fa = this.contactForm.get(faName) as FormArray;
+    addFGtoFA(fg: UntypedFormGroup, faName: string): void {
+        const fa = this.contactForm.get(faName) as UntypedFormArray;
         fa.push(fg);
     }
 

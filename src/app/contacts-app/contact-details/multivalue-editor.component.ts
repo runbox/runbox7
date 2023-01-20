@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 @Component({
     selector: 'app-contact-details-multivalue-editor',
@@ -56,7 +56,7 @@ import { FormControl } from '@angular/forms';
 export class MultiValueEditorComponent implements OnInit {
     @ViewChild('newValueInput') newValueElement: ElementRef;
 
-    @Input() inputFC: FormControl;
+    @Input() inputFC: UntypedFormControl;
 
     @Input() label: string;
     @Input() noValuesLabel: string;

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import moment from 'moment';
@@ -35,7 +35,7 @@ export class ImportDialogComponent {
     calendars: RunboxCalendar[];
     events:    EventOverview[];
 
-    target = new FormControl('', Validators.required);
+    target = new UntypedFormControl('', Validators.required);
 
     extractedCalendar: RunboxCalendar;
 

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { MatAutocomplete } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -41,7 +41,7 @@ const COMMA = 188;
 export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
-    searchTextFormControl: FormControl = new FormControl();
+    searchTextFormControl: UntypedFormControl = new UntypedFormControl();
     recipientsList: MailAddressInfo[];
 
     separatorKeysCodes = [COMMA, ENTER];

@@ -19,7 +19,7 @@
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { RMM } from '../rmm';
@@ -41,7 +41,7 @@ interface CountryAndTimezone {
 })
 export class PersonalDetailsComponent {
     hide = true;
-    myControl = new FormControl();
+    myControl = new UntypedFormControl();
     countriesAndTimezones: CountryAndTimezone[] = [];
     timezones: string[];
     detailsForm = this.createForm();
@@ -53,7 +53,7 @@ export class PersonalDetailsComponent {
     selectedTimezone: any;
 
     constructor(
-        private fb: FormBuilder,
+        private fb: UntypedFormBuilder,
         private http: HttpClient,
         public dialog: MatDialog,
         public rmm: RMM,
@@ -74,7 +74,7 @@ export class PersonalDetailsComponent {
         }
     }
 
-    private createForm(): FormGroup {
+    private createForm(): UntypedFormGroup {
         return this.fb.group({
             first_name: this.fb.control(''),
             last_name: this.fb.control(''),
