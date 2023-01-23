@@ -15,7 +15,7 @@
     "start-use-mockserver": "ng serve --proxy-config backend-proxy-mock.conf.js --port 4201 runbox7",
     "mockserver": "tsc -p e2e/mockserver && node e2e/mockserver/out/mockserver.main.js",
     "buildrmm6": "ng build --configuration production --base-href=/app/ rmm6",
-    "build": "node src/build/pre-build.js && ng build --configuration production --base-href=/app/; RES=$?; node src/build/post-build.js; exit $RES",
+    "build": "node src/build/pre-build.js && ng build --configuration production --base-href=/app/ runbox7; RES=$?; node src/build/post-build.js; exit $RES",
     "policy": "node policy-tests/run-all.js",
     "test": "ng test",
     "lint": "ng lint",
