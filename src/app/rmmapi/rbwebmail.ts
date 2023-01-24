@@ -30,7 +30,7 @@ import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { map, mergeMap } from 'rxjs/operators';
+import { filter, map, mergeMap } from 'rxjs/operators';
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
@@ -361,7 +361,7 @@ export class RunboxWebmailAPI {
             'ordered_ids': order
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
-        return req.pipe(map((res: any) => res.status === 'success'));
+        return req.pipe(filter((res: any) => res.status === 'success'));
     }
 
     renameFolder(folderId: number, newFolderName: string): Observable<boolean> {
@@ -370,7 +370,7 @@ export class RunboxWebmailAPI {
             'folder_id': folderId
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
-        return req.pipe(map((res: any) => res.status === 'success'));
+        return req.pipe(filter((res: any) => res.status === 'success'));
     }
 
     emptyFolder(folderId: number): Observable<boolean> {
@@ -378,7 +378,7 @@ export class RunboxWebmailAPI {
             'folder_id': folderId
         }).pipe(share());
         this.subscribeShowBackendErrors(req);
-        return req.pipe(map((res: any) => res.status === 'success'));
+        return req.pipe(filter((res: any) => res.status === 'success'));
     }
 
     updateFolderCounts(folderName: string): Observable<any> {
@@ -397,13 +397,13 @@ export class RunboxWebmailAPI {
 
         const req = this.http.put('/rest/v1/email_folder/move', requestBody).pipe(share());
         this.subscribeShowBackendErrors(req);
-        return req.pipe(map((res: any) => res.status === 'success'));
+        return req.pipe(filter((res: any) => res.status === 'success'));
     }
 
     deleteFolder(folderid: number): Observable<boolean> {
         const req = this.http.delete(`/rest/v1/email_folder/delete/${folderid}`).pipe(share());
         this.subscribeShowBackendErrors(req);
-        return req.pipe(map((res: any) => res.status === 'success'));
+        return req.pipe(filter((res: any) => res.status === 'success'));
     }
 
     getFolderList(): Observable<Array<FolderListEntry>> {
