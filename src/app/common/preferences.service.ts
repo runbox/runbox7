@@ -254,8 +254,8 @@ export class PreferencesService {
             if (storedMailViewerOrientationSettingMobile !== undefined) {
                 prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`, storedMailViewerOrientationSettingMobile);
             }
-            prefs.set(`${level}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`, localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW) === 'true');
-            prefs.set(`${level}:${LOCAL_STORAGE_KEEP_PANE}`, localStorage.getItem(LOCAL_STORAGE_KEEP_PANE) === 'true');
+            prefs.set(`${level}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`, localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW));
+            prefs.set(`${level}:${LOCAL_STORAGE_KEEP_PANE}`, localStorage.getItem(LOCAL_STORAGE_KEEP_PANE));
             prefs.set(`${level}:showDragHelpers`, localStorage.getItem('contacts.showDragHelpers') === '1');
 
             if (localStorage.getItem(LOCAL_STORAGE_VIEWMODE)) {

@@ -1351,10 +1351,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   promptLocalSearch() {
-    let localSearchIndexPromptItemName: string;
+    const localSearchIndexPrompted = this.preferences.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true';
     console.log('promptLocalSearch');
     this.rmmapi.me.pipe(
-      map(me => localSearchIndexPromptItemName = 'localSearchPromptDisplayed' + me.uid),
       mergeMap(() => xapianLoadedSubject),
       tap(xapianLoaded => {
         if (!xapianLoaded) {
@@ -1363,7 +1362,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }),
       filter(xapianLoaded => xapianLoaded ? true : false),
       map(() => {
-        if (this.preferences.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true') {
+        if (localSearchIndexPrompted) {
           this.usewebsocketsearch = true;
         } else {
           const dialogRef = this.dialog.open(ConfirmDialog);

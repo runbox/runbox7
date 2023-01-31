@@ -20,7 +20,7 @@ describe('Login', () => {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
         cy.get('confirm-dialog').should('contain', 'Runbox 7');
         cy.get('confirm-dialog .mat-dialog-actions button mat-icon[svgIcon="cancel"]').click().should(() => {
-            expect(localStorage.getItem('localSearchPromptDisplayed221')).to.equal('true');
+          expect(JSON.parse(localStorage.getItem('221:Desktop:localSearchPromptDisplayed'))).to.equal('true');
         });
     }
 

@@ -2,8 +2,8 @@
 
 describe('Message caching', () => {
     beforeEach(() => {
-        localStorage.setItem('localSearchPromptDisplayed221', 'true');
-        localStorage.setItem('messageSubjectDragTipShown', 'true');
+        localStorage.setItem('Desktop:localSearchPromptDisplayed', 'true');
+        localStorage.setItem('Global:messageSubjectDragTipShown', 'true');
     });
 
   it('should cache all messages on first time page load', () => {
