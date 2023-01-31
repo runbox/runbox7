@@ -1363,7 +1363,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }),
       filter(xapianLoaded => xapianLoaded ? true : false),
       map(() => {
-        if (localStorage.getItem(localSearchIndexPromptItemName) === 'true') {
+        if (this.preferences.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true') {
           this.usewebsocketsearch = true;
         } else {
           const dialogRef = this.dialog.open(ConfirmDialog);
@@ -1373,7 +1373,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;
           dialogRef.componentInstance.yesOptionTitle = `Sounds good, let's go!`;
           dialogRef.componentInstance.noOptionTitle = `Don't synchronize with this device.`;
-          localStorage.setItem(localSearchIndexPromptItemName, 'true');
+          this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
 
           dialogRef.afterClosed().subscribe(res => {
             let localIndexDecision = 'clicked-away';

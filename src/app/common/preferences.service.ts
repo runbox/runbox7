@@ -277,6 +277,11 @@ export class PreferencesService {
             if (resizerPercentage) {
                 prefs.set(`${level}:${resizerPercentageKey}`, htmlDecision);
             }
+
+            const searchPrompt = localStorage.getItem(`localSearchPromptDisplayed${uid}`);
+            if (searchPrompt) {
+                prefs.set(`${level}:localSearchPromptDisplayed`, searchPrompt);
+            }
             this.loadedOldStyle = true;
         }
 
