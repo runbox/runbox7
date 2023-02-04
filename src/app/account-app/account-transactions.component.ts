@@ -57,7 +57,7 @@ export class AccountTransactionsComponent implements OnInit {
 
     statuses = {
         0: 'Successful',
-        1: 'Pending',
+        1: 'Incomplete',
         2: 'Refunded',
     };
 
