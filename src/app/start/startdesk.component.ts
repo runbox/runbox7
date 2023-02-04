@@ -138,7 +138,7 @@ export class StartDeskComponent implements OnInit {
                     case FolderSelection.ALL:
                         return true;
                     case FolderSelection.INBOX:
-                        return msg.folder === 'Inbox';
+                        return msg.folder.match(/^Inbox|INBOX$/g);
                     case FolderSelection.CUSTOM:
                         return !this.hiddenFolders.has(msg.folder);
                 }
