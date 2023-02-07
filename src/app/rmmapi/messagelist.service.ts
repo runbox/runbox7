@@ -81,7 +81,8 @@ export class MessageListService {
                     && prev.every((f, index) =>
                         f.folderId === curr[index].folderId
                         && f.totalMessages === curr[index].totalMessages
-                        && f.newMessages === curr[index].newMessages);
+                        && f.newMessages === curr[index].newMessages
+                        && f.folderName === curr[index].folderName);
             }))
             .subscribe((folders) => {
                 // Will fallback on the folder counters set above for folders not in the search index
