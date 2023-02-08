@@ -1,7 +1,7 @@
 @use '@angular/material' as mat;
 @import '../iconfont/material-icons.css';
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
-@import "~@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
+@import "@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
 
 // Include non-theme styles for core.
 @include mat.core();
