@@ -8,8 +8,9 @@
             <mat-select [(ngModel)]="timeSpan" (selectionChange)="updateCommsOverview()">
               <mat-option [value]="TimeSpan.TODAY"> Today </mat-option>
               <mat-option [value]="TimeSpan.YESTERDAY"> Yesterday </mat-option>
-              <mat-option [value]="TimeSpan.LAST3"> Last 3 days </mat-option>
-              <mat-option [value]="TimeSpan.LAST7"> Last 7 days </mat-option>
+              <mat-option [value]="TimeSpan.LASTWEEK"> Last week </mat-option>
+              <mat-option [value]="TimeSpan.LASTMONTH"> Last month </mat-option>
+              <mat-option [value]="TimeSpan.LASTYEAR"> Last year </mat-option>
               <mat-option [value]="TimeSpan.CUSTOM"> Custom (NYI) </mat-option>
             </mat-select>
           </mat-form-field>

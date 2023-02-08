@@ -42,8 +42,9 @@ export interface ContactHilights {
 enum TimeSpan {
     TODAY,
     YESTERDAY,
-    LAST3,
-    LAST7,
+    LASTWEEK,
+    LASTMONTH,
+    LASTYEAR,
     CUSTOM,
 }
 
@@ -85,7 +86,7 @@ export class StartDeskComponent implements OnInit {
     // TODO: from appsettings or such?
     unreadOnly = true;
     timeSpan = TimeSpan.TODAY;
-    folder = FolderSelection.ALL;
+    folder = FolderSelection.INBOX;
     sortOrder = SortOrder.COUNT;
 
     // for the folder message selector.
@@ -137,7 +138,7 @@ export class StartDeskComponent implements OnInit {
                     case FolderSelection.ALL:
                         return true;
                     case FolderSelection.INBOX:
-                        return msg.folder === 'Inbox';
+                        return msg.folder.match(/^Inbox|INBOX$/g);
                     case FolderSelection.CUSTOM:
                         return !this.hiddenFolders.has(msg.folder);
                 }
@@ -315,10 +316,12 @@ export class StartDeskComponent implements OnInit {
                 return [new Date(), null];
             case TimeSpan.YESTERDAY:
                 return [moment().subtract(1, 'day').toDate(), new Date()];
-            case TimeSpan.LAST3:
-                return [moment().subtract(2, 'day').toDate(), null];
-            case TimeSpan.LAST7:
-                return [moment().subtract(6, 'day').toDate(), null];
+            case TimeSpan.LASTWEEK:
+                return [moment().subtract(1, 'week').toDate(), null];
+            case TimeSpan.LASTMONTH:
+                return [moment().subtract(1, 'month').toDate(), null];
+            case TimeSpan.LASTYEAR:
+                return [moment().subtract(1, 'year').toDate(), null];
             case TimeSpan.CUSTOM:
                 return [new Date(), null];
         }

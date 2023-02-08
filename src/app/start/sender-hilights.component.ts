@@ -28,7 +28,7 @@ import { ContactHilights } from './startdesk.component';
     template: `
 <mat-card class="dashdeskCard senderItem">
   <div class="contact">
-    <mat-icon> {{ sender.icon }}</mat-icon> <h5> {{ sender.name }} </h5>
+    <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
     <div class="messages"> {{ sender.emails.length }} messages </div>
   </div>
   <div class="subject">
