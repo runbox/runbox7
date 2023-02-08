@@ -341,7 +341,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             && prev.every((f, index) =>
               f.folderId === curr[index].folderId
               && f.totalMessages === curr[index].totalMessages
-              && f.newMessages === curr[index].newMessages);
+              && f.newMessages === curr[index].newMessages
+              && f.folderName === curr[index].folderName);
         }))
         .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
