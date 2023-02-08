@@ -1,5 +1,4 @@
 @use '@angular/material' as mat;
-@import '../node_modules/@angular/material/theming';
 @import '../iconfont/material-icons.css';
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
 @import "~@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
@@ -9,12 +8,12 @@
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
-$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A600);
+$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
 $rmm-default-accent:     mat.define-palette(mat.$blue-palette, 100, 50, 200);
-$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A600);
+$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
 $rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
-$rmm-default-highlight:  mat.define-palette(mat.$light-blue-palette, 50, 25, 75);
-$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A600);
+$rmm-default-highlight:  mat.define-palette(mat.$light-blue-palette, 100, 50, 200);
+$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
 
 $rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
 
