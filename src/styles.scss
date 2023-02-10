@@ -4,7 +4,16 @@
 @import "@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
 
 // Include non-theme styles for core.
-@include mat.core();
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
+@include mat.all-legacy-component-typographies();
+@include mat.legacy-core();
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
@@ -17,7 +26,7 @@ $rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, 
 
 $rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
 
-@include mat.all-component-themes($rmm-default-theme);
+@include mat.all-legacy-component-themes($rmm-default-theme);
 
 // GTA 13.06.2018: Load custom fonts
 
@@ -39,12 +48,21 @@ $rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-ac
 
 // GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
 
-$custom-typography: mat.define-typography-config(
+$custom-typography: mat.define-legacy-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
-@include mat.all-component-typographies($custom-typography);
-@include mat.core($custom-typography);
+@include mat.all-legacy-component-typographies($custom-typography);
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy($custom-typography);`
+@include mat.all-legacy-component-typographies($custom-typography);
+@include mat.legacy-core();
 
 
 /* Generic styles */
@@ -432,7 +450,7 @@ div.loginScreen {
     }
 
     #loginArea {
-	border: 1px solid mat-color($rmm-default-primary);
+	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
 	min-width: 300px;
 	min-height: 350px;
 	display: flex;
@@ -486,7 +504,7 @@ div.loginScreen {
     }
 
     .loginScreen #tfaArea {
-	border: 1px solid mat-color($rmm-default-primary);
+	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     }
 
     mat-button-toggle button {
@@ -504,6 +522,10 @@ div.loginScreen {
     padding: 0 10px 0.7em;
     color: #f00;
     font-size: 13px;
+}
+
+div.loginScreen .login-link a {
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 /* Smaller 2FA buttons on small screens */

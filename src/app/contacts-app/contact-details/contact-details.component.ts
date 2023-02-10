@@ -19,8 +19,8 @@
 
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
 import { ErrorDialog, ConfirmDialog, SimpleInputDialog, SimpleInputDialogParams } from '../../dialog/dialog.module';

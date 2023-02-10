@@ -22,8 +22,8 @@ import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';

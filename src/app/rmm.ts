@@ -25,7 +25,7 @@ import { Alias } from './rmm/alias';
 import { Me } from './rmm/me';
 import { RunboxDomain } from './rmm/runbox_domain';
 import { AccountSecurity } from './rmm/account-security';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { AccountStorage } from './rmm/account-storage';
 import { AccountSettings } from './rmm/account-settings';
 
