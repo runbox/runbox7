@@ -52,7 +52,6 @@ $custom-typography: mat.define-legacy-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
-@include mat.all-legacy-component-typographies($custom-typography);
 // TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
 //  The following line adds:
 //    1. Default typography styles for all components
