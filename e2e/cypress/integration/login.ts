@@ -3,7 +3,7 @@
 describe('Login', () => {
     function expectLoginPage() {
         cy.visit('/');
-        cy.get('#loginHeader h1').should('contain', 'Welcome to Runbox 7');
+        cy.get('#loginHeader h1').should('contain', 'Runbox 7');
     }
 
     function enterCredentials() {
@@ -18,7 +18,7 @@ describe('Login', () => {
 
     function expectWebmail() {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
-        cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
+        cy.get('confirm-dialog').should('contain', 'Runbox 7');
         cy.get('confirm-dialog .mat-dialog-actions button mat-icon[svgIcon="cancel"]').click().should(() => {
             expect(localStorage.getItem('localSearchPromptDisplayed221')).to.equal('true');
         });

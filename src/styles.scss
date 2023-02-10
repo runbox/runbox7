@@ -357,6 +357,11 @@ mat-grid-tile.tableTitle {
     text-align: center;
     color: #fff;
 
+    h1 {
+	display: none;
+	margin: 0;
+    }
+    
     #logo {
 	margin: 0;
 	width: 300px;
