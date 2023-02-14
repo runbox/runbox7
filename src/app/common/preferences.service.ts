@@ -285,19 +285,23 @@ export class PreferencesService {
             this.loadedOldStyle = true;
         }
 
-        // localStorage.removeItem('rmm7experimentalFeatureEnabled');
-        // localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-        // localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
-        // localStorage.removeItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-        // localStorage.removeItem(LOCAL_STORAGE_KEEP_PANE);
-        // localStorage.removeItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
-        // localStorage.removeItem('messageSubjectDragTipShown');
-        // localStorage.removeItem(LOCAL_STORAGE_VIEWMODE);
-        // localStorage.removeItem('calendarSettings');
-        // localStorage.removeItem(`${uid}:avatars`);
-        // localStorage.removeItem(`${uid}:${showHtmlDecisionKey}`);
-        // localStorage.removeItem(`${uid}:${showImagesDecisionKey}`);
-        // localStorage.removeItem(`${uid}:${resizerPercentageKey}`);
+        localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+        localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
+        localStorage.removeItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
+        localStorage.removeItem(LOCAL_STORAGE_KEEP_PANE);
+        localStorage.removeItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
+        localStorage.removeItem(showHtmlDecisionKey);
+        localStorage.removeItem(showImagesDecisionKey);
+        localStorage.removeItem(resizerPercentageKey);
+        localStorage.removeItem('rmm7experimentalFeatureEnabled');
+        localStorage.removeItem('messageSubjectDragTipShown');
+        localStorage.removeItem(LOCAL_STORAGE_VIEWMODE);
+        localStorage.removeItem('calendarSettings');
+        localStorage.removeItem(`${uid}:avatars`);
+        localStorage.removeItem(`${uid}:${showHtmlDecisionKey}`);
+        localStorage.removeItem(`${uid}:${showImagesDecisionKey}`);
+        localStorage.removeItem(`${uid}:${resizerPercentageKey}`);
+        localStorage.removeItem(`localSearchPromptDisplayed${uid}`);
         this.preferences.next(prefs);
     }
 }
