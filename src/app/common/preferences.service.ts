@@ -73,6 +73,8 @@ export class PreferencesService {
         // We need to pull both "global" and "this device" (desktop/mobile)
         // do we store separately?
         // console.log('constructor, pull from storage');
+
+        // Load last known set of prefs from localStorage:
         this.storage.get('preference_keys').then((prefkeys: string[]) => {
             if (!prefkeys) {
                 prefkeys = [];
@@ -91,7 +93,10 @@ export class PreferencesService {
                 }
             });
         });
-        // console.log('constructor, getPrefs');
+
+        // Then pull from server:
+        // Make sure nothing calls set() before this finishes!
+        // (else version updates, confusion happens)
         this.rmmapi.getPreferences().subscribe((prefsdata: PreferencesResult) => {
             // this returns a PrefSet => PreferencesStorage object
             // with a version key
@@ -157,9 +162,9 @@ export class PreferencesService {
         this.applySyncedData(level, {version: version, entries: allPrefs});
     }
 
-    private updateEntries(level: string, entries: Map<string, any>): void {
+    private updateEntries(level: string, entries: Map<string, any>, version?: number): void {
         this.preferences.next(entries);
-        this.version++;
+        this.version = version ? version : this.version + 1;
         // Version
         this.storage.set('preferences_version', this.version);
         // Keys:
@@ -202,7 +207,7 @@ export class PreferencesService {
             this.uploadPreferenceData(level);
         }
         if (prefsdata.version > this.version) {
-            this.updateEntries(level, prefsdata.entries);
+            this.updateEntries(level, prefsdata.entries, prefsdata.version);
             // this.preferences.next(prefsdata.entries);
             this.version = prefsdata.version;
         }
@@ -232,11 +237,15 @@ export class PreferencesService {
         const uid = await this.storage.uid.toPromise();
         if (level === DefaultPrefGroups.Global) {
 
-            if (localStorage.getItem('rmm7experimentalFeatureEnabled') === 'true') {
-                prefs.set('Global:experimentalFeatureEnabled', true);
+            if (localStorage.getItem('rmm7experimentalFeatureEnabled') !== null) {
+                prefs.set('Global:experimentalFeatureEnabled', localStorage.getItem('rmm7experimentalFeatureEnabled'));
             }
-            prefs.set(`Global:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`, localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY) === 'true');
-            prefs.set(`Global:messageSubjectDragTipShown`, localStorage.getItem('messageSubjectDragTipShown') === 'true');
+            if (localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY) !== null) {
+                prefs.set(`Global:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`, localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY));
+            }
+            if (localStorage.getItem('messageSubjectDragTipShown') !== null) {
+                prefs.set(`Global:messageSubjectDragTipShown`, localStorage.getItem('messageSubjectDragTipShown'));
+            }
             const calendarSettings = localStorage.getItem('calendarSettings');
             if (calendarSettings) {
                 prefs.set(`Global:calendarSettings`, JSON.parse(calendarSettings));
@@ -247,18 +256,24 @@ export class PreferencesService {
             }
         } else {
             const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-            if (storedMailViewerOrientationSetting !== undefined) {
+            if (storedMailViewerOrientationSetting !== null) {
                 prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`, storedMailViewerOrientationSetting);
             }
             const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
-            if (storedMailViewerOrientationSettingMobile !== undefined) {
+            if (storedMailViewerOrientationSettingMobile !== null) {
                 prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`, storedMailViewerOrientationSettingMobile);
             }
-            prefs.set(`${level}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`, localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW));
-            prefs.set(`${level}:${LOCAL_STORAGE_KEEP_PANE}`, localStorage.getItem(LOCAL_STORAGE_KEEP_PANE));
-            prefs.set(`${level}:showDragHelpers`, localStorage.getItem('contacts.showDragHelpers') === '1');
+            if (localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW) !== null) {
+                prefs.set(`${level}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`, localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW));
+            }
+            if (localStorage.getItem(LOCAL_STORAGE_KEEP_PANE) !== null) {
+                prefs.set(`${level}:${LOCAL_STORAGE_KEEP_PANE}`, localStorage.getItem(LOCAL_STORAGE_KEEP_PANE));
+            }
+            if (localStorage.getItem('contacts.showDragHelpers') !== null) {
+                prefs.set(`${level}:showDragHelpers`, localStorage.getItem('contacts.showDragHelpers'));
+            }
 
-            if (localStorage.getItem(LOCAL_STORAGE_VIEWMODE)) {
+            if (localStorage.getItem(LOCAL_STORAGE_VIEWMODE) !== null) {
                 prefs.set(`${level}:${LOCAL_STORAGE_VIEWMODE}`, localStorage.getItem(LOCAL_STORAGE_VIEWMODE));
             }
             const avatarSource = localStorage.getItem(`${uid}:avatars`);

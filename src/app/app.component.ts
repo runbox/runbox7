@@ -262,23 +262,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
 
     this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
-    // see preferemces.subscribe
-    // const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-
-    // if (mobileQuery.screenSize !== ScreenSize.Desktop) {
-    //   if (storedMailViewerOrientationSettingMobile) {
-    //     this.mailViewerOnRightSide = (storedMailViewerOrientationSettingMobile === 'false' ? false : true);
-    //   } else {
-    //     this.mailViewerOnRightSide = false;
-    //   }
-    // }
 
     mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
       changeDetectorRef.detectChanges();
 
       if (this.sideMenuOpened) {
-        // const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
         const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
@@ -289,8 +278,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`);
-        // this.mailViewerOnRightSide = localStorage
-        //   .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
       }
       console.log(this.mailViewerOnRightSide);
     });
@@ -398,37 +385,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       ).subscribe(() =>
         this.autoAdjustColumnWidths()
     );
-
-//     const contentPreview = this.preferences.get(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-// //    const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-//     if (contentPreview) {
-//       this.canvastable.showContentTextPreview = contentPreview === 'true';
-//     }
-
-//     const messagePaneSetting = this.preferences.get(LOCAL_STORAGE_KEEP_PANE);
-// //    const messagePaneSetting = localStorage.getItem(LOCAL_STORAGE_KEEP_PANE);
-//     if (messagePaneSetting) {
-//       this.keepMessagePaneOpen = messagePaneSetting === 'true';
-//     }
-
-//     const mailViewerSetting = this.preferences.get(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-// //    const mailViewerSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-//     if (mailViewerSetting) {
-//       this.mailViewerOnRightSide = mailViewerSetting === 'true';
-//     }
-
-//     const showUnreadOnly = this.preferences.get(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
-// //    const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
-//     if (showUnreadOnly) {
-//       this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
-//     }
-
-//     const viewModeSetting = this.preferences.get(LOCAL_STORAGE_VIEWMODE);
-// //    const viewModeSetting = localStorage.getItem(LOCAL_STORAGE_VIEWMODE);
-//     if (viewModeSetting) {
-//       this.viewmode = viewModeSetting;
-//       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
-//     }
 
     this.route.fragment.subscribe(
       fragment => {
@@ -1223,14 +1179,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // FIXME: move updateSearch (for index searches) into
   // searchmessagedisplay filterBy ?
   updateSearch(always?: boolean, noscroll?: boolean) {
+    // Ensure we save changed settings
+    const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
+    this.preferenceService.set(DefaultPrefGroups.Global, LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+    this.updateTooltips();
+
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       // May have changed unread checkbox so reset / filter message display
       this.filterMessageDisplay();
       return;
     }
-    const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
-    this.preferenceService.set(DefaultPrefGroups.Global, LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
-    this.updateTooltips();
 
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
