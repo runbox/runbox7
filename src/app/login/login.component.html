@@ -1,8 +1,8 @@
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(145deg, #0068b7, #003156);">
   <div id="loginHeader">
-    <h1 id="loginHeaderTitle">Welcome to Runbox 7</h1>
+    <h1>Runbox 7</h1>
+    <img src="assets/runbox7_negative_white.png" id="logo" alt="Runbox 7" />
     <h4 id="loginHeaderSubTitle">The fastest webmail app on the planet</h4>
-    <p id="loginHeaderLoginText">Log in below or <a href="/signup?runbox7=1">create a new account</a></p>
   </div>
 </div>
 <div class="loginSection" style="width: 100%; height: 60%;">
@@ -11,8 +11,8 @@
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 46vh; left: 12vw; height: 6vh; width: auto; transform: rotate(51deg); filter: opacity(100%)" />
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 50vh; left: 18vw; height: 8vh; width: auto; transform: rotate(43deg); filter: opacity(100%)" />
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 53vh; left: 27vw; height: 10vh; width: auto; transform: rotate(33deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 52vh; left: 63vw; height: 12vh; width: auto; transform: rotate(12deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 45vh; left: 73vw; height: 16vh; width: auto; transform: rotate(5deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 52vh; left: 64vw; height: 12vh; width: auto; transform: rotate(12deg); filter: opacity(100%)" />
+    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 45vh; left: 74vw; height: 16vh; width: auto; transform: rotate(5deg); filter: opacity(100%)" />
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 35vh; left: 85vw; height: 20vh; width: auto; filter: opacity(100%)" />
   </div>
   
@@ -21,6 +21,7 @@
       <div id="loginArea">
 	<div>
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
+	  <p>Log in below or <a href="/signup?runbox7=1" class="login-link">create a new account</a>.</p>
 	</div>
 	<mat-form-field>
           <input matInput placeholder="Username" name="username" type="email" inputmode="email" autofocus ngModel />
@@ -29,10 +30,6 @@
           <input matInput placeholder="Password" type="password" name="password" ngModel />
   </mat-form-field>
   <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
-	<div id="loginOptions">
-	  <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox><br />
-	  <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
-	</div>
 	<button mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
 	<p *ngIf='accountSuspended' class='login_error_html'>
           Your Runbox account has been suspended. <br>
@@ -57,11 +54,12 @@
           An unknown error has occurred. <br>
 	  Please contact <a href="https://support.runbox.com">Runbox Support</a>.
 	</p>
+	<div id="loginOptions">
+	  <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox><br />
+	  <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
+	</div>
 	<div id='forgotPassword' class="login-link">
 	  <a href="/pw_reset">Forgot password?</a>
-	</div>
-	<div id="createAccount" class="login-link">
-	  <a href="/signup?runbox7=1">Create new account</a>
 	</div>
 	<div id="progressBar">
 	  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
@@ -141,10 +139,7 @@
 </div>
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(170deg, #014f89, #001e35);">
   <div id="loginFooter">
-    <p style="margin: 1vh 0 0 0; text-align: center">More information:</p>
-    <a href=" https://blog.runbox.com/2018/12/runbox-7-is-going-open-source/">Runbox 7 is going open source</a><br />
-    <a href=" https://blog.runbox.com/2018/12/the-secret-behind-runbox-7s-speed/">The secret behind Runbox 7's speed</a><br />
-    <a href="https://blog.runbox.com/2018/11/runbox-7-webmail-entering-open-beta-phase/">Runbox 7 Webmail entering open beta phase</a>
+    <p style="margin: 1vh 0 0 0; text-align: center"><a href="https://runbox.com/features/email-services/runbox-7-project/">More information about the Runbox 7 project</a></p>
     <div id="loginFooterMenuBottom">
       <ul>
 	<li><a href="/about/">About Runbox</a></li>

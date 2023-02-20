@@ -356,6 +356,17 @@ mat-grid-tile.tableTitle {
 #loginHeader {
     text-align: center;
     color: #fff;
+
+    h1 {
+	display: none;
+	margin: 0;
+    }
+    
+    #logo {
+	margin: 0;
+	width: 300px;
+	height: auto;
+    }
 }
 
 #loginHeaderTitle {
@@ -372,20 +383,19 @@ mat-grid-tile.tableTitle {
 
 #loginHeaderSubTitle {
     margin: 0;
-    font-size: 2.8vh;
+    font-size: 2vh;
+    font-weight: 100;
     color: mat-color($rmm-default-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
 }
 
 @media(max-width: 812px) {
     #loginHeaderSubTitle {
-        font-size: 2vh;
+        font-size: 1.7vh;
     }
 }
 
-loginHeaderLoginText {
-    margin: 2vh 0;
-}
-    
 login {
       width: 100%;
       height: 100%;
@@ -398,7 +408,7 @@ login {
 }
 
 #logoLogin {
-    margin: 10px 0;
+    margin: 0;
     width: 150px;
     height: auto;
 }
@@ -412,27 +422,37 @@ div.loginScreen {
     width: 100%;
     height: 100%;
     background-color: #fff;
-}
 
-div.loginScreen #loginArea {
-    border: 1px solid mat-color($rmm-default-primary);
-    min-width: 250px;
-    min-height: 350px;
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-}
+    a {
+	color: mat-color($rmm-default-primary);
+    }
 
-div.loginScreen {
+    #loginArea {
+	border: 1px solid mat-color($rmm-default-primary);
+	min-width: 300px;
+	min-height: 350px;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+
+	mat-form-field {
+	    width: 200px;
+	}
+    }	
     #loginOptions {
-        font-size: 13px;
         display: flex;
+        margin: 0.5em;
+        font-size: 13px;
+
+	.mat-checkbox-label {
+	    padding-top: 3px;
+	}
     }
     #loginButton {
         width: 100px;
-        margin: 1em;
+        margin: 0.5em;
     }
     .login-checkbox {
         padding: 0 5px;
@@ -446,6 +466,33 @@ div.loginScreen {
         height: 13px;
         width: 13px;
     }
+    .login_error_html p {
+	margin: 0;
+    }
+
+    .login_error_html a {
+	color: #f00 !important;
+    }
+
+    #progressBar {
+	position: absolute;
+	bottom: 0;
+	height: 5px;
+	width: 100%;
+    }
+
+    .loginScreen #tfaArea {
+	border: 1px solid mat-color($rmm-default-primary);
+    }
+
+    mat-button-toggle button {
+	border-right: 1px solid #949494;
+    }
+
+    #forgotPassword, #createAccount {
+	margin: 1em;
+	font-size: 13px;
+    }
 }
 
 .login_error_html {
@@ -453,41 +500,6 @@ div.loginScreen {
     padding: 0 10px 0.7em;
     color: #f00;
     font-size: 13px;
-}
-
-div.loginScreen .login_error_html p {
-    margin: 0;
-}
-
-div.loginScreen .login_error_html a {
-    color: #f00 !important;
-}
-
-div.loginScreen #progressBar {
-    position: absolute;
-    bottom: 0;
-    height: 5px;
-    width: 100%;
-}
-
-div.loginScreen mat-progress-bar {
-}
-
-div.loginScreen #tfaArea {
-    border: 1px solid mat-color($rmm-default-primary);
-}
-
-div.loginScreen mat-button-toggle button {
-    border-right: 1px solid #949494;
-}
-
-div.loginScreen .login-link {
-    margin: 0 0 5px;
-    font-size: 13px;
-}
-
-div.loginScreen .login-link a {
-    color: mat-color($rmm-default-primary);
 }
 
 
@@ -525,7 +537,7 @@ div.loginScreen .login-link a {
 
 #loginFooterMenuBottom {
     width: 100%;
-    margin-top: 1vh;
+    margin-top: 2vh;
 }
 
 @media(max-width: 812px) {
