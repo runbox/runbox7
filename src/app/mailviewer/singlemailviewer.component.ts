@@ -150,8 +150,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.contacts = contacts;
     });
     this.preferenceService.preferences.subscribe((prefs) => {
-      this.showHTMLDecision = prefs.get(`${this.preferenceService.prefGroup}:showHtmlDecisionKey`);
-      const storedHeightPercentage  = parseInt(prefs.get(`${this.preferenceService.prefGroup}:resizerPercentageKey`), 10);
+      this.showImagesDecision = prefs.get(`${this.preferenceService.prefGroup}:${showImagesDecisionKey}`);
+      this.showHTMLDecision = prefs.get(`${this.preferenceService.prefGroup}:${showHtmlDecisionKey}`);
+      const storedHeightPercentage  = parseInt(prefs.get(`${this.preferenceService.prefGroup}:${resizerPercentageKey}`), 10);
       this.previousHeightPercentage = storedHeightPercentage > 100
         ? 100
         : storedHeightPercentage < 0

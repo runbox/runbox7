@@ -53,6 +53,12 @@ export class PreferencesService {
         private mobileQuery: MobileQueryService,
     ) {
         this.loadOldStyle(DefaultPrefGroups.Global);
+        // Default screensize value!
+        if (this.mobileQuery.screenSize !== ScreenSize.Desktop) {
+            console.log('screensize is not desktop');
+
+            this.prefGroup = DefaultPrefGroups.Mobile;
+        }
         this.mobileQuery.screenSizeChanged.subscribe(size => {
             let prefGroup = DefaultPrefGroups.Desktop;
             if (size !== ScreenSize.Desktop) {
@@ -108,11 +114,6 @@ export class PreferencesService {
             // console.log('got prefs:');
             // console.log(prefsdata);
 
-            if (this.mobileQuery.screenSize !== ScreenSize.Desktop) {
-                console.log('screensize is not desktop');
-
-                this.prefGroup = DefaultPrefGroups.Mobile;
-            }
             // console.log('merge');
             this.mergeDeviceGlobal(this.prefGroup, prefsdata);
         });
