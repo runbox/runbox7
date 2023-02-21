@@ -17,9 +17,8 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { timeout, share } from 'rxjs/operators';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { RMM } from '../rmm';
-import { FromAddress } from '../rmmapi/from_address';
 
 export class Identity {
     email: string;
@@ -47,10 +46,7 @@ export class AllIdentities {
 
 export class Profile {
     public profiles: Subject<AllIdentities> = new Subject();
-    public profiles_verified: any;
     is_busy: boolean;
-    compose_froms: any;
-    public from_addresses: FromAddress[] = [];
     constructor(
         public app: RMM,
     ) {
@@ -72,43 +68,6 @@ export class Profile {
             return this.app.show_error('Could not load profiles.', 'Dismiss');
           }
         );
-    }
-    load_verified(): Observable<any> {
-        this.from_addresses.splice(0, this.from_addresses.length);
-        // otherwise it will lose the reference to current from list
-        this.is_busy = true;
-        const req = this.app.ua.http.get('/rest/v1/profiles/verified', {}).pipe(timeout(60000), share());
-        req.subscribe(
-          reply => {
-            this.is_busy = false;
-            if ( reply['status'] === 'error' ) {
-                this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
-                return;
-            }
-            this.profiles_verified = reply['result'];
-            const types_order = ['main', 'others', 'aliases'];
-            types_order.forEach( (type) => {
-                this.profiles_verified[type].forEach( (item) => {
-                    const obj = {
-                        id: item.profile.id,
-                        email: item.profile.email,
-                        reply_to: item.profile.reply_to,
-                        name: item.profile.from_name,
-                        signature: item.profile.signature,
-                        is_signature_html: (item.profile.is_signature_html ? true : false),
-                        type: item.profile.type,
-                    };
-                    const profile = FromAddress.fromObject(obj);
-                    this.from_addresses.push(profile);
-                });
-            });
-          },
-          error => {
-            this.is_busy = false;
-            return this.app.show_error('Could not load verified profiles.', 'Dismiss');
-          }
-        );
-        return req;
     }
     create(values, field_errors) {
         const req = this.app.ua.http.post('/rest/v1/profile/', values).pipe(timeout(60000), share());

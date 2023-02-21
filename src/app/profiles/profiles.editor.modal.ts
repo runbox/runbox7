@@ -125,8 +125,6 @@ export class ProfilesEditorModalComponent {
         req.subscribe(reply => {
             if (reply['status'] === 'success') {
                 this.rmm.profile.load();
-                this.rmm.profile.load_verified();
-                this.draftDeskservice.refreshFroms();
                 this.close();
                 return;
             }
@@ -169,7 +167,6 @@ export class ProfilesEditorModalComponent {
             this.is_busy = false;
             if (reply['status'] === 'success') {
                 this.rmm.profile.load();
-                this.draftDeskservice.refreshFroms();
                 this.close();
                 return;
             } else {
