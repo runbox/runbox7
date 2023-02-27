@@ -136,6 +136,10 @@ a[mat-list-item] .mat-list-text {
     font-weight: 400;
 }
 
+.mat-list-base[dense] .mat-list-item.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-item.mat-list-option .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-option .mat-list-item-content .mat-list-text {
+    padding-left: 5px !important;
+}
+
 mat-list-item p.mat-line mat-icon {
     padding-right: 8px !important;
     padding-bottom: 8px !important;
@@ -954,6 +958,11 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 .mat-fab.mat-accent {
     color: mat-color($rmm-default-primary);
+
+}
+
+#moveMessagesToFolderList {
+    width: 250px;
 }
 
 /* Read screen */

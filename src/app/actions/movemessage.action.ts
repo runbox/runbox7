@@ -26,7 +26,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     template: `
         <mat-spinner *ngIf="moving"></mat-spinner>
         <mat-dialog-content  *ngIf="!moving">
-            <mat-nav-list dense>
+            <mat-nav-list dense id="moveMessagesToFolderList">
                 <mat-list-item *ngFor="let fce of folderListEntries" (click)="moveMessages(fce.folderId)"
                     [style.paddingLeft.px]="fce.folderLevel*10"
                 >
