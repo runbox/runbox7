@@ -217,8 +217,19 @@ export class DraftDeskService {
                 private messagelistservice: MessageListService,
                 private http: HttpClient,
                 private rmm: RMM) {
-        this.rmm.profile.profiles.subscribe((_) =>
-            this.refreshFroms());
+        this.rmm.profile.profiles.subscribe((_) => {
+            this.refreshFroms();
+        });
+
+        // run these at least once (rmm.blah is not a service!)
+        this.refreshFroms();
+        // Recreate drafts when froms(identities) change
+        this.fromsSubject
+            .subscribe(froms => {
+                if (froms.length > 0) {
+                    this.refreshDrafts();
+                }
+            });
 
         this.messagelistservice.refreshFolderList();
         this.messagelistservice.folderListSubject
@@ -268,41 +279,32 @@ export class DraftDeskService {
     }
 
     private refreshDrafts() {
-        this.refreshFroms();
-        this.fromsSubject
-            .subscribe(froms => {
-                if (froms.length > 0) {
-                    // Only update if drafts actually changed
-                    this.rmmapi.listAllMessages(0, 0, 0, 100, true, 'Drafts')
-                    .pipe(distinctUntilChanged((prev: any[], curr: any[]) => {
-                        return prev.length === curr.length
-                            && prev.every((m, index) =>
-                                m.id === curr[index].id);
-                    }))
-                    .subscribe(messages => {
-                        // need to keep any in-progress drafts!
-                        const newDrafts = [];
-                        messages.map((msgInfo) =>
-                            newDrafts.push(
-                                DraftFormModel.create(
-                                    msgInfo.id,
-                                    froms[0],
-                                    msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
-                                        addr.address : addr.name + '<' + addr.address + '>').join(','),
-                                    msgInfo.subject, null, msgInfo.messageDate)
-                            )
-                        );
-                        if (this.composingNewDraft) {
-                            newDrafts.splice(0, 0, this.composingNewDraft);
-                        }
-                        this.draftModels.next(newDrafts);
-                    });
-            }
-        },
-                                    err => {
-                                        console.log(err);
-                                    }
-        );
+        if (this.fromsSubject.value.length > 0) {
+            this.rmmapi.listAllMessages(0, 0, 0, 100, true, 'Drafts')
+                .pipe(distinctUntilChanged((prev: any[], curr: any[]) => {
+                    return prev.length === curr.length
+                        && prev.every((m, index) =>
+                            m.id === curr[index].id);
+                }))
+                .subscribe(messages => {
+                    // need to keep any in-progress drafts!
+                    const newDrafts = [];
+                    messages.map((msgInfo) =>
+                        newDrafts.push(
+                            DraftFormModel.create(
+                                msgInfo.id,
+                                this.fromsSubject.value[0],
+                                msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
+                                    addr.address : addr.name + '<' + addr.address + '>').join(','),
+                                msgInfo.subject, null, msgInfo.messageDate)
+                        )
+                                );
+                    if (this.composingNewDraft) {
+                        newDrafts.splice(0, 0, this.composingNewDraft);
+                    }
+                    this.draftModels.next(newDrafts);
+                });
+        }
     }
 
     public deleteDraft(messageId: number) {
