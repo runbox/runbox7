@@ -17,21 +17,23 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MobileQueryService } from '../mobile-query.service';
 import { RMM } from '../rmm';
 import { ModalPasswordComponent } from './account.security.component';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-last-logins',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'last-logins.component.html',
 })
-export class LastLoginsComponent implements OnInit  {
+export class LastLoginsComponent implements OnInit {
     panelOpenState = false;
-    @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+    @ViewChild(MatPaginator) paginator: MatPaginator;
     @Output() Close: EventEmitter<string> = new EventEmitter();
     dialog_ref: any;
     acl_service = '';
@@ -41,13 +43,26 @@ export class LastLoginsComponent implements OnInit  {
     acl_ip = '';
     acl_overwrite_subaccount_rules = '0';
     is_acl_clear_enabled = false;
-    acl_manage_ip_rule = 'deny';
+    acl_manage_ip_rule = '';
     acl_manage_ip_range = '';
     acl_manage_ip_label = '';
     is_busy_list_logins = false;
+    is_overwrite_subaccount_ip_rules = '';
     modal_password_ref;
 
-    constructor(public snackBar: MatSnackBar, public dialog: MatDialog, public mobileQuery: MobileQueryService, public rmm: RMM) {
+    rulesColumns: string[] = ['rule', 'ip', 'label', 'action'];
+    blockedIpsColumns: string[] = ['service', 'ip', 'username', 'failed', 'action'];
+    lastLoginsColumns: string[] = ['service', 'login', 'ip', 'hostname', 'time', 'status', 'actions'];
+
+    addRuleForm;
+
+    constructor(
+        public snackBar: MatSnackBar,
+        public dialog: MatDialog,
+        public mobileQuery: MobileQueryService,
+        public rmm: RMM,
+        public rmmapi: RunboxWebmailAPI
+    ) {
         this.rmm.me.load();
     }
 
@@ -57,6 +72,15 @@ export class LastLoginsComponent implements OnInit  {
         this.rmm.account_security.acl.blocked_list();
         this.rmm.account_security.acl.accounts_affected();
         this.rmm.account_security.acl.list({});
+        this.rmm.account_security.tfa.get().subscribe(() => {
+            this.is_overwrite_subaccount_ip_rules = this.rmm.account_security.tfa.settings.is_overwrite_subaccount_ip_rules;
+        });
+
+        this.addRuleForm = new FormGroup({
+            rule: new FormControl(''),
+            ip: new FormControl(''),
+            label: new FormControl('')
+        });
 
         if (!this.rmm.account_security.user_password) {
             this.show_modal_password();
@@ -142,6 +166,8 @@ export class LastLoginsComponent implements OnInit  {
             .subscribe((res) => {
                 if (res.status === 'success') {
                     this.rmm.account_security.acl.list({});
+                    this.show_error('Rule added', 'Dismiss');
+                    this.addRuleForm.reset();
                 }
             });
     }
@@ -172,6 +198,7 @@ export class LastLoginsComponent implements OnInit  {
                 if (res.status === 'error') {
                     this.show_error(res.error || res.errors.join(''), 'Dismiss');
                 }
+                this.rmm.account_security.acl.blocked_list();
             });
     }
 
@@ -191,9 +218,25 @@ export class LastLoginsComponent implements OnInit  {
                 if (res.status === 'error') {
                     this.show_error(res.error || res.errors.join(''), 'Dismiss');
                 }
-                this.rmm.account_security.acl.logins_list({});
+                if (res.status === 'success') {
+                    this.show_error('IP ' + result.ip + ' blocked', 'Dismiss');
+                }
                 this.rmm.account_security.acl.blocked_list();
+                this.rmm.account_security.acl.list({});
             });
+    }
+
+    update_overwride_subaccount_rules() {
+        if (!this.rmm.account_security.user_password) {
+            this.show_modal_password();
+            return;
+        }
+        const data = {
+            action: 'update_status',
+            is_overwrite_subaccount_ip_rules: this.is_overwrite_subaccount_ip_rules,
+            password: this.rmm.account_security.user_password,
+        };
+        this.rmm.account_security.tfa.update(data);
     }
 
     ip_never_block(result) {
@@ -204,6 +247,7 @@ export class LastLoginsComponent implements OnInit  {
         this.rmm.account_security.acl
             .update({
                 ip: result.ip,
+                label: 'Never Block',
                 rule: 'allow',
                 password: this.rmm.account_security.user_password,
             })
@@ -211,7 +255,16 @@ export class LastLoginsComponent implements OnInit  {
                 if (res.status === 'error') {
                     this.show_error(res.error || res.errors.join(''), 'Dismiss');
                 }
+                this.rmm.account_security.acl.blocked_list();
+                this.rmm.account_security.acl.list({});
             });
+    }
+
+    submit_rule_form(data) {
+        this.acl_manage_ip_rule = data.rule;
+        this.acl_manage_ip_range = data.ip;
+        this.acl_manage_ip_label = data.label;
+        this.acl_create_rule();
     }
 
     show_modal_password() {

@@ -215,3 +215,35 @@ h2.runbox-section-header {
         width: calc(100% - 20px);
     }
 }
+
+table {
+    width: 100%;
+    @media only screen and (max-width: 767px) {
+        th,
+        td {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+}
+
+table .cell-center-content {
+    text-align: center;
+}
+
+.container {
+    max-width: 1024px;
+    padding-top: 10px;
+    padding-bottom: 30px;
+}
+
+.textLink {
+    color: #01579b;
+    cursor: pointer;
+}
+
+.flex-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}

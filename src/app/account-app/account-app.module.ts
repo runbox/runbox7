@@ -250,7 +250,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                                 component: ManageServicesComponent,
                             },
                             {
-                                path: 'last_logins',
+                                path: 'access_control',
                                 component: LastLoginsComponent,
                             },
                             {
