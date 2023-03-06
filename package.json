@@ -21,7 +21,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "start-e2e-server": "start-test mockserver 15000 start-use-mockserver",
-    "run-cypress-tests": "cypress run",
+    "run-cypress-tests": "cypress run --browser firefox --headless",
     "cypress-e2e": "start-test start-e2e-server 4201 run-cypress-tests",
     "ci-tests": "CHOKIDAR_USEPOLLING=1 node run-ci-tests.js"
   },
