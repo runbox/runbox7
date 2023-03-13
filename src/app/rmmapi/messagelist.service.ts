@@ -353,6 +353,15 @@ export class MessageListService {
                 return;
             }
 
+            // Default the folderCounts, in case (why?) not set yet
+            if (!this.folderCounts[msg.folder]) {
+                this.folderCounts[msg.folder] = new FolderMessageCountEntry(0, 0);
+                console.error(`moveMessages: Missing folderCounts for {msg.folder}`);
+            }
+            if (!this.folderCounts[folderName]) {
+                this.folderCounts[folderName] = new FolderMessageCountEntry(0, 0);
+                console.error(`moveMessages: Missing folderCounts for {folderName}`);
+            }
             // Remove from visible emails
             // If we havent loaded/viewed this folder, we won't have any
             if (this.folderMessageLists[msg.folder]) {
