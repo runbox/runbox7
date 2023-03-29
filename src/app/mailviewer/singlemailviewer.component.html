@@ -258,7 +258,7 @@
         <mat-list>
           <mat-list-item class="link-pointer" *ngFor="let att of mailObj.attachments; let i=index" (click)="openAttachment(att)">
             <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
-              <mat-icon mat-list-icon svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon> <span>{{att.filename}}</span>
+              <mat-icon mat-list-icon svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon> <span>{{att.filename}}</span><span style="flex-grow: 1"></span><span>{{att.sizeDisplay}}</span>
             </ng-container>
           </mat-list-item>
         </mat-list>
@@ -383,6 +383,9 @@
             *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)"
             style="max-width: 150px">
+            <mat-grid-tile-header>
+              <span class="string-ellipsis">{{att.sizeDisplay}}</span>
+            </mat-grid-tile-header>
               <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
                 <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
                   <img  matListAvatar

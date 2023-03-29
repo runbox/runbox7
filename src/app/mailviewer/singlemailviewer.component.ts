@@ -48,6 +48,7 @@ import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar
 import { ContactsService } from '../contacts-app/contacts.service';
 import { Contact, ContactKind } from '../contacts-app/contact';
 import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
+import { MessageTableRowTool} from '../messagetable/messagetablerow';
 // import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
 
 // const DOMPurify = require('dompurify');
@@ -426,8 +427,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
         res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
-        res.sanitized_html = this.generateAttachmentURLs(res.attachments, res.sanitized_html);
-        res.sanitized_html_without_images = this.generateAttachmentURLs(res.attachments, res.sanitized_html_without_images);
+        res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
+        res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
         res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
 
@@ -536,8 +537,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       );
   }
 
-  generateAttachmentURLs(attachments: any[], html: string): string {
-    if (attachments) {
+  expandAttachmentData(attachments: any[], html: string): string {
+    if (attachments.length > 0) {
       attachments.forEach((att, ndx) => {
         let isImage = false;
         att.internal = false;
@@ -565,6 +566,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             }
           }
         }
+        // size in readable format:
+        att.sizeDisplay = MessageTableRowTool.formatBytes(att.size, 2);
       });
     }
     return html;
@@ -656,7 +659,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
               this.mailObj.text = parsed.text;
               this.mailObj.subject = parsed.subject;
               this.mailContentHTML = parsed.html;
-              this.mailContentHTML = this.generateAttachmentURLs(parsed.attachments, parsed.html);
+              this.mailContentHTML = this.expandAttachmentData(parsed.attachments, parsed.html);
               this.mailObj.attachments = parsed.attachments;
 
               console.log(parsed);
