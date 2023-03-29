@@ -25,6 +25,7 @@ import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
+import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { RMM } from '../rmm';
 import { from, of, BehaviorSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
@@ -372,6 +373,10 @@ export class DraftDeskService {
     public newDraft(model: DraftFormModel): Promise<void> {
         return new Promise((resolve, _) => {
             const afterPrepare = () => {
+                if (model.attachments && model.attachments.length > 0 ) {
+                    model.attachments.forEach((att) =>
+                        att.sizeDisplay = MessageTableRowTool.formatBytes(att.size, 2));
+                }
                 this.composingNewDraft = model;
                 // const drafts = this.draftModels.value;
                 // drafts.splice(0, 0, this.composingNewDraft);
@@ -388,7 +393,6 @@ export class DraftDeskService {
                                 .pipe(
                                     map(ret => {
                                         ret.file = ret.filename;
-
                                         model.attachments[ndx] = ret;
                                         if (model.useHTML && att.contentId) {
                                             const draftUrl = `/ajax/download_draft_attachment?filename=${ret.filename}`;

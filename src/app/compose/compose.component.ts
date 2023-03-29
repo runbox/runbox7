@@ -38,6 +38,7 @@ import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { AppSettingsService } from '../app-settings';
+import { MessageTableRowTool} from '../messagetable/messagetablerow';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -370,7 +371,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }
                 (event.body as any).result.attachments
                     .forEach((att: any) => {
-                        att.file = att.filename;
+                      att.file = att.filename;
+                        att.sizeDisplay = MessageTableRowTool.formatBytes(att.size, 2);
                         this.model.attachments.push(att);
                     });
 
@@ -398,7 +400,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         model.attachments = msgObj.attachments
             ? msgObj.attachments.map((att) => Object.assign({
                 file_url: att.filename,
-                file: att.filename
+                file: att.filename,
+                sizeDisplay: MessageTableRowTool.formatBytes(att.size, 2)
             }, att))
             : [];
 
