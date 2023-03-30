@@ -121,7 +121,7 @@
 	  Attachments:&nbsp;
           <div class="attachment" *ngFor="let attachment of model.attachments; let i=index">
             <ng-container *ngIf="attachment.file_url!=='UTF-8Q'">
-              <a [href]="'/rest/v1/email/'+model.mid+'/viewdraft/'+i+'/?filename='+attachment.file+'&origfilename='+displayWithoutRBWUL(attachment.file)">{{displayWithoutRBWUL(attachment.file)}} ({{attachment.size}})</a>
+              <a [href]="'/rest/v1/email/'+model.mid+'/viewdraft/'+i+'/?filename='+attachment.file+'&origfilename='+displayWithoutRBWUL(attachment.file)">{{displayWithoutRBWUL(attachment.file)}} ({{attachment.sizeDisplay}})</a>
               <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon svgIcon="delete"></mat-icon></button>
             </ng-container>
           </div>
