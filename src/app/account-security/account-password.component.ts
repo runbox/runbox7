@@ -54,7 +54,7 @@ export class AccountPasswordComponent {
             }
 
             if (new_password !== confirm_password) {
-                this.error = "The entered passwords do not match";
+                this.error = 'The entered passwords do not match';
                 return;
             }
 
