@@ -49,32 +49,32 @@ export class AccountPasswordComponent {
 
         this.time_out = setTimeout(() => {
             if (!old_password || !new_password || !confirm_password) {
-                this.error = 'Fields can not be empty';
+                this.error = 'The password fields cannot be empty';
                 return;
             }
 
             if (new_password !== confirm_password) {
-                this.error = "Passwords don't match";
+                this.error = 'The entered passwords do not match';
                 return;
             }
 
             if (new_password.length < 8 || new_password.length > 64) {
-                this.error = 'Must be 8-64 characters long';
+                this.error = 'Your new password must be between 8 and 64 characters long';
                 return;
             }
 
             if (!/[a-z]/i.test(new_password)) {
-                this.error = 'Must contain at least 1 alphabetical character';
+                this.error = 'Your new password must contain at least 1 alphabetical character';
                 return;
             }
 
             if (!/[0-9]/i.test(new_password)) {
-                this.error = 'Must contain at least 1 numeric character';
+                this.error = 'Your new password must contain at least 1 numeric character';
                 return;
             }
 
             if (!/[#?!@$%^&*-]/i.test(new_password)) {
-                this.error = 'Must contain at least 1 special character';
+                this.error = 'Your new password must contain at least 1 special character. Allowed special characters include: # ? ! @ $ % ^ & *';
                 return;
             }
 
