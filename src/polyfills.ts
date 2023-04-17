@@ -55,4 +55,4 @@ import 'zone.js';  // Included with Angular CLI.
 
 // Old Edge version don't support Array.flat()
 
-import 'array-flat-polyfill'; // https://github.com/jonathantneal/array-flat-polyfill
+// import 'array-flat-polyfill'; // https://github.com/jonathantneal/array-flat-polyfill
