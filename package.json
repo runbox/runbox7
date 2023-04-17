@@ -43,7 +43,7 @@
     "@mdi/angular-material": "^5.4.55",
     "@sentry/browser": "^5.15.5",
     "@types/moment-timezone": "^0.5.13",
-    "angular-calendar": "^0.29.0-beta.1",
+    "angular-calendar": "0.31.0",
     "angular2-hotkeys": "13.1.0",
     "angular2-qrcode": "^2.0.3",
     "array-flat-polyfill": "^1.0.1",
