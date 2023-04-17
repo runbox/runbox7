@@ -567,7 +567,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         try {
           this.dopaint();
           if (this.rows) {
-            this.repaintDoneSubject.next();
+            this.repaintDoneSubject.next(undefined);
           }
         } catch (e) {
           console.log(e);

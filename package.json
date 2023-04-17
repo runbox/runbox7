@@ -60,8 +60,8 @@
     "otpauth": "^8.0.1",
     "rrule": "^2.7.1",
     "runbox-searchindex": "https://registry.npmjs.org/@runboxcom/runbox-searchindex/-/runbox-searchindex-0.2.0.tgz",
-    "rxjs": "^6.6.7",
-    "rxjs-compat": "^6.5.5",
+    "rxjs": "^7.8.0",
+    "rxjs-compat": "^6.6.7",
     "tinymce": "^5.10.7",
     "ts-md5": "^1.2.7",
     "zone.js": "~0.11.4"
