@@ -19,9 +19,9 @@
 
 import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatSidenav } from '@angular/material/sidenav';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ActivatedRoute, NavigationStart, Router, NavigationEnd } from '@angular/router';
 
 import { UsageReportsService } from '../common/usage-reports.service';
@@ -37,7 +37,7 @@ import { take } from 'rxjs/operators';
 
 @Component({
     moduleId: 'angular2/app/contacts-app/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'contacts-app-root',
     styleUrls: ['contacts-app.component.scss'],
     templateUrl: './contacts-app.component.html'

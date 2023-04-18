@@ -7,15 +7,18 @@ cp.execSync('git checkout package-lock.json');
 const packageLockJSON = JSON.parse(fs.readFileSync('package-lock.json'));
 const packageJSON = JSON.parse(fs.readFileSync('package.json'));
 
-Object.keys(packageJSON.dependencies).concat(Object.keys(packageJSON.devDependencies)).forEach(packagename => {
-    process.stdout.write(`checking integrity of package ${packagename}`);
-    const package = JSON.parse(fs.readFileSync(`node_modules/${packagename}/package.json`));
-    if(packageLockJSON.dependencies[packagename].integrity !== package._integrity) {
-        console.error(`${packagename} integrity does not match with package-lock.json. Please reinstall.`);
-        process.exit(1);
-    }
-    process.stdout.write(` ${package._integrity.substr(0, 20)}... - OK\r\n`);
-});
+// FIXME: is this necessary? the package.json & package-lock.json format has changed, package.json no longer
+// contains a _integrity field, package-lock.json not uses the field packages instead of dependencies.
+
+// Object.keys(packageJSON.dependencies).concat(Object.keys(packageJSON.devDependencies)).forEach(packagename => {
+//     process.stdout.write(`checking integrity of package ${packagename}\n`);
+//     const package = JSON.parse(fs.readFileSync(`node_modules/${packagename}/package.json`));
+//     if(packageLockJSON.packages[`node_modules/${packagename}`].integrity !== package._integrity) {
+//         console._rror(`${packagename} integrity does not match with package-lock.json. Please reinstall.`);
+//         process.exit(1);
+//     }
+//     process.stdout.write(` ${package._integrity.substr(0, 20)}... - OK\r\n`);
+// });
 
 console.log('All dependency versions ok. Will build production bundle.');
 

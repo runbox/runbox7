@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component } from '@angular/core';
-import { MatSnackBarRef, MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBarRef as MatSnackBarRef, MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({

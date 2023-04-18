@@ -25,7 +25,7 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import moment from 'moment';
 
 @Component({
@@ -51,7 +51,7 @@ export class RunboxTimerComponent implements OnInit {
   @Input() user_created: moment.Moment;
   @Input() timer_length: number;
 
-  // tslint:disable-next-line:no-output-on-prefix
+  // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onFinished: EventEmitter<boolean> = new EventEmitter();
   runningDuration: moment.Duration;
 

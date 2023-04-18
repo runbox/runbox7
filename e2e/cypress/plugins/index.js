@@ -18,5 +18,5 @@ module.exports = (on, config) => {
         },
     }
     on('file:preprocessor', wp(options))
-    require('cypress-terminal-report').installPlugin(on);
+    require('cypress-terminal-report/src/installLogsPrinter')(on);
 }

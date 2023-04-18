@@ -5,9 +5,8 @@
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -16,9 +15,10 @@
       "es2017",
       "dom"
     ],
-    "module": "es2020",
-      "baseUrl": "./",
-      "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "module": "ES2020",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": false
   }
 }

@@ -31,7 +31,7 @@ import { SearchService } from '../xapian/searchservice';
 import { UsageReportsService } from '../common/usage-reports.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Observable } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { MatIcon } from '@angular/material/icon';

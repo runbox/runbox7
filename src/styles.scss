@@ -1,23 +1,32 @@
-@import '../node_modules/@angular/material/theming';
+@use '@angular/material' as mat;
 @import '../iconfont/material-icons.css';
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
-@import "~@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
+@import "@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
 
 // Include non-theme styles for core.
-@include mat-core();
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
+@include mat.all-legacy-component-typographies();
+@include mat.legacy-core();
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
-$rmm-default-primary:    mat-palette($mat-light-blue, 900, A400, A600);
-$rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
-$rmm-default-warn:       mat-palette($mat-orange, 500, A400, A600);
-$rmm-default-foreground: mat-palette($mat-light-blue, 400, 200, 600);
-$rmm-default-highlight:  mat-palette($mat-light-blue, 50, 25, 75);
-$rmm-default-background: mat-palette($mat-light-blue, 900, A400, A600);
+$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
+$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 100, 50, 200);
+$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
+$rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
+$rmm-default-highlight:  mat.define-palette(mat.$light-blue-palette, 100, 50, 200);
+$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
 
-$rmm-default-theme: mat-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
+$rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
 
-@include angular-material-theme($rmm-default-theme);
+@include mat.all-legacy-component-themes($rmm-default-theme);
 
 // GTA 13.06.2018: Load custom fonts
 
@@ -39,12 +48,20 @@ $rmm-default-theme: mat-light-theme($rmm-default-primary, $rmm-default-accent, $
 
 // GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
 
-$custom-typography: mat-typography-config(
+$custom-typography: mat.define-legacy-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
-@include angular-material-typography($custom-typography);
-@include mat-core($custom-typography);
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy($custom-typography);`
+@include mat.all-legacy-component-typographies($custom-typography);
+@include mat.legacy-core();
 
 
 /* Generic styles */
@@ -186,7 +203,7 @@ mat-list-item p.mat-line mat-icon {
 }
 
 .gridHighlight mat-card:hover {
-    background-color: mat-color($rmm-default-highlight);
+    background-color: mat.get-color-from-palette($rmm-default-highlight);
 }
 
 mat-grid-tile {
@@ -230,7 +247,7 @@ mat-icon {
 }
 
 mat-grid-tile.tableTitle {
-    background-color: mat-color($rmm-default-foreground);
+    background-color: mat.get-color-from-palette($rmm-default-foreground);
 }
 
 .contentButton {
@@ -252,7 +269,7 @@ mat-grid-tile.tableTitle {
 
 .primaryContentButton {
     @extend .contentButton;
-    background-color: mat-color($rmm-default-primary);
+    background-color: mat.get-color-from-palette($rmm-default-primary);
     color: white;
 }
 
@@ -261,7 +278,7 @@ mat-grid-tile.tableTitle {
 }
 
 .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-    background-color: mat-color($rmm-default-primary);
+    background-color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 .mat-slide-toggle-content {
@@ -296,22 +313,22 @@ mat-grid-tile.tableTitle {
 /* Palette colors */
 
 .themePalettePrimary {
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 .themePaletteAccent {
-    color: mat-color($rmm-default-accent);
+    color: mat.get-color-from-palette($rmm-default-accent);
 }
 .themePaletteAccentLighter {
-    color: mat-color($rmm-default-accent, lighter);
+    color: mat.get-color-from-palette($rmm-default-accent, lighter);
 }
 .themePaletteWarn {
-    color: mat-color($rmm-default-warn);
+    color: mat.get-color-from-palette($rmm-default-warn);
 }
 .themePaletteForeground {
-    color: mat-color($rmm-default-foreground);
+    color: mat.get-color-from-palette($rmm-default-foreground);
 }
 .themePaletteBackground {
-    color: mat-color($rmm-default-background);
+    color: mat.get-color-from-palette($rmm-default-background);
 }
 
 .themePaletteLighterGray {
@@ -389,7 +406,7 @@ mat-grid-tile.tableTitle {
     margin: 0;
     font-size: 2vh;
     font-weight: 100;
-    color: mat-color($rmm-default-foreground);
+    color: mat.get-color-from-palette($rmm-default-foreground);
     text-transform: uppercase;
     letter-spacing: 0.5em;
 }
@@ -428,11 +445,11 @@ div.loginScreen {
     background-color: #fff;
 
     a {
-	color: mat-color($rmm-default-primary);
+	color: mat.get-color-from-palette($rmm-default-primary);
     }
 
     #loginArea {
-	border: 1px solid mat-color($rmm-default-primary);
+	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
 	min-width: 300px;
 	min-height: 350px;
 	display: flex;
@@ -486,7 +503,7 @@ div.loginScreen {
     }
 
     .loginScreen #tfaArea {
-	border: 1px solid mat-color($rmm-default-primary);
+	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     }
 
     mat-button-toggle button {
@@ -506,6 +523,9 @@ div.loginScreen {
     font-size: 13px;
 }
 
+div.loginScreen .login-link a {
+    color: mat.get-color-from-palette($rmm-default-primary);
+}
 
 /* Smaller 2FA buttons on small screens */
 @media(max-width: 375px) {
@@ -563,7 +583,7 @@ div.loginScreen {
 }
 
 #loginFooterMenuBottom a {
-    color: mat-color($rmm-default-foreground);
+    color: mat.get-color-from-palette($rmm-default-foreground);
     text-decoration: none;
 }
 
@@ -603,13 +623,13 @@ rmm-headertoolbar {
 }
 
 #mainMenuContainer #runbox6 {
-    color: mat-color($rmm-default-accent) !important;
+    color: mat.get-color-from-palette($rmm-default-accent) !important;
 }
 
 .mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
     height: 36px !important;
     line-height: 36px !important;
-    color: mat-color($rmm-default-primary) !important;
+    color: mat.get-color-from-palette($rmm-default-primary) !important;
 }
 
 #mainMenuContainer button {
@@ -705,7 +725,7 @@ mat-sidenav-container {
 }
 
 #sidenavLogoContainer {
-    background-color: mat-color($rmm-default-primary) !important;
+    background-color: mat.get-color-from-palette($rmm-default-primary) !important;
     margin-top: -4px;
 
     .mat-button .mat-ripple-element {
@@ -762,14 +782,14 @@ h3.sideNavHeader {
 }
 
 .mat-nav-list a.textLink {
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
 
 /* Welcome Desk */
 .welcomedesk a {
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
@@ -793,11 +813,11 @@ h3.sideNavHeader {
 }
 
 .folderIconStandard {
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 .folderIconUser {
-    color: mat-color($rmm-default-foreground) !important;
+    color: mat.get-color-from-palette($rmm-default-foreground) !important;
 }
 
 .folderName {
@@ -815,7 +835,7 @@ h3.sideNavHeader {
     width: auto !important;
     min-width: 17px !important;
     color: white !important;
-    background-color: mat-color($rmm-default-foreground) !important;
+    background-color: mat.get-color-from-palette($rmm-default-foreground) !important;
     font-size: 10px;
     line-height: 18px !important;
     right: auto !important;
@@ -832,7 +852,7 @@ h3.sideNavHeader {
 }
 
 .selectedFolder {
-    background-color: mat-color($rmm-default-accent, 50) !important;
+    background-color: mat.get-color-from-palette($rmm-default-accent, 50) !important;
 }
 
 app-popular-recipients, app-saved-searches {
@@ -927,7 +947,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 }
 
 .mat-icon, .mat-icon-button {
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
     
 @media (max-width: 540px) {
@@ -957,8 +977,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 }
 
 .mat-fab.mat-accent {
-    color: mat-color($rmm-default-primary);
-
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 #moveMessagesToFolderList {
@@ -1208,26 +1227,26 @@ app-calendar-event-editor-dialog p {
 /* Payment */
 
 .limitedTimeOffer {
-    border: 1px solid mat-color($rmm-default-primary);
+    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     padding: 1%;
     text-align: center;
 }
 
 .limitedTimeOffer h1 {
-    color: mat-color($rmm-default-foreground);
+    color: mat.get-color-from-palette($rmm-default-foreground);
 }
 
 .limitedTimeOffer h2 {
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
-    background: mat-color($rmm-default-accent);
+    background: mat.get-color-from-palette($rmm-default-accent);
 }
 
 #specialOffer {
     width: 98%;
-    border: 1px solid mat-color($rmm-default-primary);
+    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     padding: 10px;
     text-align: center;
 }
@@ -1237,22 +1256,22 @@ app-calendar-event-editor-dialog p {
     font-size: 40px;
     text-transform: uppercase !important;
     line-height: 1.5em;
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 #specialOffer h2 {
     margin: 10px 0 10px -100px;
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 #specialOffer h3 {
     margin: 0 0 0 -100px;
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 #specialOffer p.description {
     font-size: 13px;
-    color: mat-color($rmm-default-primary);
+    color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 

@@ -33,24 +33,24 @@ import { RMMHttpInterceptorService } from './rmmapi/rmmhttpinterceptor.service';
 import { ContactsService } from './contacts-app/contacts.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
+import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
+import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar';
+import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner';
+import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
@@ -124,12 +124,12 @@ const routes: Routes = [
       },
       { path: 'start', component: OverviewComponent },
       { path: 'help', component: HelpComponent },
-      { path: 'dev',                loadChildren: './dev/dev.module#DevModule' },
-      { path: 'dkim',               loadChildren: './dkim/dkim.module#DkimModule' },
-      { path: 'calendar',           loadChildren: './calendar-app/calendar-app.module#CalendarAppModule' },
-      { path: 'changelog',          loadChildren: './changelog/changelog.module#ChangelogModule' },
-      { path: 'contacts',           loadChildren: './contacts-app/contacts-app.module#ContactsAppModule' },
-      { path: 'onscreen',           loadChildren: './onscreen/onscreen.module#OnscreenModule' },
+      { path: 'dev',                loadChildren: () => import('./dev/dev.module').then(m => m.DevModule) },
+      { path: 'dkim',               loadChildren: () => import('./dkim/dkim.module').then(m => m.DkimModule) },
+      { path: 'calendar',           loadChildren: () => import('./calendar-app/calendar-app.module').then(m => m.CalendarAppModule) },
+      { path: 'changelog',          loadChildren: () => import('./changelog/changelog.module').then(m => m.ChangelogModule) },
+      { path: 'contacts',           loadChildren: () => import('./contacts-app/contacts-app.module').then(m => m.ContactsAppModule) },
+      { path: 'onscreen',           loadChildren: () => import('./onscreen/onscreen.module').then(m => m.OnscreenModule) },
       { path: 'identities',         redirectTo: '/account/identities' },
       { path: 'account-security',   redirectTo: '/account/security'   },
       // can't handle it with a simple redirectTo because it'd lose the query params
@@ -141,72 +141,70 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [BrowserModule, FormsModule,
-    HttpClientModule,
-    HttpClientJsonpModule,
-    CanvasTableModule,
-    ComposeModule,
-    StartDeskModule,
-    WelcomeDeskModule,
-    FolderModule,
-    HelpModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatDialogModule,
-    MatExpansionModule,
-    MatListModule,
-    MatMenuModule,
-    MatCardModule, MatInputModule,
-    MenuModule,
-    MatCheckboxModule,
-    MatToolbarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatProgressBarModule,
-    MatSelectModule,
-    MatSidenavModule,
-    BrowserAnimationsModule,
-    LocalSearchIndexModule,
-    DialogModule,
-    WebSocketSearchModule,
-    MailViewerModule,
-    AccountAppModule,
-    ResizerModule,
-    UpdateAlertModule,
-    LoginLogoutModule,
-    SearchExpressionBuilderModule,
-    MultipleSearchFieldsInputModule,
-    RunboxCommonModule,
-    RouterModule.forRoot(routes),
-    ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-    HotkeyModule.forRoot()
-  ],
-  exports: [
-  ],
-  declarations: [MainContainerComponent, AppComponent,
-    MoveMessageDialogComponent,
-    PopularRecipientsComponent,
-    SavedSearchesComponent,
-  ],
-  providers: [ProgressService,
-    MessageListService,
-    MobileQueryService,
-    MessageCache,
-    RunboxWebmailAPI,
-    SearchService,
-    RMMOfflineService,
-    RMM,
-    RMMAuthGuardService,
-    ContactsService,
-    SavedSearchesService,
-    StorageService,
-    { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true},
-    { provide: ErrorHandler, useClass: SentryErrorHandler },
-  ],
-  bootstrap: [MainContainerComponent],
-  entryComponents: [MoveMessageDialogComponent]
+    imports: [BrowserModule, FormsModule,
+        HttpClientModule,
+        HttpClientJsonpModule,
+        CanvasTableModule,
+        ComposeModule,
+        StartDeskModule,
+        WelcomeDeskModule,
+        FolderModule,
+        HelpModule,
+        MatSnackBarModule,
+        MatIconModule,
+        MatDialogModule,
+        MatExpansionModule,
+        MatListModule,
+        MatMenuModule,
+        MatCardModule, MatInputModule,
+        MenuModule,
+        MatCheckboxModule,
+        MatToolbarModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        MatButtonModule,
+        MatButtonToggleModule,
+        MatProgressBarModule,
+        MatSelectModule,
+        MatSidenavModule,
+        BrowserAnimationsModule,
+        LocalSearchIndexModule,
+        DialogModule,
+        WebSocketSearchModule,
+        MailViewerModule,
+        AccountAppModule,
+        ResizerModule,
+        UpdateAlertModule,
+        LoginLogoutModule,
+        SearchExpressionBuilderModule,
+        MultipleSearchFieldsInputModule,
+        RunboxCommonModule,
+        RouterModule.forRoot(routes),
+        ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
+        HotkeyModule.forRoot()
+    ],
+    exports: [],
+    declarations: [MainContainerComponent, AppComponent,
+        MoveMessageDialogComponent,
+        PopularRecipientsComponent,
+        SavedSearchesComponent,
+    ],
+    providers: [ProgressService,
+        MessageListService,
+        MobileQueryService,
+        MessageCache,
+        RunboxWebmailAPI,
+        SearchService,
+        RMMOfflineService,
+        RMM,
+        RMMAuthGuardService,
+        ContactsService,
+        SavedSearchesService,
+        StorageService,
+        { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
+        { provide: ErrorHandler, useClass: SentryErrorHandler },
+    ],
+    bootstrap: [MainContainerComponent]
 })
 export class AppModule {
   constructor (matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {

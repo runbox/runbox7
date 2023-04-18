@@ -19,7 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 
 export class InfoParams {
     constructor(
@@ -41,7 +41,7 @@ export class InfoParams {
             <button mat-icon-button mat-dialog-close><mat-icon svgIcon="check"></mat-icon></button>
         </mat-dialog-actions>`
 })
-// tslint:disable-next-line:component-class-suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class InfoDialog {
     trustedHtml: SafeHtml;
 

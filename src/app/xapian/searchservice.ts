@@ -19,8 +19,8 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar';
 
 import { Observable, AsyncSubject, Subject, of, from } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount, distinctUntilChanged } from 'rxjs/operators';
@@ -124,7 +124,7 @@ export class SearchService {
        private messagelistservice: MessageListService) {
 
     if (typeof Worker !== 'undefined') {
-      this.indexWorker = new Worker('./index.worker', { type: 'module' });
+      this.indexWorker = new Worker(new URL('./index.worker', import.meta.url), { type: 'module' });
 
       this.indexWorker.onmessage = ({ data }) => {
         // console.log('Message from worker '),
@@ -155,7 +155,7 @@ export class SearchService {
               `${data['newMessages'].length} new email messages` :
               `New email message`;
             try {
-              // tslint:disable-next-line:no-unused-expression
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               new Notification(newMessagesTitle, {
                 body: data['newMessages'][0].from[0].name,
                 icon: 'assets/icons/icon-192x192.png',
@@ -778,7 +778,7 @@ export class SearchService {
     //
     // Abusing the fact that getDocData is called multiple times for the same message,
     // this cache ensures that at least the future calls will get the textcontent synchronously
-    // tslint:disable-next-line:member-ordering // this is temporary and only needed in this context
+    // eslint-disable-next-line @typescript-eslint/member-ordering, 
     messageTextCache = new Map<number, string>();
 
     /**

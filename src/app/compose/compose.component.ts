@@ -26,11 +26,11 @@ import { Router } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FromAddress } from '../rmmapi/from_address';
 import { Observable, Subscription } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { debounceTime, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
@@ -45,7 +45,7 @@ declare const MailParser;
 
 @Component({
     moduleId: 'angular2/app/compose/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
     templateUrl: 'compose.component.html',
     styleUrls: ['compose.component.scss']
@@ -85,7 +85,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     // to not include the recipients already picked
     filteredSuggestions: MailAddressInfo[] = [];
 
-    public formGroup: FormGroup;
+    public formGroup: UntypedFormGroup;
 
     @Input() model: DraftFormModel = new DraftFormModel();
     @Output() draftDeleted: EventEmitter<number> = new EventEmitter();
@@ -95,7 +95,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private rmmapi: RunboxWebmailAPI,
         public draftDeskservice: DraftDeskService,
         private http: HttpClient,
-        private formBuilder: FormBuilder,
+        private formBuilder: UntypedFormBuilder,
         private location: Location,
         private dialogService: DialogService,
         recipientservice: RecipientsService,

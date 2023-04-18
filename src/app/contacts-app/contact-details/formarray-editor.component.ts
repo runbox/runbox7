@@ -18,14 +18,14 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Input, OnInit, Output  } from '@angular/core';
-import { FormArray, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormGroup } from '@angular/forms';
 
 @Component({
     selector: 'app-contact-details-fa-viewer',
     templateUrl: './formarray-editor.component.html',
 })
 export class FormArrayEditorComponent implements OnInit {
-    @Input() inputFG: FormGroup;
+    @Input() inputFG: UntypedFormGroup;
     @Input() faName:  string;
 
     @Input() hidden   = true;
@@ -38,7 +38,7 @@ export class FormArrayEditorComponent implements OnInit {
     @Output() newElementClicked = new EventEmitter<any>();
     @Output() startVideoCall = new EventEmitter<string>();
 
-    faObj: FormArray;
+    faObj: UntypedFormArray;
 
     defaultTypesFor = {
         emails:    ['home', 'work'],
@@ -52,7 +52,7 @@ export class FormArrayEditorComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.faObj = this.inputFG.get(this.faName) as FormArray;
+        this.faObj = this.inputFG.get(this.faName) as UntypedFormArray;
     }
 
     removeAt(i: number): void {

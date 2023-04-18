@@ -22,13 +22,13 @@
  */
 
 import { Component } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
     template: `<mat-spinner *ngIf="!value"></mat-spinner>
                 <mat-progress-spinner *ngIf="value" [value]="value"></mat-progress-spinner>`
 })
-// tslint:disable-next-line:component-class-suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ProgressDialog {
     static progressDialogRef: MatDialogRef<ProgressDialog>;
     value: number;

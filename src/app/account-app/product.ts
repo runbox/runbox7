@@ -29,7 +29,7 @@ export class Product {
     currency:    string;
 
     constructor(properties: any) {
-        // tslint:disable-next-line:forin
+        // eslint-disable-next-line guard-for-in
         for (const key in properties) {
             this[key] = properties[key];
         }

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
 import { FolderListEntry } from '../common/folderlistentry';
@@ -28,7 +28,7 @@ import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinpu
 import { Observable } from 'rxjs';
 import { first, map, filter, take } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import {Hotkey, HotkeysService} from 'angular2-hotkeys';
+import {ExtendedKeyboardEvent, Hotkey, HotkeysService} from 'angular2-hotkeys';
 
 class FolderNode {
     children: FolderNode[];
@@ -62,7 +62,7 @@ export class RenameFolderEvent {
 @Component({
     moduleId: 'angular2/app/folder/',
     templateUrl: 'folderlist.component.html',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm-folderlist',
     styleUrls: ['folderlist.component.css']
 })

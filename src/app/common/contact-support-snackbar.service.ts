@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject, Injectable } from '@angular/core';
-import { MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar, MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA } from '@angular/material/legacy-snack-bar';
 
 @Injectable({ providedIn: 'root' })
 export class RunboxContactSupportSnackBar {
@@ -40,7 +40,7 @@ export class RunboxContactSupportSnackBar {
 </app-runbox-contact-support>
     `,
 })
-// tslint:disable-next-line:component-class-suffix // not meant to be used as a component
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class RunboxContactSupportSnackBarContent {
     error: string;
 

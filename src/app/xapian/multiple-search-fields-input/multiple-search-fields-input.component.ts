@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnChanges, Output, EventEmitter, Input } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 
 class MultipleSearchFieldsInputFormData {
   allfieldsandcontent: string = null;
@@ -36,14 +36,14 @@ class MultipleSearchFieldsInputFormData {
 })
 export class MultipleSearchFieldsInputComponent implements OnChanges {
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
 
   @Input() currentFolder: string;
   @Output() searchexpression = new EventEmitter<string>();
   @Output() close = new EventEmitter();
 
   constructor(
-    formbuilder: FormBuilder
+    formbuilder: UntypedFormBuilder
   ) {
     this.formGroup = formbuilder.group(new MultipleSearchFieldsInputFormData());
     this.formGroup.valueChanges.subscribe(() => this.buildSearchExpression());

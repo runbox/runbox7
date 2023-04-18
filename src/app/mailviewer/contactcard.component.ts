@@ -25,7 +25,7 @@ import { ContactsService } from '../contacts-app/contacts.service';
 import { AppSettingsService } from '../app-settings';
 
 @Component({
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm7-contact-card',
     template: `
         <span [ngStyle]="{ 'text-decoration': contactsEntry ? 'underline' : '' }">

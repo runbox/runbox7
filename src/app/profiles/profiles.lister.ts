@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { RMM } from '../rmm';
 import { MobileQueryService, ScreenSize } from '../mobile-query.service';

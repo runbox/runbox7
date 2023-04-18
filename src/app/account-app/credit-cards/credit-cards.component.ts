@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { StripeAddCardDialogComponent } from './stripe-add-card-dialog.component';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { ReplaySubject } from 'rxjs';

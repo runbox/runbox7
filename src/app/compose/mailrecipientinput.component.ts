@@ -18,11 +18,11 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { MatAutocomplete } from '@angular/material/autocomplete';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacyAutocomplete as MatAutocomplete } from '@angular/material/legacy-autocomplete';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ENTER } from '@angular/cdk/keycodes';
 import { debounceTime } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
@@ -34,14 +34,14 @@ const COMMA = 188;
 
 @Component({
     moduleId: 'angular2/app/compose/',
-    // tslint:disable-next-line:component-selector
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mailrecipient-input',
     templateUrl: 'mailrecipientinput.component.html'
 })
 export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
-    searchTextFormControl: FormControl = new FormControl();
+    searchTextFormControl: UntypedFormControl = new UntypedFormControl();
     recipientsList: MailAddressInfo[];
 
     separatorKeysCodes = [COMMA, ENTER];

@@ -18,8 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 
 import { CalendarSettings } from './calendar-settings';
 import { RunboxCalendar } from './runbox-calendar';
@@ -36,7 +36,7 @@ import ICAL from 'ical.js';
 export class EventEditorDialogComponent {
     event: RunboxCalendarEvent;
     calendars: RunboxCalendar[];
-    calendarFC = new FormControl('', Validators.required);
+    calendarFC = new UntypedFormControl('', Validators.required);
     event_start: Date;
     event_end: Date;
     event_title: string;
