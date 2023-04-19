@@ -91,7 +91,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "^2.0.0",
     "npm": "^7.3.0",
-    "start-server-and-test": "^1.11.0",
+    "start-server-and-test": "^2.0.0",
     "ts-loader": "^9.4.2",
     "ts-node": "~10.9.1",
     "tslib": "^2.5.0",
