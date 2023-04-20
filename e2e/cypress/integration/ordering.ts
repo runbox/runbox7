@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe('Ordering products', () => {
+describe('Ordering products', { testIsolation: false }, () => {
     it('can place an order', () => {
         cy.visit('/account/plans');
 
