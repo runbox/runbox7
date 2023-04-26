@@ -266,26 +266,6 @@
     </mat-expansion-panel>
     <mat-divider></mat-divider>
 
-    <!-- Used when forwarding mail - do not delete -->
-
-    <span style="display: none" #forwardMessageHeader>
-      From: {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; <br />
-      Time: {{mailObj.date | date:'yyyy-MM-dd HH:mm'}} <br />
-      Subject: {{mailObj.subject}} <br />
-      <span *ngIf="mailObj.to">
-        To: <span *ngFor="let to of mailObj.to">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </span> <br />
-      <span *ngIf="mailObj.cc">
-        Cc: <span *ngFor="let to of mailObj.cc">{{to.name}} &lt;{{to.address}}&gt;</span>
-      </span> <br />
-    </span>
-
-    <!-- Used when replying to mail - do not delete -->
-
-    <span style="display: none" #replyMessageHeader>
-      On {{mailObj.date | date:'yyyy-MM-dd HH:mm'}}, {{mailObj.from[0].name}} &lt;{{mailObj.from[0].address}}&gt; wrote:
-    </span>
-
     <div class="htmlButtons" *ngIf="mailContentHTML">
       <span style="flex-grow: 1"></span>
       <span>

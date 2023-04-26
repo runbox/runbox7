@@ -30,6 +30,9 @@ import { RMM } from '../rmm';
 import { from, of, BehaviorSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
+import moment from 'moment';
+import 'moment-timezone';
+
 export class ForwardedAttachment {
     constructor(
         public messageId: string,
@@ -125,25 +128,27 @@ export class DraftFormModel {
         ret.setFromForResponse(mailObj, froms);
         ret.setSubjectForResponse(mailObj, 'Re: ');
 
-        let mailDate: Date = mailObj.date;
-        const timezoneOffset: number = mailDate.getTimezoneOffset();
-
-        mailDate = new Date(mailDate.getTime() - timezoneOffset * 60 * 1000);
-        const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-            ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-            ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
+        const localTZ = moment.tz.guess();
+        const replyHeaderHTML = 'On '
+            + moment(mailObj.date, localTZ).format('yyyy-MM-DD HH:mm Z')
+            + ' ' + moment.tz(localTZ).format('z') 
+            + ', '
+            + (mailObj.from[0].name
+                ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt; wrote:`
+                : `${mailObj.from[0].address} wrote:`);
 
         if (!useHTML && mailObj.rawtext) {
-            ret.msg_body = '\n' + mailDate.toISOString().substr(0, 'yyyy-MM-ddTHH:mm'.length).replace('T', ' ') + ' ' +
-                timezoneOffsetString + ' ' + sender[0].nameAndAddress + ':\n' +
-                mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
+            var replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
+            replyHeaderText = replyHeaderText.replaceAll('&gt;', '>');
+            ret.msg_body = '\n' + replyHeaderText + '\n'
+          + mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
         } else if (!useHTML && !mailObj.rawtext) {
             ret.msg_body = '';
         } else {
             ret.html =
                 `<br /><div style="padding-left: 10px; border-left: black solid 1px">
                     <hr style="width: 100%" />
-                    ${mailObj.origReplyHeaderHTML}<br />
+                    ${replyHeaderHTML}<br />
                     ${mailObj.sanitized_html}
                 </div>`;
             ret.useHTML = true;
@@ -163,17 +168,36 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.setFromForResponse(mailObj, froms);
 
+        const fwdFromNameStr = mailObj.from[0].name
+            ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt;`
+            : `${mailObj.from[0].address}`;
+        const localTZ = moment.tz.guess();
+        const fwdDateStr = moment(mailObj.date, localTZ).local().format('yyyy-MM-DD HH:mm Z ') + moment.tz(localTZ).format('z');
+        const fwdSubjectStr = `Subject: ${mailObj.subject}`;
+        const fwdTo = mailObj.to ? mailObj.to.map((to) => `"${to.name}" &lt;${to.address}&gt;`) : [];
+        const fwdCC = mailObj.cc ? mailObj.cc.map((cc) => `"${cc.name}" &lt;${cc.address}&gt;`) : [];
+        const fwdHeaderHTML = `From: ${fwdFromNameStr} <br />
+Time: ${fwdDateStr} <br />
+${fwdSubjectStr} <br />`
+            + (fwdTo.length > 0 ? `
+<span>To: <span>` + fwdTo.join('</span><span>') + '</span></span> <br />' : '')
+            + (fwdCC.length > 0 ? `
+<span>CC: <span>` + fwdCC.join('</span><span>') + '</span></span> <br />' : '');
         ret.setSubjectForResponse(mailObj, 'Fwd: ');
         if (!useHTML) {
+            var fwdHeaderText = fwdHeaderHTML.replaceAll(' <br />', '');
+            var fwdHeaderText = fwdHeaderText.replaceAll(/<\/?span>/g, '');
+            var fwdHeaderText = fwdHeaderText.replaceAll('&lt;', '<');
+            var fwdHeaderText = fwdHeaderText.replaceAll('&gt;', '>');
             ret.msg_body = '\n\n----------------------------------------------\nForwarded message:\n' +
-                mailObj.origMailHeaderText + '\n\n' + mailObj.rawtext;
+                fwdHeaderText + '\n\n\n' + mailObj.rawtext;
         } else {
             ret.html =
                 `<br />
-                <hr style="width: 100%" />
-                ---------- Forwarded message ----------<br />
-                ${mailObj.origMailHeaderHTML}<br />
-                ${mailObj.sanitized_html}`;
+<hr style="width: 100%" />
+---------- Forwarded message ----------<br />
+${fwdHeaderHTML}<br />
+${mailObj.sanitized_html}`;
             ret.useHTML = true;
         }
         ret.attachments = mailObj.attachments.map((attachment, ndx) =>

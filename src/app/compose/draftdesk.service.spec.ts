@@ -24,15 +24,10 @@ import { MailAddressInfo } from '../common/mailaddressinfo';
 
 describe('DraftDesk', () => {
     const mailDate = new Date(2017, 6, 1);
-    const timezoneOffset: number = mailDate.getTimezoneOffset();
-    const timezoneOffsetString: string = 'GMT' + (timezoneOffset <= 0 ? '+' : '-') +
-        ('' + (100 + (Math.abs(timezoneOffset) / 60))).substr(1, 2) + ':' +
-        ('' + (100 + (Math.abs(timezoneOffset) % 60))).substr(1, 2);
 
-    it('Reply: Address with object, single reply', (done) => {
-        console.log('Reply test: Address with object, single reply');
+    it('Forward: froms, plain text', (done) => {
         // fromObj, identities, all (t/f), html (t/f)
-        const draft = DraftFormModel.reply({
+        const draft = DraftFormModel.forward({
             headers: {
                 'message-id': 'themessageid12123abcdef',
             },
@@ -43,6 +38,7 @@ describe('DraftDesk', () => {
             to: [
                 {address: 'to@runbox.com', name: 'To'}
             ],
+            attachments: [],
             date: mailDate,
             subject: 'Test subject',
             text: 'blabla\nabcde',
@@ -50,12 +46,67 @@ describe('DraftDesk', () => {
             html: '<p>blabla</p><p>abcde</p>'
         },
         [ FromAddress.fromEmailAddress('to@runbox.com')],
-        false, false);
+        false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Fwd: Test subject');
         expect(draft.from).toBe('to@runbox.com');
-        expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
-        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        // expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
+        expect(draft.msg_body).toBe(
+            `\n\n----------------------------------------------\nForwarded message:
+From: "From" <from@runbox.com>
+Time: 2017-07-01 00:00 +00:00 GMT
+Subject: Test subject
+To: "To" <to@runbox.com>
+
+
+blabla\nabcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Forward: froms, html text', (done) => {
+        // fromObj, identities, all (t/f), html (t/f)
+        const draft = DraftFormModel.forward({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            attachments: [],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>',
+            sanitized_html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        true);
+
+        expect(draft.subject).toBe('Fwd: Test subject');
+        expect(draft.from).toBe('to@runbox.com');
+        // expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
+        expect(draft.html).toBe(
+            `<br />
+<hr style="width: 100%" />
+---------- Forwarded message ----------<br />
+From: "From" &lt;from@runbox.com&gt; <br />
+Time: 2017-07-01 00:00 +00:00 GMT <br />
+Subject: Test subject <br />
+<span>To: <span>"To" &lt;to@runbox.com&gt;</span></span> <br /><br />
+<p>blabla</p><p>abcde</p>`);
+// <br />
+// <hr style="width: 100%" />
+// ---------- Forwarded message ----------<br />
+// From: "From" &lt;from@runbox.com&gt; <br/>
+// Time: 2017-07-01 00:00 <br/>
+// Subject: Test subject <br/>
+// <span>To: <span>"To" &lt;to@runbox.com&gt;</span></span> <br /><br />
+// <p>blabla</p><p>abcde</p>`);
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -92,7 +143,74 @@ describe('DraftDesk', () => {
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
-        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Reply: Address with object, single reply', (done) => {
+        console.log('Reply test: Address with object, single reply');
+        // fromObj, identities, all (t/f), html (t/f)
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        false, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.from).toBe('to@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
+        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Reply: Address with object, single reply-to', (done) => {
+        console.log('Reply test: Address with object, single reply-to');
+        // fromObj, identities, all (t/f), html (t/f)
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+                'reply-to': {
+                    'text': 'Reply-To <reply-to@runbox.com>',
+                    'value': [{
+                        'name': 'Reply-To',
+                        'address': 'reply-to@runbox.com'
+                    }]
+                }
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ]
+            ,
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ FromAddress.fromEmailAddress('to@runbox.com')],
+        false, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.from).toBe('to@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
+        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -135,7 +253,7 @@ describe('DraftDesk', () => {
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
         expect(draft.to[1].nameAndAddress).toBe('"To-Extra" <to-extra@runbox.com>');
         expect(draft.cc[0].nameAndAddress).toBe('"CC" <cc@runbox.com>');
-        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -164,7 +282,7 @@ describe('DraftDesk', () => {
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
-        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -192,7 +310,7 @@ describe('DraftDesk', () => {
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
-        expect(draft.msg_body).toBe(`\n2017-07-01 00:00 ${timezoneOffsetString} "From" <from@runbox.com>:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -239,9 +357,9 @@ describe('DraftDesk', () => {
         expect(replydraft.subject).toBe('Re: Test subject');
         expect(replydraft.from).toBe('from@runbox.com');
         expect(replydraft.to[0].nameAndAddress).toBe('to@runbox.com');
-        expect(replydraft.msg_body).toBe(`\n2017-07-02 00:00 ${timezoneOffsetString} to@runbox.com:\n` +
+        expect(replydraft.msg_body).toBe(`\nOn 2017-07-02 00:00 +00:00 GMT, to@runbox.com wrote:\n` +
                                          '> \n' +
-                                         `> 2017-07-01 00:00 ${timezoneOffsetString} from@runbox.com:\n` +
+          `> On 2017-07-01 00:00 +00:00 GMT, from@runbox.com wrote:\n` +
                                          '>> blabla\n>> abcde');
         expect(replydraft.isUnsaved()).toBe(true);
         done();
