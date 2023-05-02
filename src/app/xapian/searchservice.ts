@@ -132,7 +132,7 @@ export class SearchService {
         if (data['action'] === PostMessageAction.localSearchActivated) {
           this.localSearchActivated = data['value'];
         } else if (data['action'] === 'indexUpdated') {
-          this.indexUpdatedSubject.next();
+          this.indexUpdatedSubject.next(undefined);
         } else if (data['action'] === PostMessageAction.refreshContentCache) {
           this.rmmapi.deleteCachedMessageContents(data['messageId']);
         } else if (data['action'] === PostMessageAction.openProgressSnackBar) {
@@ -234,7 +234,7 @@ export class SearchService {
             // console.log(FS.stat(`${this.partitionsdir}/${f}`));
           });
         this.api.reloadXapianDatabase();
-        this.indexReloadedSubject.next();
+        this.indexReloadedSubject.next(undefined);
       });
     });
     this.indexReloadedSubject.subscribe(() => {
@@ -657,7 +657,7 @@ export class SearchService {
             if (totalSize === 0) {
               // console.log('No extra search index partitions');
               this.openDBOnWorker();
-              this.indexReloadedSubject.next();
+              this.indexReloadedSubject.next(undefined);
             }
             return totalSize;
           }),
@@ -767,7 +767,7 @@ export class SearchService {
           tap(async () => {
             this.partitionDownloadProgress = null;
             this.openDBOnWorker();
-            this.indexReloadedSubject.next();
+            this.indexReloadedSubject.next(undefined);
           })
         );
     }

@@ -40,9 +40,7 @@
 
 /** Evergreen browsers require these. **/
 // Used for reflect-metadata in JIT. If you use AOT (and only Angular decorators), you can remove.
-import 'core-js/es7/reflect';
-
-
+import 'core-js/full/reflect';
 
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
@@ -57,4 +55,4 @@ import 'zone.js';  // Included with Angular CLI.
 
 // Old Edge version don't support Array.flat()
 
-import 'array-flat-polyfill'; // https://github.com/jonathantneal/array-flat-polyfill
+// import 'array-flat-polyfill'; // https://github.com/jonathantneal/array-flat-polyfill

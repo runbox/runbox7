@@ -20,5 +20,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "useDefineForClassFields": false
-  }
+  },
+  "include": [
+     "./src/"
+  ],
 }

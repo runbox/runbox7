@@ -237,7 +237,7 @@ export class CalendarAppComponent implements OnDestroy {
 
         // else nothing actually visually changes until the next sync!
         this.cdr.detectChanges();
-        this.refresh.next();
+        this.refresh.next(undefined);
     }
 
     importEventClicked(): void {
