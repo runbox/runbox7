@@ -40,6 +40,7 @@ import { MessageCache } from './messagecache';
 import { LRUMessageCache } from './lru-message-cache';
 import moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
+import { PreferencesResult } from '../common/preferences.service';
 
 export class MessageFields {
     id: number;
@@ -818,6 +819,18 @@ export class RunboxWebmailAPI {
 
     getProductDomain(apid: number): Observable<string> {
         return this.http.get('/rest/v1/account_product/product_domain/' + apid).pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    getPreferences(): Observable<PreferencesResult> {
+        return this.http.get('/rest/v1/webmail/preferences').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    setPreferences(level, preferences): Observable<PreferencesResult> {
+        return this.http.post('/rest/v1/webmail/preferences', preferences).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
     }

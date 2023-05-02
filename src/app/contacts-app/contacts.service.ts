@@ -28,17 +28,8 @@ import { take } from 'rxjs/operators';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { Md5 } from 'ts-md5/dist/md5';
-import { AppSettings, AppSettingsService } from '../app-settings';
-
-export class Settings {
-    get showDragHelpers(): boolean {
-        return !!localStorage.getItem('contacts.showDragHelpers');
-    }
-
-    set showDragHelpers(value: boolean) {
-        localStorage.setItem('contacts.showDragHelpers', value ? '1' : '');
-    }
-}
+import { AppSettings } from '../app-settings';
+import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 
 enum Activity {
     RefreshingContacts = 'Synchronizing contacts',
@@ -124,18 +115,18 @@ export class ContactsService implements OnDestroy {
     errorLog           = new Subject<HttpErrorResponse>();
     migratingContacts  = 0;
 
-    settings = new Settings();
     syncInterval: any;
     syncIntervalSeconds = 180;
     syncToken: string;
     lastUpdate: moment.Moment;
 
+    showDragHelpers = false;
     avatarCache: AvatarCache = AvatarCache.empty();
     activities = new BackgroundActivityService<Activity>();
 
     constructor(
         private rmmapi: RunboxWebmailAPI,
-        private settingsService: AppSettingsService,
+        private preferenceService: PreferencesService,
         private storage: StorageService,
     ) {
         storage.get('contactsCache').then(cache => {
@@ -152,15 +143,18 @@ export class ContactsService implements OnDestroy {
             this.reload();
         });
 
-        storage.get('avatarCache').then(cache => {
-            this.avatarCache.load(cache);
-            this.avatarCache.changed.subscribe(() => storage.set('avatarCache', this.avatarCache.toStorable()));
-            this.settingsService.settingsSubject.subscribe(settings => {
-                if (this.avatarCache.source !== settings.avatars) {
-                    this.avatarCache.trash();
-                }
-            });
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.showDragHelpers = prefs.get(`${this.preferenceService.prefGroup}:showDragHelpers`) === 'true';
+            this.avatarCache.load(prefs.get(`${this.preferenceService.prefGroup}:avatarCache`));
+            if (prefs.get(`${this.preferenceService.prefGroup}:avatarSource`)
+                && this.avatarCache.source !== prefs.get(`${this.preferenceService.prefGroup}:avatarSource`)) {
+                this.avatarCache = AvatarCache.empty();
+                this.avatarCache.source = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
+                // don't trash, else we'll trigger changed!
+            }
         });
+      this.avatarCache.changed.subscribe(() =>
+        this.preferenceService.set(DefaultPrefGroups.Global, 'avatarCache', this.avatarCache.toStorable()));
     }
 
     apiErrorHandler(e: HttpErrorResponse): void {
@@ -183,7 +177,8 @@ export class ContactsService implements OnDestroy {
             }
             for (const e of c.emails) {
                 byEmail[e.value] = c;
-                this.avatarCache.trash(e.value);
+                // Just load this from disc as-is !?
+                // this.avatarCache.trash(e.value);
             }
         }
         this.contactCategories.next(Object.keys(categories));
@@ -241,6 +236,11 @@ export class ContactsService implements OnDestroy {
         return promise;
     }
 
+    saveDragHelpers(): void {
+        const setting = this.showDragHelpers ? 'true' : 'false';
+        this.preferenceService.set(this.preferenceService.prefGroup, 'showDragHelpers', setting);
+    }
+
     saveCache(contacts: Contact[]): void {
         this.storage.set('contactsCache', {
             contacts:  contacts.map(c => [c.url, c.vcard()]),
@@ -249,7 +249,7 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-  async saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
+    async saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
         this.activities.begin(Activity.SavingContact);
 
         // In case we're editing a hidden contact (settings only)
@@ -326,7 +326,7 @@ export class ContactsService implements OnDestroy {
 
     // returns an URL or null if no avatar is available
     async lookupAvatar(email: string): Promise<string> {
-        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.NONE) {
+        if (this.avatarCache.source === AppSettings.AvatarSource.NONE) {
             return Promise.resolve(null);
         }
 
@@ -341,7 +341,7 @@ export class ContactsService implements OnDestroy {
             return Promise.resolve(photoUrl);
         }
 
-        if (this.settingsService.settings.avatars === AppSettings.AvatarSource.LOCAL) {
+        if (this.avatarCache.source === AppSettings.AvatarSource.LOCAL) {
             return Promise.resolve(null);
         }
 

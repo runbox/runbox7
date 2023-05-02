@@ -37,11 +37,14 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-import { AppSettingsService } from '../app-settings';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
+import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 
 declare const tinymce: any;
 declare const MailParser;
+
+const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
+const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
 
 @Component({
     moduleId: 'angular2/app/compose/',
@@ -86,6 +89,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     filteredSuggestions: MailAddressInfo[] = [];
 
     public formGroup: UntypedFormGroup;
+    showPopularRecipients = true;
+    composeInHTMLByDefault = false;
 
     @Input() model: DraftFormModel = new DraftFormModel();
     @Output() draftDeleted: EventEmitter<number> = new EventEmitter();
@@ -99,7 +104,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         private location: Location,
         private dialogService: DialogService,
         recipientservice: RecipientsService,
-        public settingsService: AppSettingsService,
+        public preferenceService: PreferencesService,
         private _ngZone: NgZone,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
@@ -108,6 +113,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         recipientservice.recentlyUsed.subscribe(suggestions => {
             this.suggestedRecipients = suggestions;
             this.updateSuggestions();
+        });
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
+            this.composeInHTMLByDefault = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_DEFAULT_HTML_COMPOSE}`) === 'true';
         });
     }
 
@@ -133,6 +142,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.model.html = this.signature.concat('\n\n', this.model.html || this.model.msg_body);
                     }
                 }
+            }
+            if (this.composeInHTMLByDefault) {
+                this.model.useHTML = true;
             }
             // This.. shouldnt happen as only have content if reply/fwd
             if (this.model.useHTML && !this.model.html) {
@@ -497,6 +509,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
             };
             this.tinymce_plugin.create(options);
+            this.preferenceService .set(DefaultPrefGroups.Global, LOCAL_STORAGE_DEFAULT_HTML_COMPOSE, 'true');
         } else {
             if (this.editor) {
                 this.model.html = this.editor.getContent();
@@ -510,6 +523,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     textContent
                 );
             }
+            this.preferenceService.set(DefaultPrefGroups.Global, LOCAL_STORAGE_DEFAULT_HTML_COMPOSE, 'false');
         }
     }
 

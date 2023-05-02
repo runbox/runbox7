@@ -1,8 +1,10 @@
 /// <reference types="cypress" />
 
 describe('Composing emails', () => {
-    beforeEach(() => {
-        localStorage.setItem('localSearchPromptDisplayed221', 'true');
+  beforeEach(() => {
+      localStorage.setItem('221:Desktop:localSearchPromptDisplayed', JSON.stringify('true'));
+      localStorage.setItem('221:Mobile:localSearchPromptDisplayed', JSON.stringify('true'));
+      localStorage.setItem('221:preference_keys', '["Desktop:localSearchPromptDisplayed","Mobile:localSearchPromptDisplayed"]');
     });
 
     Cypress.config('requestTimeout', 100000);

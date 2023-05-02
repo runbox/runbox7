@@ -61,6 +61,7 @@ import { ImportDialogComponent } from './import-dialog.component';
 import { CalendarEditorDialogComponent } from './calendar-editor-dialog.component';
 import { CalendarSettingsDialogComponent } from './calendar-settings-dialog.component';
 import { EventTitleFormatter } from './event-title-formatter';
+import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 
 import '../sentry';
 
@@ -98,6 +99,8 @@ export class CalendarAppComponent implements OnDestroy {
     events:       RunboxCalendarEvent[] = [];
     shown_events: RunboxCalendarEvent[] = [];
 
+    prefGroup = DefaultPrefGroups.Global;
+
     constructor(
         public  calendarservice: CalendarService,
         private cdr:      ChangeDetectorRef,
@@ -108,12 +111,16 @@ export class CalendarAppComponent implements OnDestroy {
         private router:   Router,
         private snackBar: MatSnackBar,
         private usage:    UsageReportsService,
+        private preferenceService: PreferencesService,
+
     ) {
-        const storedSettings = localStorage.getItem('calendarSettings');
-        if (storedSettings) {
-            this.settings = new CalendarSettings(JSON.parse(storedSettings));
-            this.setView(this.settings.lastUsedView);
-        }
+        preferenceService.preferences.subscribe((prefs) => {
+            const storedSettings = prefs.get(`${this.prefGroup}:calendarSettings`);
+            if (storedSettings) {
+                this.settings = new CalendarSettings(storedSettings);
+                this.setView(this.settings.lastUsedView);
+            }
+        });
         this.calendarservice.errorLog.subscribe(e => this.showError(e));
         this.calendarservice.calendarSubject.subscribe((calendars) => {
             this.calendars = calendars.sort((a, b) => a.displayname.localeCompare(b.displayname));
@@ -284,7 +291,7 @@ export class CalendarAppComponent implements OnDestroy {
     openSettings(): void {
         const dialogRef = this.dialog.open(CalendarSettingsDialogComponent, { data: this.settings });
         dialogRef.afterClosed().subscribe(result => {
-            localStorage.setItem('calendarSettings', JSON.stringify(this.settings));
+            this.preferenceService.set(this.prefGroup, 'calendarSettings', this.settings);
             // we need to do this weird dance to make the calendar pick up
             // potential changes to settings.weekStartsOnSunday
             const desiredView = this.view;
@@ -323,25 +330,27 @@ export class CalendarAppComponent implements OnDestroy {
 
     setView(view: RunboxCalendarView): void {
         this.view = view;
-        this.settings.lastUsedView = this.view;
-        localStorage.setItem('calendarSettings', JSON.stringify(this.settings));
+        if (this.settings.lastUsedView !== view) {
+            this.settings.lastUsedView = this.view;
+            this.preferenceService.set(this.prefGroup, 'calendarSettings', this.settings);
 
-        switch (this.view) {
-            case RunboxCalendarView.Overview: {
-                this.mwlView = null;
-                break;
-            }
-            case RunboxCalendarView.Month: {
-                this.mwlView = CalendarView.Month;
-                break;
-            }
-            case RunboxCalendarView.Week: {
-                this.mwlView = CalendarView.Week;
-                break;
-            }
-            case RunboxCalendarView.Day: {
-                this.mwlView = CalendarView.Day;
-                break;
+            switch (this.view) {
+                case RunboxCalendarView.Overview: {
+                    this.mwlView = null;
+                    break;
+                }
+                case RunboxCalendarView.Month: {
+                    this.mwlView = CalendarView.Month;
+                    break;
+                }
+                case RunboxCalendarView.Week: {
+                    this.mwlView = CalendarView.Week;
+                    break;
+                }
+                case RunboxCalendarView.Day: {
+                    this.mwlView = CalendarView.Day;
+                    break;
+                }
             }
         }
     }

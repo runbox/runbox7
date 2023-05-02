@@ -17,62 +17,106 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AppSettingsService } from '../app-settings';
+import { PreferencesResult, PreferencesService } from '../common/preferences.service';
+import { AppSettings } from '../app-settings';
 import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
 import { RunboxWebmailAPI, RunboxMe, ContactSyncResult } from '../rmmapi/rbwebmail';
+import { ScreenSize, MobileQueryService } from '../mobile-query.service';
 import { of } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { ReplaySubject } from 'rxjs';
+
+class MockPrefService {
+  prefs = new Map<string, any>();
+  preferences: ReplaySubject<Map<string, any>> = new ReplaySubject(1);
+  public prefGroup = 'Desktop';
+
+  set(level: string, key: string, entry: any) {
+    this.prefs.set(`${level}:${key}`, entry);
+    this.preferences.next(this.prefs);
+  }
+}
+
+class MockRMMAPI {
+
+  defaultP = true;
+  prefs =  {'Desktop': {'version': 1, 'entries': new Map<string, any>()},
+                 'Global': {'version': 1, 'entries': new Map<string, any>()}};
+  me = of({ uid: 13 } as RunboxMe);
+
+  syncContacts() {
+    return of(new ContactSyncResult(`token-${(new Date()).getTime()}`, [
+    Contact.fromVcard(
+      'bleh', 'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:test\r\nEMAIL;TYPE=home:test@runbox.com\r\n'
+        + 'UID:dead-cafe\r\nPHOTO:http://test.url\r\nEND:VCARD'
+    )
+    ], [], 0));
+  }
+}
 
 describe('ContactsService', () => {
-    const rmmapi = <unknown>{
-        me: of({ uid: 13 } as RunboxMe),
-        syncContacts: (_) => of(new ContactSyncResult(`token-${(new Date()).getTime()}`, [
-          Contact.fromVcard(
-              'bleh', 'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:test\r\nEMAIL;TYPE=home:test@runbox.com\r\n'
-                      + 'UID:dead-cafe\r\nPHOTO:http://test.url\r\nEND:VCARD'
-          )
-        ], [], 0)),
-    } as RunboxWebmailAPI;
+  const mq = <unknown> {
+    screenSize: ScreenSize.Desktop,
+    screenSizeChanged: of(ScreenSize.Desktop)
+  } as MobileQueryService;
 
-    it('should allow looking up avatars according to settings', async () => {
-        const storage = new StorageService(rmmapi);
-        storage.set('webmailSettings', { avatars: 'remote' });
-        const sut = new ContactsService(rmmapi, new AppSettingsService(storage), storage);
-        await new Promise(resolve => setTimeout(resolve, 0));
+  let rmmapi: any;
+  let storage: any;
+  const prefService = <unknown>new MockPrefService() as PreferencesService;
+  let sut: any;
 
-        // grab gravatar if there's no local picture
-        let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
-        expect(avatarUrl).toMatch(/gravatar/);
+  beforeEach(async () => {
+    rmmapi = <unknown>new MockRMMAPI() as RunboxWebmailAPI;
+    storage = new StorageService(rmmapi);
+    sut = new ContactsService(rmmapi, prefService, storage);
+  });
 
-        // local avatar wins over gravatar
-        avatarUrl = await sut.lookupAvatar('test@runbox.com');
-        expect(avatarUrl).toMatch(/test.url/);
+  it('should allow looking up remote avatars', () => {
+    prefService.set(prefService.prefGroup, 'avatarSource', 'remote' );
 
-        avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
-        expect(avatarUrl).toBeFalsy();
+    prefService.preferences.pipe(take(1)).subscribe(async _ => {
+      // grab gravatar if there's no local picture
+      let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
+      expect(avatarUrl).toMatch(/gravatar/);
 
-        storage.set('webmailSettings', { avatars: 'local' });
-        await new Promise(resolve => setTimeout(resolve, 0));
+      // local avatar wins over gravatar
+      avatarUrl = await sut.lookupAvatar('test@runbox.com');
+      expect(avatarUrl).toMatch(/test.url/);
 
-        avatarUrl = await sut.lookupAvatar('test@runbox.com');
-        expect(avatarUrl).toMatch(/test.url/);
+      avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
+      expect(avatarUrl).toBeFalsy();
+    });
+  });
 
-        avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
-        expect(avatarUrl).toBeFalsy();
+  it('should allow looking up local avatars', () => {
+    prefService.set(prefService.prefGroup, 'avatarSource', 'local');
+    prefService.preferences.pipe(take(1)).subscribe(async _ => {
+      let avatarUrl = await sut.lookupAvatar('test@runbox.com');
+      expect(avatarUrl).toMatch(/test.url/);
 
-        storage.set('webmailSettings', { avatars: 'none' });
-        await new Promise(resolve => setTimeout(resolve, 0));
+      avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
+      expect(avatarUrl).toBeFalsy();
+    });
+  });
 
-        avatarUrl = await sut.lookupAvatar('test@runbox.com');
-        expect(avatarUrl).toBeFalsy();
+  it('should allow looking up avatars set to none', () => {
+    prefService.set(prefService.prefGroup, 'avatarSource', 'none');
+    prefService.preferences.pipe(take(1)).subscribe(async _ => {
+      const avatarUrl = await sut.lookupAvatar('test@runbox.com');
+      expect(avatarUrl).toBeFalsy();
+    });
+  });
 
-        // can enable it back again
-        storage.set('webmailSettings', { avatars: 'remote' });
-        await new Promise(resolve => setTimeout(resolve, 0));
-        avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
-        expect(avatarUrl).toMatch(/gravatar/);
-        avatarUrl = await sut.lookupAvatar('test@runbox.com');
-        expect(avatarUrl).toMatch(/test.url/);
+  it('should allow resetting avatar source to remote', () => {
+    // can enable it back again
+    prefService.set(prefService.prefGroup, 'avatarSource', 'remote');
+    prefService.preferences.pipe(take(1)).subscribe(async _ => {
+      let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
+      expect(avatarUrl).toMatch(/gravatar/);
+      avatarUrl = await sut.lookupAvatar('test@runbox.com');
+      expect(avatarUrl).toMatch(/test.url/);
+    });
     });
 });

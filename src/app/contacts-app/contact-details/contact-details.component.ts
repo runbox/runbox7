@@ -29,11 +29,12 @@ import { filter, take } from 'rxjs/operators';
 import { ContactsService } from '../contacts.service';
 import { MobileQueryService } from '../../mobile-query.service';
 import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
-import { AppSettings, AppSettingsService } from '../../app-settings';
+import { AppSettings } from '../../app-settings';
 import { DraftDeskService } from '../../compose/draftdesk.service';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { OnscreenComponent } from '../../onscreen/onscreen.component';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { PreferencesService } from '../../common/preferences.service';
 
 @Component({
     selector: 'app-contact-details',
@@ -63,6 +64,7 @@ export class ContactDetailsComponent {
     kind = ContactKind;
 
     contactIcon: string;
+    avatarSource: string;
 
     contactIsDragged = false;
     memberIsDragged  = false;
@@ -72,7 +74,7 @@ export class ContactDetailsComponent {
     constructor(
         public dialog: MatDialog,
         public mobileQuery: MobileQueryService,
-        public settingsService: AppSettingsService,
+        public preferenceService:  PreferencesService,
         private fb: UntypedFormBuilder,
         private rmmapi: RunboxWebmailAPI,
         private router: Router,
@@ -83,6 +85,10 @@ export class ContactDetailsComponent {
         private location: Location,
     ) {
         this.contactForm = this.createForm();
+
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
+        });
 
         this.route.params.subscribe(params => {
             const contactid = params.id;

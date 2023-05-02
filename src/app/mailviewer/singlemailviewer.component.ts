@@ -49,6 +49,7 @@ import { ContactsService } from '../contacts-app/contacts.service';
 import { Contact, ContactKind } from '../contacts-app/contact';
 import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
+import { PreferencesService } from '../common/preferences.service';
 // import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
 
 // const DOMPurify = require('dompurify');
@@ -135,6 +136,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     private supportSnackBar: RunboxContactSupportSnackBar,
     private snackBar: MatSnackBar,
     private contactsservice: ContactsService,
+    private preferenceService: PreferencesService,
   ) {
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
       // set all elements owning target to target=_blank
@@ -146,6 +148,16 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.contactsservice.contactsSubject.subscribe(contacts => {
       console.log('MailViewer: got the contacts!');
       this.contacts = contacts;
+    });
+    this.preferenceService.preferences.subscribe((prefs) => {
+      this.showImagesDecision = prefs.get(`${this.preferenceService.prefGroup}:${showImagesDecisionKey}`);
+      this.showHTMLDecision = prefs.get(`${this.preferenceService.prefGroup}:${showHtmlDecisionKey}`);
+      const storedHeightPercentage  = parseInt(prefs.get(`${this.preferenceService.prefGroup}:${resizerPercentageKey}`), 10);
+      this.previousHeightPercentage = storedHeightPercentage > 100
+        ? 100
+        : storedHeightPercentage < 0
+        ? 0
+        : storedHeightPercentage;
     });
   }
 
@@ -190,15 +202,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public ngOnInit() {
     this.messageActionsHandler.mailViewerComponent = this;
-    this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
+    // this.showHTMLDecision = localStorage.getItem(showHtmlDecisionKey);
     // Update 2020-12, now preferring resizerPercentageKey
-    this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
-    const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
-    this.previousHeightPercentage = storedHeightPercentage > 100
-      ? 100
-      : storedHeightPercentage < 0
-        ? 0
-      : storedHeightPercentage;
+    // this.previousHeight = parseInt(localStorage.getItem(resizerHeightKey), 10);
+    // const storedHeightPercentage  = parseInt(localStorage.getItem(resizerPercentageKey), 10);
+    // this.previousHeightPercentage = storedHeightPercentage > 100
+    //   ? 100
+    //   : storedHeightPercentage < 0
+    //     ? 0
+    //   : storedHeightPercentage;
   }
 
   public ngAfterViewInit() {
@@ -287,7 +299,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
 
       decisionObservable.subscribe(result => {
-        localStorage.setItem(showHtmlDecisionKey, result);
+        this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
         this.showHTMLDecision = result;
         this.showHTML = true;
       });
@@ -315,12 +327,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     if (this.showHTML) {
       this.showHTMLDecision = 'alwaysshowhtml';
-      localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
+      this.preferenceService.set(this.preferenceService.prefGroup,
+                                 showHtmlDecisionKey, this.showHTMLDecision);
     }
 
     if (this.showImages) {
       this.showImagesDecision = 'alwaysshowimages';
-      localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
+      this.preferenceService.set(this.preferenceService.prefGroup,
+                                 showImagesDecisionKey, this.showImagesDecision);
     }
     this.savedAlways = true;
     this.snackBar.open('Setting saved for all senders', 'OK', {
@@ -575,17 +589,19 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   saveShowHTMLDecision() {
     if (this.showHTMLDecision) {
-      localStorage.setItem(showHtmlDecisionKey, this.showHTMLDecision);
+      this.preferenceService.set(this.preferenceService.prefGroup,
+                                 showHtmlDecisionKey, this.showHTMLDecision);
     } else {
-      localStorage.removeItem(showHtmlDecisionKey);
+      this.preferenceService.remove(this.preferenceService.prefGroup, showHtmlDecisionKey);
     }
   }
 
   saveShowImagesDecision() {
     if (this.showImagesDecision) {
-      localStorage.setItem(showImagesDecisionKey, this.showImagesDecision);
+      this.preferenceService.set(this.preferenceService.prefGroup,
+                                 showImagesDecisionKey, this.showImagesDecision);
     } else {
-      localStorage.removeItem(showImagesDecisionKey);
+      this.preferenceService.remove(this.preferenceService.prefGroup, showImagesDecisionKey);
     }
   }
   adjustIframeHTMLHeight() {
@@ -762,7 +778,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   heightChanged(percentage: number) {
     if (percentage > 0) {
       this.previousHeightPercentage = percentage;
-      localStorage.setItem(resizerPercentageKey, percentage.toString());
+      this.preferenceService.set(this.preferenceService.prefGroup,
+                                 resizerPercentageKey, percentage.toString());
     }
   }
 
@@ -776,7 +793,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             this.showHTML = true;
           // eslint-disable-next-line no-fallthrough
           case 'dontask':
-            localStorage.setItem(showHtmlDecisionKey, result);
+            this.preferenceService.set(this.preferenceService.prefGroup,
+                                       showHtmlDecisionKey, result);
             this.showHTMLDecision = result;
         }
       });

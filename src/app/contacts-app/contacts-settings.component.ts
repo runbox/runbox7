@@ -19,7 +19,9 @@
 
 import { Component } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { AppSettings, AppSettingsService } from '../app-settings';
+import { AppSettings } from '../app-settings';
+import { PreferencesService } from '../common/preferences.service';
+
 import { ContactsService } from './contacts.service';
 import { Subject } from 'rxjs';
 
@@ -29,16 +31,21 @@ import { Subject } from 'rxjs';
 })
 export class ContactsSettingsComponent {
     syncSettings = new Subject<any>();
-    appSettings: AppSettings = AppSettings.getDefaults();
+    avatarSource: AppSettings.AvatarSource;
+    // appSettings: AppSettings = AppSettings.getDefaults();
     oldContacts: number;
 
     AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
     constructor(
         public contactsservice: ContactsService,
-        public settingsService: AppSettingsService,
+        public preferenceService: PreferencesService,
         private rmmapi: RunboxWebmailAPI,
     ) {
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:'avatarSource:`);
+        });
+
         this.rmmapi.getContactsSettings().subscribe(settings => {
             const syncSettings = {};
             // eslint-disable-next-line guard-for-in
@@ -52,5 +59,10 @@ export class ContactsSettingsComponent {
         this.contactsservice.contactsSubject.subscribe(_ => {
             this.oldContacts = this.contactsservice.migratingContacts;
         });
+    }
+
+    saveAvatarSource(): void {
+        const setting = this.avatarSource;
+        this.preferenceService.set(this.preferenceService.prefGroup, 'avatarSource', setting);
     }
 }

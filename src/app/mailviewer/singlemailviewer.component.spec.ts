@@ -38,19 +38,24 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { AvatarBarComponent } from './avatar-bar.component';
+import { RouterTestingModule } from '@angular/router/testing';
+
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { ProgressService } from '../http/progress.service';
 import { StorageService } from '../storage.service';
-import { RouterTestingModule } from '@angular/router/testing';
 import { Contact, ContactKind } from '../contacts-app/contact';
 import { ContactCardComponent } from './contactcard.component';
 import { MessageActions } from './messageactions';
-import { Observable, of } from 'rxjs';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { PreferencesService } from '../common/preferences.service';
 import { MessageListService } from '../rmmapi/messagelist.service';
-import { AvatarBarComponent } from './avatar-bar.component';
+
+import { take } from 'rxjs/operators';
+import { ReplaySubject } from 'rxjs';
 
 export class ContactsServiceMock {
     public contactsSubject = of([
@@ -112,6 +117,16 @@ describe('SingleMailViewerComponent', () => {
         StorageService,
         { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
         { provide: HttpClient, useValue: {} },
+        { provide: PreferencesService, useValue: {
+          preferences: new ReplaySubject<Map<string, any>>(),
+
+          set(level: string, key: string, entry: any) {
+            this.preferences.pipe(take(1)).subscribe(entries => {
+              entries.set(`${level}:${key}`, entry);
+              this.preferences.next(this.prefs);
+            });
+          },
+        } },
         { provide: RunboxWebmailAPI, useValue: {
           me: of({ uid: 9876 }),
           getFromAddress() { return of([]); },
@@ -143,7 +158,7 @@ describe('SingleMailViewerComponent', () => {
                 }
               ]
             }));
-          }
+          },
         } },
         { provide: ContactsService, useClass: ContactsServiceMock },
         { provide: ProgressService, useValue: {} }

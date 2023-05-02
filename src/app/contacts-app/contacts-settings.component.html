@@ -29,14 +29,15 @@
 
     <h3> General settings </h3>
         <div>
-            <mat-checkbox [(ngModel)]="contactsservice.settings.showDragHelpers"> Show drag helpers </mat-checkbox>
+            <mat-checkbox [(ngModel)]="contactsservice.showDragHelpers"
+                          (change)="contactsservice.saveDragHelpers()"> Show drag helpers </mat-checkbox>
             <p style="font-size: small;"> Enable this if you have trouble dragging contacts on your browser </p>
         </div>
         <div>
             <h4> Avatars (contact pictures) </h4>
             <mat-radio-group
-                [(ngModel)]="settingsService.settings.avatars"
-                (change)="settingsService.store()"
+                [(ngModel)]="avatarSource"
+                (change)="saveAvatarSource()"
             >
                 <mat-radio-button [value]="AvatarSource.REMOTE">
                     Load from external services (like <a href="https://gravatar.com">gravatar.com</a>)

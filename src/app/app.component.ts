@@ -58,8 +58,9 @@ import { RMM } from './rmm';
 import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import { ExtendedKeyboardEvent, Hotkey, HotkeysService } from 'angular2-hotkeys';
-import { AppSettings, AppSettingsService } from './app-settings';
+import { AppSettings } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
+import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 
@@ -69,6 +70,7 @@ const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
 const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
+const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 
 @Component({
   moduleId: 'angular2/app/',
@@ -87,6 +89,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   usewebsocketsearch = false;
 
+  preferences: Map<string, any> = new Map();
   viewmode = 'messages';
   keepMessagePaneOpen = true;
   conversationGroupingCheckbox = false;
@@ -117,6 +120,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   mailViewerOnRightSide = true;
   mailViewerRightSideWidth = '40%';
   allowMailViewerOrientationChange = true;
+  messageSubjectDragTipShown = false;
+  showPopularRecipients = true;
+  avatarSource: AppSettings.AvatarSource;
 
   AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
@@ -171,7 +177,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
-    public settingsService: AppSettingsService,
+    private preferenceService: PreferencesService,
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
   ) {
@@ -197,17 +203,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
                 this.router.navigateByUrl('/onscreen');
                 this.snackBar.open('Enjoy the video call prototype!', 'Thanks!', { duration: 3000 });
                 this.experimentalFeatureEnabled = true;
-                localStorage.setItem('rmm7experimentalFeatureEnabled', 'true');
+                this.preferenceService.set(DefaultPrefGroups.Global, 'rmm7experimentalFeatureEnabled', 'true');
                 const e: ExtendedKeyboardEvent = event;
                 e.returnValue = false;
                 return e;
             }
         ),
     );
-
-    if (localStorage.getItem('rmm7experimentalFeatureEnabled') === 'true') {
-        this.experimentalFeatureEnabled = true;
-    }
 
     this.mdIconRegistry.addSvgIcon('movetofolder',
     this.sanitizer.bypassSecurityTrustResourceUrl('assets/movetofolder.svg'));
@@ -260,22 +262,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
 
     this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
-    const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-
-    if (mobileQuery.screenSize !== ScreenSize.Desktop) {
-      if (storedMailViewerOrientationSettingMobile) {
-        this.mailViewerOnRightSide = (storedMailViewerOrientationSettingMobile === 'false' ? false : true);
-      } else {
-        this.mailViewerOnRightSide = false;
-      }
-    }
 
     mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
       changeDetectorRef.detectChanges();
 
       if (this.sideMenuOpened) {
-        const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+        const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
         this.mailViewerRightSideWidth = '35%';
@@ -284,10 +277,43 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (size !== ScreenSize.Desktop) {
         // #935 - Allow vertical preview also on mobile, and use full width
         this.mailViewerRightSideWidth = '100%';
-        this.mailViewerOnRightSide = localStorage
-              .getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE) === `${true}`;
+        this.mailViewerOnRightSide = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`);
       }
       console.log(this.mailViewerOnRightSide);
+    });
+
+
+    preferenceService.preferences.subscribe((prefs) => {
+      // message list prefs
+      if (this.canvastable) {
+        this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+      }
+      this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
+      this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
+      this.viewmode = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_VIEWMODE}`);
+      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
+      this.messageSubjectDragTipShown = prefs.get(`${DefaultPrefGroups.Global}:messageSubjectDragTipShown`) === 'true';
+
+      // jitsi video calling
+      this.experimentalFeatureEnabled = prefs.get(`${DefaultPrefGroups.Global}:rmm7experimentalFeatureEnabled`) === 'true';
+
+      // mobile mail viewer:
+      const storedMailViewerOrientationSettingMobile = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
+      if (mobileQuery.screenSize !== ScreenSize.Desktop) {
+        if (storedMailViewerOrientationSettingMobile) {
+          this.mailViewerOnRightSide = (storedMailViewerOrientationSettingMobile === 'false' ? false : true);
+        } else {
+          this.mailViewerOnRightSide = false;
+        }
+      }
+      // after the above
+      this.mailViewerOnRightSide = storedMailViewerOrientationSettingMobile === 'true';
+
+      // sidebar
+      this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
+      this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
+
+      this.preferences = prefs;
     });
 
     this.updateTime();
@@ -315,6 +341,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   ngOnInit(): void {
     this.canvastable = this.canvastablecontainer.canvastable;
+    if (this.preferences.has(LOCAL_STORAGE_SHOWCONTENTPREVIEW)) {
+      this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+    }
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
     this.resetColumns();
@@ -357,32 +386,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       ).subscribe(() =>
         this.autoAdjustColumnWidths()
     );
-
-    const contentPreview = localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-    if (contentPreview) {
-      this.canvastable.showContentTextPreview = contentPreview === 'true';
-    }
-
-    const messagePaneSetting = localStorage.getItem(LOCAL_STORAGE_KEEP_PANE);
-    if (messagePaneSetting) {
-      this.keepMessagePaneOpen = messagePaneSetting === 'true';
-    }
-
-    const mailViewerSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-    if (mailViewerSetting) {
-      this.mailViewerOnRightSide = mailViewerSetting === 'true';
-    }
-
-    const showUnreadOnly = localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
-    if (showUnreadOnly) {
-      this.unreadMessagesOnlyCheckbox = showUnreadOnly === 'true';
-    }
-
-    const viewModeSetting = localStorage.getItem(LOCAL_STORAGE_VIEWMODE);
-    if (viewModeSetting) {
-      this.viewmode = viewModeSetting;
-      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
-    }
 
     this.route.fragment.subscribe(
       fragment => {
@@ -611,14 +614,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.router.navigate(['/compose'], {fragment: 'bug-report'});
    }
 
+  saveAvatarSource(): void {
+    const setting = this.avatarSource;
+    this.preferenceService.set(this.preferenceService.prefGroup, 'avatarSource', setting);
+  }
+
+  savePopularRecipients(): void {
+    const setting = this.showPopularRecipients ? 'true' : 'false';
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS, setting);
+  }
+
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
-    localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_KEEP_PANE, setting);
+//    localStorage.setItem(LOCAL_STORAGE_KEEP_PANE, setting);
   }
 
   saveContentPreviewSetting(): void {
     const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
-    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
+//    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
   }
 
   public trainSpam(params) {
@@ -876,9 +891,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
       this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
 
-      if (!this.mobileQuery.matches && !localStorage.getItem('messageSubjectDragTipShown')) {
+      if (!this.mobileQuery.matches && !this.messageSubjectDragTipShown) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
-        localStorage.setItem('messageSubjectDragTipShown', 'true');
+        this.preferenceService.set(DefaultPrefGroups.Global, 'messageSubjectDragTipShown', 'true');
       }
       // FIXME: [2] is searchservice specific!
       if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
@@ -1057,7 +1072,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   updateViewMode(viewmode) {
     if (this.viewmode !== viewmode) {
       this.viewmode = viewmode;
-      localStorage.setItem(LOCAL_STORAGE_VIEWMODE, this.viewmode);
+      this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
@@ -1165,14 +1180,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // FIXME: move updateSearch (for index searches) into
   // searchmessagedisplay filterBy ?
   updateSearch(always?: boolean, noscroll?: boolean) {
+    // Ensure we save changed settings
+    const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
+    this.preferenceService.set(DefaultPrefGroups.Global, LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+    this.updateTooltips();
+
     if (!this.dataReady || this.showingWebSocketSearchResults) {
       // May have changed unread checkbox so reset / filter message display
       this.filterMessageDisplay();
       return;
     }
-    const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
-    localStorage.setItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
-    this.updateTooltips();
 
     if (always || this.lastSearchText !== this.searchText) {
       this.lastSearchText = this.searchText;
@@ -1271,10 +1288,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.mailViewerOnRightSide = false;
     }
     if (this.mobileQuery.matches) {
-      localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
-          `${this.mailViewerOnRightSide}`);
+      this.preferenceService.set(this.preferenceService.prefGroup,
+                            LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE,
+                            `${this.mailViewerOnRightSide}`);
     }
-    localStorage.setItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE, this.mailViewerOnRightSide ? 'true' : 'false');
+    this.preferenceService.set(this.preferenceService.prefGroup,
+                          LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE,
+                          this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
   }
@@ -1290,10 +1310,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   promptLocalSearch() {
-    let localSearchIndexPromptItemName: string;
+    const localSearchIndexPrompted = this.preferences.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true';
     console.log('promptLocalSearch');
     this.rmmapi.me.pipe(
-      map(me => localSearchIndexPromptItemName = 'localSearchPromptDisplayed' + me.uid),
       mergeMap(() => xapianLoadedSubject),
       tap(xapianLoaded => {
         if (!xapianLoaded) {
@@ -1302,7 +1321,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }),
       filter(xapianLoaded => xapianLoaded ? true : false),
       map(() => {
-        if (localStorage.getItem(localSearchIndexPromptItemName) === 'true') {
+        if (localSearchIndexPrompted) {
           this.usewebsocketsearch = true;
         } else {
           const dialogRef = this.dialog.open(ConfirmDialog);
@@ -1312,7 +1331,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;
           dialogRef.componentInstance.yesOptionTitle = `Sounds good, let's go!`;
           dialogRef.componentInstance.noOptionTitle = `Don't synchronize with this device.`;
-          localStorage.setItem(localSearchIndexPromptItemName, 'true');
+          this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
 
           dialogRef.afterClosed().subscribe(res => {
             let localIndexDecision = 'clicked-away';
