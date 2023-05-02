@@ -146,9 +146,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             if (this.composeInHTMLByDefault) {
                 this.model.useHTML = true;
             }
-            // This.. shouldnt happen as only have content if reply/fwd
+            // above was true and we replied to a text-view email:
             if (this.model.useHTML && !this.model.html) {
-                this.model.html = this.model.msg_body;
+                this.model.html = this.model.msg_body.replace(/\n/g, '<br />\n');
                 console.log('Copied msg body to html attribute');
             }
             if (this.model.cc.length > 0) {
