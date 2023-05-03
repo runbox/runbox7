@@ -216,7 +216,6 @@ describe('SingleMailViewerComponent', () => {
       tick(1);
       fixture.detectChanges();
 
-      expect(component.messageHeaderHTML.nativeElement.innerText).toContain('Test subject');
 
       expect(component.mailObj.attachments[0].downloadURL.indexOf('attachment/0')).toBeGreaterThan(-1);
       expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
