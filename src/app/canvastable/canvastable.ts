@@ -38,6 +38,7 @@ import { MatLegacyTooltipModule as MatTooltipModule, MatLegacyTooltip as MatTool
 import { BehaviorSubject ,  Subject } from 'rxjs';
 import { MessageDisplay } from '../common/messagedisplay';
 import { CanvasTableColumn } from './canvastablecolumn';
+import { PreferencesService } from '../common/preferences.service';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -56,6 +57,7 @@ const getCSSClassProperty = (className, propertyName) => {
 
 export interface CanvasTableSelectListener {
   rowSelected(rowIndex: number, colIndex: number, multiSelect?: boolean): void;
+  saveColumnWidthsPreference(widths);
 }
 
 export class FloatingTooltip {
@@ -1368,6 +1370,8 @@ export class CanvasTableContainerComponent implements OnInit {
 
   columnWidths = {};
 
+  preferenceService: PreferencesService;
+
   @Input() configname = 'default';
   @Input() canvastableselectlistener: CanvasTableSelectListener;
 
@@ -1382,19 +1386,19 @@ export class CanvasTableContainerComponent implements OnInit {
   private selectAllTimeout;
 
   constructor(private renderer: Renderer2) {
-    const oldSavedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
-    if (oldSavedColumnWidths) {
-      const colWidthSet = Object.keys(JSON.parse(oldSavedColumnWidths)).filter((col) => col.length > 0).join(',');
-      const newColWidths = {};
-      newColWidths[colWidthSet] = JSON.parse(oldSavedColumnWidths);
-      localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(newColWidths));
-      localStorage.removeItem('canvasNamedColumnWidths');
-    }
+    // const oldSavedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
+    // if (oldSavedColumnWidths) {
+    //   const colWidthSet = Object.keys(JSON.parse(oldSavedColumnWidths)).filter((col) => col.length > 0).join(',');
+    //   const newColWidths = {};
+    //   newColWidths[colWidthSet] = JSON.parse(oldSavedColumnWidths);
+    //   localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(newColWidths));
+    //   localStorage.removeItem('canvasNamedColumnWidths');
+    // }
 
-    const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidthsBySet');
-    if (savedColumnWidths) {
-      this.columnWidths = JSON.parse(savedColumnWidths);
-    }
+    // const savedColumnWidths = localStorage.getItem('canvasNamedColumnWidthsBySet');
+    // if (savedColumnWidths) {
+    //   this.columnWidths = JSON.parse(savedColumnWidths);
+    // }
   }
 
   saveColumnWidths() {
@@ -1404,7 +1408,8 @@ export class CanvasTableContainerComponent implements OnInit {
       newColWidths[c.name] = c.width;
     }
     this.columnWidths[colWidthSet] = newColWidths;
-    localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(this.columnWidths));
+    this.canvastableselectlistener.saveColumnWidthsPreference(this.columnWidths);
+    // localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(this.columnWidths));
   }
 
   ngOnInit() {
