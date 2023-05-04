@@ -36,6 +36,8 @@ describe('canvastable', () => {
             rowSelected: (rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void => {
 
             },
+            saveColumnWidthsPreference: (widths: any): void => {
+            }
         };
         fixture.componentInstance.canvastable.columns = [
             {

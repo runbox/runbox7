@@ -287,6 +287,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // message list prefs
       if (this.canvastable) {
         this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+        this.canvastable.columnWidths = prefs.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
       }
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
@@ -341,8 +342,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   ngOnInit(): void {
     this.canvastable = this.canvastablecontainer.canvastable;
-    if (this.preferences.has(LOCAL_STORAGE_SHOWCONTENTPREVIEW)) {
+    if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
       this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+    }
+    if (this.preferences.has(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`)) {
+      this.canvastable.columnWidths = this.preferences.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
     }
     this.canvastablecontainer.sortColumn = 2;
     this.canvastablecontainer.sortDescending = true;
@@ -912,6 +916,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
       this.canvastable.hasChanges = true;
     }
+  }
+
+  // CanvasTableSelectListener, columnWidths changed:
+  saveColumnWidthsPreference(widths: any) {
+    this.preferenceService.set(this.preferenceService.prefGroup, 'canvasNamedColumnWidthsBySet', widths);
   }
 
   updateTime() {
