@@ -13,13 +13,22 @@
         style="width: 330px"
     >
         <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
+      
+        <h3 class="sideNavHeader">Changelog Menu</h3>
+
         <mat-nav-list dense>
+  	    <h4>Visible changes</h4>
             <a mat-list-item (click)="scrollTo('features')"> New features </a>
             <a mat-list-item (click)="scrollTo('bugfixes')"> Bug fixes </a>
             <a mat-list-item (click)="scrollTo('style')">    Visual changes </a>
             <mat-divider></mat-divider>
+	    <h4>Internal changes</h4>
             <a mat-list-item (click)="scrollTo('docs')">     Documentation </a>
+            <a mat-list-item (click)="scrollTo('ci')">       Continuous Integration </a>
+            <a mat-list-item (click)="scrollTo('perf')">     Performance </a>
             <a mat-list-item (click)="scrollTo('tests')">    Tests </a>
+            <a mat-list-item (click)="scrollTo('build')">    Build </a>
+            <a mat-list-item (click)="scrollTo('refactor')"> Refactor </a>
         </mat-nav-list>
 	<p id="forumLink">
           <mat-icon svgIcon="lightbulb"></mat-icon>
@@ -40,6 +49,8 @@
         </mat-toolbar>
 
         <div style="padding-left: 25px; padding-right: 25px;">
+	  <p> Runbox 7 build time: {{buildtimestampstring}} </p>
+
             <h2> User-visible changes </h2>
             
             <!-- needs this wrapper or else .nativeElement on it wouldn't exist -->
@@ -73,12 +84,40 @@
                 ></app-changelog-entrylist>
             </div>
 
+            <div #ciElement>
+              <app-changelog-entrylist
+                name="Continuous Integration"
+                [entries]="ci"
+                ></app-changelog-entrylist>
+            </div>
+
+            <div #perfElement>
+              <app-changelog-entrylist
+                name="Performance"
+                [entries]="perf"
+                ></app-changelog-entrylist>
+            </div>
+	    
             <div #testsElement>
                 <app-changelog-entrylist
                     name="Tests"
                     [entries]="tests"
                 ></app-changelog-entrylist>
             </div>
-        </div>
+	    
+            <div #buildElement>
+              <app-changelog-entrylist
+                name="Build"
+                [entries]="build"
+                ></app-changelog-entrylist>
+            </div>
+	    
+            <div #refactorElement>
+              <app-changelog-entrylist
+                name="Refactoring"
+                [entries]="refactor"
+                ></app-changelog-entrylist>
+            </div>
+	</div>
     </mat-sidenav-content>
 </mat-sidenav-container>

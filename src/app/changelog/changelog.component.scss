@@ -1,3 +1,15 @@
+mat-nav-list {
+    margin-left: 2em;
+}
+
+h4 {
+    margin: 0.75em 0;
+}
+
+.mat-list-base[dense] .mat-list-item, .mat-list-base[dense] .mat-list-option {
+    height: 30px;
+}
+
 #forumLink {
     padding: 20px;
 }
