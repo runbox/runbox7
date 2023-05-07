@@ -338,10 +338,10 @@
 
     <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
       <button mat-fab matTooltip="Mark unread" (click)="setReadStatus(false)">
-          <mat-icon svgIcon="email-open"></mat-icon>
+          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
       </button>
       <button mat-fab matTooltip="Mark read" (click)="setReadStatus(true)">
-          <mat-icon svgIcon="email-check"></mat-icon>
+          <mat-icon svgIcon="email-open"></mat-icon>
       </button>
       <button mat-fab matTooltip="Set flag" (click)="setFlaggedStatus(true)">
           <mat-icon svgIcon="flag"></mat-icon>
