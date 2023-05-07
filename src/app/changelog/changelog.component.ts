@@ -24,6 +24,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MobileQueryService } from '../mobile-query.service';
 
 import { ChangelogEntry, EntryType, changelog } from './changes';
+import { BUILD_TIMESTAMP } from '../buildtimestamp';
 
 @Component({
     selector: 'app-changelog',
@@ -37,18 +38,28 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
     fixes:    ChangelogEntry[];
     style:    ChangelogEntry[];
     docs:     ChangelogEntry[];
+    ci:       ChangelogEntry[];
+    perf:     ChangelogEntry[];
+    build:    ChangelogEntry[];
     tests:    ChangelogEntry[];
+    refactor: ChangelogEntry[];
 
     sideMenuOpened = true;
+
+    buildtimestampstring = BUILD_TIMESTAMP;
 
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
 
     @ViewChild('featuresElement') featuresElement: ElementRef;
     @ViewChild('bugfixesElement') bugfixesElement: ElementRef;
-    @ViewChild('styleElement') styleElement:    ElementRef;
+    @ViewChild('styleElement') styleElement:       ElementRef;
 
-    @ViewChild('docsElement') docsElement:     ElementRef;
-    @ViewChild('testsElement') testsElement:    ElementRef;
+    @ViewChild('docsElement') docsElement:         ElementRef;
+    @ViewChild('ciElement') ciElement:    	   ElementRef;
+    @ViewChild('perfElement') perfElement:         ElementRef;
+    @ViewChild('testsElement') testsElement:       ElementRef;
+    @ViewChild('buildElement') buildElement:       ElementRef;
+    @ViewChild('refactorElement') refactorElement: ElementRef;
 
     constructor(
         public  mobileQuery: MobileQueryService,
@@ -86,7 +97,11 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
                     'bugfixes': this.bugfixesElement,
                     'style':    this.styleElement,
                     'docs':     this.docsElement,
+                    'ci':       this.ciElement,
+                    'perf':     this.perfElement,
                     'tests':    this.testsElement,
+                    'build':    this.buildElement,
+                    'refactor': this.refactorElement,
                 }[e.anchor];
                 if (element) {
                     element.nativeElement.scrollIntoView({ behavior: 'smooth' });
@@ -100,7 +115,11 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
         this.fixes    = log.filter(c => c.type === EntryType.FIX);
         this.style    = log.filter(c => c.type === EntryType.STYLE);
         this.docs     = log.filter(c => c.type === EntryType.DOCS);
+        this.ci       = log.filter(c => c.type === EntryType.CI);
+        this.perf     = log.filter(c => c.type === EntryType.PERF);
         this.tests    = log.filter(c => c.type === EntryType.TEST);
+        this.build    = log.filter(c => c.type === EntryType.BUILD);
+        this.refactor = log.filter(c => c.type === EntryType.REFACTOR);
     }
 
     scrollTo(anchor: string): void {
