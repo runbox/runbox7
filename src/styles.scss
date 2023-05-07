@@ -993,14 +993,6 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     text-align: center;
 }
 
-#messageHeaderSubject {
-    font-size: 16px !important;
-}
-
-#messageContent {
-    font-size: 13px !important;
-}
-
 /* Message action button row */
 single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
     height: 55px !important;
@@ -1021,9 +1013,19 @@ mat-expansion-panel, mat-expansion-panel-header {
 }
 
 /* Message header area */
-#messageContents .mat-expansion-panel-header.mat-expanded {
-    height: 36px;
+#messageHeader .mat-expansion-panel-header {
+    min-height: 24px;
+    height: 100%;
 }
+
+#messageHeaderSubject {
+    font-size: 16px !important;
+}
+
+#messageContentsBody {
+    font-size: 13px !important;
+}
+
 
 /* Message display options */
 .htmlButtons {
