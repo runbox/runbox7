@@ -182,7 +182,7 @@
           <input matInput #searchInputField type="text"
             (focus)="searchTextFieldFocus()"
             (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
-            [value]="searchText" (keyup)="searchFor($event.target.value)" />
+            [value]="searchText" (keyup)="searchFor($event.target.value)" matTooltip="Enter one or more search terms, or click the wrench to display the advanced search pane" />
             <!-- <app-search-expression-builder
               [searchInputField]="searchInputField"
               [currentFolder]="selectedFolder"
@@ -198,7 +198,7 @@
             mat-icon-button
             matSuffix
             (click)="showMultipleSearchFields = true"
-            matTooltip="Multiple search fields">
+            matTooltip="Show advanced search pane">
             <mat-icon svgIcon="wrench"></mat-icon>
           </button>
           <button *ngIf="searchText!==''"

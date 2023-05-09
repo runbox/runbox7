@@ -27,6 +27,10 @@ class MultipleSearchFieldsInputFormData {
   subject: string = null;
   date: string = null;
   currentfolderonly: boolean = null;
+  hasAttachment: boolean = null;
+  hasReply: boolean = null;
+  hasFlag: boolean = null;
+  unreadOnly: boolean = null;
 }
 
 @Component({
@@ -73,8 +77,12 @@ export class MultipleSearchFieldsInputComponent implements OnChanges {
       (fields.from ? (and() + 'from:"' + fields.from.replace(/\"/g, '') + '"') : '') +
       (fields.to ? (and() + 'to:"' + fields.to.replace(/\"/g, '') + '"') : '') +
       (fields.subject ? (and() + 'subject:"' + fields.subject.replace(/\"/g, '') + '"') : '') +
-      (fields.date ? (and() + 'date:' + fields.date + '') : '') +
-      (fields.allfieldsandcontent ? (and() + '(' + fields.allfieldsandcontent + ')') : '');
+      (fields.allfieldsandcontent ? (and() + '(' + fields.allfieldsandcontent + ')') : '') +
+      (fields.hasAttachment ? (and() + 'flag:attachment') : '') +
+      (fields.hasReply ? (and() + 'flag:answered') : '') +
+      (fields.hasFlag ? (and() + 'flag:flagged') : '') +
+      (fields.date ? (and() + 'date:' + fields.date + '') : '') + // FIXME: This parameter must come last
+      (fields.unreadOnly ? (and() + 'NOT flag:seen') : ''); // FIXME: This parameter must also come last...
 
     this.searchexpression.emit(searchexpression);
   }
