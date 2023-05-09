@@ -157,13 +157,17 @@
       (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
       (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
       <div *ngIf="mailViewerOnRightSide && !singlemailviewer.messageId"
-       class="noMessageSelectedNotification">
-        <p>
-            No Message Selected
-        </p>
-        <button mat-button (click)="dontShowMessagePane()">
-            Hide preview pane unless a message is opened
-        </button>
+	   class="noMessageSelectedNotification">
+	<div>
+          <h3 class="noMessageSelectedNotification">No Message Selected</h3>
+          <button mat-raised-button (click)="dontShowMessagePane()" color="primary">
+            Keep preview pane closed unless a message is opened
+          </button>
+          <p>
+            You can also change this setting from the display menu<br />
+	    at the top right of the message list.
+          </p>
+	</div>
       </div>
   </mat-sidenav>
   <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
