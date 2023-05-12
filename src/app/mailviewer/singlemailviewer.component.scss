@@ -61,7 +61,7 @@
     }
 }
 
-#messageContent {
+#messageContentsBody {
     margin: 0 2%;
     width: 96%;
     margin-top: 10px;
@@ -119,24 +119,6 @@ mat-grid-tile:hover {
     overflow: hidden; 
     white-space: nowrap;
 }
-
-.htmlButtons {
-    display: flex;
-    min-height: 30px;
-    padding: 0 10px;
-    font-size: 14px;
-    align-items: center;
-
-    .mat-raised-button, .mat-flat-button {
-	width: 90px;
-	line-height: 24px;
-	padding: 0;
-    }
-    .mat-flat-button {
-	box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
-    }
-}
-
 
 .link-pointer {
     cursor: pointer;
