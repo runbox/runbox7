@@ -267,8 +267,6 @@
     <mat-divider></mat-divider>
 
     <div class="htmlButtons" *ngIf="mailContentHTML">
-      <span style="flex-grow: 1"></span>
-      <span>
 	Show:
         <mat-radio-group
           aria-label="Toggle Plain/HTML view"
@@ -277,46 +275,49 @@
           <mat-radio-button
             (click)="toggleHtml($event)"
             value="Plain"
-            matTooltip="Toggle Plain Text view"
+            matTooltip="Toggle Plain Text version of message"
             >
-            Text
+            <mat-icon svgIcon="format-letter-case"></mat-icon>
           </mat-radio-button>
           <mat-radio-button
             (click)="toggleHtml($event)"
             value="HTML"
-            matTooltip="Toggle HTML view"
+            matTooltip="Toggle HTML version of message"
             >
-            HTML
+            <mat-icon svgIcon="format-float-left"></mat-icon>
           </mat-radio-button>
         </mat-radio-group>
-	    <mat-checkbox *ngIf="showHTML"
-            (click)="showExternalImages($event)"
-            [checked]="showImages"
-            matTooltip="Show external images"
-		    >
-	    </mat-checkbox>
+	<mat-checkbox *ngIf="showHTML"
+          (click)="showExternalImages($event)"
+          [checked]="showImages"
+          matTooltip="Show external images"
+	  >
+          <mat-icon svgIcon="image"></mat-icon>
+	</mat-checkbox>
         <mat-checkbox *ngIf="!showHTML"
           color="gray"
-          matTooltip="Show external images (in HTML view)"
+          matTooltip="Show external images (only in HTML view)"
           >
+          <mat-icon svgIcon="image" class="themePaletteDarkGray"></mat-icon>
         </mat-checkbox>
-        <span> Images for </span>
-        <button
-          [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
-          (click)="saveDecisionGlobal($event)"
-          matTooltip="Save setting for all senders"
-          >
-          All senders
-        </button>
+	<span class="space"></span>
+        <span> For: </span>
         <button
           [ngClass]="savedForThisSender ? 'mat-flat-button' : 'mat-raised-button'"
           (click)="saveDecisionForThisSender($event)"
           matTooltip="Save setting for this sender"
           >
-          This sender
+	  <mat-icon svgIcon="account"></mat-icon>
         </button>
+        <button
+          [ngClass]="savedAlways ? 'mat-flat-button' : 'mat-raised-button'"
+          (click)="saveDecisionGlobal($event)"
+	  color="primary"
+          >
+	  <mat-icon svgIcon="earth"></mat-icon>
+        </button>
+	<span class="space"></span>
         <mat-icon color="warn" svgIcon="alert" matTooltip="Only show HTML messages from trusted senders"></mat-icon>
-      </span>
     </div>
 
     <!-- We have an HTML message -->
@@ -332,8 +333,8 @@
     </div>
 
     <!-- We have an HTML message, but no text version and the user has not chosen to show HTML -->
-    <div *ngIf="mailContentHTML && !showHTML && mailObj.text === 'undefined'" class="notificationContainer">
-      <span class="inMessageNotification">No text version of this message is available. Please click the HTML button to view the HTML version.</span>
+    <div *ngIf="mailContentHTML && !showHTML && (mailObj.text === 'undefined' || mailObj.text.changingThisBreaksApplicationSecurity == '')" class="notificationContainer">
+      <span class="inMessageNotification">No text version of this message is available.<br />Please click the HTML button above to view the HTML version.</span>
     </div>
 
     <!-- We have an empty message -->
@@ -342,7 +343,7 @@
     </div>
 
     <!-- We have a plain text message or the user has chosen to show text -->
-    <div *ngIf="!showHTML && mailObj.text !== 'undefined'" id="messageContent" style="white-space: pre-wrap" [innerHTML]='mailObj.text'>
+    <div *ngIf="!showHTML && mailObj.text !== 'undefined'" id="messageContentsBody" style="white-space: pre-wrap" [innerHTML]='mailObj.text'>
     </div>
 
     <div *ngIf="mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX" class="iframe-container">
