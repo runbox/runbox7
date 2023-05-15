@@ -63,9 +63,9 @@ describe('Composing emails', () => {
         cy.visit('/#Inbox:1');
         cy.wait('@message1requested', {'timeout':100000});
         cy.get('single-mail-viewer').should('exist');
-        cy.get('mat-radio-button[mattooltip="Toggle HTML view"]').click();
+        cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"]').click();
         cy.contains('Manually toggle HTML').click();
-        cy.get('mat-radio-button[mattooltip="Toggle HTML view"] input').should('be.checked');
+        cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"] input').should('be.checked');
         // cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.get('button[mattooltip="Reply"]').click();
