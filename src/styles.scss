@@ -18,7 +18,7 @@
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
 $rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
-$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 100, 50, 200);
+$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 200, 100, 400);
 $rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
 $rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
 $rmm-default-highlight:  mat.define-palette(mat.$light-blue-palette, 100, 50, 200);
@@ -332,17 +332,19 @@ mat-grid-tile.tableTitle {
 }
 
 .themePaletteLighterGray {
-    color: #eeeeee;
+    color: #eeeeee !important;
 }
 .themePaletteLightGray {
-    color: #f4f4f4;
+    color: #f4f4f4 !important;
 }
 .themePaletteDarkGray {
-    color: #949494;
+    color: #949494 !important;
 }
 .themePaletteBlack {
-    color: #444;
+    color: #444 !important;
 }
+
+/*** App-specific styles including those that can't be loaded from component stylesheets ***/
 
 /* Main */
 
@@ -992,6 +994,63 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     color: #bbb;
     text-align: center;
 }
+/* Message display options */
+
+.htmlButtons {
+    display: flex;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 14px;
+    align-items: center;
+
+    .mat-raised-button {
+	min-width: 30px;
+	line-height: 24px;
+    }
+
+    .mat-radio-label-content {
+	padding: 0 !important;
+    }
+    
+    button, .mat-radio-button, .mat-checkbox {
+	margin-left: 5px;
+    }
+
+    .mat-flat-button {
+	background-color: mat.get-color-from-palette($rmm-default-primary);
+
+	.mat-icon {
+	    color: white !important;
+	}
+    }
+    .mat-raised-button {
+	background-color: white;
+
+	.mat-icon {
+	    color: mat.get-color-from-palette($rmm-default-primary);
+	}
+    }
+
+    .mat-icon  {
+	margin: 0 3px !important;
+    }
+    
+    mat-flat-button, .mat-flat-button, mat-raised-button, .mat-raised-button {
+	min-width: 30px !important;
+	width: 30px !important;
+	padding: 0 !important;
+	line-height: 24px !important;
+    }
+
+    .space {
+	width: 20px;
+    }
+
+    .disabled {
+	color: #f4f4f4;
+    }
+}
+
 
 /* Message action button row */
 single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
@@ -1026,13 +1085,6 @@ mat-expansion-panel, mat-expansion-panel-header {
     font-size: 13px !important;
 }
 
-
-/* Message display options */
-.htmlButtons {
-    .mat-radio-label-content {
-	padding: 0 5px !important;
-    }
-}
 
 /* Compose */
 
