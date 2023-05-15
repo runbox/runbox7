@@ -1,25 +1,32 @@
 <div [formGroup]="formGroup" id="multipleSearchFieldsContainer">
-  <mat-form-field>
-    <input matInput formControlName="allfieldsandcontent" type="text" placeholder="All fields" />
+  <mat-form-field id="allfieldsandcontent">
+    <input matInput formControlName="allfieldsandcontent" type="text" placeholder="All fields" matTooltip="Matches any part of the message" />
   </mat-form-field>
   <mat-form-field>
-    <input matInput formControlName="from" type="text" placeholder="From"  />
+    <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)" matTooltip="Matches the year (YYYY), month (YYYYMM), or date (YYYYMMDD)" />
   </mat-form-field>
-  <mat-form-field>
-    <input matInput formControlName="to" type="text" placeholder="To"  />
-  </mat-form-field>
+  <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()" matTooltip="Close this pane">
+    <mat-icon svgIcon="close"></mat-icon>
+  </button>
   <br />
   <mat-form-field>
-    <input matInput formControlName="subject" type="text" placeholder="Subject"  />
+    <input matInput formControlName="from" type="text" placeholder="From" matTooltip="Matches the From name or email address" />
   </mat-form-field>
   <mat-form-field>
-    <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)"  />
+    <input matInput formControlName="to" type="text" placeholder="To" matTooltip="Matches the To name or email address" />
   </mat-form-field>
-  <span style="white-space: nowrap;">
-    <mat-checkbox id="currentfolderonly" formControlName="currentfolderonly">Current folder</mat-checkbox>
-    <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#Search_parameters">
-      <mat-icon svgIcon="help-circle"></mat-icon>    
-    </a>
-    <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()"><mat-icon svgIcon="close"></mat-icon></button>
-  </span>
+  <mat-form-field>
+    <input matInput formControlName="subject" type="text" placeholder="Subject" matTooltip="Matches the Subject field" />
+  </mat-form-field>
+  <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#message-search">
+    <mat-icon svgIcon="help-circle"></mat-icon>    
+  </a>
+  <br />
+  <div id="multipleSearchFieldsOptions">
+    <mat-checkbox id="currentfolderonly" formControlName="currentfolderonly" matTooltip="Matches the current folder only">Current folder</mat-checkbox>
+    <mat-checkbox id="hasAttachment" formControlName="hasAttachment" matTooltip="Matches messages with attachments only">With attachment</mat-checkbox>
+    <mat-checkbox id="hasReply" formControlName="hasReply" matTooltip="Matches messages with one or more replies">With reply</mat-checkbox>
+    <mat-checkbox id="hasFlag" formControlName="hasFlag" matTooltip="Matches messages that are flagged">With flag</mat-checkbox>
+    <mat-checkbox id="unreadOnly" formControlName="unreadOnly" matTooltip="Matches unread messages only (in combination with other criteria)">Unread only</mat-checkbox>
+  </div>
 </div>

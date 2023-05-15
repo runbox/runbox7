@@ -25,6 +25,7 @@ import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/lega
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
 
 @NgModule({
 
@@ -34,7 +35,8 @@ import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy
     MatIconModule,
     MatButtonModule,
     MatInputModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatTooltipModule
   ],
   declarations: [MultipleSearchFieldsInputComponent],
   exports: [MultipleSearchFieldsInputComponent]
