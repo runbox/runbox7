@@ -1260,6 +1260,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.resetColumns();
         }
 
+        if (querytext.match(/date:/) && querytext.match(/\.\./)) {
+          this.searchService.api.setStringValueRange(2, 'date:');
+        }
         console.log(querytext);
         try {
           let searchResults = null;
