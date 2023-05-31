@@ -1137,11 +1137,39 @@ compose input.mat-chip-input {
 }
 
 compose .mat-standard-chip {
-    padding: 5px 10px !important;
+    padding: 7px 8px 5px 10px !important;
 }
 
 compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-field-wrapper, compose #fieldSubject .mat-form-field-wrapper {
     padding-bottom: 0.5em;
+}
+
+.recipientSuggestionContainer {
+    max-height: 90px;
+    overflow: auto;
+    
+    span {
+        font-size: 12.5px;
+    }
+
+    .recipientSuggestionList {
+        display: flex;
+	flex-wrap: wrap;
+        white-space: nowrap;
+
+        .suggestionItem {
+            align-items: center;
+            padding-right: 5px;
+        }
+
+        div {
+            padding: 2px 0;
+        }
+	.mat-chip {
+	    padding: 2px 5px !important;
+	    font-size: 12px !important;
+	}
+    }
 }
 
 #fieldFrom, #fieldSubject {

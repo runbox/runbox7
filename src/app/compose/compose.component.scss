@@ -66,8 +66,6 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
     font-size: 20px;
 }
 
-
-
 .fieldRecipient {
     display: flex;
     overflow: hidden;
@@ -86,30 +84,6 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
         justify-self: flex-end;
         align-self: flex-start;
         margin-top: 10px;
-    }
-}
-
-.recipientSuggestionContainer {
-    max-height: 90px;
-    overflow: auto;
-    
-    span {
-        font-size: 12.5px;
-    }
-
-    .recipientSuggestionList {
-        display: flex;
-	flex-wrap: wrap;
-        white-space: nowrap;
-
-        .suggestionItem {
-            align-items: center;
-            padding-right: 5px;
-        }
-
-        div {
-            padding: 2px 0;
-        }
     }
 }
 
