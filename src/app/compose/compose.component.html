@@ -70,7 +70,7 @@
             <span>Recently used</span>
             <div class="recipientSuggestionList">
                 <div *ngFor="let recipient of filteredSuggestions" class="suggestionItem">
-                    <mat-chip class="themePaletteLightGray" 
+                    <mat-chip
                         (click)="addRecipientFromSuggestions(recipient)"
                         draggable="true"
                         (dragstart)="recipientDragged($event, recipient)"
