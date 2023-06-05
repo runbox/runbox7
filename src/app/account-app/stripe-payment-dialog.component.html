@@ -30,20 +30,16 @@
     }
 </style>
 
-<h1 mat-dialog-title>Payment via Stripe</h1>
-
-<ng-template #legacyFallback>
-    <p> Payment form not loading? </p>
-
-    <p>
-        Make sure your browser extensions are not blocking access to
-        <span style="font-family: monospace">stripe.com</span>, or
-        <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank"> try our legacy payment system instead.
-        </a>
-    </p>
-</ng-template>
+<h1 mat-dialog-title>Payment via Card</h1>
 
 <div mat-dialog-content style="max-width: 500px;">
+    <p> Payment form not working? </p>
+
+    <p>
+        <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.
+        </a>
+    </p>
+
     <div style="width: 95%; text-align: center; margin: auto;">
         <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
     </div>
@@ -83,8 +79,6 @@
     <div [style.display]="state === 'loading' ? 'block' : 'none'">
         <div> Loading Stripe payment form... </div>
         <mat-spinner style="margin:0 auto;"></mat-spinner>
-
-        <ng-container *ngTemplateOutlet="legacyFallback"></ng-container>
     </div>
 
     <div [style.display]="state === 'processing' ? 'block' : 'none'">
