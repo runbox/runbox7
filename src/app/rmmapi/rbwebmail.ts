@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, from, Subject, AsyncSubject } from 'rxjs';
+import { Observable, from, Subject, AsyncSubject, firstValueFrom } from 'rxjs';
 import { share } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
@@ -166,12 +166,12 @@ export class RunboxWebmailAPI {
 
     public last_on_interval;
 
+    private messageCache: AsyncSubject<MessageCache> = new AsyncSubject();
     private messageContentsRequestCache = new LRUMessageCache<Promise<MessageContents>>();
 
     constructor(
         private http: HttpClient,
         private ngZone: NgZone,
-        private messageCache: MessageCache,
         private snackBar: MatSnackBar,
         public rmm: RMM,
     ) {
@@ -196,10 +196,15 @@ export class RunboxWebmailAPI {
 
                 this.updateLastOn().subscribe();
             });
+
+        this.me.subscribe(me => {
+            this.messageCache.next(new MessageCache(me.uid));
+            this.messageCache.complete();
+        });
     }
 
     public deleteCachedMessageContents(messageId: number) {
-        this.messageCache.delete(messageId);
+        this.messageCache.subscribe(cache => cache.delete(messageId));
         this.messageContentsRequestCache.delete(messageId);
     }
 
@@ -210,7 +215,8 @@ export class RunboxWebmailAPI {
             // but it turns out that pulling a single row from indexedDB (or maybe from Dexie specifically?)
             // can easily take over 100ms: the difference between "instant" and "fast"
             // Since instant is the only acceptable result, we cache indexedDB lookups here.
-            cached = this.messageCache.get(messageId);
+            cached = firstValueFrom(this.messageCache)
+                .then(cache => cache.get(messageId));
             this.messageContentsRequestCache.add(messageId, cached);
         }
         return cached;
@@ -224,18 +230,19 @@ export class RunboxWebmailAPI {
             } else {
                 const messagePromise = new Promise<MessageContents>((resolve, reject) => {
                     this.http.get('/rest/v1/email/' + messageId)
-                        .subscribe((response) => {
+                        .subscribe(async (response) => {
+                        const messageCache = await firstValueFrom(this.messageCache);
                         if (response['status'] === 'success') {
                             const msg = Object.assign( new MessageContents(), response['result']);
                             msg.status = response['status'];
-                            this.messageCache.set(messageId, msg);
+                            messageCache.set(messageId, msg);
                             resolve(msg);
                         } else if (response['status'] === 'warning') {
                             // exists but we couldnt fetch it all
                             const msg = Object.assign( new MessageContents());
                             msg.status = response['status'];
                             msg.errors = response['errors'];
-                            this.messageCache.set(messageId, msg);
+                            messageCache.set(messageId, msg);
                             resolve(msg);
                         } else {
                             // We load message data at unexpected times

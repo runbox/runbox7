@@ -6,8 +6,11 @@ describe('Message caching', () => {
         localStorage.setItem('Global:messageSubjectDragTipShown', 'true');
     });
 
-  it('should cache all messages on first time page load', () => {
-        indexedDB.deleteDatabase('messageCache');
+  it('should cache all messages on first time page load', async () => {
+        (await indexedDB.databases())
+            .filter(db => db.name && /messageCache/.test(db.name))
+            .forEach(db => indexedDB.deleteDatabase(db.name!));
+
         cy.intercept('/rest/v1/email/12').as('message12requested');
 
         cy.visit('/');
