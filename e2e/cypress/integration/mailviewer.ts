@@ -5,13 +5,15 @@ describe('Interacting with mailviewer', () => {
         return cy.get('canvastable canvas:first-of-type');
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         localStorage.setItem('221:Desktop:localSearchPromptDisplayed', JSON.stringify('true'));
         localStorage.setItem('221:Global:messageSubjectDragTipShown', JSON.stringify('true'));
         localStorage.setItem('221:Desktop:mailViewerOnRightSide', JSON.stringify('true'));
         localStorage.setItem('221:preference_keys', '["Desktop:localSearchPromptDisplayed","Global:messageSubjectDragTipShown", "Desktop:mailViewerOnRightSide"]');
 
-        indexedDB.deleteDatabase('messageCache');
+        (await indexedDB.databases())
+            .filter(db => db.name && /messageCache/.test(db.name))
+            .forEach(db => indexedDB.deleteDatabase(db.name!));
     });
 
     // it('Loading an email with loading errors displays an error', () => {

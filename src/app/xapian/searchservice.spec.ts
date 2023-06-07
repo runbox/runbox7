@@ -29,7 +29,6 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
-import { MessageCache } from '../rmmapi/messagecache';
 
 declare var FS;
 declare var IDBFS;
@@ -107,7 +106,6 @@ describe('SearchService', () => {
           ],
             providers: [
                 SearchService,
-                MessageCache,
                 MessageListService,
                 RunboxWebmailAPI
                 // { provide: Worker, useValue: {

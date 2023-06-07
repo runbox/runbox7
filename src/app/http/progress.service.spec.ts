@@ -30,7 +30,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { filter, take } from 'rxjs/operators';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
-import { MessageCache } from '../rmmapi/messagecache';
 
 describe('ProgressService', () => {
     let rmmapiservice: RunboxWebmailAPI;
@@ -49,7 +48,6 @@ describe('ProgressService', () => {
         providers: [
             RMMOfflineService,
             RunboxWebmailAPI,
-            MessageCache,
             RMMAuthGuardService,
             ProgressService,
             { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
