@@ -23,6 +23,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { firstValueFrom } from 'rxjs';
 
 describe('RBWebMail', () => {
     beforeEach(() => {
@@ -62,7 +63,7 @@ describe('RBWebMail', () => {
             }
         });
 
-        let messageContents = await <any>messageContentsObservable.toPromise();
+        let messageContents = await <any>firstValueFrom(messageContentsObservable);
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test');
 
@@ -70,7 +71,7 @@ describe('RBWebMail', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         httpTestingController.expectNone('/rest/v1/email/123');
 
-        messageContents = await messageContentsObservable.toPromise();
+        messageContents = await firstValueFrom(messageContentsObservable);
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test');
 
@@ -84,7 +85,7 @@ describe('RBWebMail', () => {
             }
         });
 
-        messageContents = await messageContentsObservable.toPromise();
+        messageContents = await firstValueFrom(messageContentsObservable);
         await new Promise(resolve => setTimeout(resolve, 0));
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test2');
@@ -101,7 +102,7 @@ describe('RBWebMail', () => {
             }
         });
 
-        messageContents = await messageContentsObservable.toPromise();
+        messageContents = await firstValueFrom(messageContentsObservable);
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test3');
     });
@@ -232,7 +233,7 @@ describe('RBWebMail', () => {
         };
 
         const rmmapi = TestBed.inject(RunboxWebmailAPI);
-        const folderListPromise = rmmapi.getFolderList().toPromise();
+        const folderListPromise = firstValueFrom(rmmapi.getFolderList());
         const httpTestingController = TestBed.inject(HttpTestingController);
         const req = httpTestingController.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
@@ -621,7 +622,7 @@ describe('RBWebMail', () => {
         };
 
         const rmmapi = TestBed.inject(RunboxWebmailAPI);
-        const folderListPromise = rmmapi.getFolderList().toPromise();
+        const folderListPromise = firstValueFrom(rmmapi.getFolderList());
         const httpTestingController = TestBed.inject(HttpTestingController);
         const req = httpTestingController.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
