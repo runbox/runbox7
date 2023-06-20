@@ -8,9 +8,9 @@
             <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachDesktop" (click)="attachFilesClicked()">
                 <mat-icon svgIcon="attachment" style="transform: rotate(90deg)"></mat-icon>
             </button>
-            <button *ngIf="editing" [disabled]="saved" mat-icon-button matTooltip="Save draft" id="saveDraft" (click)="submit()">
-                <mat-icon *ngIf="saved" svgIcon="cloud-check"></mat-icon>
-                <mat-icon *ngIf="!saved && !saveErrorMessage" svgIcon="content-save"></mat-icon>
+            <button *ngIf="editing" [disabled]="saved" mat-icon-button id="saveDraft" (click)="submit()">
+                <mat-icon *ngIf="saved" svgIcon="cloud-check" matTooltip="Draft saved"></mat-icon>
+                <mat-icon *ngIf="!saved && !saveErrorMessage" svgIcon="content-save" matTooltip="Save draft"></mat-icon>
                 <mat-icon *ngIf="!saved && saveErrorMessage" color="warn" [matTooltip]="saveErrorMessage" svgIcon="content-save-alert"></mat-icon>
             </button>
             <button *ngIf="!isUnsaved" mat-icon-button matTooltip="Move draft to Trash" id="trashDraft" (click)="trashDraft()">
