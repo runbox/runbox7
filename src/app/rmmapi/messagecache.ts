@@ -25,6 +25,9 @@ export class MessageCache {
     message_version = 5;
 
     constructor(userId: number) {
+        // REMOVE THIS CODE AFTER 06-2024, delete old message caches
+        new Dexie('messageCache').delete();
+
         try {
             this.db = new Dexie(`messageCache-${userId}`);
             this.db.version(2).stores({
