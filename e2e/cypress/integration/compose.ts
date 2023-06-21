@@ -55,8 +55,10 @@ describe('Composing emails', () => {
         cy.get('mailrecipient-input mat-error').should('not.exist');
     });
 
-    it('should open reply draft with HTML editor', () => {
-        indexedDB.deleteDatabase('messageCache');
+    it('should open reply draft with HTML editor', async () => {
+        (await indexedDB.databases())
+            .filter(db => db.name && /messageCache/.test(db.name))
+            .forEach(db => indexedDB.deleteDatabase(db.name!));
         // cy.visit('/');
         // cy.wait(1000);
         cy.intercept('/rest/v1/email/1').as('message1requested');

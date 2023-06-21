@@ -17,18 +17,19 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Injectable } from '@angular/core';
 import { Dexie } from 'dexie';
 import { MessageContents } from './rbwebmail';
 
-@Injectable()
 export class MessageCache {
     db: Dexie;
     message_version = 5;
 
-    constructor() {
+    constructor(userId: number) {
+        // REMOVE THIS CODE AFTER 06-2024, delete old message caches
+        new Dexie('messageCache').delete();
+
         try {
-            this.db = new Dexie('messageCache');
+            this.db = new Dexie(`messageCache-${userId}`);
             this.db.version(2).stores({
                 messages: '', // use out-of-line keys
             });
