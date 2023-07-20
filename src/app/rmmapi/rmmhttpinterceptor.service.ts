@@ -29,6 +29,7 @@ import { RMMOfflineService } from './rmmoffline.service';
 export class RMMHttpInterceptorService implements HttpInterceptor {
 
     httpRequestCount = 0;
+    currentMe;
 
     constructor(
         private httpClient: HttpClient,
@@ -75,6 +76,19 @@ export class RMMHttpInterceptorService implements HttpInterceptor {
                             // but we don't have any indicator for that now
                             this.checkAccountStatus();
                         }
+                    }
+                    if (req.url === '/rest/v1/me' && r.body) {
+                        this.currentMe = r.body.result;
+                        // && r.body.result.account_status === 'expired') {
+                        // this.authguardservice.redirectToSubscriptions();
+                    }
+                    // If expired may login but only visit account/subscriptions
+                    if (this.currentMe && this.currentMe.account_status === 'expired'
+                        && !(req.url.startsWith('/rest/v1/account_product')
+                            || req.url.startsWith('/rest/v1/me')
+                            || req.url.startsWith('/rest/v1/payments')
+                            || req.url.startsWith('/rest/v1/last_on')) ) {
+                        this.authguardservice.redirectToSubscriptions();
                     }
                 }
                 return evt;

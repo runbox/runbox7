@@ -99,4 +99,11 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         console.log('Will navigate back to ', this.urlBeforeLogin);
         this.router.navigate(['login']);
     }
+
+  redirectToSubscriptions() {
+      if (this.router.url !== 'account/subscriptions') {
+        console.log('Will navigate back to account/subscriptions');
+        this.router.navigate(['account/subscriptions']);
+      }
+    }
 }
