@@ -63,6 +63,7 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
+import { objectEqualWithKeys } from './common/util';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -372,10 +373,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
           return prev.length === curr.length
             && prev.every((f, index) =>
-              f.folderId === curr[index].folderId
-              && f.totalMessages === curr[index].totalMessages
-              && f.newMessages === curr[index].newMessages
-              && f.folderName === curr[index].folderName);
+              objectEqualWithKeys(f, curr[index], [
+                'folderId', 'totalMessages', 'newMessages', 'folderName'
+              ]))
         }))
         .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );

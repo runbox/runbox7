@@ -32,6 +32,7 @@ import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/ope
 
 import moment from 'moment';
 import 'moment-timezone';
+import { objectEqualWithKeys } from '../common/util';
 
 export class ForwardedAttachment {
     constructor(
@@ -261,9 +262,9 @@ export class DraftDeskService {
             .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
                 return prev.length === curr.length
                     && prev.every((f, index) =>
-                        f.folderId === curr[index].folderId
-                        && f.totalMessages === curr[index].totalMessages
-                        && f.newMessages === curr[index].newMessages);
+                        objectEqualWithKeys(f, curr[index], [
+                            'folderId', 'totalMessages', 'newMessages'
+                        ]))
             }))
             .subscribe((folders) => {
                 this.refreshDrafts();
