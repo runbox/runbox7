@@ -47,6 +47,10 @@ describe('objectEqual', () => {
         expect(objectEqual({a: {}}, {b: 'bla'})).toBeFalse();
     });
 
+    it('matches arrays with nested objects', () => {
+        expect(objectEqual([{a: 1}, {b: 2}], [{a: 1}, {b: 2}])).toBeTrue();
+    });
+
     it('can deal with circular references', () => {
         let a = {};
         a['a'] = a;
@@ -79,7 +83,12 @@ describe('objectEqual', () => {
     });
 
     it('fails to match nested arrays with different values', () => {
+        expect(objectEqual({a: [1, 2, 3]}, {a: [3, 2, 1]})).toBeFalse();
         expect(objectEqual({a: [1, 2, 3]}, {a: [1]})).toBeFalse();
+    });
+
+    it('fails to match nested arrays with nested objects of different values', () => {
+        expect(objectEqual([{a: 1}, {b: 2}], [{c: 3}, {d: 4}])).toBeFalse();
     });
 });
 

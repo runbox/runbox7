@@ -36,6 +36,7 @@ import { ConfirmDialog } from '../dialog/confirmdialog.component';
 import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
+import { objectEqualWithKeys } from '../common/util';
 
 declare var FS;
 declare var IDBFS;
@@ -248,9 +249,9 @@ export class SearchService {
         .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
           return prev.length === curr.length
             && prev.every((f, index) =>
-              f.folderId === curr[index].folderId
-              && f.totalMessages === curr[index].totalMessages
-              && f.newMessages === curr[index].newMessages);
+              objectEqualWithKeys(f, curr[index], [
+                'folderId', 'totalMessages', 'newMessages',
+              ]));
         }))
         .subscribe((folders) =>
           this.indexWorker.postMessage({'action': PostMessageAction.folderListUpdate, 'value': folders })
