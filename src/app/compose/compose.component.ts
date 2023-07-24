@@ -31,7 +31,7 @@ import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
-import { debounceTime, mergeMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, mergeMap } from 'rxjs/operators';
 import { DialogService } from '../dialog/dialog.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
@@ -39,6 +39,7 @@ import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
+import { objectEqualWithKeys } from '../common/util';
 
 declare const tinymce: any;
 declare const MailParser;
@@ -194,6 +195,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         // Auto save
         this.formGroup.valueChanges
             .pipe(debounceTime(1000))
+            .pipe(distinctUntilChanged((prev, curr) => {
+                return objectEqualWithKeys(prev, curr, [
+                    'to', 'cc', 'bcc', 'from', 'subject', 'msg_body', 'html',
+                    'message_date', 'reply_to', 'reply_to_id', 'useHTML', 'mid',
+                    'replying',
+                ]);
+            }))
             .subscribe(() => this.submit(false));
 
         this.formGroup.controls.from.valueChanges
