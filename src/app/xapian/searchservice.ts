@@ -104,6 +104,7 @@ export class SearchService {
   localdir: string;
   partitionsdir: string;
 
+  isExpired: boolean = false;
   initcalled = false;
   partitionDownloadProgress: number = null;
 
@@ -183,6 +184,7 @@ export class SearchService {
         map((me) => {
           this.localdir = 'rmmsearchservice' + me.uid;
           this.partitionsdir = '/partitions' + this.localdir;
+          this.isExpired = me.isExpired();
         }),
         mergeMap(() =>
           new Observable<any>((observer) => {
@@ -212,17 +214,21 @@ export class SearchService {
           })
         )
       ).subscribe((hasLocalIndex: boolean) => {
-        if (hasLocalIndex) {
-          this.openDBOnWorker();
-          this.init();
+        if (!this.isExpired) {
+          if (hasLocalIndex) {
+            this.openDBOnWorker();
+            this.init();
+          } else {
+            // We have no local index - but still need the polling loop here
+            this.indexLastUpdateTime = new Date().getTime(); // Set the last update time to now since we don't have a local index
+            this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges});
+            this.noLocalIndexFoundSubject.next(true);
+            this.noLocalIndexFoundSubject.complete();
+            this.initSubject.next(false);
+            this.initSubject.complete();
+          }
         } else {
-          // We have no local index - but still need the polling loop here
-          this.indexLastUpdateTime = new Date().getTime(); // Set the last update time to now since we don't have a local index
-          this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges});
-          this.noLocalIndexFoundSubject.next(true);
-          this.noLocalIndexFoundSubject.complete();
-          this.initSubject.next(false);
-          this.initSubject.complete();
+          console.log("Account has expired, access to /account/subscriptions only");
         }
       });
 
@@ -805,9 +811,12 @@ export class SearchService {
               this.currentDocData.textcontent = this.messageTextCache.get(rmmMessageId);
           }
           this.rmmapi.getCachedMessageContents(rmmMessageId).then(content => {
-              if (content) {
+              if (content && content.text) {
                   // this.currentDocData.textcontent = content.text.text;
                   this.messageTextCache.set(rmmMessageId, content.text.text);
+              } else {
+                console.error("messangeContent has no text");
+                console.error(content);
               }
           });
 

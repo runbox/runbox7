@@ -92,6 +92,8 @@ export class RunboxMe {
     public is_trial: boolean;
     public uses_own_domain: boolean;
 
+    public account_status: string;
+
     public owner?: {
         uid: number;
         username: string;
@@ -114,11 +116,14 @@ export class RunboxMe {
     }
 
     getCreatedMoment(): moment.Moment {
-      return moment(this.user_created, 'X');
+        return moment(this.user_created, 'X');
     }
     newerThan(duration: number): boolean {
         const now = moment();
         return this.getCreatedMoment().diff(now) < duration;
+    }
+    isExpired(): boolean {
+        return this.account_status === 'expired';
     }
 }
 
@@ -294,48 +299,53 @@ export class RunboxWebmailAPI {
                     (folder ? '&folder=' + folder : '') +
                     '&avoidcacheuniqueparam=' + new Date().getTime();
 
-        return this.http.get(url, { responseType: 'text' }).pipe(
-            map((txt: string) => txt.length > 0 ? txt.split('\n') : []),
-            map((lines: string[]) =>
-                lines.map((line) => {
-                    const parts = line.split('\t');
-                    const from_ = parts[7];
-                    const to = parts[8];
-                    const fromInfo: MailAddressInfo[] = MailAddressInfo.parse(from_);
-                    const toInfo: MailAddressInfo[] = MailAddressInfo.parse(to);
-                    const size: number = parseInt(parts[10], 10);
-                    const attachment: boolean = parts[11] === 'y';
-                    const seenFlag: boolean = parseInt(parts[4], 10) === 1;
-                    const answeredFlag: boolean = parseInt(parts[5], 10) === 1;
-                    const flaggedFlag: boolean = parseInt(parts[6], 10) === 1;
+            return this.me.pipe(
+                filter(me => !me.isExpired()),
+                mergeMap((me) => {
+                    return this.http.get(url, { responseType: 'text' }).pipe(
+                        map((txt: string) => txt.length > 0 ? txt.split('\n') : []),
+                        map((lines: string[]) =>
+                            lines.map((line) => {
+                                const parts = line.split('\t');
+                                const from_ = parts[7];
+                                const to = parts[8];
+                                const fromInfo: MailAddressInfo[] = MailAddressInfo.parse(from_);
+                                const toInfo: MailAddressInfo[] = MailAddressInfo.parse(to);
+                                const size: number = parseInt(parts[10], 10);
+                                const attachment: boolean = parts[11] === 'y';
+                                const seenFlag: boolean = parseInt(parts[4], 10) === 1;
+                                const answeredFlag: boolean = parseInt(parts[5], 10) === 1;
+                                const flaggedFlag: boolean = parseInt(parts[6], 10) === 1;
 
 
-                    const ret = new MessageInfo(
-                        parseInt(parts[0], 10), // id
-                        new Date(parseInt(parts[1], 10) * 1000), // changed date
-                        new Date(parseInt(parts[2], 10) * 1000), // message date
-                        parts[3],                                // folder
-                        seenFlag,                                // seen flag
-                        answeredFlag,                            // answered flag
-                        flaggedFlag,                             // flagged flag
-                        fromInfo,                                // from
-                        toInfo,                                  // to
-                        [],                                      // cc
-                        [],                                      // bcc
-                        parts[9],                                // subject
-                        parts[12],                               // plaintext body
-                        size,                                    // size
-                        attachment                               // attachment
+                                const ret = new MessageInfo(
+                                    parseInt(parts[0], 10), // id
+                                    new Date(parseInt(parts[1], 10) * 1000), // changed date
+                                    new Date(parseInt(parts[2], 10) * 1000), // message date
+                                    parts[3],                                // folder
+                                    seenFlag,                                // seen flag
+                                    answeredFlag,                            // answered flag
+                                    flaggedFlag,                             // flagged flag
+                                    fromInfo,                                // from
+                                    toInfo,                                  // to
+                                    [],                                      // cc
+                                    [],                                      // bcc
+                                    parts[9],                                // subject
+                                    parts[12],                               // plaintext body
+                                    size,                                    // size
+                                    attachment                               // attachment
+                                );
+                                if (size === -1) {
+                                    // Size = -1 means deleted flag is set - ref hack in Webmail.pm
+                                    ret.deletedFlag = true;
+                                }
+                                return ret;
+                            })
+                           )
                     );
-                    if (size === -1) {
-                        // Size = -1 means deleted flag is set - ref hack in Webmail.pm
-                        ret.deletedFlag = true;
-                    }
-                    return ret;
                 })
-            )
-        );
-    }
+            );
+        }
 
     subscribeShowBackendErrors(req: any) {
         req.subscribe((res: any) => {
