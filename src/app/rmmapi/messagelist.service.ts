@@ -27,6 +27,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 
 import { RunboxWebmailAPI } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
+import { objectEqualWithKeys } from '../common/util';
 
 export class FolderMessageCountEntry {
     constructor(
@@ -79,10 +80,9 @@ export class MessageListService {
             .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
                 return prev.length === curr.length
                     && prev.every((f, index) =>
-                        f.folderId === curr[index].folderId
-                        && f.totalMessages === curr[index].totalMessages
-                        && f.newMessages === curr[index].newMessages
-                        && f.folderName === curr[index].folderName);
+                        objectEqualWithKeys(f, curr[index], [
+                            'folderId', 'totalMessages', 'newMessages', 'folderName'
+                        ]));
             }))
             .subscribe((folders) => {
                 // Will fallback on the folder counters set above for folders not in the search index
