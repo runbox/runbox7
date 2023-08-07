@@ -19,7 +19,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, CanActivateChild } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router, CanActivateChild } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
@@ -28,6 +28,7 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     urlBeforeLogin = '';
     wasLoggedIn = false;
+    currentMe;
 
     constructor(
         public http: HttpClient,
@@ -36,8 +37,8 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     }
 
-    checkLogin(): Promise<boolean> {
-        return new Promise<boolean>((resolve, _reject) => {
+    checkLogin(): Promise<boolean | UrlTree> {
+        return new Promise<boolean | UrlTree>((resolve, _reject) => {
             this.isLoggedIn().pipe(take(1)).subscribe(
                 success => {
                     if (!success) {
@@ -58,16 +59,31 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         });
     }
 
-    isLoggedIn(): Observable<boolean> {
+    isLoggedIn(): Observable<boolean | UrlTree> {
         return this.http.get('/rest/v1/me').pipe(
             map((res: any) => {
                 this.wasLoggedIn = res && res.status === 'success';
-                return this.wasLoggedIn;
+                if (res && res.result) {
+                    this.currentMe = res.result;
+                }
+                return this.checkStatus();
             }),
         );
     }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
+    checkStatus(): boolean | UrlTree {
+        // Expired users are only allowed to visit account/subscriptions
+        if (this.currentMe && this.urlBeforeLogin
+            && this.currentMe.account_status === 'expired'
+            && this.urlBeforeLogin !== '/account/subscriptions') {
+            return this.router.parseUrl('/account/subscriptions');
+        } else {
+            return this.wasLoggedIn;
+        }
+        
+    }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
         this.urlBeforeLogin = state.url;
 
         // Asynchronously check in whether the user is logged in or not
@@ -79,8 +95,9 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         // So if we saw user being logged in before, we assume that they still are:
         // the async login check will still continue in the background
         // and kick the user out in case we were wrong.
+        
         if (this.wasLoggedIn) {
-            return true;
+            return this.checkStatus();
         }
 
         // If the user was not logged in last time we checked,
@@ -88,7 +105,7 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         return loginCheck;
     }
 
-    canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
+    canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
         return this.canActivate(childRoute, state);
     }
 
@@ -98,12 +115,5 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         }
         console.log('Will navigate back to ', this.urlBeforeLogin);
         this.router.navigate(['login']);
-    }
-
-  redirectToSubscriptions() {
-      if (this.router.url !== 'account/subscriptions') {
-        console.log('Will navigate back to account/subscriptions');
-        this.router.navigate(['account/subscriptions']);
-      }
     }
 }
