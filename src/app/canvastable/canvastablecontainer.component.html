@@ -39,7 +39,7 @@
                 (mousedown)="mouseOverSelectAll()"
                 (mouseup)="mouseLeftSelectAll()"
                 >
-            <mat-icon matTooltip="Check visible/all. Long press for options" svgIcon="select-all"></mat-icon>
+            <mat-icon matTooltipPosition="left" matTooltip="Check visible/all messages. Long press for options." matTooltipClass="multiline-tooltip" svgIcon="select-all"></mat-icon>
         </button>
         <span [matMenuTriggerFor]="selectMenu"></span>
         <mat-menu #selectMenu="matMenu">
