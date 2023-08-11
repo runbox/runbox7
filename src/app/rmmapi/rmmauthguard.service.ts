@@ -75,7 +75,8 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         // Expired users are only allowed to visit account/subscriptions
         if (this.currentMe && this.urlBeforeLogin
             && this.currentMe.account_status === 'expired'
-            && this.urlBeforeLogin !== '/account/subscriptions') {
+          && !this.urlBeforeLogin.startsWith('/account')) {
+          console.log('Before login ' + this.urlBeforeLogin);
             return this.router.parseUrl('/account/subscriptions');
         } else {
             return this.wasLoggedIn;
