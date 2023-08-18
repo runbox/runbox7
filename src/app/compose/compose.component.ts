@@ -41,7 +41,6 @@ import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 import { objectEqualWithKeys } from '../common/util';
 
-declare const tinymce: any;
 declare const MailParser;
 
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
@@ -783,7 +782,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     ngOnDestroy() {
         if (this.editor) {
-            tinymce.remove(this.editor);
+            this.tinymce_plugin.remove(this.editor);
         }
     }
 
