@@ -1,3 +1,4 @@
+<br />
 <h1 *ngIf="!fromUrl; else urlPurchase"> Your shopping cart </h1>
 <ng-template #urlPurchase> <h2> Your purchase </h2> </ng-template>
 
@@ -146,33 +147,36 @@
             </p>
         </app-payment-method>
 
+        <app-payment-method
+          logo="/_img/pay/paypal_bundle_s.png"
+          logo_alt="PayPal logo"
+	  disable_payment="{{total <= 0}}"
+	  (click)="initiatePayment('paypal')"
+          >
+          <p>
+            <strong>Pay with your PayPal account</strong>
+          </p>
+          <p>
+            Note that your subscvriptions will not be renewed automatically via PayPal.
+          </p>
+        </app-payment-method>
+	
         <mat-expansion-panel style="margin: 50px 10px; text-align: center;">
-            <mat-expansion-panel-header>
-                <mat-panel-title style="text-align: center"> Other payment methods </mat-panel-title>
-            </mat-expansion-panel-header>
-
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <p>
-                    <button mat-raised-button (click)="initiatePayment('paypal')" color="primary">
-                        Pay with Paypal
-                    </button>
-                </p>
-                <p>
-                    This will be a one-time payment -- your products will not be renewed automatically.
-                </p>
-                <p>
-                    <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')" color="primary">
-                        Send us money directly
-                    </button>
-                </p>
-                <p>
-                    You can send us a SWIFT/IBAN bank transfer or mail us an envelope with cash in your preferred currency.
-        </p>
-        <p>
-                    Your products won't activate until the payment is received by Runbox.
-                </p>
-            </div>
-        </mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title style="text-align: center"> Other payment methods </mat-panel-title>
+          </mat-expansion-panel-header>
+	  <p>
+            <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')" color="primary">
+	      Bank Transfer or Cash Payment
+            </button>
+          </p>
+          <p>
+            You can send us a SWIFT/IBAN bank transfer or mail us an envelope with cash in your preferred currency.
+          </p>
+          <p>
+            Please note that your subscription won't activate until the payment is received by Runbox.
+          </p>
+	</mat-expansion-panel>
     </div>
 </div>
 

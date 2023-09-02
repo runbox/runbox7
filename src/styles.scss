@@ -310,6 +310,10 @@ mat-grid-tile.tableTitle {
     }
 }
 
+.description {
+    font-size: 12px;
+}
+
 /* Palette colors */
 
 .themePalettePrimary {
@@ -343,6 +347,7 @@ mat-grid-tile.tableTitle {
 .themePaletteBlack {
     color: #444 !important;
 }
+
 
 /*** App-specific styles including those that can't be loaded from component stylesheets ***/
 
