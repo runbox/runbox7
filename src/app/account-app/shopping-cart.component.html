@@ -125,11 +125,11 @@
 	    disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('stripe')"
           >
+            <h4>
+                Pay with a payment card or digital wallet
+            </h4>
             <p>
-                <strong>Pay with your credit/debit card using Stripe</strong>
-            </p>
-            <p>
-                All card details are processed securely.
+                All payment details are processed securely.
             </p>
         </app-payment-method>
 
@@ -139,9 +139,9 @@
 	    disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('bitpay')"
         >
-            <p>
-                 <strong>Pay with cryptocurrencies using Coinbase</strong>
-            </p>
+            <h4>
+                 Pay with cryptocurrencies using Coinbase
+            </h4>
             <p>
                 Your transaction is secured by cryptography.
             </p>
@@ -153,11 +153,11 @@
 	  disable_payment="{{total <= 0}}"
 	  (click)="initiatePayment('paypal')"
           >
+          <h4>
+            Pay with a payment card or PayPal wallet
+          </h4>
           <p>
-            <strong>Pay with your PayPal account</strong>
-          </p>
-          <p>
-            Note that your subscvriptions will not be renewed automatically via PayPal.
+            Note that your subscvriptions will not recur automatically.
           </p>
         </app-payment-method>
 	
