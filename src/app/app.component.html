@@ -243,7 +243,7 @@
 	  </button>
 
 	  <!-- Message action submenu for regular screens -->
-	  <div class="contextToolButtons" *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
+	  <div class="contextToolButtonsRegular mat-toolbar" *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
 	    <button mat-icon-button matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
 	      <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
 	    </button>
@@ -256,8 +256,8 @@
 	    <button mat-icon-button matTooltip="Unset flag" matTooltipPosition="left" (click)="setFlaggedStatus(false)">
               <mat-icon svgIcon="flag-outline"></mat-icon>
 	    </button>
-	    <button mat-icon-button matTooltip="Back" matTooltipPosition="left" (click)="closeMarkOpMenu()">
-              <mat-icon svgIcon="keyboard-backspace"></mat-icon>
+	    <button mat-icon-button matTooltip="Close menu" matTooltipPosition="left" (click)="closeMarkOpMenu()">
+              <mat-icon svgIcon="close"></mat-icon>
 	    </button>
 	  </div>
 	</div>
@@ -358,7 +358,7 @@
   </div>
 
   <!-- Message action floating menu for mobile screens -->
-  <div class="contextToolButtons" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
+  <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
     <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" matTooltipPosition="left" (click)="moveToFolder()">
       <mat-icon svgIcon="folder"></mat-icon>
     </button>
@@ -387,7 +387,7 @@
   </div>
   
   <!-- Message action floating submenu for mobile screens -->
-  <div class="contextToolButtons" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
+  <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
     <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
       <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
     </button>

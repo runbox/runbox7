@@ -10,22 +10,44 @@
     vertical-align: middle !important;
 }
 
-.contextToolButtons {
+.contextToolButtonsRegular {
     position: absolute;
     display: flex;
     flex-direction: column;
-    right: 75px;
+    right: 70px;
     top: 50px;
     z-index: 10;
-    background: whitesmoke;
+    padding: 0 10px;
 
     button {
-        width: 30px;
-        height: 30px;
-        margin-bottom: 8px;
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 30px !important;
+        height: 30px !important;
+        margin-bottom: 8px;
+
+        mat-icon {
+            margin: 0;
+        }
+    }
+}
+
+.contextToolButtonsMobile {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    right: 25px;
+    top: 110px;
+    z-index: 10;
+
+    button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        margin-bottom: 8px;
 
         mat-icon {
             margin: 0;
