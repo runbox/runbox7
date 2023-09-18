@@ -38,7 +38,7 @@ export class TinyMCEPlugin {
                     'table charmap hr pagebreak ' +
                     'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
                     'textpattern help code'),
-                toolbar: (options.toolbar || 'formatselect | bold italic strikethrough forecolor backcolor codesample | ' +
+                toolbar: (options.toolbar || 'formatselect | fontselect fontsizeselect bold italic strikethrough forecolor backcolor codesample | ' +
                         'link image | alignleft aligncenter alignright alignjustify  | ' +
                         'numlist bullist outdent indent | removeformat | addcomment | code'),
                 codesample_languages: (options.codesample_languages || [
@@ -54,6 +54,7 @@ export class TinyMCEPlugin {
                             {text: 'C++', value: 'cpp'}
                         ]),
                 contextmenu: false,
+                font_formats: 'Arial=arial,helvetica,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
                 image_list: (options.image_list || []),
                 menubar: (options.menubar || false),
                 setup: (options.setup),
