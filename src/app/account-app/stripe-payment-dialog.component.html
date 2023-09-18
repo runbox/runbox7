@@ -84,23 +84,22 @@
     <div [style.display]="state === 'finished' ? 'block' : 'none'">
         <div> Your payment was successful and your products have been activated. </div>
     </div>
-</div>
 
-<div class="description" style="text-align: center"> Payment form not working? <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.</a> </div>
+    <div class="description" style="text-align: center"> Payment form not working? <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.</a> </div>
 
-<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
-    <button mat-button (click)="close()"> Cancel </button>
-</div>
-<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'initial'">
-    <button mat-button (click)="close()"> Cancel </button>
-    <button mat-flat-button color="primary" (click)="submitPayment()">
+    <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
+      <button mat-button (click)="close()"> Cancel </button>
+    </div>
+    <div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'initial'">
+      <button mat-button (click)="close()"> Cancel </button>
+      <button mat-flat-button color="primary" (click)="submitPayment()">
         <span *ngIf="state === 'initial'"> Submit payment </span>
-    </button>
-</div>
-<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'failure'">
-    <button mat-button (click)="close()"> Close </button>
-</div>
-<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'finished'">
-    <button mat-button (click)="close()"> Close </button>
-    <button mat-flat-button color="primary" (click)="showReceipt()"> Show Receipt </button>
-</div>
+      </button>
+    </div>
+    <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'failure'">
+      <button mat-button (click)="close()"> Close </button>
+    </div>
+    <div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'finished'">
+      <button mat-button (click)="close()"> Close </button>
+      <button mat-flat-button color="primary" (click)="showReceipt()"> Show Receipt </button>
+    </div>
