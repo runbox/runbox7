@@ -16,16 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 import { RMM } from '../rmm';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-aliases-lister',
@@ -44,7 +39,7 @@ import { RMM } from '../rmm';
         <ng-content select="[section-header]" style="margin-top: 20px;"></ng-content>
         <ng-content select="[section-description]"></ng-content>
         <ng-content select="[section-buttons]"></ng-content>
-        <form *ngFor="let item of values; let i = index;">
+        <form *ngFor="let item of aliases; let i = index;">
             <div style='width: 100%'>
                 <mat-divider *ngIf="i > 0"></mat-divider>
 
@@ -65,9 +60,9 @@ import { RMM } from '../rmm';
                         [value]="item.forward_to"
                     >
                 </mat-form-field>
-<!--
                 <button
                     (click)="edit(item)"
+                    id="edit-alias"
                     color='primary'
                     mat-raised-button
                     style="margin: 10px;"
@@ -76,57 +71,88 @@ import { RMM } from '../rmm';
                 </button>
 
                 <button
-                    (click)="delete(i, item)"
-                    *ngIf="!is_delete_disabled"
+                    (click)="delete(item)"
+                    id="delete-alias"
                     color='primary'
                     mat-raised-button
                     style="margin: 10px;"
                 >
                     Delete
                 </button>
--->
             </div>
             <mat-divider class='transparent'></mat-divider>
         </form>
+
+        <button 
+            id="create-new-alias"
+            (click)="create()"
+            color='primary'
+            mat-raised-button
+        >
+            Create New
+        </button>
     </div>
 
         `
 })
 export class AliasesListerComponent {
-  @Input() values: any[];
-  @Input() is_delete_disabled: false;
-  @Output() ev_reload = new EventEmitter<string>();
-  private dialog_ref: any;
-  visible_code_check = {};
-  constructor(public dialog: MatDialog,
-    public snackBar: MatSnackBar,
-    public rmm: RMM,
-  ) {}
-  edit (item): void {
-      item = JSON.parse(JSON.stringify(item));
-      this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
-          width: '600px',
-          data: item
-      });
-      this.dialog_ref.afterClosed().subscribe(result => {
-          item = result;
-      });
-      this.dialog_ref.componentInstance.is_update = true;
-      this.dialog_ref.componentInstance.css_class = 'update';
+  aliases: any[] = [];
+  defaultEmail: string;
+
+  constructor(
+    private dialog: MatDialog,
+    rmmapi: RunboxWebmailAPI,
+    rmm: RMM,
+  ) {
+    rmm.alias.load().subscribe(reply => { 
+        if (reply['status'] === 'success') { 
+            this.aliases = reply['result']['aliases'];
+        }
+    });
+    rmmapi.me.subscribe(me => this.defaultEmail = me.user_address);
   }
-  delete (i, item) {
-    this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
+
+  create() {
+    const dialogRef = this.dialog.open(AliasesEditorModalComponent, {
+        width: '600px',
+        data: { forward_to: this.defaultEmail }
+    });
+    dialogRef.componentInstance.isCreate = true;
+    dialogRef.afterClosed().subscribe(result => {
+        // FIXME: called even if the user clicks on 'Cancel'
+        // FIXME: find a way to not call the callback at all
+        if (result !== undefined) {
+            this.aliases.push(result);
+        }
+    })
+  }
+
+  edit (item: object) {
+    const dialogRef = this.dialog.open(AliasesEditorModalComponent, {
+        width: '600px',
+        data: item
+    });
+    dialogRef.componentInstance.isUpdate = true;
+    dialogRef.afterClosed().subscribe(result => {
+        if (result !== undefined) {
+            const item = this.aliases.find(v => v.id === result.id);
+            // modify reference
+            Object.assign(item, result);
+        }
+    });
+  }
+
+  delete(item: object) {
+    const dialogRef = this.dialog.open(AliasesEditorModalComponent, {
         width: '600px',
         data: item,
     });
-    this.dialog_ref.componentInstance.is_delete = true;
-      this.dialog_ref.componentInstance.css_class = 'delete';
-    this.dialog_ref.afterClosed().subscribe(result => {
-    });
-  }
-  show_error (message, action) {
-    this.snackBar.open(message, action, {
-      duration: 2000,
+    dialogRef.componentInstance.isDelete = true;
+    dialogRef.afterClosed().subscribe(result => {
+        if (result !== undefined) {
+            const itemIndex = this.aliases.findIndex(v => v.id === result.id);
+            this.aliases.splice(itemIndex, 1);
+        }
     });
   }
 }

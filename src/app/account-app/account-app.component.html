@@ -14,13 +14,11 @@
                         <mat-icon mat-list-icon svgIcon="account-group"></mat-icon> <span>Identities</span>
                     </p>
                 </mat-list-item>
-                <a href="/mail/account_alias" target="rmm6">
-                    <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="account-circle"></mat-icon> <span>Email Aliases</span>
-                        </p>
-                    </mat-list-item>
-                </a>
+                <mat-list-item routerLink="/account/aliases">
+                    <p mat-line>
+                        <mat-icon mat-list-icon svgIcon="account-circle"></mat-icon> <span>Email Aliases</span>
+                    </p>
+                </mat-list-item>
             </mat-expansion-panel>
 
             <!-- MANAGER -->
