@@ -170,9 +170,9 @@
 	</div>
       </div>
   </mat-sidenav>
-  <div style="overflow: hidden; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; width: 100%">
-    <mat-toolbar id="searchBarContainer" style="display: flex">
-      <button mat-icon-button (click)="sidemenu.toggle();" matTooltipPosition="left" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
+  <div id="mailMenuContainer">
+    <mat-toolbar id="mailMenu" style="display: flex">
+      <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
 	<mat-icon svgIcon="menu"></mat-icon>
       </button>
 
@@ -214,6 +214,53 @@
           matTooltip="Back to conversations list">
           <mat-icon svgIcon="arrow-left"></mat-icon>
         </button>
+
+	<!-- Message action menu for regular screens -->
+	<div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet" class="messageActionButtons">
+	  <button mat-icon-button matTooltip="Move selected message(s) to folder" (click)="moveToFolder()">
+            <mat-icon svgIcon="folder"></mat-icon>
+	  </button>
+	  <button mat-icon-button (click)="deleteMessages()"
+		  [matTooltip]="selectedFolder !== this.messagelistservice.trashFolderName ? 'Move selected message(s) to Trash' : 'Delete permanently'"
+		  >
+            <mat-icon
+              *ngIf="selectedFolder !== this.messagelistservice.trashFolderName; else deletePermanently"
+              svgIcon="delete"
+              >
+            </mat-icon>
+            <ng-template #deletePermanently>
+              <mat-icon svgIcon="delete-forever"></mat-icon>
+            </ng-template>
+	  </button>
+	  <button mat-icon-button matTooltip="Mark selected message(s) as ..." (click)="openMarkOpMenu()">
+            <mat-icon svgIcon="playlist-check"></mat-icon>
+	  </button>
+	  <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-icon-button matTooltip="Report selected message(s) as spam" (click)="trainSpam({is_spam:1})">
+            <mat-icon svgIcon="alert-octagon"></mat-icon>
+	  </button>
+	  <button mat-icon-button *ngIf="selectedFolder===messagelistservice.spamFolderName" matTooltip="Report selected message(s) as not spam" (click)="trainSpam({is_spam:0})">
+            <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
+	  </button>
+
+	  <!-- Message action submenu for regular screens -->
+	  <div class="contextToolButtonsRegular mat-toolbar" *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
+	    <button mat-icon-button matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
+	      <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
+	    </button>
+	    <button mat-icon-button matTooltip="Mark read" matTooltipPosition="left" (click)="setReadStatus(true)">
+              <mat-icon svgIcon="email-open"></mat-icon>
+	    </button>
+	    <button mat-icon-button matTooltip="Set flag" matTooltipPosition="left" (click)="setFlaggedStatus(true)">
+              <mat-icon svgIcon="flag"></mat-icon>
+	    </button>
+	    <button mat-icon-button matTooltip="Unset flag" matTooltipPosition="left" (click)="setFlaggedStatus(false)">
+              <mat-icon svgIcon="flag-outline"></mat-icon>
+	    </button>
+	    <button mat-icon-button matTooltip="Close menu" matTooltipPosition="left" (click)="closeMarkOpMenu()">
+              <mat-icon svgIcon="close"></mat-icon>
+	    </button>
+	  </div>
+	</div>
 
         <mat-menu #tableViewOptionsMenu="matMenu">
           <mat-list>
@@ -308,57 +355,56 @@
           (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
           (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
     </div>
-
-    
-
   </div>
 
-  <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
-      <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" matTooltipPosition="left" (click)="moveToFolder()">
-          <mat-icon svgIcon="folder"></mat-icon>
-      </button>
-      <button mat-fab (click)="deleteMessages()"
-        [matTooltip]="selectedFolder !== this.messagelistservice.trashFolderName ? 'Move to Trash' : 'Delete permanently'"
-        matTooltipPosition="left"
-      >
-        <mat-icon
-            *ngIf="selectedFolder !== this.messagelistservice.trashFolderName; else deletePermanently"
-            svgIcon="delete"
+  <!-- Message action floating menu for mobile screens -->
+  <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
+    <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" matTooltipPosition="left" (click)="moveToFolder()">
+      <mat-icon svgIcon="folder"></mat-icon>
+    </button>
+    <button mat-fab (click)="deleteMessages()"
+            [matTooltip]="selectedFolder !== this.messagelistservice.trashFolderName ? 'Move to Trash' : 'Delete permanently'"
+            matTooltipPosition="left"
+	    >
+      <mat-icon
+        *ngIf="selectedFolder !== this.messagelistservice.trashFolderName; else deletePermanently"
+        svgIcon="delete"
         >
-        </mat-icon>
-        <ng-template #deletePermanently>
-          <mat-icon svgIcon="delete-forever"></mat-icon>
-        </ng-template>
-      </button>
-      <button mat-fab matTooltip="Mark as ..." matTooltipPosition="left" (click)="openMarkOpMenu()">
-          <mat-icon svgIcon="playlist-check"></mat-icon>
-      </button>
-      <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-fab matTooltip="Report spam" matTooltipPosition="left" (click)="trainSpam({is_spam:1})">
-          <mat-icon svgIcon="alert-octagon"></mat-icon>
-      </button>
-      <button mat-fab *ngIf="selectedFolder===messagelistservice.spamFolderName" matTooltip="Not spam" matTooltipPosition="left" (click)="trainSpam({is_spam:0})">
-          <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
-      </button>
-    </div>
-
-    <div class="contextToolButtons" *ngIf="!hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
-      <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
-          <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
-      </button>
-      <button mat-fab matTooltip="Mark read" matTooltipPosition="left" (click)="setReadStatus(true)">
-          <mat-icon svgIcon="email-open"></mat-icon>
-      </button>
-      <button mat-fab matTooltip="Set flag" matTooltipPosition="left" (click)="setFlaggedStatus(true)">
-          <mat-icon svgIcon="flag"></mat-icon>
-      </button>
-      <button mat-fab matTooltip="Unset flag" matTooltipPosition="left" (click)="setFlaggedStatus(false)">
-          <mat-icon svgIcon="flag-outline"></mat-icon>
-      </button>
-      <button mat-fab matTooltip="Back" matTooltipPosition="left" (click)="closeMarkOpMenu()">
-          <mat-icon svgIcon="keyboard-backspace"></mat-icon>
-      </button>
-    </div>
-<router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
+      </mat-icon>
+      <ng-template #deletePermanently>
+        <mat-icon svgIcon="delete-forever"></mat-icon>
+      </ng-template>
+    </button>
+    <button mat-fab matTooltip="Mark as ..." matTooltipPosition="left" (click)="openMarkOpMenu()">
+      <mat-icon svgIcon="playlist-check"></mat-icon>
+    </button>
+    <button *ngIf="selectedFolder!==messagelistservice.spamFolderName" mat-fab matTooltip="Report spam" matTooltipPosition="left" (click)="trainSpam({is_spam:1})">
+      <mat-icon svgIcon="alert-octagon"></mat-icon>
+    </button>
+    <button mat-fab *ngIf="selectedFolder===messagelistservice.spamFolderName" matTooltip="Not spam" matTooltipPosition="left" (click)="trainSpam({is_spam:0})">
+      <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
+    </button>
+  </div>
+  
+  <!-- Message action floating submenu for mobile screens -->
+  <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
+    <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
+      <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
+    </button>
+    <button mat-fab matTooltip="Mark read" matTooltipPosition="left" (click)="setReadStatus(true)">
+      <mat-icon svgIcon="email-open"></mat-icon>
+    </button>
+    <button mat-fab matTooltip="Set flag" matTooltipPosition="left" (click)="setFlaggedStatus(true)">
+      <mat-icon svgIcon="flag"></mat-icon>
+    </button>
+    <button mat-fab matTooltip="Unset flag" matTooltipPosition="left" (click)="setFlaggedStatus(false)">
+      <mat-icon svgIcon="flag-outline"></mat-icon>
+    </button>
+    <button mat-fab matTooltip="Back" matTooltipPosition="left" (click)="closeMarkOpMenu()">
+      <mat-icon svgIcon="keyboard-backspace"></mat-icon>
+    </button>
+  </div>
+  <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
 </mat-sidenav-container>
 
 <!-- This will cause an error in dev mode with the async pipe, should not be present however in production -->
