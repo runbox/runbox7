@@ -77,7 +77,7 @@ export class RMM {
     public handle_field_errors ( res, field_errors ) {
         if ( res.status === 'error' ) {
             if ( field_errors && res.field_errors ) {
-                field_errors = res.field_errors;
+                Object.assign(field_errors, res.field_errors);
             }
             if ( res.errors ) {
                 this.show_error( res.errors.join( '' ), 'Dismiss' );

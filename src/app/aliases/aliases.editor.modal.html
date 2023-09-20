@@ -1,0 +1,85 @@
+<mat-card class="mat_card" style="padding: 0px">
+    <mat-card-header class="mat_header">
+        <div mat-card-avatar class="header-image" >
+        </div>
+        <mat-card-title >
+            <div *ngIf="isCreate" style="color: #FFF;">Create alias</div>
+            <div *ngIf="isUpdate" style="color: #FFF;">{{data.localpart + '@' + data.domain}}</div>
+            <div *ngIf="isDelete" style="color: #000;">Delete alias {{data.localpart + '@' + data.domain}} ?</div>
+        </mat-card-title>
+        <mat-card-subtitle>
+            <div *ngIf="isUpdate" style="color: #FFF;">Delivers to: {{data.forward_to}}</div>
+            <div *ngIf="isDelete" style="color: #000;">Delivers to: {{data.forward_to}}</div>
+        </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <div mat-dialog-content>
+            <form>
+                <mat-form-field style="margin: 10px; width: 40%;">
+                    <input matInput placeholder="Localpart"
+                        name="localpart"
+                        [readonly]="!isCreate"
+                        [(ngModel)]="data.localpart"
+                        (ngModelChange)="onChangeField('localpart')"
+                    >
+                    <div *ngIf="fieldErrors && fieldErrors.localpart">
+                        <mat-hint>
+                            ie. jamesbond
+                        </mat-hint>
+                        <mat-error *ngFor="let error of fieldErrors.localpart">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+                @
+                <mat-form-field style="margin: 10px; width: 40%;">
+                    <mat-label>Domain</mat-label>
+                    <mat-select
+                        name="domain"
+                        [(ngModel)]="data.domain"
+                        (ngModelChange)="onChangeField('domain')"
+                    >
+                        <mat-option *ngFor="let domain of allowedDomains" [value]="domain">
+                            {{domain}}
+                        </mat-option>
+                    </mat-select>
+                    <div *ngIf="fieldErrors && fieldErrors.domain">
+                        <mat-error *ngFor="let error of fieldErrors.domain">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+                <mat-form-field style="margin: 10px; width: 45%;" *ngIf="!isCreate">
+                    <input matInput placeholder="Domain"
+                        name="domain"
+                        readonly
+                        [(ngModel)]="data.domain"
+                        (ngModelChange)="onChangeField('domain')"
+                    >
+                </mat-form-field>
+                <mat-form-field style="margin: 10px; width: 95%;">
+                    <input matInput placeholder="Deliver to account"
+                        name="forward_to"
+                        [(ngModel)]="data.forward_to"
+                        (ngModelChange)="onChangeField('forward_to')"
+                    >
+                    <mat-hint>
+                        ie. you@runbox.com
+                    </mat-hint>
+                    <div *ngIf="fieldErrors && fieldErrors.forward_to">
+                        <mat-error *ngFor="let error of fieldErrors.forward_to">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+            </form>
+        </div>
+    </mat-card-content>
+    <mat-card-actions style="padding: 0px 10px">
+    <button mat-raised-button (click)="save()" color="primary" *ngIf="!isDelete" id="save">SAVE</button>
+    <button mat-raised-button (click)="delete()" color="" *ngIf="isDelete" id="delete">DELETE</button>
+    <button mat-raised-button (click)="cancel()" color="warn" id="cancel">CANCEL</button>
+    </mat-card-actions>
+    <mat-card-footer>
+    </mat-card-footer>
+</mat-card>
