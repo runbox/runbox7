@@ -64,7 +64,7 @@ $custom-typography: mat.define-legacy-typography-config(
 @include mat.legacy-core();
 
 
-/* Generic styles */
+/*** Generic styles ***/
 
 html {
     height: 100%;
@@ -78,7 +78,7 @@ body {
 }
 
 h1, .mat-typography h1 {
-    margin: 0 0 20px 0;
+    margin: 10px 0 20px 0;
     font-size: 30px;
     font-weight: 400;
 }
@@ -239,7 +239,7 @@ mat-icon {
 }
 
 .appPageHeader h1 {
-    margin-top: 8px;
+    margin-top: 4px;
 }
 
 .mat-dialog-container {
@@ -348,9 +348,11 @@ mat-grid-tile.tableTitle {
     color: #444 !important;
 }
 
-/*** App-specific styles including those that can't be loaded from component stylesheets ***/
+/*** App-specific styles ***/
 
-/* Main */
+/* NOTE: These include ones that can't be loaded from component stylesheets ***/
+
+/*** Main ***/
 
 #main {
     position: fixed; 
@@ -366,7 +368,7 @@ mat-grid-tile.tableTitle {
 }
 
 
-/* Login screen */
+/*** Login screen ***/
 
 .loginSection {
     display: flex;
@@ -704,6 +706,7 @@ mat-sidenav-container {
 
 #toggleFolderPaneIcon {
     overflow: visible;
+    width: 24px;
 }
 
 @media (min-width: 1025px) {
@@ -793,11 +796,14 @@ h3.sideNavHeader {
 }
 
 
-/* Welcome Desk */
+/*** Welcome Desk ***/
+
 .welcomedesk a {
     color: mat.get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
+
+/*** Mail ***/
 
 /* Folders */
 
@@ -875,15 +881,29 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 /* List screen */
 
-#searchBarContainer {
+#mailMenuContainer {
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 100%;
+}
+
+#mailMenu {
     height: 55px;
+    padding: 0 8px;
     @media(max-width: 340px) {
-        padding: 0;
+
     }
 }
 
-#searchBarContainer .mat-icon-button {
-    margin: 0 2px;
+.messageActionButtons button {
+    width: 30px; // Remember to update TOOLBAR_BUTTON_WIDTH in singlemailviewer.component.ts to show the correct number of menu items
+}
+
+#mailMenu .mat-icon-button {
     height: 40px;
 }
 
@@ -900,7 +920,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 #searchField .mat-form-field-infix {
     line-height: 1.25em;
-    padding: 0.25em 0;
+    padding: 0.2em 0;
 }
 
 #searchField .mat-form-field-underline {
@@ -918,6 +938,10 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 #searchField label {
     font-size: 14px;
+}
+
+#searchField .mat-form-field-infix {
+    width: 100%;
 }
 
 #multipleSearchFieldsContainer {
@@ -1055,8 +1079,8 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 }
 
+/* Preview pane message action button row */
 
-/* Message action button row */
 single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
     height: 55px !important;
 }
@@ -1184,7 +1208,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 }
 
 
-/* Contacts */
+/*** Contacts ***/
 
 .contactListControls {
     .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
@@ -1224,7 +1248,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 }
 
 
-/* Calendar */
+/*** Calendar ***/
 
 app-calendar-app-component mat-nav-list button {
     margin: 0 !important;
@@ -1309,7 +1333,7 @@ app-calendar-event-editor-dialog p {
     margin-top: 35px;
 }
 
-/* Payment */
+/*** Payment ***/
 
 .limitedTimeOffer {
     border: 1px solid mat.get-color-from-palette($rmm-default-primary);
@@ -1360,7 +1384,7 @@ app-calendar-event-editor-dialog p {
 }
 
 
-/* Runbox components */
+/*** Runbox components ***/
 
 .dev.runbox-components .nice_green_timer {
     color: #0F0;

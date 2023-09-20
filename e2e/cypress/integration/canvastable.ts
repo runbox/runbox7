@@ -10,6 +10,7 @@ describe('Selecting rows in canvastable', () => {
     }
 
     it('should select one row', () => {
+        cy.viewport('iphone-6');
         cy.visit('/');
         cy.closeWelcomeDialog();
 
@@ -22,6 +23,7 @@ describe('Selecting rows in canvastable', () => {
     })
 
     it('should select multiple rows', () => {
+        cy.viewport('iphone-6');
         cy.visit('/');
         cy.closeWelcomeDialog();
 
