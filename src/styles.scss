@@ -894,9 +894,12 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
     }
 }
-
-.messageActionButtons button {
-    width: 30px; // Remember to update TOOLBAR_BUTTON_WIDTH in singlemailviewer.component.ts to show the correct number of menu items
+.messageListActionButtons {
+    overflow: hidden;
+}
+                             
+.messageListActionButtons button {
+    width: 30px; // Remember to also update TOOLBAR_LIST_BUTTON_WIDTH in app.component.ts in order to show the correct number of menu items
 }
 
 #mailMenu .mat-icon-button {
@@ -1018,6 +1021,16 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     color: #bbb;
     text-align: center;
 }
+
+.messageActionButtons {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.messageActionButtons button {
+    width: 30px; // Remember to also update TOOLBAR_BUTTON_WIDTH in singlemailviewer.component.ts in order to show the correct number of menu items
+}
+
 /* Message display options */
 
 .htmlButtons {

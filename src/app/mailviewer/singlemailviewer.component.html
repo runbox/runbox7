@@ -9,7 +9,7 @@
     <!-- Message preview toolbar -->
     <!-- NOTE: These items need to be replicated in the overflow toolbar further down. The number of items shown is controlled by morebuttonindex and TOOLBAR_BUTTON_WIDTH in the .ts file. -->
     
-    <div style="flex-grow: 1; overflow: hidden" class="messageActionButtons" #toolbarButtonContainer>
+    <div class="messageActionButtons" #toolbarButtonContainer>
       <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move message to folder..." (click)="messageActionsHandler.moveToFolder()">
         <mat-icon svgIcon="folder"></mat-icon>
       </button>
