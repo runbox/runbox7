@@ -12,14 +12,49 @@ mat-card a {
     color: inherit;
     text-decoration: none;
 }
+h1 {
+    text-align: center;
+}
+h2 {
+    margin: 20px 0 0 0;
+    text-align: center;
+}
 h3 {
-    margin: 0 0 10px 0;
     font-size: 20px;
     line-height: 20px;
+    text-align: center;
 }
 h4 {
     margin: 0;
     font-size: 16px;
+}
+#introSpecialOffer {
+    text-align: center;
+    margin: 20px;
+}
+#introSpecialOfferNote {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    margin: 20px;
+}
+#introSpecialOfferNote div {
+    text-align: center;
+}
+#introSpecialOfferNote mat-icon {
+    margin: 0;
+    padding: 0;
+    width: 50px;
+    height: auto;
+}
+#introSpecialOffer.h4 {
+    text-align: center;
+}    
+#introSpecialOfferBanner {
+    width: 100%;
+    height: auto;
+    text-align: center;
 }
 div.gridHighlight {
     display: flex;
