@@ -177,7 +177,7 @@
       </button>
       
       <ng-container *ngIf="!hasChildRouterOutlet">
-        <mat-form-field id="searchField" style="flex-grow: 1" floatLabel="auto"
+        <mat-form-field id="searchField" floatLabel="auto"
                         *ngIf="searchService.downloadProgress===null">
           <input matInput #searchInputField type="text"
                  (focus)="searchTextFieldFocus()"
@@ -216,8 +216,7 @@
         </button>
         
 	    <!-- Message action menu for regular screens -->
-	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet" class="messageListActionButtons" #toolbarListButtonContainer>
-          WIDTH: {{toolbarlistwidth}} {{TOOLBAR_LIST_BUTTON_WIDTH}}
+	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet" class="messageListActionButtonsRight" #toolbarListButtonContainer>
 	      <button *ngIf="morelistbuttonindex>0" mat-icon-button matTooltip="Move selected message(s) to folder" (click)="moveToFolder()">
             <mat-icon svgIcon="folder"></mat-icon>
 	      </button>
@@ -251,7 +250,7 @@
 	      <button *ngIf="morelistbuttonindex>6 && selectedFolder===messagelistservice.spamFolderName" mat-icon-button matTooltip="Report selected message(s) as not spam" (click)="trainSpam({is_spam:0})">
             <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
 	      </button>
-          <button *ngIf="morelistbuttonindex < 7" [matMenuTriggerFor]="moreMailListActionsMenu" mat-icon-button matTooltip="More menu items">
+          <button *ngIf="morelistbuttonindex < 7" [matMenuTriggerFor]="moreMailListActionsMenu" mat-icon-button matTooltip="More message actions">
             <mat-icon svgIcon="dots-vertical"></mat-icon>
           </button>
           
@@ -310,7 +309,7 @@
             (click)="$event.stopPropagation()"
             class="tableViewOptionsMenuElement"
             >
-            <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
+            <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
             Inline previews
           </mat-checkbox>
         </mat-list-item>
@@ -323,7 +322,7 @@
                         [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
                         class="tableViewOptionsMenuElement"
                         >
-            <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
+            <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
             Threaded view
           </mat-checkbox>
         </mat-list-item>
@@ -353,7 +352,7 @@
       </mat-list>
     </mat-menu>
     <button mat-icon-button [matMenuTriggerFor]="tableViewOptionsMenu" matTooltip="Show view options">
-      <mat-icon svgIcon="dots-vertical"></mat-icon>
+      <mat-icon svgIcon="view-dashboard"></mat-icon>
     </button>
       </ng-container>
       <div *ngIf="searchService.downloadProgress!==null" id="syncMessage">

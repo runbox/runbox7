@@ -159,7 +159,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   xapianLoaded = xapianLoadedSubject;
 
-  morelistbuttonindex = 4;
+  morelistbuttonindex = 7;
 
   constructor(public searchService: SearchService,
     public rmmapi: RunboxWebmailAPI,
@@ -343,6 +343,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     } else {
       this.dynamicSearchFieldPlaceHolder = null;
     }
+    this.calculateWidthDependentElements();
   }
 
   ngOnInit(): void {
@@ -465,6 +466,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
 
       this.subscribeToNotifications();
+      this.calculateWidthDependentElements();
   }
 
   selectMessageFromFragment(fragment: string): void {
@@ -706,6 +708,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       ) - 1;
     }
   }
+    
 
   public openMarkOpMenu() {
     this.showSelectMarkOpMenu = true;

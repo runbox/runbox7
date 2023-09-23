@@ -894,11 +894,12 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
     }
 }
-.messageListActionButtons {
+.messageListActionButtonsRight {
+    flex-grow: 1;
     overflow: hidden;
 }
                              
-.messageListActionButtons button {
+.messageListActionButtonsRight button {
     width: 30px; // Remember to also update TOOLBAR_LIST_BUTTON_WIDTH in app.component.ts in order to show the correct number of menu items
 }
 
@@ -907,6 +908,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 }
 
 #searchField {
+    flex-grow: 10;
     margin: 0px 10px 0 10px;
     @media(max-width: 340px) {
         margin: 0px 5px 0 5px;
@@ -1022,12 +1024,16 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     text-align: center;
 }
 
-.messageActionButtons {
+.messageActionButtonsLeft {
     flex-grow: 1;
     overflow: hidden;
 }
 
-.messageActionButtons button {
+.messageActionButtonsRight {
+    overflow: hidden;
+}
+
+.messageActionButtonsLeft button, .messageActionButtonsRight button {
     width: 30px; // Remember to also update TOOLBAR_BUTTON_WIDTH in singlemailviewer.component.ts in order to show the correct number of menu items
 }
 

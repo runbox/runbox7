@@ -119,7 +119,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   previousHeight: number;
   previousHeightPercentage: number;
 
-  morebuttonindex = 4;
+  morebuttonindex = 9;
   attachmentAreaCols = 2;
 
   folder: string;
