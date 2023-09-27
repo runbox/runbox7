@@ -9,7 +9,7 @@
     <!-- Message preview toolbar -->
     <!-- NOTE: These items need to be replicated in the overflow toolbar further down. The number of items shown is controlled by morebuttonindex and TOOLBAR_BUTTON_WIDTH in the .ts file. -->
     
-    <div style="flex-grow: 1; overflow: hidden" class="messageActionButtons" #toolbarButtonContainer>
+    <div class="messageActionButtonsLeft" #toolbarButtonContainer>
       <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move message to folder..." (click)="messageActionsHandler.moveToFolder()">
         <mat-icon svgIcon="folder"></mat-icon>
       </button>
@@ -74,7 +74,7 @@
         matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
         <mat-icon svgIcon="alert"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More menu items">
+      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
 
@@ -170,7 +170,7 @@
       </mat-menu>
     </div>
 
-    <div class="messageActionButtons">
+    <div class="messageActionButtonsRight">
       <button mat-icon-button matTooltip="Print message (Please consider the environment before printing this email)" (click)="print()" id="buttonPrint">
 	<mat-icon svgIcon="printer"></mat-icon>
       </button>
