@@ -2,14 +2,14 @@
     <ng-content select="[section-header]"></ng-content>
     <ng-content select="[section-description]"></ng-content>
     <ng-content select="[section-buttons]"></ng-content>
-    <mat-card class="mat-elevation-z2 profile-card" *ngFor="let item of values; let i = index;">
+    <mat-card class="mat-elevation-z2 profile-card" *ngFor="let item of profiles; let i = index;">
         <mat-card-content class="profile-content">
             <mat-grid-list cols="{{mobile?6:7}}" rowHeight="15px">
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">Email:</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="4" rowspan="2">
-                    <span class="float-left">{{item.profile.email}}</span>
+                    <span class="float-left">{{item.email}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="1" rowspan="8" *ngIf="!mobile">
                     <button mat-raised-button (click)="edit(item)" color="primary">Edit</button>
@@ -18,35 +18,31 @@
                     <span class="float-right">From Name:</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="4" rowspan="2">
-                    <span class="float-left">{{item.profile.from_name}}</span>
+                    <span class="float-left">{{item.from_name}}</span>
                 </mat-grid-tile>
-                <mat-grid-tile *ngIf="item.profile.reference.folder" colspan="2" rowspan="2">
+                <mat-grid-tile *ngIf="item.reference.folder" colspan="2" rowspan="2">
                     <span class="float-right">Origin:</span>
                 </mat-grid-tile>
-                <mat-grid-tile *ngIf="item.profile.reference.folder" colspan="4" rowspan="2">
-                    <span class="float-left">{{ 'Runbox 6 Folder: ' + item.profile.reference.folder}}</span>
+                <mat-grid-tile *ngIf="item.reference.folder" colspan="4" rowspan="2">
+                    <span class="float-left">{{ 'Runbox 6 Folder: ' + item.reference.folder}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">Reply To:</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="4" rowspan="2">
-                    <span class="float-left">{{item.profile.reply_to}}</span>
+                    <span class="float-left">{{item.reply_to}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">Signature:</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="4" rowspan="2">
-                    <span class="float-left">{{item.profile.signature}}</span>
+                    <span class="float-left">{{item.signature}}</span>
                 </mat-grid-tile>
-                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="
-                            rmm.profile.profiles
-                            && rmm.profile.profiles.is_not_owner_alias
-                            && rmm.profile.profiles.is_not_owner_alias[item.profile.id]
-                        ">
-                    <span class="identity-warning">You are not the owner of this alias. Changes will not be saved.</span>
+                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="item.type === 'main'">
+                    <span class="identity-warning">Username profile</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1"
-                    *ngIf="item.profile.reference_type == 'preference' && item.profile.reference.status === 1">
+                    *ngIf="item.reference_type === 'preference' && item.reference.status === 1">
                     <span class="identity-warning">Email not validated.</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="mobile">

@@ -16,12 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
-import { RMM } from '../rmm';
 import { MobileQueryService, ScreenSize } from '../mobile-query.service';
 
 @Component({
@@ -30,25 +29,22 @@ import { MobileQueryService, ScreenSize } from '../mobile-query.service';
     templateUrl: 'profiles.lister.html',
 })
 export class ProfilesListerComponent {
-    @Input() values: any[];
-    @Output() ev_reload = new EventEmitter<string>();
+    @Input() profiles: any[];
 
     private dialog_ref: any;
     mobile: boolean;
 
     constructor(
         public dialog: MatDialog,
-        public rmm: RMM,
         public snackBar: MatSnackBar,
         mobileQuery: MobileQueryService,
     ) {
-        this.rmm.me.load();
         this.mobile = mobileQuery.screenSize === ScreenSize.Phone;
         mobileQuery.screenSizeChanged.subscribe(size => this.mobile = size === ScreenSize.Phone);
     }
 
     edit(item): void {
-        item = JSON.parse(JSON.stringify(item));
+        //item = JSON.parse(JSON.stringify(item));
         this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
             width: '600px',
             data: item,
@@ -57,21 +53,7 @@ export class ProfilesListerComponent {
         this.dialog_ref.componentInstance.is_update = true;
         this.dialog_ref.componentInstance.css_class = 'update';
         this.dialog_ref.afterClosed().subscribe((result) => {
-            this.ev_reload.emit('updated');
             item = result;
-        });
-    }
-
-    delete(i, item) {
-        this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
-            width: '600px',
-            data: item,
-        });
-        this.dialog_ref.componentInstance.is_delete = true;
-        this.dialog_ref.afterClosed().subscribe((result) => {
-            if (this.dialog_ref.componentInstance.has_deleted) {
-                this.ev_reload.emit('deleted');
-            }
         });
     }
 

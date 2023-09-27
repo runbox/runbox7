@@ -3,17 +3,16 @@
         <mat-card-title class="header-title">
             <span *ngIf="is_create">Create profile</span>
             <span *ngIf="is_update">Edit profile</span>
-            <span *ngIf="is_create_main">Create main profile</span>
         </mat-card-title>
         <mat-card-subtitle class="header-subtitle">
-            <span *ngIf="is_update">{{data.profile.name}}</span>
+            <span *ngIf="is_update">{{identity.name}}</span>
         </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content class="content" style="margin-bottom: 0;">
         <form>
             <mat-form-field class="form-field form-item">
-                <input matInput placeholder="From Name" name="from" [(ngModel)]="data.profile.from_name"
+                <input matInput placeholder="From Name" name="from" [(ngModel)]="identity.from_name"
                     (ngModelChange)="onchange_field('from_name')" />
                 <div *ngIf="field_errors && field_errors.from_name">
                     <mat-hint> ie. James Bond </mat-hint>
@@ -24,10 +23,10 @@
             </mat-form-field>
 
             <mat-form-field class="form-field form-item"
-                *ngIf="is_aliases_global_domain(data) && rmm.runbox_domain.data ; else other_content">
+                *ngIf="is_aliases_global_domain(identity) && rmm.runbox_domain.data ; else other_content">
                 <mat-label>Email</mat-label>
-                <mat-select [(ngModel)]="data.profile.preferred_runbox_domain"
-                    [(value)]="data.profile.preferred_runbox_domain"
+                <mat-select [(ngModel)]="identity.preferred_runbox_domain"
+                    [(value)]="identity.preferred_runbox_domain"
                     (ngModelChange)="onchange_field('preferred_runbox_domain')" name="preferred_runbox_domain"
                     [ngModelOptions]="{standalone: true}">
                     <mat-option *ngFor="let runbox_domain of rmm.runbox_domain.data" [value]="runbox_domain.name">
@@ -39,8 +38,8 @@
             <ng-template #other_content>
                 <mat-form-field class="form-field form-item">
                     <input matInput placeholder="Email" [ngStyle]="get_form_field_style()" name="email"
-                        [readonly]="( data.profile && data.profile.type == 'aliases' )"
-                        [(ngModel)]="data.profile.email" (ngModelChange)="onchange_field('email')" />
+                        [readonly]="( identity && identity.type == 'aliases' )"
+                        [(ngModel)]="identity.email" (ngModelChange)="onchange_field('email')" />
                     <div *ngIf="field_errors && field_errors.email">
                         <mat-hint>
                             ie. jamesbond@runbox.com
@@ -53,7 +52,7 @@
             </ng-template>
 
             <mat-form-field class="form-field form-item">
-                <input matInput placeholder="Description" name="name" [(ngModel)]="data.profile.name"
+                <input matInput placeholder="Description" name="name" [(ngModel)]="identity.name"
                     (ngModelChange)="onchange_field('name')" />
                 <div *ngIf="field_errors && field_errors.name">
                     <mat-hint> ie. My main identity </mat-hint>
@@ -71,7 +70,7 @@
             </div>
 
             <mat-form-field class="form-field form-item" *ngIf="is_different_reply_to">
-                <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="data.profile.reply_to"
+                <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="identity.reply_to"
                     (ngModelChange)="onchange_field('reply_to')" />
                 <div *ngIf="field_errors && field_errors.reply_to">
                     <mat-hint>ie. noreply@runbox.com</mat-hint>
@@ -83,7 +82,7 @@
 
             <mat-form-field class="signature form-item">
                 <textarea matInput placeholder="Signature" [id]="selector" name="signature"
-                    [(ngModel)]="data.profile.signature" (ngModelChange)="onchange_field('signature')"></textarea>
+                    [(ngModel)]="identity.signature" (ngModelChange)="onchange_field('signature')"></textarea>
                 <div *ngIf="field_errors && field_errors.signature">
                     <mat-hint>
                         ie.
@@ -98,7 +97,7 @@
             </mat-form-field>
 
             <div class="form-checkbox form-item">
-                <mat-checkbox name="is_signature_html" [(ngModel)]="data.profile.is_signature_html"
+                <mat-checkbox name="is_signature_html" [(ngModel)]="identity.is_signature_html"
                     (change)="toggle_signature_html()">
                     Use HTML for signature
                 </mat-checkbox>
@@ -106,25 +105,21 @@
         </form>
     </mat-card-content>
 
-    <div class="warning-container" *ngIf="data.profile.reference_type == 'preference' && data.profile.reference.status === 1">
+    <div class="warning-container" *ngIf="identity.reference_type == 'preference' && identity.reference.status === 1">
         Email not validated. Check your email or
-        <a href="javascript:void(0)" (click)="resend_validate_email(data.profile.id)">
+        <a href="javascript:void(0)" (click)="resend_validate_email(identity.id)">
             re-send</a>.
     </div>
 
-    <p class="mat-small" style="text-align: center; margin-top: 0;" *ngIf="this.data.profile.type === 'aliases'">To manage your aliases, please visit <a routerLink href="/account/aliases">Email Aliases</a>.</p>
+    <p class="mat-small" style="text-align: center; margin-top: 0;" *ngIf="identity.type === 'aliases'">To manage your aliases, please visit <a routerLink href="/account/aliases">Email Aliases</a>.</p>
 
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
-            <button *ngIf="this.data.profile.type !== 'main' && this.data.profile.type !== 'aliases' " mat-raised-button (click)="delete()" color="warn">DELETE</button>
+            <button *ngIf="identity.type !== 'main' && identity.type !== 'aliases' && identity.from_priority !== 0 " mat-raised-button (click)="delete()" color="warn">DELETE</button>
         </span>
         <span>
             <button mat-raised-button (click)="close()" color="accent">CANCEL</button>
             <button mat-raised-button (click)="save()" color="primary">SAVE</button>
         </span>
     </mat-card-actions>
-
-    <mat-card-footer>
-        <mat-progress-bar *ngIf="is_busy" mode="indeterminate"></mat-progress-bar>
-    </mat-card-footer>
 </mat-card>

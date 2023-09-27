@@ -35,7 +35,7 @@ import { filter, map, mergeMap } from 'rxjs/operators';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';
-import { FromAddress } from './from_address';
+import { Identity, FromPriority } from '../profiles/profile.service';
 import { MessageCache } from './messagecache';
 import { LRUMessageCache } from './lru-message-cache';
 import moment from 'moment';
@@ -488,40 +488,61 @@ export class RunboxWebmailAPI {
             map((res: any) => res.result as MessageFields));
     }
 
-    public getFromAddress(): Observable<FromAddress[]> {
-        return this.http.get('/rest/v1/profiles/verified').pipe(
+    public getProfiles(): Observable<Identity[]> {
+        return this.http.get('/rest/v1/profiles').pipe(
             map((res: any) => {
-                const results = [];
-                Object.keys(res['result']).forEach( (k) => {
-                    res['result'][k].forEach( (item) => {
-                        const profile = FromAddress.fromObject({
-                            id: item.profile.id,
-                            email: item.profile.email,
-                            reply_to: item.profile.reply_to,
-                            name: item.profile.from_name,
-                            signature: item.profile.signature,
-                            type: k,
-                            priority: item.profile.from_priority,
-                        });
-                        results.push(profile);
-                    });
-                });
-                return results;
-            })
-        );
+                return res.results.map(p => Identity.fromObject(p));
+            }));
     }
 
-    public getAliases(): Observable<Alias[]> {
-        return this.http.get('/ajax/aliases')
-            .pipe(
-                map((res: any) => res.aliases),
-                map((aliases: any[]) =>
-                    aliases.map((alias) => new Alias(alias.id,
-                        alias.localpart,
-                        alias.name,
-                        alias.localpart + '@' + alias.name))
-                )
-            );
+    public createProfile(profileData: any): Observable<boolean> {
+        const req = this.http.post(
+            '/rest/v1/profile',
+            profileData
+        ).pipe(share());
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(filter((res: any) => res.status === 'success'));
+    }
+
+    // FIXME: This should be PATCH
+    public updateProfile(profileId: number, profileData: any): Observable<boolean> {
+        const req = this.http.put(
+            '/rest/v1/profile/' + profileId,
+            profileData
+        ).pipe(share());
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(filter((res: any) => res.status === 'success'));
+        
+    }
+
+    public deleteProfile(profileId: number): Observable<boolean> {
+        const req = this.http.delete(
+            '/rest/v1/profile/' + profileId
+        ).pipe(share());
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(filter((res: any) => res.status === 'success'));
+    }
+
+    // FIXME: This should be a POST
+    public resendValidationEmail(profileId: number): Observable<boolean> {
+        const req = this.http.put(
+            '/rest/v1/profile/' + profileId + '/resend_validation_email',
+            {}
+        ).pipe(share());
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(filter((res: any) => res.status === 'success'));
+    }
+
+    public updateFromPriorities(priorities: FromPriority[]) {
+        const req = this.http.post(
+          '/rest/v1/profile/from_priority/', {"from_priorities": priorities }
+        ).pipe(share());
+        this.subscribeShowBackendErrors(req);
+        return req.pipe(filter((res: any) => res.status === 'success'));
+    }
+    
+    public getAliasLimits(): Observable<any> {
+        return this.http.get('/rest/v1/aliases/limits');
     }
 
     public getRunboxDomains(): Observable<string[]> {

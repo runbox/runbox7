@@ -1,8 +1,8 @@
 <section class="mat-typography">
     <h1>Identities</h1>
     <div>
-        <app-profiles-lister *ngIf="rmm.profile && profiles && profiles.hasOwnProperty('main')"
-            [values]="profiles.main" (ev_reload)="ev_reload_emiter($event)">
+        <app-profiles-lister *ngIf="profileService.composeProfile"
+            [profiles]="[profileService.composeProfile]">
             <div section-header>
                 <h2>Default Identity</h2>
             </div>
@@ -12,7 +12,10 @@
             </div>
         </app-profiles-lister>
 
-        <app-profiles-default *ngIf="rmm.profile && profiles" (ev_reload)="ev_reload_emiter($event)">
+        <app-profiles-default *ngIf="profileService.validProfiles.value.length > 0"
+            [validProfiles] = profileService.validProfiles.value
+            [selectedProfile] = profileService.composeProfile
+            >
             <div section-description>
                 <p style="margin-bottom: 0;">Select the email you want to use as your Default Identity:</p>
             </div>
@@ -20,8 +23,8 @@
         <br>
 
         <app-profiles-lister
-            *ngIf="rmm.profile && profiles && profiles.hasOwnProperty('aliases')"
-            [values]="profiles.aliases" (ev_reload)="ev_reload_emiter($event)">
+            *ngIf="profileService.aliases.value.length > 0"
+            [profiles]="profileService.aliases.value">
             <div section-header>
                 <h2>Identities for Aliases</h2>
             </div>
@@ -29,7 +32,7 @@
               <p>Aliases are extra email addresses that deliver to your account, just as your main username/email address does. Below are identities you can use if you want to send messages from your aliases.</p>
               <p>These identities can be customised by adding a different From Name, Signature or Reply-to address. You can also change the Runbox domain an alias uses.</p>
               <p>You can't delete these identities as they are tied to your aliases.</p>
-                <p style="color: crimson" *ngIf="rmm.alias?.aliases_counter?.current === rmm.alias?.aliases_counter?.total">
+                <p style="color: crimson" *ngIf="alias_limits?.current === alias_limits?.total">
                     You have reached the maximum allowed number of Runbox aliases.
                 </p>
               <p>To manage your aliases, please visit <a routerLink="../aliases">Email Aliases</a>.</p>
@@ -38,15 +41,15 @@
         <br><br>
 
         <app-profiles-lister
-            *ngIf="rmm.profile && profiles && profiles.hasOwnProperty('others')"
-            [values]="profiles.others" (ev_reload)="ev_reload_emiter($event)">
+            *ngIf="profileService.nonAliases.value.length > 0"
+            [profiles]="profileService.nonAliases.value">
             <div section-header>
                 <h2>Other identities</h2>
             </div>
             <div section-description>
-                <p>Other Identities can be used when you want to send from addresses that are not part of your Runbox 
-                    account. Adding this kind of address (e.g. a work email address) will require verification via 
-                    email that you have access to that account. You can also use Other Identities if you need 
+                <p>Other Identities can be used when you want to send from addresses that are not part of your Runbox
+                    account. Adding this kind of address (e.g. a work email address) will require verification via
+                    email that you have access to that account. You can also use Other Identities if you need
                     additional identities for you Runbox email addresses.</p>
                 <p>Added identities require verification via an email sent to the given address.</p>
             </div>
@@ -54,7 +57,7 @@
                 <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
                     Add Identity
                 </button>
-                {{profiles.others.length}} identities created
+                {{profileService.nonAliases.value.length}} identities created
             </div>
         </app-profiles-lister>
     </div>

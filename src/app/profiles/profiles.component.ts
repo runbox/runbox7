@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild } from '@angular/core';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
-import { RMM, AllIdentities } from '../rmm';
+import { ProfileService } from './profile.service';
 
 @Component({
   moduleId: 'angular2/app/profiles/',
@@ -29,44 +29,27 @@ import { RMM, AllIdentities } from '../rmm';
   templateUrl: 'profiles.component.html'
 })
 
-export class ProfilesComponent implements OnInit {
+export class ProfilesComponent {
   panelOpenState = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
-  profiles: AllIdentities;
-  aliases = [];
-  aliases_counter = {};
-  aliases_unique = [];
+//  profiles: Identity[];
+  alias_limits;
   dialog_ref: any;
-
-  ngOnInit() {
-    this.rmm.profile.profiles.subscribe(profiles => this.profiles = profiles);
-  }
-
-  ev_reload_emiter (ev) {
-    this.load_aliases();
-    this.load_profiles();
-  }
 
   constructor(
     public snackBar: MatSnackBar,
     public dialog: MatDialog,
-    public rmm: RMM,
+    public profileService: ProfileService,
   ) {
-    this.rmm.runbox_domain.load();
-    this.load_profiles();
-    this.load_aliases();
+//    this.profileService.profiles.subscribe((profiles) => this.profiles = profiles);
+    // FIXME: Need to refresh this if/when we make more aliases
+    this.profileService.rmmapi.getAliasLimits().subscribe(
+      res => this.alias_limits = res
+    );
   }
-
-  load_aliases () {
-    this.rmm.alias.load();
-  }
-
-  load_profiles () {
-    this.rmm.profile.load();
-  }
-
+ 
   show_error (message, action) {
     this.snackBar.open(message, action, {
       duration: 2000,
@@ -79,10 +62,8 @@ export class ProfilesComponent implements OnInit {
         width: '600px',
         data: item,
     });
-    this.dialog_ref.componentInstance.aliases_unique = this.aliases_unique;
     this.dialog_ref.componentInstance.is_create = true;
     this.dialog_ref.afterClosed().subscribe(result => {
-        this.load_profiles();
         item = result;
     });
   }
