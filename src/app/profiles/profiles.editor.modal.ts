@@ -20,6 +20,7 @@ import { Component, Input, Inject } from '@angular/core';
 
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { Identity, ProfileService } from './profile.service';
 import { RMM } from '../rmm';
 import { Location } from '@angular/common';
 import { DraftDeskService } from '../compose/draftdesk.service';
@@ -33,15 +34,12 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 
 export class ProfilesEditorModalComponent {
     @Input() value: any[];
-    field_errors;
+    field_errors: Identity;
     allowed_domains = [];
     is_valid = false;
-    aliases_unique = [];
-    is_busy = false;
-    is_delete = false;
+
     is_update = false;
     is_create = false;
-    is_create_main = false;
     type;
     is_visible_smtp_detail = false;
     is_different_reply_to = false;
@@ -50,131 +48,101 @@ export class ProfilesEditorModalComponent {
     selector: any;
     public tinymce_plugin: TinyMCEPlugin;
     constructor(
+        public profileService: ProfileService,
         public rmm: RMM,
         private location: Location,
         public snackBar: MatSnackBar,
         public dialog_ref: MatDialogRef<ProfilesEditorModalComponent>,
         public draftDeskservice: DraftDeskService,
-        @Inject(MAT_DIALOG_DATA) public data: any
+        @Inject(MAT_DIALOG_DATA) public identity: Identity
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
-        if (data && data.type) {
-            this.type = data.type;
-            delete data.type;
+        if (identity.email) {
+            this.set_localpart(identity);
         }
-        if (data.profile && data.profile.email) {
-            this.set_localpart(data);
-        }
-        if (!data || !Object.keys(data).length || !data.profile) {
-            data = { profile: {} };
+        if (!identity || !Object.keys(identity).length) {
+            identity = new Identity;
             const self = this;
-            data.profile.name = ['first_name', 'last_name'].map((attr) => {
-                return self.rmm.me.data[attr];
+            identity.name = ['first_name', 'last_name'].map((attr) => {
+                return self.profileService.me[attr];
             }).join(' ');
         }
-        this.data = data;
-        if (this.data.profile.is_signature_html) {
+        this.identity = identity;
+        if (this.identity.is_signature_html) {
             this.init_tinymce();
         } else {
-            this.data.profile.is_signature_html = false;
+            this.identity.is_signature_html = false;
         }
-        this.check_reply_to(this.data);
+        this.check_reply_to(this.identity);
     }
-    check_reply_to(data) {
-        if (data && data.profile.email && data.profile.reply_to &&
-            data.profile.reply_to !== data.profile.email) {
+    check_reply_to(identity) {
+        if (identity && identity.email && identity.reply_to &&
+            identity.reply_to !== identity.email) {
             this.is_different_reply_to = true;
             return;
         }
         this.is_different_reply_to = false;
     }
-    set_localpart(data) {
-        if (data.profile.email.match(/@/g)) {
-            this.localpart = data.profile.email.replace(/@.+/g, '');
+    set_localpart(identity) {
+        if (identity.email.match(/@/g)) {
+            this.localpart = identity.email.replace(/@.+/g, '');
             const regex = /(.+)@(.+)/g;
-            const match = regex.exec(data.profile.email);
-            data.profile.preferred_runbox_domain = match[2];
+            const match = regex.exec(identity.email);
+            identity.preferred_runbox_domain = match[2];
         } else {
-            this.localpart = data.profile.email;
-            data.profile.preferred_runbox_domain = this.localpart;
+            this.localpart = identity.email;
+            identity.preferred_runbox_domain = this.localpart;
         }
     }
     save() {
-        if (this.is_create || this.is_create_main) {
+        if (this.is_create) {
             this.create();
         } else { this.update(); }
     }
     create() {
-        this.is_busy = true;
-        const data = this.data;
+        const identity = this.identity;
         const values = {
-            name: data.profile.name,
-            email: data.profile.email,
-            from_name: data.profile.from_name,
-            reply_to: data.profile.reply_to,
-            signature: data.profile.signature,
-            smtp_address: data.profile.smtp_address,
-            smtp_port: data.profile.smtp_port,
-            smtp_username: data.profile.smtp_username,
-            smtp_password: data.profile.smtp_password,
+            name: identity.name,
+            email: identity.email,
+            from_name: identity.from_name,
+            reply_to: identity.reply_to,
+            signature: identity.signature,
+            smtp_address: identity.smtp_address,
+            smtp_port: identity.smtp_port,
+            smtp_username: identity.smtp_username,
+            smtp_password: identity.smtp_password,
             type: this.type,
-            is_signature_html: (data.profile.is_signature_html ? 1 : 0),
-            is_smtp_enabled: (data.profile.is_smtp_enabled ? 1 : 0),
+            is_signature_html: (identity.is_signature_html ? 1 : 0),
+            is_smtp_enabled: (identity.is_smtp_enabled ? 1 : 0),
         };
-        const req = this.rmm.profile.create(values, this.field_errors);
-        req.subscribe(reply => {
-            if (reply['status'] === 'success') {
-                this.rmm.profile.load();
-                this.close();
-                return;
-            }
-            this.is_busy = false;
-        });
+        this.profileService.create(values).subscribe(
+            res => this.close
+        );
     }
     delete() {
-        this.is_busy = true;
-        const data = this.data;
-        const req = this.rmm.profile.delete(data.profile.id);
-        req.subscribe(reply => {
-            if (reply['status'] === 'success') {
-                this.rmm.profile.load();
-                this.close();
-                return;
-            } else if (reply['status'] === 'error') {
-                this.show_error(reply['errors'].join(' '), 'Dismiss');
-            }
-            this.is_busy = false;
-        });
+        const identity = this.identity;
+        this.profileService.delete(identity.id).subscribe(
+            res => this.close()
+        );
     }
     update() {
-        this.is_busy = true;
-        const data = this.data;
+        const identity = this.identity;
         const values = {
-            name: data.profile.name,
-            email: data.profile.email,
-            from_name: data.profile.from_name,
-            reply_to: data.profile.reply_to,
-            signature: data.profile.signature,
-            smtp_address: data.profile.smtp_address,
-            smtp_port: data.profile.smtp_port,
-            smtp_username: data.profile.smtp_username,
-            smtp_password: data.profile.smtp_password,
-            is_signature_html: (data.profile.is_signature_html ? 1 : 0),
-            is_smtp_enabled: (data.profile.is_smtp_enabled ? 1 : 0),
+            name: identity.name,
+            email: identity.email,
+            from_name: identity.from_name,
+            reply_to: identity.reply_to,
+            signature: identity.signature,
+            smtp_address: identity.smtp_address,
+            smtp_port: identity.smtp_port,
+            smtp_username: identity.smtp_username,
+            smtp_password: identity.smtp_password,
+            is_signature_html: (identity.is_signature_html ? 1 : 0),
+            is_smtp_enabled: (identity.is_smtp_enabled ? 1 : 0),
         };
-        const req = this.rmm.profile.update(this.data.profile.id, values, this.field_errors);
-        req.subscribe(reply => {
-            this.is_busy = false;
-            if (reply['status'] === 'success') {
-                this.rmm.profile.load();
-                this.close();
-                return;
-            } else {
-                if (reply['field_errors']) {
-                    this.field_errors = reply['field_errors'];
-                }
-            }
-        });
+      this.profileService.update(this.identity.id, values).subscribe(
+        res => this.close()
+      );
     }
     close() {
         this.dialog_ref.close({});
@@ -189,10 +157,10 @@ export class ProfilesEditorModalComponent {
             this.field_errors[field] = [];
         }
         if (field === 'preferred_runbox_domain') {
-            const data = this.data;
-            const selected_domain = data.profile.preferred_runbox_domain;
+            const identity = this.identity;
+            const selected_domain = identity.preferred_runbox_domain;
             ['email'].forEach((attr) => {
-                let email = data.profile[attr];
+                let email = identity[attr];
                 if (email && email.match(/@/g)) {
                     let is_replaced = false;
                     this.rmm.runbox_domain.data
@@ -202,25 +170,25 @@ export class ProfilesEditorModalComponent {
                             const rgx = '@' + runbox_domain + '$';
                             const re = new RegExp(rgx, 'g');
                             if (email.match(re)) {
-                                email = data.profile[attr].replace(re, '@' + selected_domain);
-                                this.data.profile[attr] = email;
+                                email = identity[attr].replace(re, '@' + selected_domain);
+                                this.identity[attr] = email;
                                 is_replaced = true;
                             }
                         });
                 } else {
-                    this.data.profile[attr] = [data.profile[attr], selected_domain].join('@');
+                    this.identity[attr] = [identity[attr], selected_domain].join('@');
                 }
             });
         }
         if (field === 'is_different_reply_to') {
             if (!this.is_different_reply_to) {
-                this.data.profile.reply_to = '';
+                this.identity.reply_to = '';
             }
         }
     }
     get_form_field_style() {
         const styles = {};
-        if (this.data.profile && this.data.profile.type === 'aliases') {
+        if (this.identity && this.identity.type === 'aliases') {
             styles['background'] = '#dedede';
         }
         return styles;
@@ -232,12 +200,12 @@ export class ProfilesEditorModalComponent {
             this.is_visible_smtp_detail = false;
         }
     }
-    is_aliases_global_domain(data) {
-        return (data.profile.reference_type === 'aliases' && !data.profile.email.match(/@/g))
-            || (data.profile.reference_type === 'aliases' && data.profile.email && this.global_domains().filter((d) => {
+    is_aliases_global_domain(identity) {
+        return (identity.reference_type === 'aliases' && !identity.email.match(/@/g))
+            || (identity.reference_type === 'aliases' && identity.email && this.global_domains().filter((d) => {
                 const rgx = d.name;
                 const re = new RegExp(rgx, 'g');
-                if (data.profile.email.match(re)) {
+                if (identity.email.match(re)) {
                     return true;
                 }
                 return false;
@@ -251,7 +219,7 @@ export class ProfilesEditorModalComponent {
         }
     }
     toggle_signature_html() {
-        if (this.data.profile.is_signature_html) {
+        if (this.identity.is_signature_html) {
             this.init_tinymce();
         } else {
             this.hide_tinymce();
@@ -259,13 +227,12 @@ export class ProfilesEditorModalComponent {
     }
     hide_tinymce() {
         if (this.editor) {
-            this.data.profile.signature = this.editor.getContent({ format: 'text' });
+            this.identity.signature = this.editor.getContent({ format: 'text' });
             this.tinymce_plugin.remove(this.editor);
             this.editor = null;
         }
     }
     init_tinymce() {
-        this.is_busy = true;
         const self = this;
         this.selector = `html-editor-${Math.floor(Math.random() * 10000000000)}`;
         const options = {
@@ -274,14 +241,13 @@ export class ProfilesEditorModalComponent {
             setup: editor => {
                 self.editor = editor;
                 editor.on('Change', () => {
-                    self.data.profile.signature = editor.getContent();
+                    self.identity.signature = editor.getContent();
                 });
             },
             init_instance_callback: (editor) => {
-                this.is_busy = false;
                 editor.setContent(
-                    self.data.profile.signature ?
-                        self.data.profile.signature.replace(/\n/g, '<br />\n') :
+                    self.identity.signature ?
+                        self.identity.signature.replace(/\n/g, '<br />\n') :
                         ''
                 );
             }
@@ -289,16 +255,6 @@ export class ProfilesEditorModalComponent {
         this.tinymce_plugin.create(options);
     }
     resend_validate_email(id) {
-        const req = this.rmm.profile.resend(id);
-        req.subscribe(
-            data => {
-                const reply = data;
-                if (reply['status'] === 'success') {
-                    this.show_error('Email validation sent', 'Dismiss');
-                    this.rmm.profile.load();
-                    return;
-                }
-            },
-        );
+        this.profileService.re_validate(id);
     }
 }

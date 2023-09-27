@@ -3,8 +3,8 @@
 
     <div class="profiles-select">
         <mat-form-field id="default-identity-form">
-            <mat-select [(value)]="selected" [(ngModel)]="selected">
-                <mat-option class="identity-profile" *ngFor="let profile of profiles" [value]="profile">
+            <mat-select [value]="selectedProfile" [(ngModel)]="selectedProfile">
+                <mat-option class="identity-profile" *ngFor="let profile of validProfiles" [value]="profile">
                     {{profile.nameAndAddress}}
                 </mat-option>
             </mat-select>

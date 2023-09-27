@@ -25,7 +25,7 @@ import { ContactKind, Contact } from '../contacts-app/contact';
 import { isValidEmail } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { Recipient } from './recipient';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { ProfileService } from '../profiles/profile.service';
 import moment from 'moment';
 
 enum RecipientOrigin {
@@ -45,9 +45,9 @@ export class RecipientsService {
     constructor(
         private searchService: SearchService,
         private contactsService: ContactsService,
-        rmmapi: RunboxWebmailAPI,
+        profileService: ProfileService
     ) {
-        rmmapi.getFromAddress().subscribe(
+        profileService.validProfiles.subscribe(
             froms => this.ownAddresses.next(new Set(froms.map(f => f.email))),
             _err  => this.ownAddresses.next(new Set([])),
         );
