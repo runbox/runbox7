@@ -20,6 +20,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WelcomeDeskComponent } from './welcomedesk.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 describe('WelcomeDeskComponent', () => {
   let component: WelcomeDeskComponent;
@@ -27,7 +28,18 @@ describe('WelcomeDeskComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WelcomeDeskComponent ]
+      declarations: [ WelcomeDeskComponent ],
+      imports: [
+      ],
+      providers:
+      [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            postSignup: {params: {offer: 'y'}}
+          }
+        }
+      ]
     })
     .compileComponents();
   });
