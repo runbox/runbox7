@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -72,7 +72,8 @@ const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
-
+const TOOLBAR_LIST_BUTTON_WIDTH = 30;
+    
 @Component({
   moduleId: 'angular2/app/',
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -134,6 +135,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
   @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
+  @ViewChild('toolbarListButtonContainer') toolbarListButtonContainer: ElementRef;
 
   sideMenuOpened = true;
 
@@ -156,6 +158,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   experimentalFeatureEnabled = false;
 
   xapianLoaded = xapianLoadedSubject;
+
+  morelistbuttonindex = 7;
 
   constructor(public searchService: SearchService,
     public rmmapi: RunboxWebmailAPI,
@@ -339,6 +343,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     } else {
       this.dynamicSearchFieldPlaceHolder = null;
     }
+    this.calculateWidthDependentElements();
   }
 
   ngOnInit(): void {
@@ -461,6 +466,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
 
       this.subscribeToNotifications();
+      this.calculateWidthDependentElements();
   }
 
   selectMessageFromFragment(fragment: string): void {
@@ -693,6 +699,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     });
   }
+
+  calculateWidthDependentElements() {
+    if (this.toolbarListButtonContainer) {
+      const toolbarlistwidth = (this.toolbarListButtonContainer.nativeElement as HTMLDivElement).clientWidth;
+      this.morelistbuttonindex = Math.floor(
+        toolbarlistwidth / TOOLBAR_LIST_BUTTON_WIDTH
+      ) - 1;
+    }
+  }
+    
 
   public openMarkOpMenu() {
     this.showSelectMarkOpMenu = true;
