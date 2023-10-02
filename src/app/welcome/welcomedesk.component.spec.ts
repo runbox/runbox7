@@ -20,7 +20,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WelcomeDeskComponent } from './welcomedesk.component';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 describe('WelcomeDeskComponent', () => {
   let component: WelcomeDeskComponent;
@@ -36,7 +36,7 @@ describe('WelcomeDeskComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            postSignup: {params: {offer: 'y'}}
+            queryParams: {params: {offer: 'y'}}
           }
         }
       ]
