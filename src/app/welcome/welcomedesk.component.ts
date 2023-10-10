@@ -18,17 +18,25 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-welcome',
   templateUrl: './welcomedesk.component.html',
   styleUrls: ['./welcomedesk.component.scss']
 })
+
 export class WelcomeDeskComponent implements OnInit {
 
-  constructor() { }
-
+  constructor(
+    private activatedRoute: ActivatedRoute,
+  ) { }
+  
+  public postSignup = ''
+    
   ngOnInit() {
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.postSignup = params['postSignup'];
+    })
   }
-
 }

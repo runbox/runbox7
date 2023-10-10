@@ -1,73 +1,96 @@
 <section class="mat-typography">
   <div class="welcomeDesk">
-    <h1>Welcome to Runbox 7</h1>
-    <p>Let's get you set up with Runbox 7 and make you an email pro!</p>
-    <br />
-    <div class="gridHighlight">
-      <mat-card>
-	<a href="/mail/fetch" target="rmm6">
-	  <h4><mat-icon svgIcon="email"></mat-icon>Import your email</h4>
-	  Consolidate all your email from any other other email accounts you may have.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a routerLink="/contacts">
-	  <h4><mat-icon svgIcon="account-multiple"></mat-icon>Import your contacts</h4>
-	  Import your contacts from other email services or address books.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a href="/mail/account_domain">
-	  <h4><mat-icon svgIcon="email-plus"></mat-icon>Set up Email Hosting</h4>
-	  Set up email hosting with email accounts on a domain name you already own.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a routerLink="/domainregistration">
-	  <h4><mat-icon svgIcon="domain"></mat-icon>Register a Domain Name</h4>
-	  Register a new domain and configure domain hosting with Runbox.
-	</a>
-      </mat-card>
-
-      <mat-card>
-	<a routerLink="/account/security">
-	  <h4><mat-icon svgIcon="security"></mat-icon>Secure and manage your account</h4>
-	  Set up security measures and manage your services.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a routerLink="/account">
-	  <h4><mat-icon svgIcon="cog"></mat-icon>Configure your account</h4>
-	  Change settings and make Runbox work the way you want.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a href="https://help.runbox.com/email-programs/" target="help">
-	  <h4><mat-icon svgIcon="tablet-cellphone"></mat-icon>Use an email program</h4>
-	  Find out how to use your Runbox account with an email program or app.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a routerLink="/account/subscriptions">
-	  <h4><mat-icon svgIcon="wallet-membership"></mat-icon>Subscribe or upgrade</h4>
-	  Take full advantage of Runbox with extra accounts and other add-ons.
-	</a>
-      </mat-card>
-      
-      <mat-card>
-	<a routerLink="/help">
-	  <h4><mat-icon svgIcon="help-circle"></mat-icon>Learn more about Runbox</h4>
-	  Find documentation, get support, and learn about all the Runbox 7 features.
-	</a>
-      </mat-card>
+    <h1>Welcome to Runbox</h1>
+    <div  *ngIf="postSignup == 'offer'" id="introSpecialOffer">
+      <h2>Congratulations -- your new Runbox account is ready!</h2>
+      <br />
+      <a routerLink="/account/plans">
+        <img src="/assets/intro-special-banner-2023.jpg" id="introSpecialOfferBanner" alt="Special Offer: Get a full year added to your main subscription for free"/>
+      </a>
+      <p>
+        The price shown is the subscription fee for a Micro account for the first 2 years when taking advantage of the offer. This offer is valid for all main account plans within 24 hours of signing up, in addition to any other current offers. All initial subscription payments include a 60-day money back guarantee.
+      </p>
+      <h2><a routerLink="/account/plans">Continue to Account Plans Now</a></h2>
+      <br />
+      <h4>You can also <a routerLink="/welcome">continue setting up your account</a>, or go <a routerLink="/">straight to your Inbox</a>.</h4>
+      <div id="introSpecialOfferNote">
+        <div>
+          <mat-icon svgIcon="lightbulb"></mat-icon>
+        </div>
+        <div>
+          <p>Note that your account will start receiving email within 15 minutes, once the account details have registered across our systems. In order to send email from your new account, please first validate your alternative email address by clicking the link in the email we sent there.            
+          </p>
+        </div>
+      </div>
     </div>
-    <br />
-    <p>Note: You can always return to this Welcome Desk by clicking the Runbox logo in the top left corner.</p>
+    <div *ngIf="!postSignup">
+      <h3>Let's get you set up with Runbox and make you an email pro!</h3>
+      <div class="gridHighlight" >
+        <mat-card>
+	      <a href="/mail/fetch" target="rmm6">
+	        <h4><mat-icon svgIcon="email"></mat-icon>Import your email</h4>
+	        Consolidate all your email from any other other email accounts you may have.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a routerLink="/contacts">
+	        <h4><mat-icon svgIcon="account-multiple"></mat-icon>Import your contacts</h4>
+	        Import your contacts from other email services or address books.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a href="/mail/account_domain">
+	        <h4><mat-icon svgIcon="email-plus"></mat-icon>Set up Email Hosting</h4>
+	        Set up email hosting with email accounts on a domain name you already own.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a routerLink="/domainregistration">
+	        <h4><mat-icon svgIcon="domain"></mat-icon>Register a Domain Name</h4>
+	        Register a new domain and configure domain hosting with Runbox.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a routerLink="/account/security">
+	        <h4><mat-icon svgIcon="security"></mat-icon>Secure and manage your account</h4>
+	        Set up security measures and manage your services.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a routerLink="/account">
+	        <h4><mat-icon svgIcon="cog"></mat-icon>Configure your account</h4>
+	        Change settings and make Runbox work the way you want.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a href="https://help.runbox.com/email-programs/" target="help">
+	        <h4><mat-icon svgIcon="tablet-cellphone"></mat-icon>Use an email program</h4>
+	        Find out how to use your Runbox account with an email program or app.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a routerLink="/account/subscriptions">
+	        <h4><mat-icon svgIcon="wallet-membership"></mat-icon>Subscribe or upgrade</h4>
+	        Take full advantage of Runbox with extra accounts and other add-ons.
+	      </a>
+        </mat-card>
+        
+        <mat-card>
+	      <a routerLink="/help">
+	        <h4><mat-icon svgIcon="help-circle"></mat-icon>Learn more about Runbox</h4>
+	        Find documentation, get support, and learn about all the Runbox features.
+	      </a>
+        </mat-card>
+      </div>
+      <br />
+      <h4><mat-icon svgIcon="lightbulb"></mat-icon>Note: You can always return to this Welcome Desk by clicking the Runbox logo in the top left corner.</h4>
+    </div>
   </div>
 </section>
