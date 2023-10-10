@@ -28,14 +28,14 @@ import { ActivatedRoute } from '@angular/router';
 
 export class WelcomeDeskComponent implements OnInit {
 
-  public postSignup = ''
-
   constructor(
-    private route: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
   ) { }
-
+  
+  public postSignup = ''
+    
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
+    this.activatedRoute.queryParams.subscribe(params => {
       this.postSignup = params['postSignup'];
     })
   }

@@ -18,9 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { WelcomeDeskComponent } from './welcomedesk.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('WelcomeDeskComponent', () => {
   let component: WelcomeDeskComponent;
@@ -36,9 +36,9 @@ describe('WelcomeDeskComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            queryParams: {params: {offer: 'y'}}
+              queryParams: of(convertToParamMap({offer: 'y'}))
           }
-        }
+        },
       ]
     })
     .compileComponents();
