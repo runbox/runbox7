@@ -38,9 +38,6 @@
                 <mat-grid-tile colspan="4" rowspan="2">
                     <span class="float-left">{{item.signature}}</span>
                 </mat-grid-tile>
-                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="item.type === 'main'">
-                    <span class="identity-warning">Username profile</span>
-                </mat-grid-tile>
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1"
                     *ngIf="item.reference_type === 'preference' && item.reference.status === 1">
                     <span class="identity-warning">Email not validated.</span>

@@ -115,7 +115,16 @@
 
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
-            <button *ngIf="identity.type !== 'main' && identity.type !== 'aliases' && identity.from_priority !== 0 " mat-raised-button (click)="delete()" color="warn">DELETE</button>
+            <button *ngIf="identity.type !== 'main' && identity.type !== 'aliases' && identity.from_priority !== 0" mat-raised-button (click)="delete()" color="warn">DELETE</button>
+            <span *ngIf="identity.type === 'main'">
+                Username Identity
+            </span>
+            <span *ngIf="identity.type === 'aliases'">
+                Alias
+            </span>
+            <span *ngIf="identity.from_priority === 0">
+                Default Identity
+            </span>
         </span>
         <span>
             <button mat-raised-button (click)="close()" color="accent">CANCEL</button>
