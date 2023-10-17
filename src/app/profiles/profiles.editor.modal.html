@@ -2,10 +2,18 @@
     <mat-card-header class="header">
         <mat-card-title class="header-title">
             <span *ngIf="is_create">Create profile</span>
-            <span *ngIf="is_update">Edit profile</span>
+            <span *ngIf="is_update">Edit profile: {{identity.name}}</span>
         </mat-card-title>
         <mat-card-subtitle class="header-subtitle">
-            <span *ngIf="is_update">{{identity.name}}</span>
+            <div *ngIf="identity.type === 'main'">
+                Username Identity
+            </div>
+            <div *ngIf="identity.type === 'aliases'">
+                Alias
+            </div>
+            <div *ngIf="identity.from_priority === 0">
+                Default Identity
+            </div>
         </mat-card-subtitle>
     </mat-card-header>
 
@@ -116,14 +124,8 @@
     <mat-card-actions class="action-buttons">
         <span class="delete-button">
             <button *ngIf="identity.type !== 'main' && identity.type !== 'aliases' && identity.from_priority !== 0" mat-raised-button (click)="delete()" color="warn">DELETE</button>
-            <span *ngIf="identity.type === 'main'">
-                Username Identity
-            </span>
-            <span *ngIf="identity.type === 'aliases'">
-                Alias
-            </span>
-            <span *ngIf="identity.from_priority === 0">
-                Default Identity
+            <span *ngIf="identity.type === 'main' || identity.type === 'aliases' || identity.from_priority === 0">
+                This Identity cannot be deleted
             </span>
         </span>
         <span>

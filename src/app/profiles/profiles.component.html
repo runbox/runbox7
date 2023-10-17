@@ -29,15 +29,13 @@
                 <h2>Identities for Aliases</h2>
             </div>
             <div section-description>
-                <p>Aliases are extra email addresses that deliver to your account, just as your main username/email
-                    address does. Below are identities you can use if you want to send messages from your aliases.
-                    These identities can be customised by adding a different From Name, Signature or Reply-to address.
-                    You can also change the Runbox domain an alias uses. You can't delete these identities as they are
-                    tied to your aliases but you can manage your aliases by going to Alias Administration.</p>
+                <p>Aliases are extra email addresses that deliver to your account, just as your main username/email  address does. Below are identities you can use if you want to send messages from your aliases.</p>
+                <p>These identities can be customized by adding a different From Name, Signature or Reply-to address. You can also change the Runbox domain an alias uses.</p>
+                <p>You can't delete these identities as they are  tied to your aliases but you can manage your aliases by going to Alias Administration.</p>
                 <p style="color: crimson" *ngIf="alias_limits?.current === alias_limits?.total">
                     You have reached the maximum allowed number of Runbox aliases.
                 </p>
-                <p>To manage your aliases visit <a target="rmm6" href="/mail/account_alias">Alias Administration</a>.</p>
+                <p>To manage your aliases, go to <a target="rmm6" href="/mail/account_alias">Alias Administration</a>.</p>
             </div>
             <div section-buttons>
                 <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_alias()'>
@@ -54,11 +52,8 @@
                 <h2>Other identities</h2>
             </div>
             <div section-description>
-                <p>Other Identities can be used when you want to send from addresses that are not part of your Runbox
-                    account. Adding this kind of address (e.g. a work email address) will require verification via
-                    email that you have access to that account. You can also use Other Identities if you need
-                    additional identities for you Runbox email addresses.</p>
-                <p>Added identities require verification via an email sent to the given address.</p>
+                <p>Other Identities can be used when you want to send from addresses that are not part of your Runbox  account. Adding this kind of address (e.g. a work email address) will require verification via  email that you have access to that account. You can also use Other Identities if you need additional identities for you Runbox email addresses.</p>
+                <p>Adding new identities require verification via an email sent to the given address.</p>
             </div>
             <div section-buttons>
                 <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
