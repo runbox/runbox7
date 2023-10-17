@@ -55,6 +55,12 @@ export class Identity {
         ret.resolveNameAndAddress();
         return ret;
     }
+    public static fromEmailAddress(email): Identity {
+        const ret = new Identity();
+        ret.email = email;
+        ret.reply_to = email;
+        return ret;
+    }
 
     resolveNameAndAddress() {
         this.nameAndAddress = this.name ? `${this.name} <${this.email}>` : this.email;
