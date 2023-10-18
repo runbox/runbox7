@@ -481,10 +481,11 @@ export class SearchService {
         mergeMap(() => this.checkIfDownloadableIndexExists()),
         mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
-          this.localSearchActivated = true;
+          this.localSearchActivated = false;
           this.indexLastUpdateTime = 0;
-          observer.next(true);
+          // restart updates
+          this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
+          observer.next(false);
           return;
         }
 
