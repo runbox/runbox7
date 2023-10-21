@@ -1,6 +1,30 @@
 <section class="mat-typography">
     <div class="container">
-        <h1>Data Usage</h1>
+        <h2>Account Details</h2>
+        <h3>General</h3>
+        <table mat-table *ngIf="storageDetails | async as storageDetails" [dataSource]="storageDetails">
+            <!-- Item Column -->
+            <ng-container matColumnDef="item">
+                <th mat-header-cell *matHeaderCellDef> Item </th>
+                <td> UID </td>
+                <td> Location </td>
+                <td> Home directory </td>
+                <td> Backup interval </td>
+            </ng-container>
+
+            <!-- Value Column -->
+            <ng-container matColumnDef="value">
+                <th mat-header-cell *matHeaderCellDef> Value </th>
+                <td> 12345 </td>
+                <td> Oslo, Norway </td>
+                <td> Home directory </td>
+                <td> Backup interval </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <h3>Data Usage</h3>
         <table mat-table *ngIf="dataUsage | async as dataUsage" [dataSource]="dataUsage">
             <!-- Type Column -->
             <ng-container matColumnDef="type">
@@ -39,11 +63,4 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
     </div>
-
-    <!-- <div class="container">
-        <h2>Storage Details</h2>
-        <p>Location: //LOCATION//</p>
-        <p>Home directory: //DIRECTORY//</p>
-        <p>Backup: //BACKUP INTERVAL//</p>
-    </div> -->
 </section>

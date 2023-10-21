@@ -86,7 +86,7 @@ import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.gua
 import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
 import { PersonalDetailsComponent } from '../account-details/personal-details.component';
 import { AccountSettingsComponent } from '../account-details/account-settings.component';
-import { StorageDataComponent } from '../account-details/storage-data.component';
+import { AccountDetailsComponent } from '../account-details/account-details.component';
 import { TwoFactorAuthenticationComponent } from '../account-security/two-factor-authentication.component';
 import { ManageServicesComponent } from '../account-security/manage-services.component';
 import { AppPasswordsComponent } from '../account-security/app-passwords.component';
@@ -101,7 +101,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
         AccountAppComponent,
         PersonalDetailsComponent,
         AccountSettingsComponent,
-        StorageDataComponent,
+        AccountDetailsComponent,
         AccountReceiptComponent,
         AccountRenewalsComponent,
         AccountRenewalsAutorenewToggleComponent,
@@ -262,12 +262,12 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                                 component: DomainRegisterComponent,
                             },
                             {
-                                path: 'details',
+                                path: 'personal_details',
                                 component: PersonalDetailsComponent,
                             },
                             {
-                                path: 'storage',
-                                component: StorageDataComponent,
+                                path: 'account_details',
+                                component: AccountDetailsComponent,
                             },
                             {
                                 path: 'preferences',
