@@ -3,13 +3,13 @@
 describe('Account access control', () => {
     function becomeSubaccount() {
         cy.intercept('/rest/v1/me', (req) => {
-            req.reply((res) => {
+            req.continue((res) => {
                 const payload = JSON.parse(res.body);
                 payload.result.owner = {
                     uid: 666,
                     username: 'mastermind@runbox.com',
                 };
-                res.body = JSON.stringify(payload);
+              res.send(JSON.stringify(payload));
             });
         });
     }

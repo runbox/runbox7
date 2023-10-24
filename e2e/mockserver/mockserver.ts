@@ -378,6 +378,18 @@ END:VCALENDAR
                         }
                     ));
                     break;
+                case '/rest/v1/webmail/preferences':
+                    response.end(JSON.stringify({
+                        'Global': {'version': 1, 'entries': {} },
+                        'Desktop': {'version': 1, 'entries': {} },
+                        'Mobile': {'version': 1, 'entries': {} }
+                    }));
+                    break;
+                case '/rest/v1/webmail/saved_searches':
+                    response.end(JSON.stringify({
+                        'version': 1, 'entries': []
+                    }));
+                    break;
                 case '/_ics/Europe/Oslo.ics':
                     response.end(this.vtimezone_oslo);
                     break;
@@ -793,7 +805,7 @@ END:VCALENDAR
 
     profiles_verified() {
         return {
-                'result': 
+                'results': 
                     [{
                         'smtp_username': null,
                         'email': 'a2@example.com',
