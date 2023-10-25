@@ -57,15 +57,15 @@ export class ProfilesEditorModalComponent {
         @Inject(MAT_DIALOG_DATA) public identity: Identity
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
-        if (identity.email) {
-            this.set_localpart(identity);
-        }
         if (!identity || !Object.keys(identity).length) {
             identity = new Identity;
             const self = this;
             identity.name = ['first_name', 'last_name'].map((attr) => {
                 return self.profileService.me[attr];
             }).join(' ');
+        }
+        if (identity.email) {
+            this.set_localpart(identity);
         }
         this.identity = identity;
         if (this.identity.is_signature_html) {
@@ -116,7 +116,7 @@ export class ProfilesEditorModalComponent {
             is_smtp_enabled: (identity.is_smtp_enabled ? 1 : 0),
         };
         this.profileService.create(values).subscribe(
-            res => this.close
+            res => this.close()
         );
     }
     delete() {
@@ -233,21 +233,20 @@ export class ProfilesEditorModalComponent {
         }
     }
     init_tinymce() {
-        const self = this;
         this.selector = `html-editor-${Math.floor(Math.random() * 10000000000)}`;
         const options = {
             base_url: this.location.prepareExternalUrl('/tinymce/'), // Base for assets such as skins, themes and plugins
             selector: '#' + this.selector,
             setup: editor => {
-                self.editor = editor;
+                this.editor = editor;
                 editor.on('Change', () => {
-                    self.identity.signature = editor.getContent();
+                    this.identity.signature = editor.getContent();
                 });
             },
             init_instance_callback: (editor) => {
                 editor.setContent(
-                    self.identity.signature ?
-                        self.identity.signature.replace(/\n/g, '<br />\n') :
+                    this.identity.signature ?
+                        this.identity.signature.replace(/\n/g, '<br />\n') :
                         ''
                 );
             }
@@ -255,6 +254,6 @@ export class ProfilesEditorModalComponent {
         this.tinymce_plugin.create(options);
     }
     resend_validate_email(id) {
-        this.profileService.re_validate(id);
+        this.profileService.reValidate(id);
     }
 }

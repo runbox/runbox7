@@ -44,7 +44,6 @@ export class ProfilesListerComponent {
     }
 
     edit(item): void {
-        //item = JSON.parse(JSON.stringify(item));
         this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
             width: '600px',
             data: item,

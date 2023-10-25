@@ -38,15 +38,16 @@ export class DefaultProfileComponent {
         public rmmapi: RunboxWebmailAPI,
         private snackBar: MatSnackBar
     ) {
-        this.profileService.profiles.subscribe((_) => 
-            this.selectedProfile = this.profileService.composeProfile
-        );
+        this.profileService.profiles.subscribe((_) => {
+            this.selectedProfile = this.profileService.composeProfile;
+            this.validProfiles = this.profileService.validProfiles.value;
+        });
     }
 
     updateDefaultProfile() {
         const priorities: FromPriority[] = new Array();
         let p_value = 1;
-        for (const profile of this.profileService.validProfiles.value) {
+        for (const profile of this.profileService.profiles.value) {
             let from_p: FromPriority = {"from_priority": -1, "id": profile.id };
             if (profile.id === this.selectedProfile.id) {
                 from_p.from_priority = 0;

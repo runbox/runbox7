@@ -122,7 +122,7 @@ export class ProfileService {
           })
         );
     }
-    re_validate(id) {
+    reValidate(id) {
         this.rmmapi.resendValidationEmail(id).subscribe(
             reply => {
                 this.refresh();
