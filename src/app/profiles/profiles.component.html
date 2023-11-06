@@ -51,7 +51,7 @@
                 <p>Adding new identities require verification via an email sent to the given address.</p>
             </div>
             <div section-buttons>
-                <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
+                <button id="add-identity" mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
                     Add Identity
                 </button>
                 {{profileService.nonAliases.value.length}} identities created

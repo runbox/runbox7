@@ -820,7 +820,7 @@ END:VCALENDAR
                         'name': 'a2@example.com',
                         'smtp_password': null,
                         'from_name': 'Hallucinogen',
-                        'type': 'aliases'
+                        'type': 'main'
                     },
                     {
                         'id': 16456,

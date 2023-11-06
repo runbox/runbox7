@@ -55,12 +55,6 @@ export class Identity {
         ret.resolveNameAndAddress();
         return ret;
     }
-    public static fromEmailAddress(email): Identity {
-        const ret = new Identity();
-        ret.email = email;
-        ret.reply_to = email;
-        return ret;
-    }
 
     resolveNameAndAddress() {
         this.nameAndAddress = this.name ? `${this.name} <${this.email}>` : this.email;
@@ -86,8 +80,8 @@ export class ProfileService {
         this.rmmapi.getProfiles().subscribe(
             (res: Identity[]) => {
                 this.validProfiles.next(res.filter(p => p.type === 'aliases' || (p.reference_type === 'preference' && p.reference.status === 0)));
-                this.aliases.next(res.filter(p => p.type === 'aliases'));
-                this.nonAliases.next(res.filter(p => p.type !== 'aliases'));
+                this.aliases.next(res.filter(p => p.reference_type === 'aliases'));
+                this.nonAliases.next(res.filter(p => p.reference_type !== 'aliases'));
                 this.composeProfile = res.find(p => p.from_priority === 0);
                 if (!this.composeProfile) {
                     this.composeProfile = res.find(p => p.type === 'main');

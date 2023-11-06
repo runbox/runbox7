@@ -40,7 +40,6 @@ export class ProfilesEditorModalComponent {
 
     is_update = false;
     is_create = false;
-    type;
     is_visible_smtp_detail = false;
     is_different_reply_to = false;
     localpart;
@@ -111,7 +110,7 @@ export class ProfilesEditorModalComponent {
             smtp_port: identity.smtp_port,
             smtp_username: identity.smtp_username,
             smtp_password: identity.smtp_password,
-            type: this.type,
+            type: identity.type,
             is_signature_html: (identity.is_signature_html ? 1 : 0),
             is_smtp_enabled: (identity.is_smtp_enabled ? 1 : 0),
         };

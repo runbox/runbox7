@@ -43,7 +43,7 @@ export class ProfilesComponent {
     public dialog: MatDialog,
     public profileService: ProfileService,
   ) {
-//    this.profileService.profiles.subscribe((profiles) => this.profiles = profiles);
+
     // FIXME: Need to refresh this if/when we make more aliases
     this.profileService.rmmapi.getAliasLimits().subscribe(
       res => this.alias_limits = res
@@ -56,8 +56,8 @@ export class ProfilesComponent {
     });
   }
 
-  add_profile (type): void {
-    let item = {type: type};
+  add_profile (): void {
+    let item = {};
     this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
         width: '600px',
         data: item,

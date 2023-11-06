@@ -45,7 +45,7 @@ describe('DraftDesk', () => {
             rawtext: 'blabla\nabcde',
             html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         false);
 
         expect(draft.subject).toBe('Fwd: Test subject');
@@ -84,7 +84,7 @@ blabla\nabcde`);
             html: '<p>blabla</p><p>abcde</p>',
             sanitized_html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         true);
 
         expect(draft.subject).toBe('Fwd: Test subject');
@@ -137,7 +137,7 @@ Subject: Test subject <br />
             rawtext: 'blabla\nabcde',
             html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         false, false);
 
         expect(draft.subject).toBe('Re: Test subject');
@@ -167,7 +167,7 @@ Subject: Test subject <br />
             rawtext: 'blabla\nabcde',
             html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         false, false);
 
         expect(draft.subject).toBe('Re: Test subject');
@@ -204,7 +204,7 @@ Subject: Test subject <br />
             rawtext: 'blabla\nabcde',
             html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         false, false);
 
         expect(draft.subject).toBe('Re: Test subject');
@@ -245,7 +245,7 @@ Subject: Test subject <br />
             rawtext: 'blabla\nabcde',
             html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
@@ -276,7 +276,7 @@ Subject: Test subject <br />
             rawtext: 'blabla\nabcde',
             html: '<p>blabla</p><p>abcde</p>'
         },
-        [ Identity.fromEmailAddress('to@runbox.com')],
+        [ Identity.fromObject({'email':'to@runbox.com'})],
         true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
@@ -304,7 +304,7 @@ Subject: Test subject <br />
             text: 'blabla\nabcde',
             rawtext: 'blabla\nabcde'
         },
-        [ Identity.fromEmailAddress('to@runbox.com') ],
+        [ Identity.fromObject({'email':'to@runbox.com'}) ],
         true, false);
 
         expect(draft.subject).toBe('Re: Test subject');
@@ -332,7 +332,7 @@ Subject: Test subject <br />
             text: 'blabla\nabcde',
             rawtext: 'blabla\nabcde'
         },
-        [ Identity.fromEmailAddress('to@runbox.com') ],
+        [ Identity.fromObject({'email':'to@runbox.com'}) ],
         true, false);
 
         const replydraft = DraftFormModel.reply({
@@ -351,7 +351,7 @@ Subject: Test subject <br />
             text: draft.msg_body,
             rawtext: draft.msg_body
         },
-        [ Identity.fromEmailAddress('from@runbox.com') ],
+        [ Identity.fromObject({'email':'from@runbox.com'}) ],
         false, false);
 
         expect(replydraft.subject).toBe('Re: Test subject');
@@ -370,7 +370,7 @@ Subject: Test subject <br />
         // compose?new=true
         let draft = DraftFormModel.create(
                 -1,
-            Identity.fromEmailAddress('to@runbox.com'),
+            Identity.fromObject({'email':'to@runbox.com'}),
             null,
             '');
         expect(draft.isUnsaved()).toBe(true);
@@ -378,7 +378,7 @@ Subject: Test subject <br />
         // Link on contact page:
         draft = DraftFormModel.create(
                 -1,
-            Identity.fromEmailAddress('to@runbox.com'),
+            Identity.fromObject({'email':'to@runbox.com'}),
             '"Test Runbox" <to@runbox.com>',
             '');
         expect(draft.isUnsaved()).toBe(true);
@@ -386,7 +386,7 @@ Subject: Test subject <br />
         // refreshDrafts
         draft = DraftFormModel.create(
             12345,
-            Identity.fromEmailAddress('to@runbox.com'),
+            Identity.fromObject({'email':'to@runbox.com'}),
             '"Test Runbox" <to@runbox.com>',
             'Some blahblah');
         expect(draft.isUnsaved()).toBe(false);
