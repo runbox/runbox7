@@ -18,82 +18,14 @@
 // ---------- END RUNBOX LICENSE ----------
 import { Component } from '@angular/core';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
+import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { RMM } from '../rmm';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-    selector: 'app-aliases-lister',
-    styles: [`
-        .aliases-lister form > div {
-            display: inline-block;
-            position: relative;
-            margin: 10px;
-        }
-        mat-divider.transparent {
-            border-color: transparent;
-        }
-    `],
-    template: `
-    <div class="aliases-lister">
-        <ng-content select="[section-header]" style="margin-top: 20px;"></ng-content>
-        <ng-content select="[section-description]"></ng-content>
-        <ng-content select="[section-buttons]"></ng-content>
-        <form *ngFor="let item of aliases; let i = index;">
-            <div style='width: 100%'>
-                <mat-divider *ngIf="i > 0"></mat-divider>
-
-                <mat-form-field class="alias" style="margin: 10px;">
-                    <input
-                        matInput
-                        placeholder="Alias"
-                        readonly="true"
-                        [value]="item.localpart + '@' + item.domain"
-                    >
-                </mat-form-field>
-
-                <mat-form-field class="forward_to" style="margin: 10px;">
-                    <input
-                        matInput
-                        placeholder="Deliver to Account"
-                        readonly="true"
-                        [value]="item.forward_to"
-                    >
-                </mat-form-field>
-                <button
-                    (click)="edit(item)"
-                    id="edit-alias"
-                    color='primary'
-                    mat-raised-button
-                    style="margin: 10px;"
-                >
-                    Edit
-                </button>
-
-                <button
-                    (click)="delete(item)"
-                    id="delete-alias"
-                    color='primary'
-                    mat-raised-button
-                    style="margin: 10px;"
-                >
-                    Delete
-                </button>
-            </div>
-            <mat-divider class='transparent'></mat-divider>
-        </form>
-
-        <button 
-            id="create-new-alias"
-            (click)="create()"
-            color='primary'
-            mat-raised-button
-        >
-            Create New
-        </button>
-    </div>
-
-        `
+  selector: 'app-aliases-lister',
+  styleUrls: ['aliases.lister.scss'],
+  templateUrl: 'aliases.lister.html'
 })
 export class AliasesListerComponent {
   aliases: any[] = [];
