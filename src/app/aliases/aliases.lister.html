@@ -1,4 +1,28 @@
-    <div class="aliases-lister">
+<h1>Alias Administration</h1>
+<div>
+    <p>
+      Here you can set up and configure aliases for your main Runbox account.
+    </p>
+    
+    <p>
+      An alias can be another Runbox address or an address on your own domain, if you have any set up under Email Domains. Please allow up to 5 minutes for new aliases to propagate throughout the Runbox servers before using them, and please avoid aliases that could be perceived to be official Runbox administrative addresses (they may be deleted without prior notice).
+    </p>
+    
+    <p>
+      Runbox addresses are currently synonymous for the domains:
+    </p>
+</div>
+
+<div class="aliases-lister">
+  <button 
+    id="create-new-alias"
+    (click)="create()"
+    color='primary'
+    mat-raised-button
+    >
+    Create new alias
+  </button>
+
         <ng-content select="[section-header]" style="margin-top: 20px;"></ng-content>
         <ng-content select="[section-description]"></ng-content>
         <ng-content select="[section-buttons]"></ng-content>
@@ -45,13 +69,4 @@
             </div>
             <mat-divider class='transparent'></mat-divider>
         </form>
-
-        <button 
-            id="create-new-alias"
-            (click)="create()"
-            color='primary'
-            mat-raised-button
-        >
-            Create New
-        </button>
     </div>
