@@ -1354,19 +1354,21 @@ app-calendar-event-editor-dialog p {
 
 /*** Payment ***/
 
-.limitedTimeOffer {
+/** Put here instead of component CSS due to use of palette variables **/
+.limitedTimeOffer, .holidayOffer {
     border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     padding: 1%;
     text-align: center;
 }
 
-.limitedTimeOffer h1 {
-    color: mat.get-color-from-palette($rmm-default-foreground);
-}
-
-.limitedTimeOffer h2 {
+.limitedTimeOffer h1, .holidayOffer h1 {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
+
+.limitedTimeOffer h2, .holidayOffer h2 {
+    color: mat.get-color-from-palette($rmm-default-primary);
+}
+
 
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
     background: mat.get-color-from-palette($rmm-default-accent);
