@@ -24,6 +24,8 @@ import { CartService } from './cart.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
 import { Product } from './product';
+import { RMM } from '../rmm';
+import { DataUsageInterface } from '../rmm/account-storage';
 import { RunboxTimerComponent } from './runbox-timer';
 import { AsyncSubject } from 'rxjs';
 
@@ -38,11 +40,12 @@ export class AccountUpgradesComponent implements OnInit {
 
     subaccounts    = new AsyncSubject<Product[]>();
     emailaddons    = new AsyncSubject<Product[]>();
-    subscriptions = new AsyncSubject<Product[]>();
-    subs_regular = new AsyncSubject<Product[]>();
-    subs_special = new AsyncSubject<Product[]>();
+    subscriptions  = new AsyncSubject<Product[]>();
+    subs_regular   = new AsyncSubject<Product[]>();
+    subs_special   = new AsyncSubject<Product[]>();
 
-    currency: string;
+    quota_usage    = new AsyncSubject<DataUsageInterface>(); 
+
     limitedTimeOffer = false;
     limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
 
@@ -52,13 +55,15 @@ export class AccountUpgradesComponent implements OnInit {
         private paymentsservice: PaymentsService,
         public  rmmapi:          RunboxWebmailAPI,
         private snackbar:        MatSnackBar,
+        private rmm:             RMM,
     ) {
     }
 
     ngOnInit() {
-        this.rmmapi.me.subscribe(me => {
-            this.currency = me.currency;
-            this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
+        // User's current usage:
+        this.rmm.account_storage.getUsage().subscribe(usage => {
+            this.quota_usage.next(usage.result);
+            this.quota_usage.complete();
         });
 
         this.paymentsservice.products.subscribe(products => {
@@ -74,6 +79,12 @@ export class AccountUpgradesComponent implements OnInit {
             this.subs_special.next(subs_special);
             this.subs_special.complete();
 
+            this.subaccounts.next(products.filter(p => p.subtype === 'subaccount'));
+            this.emailaddons.next(products.filter(p => p.subtype === 'emailaddon'));
+
+            this.subaccounts.complete();
+            this.emailaddons.complete();
+
             this.cart.items.subscribe(items => {
                 const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
 
@@ -87,15 +98,10 @@ export class AccountUpgradesComponent implements OnInit {
             });
         });
 
-        this.paymentsservice.products.subscribe(products => {
-            this.subaccounts.next(products.filter(p => p.subtype === 'subaccount'));
-            this.emailaddons.next(products.filter(p => p.subtype === 'emailaddon'));
-
-            this.subaccounts.complete();
-            this.emailaddons.complete();
+        this.rmmapi.me.subscribe(me => {
+            this.me = me;
+            this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
         });
-
-        this.rmmapi.me.subscribe(me => this.me = me);
     }
 
     runboxTimerFinished(): void {

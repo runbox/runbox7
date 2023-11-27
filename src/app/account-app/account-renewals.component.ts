@@ -27,6 +27,9 @@ import { MobileQueryService } from '../mobile-query.service';
 import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
+import { DataUsageInterface } from '../rmm/account-storage';
+import { AsyncSubject } from 'rxjs';
+import { RMM } from '../rmm';
 
 import moment from 'moment';
 
@@ -42,10 +45,14 @@ type ActiveProduct = any;
 })
 export class AccountRenewalsComponent {
     active_products: ActiveProduct[] = [];
+    all_products: ActiveProduct[] = [];
     current_subscription: number;
 
     displayedColumns: string[];
     expandedProduct: ActiveProduct;
+    showExpired = false;
+
+    quota_usage    = new AsyncSubject<DataUsageInterface>();
 
     constructor(
         public  mobileQuery: MobileQueryService,
@@ -54,12 +61,19 @@ export class AccountRenewalsComponent {
         private rmmapi: RunboxWebmailAPI,
         private router: Router,
         private snackbar: MatSnackBar,
+        private rmm: RMM,
     ) {
         this.rmmapi.me.subscribe(me => {
             this.current_subscription = me.subscription;
         });
+
+        // User's current usage:
+        this.rmm.account_storage.getUsage().subscribe(usage => {
+            this.quota_usage.next(usage.result);
+            this.quota_usage.complete();
+        });
         this.rmmapi.getActiveProducts().subscribe(products => {
-            this.active_products = products.map(p => {
+            this.all_products = products.map(p => {
                 p.active_from = moment(p.active_from, moment.ISO_8601);
                 p.active_until = moment(p.active_until, moment.ISO_8601);
                 const day_diff = p.active_until.diff(moment(), 'days');
@@ -68,6 +82,9 @@ export class AccountRenewalsComponent {
                 } else if (day_diff < 90) {
                     p.expires_soon = true;
                 }
+                if (day_diff < 365 * -2) {
+                    p.expired_over_2_years = true;
+                }
 
                 // no renewals for trials; domains handled separately
                 p.can_renew = (p.pid !== 1000) && (p.subtype !== 'domain');
@@ -75,6 +92,8 @@ export class AccountRenewalsComponent {
                 return p;
             });
 
+            this.sortAndFilterProducts();
+            
             this.cart.items.subscribe(_ => {
                 for (const p of this.active_products) {
                     this.cart.contains(p.pid, p.apid).then(ordered => p.ordered = ordered);
@@ -115,6 +134,31 @@ export class AccountRenewalsComponent {
         dialogRef.afterClosed().subscribe(renew => {
             if (renew) {
                 this.renew(p);
+            }
+        });
+    }
+
+    showExpiredProducts() {
+        this.showExpired = !this.showExpired;
+        this.sortAndFilterProducts();
+    }
+
+    sortAndFilterProducts() {
+        if (!this.showExpired) {
+            this.active_products = this.all_products.filter((p) => !p.expired_over_2_years);
+        } else {
+            this.active_products = this.all_products;
+        }
+
+        this.active_products.sort((p_a, p_b) => {
+            if (p_a.expired != p_b.expired) {
+                if (p_a.active_until > p_b.active_until) {
+                    return -1;
+                } else if (p_a.active_until < p_b.active_until) {
+                    return 1;
+                }
+            } else {
+                return 0;
             }
         });
     }
@@ -165,6 +209,9 @@ export class AccountRenewalsAutorenewToggleComponent {
 @Component({
     selector: 'app-account-renewals-renew-now-button-component',
     template: `
+<div *ngIf="!p.expired && close_to_quota.length > 0">
+Warning: You are close to your quotas for this product
+</div>
 <span *ngIf="p.can_renew; else renewIfDomain">
     <button mat-raised-button (click)="clicked.emit()" *ngIf="!p.ordered" color="primary" id="renewButton">
         Renew  <mat-icon svgIcon="cart" color="accent"></mat-icon>
@@ -185,5 +232,26 @@ export class AccountRenewalsAutorenewToggleComponent {
 })
 export class AccountRenewalsRenewNowButtonComponent {
     @Input() p: ActiveProduct;
+    @Input() usage: DataUsageInterface;
     @Output() clicked: EventEmitter<void> = new EventEmitter();
+
+    close_to_quota = [];
+    close_percentage = 90;
+    
+    ngOnInit() {
+        this.close_to_quota = this.check_close_quota();
+    }
+
+    // OverQuota for displayed product, if any of the limits have been hit
+    check_close_quota() {
+        let oq = [];
+        if (this.p && this.usage) {
+            Object.keys(this.p.quotas).map((key) => {
+                if (this.usage[key] && this.usage[key].percentage_used >= this.close_percentage) {
+                    oq.push({'quota': key, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type, 'percentage': this.usage[key].percentage_used });
+                }
+            });
+        }
+        return oq;
+    }
 }
