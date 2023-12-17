@@ -41,8 +41,9 @@
       <img src="assets/giftbox2023.png" style="float: left" />
       <h1 style="margin: 20px 0 10px 0; font-size: 40px">Special Holiday Offer</h1>
       <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra merry this month !</h3>
-      <h4 style="margin: 20px 0 0 0">Subscribe to or renew the Medium plan or larger through December and get</h4>
+      <h4 style="margin: 20px 0 0 0">Subscribe or upgrade to the Medium plan or larger throughout December and get</h4>
       <h1 style="margin: 10px 0 20px 0">One extra year for free!</h1>
+      <p style="margin: 0px 0 0 0">Your account will be immediately upgraded to the selected plan, and the additional time added to your existing subscrription.</p>
     </div>
         
     <div id="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
@@ -53,7 +54,7 @@
       </app-account-product>
     </div>
 
-    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
+<!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
         [currency]="me.currency">
         <ul>
@@ -61,7 +62,7 @@
         </ul>
       </app-account-product>
     </div>
-
+-->
     <ng-template #productsLoading>
       <app-runbox-loading text="Loading available plans...">
       </app-runbox-loading>
