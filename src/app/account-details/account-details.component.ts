@@ -29,11 +29,11 @@ export interface DataUsage {
 }
 
 @Component({
-    selector: 'app-storage-data-component',
-    templateUrl: './storage-data.component.html',
+    selector: 'app-account-details-component',
+    templateUrl: './account-details.component.html',
     styleUrls: ['account-details.component.scss'],
 })
-export class StorageDataComponent {
+export class AccountDetailsComponent {
     dataUsage = new AsyncSubject<DataUsage[]>();
     displayedColumns: string[] = ['type', 'quota', 'usage', 'percentage_used'];
 
