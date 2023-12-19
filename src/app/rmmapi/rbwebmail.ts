@@ -181,13 +181,6 @@ export class RunboxWebmailAPI {
         public rmm: RMM,
     ) {
         this.rblocale = new RunboxLocale();
-        // this.http.get('/rest/v1/me')
-        //     .subscribe((res: any) => {
-        //         if (res.status === 'success') {
-        //             this.setRunboxMe(res.result);
-
-        //         }
-        //     });
 
         this.me.subscribe(me => {
             this.messageCache.next(new MessageCache(me.uid));
