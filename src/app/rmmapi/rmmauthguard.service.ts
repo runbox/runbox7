@@ -22,19 +22,21 @@ import { HttpClient } from '@angular/common/http';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router, CanActivateChild } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+import { RunboxWebmailAPI } from './rbwebmail';
 
 @Injectable()
 export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     urlBeforeLogin = '';
     wasLoggedIn = false;
-    currentMe;
 
+    currentMe;
+    
     constructor(
         public http: HttpClient,
-        public router: Router
+        public router: Router,
+        private rmmapi : RunboxWebmailAPI,
     ) {
-
     }
 
     checkLogin(): Promise<boolean | UrlTree> {
@@ -42,9 +44,10 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
             this.isLoggedIn().pipe(take(1)).subscribe(
                 success => {
                     if (!success) {
-                        this.redirectToLogin();
+                        resolve(this.router.parseUrl('/login'));
+                    } else {
+                        resolve(success);
                     }
-                    resolve(success);
                 },
                 error => {
                     if (error.status === 403) {
@@ -62,9 +65,12 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
     isLoggedIn(): Observable<boolean | UrlTree> {
         return this.http.get('/rest/v1/me').pipe(
             map((res: any) => {
-                this.wasLoggedIn = res && res.status === 'success';
-                if (res && res.result) {
-                    this.currentMe = res.result;
+                if (res && res.status === 'success') {
+                    this.wasLoggedIn = true;
+                    const me = res.result;
+                    // ugly? we could subscribe to it..
+                    this.currentMe = me;
+                    this.rmmapi.setRunboxMe(me);
                 }
                 return this.checkStatus();
             }),
@@ -76,7 +82,7 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
         if (this.currentMe && this.urlBeforeLogin
             && this.currentMe.account_status === 'expired'
           && !this.urlBeforeLogin.startsWith('/account')) {
-          console.log('Before login ' + this.urlBeforeLogin);
+            console.log('Before login ' + this.urlBeforeLogin);
             return this.router.parseUrl('/account/subscriptions');
         } else {
             return this.wasLoggedIn;
@@ -115,6 +121,8 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
             this.urlBeforeLogin = '/';
         }
         console.log('Will navigate back to ', this.urlBeforeLogin);
-        this.router.navigate(['login']);
+        if(this.wasLoggedIn) {
+            this.router.navigate(['login']);
+        }
     }
 }

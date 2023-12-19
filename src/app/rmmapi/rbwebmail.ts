@@ -181,31 +181,35 @@ export class RunboxWebmailAPI {
         public rmm: RMM,
     ) {
         this.rblocale = new RunboxLocale();
-        this.http.get('/rest/v1/me')
-            .pipe(
-                map((res: any) => res.result),
-                map((res: any) => {
-                    res.uid = parseInt(res.uid, 10);
-                    res.disk_used = res.quotas ? parseInt(res.quotas.disk_used, 10) : null;
-                    return new RunboxMe(res);
-                })
-            ).subscribe((me: RunboxMe) => {
-                this.me.next(me);
-                this.me.complete();
+        // this.http.get('/rest/v1/me')
+        //     .subscribe((res: any) => {
+        //         if (res.status === 'success') {
+        //             this.setRunboxMe(res.result);
 
-                this.ngZone.runOutsideAngular(() =>
-                    this.last_on_interval = setInterval(() => this.ngZone.run(() => {
-                        this.updateLastOn().subscribe();
-                    }), 5 * 60 * 1000)
-                );
-
-                this.updateLastOn().subscribe();
-            });
+        //         }
+        //     });
 
         this.me.subscribe(me => {
             this.messageCache.next(new MessageCache(me.uid));
             this.messageCache.complete();
-        });
+        });       
+    }
+
+    public setRunboxMe(res:any) {
+        res.uid = parseInt(res.uid, 10);
+        res.disk_used = res.quotas ? parseInt(res.quotas.disk_used, 10) : null;
+        const me = new RunboxMe(res);
+        this.me.next(me);
+        this.me.complete();
+
+        if (!this.last_on_interval) {
+            this.ngZone.runOutsideAngular(() =>
+                this.last_on_interval = setInterval(() => this.ngZone.run(() => {
+                    this.updateLastOn().subscribe();
+                }), 5 * 60 * 1000)
+            );
+            this.updateLastOn().subscribe();
+        }
     }
 
     public deleteCachedMessageContents(messageId: number) {
