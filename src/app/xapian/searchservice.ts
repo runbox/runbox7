@@ -811,15 +811,7 @@ export class SearchService {
           if (this.messageTextCache.has(rmmMessageId)) {
               this.currentDocData.textcontent = this.messageTextCache.get(rmmMessageId);
           }
-          this.rmmapi.getCachedMessageContents(rmmMessageId).then(content => {
-              if (content && content.text) {
-                  // this.currentDocData.textcontent = content.text.text;
-                  this.messageTextCache.set(rmmMessageId, content.text.text);
-              } else {
-                console.error("messangeContent has no text");
-                console.error(content);
-              }
-          });
+          this.updateMessageText(rmmMessageId);
 
           try {
             this.api.documentXTermList(docid);

@@ -47,11 +47,10 @@ describe('RBWebMail', () => {
         // this is a good enough cheat to have the actual request kick in early enough.
         await new Promise(resolve => setTimeout(resolve, 0));
 
+        // We now expect login / httpauth to set the runboxme values
+        // so we set it directly here
+        rmmapi.setRunboxMe({'uid': '11', 'last_name': 'testuser'});
         const httpTestingController = TestBed.inject(HttpTestingController);
-        httpTestingController.expectOne('/rest/v1/me').flush({
-            status: 'success',
-            result: { uid: 123 }
-        });
         // HACK: crappy solution to get the email request to resolve
         // see https://github.com/angular/angular/issues/25965
         await new Promise(resolve => setTimeout(resolve, 500));

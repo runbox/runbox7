@@ -9,11 +9,10 @@
     <ng-template #productsTable>
 
         <p>
-            These are the subscriptions associated with your account.
+            These are the subscriptions associated with your account. You may renew any of them at any time, which will add the new period to the end of your current subscription.
         </p>
         <p>
-            You may renew any of them at any time, which will add the new period to the end of your current
-            subscription.
+            To upgrade to another account plan, please see <a routerLink="/account/plans">Plans & Upgrades</a>.
         </p>
 
         <table mat-table [dataSource]="active_products" [ngStyle]="{ width: '100%' }" multiTemplateDataRows class="renewalsTable">
