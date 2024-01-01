@@ -37,6 +37,7 @@
     </div>
     -->
 
+    <!--
     <div class="holidayOffer">
       <img src="assets/giftbox2023.png" style="float: left" />
       <h1 style="margin: 20px 0 10px 0; font-size: 40px">Special Holiday Offer</h1>
@@ -45,7 +46,8 @@
       <h1 style="margin: 10px 0 20px 0">One extra year for free!</h1>
       <p style="margin: 0px 0 0 0">Your account will be immediately upgraded to the selected plan, and the additional time added to your existing subscrription.</p>
     </div>
-        
+    -->
+
     <div id="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
       <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency">
         <ul>
