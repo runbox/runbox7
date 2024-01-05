@@ -1,15 +1,13 @@
-<mat-card class="mat_card" style="padding: 0px">
-    <mat-card-header class="mat_header">
-        <div mat-card-avatar class="header-image" >
-        </div>
-        <mat-card-title >
-            <div *ngIf="isCreate" style="color: #FFF;">Create alias</div>
-            <div *ngIf="isUpdate" style="color: #FFF;">{{data.localpart + '@' + data.domain}}</div>
-            <div *ngIf="isDelete" style="color: #000;">Delete alias {{data.localpart + '@' + data.domain}} ?</div>
+<mat-card class="mat_card mat-elevation-z0 update create modal-card">
+    <mat-card-header class="header">
+        <mat-card-title class="header-title">
+            <div *ngIf="isCreate">Create alias</div>
+            <div *ngIf="isUpdate">Edit alias {{data.localpart + '@' + data.domain}}</div>
+            <div *ngIf="isDelete">Delete alias {{data.localpart + '@' + data.domain}} ?</div>
         </mat-card-title>
-        <mat-card-subtitle>
-            <div *ngIf="isUpdate" style="color: #FFF;">Delivers to: {{data.forward_to}}</div>
-            <div *ngIf="isDelete" style="color: #000;">Delivers to: {{data.forward_to}}</div>
+        <mat-card-subtitle class="header-subtitle">
+            <div *ngIf="isUpdate">Delivers to: {{data.forward_to}}</div>
+            <div *ngIf="isDelete">Delivers to: {{data.forward_to}}</div>
         </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
@@ -75,11 +73,9 @@
             </form>
         </div>
     </mat-card-content>
-    <mat-card-actions style="padding: 0px 10px">
-    <button mat-raised-button (click)="save()" color="primary" *ngIf="!isDelete" id="save">SAVE</button>
-    <button mat-raised-button (click)="delete()" color="" *ngIf="isDelete" id="delete">DELETE</button>
-    <button mat-raised-button (click)="cancel()" color="warn" id="cancel">CANCEL</button>
+    <mat-card-actions class="action-buttons">
+      <button mat-raised-button (click)="cancel()" color="accent" id="cancel">CANCEL</button>
+      <button mat-raised-button (click)="save()" color="primary" *ngIf="!isDelete" id="save">SAVE</button>
+      <button mat-raised-button (click)="delete()" color="warn" *ngIf="isDelete" id="delete">DELETE</button>
     </mat-card-actions>
-    <mat-card-footer>
-    </mat-card-footer>
 </mat-card>

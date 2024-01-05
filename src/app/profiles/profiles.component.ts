@@ -75,7 +75,7 @@ export class ProfilesComponent implements OnInit {
   }
 
   add_alias (): void {
-      window.location.href = '/mail/account_alias';
+      window.location.href = '/account/aliases';
       return;
       let item = {};
 
