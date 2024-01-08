@@ -6,3 +6,75 @@
 mat-divider.transparent {
     border-color: transparent;
 }
+
+* {
+    box-sizing: border-box;
+}
+.modal-card {
+    padding: 0;
+}
+.header {
+    position: relative;
+    left: -25px;
+    top: -25px;
+    width: calc(100% + 49px);
+    padding: 25px 30px;
+    background: #013b69;
+    overflow: hidden;
+}
+.header-title,
+.header-subtitle,  {
+    color: #fff;
+}
+.header-subtitle {
+    margin-bottom: 0;
+}
+.header-image {
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-image:url(/_img/avatar.svg);
+    background-size: cover;
+}
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+
+    margin-left: 0;
+    padding: 0;
+
+    @media only screen and (max-width: 375px) {
+        button {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+    }
+}
+.delete-button {
+    margin-right: 8px;
+}
+.content {
+    display: flex;
+}
+.form-item {
+    @media only screen and (min-width: 520px) {
+        padding: 0 10px;
+    }
+}
+.form-field,
+.form-checkbox {
+    width: 100%;
+    @media only screen and (min-width: 520px) {
+        width: 50%;
+    }
+}
+.form-checkbox {
+    display: inline-block;
+    padding-bottom: 20px;
+}
+.warning-container {
+    padding-bottom: 15px;
+    margin-top: -20px;
+    text-align: center;
+    color: crimson;
+}
+

@@ -24,21 +24,7 @@ import { RMM } from '../rmm';
 
 @Component({
     selector: 'app-aliases-edit',
-    styles: [`
-    .mat_header {
-        padding: 10px 0 10px 10px
-    }
-    .mat_card.update .mat_header,
-    .mat_card.create .mat_header {
-        background-color: #013b69;
-     }
-    .header-image {
-       border-radius: 50%;
-       flex-shrink: 0;
-       background-image:url(/_img/avatar.svg);
-       background-size: cover;
-    }
-    `],
+    styleUrls: ['aliases.lister.scss'],
     templateUrl: 'aliases.editor.modal.html',
 })
 
