@@ -32,12 +32,7 @@
                 <p style="color: crimson" *ngIf="rmm.alias?.aliases_counter?.current === rmm.alias?.aliases_counter?.total">
                     You have reached the maximum allowed number of Runbox aliases.
                 </p>
-              <p>To manage your aliases, please visit <a routerLink="/account/aliases">Email Aliases</a>.</p>
-            </div>
-            <div section-buttons>
-                <button mat-raised-button color='primary' style="margin: 10px;" (click)='add_alias()'>
-                    Add Alias
-                </button>
+              <p>To manage your aliases, please visit <a routerLink="../aliases">Email Aliases</a>.</p>
             </div>
         </app-profiles-lister>
         <br><br>
