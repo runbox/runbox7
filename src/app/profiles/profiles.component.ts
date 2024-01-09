@@ -74,23 +74,6 @@ export class ProfilesComponent implements OnInit {
     });
   }
 
-  add_alias (): void {
-      window.location.href = '/account/aliases';
-      return;
-      let item = {};
-
-      this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
-          width: '600px',
-          data: item
-      });
-      this.dialog_ref.componentInstance.is_create = true;
-
-      this.dialog_ref.afterClosed().subscribe(result => {
-          this.load_aliases();
-          item = result;
-      });
-  }
-
   add_profile (type): void {
     let item = {type: type};
     this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {

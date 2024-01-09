@@ -19,6 +19,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MenuModule } from '../menu/menu.module';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
@@ -41,6 +42,7 @@ import { AliasesListerComponent } from '../aliases/aliases.lister';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 import { DefaultProfileComponent } from './profiles.default';
+import { AccountAppComponent } from '../account-app/account-app.component';
 
 @NgModule({
     declarations: [
@@ -70,6 +72,7 @@ import { DefaultProfileComponent } from './profiles.default';
         MatTooltipModule,
         MatTableModule,
         MenuModule,
+        RouterModule,
     ],
     providers: [],
     bootstrap: []
