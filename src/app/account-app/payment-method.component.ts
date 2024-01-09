@@ -23,15 +23,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     selector: 'app-payment-method',
     template: `
 <mat-card style="height: 250px">
-    <div>
-        <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}" style="margin: 10px 0; width: auto; height: 100px;">
+    <div style="display: flex; justify-content: center">
+        <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}" style="margin: 10px 0; width: auto; height: 100px; cursor: pointer" (click)="clicked.emit()">
     </div>
     <mat-card-content>
         <ng-content>
         </ng-content>
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center; align-items: center;">
-        <button mat-flat-button color="primary" (click)="clicked.emit()" [disabled]="disable_payment">Proceed to Payment</button>
+        <button mat-flat-button color="primary" (click)="clicked.emit()" [disabled]="disable_payment">Proceed to payment</button>
     </mat-card-actions>
 </mat-card>
     `,

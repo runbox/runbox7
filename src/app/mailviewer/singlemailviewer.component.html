@@ -5,14 +5,17 @@
     style="width: 0px; height: 0px; border: none; position: absolute"
   ></iframe>
   <mat-toolbar *ngIf="mailObj" style="display: flex; overflow-x: auto;">
+    
     <!-- Message preview toolbar -->
-    <div style="flex-grow: 1; overflow: hidden" #toolbarButtonContainer>
-      <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move to folder..." (click)="messageActionsHandler.moveToFolder()">
+    <!-- NOTE: These items need to be replicated in the overflow toolbar further down. The number of items shown is controlled by morebuttonindex and TOOLBAR_BUTTON_WIDTH in the .ts file. -->
+    
+    <div class="messageActionButtonsLeft" #toolbarButtonContainer>
+      <button *ngIf="morebuttonindex>0" mat-icon-button matTooltip="Move message to folder..." (click)="messageActionsHandler.moveToFolder()">
         <mat-icon svgIcon="folder"></mat-icon>
       </button>
       <button *ngIf="morebuttonindex>1"
         mat-icon-button
-        [matTooltip]="folder !== this.messagelistservice.trashFolderName ? 'Move to Trash' : 'Delete permanently'"
+        [matTooltip]="folder !== this.messagelistservice.trashFolderName ? 'Move message to Trash' : 'Delete permanently'"
         (click)="messageActionsHandler.deleteMessage()"
       >
         <mat-icon
@@ -71,7 +74,7 @@
         matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
         <mat-icon svgIcon="alert"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More">
+      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
 
@@ -97,7 +100,8 @@
               </mat-radio-button>
           </mat-radio-group>
       </mat-menu>
-      <!-- Extra dropdown toolbar icons -->
+      
+      <!-- Message preview toolbar overflow items -->
       <mat-menu #moreMailActionsMenu="matMenu">
         <button *ngIf="morebuttonindex<1" mat-menu-item (click)="messageActionsHandler.moveToFolder()">
           <mat-icon svgIcon="folder"></mat-icon>
@@ -166,28 +170,29 @@
       </mat-menu>
     </div>
 
-    <button mat-icon-button matTooltip="Print message (Please consider the environment before printing this email)" (click)="print()" id="buttonPrint">
-      <mat-icon svgIcon="printer"></mat-icon>
-    </button>
-    <button mat-icon-button matTooltip="Horizontal preview" *ngIf="!adjustableHeight"
-      (click)="changeOrientation('horizontal')">
-      <mat-icon svgIcon="view-split-horizontal"></mat-icon>
-    </button>
-    <button mat-icon-button matTooltip="Vertical preview" *ngIf="adjustableHeight && showVerticalSplitButton"
-      (click)="changeOrientation('vertical')">
-      <mat-icon svgIcon="view-split-vertical"></mat-icon>
-    </button>
-    <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===false" (click)="resizer.resizePercentage(100)" matTooltip="Full height">
-      <mat-icon class="messageHeightIcon" svgIcon="arrow-up-drop-circle"></mat-icon>
-    </button>
-    <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===true" (click)="resizer.resizePercentage(50)" matTooltip="Half height">
-      <mat-icon class="messageHeightIcon" svgIcon="arrow-down-drop-circle"></mat-icon>
-    </button>
-
-    <button mat-icon-button (click)="close()" matTooltip="Close">
-      <mat-icon svgIcon="close"></mat-icon>
-    </button>
-
+    <div class="messageActionButtonsRight">
+      <button mat-icon-button matTooltip="Print message (Please consider the environment before printing this email)" (click)="print()" id="buttonPrint">
+	<mat-icon svgIcon="printer"></mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Horizontal preview" *ngIf="!adjustableHeight"
+	      (click)="changeOrientation('horizontal')">
+	<mat-icon svgIcon="view-split-horizontal"></mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Vertical preview" *ngIf="adjustableHeight && showVerticalSplitButton"
+	      (click)="changeOrientation('vertical')">
+	<mat-icon svgIcon="view-split-vertical"></mat-icon>
+      </button>
+      <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===false" (click)="resizer.resizePercentage(100)" matTooltip="Full height">
+	<mat-icon class="messageHeightIcon" svgIcon="arrow-up-drop-circle"></mat-icon>
+      </button>
+      <button mat-icon-button *ngIf="adjustableHeight && resizer?.isFullHeight===true" (click)="resizer.resizePercentage(50)" matTooltip="Half height">
+	<mat-icon class="messageHeightIcon" svgIcon="arrow-down-drop-circle"></mat-icon>
+      </button>
+      
+      <button mat-icon-button (click)="close()" matTooltip="Close">
+	<mat-icon svgIcon="close"></mat-icon>
+      </button>
+    </div>
   </mat-toolbar>
   <div *ngIf="mailObj" #messageContents id="messageContents">
     <mat-expansion-panel [expanded]="mobileQuery.matches ? false : true" id="messageHeader">

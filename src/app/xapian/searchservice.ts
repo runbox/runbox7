@@ -481,10 +481,11 @@ export class SearchService {
         mergeMap(() => this.checkIfDownloadableIndexExists()),
         mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
-          this.localSearchActivated = true;
+          this.localSearchActivated = false;
           this.indexLastUpdateTime = 0;
-          observer.next(true);
+          // restart updates
+          this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
+          observer.next(false);
           return;
         }
 
@@ -810,15 +811,7 @@ export class SearchService {
           if (this.messageTextCache.has(rmmMessageId)) {
               this.currentDocData.textcontent = this.messageTextCache.get(rmmMessageId);
           }
-          this.rmmapi.getCachedMessageContents(rmmMessageId).then(content => {
-              if (content && content.text) {
-                  // this.currentDocData.textcontent = content.text.text;
-                  this.messageTextCache.set(rmmMessageId, content.text.text);
-              } else {
-                console.error("messangeContent has no text");
-                console.error(content);
-              }
-          });
+          this.updateMessageText(rmmMessageId);
 
           try {
             this.api.documentXTermList(docid);

@@ -30,16 +30,7 @@
     }
 </style>
 
-<h1 mat-dialog-title>Payment via Card</h1>
-
-<div mat-dialog-content style="max-width: 500px;">
-    <p> Payment form not working? </p>
-
-    <p>
-        <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.
-        </a>
-    </p>
-
+<h1 mat-dialog-title>Card payment</h1>
     <div style="width: 95%; text-align: center; margin: auto;">
         <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
     </div>
@@ -49,10 +40,10 @@
                 <div #paymentRequestButton></div>
             </div>
         </div>
-        <div class="payment-row">
+        <div class="payment-row" autofocus>
             <div class="payment-field payment-field-big">
                 <label for="cardNumber">Card number</label>
-                <div #cardNumber></div>
+                <div #cardNumber id="cardNumber"></div>
             </div>
         </div>
         <div class="payment-row">
@@ -66,7 +57,7 @@
             </div>
             <div class="payment-field payment-field-small StripeElement">
                 <mat-form-field>
-                    <input matInput [(ngModel)]="zipCode" placeholder="ZIP code">
+                    <input matInput [(ngModel)]="zipCode" placeholder="ZIP/postal code">
                 </mat-form-field>
             </div>
         </div>
@@ -93,21 +84,22 @@
     <div [style.display]="state === 'finished' ? 'block' : 'none'">
         <div> Your payment was successful and your products have been activated. </div>
     </div>
-</div>
 
-<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
-    <button mat-button (click)="close()"> Cancel </button>
-</div>
-<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'initial'">
-    <button mat-button (click)="close()"> Cancel </button>
-    <button mat-flat-button color="primary" (click)="submitPayment()">
+    <div class="description" style="text-align: center"> Payment form not working? <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.</a> </div>
+
+    <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
+      <button mat-button (click)="close()"> Cancel </button>
+    </div>
+    <div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'initial'">
+      <button mat-button (click)="close()"> Cancel </button>
+      <button mat-flat-button color="primary" (click)="submitPayment()">
         <span *ngIf="state === 'initial'"> Submit payment </span>
-    </button>
-</div>
-<div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'failure'">
-    <button mat-button (click)="close()"> Close </button>
-</div>
-<div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'finished'">
-    <button mat-button (click)="close()"> Close </button>
-    <button mat-flat-button color="primary" (click)="showReceipt()"> Show Receipt </button>
-</div>
+      </button>
+    </div>
+    <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'failure'">
+      <button mat-button (click)="close()"> Close </button>
+    </div>
+    <div mat-dialog-actions style="justify-content: space-between;" *ngIf="state === 'finished'">
+      <button mat-button (click)="close()"> Close </button>
+      <button mat-flat-button color="primary" (click)="showReceipt()"> Show Receipt </button>
+    </div>

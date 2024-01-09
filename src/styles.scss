@@ -64,7 +64,7 @@ $custom-typography: mat.define-legacy-typography-config(
 @include mat.legacy-core();
 
 
-/* Generic styles */
+/*** Generic styles ***/
 
 html {
     height: 100%;
@@ -239,7 +239,7 @@ mat-icon {
 }
 
 .appPageHeader h1 {
-    margin-top: 8px;
+    margin-top: 4px;
 }
 
 .mat-dialog-container {
@@ -310,6 +310,10 @@ mat-grid-tile.tableTitle {
     }
 }
 
+.description {
+    font-size: 12px;
+}
+
 /* Palette colors */
 
 .themePalettePrimary {
@@ -344,9 +348,11 @@ mat-grid-tile.tableTitle {
     color: #444 !important;
 }
 
-/*** App-specific styles including those that can't be loaded from component stylesheets ***/
+/*** App-specific styles ***/
 
-/* Main */
+/* NOTE: These include ones that can't be loaded from component stylesheets ***/
+
+/*** Main ***/
 
 #main {
     position: fixed; 
@@ -362,7 +368,7 @@ mat-grid-tile.tableTitle {
 }
 
 
-/* Login screen */
+/*** Login screen ***/
 
 .loginSection {
     display: flex;
@@ -700,6 +706,7 @@ mat-sidenav-container {
 
 #toggleFolderPaneIcon {
     overflow: visible;
+    width: 24px;
 }
 
 @media (min-width: 1025px) {
@@ -789,11 +796,14 @@ h3.sideNavHeader {
 }
 
 
-/* Welcome Desk */
+/*** Welcome Desk ***/
+
 .welcomedesk a {
     color: mat.get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
+
+/*** Mail ***/
 
 /* Folders */
 
@@ -871,19 +881,38 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 /* List screen */
 
-#searchBarContainer {
-    height: 55px;
-    @media(max-width: 340px) {
-        padding: 0;
-    }
+#mailMenuContainer {
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 100%;
 }
 
-#searchBarContainer .mat-icon-button {
-    margin: 0 2px;
+#mailMenu {
+    height: 55px;
+    padding: 0 8px;
+    @media(max-width: 340px) {
+
+    }
+}
+.messageListActionButtonsRight {
+    flex-grow: 1;
+    overflow: hidden;
+}
+                             
+.messageListActionButtonsRight button {
+    width: 30px; // Remember to also update TOOLBAR_LIST_BUTTON_WIDTH in app.component.ts in order to show the correct number of menu items
+}
+
+#mailMenu .mat-icon-button {
     height: 40px;
 }
 
 #searchField {
+    flex-grow: 10;
     margin: 0px 10px 0 10px;
     @media(max-width: 340px) {
         margin: 0px 5px 0 5px;
@@ -896,7 +925,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 #searchField .mat-form-field-infix {
     line-height: 1.25em;
-    padding: 0.25em 0;
+    padding: 0.2em 0;
 }
 
 #searchField .mat-form-field-underline {
@@ -914,6 +943,10 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 #searchField label {
     font-size: 14px;
+}
+
+#searchField .mat-form-field-infix {
+    width: 100%;
 }
 
 #multipleSearchFieldsContainer {
@@ -994,6 +1027,20 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     color: #bbb;
     text-align: center;
 }
+
+.messageActionButtonsLeft {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.messageActionButtonsRight {
+    overflow: hidden;
+}
+
+.messageActionButtonsLeft button, .messageActionButtonsRight button {
+    width: 30px; // Remember to also update TOOLBAR_BUTTON_WIDTH in singlemailviewer.component.ts in order to show the correct number of menu items
+}
+
 /* Message display options */
 
 .htmlButtons {
@@ -1051,8 +1098,8 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 }
 
+/* Preview pane message action button row */
 
-/* Message action button row */
 single-mail-viewer .mat-toolbar, single-mail-viewer .mat-toolbar-row, single-mail-viewer .mat-toolbar-single-row {
     height: 55px !important;
 }
@@ -1084,7 +1131,6 @@ mat-expansion-panel, mat-expansion-panel-header {
 #messageContentsBody {
     font-size: 13px !important;
 }
-
 
 /* Compose */
 
@@ -1181,7 +1227,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 }
 
 
-/* Contacts */
+/*** Contacts ***/
 
 .contactListControls {
     .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
@@ -1221,7 +1267,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 }
 
 
-/* Calendar */
+/*** Calendar ***/
 
 app-calendar-app-component mat-nav-list button {
     margin: 0 !important;
@@ -1306,21 +1352,23 @@ app-calendar-event-editor-dialog p {
     margin-top: 35px;
 }
 
-/* Payment */
+/*** Payment ***/
 
-.limitedTimeOffer {
+/** Put here instead of component CSS due to use of palette variables **/
+.limitedTimeOffer, .holidayOffer {
     border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     padding: 1%;
     text-align: center;
 }
 
-.limitedTimeOffer h1 {
-    color: mat.get-color-from-palette($rmm-default-foreground);
-}
-
-.limitedTimeOffer h2 {
+.limitedTimeOffer h1, .holidayOffer h1 {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
+
+.limitedTimeOffer h2, .holidayOffer h2 {
+    color: mat.get-color-from-palette($rmm-default-primary);
+}
+
 
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
     background: mat.get-color-from-palette($rmm-default-accent);
@@ -1357,7 +1405,7 @@ app-calendar-event-editor-dialog p {
 }
 
 
-/* Runbox components */
+/*** Runbox components ***/
 
 .dev.runbox-components .nice_green_timer {
     color: #0F0;

@@ -1,6 +1,7 @@
 <div mat-dialog-content style="max-width: 500px;">
+  <h1 mat-dialog-title>Cryptocurrency payment</h1>
     <span *ngIf="state === 'loading'">
-        We're preparing your Bitpay payment, please wait...
+        We're preparing your cryptocurrency payment, please wait...
         <mat-spinner style="margin:0 auto;"></mat-spinner>
     </span>
     <span *ngIf="state === 'created'">

@@ -28,9 +28,10 @@ import { WelcomeDeskComponent } from './welcomedesk.component';
   declarations: [WelcomeDeskComponent],
   imports: [
     CommonModule,
-    RouterModule,
     MatIconModule,
-    MatCardModule,
-  ]
+      MatCardModule,
+      RouterModule
+  ],
 })
+
 export class WelcomeDeskModule { }

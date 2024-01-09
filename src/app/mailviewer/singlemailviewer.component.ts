@@ -58,7 +58,7 @@ const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
-const TOOLBAR_BUTTON_WIDTH = 40;
+const TOOLBAR_BUTTON_WIDTH = 30;
 
 
 @Component({
@@ -119,7 +119,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   previousHeight: number;
   previousHeightPercentage: number;
 
-  morebuttonindex = 4;
+  morebuttonindex = 9;
   attachmentAreaCols = 2;
 
   folder: string;
