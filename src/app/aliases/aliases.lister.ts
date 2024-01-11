@@ -29,6 +29,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 })
 export class AliasesListerComponent {
   aliases: any[] = [];
+  domains: string[] = [];
   defaultEmail: string;
 
   constructor(
@@ -41,6 +42,7 @@ export class AliasesListerComponent {
             this.aliases = reply['result']['aliases'];
         }
     });
+    rmmapi.getRunboxDomains().subscribe(domains => this.domains = domains);
     rmmapi.me.subscribe(me => this.defaultEmail = me.user_address);
   }
 

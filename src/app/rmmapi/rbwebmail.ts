@@ -524,6 +524,13 @@ export class RunboxWebmailAPI {
             );
     }
 
+    public getRunboxDomains(): Observable<string[]> {
+        return this.http.get('/rest/v1/runbox_domains')
+            .pipe(
+                map((res: any) => res.results),
+            );
+    }
+
     public copyAttachmentToDraft(messageId: string, attachmentIndex: number): Observable<any> {
         return this.http.put(
             `/rest/v1/email/${messageId}/copyattachmenttodraft/${attachmentIndex}`,
