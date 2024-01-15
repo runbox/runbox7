@@ -56,7 +56,8 @@ describe('AliasesListerComponent', () => {
             providers: [
                 AliasesListerComponent,
                 { provide: RunboxWebmailAPI, useValue: {
-                    me: of({user_address: DEFAULT_EMAIL})
+                  me: of({user_address: DEFAULT_EMAIL}),
+                  getRunboxDomains() { return of([{'name':'runbox.com'}, {'name':'runbox.xyz'}]); },
                 } },
                 { provide: HttpClient, useValue: {
                     get(url: string) {
