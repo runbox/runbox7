@@ -25,8 +25,13 @@
                 </td>
                 <td mat-footer-cell *matFooterCellDef>
                   <span *ngIf="!showExpired">
-                    <button mat-raised-button (click)="showExpiredProducts()">
+                    <button mat-raised-button (click)="showHideExpiredProducts()">
                       Show All Expired Products
+                    </button>
+                  </span>
+                  <span *ngIf="showExpired">
+                    <button mat-raised-button (click)="showHideExpiredProducts()">
+                      Hide Old Expired Products
                     </button>
                   </span>
                 </td>

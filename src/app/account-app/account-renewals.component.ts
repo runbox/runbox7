@@ -138,7 +138,7 @@ export class AccountRenewalsComponent {
         });
     }
 
-    showExpiredProducts() {
+    showHideExpiredProducts() {
         this.showExpired = !this.showExpired;
         this.sortAndFilterProducts();
     }
