@@ -2,9 +2,12 @@
 
 describe('Ordering products', { testIsolation: false }, () => {
     it('can place an order', () => {
+        localStorage.removeItem('221:shoppingCart');
+        cy.intercept('/rest/v1/account_product/available').as('availableProducts');
         cy.visit('/account/plans');
 
-        cy.get('#productGrid #purchaseButton').contains('Purchase').click();
+        cy.wait('@availableProducts', {'timeout':10000});
+        cy.get('.productGrid .purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
     });
 

@@ -68,7 +68,7 @@ mat-card-actions {
 		        color="primary"
                 [disabled]="over_quota.length > 0"
 		(click)="order()"
-		id="purchaseButton"
+		class="purchaseButton"
 		>
             Purchase for {{ p.price | number:'1.2-2' }} {{ currency || "USD" }}
         </button>
