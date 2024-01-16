@@ -19,6 +19,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MenuModule } from '../menu/menu.module';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
@@ -70,6 +71,7 @@ import { DefaultProfileComponent } from './profiles.default';
         MatTooltipModule,
         MatTableModule,
         MenuModule,
+        RouterModule,
     ],
     providers: [],
     bootstrap: []

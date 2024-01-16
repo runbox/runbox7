@@ -95,6 +95,7 @@ import { SessionsComponent } from '../account-security/sessions.component';
 import { AccountPasswordComponent } from '../account-security/account-password.component';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { DomainRegisterComponent } from '../domainregister/domainregister.component';
+import { AliasesListerComponent } from '../aliases/aliases.lister';
 
 @NgModule({
     declarations: [
@@ -228,6 +229,10 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                             {
                                 path: 'identities',
                                 component: ProfilesComponent,
+                            },
+                            {
+                                path: 'aliases',
+                                component: AliasesListerComponent,
                             },
                             {
                                 path: 'security',

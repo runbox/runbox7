@@ -21,7 +21,6 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
-import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 import { RMM, AllIdentities } from '../rmm';
 
 @Component({
@@ -72,23 +71,6 @@ export class ProfilesComponent implements OnInit {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
-  }
-
-  add_alias (): void {
-      window.location.href = '/mail/account_alias';
-      return;
-      let item = {};
-
-      this.dialog_ref = this.dialog.open(AliasesEditorModalComponent, {
-          width: '600px',
-          data: item
-      });
-      this.dialog_ref.componentInstance.is_create = true;
-
-      this.dialog_ref.afterClosed().subscribe(result => {
-          this.load_aliases();
-          item = result;
-      });
   }
 
   add_profile (type): void {

@@ -1,0 +1,81 @@
+<mat-card class="mat_card mat-elevation-z0 update create modal-card">
+    <mat-card-header class="header">
+        <mat-card-title class="header-title">
+            <div *ngIf="isCreate">Create alias</div>
+            <div *ngIf="isUpdate">Edit alias {{data.localpart + '@' + data.domain}}</div>
+            <div *ngIf="isDelete">Delete alias {{data.localpart + '@' + data.domain}} ?</div>
+        </mat-card-title>
+        <mat-card-subtitle class="header-subtitle">
+            <div *ngIf="isUpdate">Delivers to: {{data.forward_to}}</div>
+            <div *ngIf="isDelete">Delivers to: {{data.forward_to}}</div>
+        </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <div mat-dialog-content>
+            <form>
+                <mat-form-field style="margin: 10px; width: 40%;">
+                    <input matInput placeholder="Localpart"
+                        name="localpart"
+                        [readonly]="!isCreate"
+                        [(ngModel)]="data.localpart"
+                        (ngModelChange)="onChangeField('localpart')"
+                    >
+                    <div *ngIf="fieldErrors && fieldErrors.localpart">
+                        <mat-hint>
+                            ie. jamesbond
+                        </mat-hint>
+                        <mat-error *ngFor="let error of fieldErrors.localpart">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+                @
+                <mat-form-field style="margin: 10px; width: 40%;">
+                    <mat-label>Domain</mat-label>
+                    <mat-select
+                        name="domain"
+                        [(ngModel)]="data.domain"
+                        (ngModelChange)="onChangeField('domain')"
+                    >
+                        <mat-option *ngFor="let domain of allowedDomains" [value]="domain">
+                            {{domain}}
+                        </mat-option>
+                    </mat-select>
+                    <div *ngIf="fieldErrors && fieldErrors.domain">
+                        <mat-error *ngFor="let error of fieldErrors.domain">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+                <mat-form-field style="margin: 10px; width: 45%;" *ngIf="!isCreate">
+                    <input matInput placeholder="Domain"
+                        name="domain"
+                        readonly
+                        [(ngModel)]="data.domain"
+                        (ngModelChange)="onChangeField('domain')"
+                    >
+                </mat-form-field>
+                <mat-form-field style="margin: 10px; width: 95%;">
+                    <input matInput placeholder="Deliver to account"
+                        name="forward_to"
+                        [(ngModel)]="data.forward_to"
+                        (ngModelChange)="onChangeField('forward_to')"
+                    >
+                    <mat-hint>
+                        ie. you@runbox.com
+                    </mat-hint>
+                    <div *ngIf="fieldErrors && fieldErrors.forward_to">
+                        <mat-error *ngFor="let error of fieldErrors.forward_to">
+                            {{error}}
+                        </mat-error>
+                    </div>
+                </mat-form-field>
+            </form>
+        </div>
+    </mat-card-content>
+    <mat-card-actions class="action-buttons">
+      <button mat-raised-button (click)="cancel()" color="accent" id="cancel">CANCEL</button>
+      <button mat-raised-button (click)="save()" color="primary" *ngIf="!isDelete" id="save">SAVE</button>
+      <button mat-raised-button (click)="delete()" color="warn" *ngIf="isDelete" id="delete">DELETE</button>
+    </mat-card-actions>
+</mat-card>
