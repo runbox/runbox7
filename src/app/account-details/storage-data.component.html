@@ -5,17 +5,17 @@
             <!-- Type Column -->
             <ng-container matColumnDef="type">
                 <th mat-header-cell *matHeaderCellDef> Type </th>
-                <td class="capitalize" mat-cell *matCellDef="let data"> {{ data.type.split("_").join(" ") }} </td>
+                <td class="capitalize" mat-cell *matCellDef="let data"> {{ data.name }} </td>
             </ng-container>
 
             <!-- Quota Column -->
             <ng-container matColumnDef="quota">
                 <th mat-header-cell *matHeaderCellDef> Quota </th>
                 <td mat-cell *matCellDef="let data">
-                    <span *ngIf="(data.type === 'sent_email' || data.type === 'received_email')">
-                        {{ data.details.quota }} </span>
-                    <span *ngIf="!(data.type === 'sent_email' || data.type === 'received_email')">
-                        {{ (((data.details.quota)/1024)/1024)/1024 }} GB </span>
+                    <span *ngIf="data.type === 'absolute'">
+                        {{ data.quota }} </span>
+                    <span *ngIf="data.type === 'bytes'">
+                        {{ (((data.quota)/1024)/1024)/1024 }} GB </span>
                 </td>
             </ng-container>
 
@@ -23,16 +23,16 @@
             <ng-container matColumnDef="usage">
                 <th mat-header-cell *matHeaderCellDef> Usage </th>
                 <td mat-cell *matCellDef="let data">
-                    <span *ngIf="(data.type === 'sent_email' || data.type === 'received_email')">
-                        {{ data.details.usage ? data.details.usage : 0 }} </span>
-                    <span *ngIf="!(data.type === 'sent_email' || data.type === 'received_email')">
-                        {{ ((((data.details.usage ? data.details.usage : 0)/1024)/1024)/1024).toFixed(2) }} GB</span> </td>
+                    <span *ngIf="data.type === 'absolute'">
+                        {{ data.usage ? data.usage : 0 }} </span>
+                    <span *ngIf="data.type === 'bytes'">
+                        {{ ((((data.usage ? data.usage : 0)/1024)/1024)/1024).toFixed(2) }} GB</span> </td>
             </ng-container>
 
             <!-- % used Column -->
             <ng-container matColumnDef="percentage_used">
                 <th mat-header-cell *matHeaderCellDef> % used </th>
-                <td mat-cell *matCellDef="let data"> {{ data.details.percentage_used.toFixed(2) }} % </td>
+                <td mat-cell *matCellDef="let data"> {{ data.percentage_used.toFixed(2) }} % </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

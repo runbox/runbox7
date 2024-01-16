@@ -35,6 +35,22 @@ mat-card-actions {
     </mat-card-subtitle>
     <mat-card-content>
         <ng-content></ng-content>
+        <ng-container *ngIf="p.type === 'subscription'">
+          <ul>
+            <li *ngFor="let oq of over_quota">
+              {{ oq.quota }} <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+               <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} of {{ oq.allowed }}</span>
+            </li>
+          </ul>
+        </ng-container>
+        <ng-container *ngIf="p.type === 'addon'">
+          <ul>
+            <li *ngFor="let us of addon_usages">
+            Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of  {{ us.quota }}</span>
+            </li>
+          </ul>
+        </ng-container>
         <div *ngIf="allow_multiple" style="display: flex; justify-content: center; align-content: baseline;">
             <button mat-icon-button (click)="less()">
                 <mat-icon svgIcon="minus-circle-outline"></mat-icon>
@@ -49,9 +65,10 @@ mat-card-actions {
     </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
         <button mat-raised-button *ngIf="!purchased; else unpurchase"
-		color="primary"
+		        color="primary"
+                [disabled]="over_quota.length > 0"
 		(click)="order()"
-		id="purchaseButton"
+		class="purchaseButton"
 		>
             Purchase for {{ p.price | number:'1.2-2' }} {{ currency || "USD" }}
         </button>

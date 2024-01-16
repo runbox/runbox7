@@ -1,6 +1,7 @@
 <section class="mat-typography">
   <h1> Plans & Upgrades </h1>
 
+  <div *ngIf="quota_usage | async as q_usage; else usageLoading">
   <div *ngIf="rmmapi.me | async as me; else loading">
     <h4>
       <strong> Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
@@ -48,8 +49,8 @@
     </div>
     -->
 
-    <div id="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
-      <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency">
+    <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
+      <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage">
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
@@ -58,7 +59,7 @@
 
 <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
-        [currency]="me.currency">
+        [currency]="me.currency" [usage]="q_usage">
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
@@ -87,7 +88,11 @@
   <p> Add-ons are individual upgrades that can be added to your main account. </p>
 
   <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
-      <app-account-product *ngFor="let p of emailaddons" class="productCard" [p]="p" [currency]="me.currency">
+    <app-account-product *ngFor="let p of emailaddons" class="productCard"
+                         [p]="p"
+                         [currency]="me.currency"
+                         [usage]="q_usage"
+                         >
       </app-account-product>
   </div>
   
@@ -105,9 +110,16 @@
   </p>
 
   <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
-      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
+      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency" [usage]="q_usage">
       </app-account-product>
   </div>
 
   <br /><br />
+  </div>
+
+  <ng-template #usageLoading>
+    <app-runbox-loading text="Loading your usage to tailor the plans...">
+    </app-runbox-loading>
+  </ng-template>
+
 </section>

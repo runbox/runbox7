@@ -20,6 +20,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CartService } from './cart.service';
 import { Product } from './product';
+import { DataUsageInterface } from '../rmm/account-storage';
 import { ProductOrder } from './product-order';
 
 @Component({
@@ -30,10 +31,14 @@ export class ProductComponent implements OnInit {
     @Input() p: Product;
     @Input() currency: string;
     @Input() active_sub: boolean;
+    @Input() usage: DataUsageInterface;
 
     allow_multiple = false;
     quantity = 1;
     purchased = false;
+
+    over_quota = [];
+    addon_usages = [];
 
     constructor(
         private cart: CartService,
@@ -45,6 +50,39 @@ export class ProductComponent implements OnInit {
             this.purchased = !!items.find(i => i.pid === this.p.pid);
         });
         this.allow_multiple = this.p.type === 'addon';
+        this.over_quota = this.check_over_quota();
+        this.addon_usages = this.get_addon_usages();
+    }
+
+    // OverQuota for displayed product, if any of the limits have been hit
+    // Returns list of reasons why can't buy this product:
+    // Eg You have 2 virtual domains, this product only allows 1
+    check_over_quota() {
+        let oq = [];
+        if (this.p && this.usage) {
+            Object.keys(this.p.quotas).map((key) => {
+                // Subscriptions / main accounts
+                if (this.usage[key] && this.p.quotas[key].type === 'fixed' && this.p.quotas[key].quota < this.usage[key].usage) {
+                    oq.push({'quota': this.usage[key].name, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
+                }
+            });
+        }
+        return oq;
+    }
+
+    // Displays amount used up of currently owned quota
+    get_addon_usages() {
+        let pu = [];
+        if (this.p && this.usage && this.p.type === 'addon') {
+            Object.keys(this.p.quotas).map((key) => {
+                // addon items
+                if (this.p.quotas[key] && this.usage[key]) {
+                    pu.push({'quota': this.usage[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
+                }
+            });
+        }
+        return pu;
+        
     }
 
     less() {
