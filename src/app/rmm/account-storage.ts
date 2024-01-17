@@ -27,11 +27,14 @@ export interface StorageUsedInterface {
 }
 
 export interface DataUsageInterface {
-    mail_storage: StorageUsedInterface;
-    files_storage: StorageUsedInterface;
-    sent_email: StorageUsedInterface;
-    received_email: StorageUsedInterface;
-    bandwidth_usage: StorageUsedInterface;
+    Disk: StorageUsedInterface;
+    File: StorageUsedInterface;
+    Sent: StorageUsedInterface;
+    Message: StorageUsedInterface;
+    Traffic: StorageUsedInterface;
+    Alias: StorageUsedInterface;
+    Subaccount: StorageUsedInterface;
+    VirtualDomain: StorageUsedInterface;
 }
 
 export interface StorageDetailsInterface {

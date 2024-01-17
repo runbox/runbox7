@@ -29,7 +29,7 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
 
     urlBeforeLogin = '';
     wasLoggedIn = false;
-
+    loginPromise;
     currentMe;
     
     constructor(
@@ -40,26 +40,31 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
     }
 
     checkLogin(): Promise<boolean | UrlTree> {
-        return new Promise<boolean | UrlTree>((resolve, _reject) => {
-            this.isLoggedIn().pipe(take(1)).subscribe(
-                success => {
-                    if (!success) {
-                        resolve(this.router.parseUrl('/login'));
-                    } else {
-                        resolve(success);
+        if (!this.loginPromise) {
+            this.loginPromise = new Promise<boolean | UrlTree>((resolve, _reject) => {
+                this.isLoggedIn().pipe(take(1)).subscribe(
+                    success => {
+                        this.loginPromise = null;
+                        if (!success) {
+                            resolve(this.router.parseUrl('/login'));
+                        } else {
+                            resolve(success);
+                        }
+                    },
+                    error => {
+                        this.loginPromise = null;
+                        if (error.status === 403) {
+                            resolve(false);
+                        } else {
+                            // No indication that the user is unauthorized.
+                            // Let them in, and have the httpinterceptor figure out what to do.
+                            resolve(true);
+                        }
                     }
-                },
-                error => {
-                    if (error.status === 403) {
-                        resolve(false);
-                    } else {
-                        // No indication that the user is unauthorized.
-                        // Let them in, and have the httpinterceptor figure out what to do.
-                        resolve(true);
-                    }
-                }
-            );
-        });
+                );
+            });
+        }
+        return this.loginPromise;
     }
 
     isLoggedIn(): Observable<boolean | UrlTree> {

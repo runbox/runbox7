@@ -17,6 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+export interface QuotaEntry {
+    type: string;
+    quota: number;
+}
+
+export interface QuotaEntryMap {
+    [quotaType: string]: QuotaEntry;
+}
+
 export class Product {
     id:          string;
     pid:         number;
@@ -27,6 +36,7 @@ export class Product {
     details?:    string[];
     price:       number;
     currency:    string;
+    quotas:      QuotaEntryMap;
 
     constructor(properties: any) {
         // eslint-disable-next-line guard-for-in

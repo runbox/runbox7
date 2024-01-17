@@ -49,26 +49,40 @@ export class NoProductsForSubaccountsGuard implements CanActivate, CanActivateCh
     canActivate(
         route: ActivatedRouteSnapshot, _state: RouterStateSnapshot
     ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
-        return this.authGuard.checkLogin().then(
-            (success) => {
-                if (typeof(success) === 'boolean' && success) {
-                    const restricted = this.banned_components.find(c => route.component === c);
-                    if (restricted) {
-                        return this.rmmapi.me.toPromise().then(me => {
-                            if (me.owner) {
-                                return this.router.parseUrl('/account/not-for-subaccounts');
-                            } else {
-                                return true;
-                            }
-                        });
-                    } else {
-                        return true;
-                    }
+      const restricted = this.banned_components.find(c => route.component === c);
+      const loginCheck = this.authGuard.checkLogin().then(
+          (success) => {
+              if (typeof(success) === 'boolean' && success) {
+                  if (restricted) {
+                      return this.rmmapi.me.toPromise().then(me => {
+                          if (me.owner) {
+                              return this.router.parseUrl('/account/not-for-subaccounts');
+                          } else {
+                              return true;
+                          }
+                      });
+                  } else {
+                      return true;
+                  }
+              } else {
+                  // Its a UrlTree or similar
+                  return success;
+              }
+          });
+
+        if(this.authGuard.wasLoggedIn && this.authGuard.currentMe) {
+            if (restricted) {
+                if (this.authGuard.currentMe.owner) {
+                    return this.router.parseUrl('/account/not-for-subaccounts');
                 } else {
-                    // Its a UrlTree or similar
-                    return success;
+                    return true;
                 }
-            });
+            } else {
+                return true;
+            }
+        }
+
+        return loginCheck;
     }
 
     canActivateChild(

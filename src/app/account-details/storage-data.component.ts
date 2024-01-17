@@ -23,6 +23,7 @@ import { RMM } from '../rmm';
 
 export interface DataUsage {
     type: string;
+    name: string
     quota: number;
     usage: number;
     percentage_used: number;
@@ -43,10 +44,9 @@ export class StorageDataComponent {
     ngOnInit() {
         this.app.account_storage.getUsage().subscribe(dataUsage => {
             const usageArray = [];
-            Object.keys(dataUsage.result).forEach(key => usageArray.push({
-                type: key,
-                details: dataUsage.result[key]
-            }));
+            Object.keys(dataUsage.result).forEach(key => usageArray.push(
+                dataUsage.result[key]
+            ));
 
             const usage = usageArray.map(u => {
                 return u;

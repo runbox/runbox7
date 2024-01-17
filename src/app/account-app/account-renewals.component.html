@@ -1,6 +1,7 @@
 <section class="mat-typography">
     <h1> Your Subscriptions </h1>
 
+  <div *ngIf="quota_usage | async as q_usage; else usageLoading">
     <div *ngIf="active_products.length === 0; else productsTable">
         <app-runbox-loading text="Loading your subscriptions...">
         </app-runbox-loading>
@@ -21,6 +22,18 @@
                 <td mat-cell *matCellDef="let p">
                   <span style="font-weight: bold;"> {{ p.name }} </span>
                     <span *ngIf="p.pid === current_subscription"> – your current subscription </span>
+                </td>
+                <td mat-footer-cell *matFooterCellDef>
+                  <span *ngIf="!showExpired">
+                    <button mat-raised-button (click)="showHideExpiredProducts()">
+                      Show All Expired Products
+                    </button>
+                  </span>
+                  <span *ngIf="showExpired">
+                    <button mat-raised-button (click)="showHideExpiredProducts()">
+                      Hide Old Expired Products
+                    </button>
+                  </span>
                 </td>
             </ng-container>
             <ng-container matColumnDef="quantity">
@@ -76,7 +89,7 @@
             <ng-container matColumnDef="renew">
                 <th mat-header-cell *matHeaderCellDef> Renew Now </th>
                 <td mat-cell *matCellDef="let p">
-                    <app-account-renewals-renew-now-button-component [p]="p" (clicked)="renew(p)"
+                    <app-account-renewals-renew-now-button-component [p]="p" [usage]="q_usage" (clicked)="renew(p)"
                         *ngIf="!(p.type === 'addon' && p.name.toLowerCase().includes('storage'))">
                     </app-account-renewals-renew-now-button-component>
                 </td>
@@ -143,7 +156,13 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns" class="regularRow">
             </tr>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetails']" class="detailsRow"></tr>
+            <tr mat-footer-row *matFooterRowDef="['renewal_name']"></tr>
         </table>
 
     </ng-template>
+  </div>
+  <ng-template #usageLoading>
+    <app-runbox-loading text="Loading your usage to tailor page...">
+    </app-runbox-loading>
+  </ng-template>
 </section>

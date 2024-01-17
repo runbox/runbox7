@@ -334,6 +334,9 @@ END:VCALENDAR
                     break;
                 case '/rest/v1/account_product/payment_methods':
                     response.end(JSON.stringify(this.payment_methods()));
+                break;
+                case '/rest/v1/account/usage':
+                    response.end(JSON.stringify(this.usageDetails()));
                     break;
                 case '/rest/v1/calendar/calendars':
                     response.end(JSON.stringify(this.getCalendars()));
@@ -463,7 +466,13 @@ END:VCALENDAR
                     "name":         "register .INC 10 year(s)",
                     "pid":          3456,
                     "active":       true,
-                    "quantity":     1
+                    "quantity":     1,
+                    "quotas": {
+                        "VirtualDomain": {
+                            "type": "upgrade",
+                            "quota": 1
+                        }
+                    }
                 }
             ],
         };
@@ -488,7 +497,37 @@ END:VCALENDAR
                         'price':       '13.37',
                         'currency':    'EUR',
                         'pid':         '9001',
-                        'description': 'Test subscription including some stuff'
+                        'description': 'Test subscription including some stuff',
+                        "quotas": {
+                            "Alias": {
+                                "quota": 100,
+                                "type": "fixed"
+                            },
+                            "File": {
+                                "type": "fixed",
+                                "quota": 2147483648
+                            },
+                            "Traffic": {
+                                "quota": 10737418240,
+                                "type": "fixed"
+                            },
+                            "VirtualDomain": {
+                                "quota": 10,
+                                "type": "fixed"
+                            },
+                            "Disk": {
+                                "type": "fixed",
+                                "quota": 26843545600
+                            },
+                            "Msg": {
+                                "quota": 5000,
+                                "type": "fixed"
+                            },
+                            "Sent": {
+                                "type": "fixed",
+                                "quota": 500
+                            }
+                        },
                     },
                     {
                         'name':        'Runbox Addon',
@@ -497,10 +536,115 @@ END:VCALENDAR
                         'price':       '5.55',
                         'currency':    'EUR',
                         'pid':         '9002',
-                        'description': 'More cool stuff for your account'
+                        'description': 'More cool stuff for your account',
+                        "quotas": {
+                            "VirtualDomain": {
+                                "type": "upgrade",
+                                "quota": 1
+                            }
+                        },
                     }
                 ]
             }
+        };
+    }
+
+    usageDetails() {
+        return {
+            'status': 'success',
+            "result": {
+                "File": {
+                    "name": "File Storage",
+                    "usage": 3020561,
+                    "percentage_used": 0.140655832365155,
+                    "quota": 2147483648,
+                    "type": "bytes"
+                },
+                "Subaccount": {
+                    "usage": 12,
+                    "name": "Medium Subaccounts",
+                    "type": "absolute",
+                    "percentage_used": 9.67741935483871,
+                    "quota": 124
+                },
+                "Disk": {
+                    "percentage_used": 3.30549178716655,
+                    "quota": 27917287424,
+                    "type": "bytes",
+                    "usage": 922803643,
+                    "name": "Mail Storage"
+                },
+                "MicroSubaccount": {
+                    "quota": 0,
+                    "percentage_used": 0,
+                    "type": "absolute",
+                    "usage": 0,
+                    "name": "Micro Subaccounts"
+                },
+                "MaxSubaccount": {
+                    "type": "absolute",
+                    "quota": 0,
+                    "percentage_used": 0,
+                    "usage": 0,
+                    "name": "Max Subaccounts"
+                },
+                "MiniSubaccount": {
+                    "percentage_used": 11.0,
+                    "quota": 100,
+                    "type": "absolute",
+                    "name": "Mini Subaccounts",
+                    "usage": 11
+                },
+                "HostedDomain": {
+                    "quota": 0,
+                    "percentage_used": 0,
+                    "type": "absolute",
+                    "name": "Hosted Domains",
+                    "usage": 0
+                },
+                "Sent": {
+                    "name": "Sent Email",
+                    "usage": 0,
+                    "quota": 500,
+                    "percentage_used": 0,
+                    "type": "absolute"
+                },
+                "VirtualDomain": {
+                    "usage": 5,
+                    "name": "Domain Names",
+                    "type": "absolute",
+                    "percentage_used": 41.6666666666667,
+                    "quota": 12
+                },
+                "Max250Subaccount": {
+                    "quota": 0,
+                    "percentage_used": 0,
+                    "type": "absolute",
+                    "usage": 0,
+                    "name": "Max250 Subaccounts"
+                },
+                "Max100Subaccount": {
+                    "percentage_used": 0,
+                    "quota": 0,
+                    "type": "absolute",
+                    "name": "Max100 Subaccounts",
+                    "usage": 0
+                },
+                "Msg": {
+                    "name": "Received Email",
+                    "usage": 3,
+                    "percentage_used": 0.06,
+                    "quota": 5000,
+                    "type": "absolute"
+                },
+                "Alias": {
+                    "type": "absolute",
+                    "quota": 100,
+                    "percentage_used": 13.0,
+                    "name": "Aliases",
+                    "usage": 13
+                }
+            },
         };
     }
 
