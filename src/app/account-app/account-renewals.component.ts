@@ -48,6 +48,8 @@ export class AccountRenewalsComponent {
     all_products: ActiveProduct[] = [];
     current_subscription: number;
 
+    loadedProducts = false;
+
     displayedColumns: string[];
     expandedProduct: ActiveProduct;
     showExpired = false;
@@ -99,6 +101,7 @@ export class AccountRenewalsComponent {
                     this.cart.contains(p.pid, p.apid).then(ordered => p.ordered = ordered);
                 }
             });
+            this.loadedProducts = true;
         });
 
         this.displayedColumns = this.mobileQuery.matches ? columnsMobile : columnsDefault;
