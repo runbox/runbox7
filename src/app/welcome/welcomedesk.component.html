@@ -13,15 +13,6 @@
       <h2><a routerLink="/account/plans">Continue to Account Plans Now</a></h2>
       <br />
       <h4>You can also <a routerLink="/welcome">continue setting up your account</a>, or go <a routerLink="/">straight to your Inbox</a>.</h4>
-      <div id="introSpecialOfferNote">
-        <div>
-          <mat-icon svgIcon="lightbulb"></mat-icon>
-        </div>
-        <div>
-          <p>Note that your account will start receiving email within 15 minutes, once the account details have registered across our systems. In order to send email from your new account, please first validate your alternative email address by clicking the link in the email we sent there.            
-          </p>
-        </div>
-      </div>
     </div>
     <div *ngIf="!postSignup">
       <h3>Let's get you set up with Runbox and make you an email pro!</h3>
@@ -89,8 +80,17 @@
 	      </a>
         </mat-card>
       </div>
-      <br />
-      <h4><mat-icon svgIcon="lightbulb"></mat-icon>Note: You can always return to this Welcome Desk by clicking the Runbox logo in the top left corner.</h4>
+    </div>
+    <br />
+    <div id="introNote">
+      <div>
+        <mat-icon svgIcon="lightbulb"></mat-icon>
+      </div>
+      <div>
+        <p>Note that your account will start receiving email within 15 minutes, once the account details have registered across our systems. In order to send email from your new account, please first validate your alternative email address by clicking the link in the email we sent there.            
+        </p>
+        <h4>You can always return to this Welcome Desk by clicking the Runbox logo in the top left corner.</h4>
+      </div>
     </div>
   </div>
 </section>
