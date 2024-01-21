@@ -2,15 +2,9 @@
 
 ## Contributors
 
-The following people have [contributed](CONTRIBUTING.md) to this project. Thank you!
+The people and organizations listed on the [Contributors](https://github.com/runbox/runbox7/graphs/contributors) page have contributed directly to this project.
 
-Please let us know if you are a contributor and not yet listed here.
-
-* [petersalomonsen](https://github.com/petersalomonsen)
-* [tadzik](https://github.com/tadzik)
-* [hernan604](https://github.com/hernan604)
-* [gtandersen](https://github.com/gtandersen)
-* [ng-0](https://github.com/ng-0)
+We thank you for your hard work and helping make Runbox a success!
 
 ## Open source software
 
