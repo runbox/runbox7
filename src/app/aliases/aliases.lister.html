@@ -1,18 +1,22 @@
 <h1>Email Aliases</h1>
 <div>
     <p>
-      Here you can set up and configure aliases for your main Runbox account.
+      Here you can set up and configure email aliases that point to your main Runbox account.
     </p>
-    
     <p>
-      An alias can be another Runbox address or an address on your own domain, if you have any set up under Email Domains. Please allow up to 5 minutes for new aliases to propagate throughout the Runbox servers before using them, and please avoid aliases that could be perceived to be official Runbox administrative addresses (they may be deleted without prior notice).
+      An alias is another email address that either uses one of the Runbox domains (e.g. runbox.com) or a domain of your own. You can manage your own email domains on the <a href="/mail/account_domain" target="rmm6">Email Hosting</a> page. Please allow up to 5 minutes for new aliases to propagate throughout the Runbox servers before using them.
     </p>
-
+    <p>
+      Runbox addresses work across all of our domains, which means that if your username is example@runbox.com you can also receive email to your account if you give someone the address example@rbx.email. You can find a full list of our domains below.
+    </p>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title> Show all Runbox domain names </mat-panel-title>
+      </mat-expansion-panel-header>
+      <p><span *ngFor="let d of domains">{{ d.name }}, </span></p>
+    </mat-expansion-panel>
     <p>
       Note: Avoid aliases that could be perceived to be official Runbox addresses or ones used by other companies or individuals, as they may be deleted without prior notice.
-    </p>
-    <p>
-      Runbox addresses are currently synonymous for the domains: <span *ngFor="let d of domains">{{ d.name }}, </span>
     </p>
 </div>
 

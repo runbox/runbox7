@@ -38,18 +38,14 @@ import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/
 import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table';
 import { ProfilesComponent } from './profiles.component';
 import { ProfilesListerComponent } from './profiles.lister';
-import { AliasesListerComponent } from '../aliases/aliases.lister';
 import { ProfilesEditorModalComponent } from './profiles.editor.modal';
-import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 import { DefaultProfileComponent } from './profiles.default';
 
 @NgModule({
     declarations: [
-        AliasesListerComponent,
         ProfilesComponent,
         ProfilesListerComponent,
         ProfilesEditorModalComponent,
-        AliasesEditorModalComponent,
         DefaultProfileComponent,
     ],
     imports: [
@@ -77,5 +73,3 @@ import { DefaultProfileComponent } from './profiles.default';
     bootstrap: []
 })
 export class ProfilesModule { }
-
-

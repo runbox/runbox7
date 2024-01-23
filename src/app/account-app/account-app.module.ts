@@ -79,6 +79,8 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { AccountSecurityModule } from '../account-security/account.security.module';
 import { ProfilesComponent } from '../profiles/profiles.component';
 import { ProfilesModule } from '../profiles/profiles.module';
+import { AliasesListerComponent} from '../aliases/aliases.lister';
+import { AliasesModule } from '../aliases/aliases.module';
 import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
 import { QRCodeModule } from 'angular2-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -95,7 +97,6 @@ import { SessionsComponent } from '../account-security/sessions.component';
 import { AccountPasswordComponent } from '../account-security/account-password.component';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { DomainRegisterComponent } from '../domainregister/domainregister.component';
-import { AliasesListerComponent } from '../aliases/aliases.lister';
 
 @NgModule({
     declarations: [
@@ -158,6 +159,7 @@ import { AliasesListerComponent } from '../aliases/aliases.lister';
         DomainRegisterModule,
         AccountSecurityModule,
         ProfilesModule,
+        AliasesModule,
         DomainRegisterModule,
         QRCodeModule,
         RouterModule.forChild([
