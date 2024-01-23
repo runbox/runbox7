@@ -18,21 +18,27 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { CommonModule } from '@angular/common';
-import { NgModule, ErrorHandler } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { FormsModule } from '@angular/forms';  
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
 import { AliasesListerComponent} from './aliases.lister';
+import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 
 @NgModule({
     declarations: [
-        AliasesListerComponent
-    ],
-    exports: [
-        AliasesListerComponent
+      AliasesListerComponent,
+      AliasesEditorModalComponent
     ],
     imports: [
         CommonModule,
+        FormsModule,
         MatExpansionModule,
+        MatCardModule,
+        MatInputModule,
+        MatSelectModule
     ],
     providers: [],
     bootstrap: []
