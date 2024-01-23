@@ -32,22 +32,6 @@ h4 {
     text-align: center;
     margin: 20px;
 }
-#introSpecialOfferNote {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    text-align: center;
-    margin: 20px;
-}
-#introSpecialOfferNote div {
-    text-align: center;
-}
-#introSpecialOfferNote mat-icon {
-    margin: 0;
-    padding: 0;
-    width: 50px;
-    height: auto;
-}
 #introSpecialOffer.h4 {
     text-align: center;
 }    
@@ -60,6 +44,23 @@ div.gridHighlight {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+#introNote {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    margin: 20px 0;
+    width: 90%;
+}
+#introNote div {
+    text-align: center;
+}
+#introNote mat-icon {
+    margin: 0;
+    padding: 0;
+    width: 50px;
+    height: auto;
 }
 mat-card {
     display: flex;
