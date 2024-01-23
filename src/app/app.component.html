@@ -52,6 +52,24 @@
 
       <mat-divider></mat-divider>
 
+      <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex">
+        <div style="display: flex;">
+          <p>
+            Runbox 7 can synchronize with your browser to give you an optimal webmail experience.
+          </p>
+        </div>
+        <mat-list-item>
+          <button mat-raised-button (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device" color="primary">
+            Download Search Index
+          </button>
+          <button mat-raised-button (click)="refuseLocalIndex()" matTooltip="Do not synchronize index" color="warn">
+            Cancel
+          </button>
+        </mat-list-item>
+      </div>
+
+      <mat-divider></mat-divider>
+
       <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
         <a mat-button (click)="compose();" matTooltip="Compose">
           <mat-icon  svgIcon="pencil" color="primary"></mat-icon></a>
@@ -121,7 +139,7 @@
       </mat-list-item>
     </mat-nav-list>
 
-    <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress===null">
+    <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress===null && !offerInitialLocalIndex">
       <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
         <mat-icon  svgIcon="sync" mat-list-icon></mat-icon>
         <p mat-line>Synchronize index</p>

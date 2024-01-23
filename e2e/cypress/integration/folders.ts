@@ -3,7 +3,6 @@
 describe('Folder management', () => {
     it('should create folder at root level', () => {
         cy.visit('/');
-        cy.closeWelcomeDialog();
 
         cy.get('#createFolderButton').click();
         cy.get('.mat-dialog-title').should('contain', 'Add new folder');
@@ -16,7 +15,6 @@ describe('Folder management', () => {
 
     it('should empty trash', () => {
         cy.visit('/');
-        cy.closeWelcomeDialog();
 
         cy.contains('mat-tree-node', 'Trash')
             .find('button.mat-icon-button[mattooltip="Folder actions"]')

@@ -18,8 +18,8 @@ describe('Login', () => {
 
     function expectWebmail() {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
-        cy.get('confirm-dialog').should('contain', 'Runbox 7');
-        cy.get('confirm-dialog .mat-dialog-actions button mat-icon[svgIcon="cancel"]').click().should(() => {
+        cy.get('#offerLocalIndex').should('contain', 'Runbox 7');
+        cy.get('#offerLocalIndex mat-list-item button[mattooltip="Do not synchronize index"]').click().should(() => {
           expect(JSON.parse(localStorage.getItem('221:Desktop:localSearchPromptDisplayed'))).to.equal('true');
         });
     }
