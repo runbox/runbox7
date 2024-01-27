@@ -28,6 +28,7 @@ import { RMM } from '../rmm';
 import { DataUsageInterface } from '../rmm/account-storage';
 import { RunboxTimerComponent } from './runbox-timer';
 import { AsyncSubject } from 'rxjs';
+import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 
 @Component({
     selector: 'app-account-upgrades-component',
@@ -56,6 +57,7 @@ export class AccountUpgradesComponent implements OnInit {
         public  rmmapi:          RunboxWebmailAPI,
         private snackbar:        MatSnackBar,
         private rmm:             RMM,
+        public sidenavService:   RunboxSidenavService,
     ) {
     }
 

@@ -1,6 +1,5 @@
 mat-card {
-    min-height: 35vh;
-    max-width: 300px;
+    height: 225px;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -11,13 +10,17 @@ mat-card {
     }
 }
 
+@media (max-width: 500px) {
+    mat-card {
+	    height: 200px;
+    }
+}
+
 mat-card.addon {
-    min-height: 40vh;
 }
 
 mat-card-subtitle {
     margin: 0;
-    min-height: 3vh;
     font-size: 14px;
 }
 
@@ -40,4 +43,8 @@ mat-card-actions {
     li {
     list-style-type: square;
     }
+}
+
+h5 {
+    text-align: center;
 }

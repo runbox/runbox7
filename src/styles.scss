@@ -80,6 +80,7 @@ body {
 h1, .mat-typography h1 {
     margin: 10px 0 20px 0;
     font-size: 30px;
+    line-height: 40px;
     font-weight: 400;
 }
 
@@ -715,6 +716,7 @@ mat-sidenav-container {
 
 #toggleFolderPaneIcon {
     overflow: visible;
+    margin-right: 10px;
     width: 24px;
 }
 
