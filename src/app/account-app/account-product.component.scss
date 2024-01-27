@@ -1,0 +1,43 @@
+mat-card {
+    min-height: 35vh;
+    max-width: 300px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+
+    h4 {
+        margin: 5px;
+        text-align: center;
+    }
+}
+
+mat-card.addon {
+    min-height: 40vh;
+}
+
+mat-card-subtitle {
+    margin: 0;
+    min-height: 3vh;
+    font-size: 14px;
+}
+
+mat-card-subtitle {
+    flex-grow: 1;
+}
+
+mat-card-content {
+    margin: 0;
+}
+
+mat-card-actions {
+    margin-bottom: 0px !important;
+
+    ul {
+        margin: 0;
+        padding: 0 20px;
+    }
+    
+    li {
+    list-style-type: square;
+    }
+}

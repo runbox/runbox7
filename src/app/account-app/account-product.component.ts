@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, OnInit } from '@angular/core';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CartService } from './cart.service';
 import { Product } from './product';
 import { DataUsageInterface } from '../rmm/account-storage';
@@ -26,12 +27,15 @@ import { ProductOrder } from './product-order';
 @Component({
     selector: 'app-account-product',
     templateUrl: './account-product.component.html',
+    styleUrls: ['./account-product.component.scss'],
 })
 export class ProductComponent implements OnInit {
     @Input() p: Product;
     @Input() currency: string;
     @Input() active_sub: boolean;
     @Input() usage: DataUsageInterface;
+
+    me: RunboxMe = new RunboxMe();
 
     allow_multiple = false;
     quantity = 1;
@@ -42,6 +46,7 @@ export class ProductComponent implements OnInit {
 
     constructor(
         private cart: CartService,
+        public  rmmapi:          RunboxWebmailAPI,
     ) {
     }
 
@@ -52,6 +57,10 @@ export class ProductComponent implements OnInit {
         this.allow_multiple = this.p.type === 'addon';
         this.over_quota = this.check_over_quota();
         this.addon_usages = this.get_addon_usages();
+    
+        this.rmmapi.me.subscribe(me => {
+            this.me = me;
+        });
     }
 
     // OverQuota for displayed product, if any of the limits have been hit

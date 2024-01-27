@@ -41,14 +41,15 @@ mat-icon.limitedTimeOffer {
 #productGrid, .productGrid {
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-between;
 }
 
 .productCard {
-    margin: 10px;
-    flex: 1 1 360px;
+    margin: 0 10px 10px 0;
+    width: 275px;
 }
 
 .productCardSpecial {
     text-align: center;
 }
+
+

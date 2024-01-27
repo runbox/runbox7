@@ -1,55 +1,20 @@
-<style>
-mat-card {
-    min-height: 20vh;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-mat-card.addon {
-    min-height: 10vh;
-}
-
-mat-card-subtitle {
-    min-height: 3vh;
-    font-size: 16px;
-}
-
-mat-card-content {
-    flex-grow: 1;
-}
-
-mat-card-actions {
-    margin-bottom: 0px !important;
-}
-</style>
-
 <mat-card [ngClass]="{ 'addon': p.type === 'addon' }">
   <h4 *ngIf="p.subtype === 'special'">Special Offer</h4>
-    <mat-card-title>
+    <mat-card-title [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
       {{ p.name }}
-      <strong *ngIf="active_sub"> – your current {{ p.type }} </strong>
     </mat-card-title>
     <mat-card-subtitle>
-        {{ p.description }}
+      <strong *ngIf="p.pid == me.subscription"> Your current {{ p.type }} </strong>
+      <br />
+      {{ p.description }}.
     </mat-card-subtitle>
     <mat-card-content>
         <ng-content></ng-content>
-        <ng-container *ngIf="p.type === 'subscription'">
-          <ul>
-            <li *ngFor="let oq of over_quota">
-              {{ oq.quota }} <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
-               <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} of {{ oq.allowed }}</span>
-            </li>
-          </ul>
-        </ng-container>
         <ng-container *ngIf="p.type === 'addon'">
-          <ul>
-            <li *ngFor="let us of addon_usages">
+            <h4 *ngFor="let us of addon_usages">
             Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
               <span *ngIf="us.type !== 'bytes'">{{ us.current }} of  {{ us.quota }}</span>
-            </li>
-          </ul>
+            </h4>
         </ng-container>
         <div *ngIf="allow_multiple" style="display: flex; justify-content: center; align-content: baseline;">
             <button mat-icon-button (click)="less()">
@@ -63,14 +28,13 @@ mat-card-actions {
             </button>
         </div>
     </mat-card-content>
-    <mat-card-actions style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription'">
+    <mat-card-actions  style="display: flex; justify-content: center;" *ngIf="p.type === 'subscription' && over_quota.length == 0">
         <button mat-raised-button *ngIf="!purchased; else unpurchase"
-		        color="primary"
-                [disabled]="over_quota.length > 0"
-		(click)="order()"
-		class="purchaseButton"
+		        [color]="p.pid < me.subscription ? 'accent' : 'primary'"
+		        (click)="order()"
+		        class="purchaseButton"
 		>
-            Purchase for {{ p.price | number:'1.2-2' }} {{ currency || "USD" }}
+            <span *ngIf="p.pid == me.subscription">Renew</span><span *ngIf="p.pid < me.subscription">Downgrade</span><span *ngIf="p.pid > me.subscription">Upgrade now</span>  for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
         </button>
         <ng-template #unpurchase>
             <button mat-raised-button
@@ -82,12 +46,27 @@ mat-card-actions {
             </button>
         </ng-template>
     </mat-card-actions>
-    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="allow_multiple">
+    <mat-card-actions  style="text-align: center" *ngIf="p.type === 'subscription' && over_quota.length > 0">
+      Your usage is too great for this plan:
+        <ng-container *ngIf="p.type === 'subscription'">
+          <ul>
+            <li *ngFor="let oq of over_quota" style="text-align: left">
+              <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+              <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+              are available
+            </li>
+          </ul>
+        </ng-container>
+    </mat-card-actions>
+    <h5 *ngIf="p.type !== 'addon'" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+      Price per GB email storage: USD {{ p.price / (p.quotas.Disk.quota  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+    </h5>
+    <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type !== 'subscription'">
         <button mat-raised-button (click)="order()"
 		color="primary"
 		id="purchaseButton"
 		>
-            Purchase for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
+            Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="quantity > 1">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ quantity * p.price | number:'1.2-2' }} {{ currency }}
         </button>
     </mat-card-actions>
 </mat-card>
