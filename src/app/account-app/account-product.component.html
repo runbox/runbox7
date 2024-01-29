@@ -34,7 +34,11 @@
 		        (click)="order()"
 		        class="purchaseButton"
 		>
-            <span *ngIf="p.pid == me.subscription">Renew</span><span *ngIf="p.pid < me.subscription">Downgrade</span><span *ngIf="p.pid > me.subscription">Upgrade now</span>  for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
+          <span *ngIf="me.is_trial">Subscribe</span>
+          <span *ngIf="!me.is_trial && p.pid == me.subscription">Renew</span>
+          <span *ngIf="!me.is_trial && p.pid > me.subscription">Upgrade</span>
+          <span *ngIf="!me.is_trial && p.pid < me.subscription">Downgrade</span>
+          for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
         </button>
         <ng-template #unpurchase>
             <button mat-raised-button
@@ -59,7 +63,7 @@
         </ng-container>
     </mat-card-actions>
     <h5 *ngIf="p.type !== 'addon'" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
-      Price per GB email storage: USD {{ p.price / (p.quotas.Disk.quota  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+      Price per GB email storage: {{ currency || "USD" }} {{ p.price / (p.quotas.Disk.quota  / 1024 / 1024 / 1024) | number:'1.2-2' }}
     </h5>
     <mat-card-actions style="display: flex; justify-content: center; align-content: baseline;" *ngIf="p.type !== 'subscription'">
         <button mat-raised-button (click)="order()"
