@@ -7,7 +7,7 @@ describe('Ordering products', { testIsolation: false }, () => {
         cy.visit('/account/plans');
 
         cy.wait('@availableProducts', {'timeout':10000});
-        cy.get('.productGrid .purchaseButton').contains('Purchase').click();
+        cy.get('.productGrid .purchaseButton').contains('Renew').click();
         cy.get('#shoppingCartButton').should('be.visible');
     });
 
