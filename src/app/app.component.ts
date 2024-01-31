@@ -997,17 +997,31 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
     this.localSearchIndexPrompted = true;
     this.searchService.downloadIndexFromServer().subscribe((res) => {
-      if (res) {
+      if (res && !this.searchService.stopIndexDownloadingInProgress) {
         this.searchService.downloadPartitions().subscribe(() => {
-          // this.searchService.openDBOnWorker();
+          // only done prompting after all partitions fetched
+          if(this.searchService.stopIndexDownloadingInProgress) {
+            // decided to stop mid partition download
+            this.deleteLocalIndex();
+          }
+          this.searchService.indexDownloadingInProgress = false;
+          this.offerInitialLocalIndex = false;
         });
       } else {
-        console.log('Index download failed');
+        console.log('Index download cancelled or failed');
+        this.deleteLocalIndex();
+        this.searchService.indexDownloadingInProgress = false;
+        this.searchService.stopIndexDownloadingInProgress = false;
+        this.offerInitialLocalIndex = false;
       }
     });
   }
 
-  public refuseLocalIndex() {
+  public cancelOrRefuseLocalIndex() {
+    // Downloading is in progress, pause it:
+    if (this.searchService.indexDownloadingInProgress) {
+      this.searchService.stopIndexDownloadingInProgress = true;
+    }
     // User has had the initial prompt, stop asking
     this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
     this.offerInitialLocalIndex = false;

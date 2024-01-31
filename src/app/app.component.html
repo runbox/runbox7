@@ -52,21 +52,6 @@
 
       <mat-divider></mat-divider>
 
-      <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex">
-        <div style="display: flex;">
-          <p>
-            Runbox 7 can synchronize with your browser to give you an optimal webmail experience.
-          </p>
-        </div>
-        <mat-list-item>
-          <button mat-raised-button (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device" color="primary">
-            Download Search Index
-          </button>
-          <button mat-raised-button (click)="refuseLocalIndex()" matTooltip="Do not synchronize index" color="warn">
-            Cancel
-          </button>
-        </mat-list-item>
-      </div>
 
       <mat-divider></mat-divider>
 
@@ -194,38 +179,55 @@
       </button>
       
       <ng-container *ngIf="!hasChildRouterOutlet">
-        <mat-form-field id="searchField" floatLabel="auto"
-                        *ngIf="searchService.downloadProgress===null">
-          <input matInput #searchInputField type="text"
-                 (focus)="searchTextFieldFocus()"
-                 (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
-                 [value]="searchText" (keyup)="searchFor($event.target.value)" matTooltip="Enter one or more search terms, or click the wrench to display the advanced search pane" />
-          <!-- <app-search-expression-builder
-               [searchInputField]="searchInputField"
-               [currentFolder]="selectedFolder"
-               matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
-          <button *ngIf="searchText!==''"
-                  mat-icon-button
-                  matSuffix
-                  (click)="showSaveSearchDialog()"
-                  matTooltip="Save search">
-            <mat-icon svgIcon="content-save"></mat-icon>
-          </button>
-          <button *ngIf="!showMultipleSearchFields"
-                  mat-icon-button
-                  matSuffix
-                  (click)="showMultipleSearchFields = true"
-                  matTooltip="Show advanced search pane">
-            <mat-icon svgIcon="wrench"></mat-icon>
-          </button>
-          <button *ngIf="searchText!==''"
-                  mat-icon-button
-                  matSuffix
-                  (click)="searchFor('')"
-                  matTooltip="Clear search">
-            <mat-icon svgIcon="close"></mat-icon>
-          </button>
-        </mat-form-field>
+        <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex; else searchBar" style="display: flex; flex-flow: row">
+          <p>
+            Runbox 7 can synchronize with your browser to give you an optimal webmail experience.<br> The data can be deleted at any time using the buttons under the folder list.
+          </p>
+          <mat-list>
+          <mat-list-item>
+            <button mat-raised-button (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device" color="primary" [disabled]="searchService.indexDownloadingInProgress">
+              Download
+            </button>
+            <button mat-raised-button (click)="cancelOrRefuseLocalIndex()" matTooltip="{{ searchService.indexDownloadingInProgress ? 'Cancel Download' : 'Do not synchronize index'}}" data-cy="cancel-button" color="warn">
+              Cancel
+            </button>
+          </mat-list-item>
+          </mat-list>
+        </div>
+        <ng-template #searchBar>
+          <mat-form-field id="searchField" floatLabel="auto"
+                          *ngIf="searchService.downloadProgress===null">
+            <input matInput #searchInputField type="text"
+                   (focus)="searchTextFieldFocus()"
+                   (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
+                   [value]="searchText" (keyup)="searchFor($event.target.value)" matTooltip="Enter one or more search terms, or click the wrench to display the advanced search pane" />
+            <!-- <app-search-expression-builder
+                 [searchInputField]="searchInputField"
+                 [currentFolder]="selectedFolder"
+                 matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
+            <button *ngIf="searchText!==''"
+                    mat-icon-button
+                    matSuffix
+                    (click)="showSaveSearchDialog()"
+                    matTooltip="Save search">
+              <mat-icon svgIcon="content-save"></mat-icon>
+            </button>
+            <button *ngIf="!showMultipleSearchFields"
+                    mat-icon-button
+                    matSuffix
+                    (click)="showMultipleSearchFields = true"
+                    matTooltip="Show advanced search pane">
+              <mat-icon svgIcon="wrench"></mat-icon>
+            </button>
+            <button *ngIf="searchText!==''"
+                    mat-icon-button
+                    matSuffix
+                    (click)="searchFor('')"
+                    matTooltip="Clear search">
+              <mat-icon svgIcon="close"></mat-icon>
+            </button>
+          </mat-form-field>
+        </ng-template>
 	    
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
                 matTooltip="Back to conversations list">
