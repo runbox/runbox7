@@ -82,6 +82,12 @@ export class SearchService {
 
   public localSearchActivated = false;
   public downloadProgress: number = null;
+  partitionDownloadProgress: number = null;
+
+  // Status flag for main sidebar (is currently fetching index)
+  public indexDownloadingInProgress = false;
+  // Trigger for sidebar to activate to stop the download
+  public stopIndexDownloadingInProgress = false;
 
   public downloadableIndexExists = false;
   public indexCreationStarted = false;
@@ -106,7 +112,6 @@ export class SearchService {
 
   isExpired: boolean = false;
   initcalled = false;
-  partitionDownloadProgress: number = null;
 
   persistIndexInProgressSubject: AsyncSubject<any> = null;
 
@@ -147,6 +152,8 @@ export class SearchService {
           this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
           this.messagelistservice.refreshFolderList();
         } else if (data['action'] === PostMessageAction.indexDeleted) {
+          this.stopIndexDownloadingInProgress = false;
+          console.log('Closing progress dialog');
           ProgressDialog.close();
           this.messagelistservice.fetchFolderMessages();
         } else if (data['action'] === PostMessageAction.newMessagesNotification) {
@@ -475,6 +482,7 @@ export class SearchService {
   public downloadIndexFromServer(): Observable<boolean> {
     this.indexWorker.postMessage({'action': PostMessageAction.stopIndexUpdates });
     this.notifyOnNewMessages = false; // we don't want notification on first message update after index load
+    this.indexDownloadingInProgress = true;
     this.init();
 
     return this.initSubject.pipe(
@@ -483,6 +491,7 @@ export class SearchService {
         if (!res) {
           this.localSearchActivated = false;
           this.indexLastUpdateTime = 0;
+          this.indexDownloadingInProgress = false;
           // restart updates
           this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
           observer.next(false);
@@ -494,27 +503,33 @@ export class SearchService {
         this.downloadProgress = 0;
         let loaded = 0;
 
-        const downloadAndWriteFile = (filename: string, fileno: number): Observable<void> => {
-          return this.httpclient.request(
-            new HttpRequest<any>('GET', '/mail/download_xapian_index?fileno=' + fileno,
-            {responseType: 'arraybuffer', reportProgress: true}
-          )).pipe(
-            map(event => {
-              if (event.type === HttpEventType.DownloadProgress) {
-                  const progress = ((loaded + event.loaded) * 100 / this.serverIndexSizeUncompressed);
-                  this.downloadProgress = progress === 100 ? null : progress;
-              } else if (event.type === HttpEventType.Response) {
-                const data = new Uint8Array(event.body as ArrayBuffer);
-                FS.writeFile('xapianglasswr/' + filename, data, { encoding: 'binary' });
-                loaded += data.length;
-              }
-              return event;
-            }),
-            filter(event => event.type === HttpEventType.Response),
-            map(event => {
-              console.log('download complete for', filename, fileno);
-            })
-          );
+          const downloadAndWriteFile = (filename: string, fileno: number): Observable<void> => {
+            if (!this.stopIndexDownloadingInProgress) {
+              return this.httpclient.request(
+                new HttpRequest<any>(
+                  'GET', '/mail/download_xapian_index?fileno=' + fileno,
+                  {responseType: 'arraybuffer', reportProgress: true}
+                )).pipe(
+                  map(event => {
+                    if (event.type === HttpEventType.DownloadProgress) {
+                      const progress = ((loaded + event.loaded) * 100 / this.serverIndexSizeUncompressed);
+                      this.downloadProgress = progress === 100 ? null : progress;
+                    } else if (event.type === HttpEventType.Response) {
+                      const data = new Uint8Array(event.body as ArrayBuffer);
+                      FS.writeFile('xapianglasswr/' + filename, data, { encoding: 'binary' });
+                      loaded += data.length;
+                    }
+                    return event;
+                  }),
+                  filter(event => event.type === HttpEventType.Response),
+                  map(event => {
+                    console.log('download complete for', filename, fileno);
+                  })
+                );
+            } else {
+              this.downloadProgress = null;
+              return of(null);
+            }
         };
 
         if (this.localSearchActivated) {
@@ -532,6 +547,7 @@ export class SearchService {
           mergeMap(() => downloadAndWriteFile('termlist.glass', 3)),
           mergeMap(() => downloadAndWriteFile('postlist.glass', 4)),
         ).subscribe(() => {
+          if(!this.stopIndexDownloadingInProgress) {
             this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
@@ -541,7 +557,8 @@ export class SearchService {
 
             this.downloadProgress = null;
             observer.next(true);
-          });
+          }
+        });
       })));
   }
 
@@ -709,31 +726,35 @@ export class SearchService {
 
 
             const downloadPartition = (p: DownloadablePartition, ndx): Observable<boolean> => {
-              let currentFileIndex = 0;
-              return from(p.files.map((file) =>
-                  this.httpclient.request(
-                    new HttpRequest('GET',
-                      `/rest/v1/searchindex/file/${p.folder}/${file.filename}`, {
-                        reportProgress: true,
-                        responseType: 'arraybuffer'
-                      }
-                    )
+              if (!this.stopIndexDownloadingInProgress) {
+                let currentFileIndex = 0;
+                return from(
+                  p.files.map(
+                    (file) =>
+                      this.httpclient.request(
+                        new HttpRequest(
+                          'GET',
+                          `/rest/v1/searchindex/file/${p.folder}/${file.filename}`, {
+                            reportProgress: true,
+                            responseType: 'arraybuffer'
+                          }
+                        )
+                      )
                   )
-                )
-              ).pipe(
-                mergeMap(req =>
-                  req.pipe(
-                    map((event) => {
-                      if (event.type === HttpEventType.DownloadProgress) {
-                        p.files[currentFileIndex].downloaded = event.loaded;
-                        this.partitionDownloadProgress = partitions.reduce((prev, curr) =>
-                          prev + curr.files.reduce((pr, cu) =>
-                            pr + (cu.downloaded !== undefined ? cu.downloaded : 0), 0), 0) / totalSize;
-                      }
-                      return event;
-                    }),
-                    filter((event) => event instanceof HttpResponse),
-                    map((event) => {
+                ).pipe(
+                  mergeMap(req =>
+                    req.pipe(
+                      map((event) => {
+                        if (event.type === HttpEventType.DownloadProgress) {
+                          p.files[currentFileIndex].downloaded = event.loaded;
+                          this.partitionDownloadProgress = partitions.reduce((prev, curr) =>
+                            prev + curr.files.reduce((pr, cu) =>
+                              pr + (cu.downloaded !== undefined ? cu.downloaded : 0), 0), 0) / totalSize;
+                        }
+                        return event;
+                      }),
+                      filter((event) => event instanceof HttpResponse),
+                      map((event) => {
                         currentFileIndex++;
                         const response = event as HttpResponse<ArrayBuffer>;
                         console.log(response.url);
@@ -750,17 +771,21 @@ export class SearchService {
                         FS.writeFile(`${this.partitionsdir}/${dirname}/${filename}`, data, { encoding: 'binary' });
                         return true;
                       }
-                    ),
-                    take(1)
-                  ), 1
-                ),
-                bufferCount(p.files.length),
-                tap(() => {
-                  // console.log(`Opening partition ${p.folder}`);
-                  this.api.addFolderXapianIndex(`${this.partitionsdir}/${p.folder}`);
-                }),
-                map(() => true)
-              );
+                         ),
+                      take(1)
+                    ), 1
+                          ),
+                  bufferCount(p.files.length),
+                  tap(() => {
+                    // console.log(`Opening partition ${p.folder}`);
+                    this.api.addFolderXapianIndex(`${this.partitionsdir}/${p.folder}`);
+                  }),
+                  map(() => true)
+                );
+              } else {
+                this.partitionDownloadProgress = null;
+                return of(null);
+              }
             };
 
             return from(partitions.map((p, ndx) =>
@@ -774,8 +799,10 @@ export class SearchService {
         ).pipe(
           tap(async () => {
             this.partitionDownloadProgress = null;
-            this.openDBOnWorker();
-            this.indexReloadedSubject.next(undefined);
+            if (!this.stopIndexDownloadingInProgress) {
+              this.openDBOnWorker();
+              this.indexReloadedSubject.next(undefined);
+            }
           })
         );
     }
