@@ -43,7 +43,7 @@
         <button mat-raised-button *ngIf="!purchased; else unpurchase"
 		        [color]="p.pid < me.subscription ? 'accent' : 'primary'"
 		        (click)="order()"
-		        id="purchaseButton"
+		        class="purchaseButton"
 		>
           <span *ngIf="me.is_trial">Subscribe</span>
           <span *ngIf="!me.is_trial && p.pid == me.subscription">Renew</span>
@@ -55,7 +55,7 @@
             <button mat-raised-button
 		    color="primary"
                     (click)="unorder()"
-		    id="removeButton"
+		    class="removeButton"
 		    >
                 Remove from cart
             </button>
@@ -67,7 +67,7 @@
     <mat-card-actions  *ngIf="p.type !== 'subscription'">
         <button mat-raised-button (click)="order()"
 		color="primary"
-		id="purchaseButton"
+		class="purchaseButton"
 		>
             Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="quantity > 1">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ currency || "USD" }} {{ quantity * p.price | number:'1.2-2' }}
         </button>
