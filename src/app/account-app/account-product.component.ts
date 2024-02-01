@@ -34,6 +34,7 @@ export class ProductComponent implements OnInit {
     @Input() currency: string;
     @Input() active_sub: boolean;
     @Input() usage: DataUsageInterface;
+    @Input() current_sub: Product;
 
     me: RunboxMe = new RunboxMe();
 

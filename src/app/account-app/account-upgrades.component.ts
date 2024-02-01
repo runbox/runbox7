@@ -44,6 +44,7 @@ export class AccountUpgradesComponent implements OnInit {
     subscriptions  = new AsyncSubject<Product[]>();
     subs_regular   = new AsyncSubject<Product[]>();
     subs_special   = new AsyncSubject<Product[]>();
+    current_sub;
 
     quota_usage    = new AsyncSubject<DataUsageInterface>(); 
 
@@ -69,6 +70,9 @@ export class AccountUpgradesComponent implements OnInit {
         });
 
         this.paymentsservice.products.subscribe(products => {
+            // User's current subscription product:
+            this.current_sub = products.find(p => p.pid == this.me.subscription);
+
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
@@ -95,7 +99,7 @@ export class AccountUpgradesComponent implements OnInit {
                     for (const o of ordered_subs) {
                         this.cart.remove(o);
                     }
-                    this.snackbar.open('You can only buy one main account subscription at a time.', 'Okay');
+                    this.snackbar.open('You can only buy one main account subscription at a time.', 'OK');
                 }
             });
         });

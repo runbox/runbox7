@@ -67,7 +67,7 @@
     -->
 
       <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
-        <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage">
+        <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage" [current_sub]="current_sub">
           <ul>
             <li *ngFor="let detail of p.details"> {{ detail }}
           </ul>
@@ -132,7 +132,7 @@
   </div>
   
   <ng-template #usageLoading>
-    <app-runbox-loading text="Loading your usage to tailor the plans...">
+    <app-runbox-loading text="Loading your usage to tailor the subscription plans...">
     </app-runbox-loading>
   </ng-template>
 
