@@ -7,7 +7,7 @@ describe('Ordering products', { testIsolation: false }, () => {
         cy.visit('/account/plans');
 
         cy.wait('@availableProducts', {'timeout':10000});
-        cy.get('.productGrid .purchaseButton').contains('Renew').click();
+        cy.get('.productGrid .purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
     });
 
@@ -30,11 +30,11 @@ describe('Ordering products', { testIsolation: false }, () => {
 
         cy.get('#shoppingCartButton').should('not.exist');
 
-        cy.get('.productGrid #purchaseButton').contains('Purchase').click();
+        cy.get('.productGrid .purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton').should('be.visible');
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
-        cy.get('.productGrid #purchaseButton').contains('Purchase').click();
+        cy.get('.productGrid .purchaseButton').contains('Purchase').click();
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
