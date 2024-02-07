@@ -48,8 +48,8 @@
           <span *ngIf="me.is_trial">Subscribe</span>
           <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase</span>
           <span *ngIf="!me.is_trial && p.pid == me.subscription">Renew</span>
-          <span *ngIf="!me.is_trial && p.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade</span>
-          <span *ngIf="!me.is_trial && p.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade</span>
+          <span *ngIf="!me.is_trial && is_upgrade">Upgrade</span>
+          <span *ngIf="!me.is_trial && is_downgrade">Downgrade</span>
           for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
         </button>
         <ng-template #unpurchase>
