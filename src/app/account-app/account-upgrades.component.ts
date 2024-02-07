@@ -85,7 +85,9 @@ export class AccountUpgradesComponent implements OnInit {
             this.subs_special.next(subs_special);
             this.subs_special.complete();
 
-            this.subaccounts.next(products.filter(p => p.subtype === 'subaccount'));
+            const subaccounts = products.filter(p => p.subtype === 'subaccount');
+            subaccounts.sort((a,b) => a.sub_product_quota.Disk.quota - b.sub_product_quota.Disk.quota);
+            this.subaccounts.next(subaccounts);
             this.emailaddons.next(products.filter(p => p.subtype === 'emailaddon'));
 
             this.subaccounts.complete();
