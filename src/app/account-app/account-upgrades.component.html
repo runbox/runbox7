@@ -1,27 +1,44 @@
 <section class="mat-typography">
-  <h1> Plans & Upgrades </h1>
+  <div class="appPageHeader">
+    <button mat-icon-button (click)="sidenavService.toggleSidenav();" matTooltip="Toggle side pane" id="toggleFolderPaneIcon">
+      <mat-icon svgIcon="menu"></mat-icon>
+    </button>
+    <h1> Plans & Upgrades </h1>
+  </div>
+
+  <div class="divider"></div>
 
   <div *ngIf="quota_usage | async as q_usage; else usageLoading">
-  <div *ngIf="rmmapi.me | async as me; else loading">
-    <h4>
-      <strong> Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }}) </strong>
-    </h4>
-
-    <p>
-      Here you can pay for your Runbox subscription or change your existing main subscription plan according to your needs.
-    </p>
-    <p>
-      To add more accounts under your main account please see <a href = "/account/plans#subaccounts">Sub-Acounts</a> further down.
-    </p>
-
-    <br />
-
-    <h2> Main Account Plans </h2>
-
-    <p>
-      Note: When selecting a subscription plan for your main account, please note that your current email disk usage is
-      {{ (me.disk_used / 1024 / 1024 / 1024) | number:'1.2-2' }} GB.
-    </p>
+    <div *ngIf="rmmapi.me | async as me; else loading">
+      <h4>
+        Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }})
+      </h4>
+      
+      <p>
+        Welcome to our store -- we're happy to see you!
+      </p>
+      
+      <p>
+        Here you can subscribe to Runbox, change your existing subscription, or add more accounts or email domains. Once you have added the desired items, click the shopping cart icon in the top right corner to review your selection.
+      </p>
+      <p>
+        Please feel free to browse the products below, and reach out via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions.
+      </p>
+      <p>
+        <mat-icon svgIcon="lightbulb"></mat-icon> To set up additional accounts under your main account, please see <a href = "/account/plans#subaccounts">Sub-Acounts</a> further down.
+      </p>
+      
+      <br />
+      
+      <h2> Main Account </h2>
+      
+      <p>
+        When changing your main account's subscription plan, your account will be upgraded or downgraded immediately and the additional time added to the end of your existing subscription.
+      </p>
+      
+      <p>
+        You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
+      </p>
 
     <!--
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
@@ -49,13 +66,13 @@
     </div>
     -->
 
-    <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
-      <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage">
-        <ul>
-          <li *ngFor="let detail of p.details"> {{ detail }}
-        </ul>
-      </app-account-product>
-    </div>
+      <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
+        <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage" [current_sub]="current_sub">
+          <ul>
+            <li *ngFor="let detail of p.details"> {{ detail }}
+          </ul>
+        </app-account-product>
+      </div>
 
 <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
@@ -66,59 +83,56 @@
       </app-account-product>
     </div>
 -->
-    <ng-template #productsLoading>
-      <app-runbox-loading text="Loading available plans...">
+      <ng-template #productsLoading>
+        <app-runbox-loading text="Loading available plans...">
+        </app-runbox-loading>
+      </ng-template>
+    </div>
+
+    <ng-template #loading>
+      <div> Loading account details... </div>
+    </ng-template>
+    
+    <br /><br />
+
+    <ng-template #addonsLoading>
+      <app-runbox-loading text="Loading available addons...">
       </app-runbox-loading>
     </ng-template>
-  </div>
-
-  <ng-template #loading>
-    <div> Loading account details... </div>
-  </ng-template>
-
-  <br /><br />
-
-  <ng-template #addonsLoading>
-    <app-runbox-loading text="Loading available addons...">
-    </app-runbox-loading>
-  </ng-template>
 
   <h3> Main Account Add-ons </h3>
   
-  <p> Add-ons are individual upgrades that can be added to your main account. </p>
+    <p> Add-ons are individual upgrades that can be added to your main account. </p>
 
-  <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
-    <app-account-product *ngFor="let p of emailaddons" class="productCard"
-                         [p]="p"
-                         [currency]="me.currency"
-                         [usage]="q_usage"
-                         >
+    <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
+      <app-account-product *ngFor="let p of emailaddons" class="productCard"
+                           [p]="p"
+                           [currency]="me.currency"
+                           [usage]="q_usage"
+                           >
       </app-account-product>
-  </div>
-  
-  <br /><br />
-  
-  <h2> <a name="subaccounts">Sub-accounts</a> </h2>
+    </div>
     
-  <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies,
-      organizations, and families who need separate accounts with their own dedicated storage space and account
-      settings. </p>
-
-  <p>
-      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products
-      below.
-  </p>
-
-  <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
+    <br /><br />
+    
+    <h2> <a name="subaccounts">Sub-Accounts (additional accounts)</a> </h2>
+    
+    <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings. </p>
+    
+    <p>
+      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
+    </p>
+    
+    <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
       <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency" [usage]="q_usage">
       </app-account-product>
+    </div>
+    
+    <br /><br />
   </div>
-
-  <br /><br />
-  </div>
-
+  
   <ng-template #usageLoading>
-    <app-runbox-loading text="Loading your usage to tailor the plans...">
+    <app-runbox-loading text="Loading your usage to tailor the subscription plans...">
     </app-runbox-loading>
   </ng-template>
 

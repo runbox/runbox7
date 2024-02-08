@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, OnInit } from '@angular/core';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CartService } from './cart.service';
 import { Product } from './product';
 import { DataUsageInterface } from '../rmm/account-storage';
@@ -26,12 +27,16 @@ import { ProductOrder } from './product-order';
 @Component({
     selector: 'app-account-product',
     templateUrl: './account-product.component.html',
+    styleUrls: ['./account-product.component.scss'],
 })
 export class ProductComponent implements OnInit {
     @Input() p: Product;
     @Input() currency: string;
     @Input() active_sub: boolean;
     @Input() usage: DataUsageInterface;
+    @Input() current_sub: Product;
+
+    me: RunboxMe = new RunboxMe();
 
     allow_multiple = false;
     quantity = 1;
@@ -39,9 +44,12 @@ export class ProductComponent implements OnInit {
 
     over_quota = [];
     addon_usages = [];
+    is_upgrade = false;
+    is_downgrade = false;
 
     constructor(
         private cart: CartService,
+        public  rmmapi:          RunboxWebmailAPI,
     ) {
     }
 
@@ -52,6 +60,26 @@ export class ProductComponent implements OnInit {
         this.allow_multiple = this.p.type === 'addon';
         this.over_quota = this.check_over_quota();
         this.addon_usages = this.get_addon_usages();
+        this.check_up_down_grade();
+
+        this.rmmapi.me.subscribe(me => {
+            this.me = me;
+        });
+    }
+
+    // More or less disk space than the existing subscription?
+    check_up_down_grade() {
+        if (this.p && this.p.quotas && this.p.quotas.Disk
+            && this.current_sub && this.current_sub.quotas
+            && this.current_sub.quotas.Disk) {
+            // Don't set either if quota the same !
+            if (this.p.quotas.Disk.quota > this.current_sub.quotas.Disk.quota) {
+                this.is_upgrade = true;
+            }
+            if (this.p.quotas.Disk.quota < this.current_sub.quotas.Disk.quota) {
+                this.is_downgrade = true;
+            }
+        }
     }
 
     // OverQuota for displayed product, if any of the limits have been hit

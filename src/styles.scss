@@ -80,6 +80,7 @@ body {
 h1, .mat-typography h1 {
     margin: 10px 0 20px 0;
     font-size: 30px;
+    line-height: 40px;
     font-weight: 400;
 }
 
@@ -123,7 +124,7 @@ ul.square-list li {
 }
 
 p {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 
@@ -165,6 +166,14 @@ mat-list-item p.mat-line mat-icon {
 .mat-toolbar, .mat-button {
     font-size: 16px;
     font-weight: 400;
+}
+
+button, mat-button, mat-raised-button {
+    padding-top: 2px !important;
+}
+
+button:hover, mat-button:hover, mat-raised-button:hover {
+    filter: brightness(1.1);
 }
 
 .mat-line, .mat-tree-node {
@@ -695,6 +704,7 @@ mat-sidenav-container {
 }
 
 #sideMenu {
+    width: 275px;
     flex-grow: 1;
     border-right: 1px solid rgba(0, 0, 0, 0.12);
 
@@ -706,6 +716,7 @@ mat-sidenav-container {
 
 #toggleFolderPaneIcon {
     overflow: visible;
+    margin-right: 10px;
     width: 24px;
 }
 
@@ -843,9 +854,6 @@ h3.sideNavHeader {
 }
 
 .mat-badge-content {
-    height: 17px !important;
-    width: auto !important;
-    min-width: 17px !important;
     color: white !important;
     background-color: mat.get-color-from-palette($rmm-default-foreground) !important;
     font-size: 10px;
@@ -1369,7 +1377,6 @@ app-calendar-event-editor-dialog p {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
 
-
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
     background: mat.get-color-from-palette($rmm-default-accent);
 }
@@ -1402,6 +1409,28 @@ app-calendar-event-editor-dialog p {
 #specialOffer p.description {
     font-size: 13px;
     color: mat.get-color-from-palette($rmm-default-primary);
+}
+
+#shoppingCartButton {
+    position: fixed;
+    top: 75px;
+    right: 50px;
+    z-index: 10;
+    width: 75px;
+    height: 75px;
+
+    mat-icon {
+        width: inherit;
+        height: inherit;
+    }
+    svg {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .mat-badge-content {
+        font-size: 20px !important;
+        line-height: 26px !important;
+    }
 }
 
 

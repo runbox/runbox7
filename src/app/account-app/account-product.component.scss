@@ -1,0 +1,59 @@
+mat-card {
+    height: 225px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+
+    h4 {
+        margin: 0;
+    }
+}
+
+@media (max-width: 500px) {
+    mat-card {
+	    height: 200px;
+    }
+}
+
+mat-card.addon {
+}
+
+mat-card-subtitle {
+    flex-grow: 1;
+    margin: 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+mat-card-content {
+    margin: 0;
+
+    h4 {
+        text-align: center;
+    }
+    .multipleButtons {
+        display: flex;
+        justify-content: center;
+        align-content: baseline;
+    }
+}
+
+mat-card-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0px !important;
+    text-align: center;
+}
+
+h5 {
+    text-align: center;
+}
+
+ul {
+    margin: 0;
+    padding: 0 20px;
+}
+
+li {
+    list-style-type: square;
+}

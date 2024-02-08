@@ -1,3 +1,28 @@
+#productGrid, .productGrid {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.productCard {
+    margin: 0 10px 10px 0;
+    width: 275px;
+}
+
+@media (max-width: 500px) {
+    .productCard {
+	    width: 100%;
+    }
+}
+
+.productCardSpecial {
+    text-align: center;
+}
+
+div.divider {
+    clear: both;
+    height: 0px;
+}
+
 @media(min-width: 1024px) {
     .limitedTimeOffer,
     .productCardSpecial {
@@ -38,17 +63,3 @@ mat-icon.limitedTimeOffer {
     padding: 20px;
 }
 
-#productGrid, .productGrid {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-}
-
-.productCard {
-    margin: 10px;
-    flex: 1 1 360px;
-}
-
-.productCardSpecial {
-    text-align: center;
-}

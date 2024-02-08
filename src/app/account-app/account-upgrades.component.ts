@@ -28,6 +28,7 @@ import { RMM } from '../rmm';
 import { DataUsageInterface } from '../rmm/account-storage';
 import { RunboxTimerComponent } from './runbox-timer';
 import { AsyncSubject } from 'rxjs';
+import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 
 @Component({
     selector: 'app-account-upgrades-component',
@@ -43,6 +44,7 @@ export class AccountUpgradesComponent implements OnInit {
     subscriptions  = new AsyncSubject<Product[]>();
     subs_regular   = new AsyncSubject<Product[]>();
     subs_special   = new AsyncSubject<Product[]>();
+    current_sub;
 
     quota_usage    = new AsyncSubject<DataUsageInterface>(); 
 
@@ -56,6 +58,7 @@ export class AccountUpgradesComponent implements OnInit {
         public  rmmapi:          RunboxWebmailAPI,
         private snackbar:        MatSnackBar,
         private rmm:             RMM,
+        public sidenavService:   RunboxSidenavService,
     ) {
     }
 
@@ -67,6 +70,9 @@ export class AccountUpgradesComponent implements OnInit {
         });
 
         this.paymentsservice.products.subscribe(products => {
+            // User's current subscription product:
+            this.current_sub = products.find(p => p.pid == this.me.subscription);
+
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
@@ -79,7 +85,9 @@ export class AccountUpgradesComponent implements OnInit {
             this.subs_special.next(subs_special);
             this.subs_special.complete();
 
-            this.subaccounts.next(products.filter(p => p.subtype === 'subaccount'));
+            const subaccounts = products.filter(p => p.subtype === 'subaccount');
+            subaccounts.sort((a,b) => a.sub_product_quota.Disk.quota - b.sub_product_quota.Disk.quota);
+            this.subaccounts.next(subaccounts);
             this.emailaddons.next(products.filter(p => p.subtype === 'emailaddon'));
 
             this.subaccounts.complete();
@@ -93,7 +101,7 @@ export class AccountUpgradesComponent implements OnInit {
                     for (const o of ordered_subs) {
                         this.cart.remove(o);
                     }
-                    this.snackbar.open('You can only buy one main account subscription at a time.', 'Okay');
+                    this.snackbar.open('You can only buy one main account subscription at a time.', 'OK');
                 }
             });
         });
