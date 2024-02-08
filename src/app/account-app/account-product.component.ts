@@ -44,6 +44,8 @@ export class ProductComponent implements OnInit {
 
     over_quota = [];
     addon_usages = [];
+    is_upgrade = false;
+    is_downgrade = false;
 
     constructor(
         private cart: CartService,
@@ -58,10 +60,26 @@ export class ProductComponent implements OnInit {
         this.allow_multiple = this.p.type === 'addon';
         this.over_quota = this.check_over_quota();
         this.addon_usages = this.get_addon_usages();
-    
+        this.check_up_down_grade();
+
         this.rmmapi.me.subscribe(me => {
             this.me = me;
         });
+    }
+
+    // More or less disk space than the existing subscription?
+    check_up_down_grade() {
+        if (this.p && this.p.quotas && this.p.quotas.Disk
+            && this.current_sub && this.current_sub.quotas
+            && this.current_sub.quotas.Disk) {
+            // Don't set either if quota the same !
+            if (this.p.quotas.Disk.quota > this.current_sub.quotas.Disk.quota) {
+                this.is_upgrade = true;
+            }
+            if (this.p.quotas.Disk.quota < this.current_sub.quotas.Disk.quota) {
+                this.is_downgrade = true;
+            }
+        }
     }
 
     // OverQuota for displayed product, if any of the limits have been hit

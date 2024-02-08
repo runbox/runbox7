@@ -37,6 +37,7 @@ export class Product {
     price:       number;
     currency:    string;
     quotas:      QuotaEntryMap;
+    sub_product_quota: QuotaEntryMap;
 
     constructor(properties: any) {
         // eslint-disable-next-line guard-for-in
