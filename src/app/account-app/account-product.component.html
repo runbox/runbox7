@@ -4,7 +4,7 @@
       {{ p.name }}
     </mat-card-title>
     <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
-      <h4><span *ngIf="p.pid == me.subscription"> Your current {{ p.type }} </span><br /></h4>
+      <h4><span *ngIf="p.pid === me.subscription"> Your current {{ p.type }} </span><br /></h4>
       {{ p.description }}.
     </mat-card-subtitle>
     <mat-card-content>
@@ -39,15 +39,15 @@
           </ul>
         </ng-container>
     </div>
-    <mat-card-actions  *ngIf="p.type === 'subscription' && over_quota.length == 0">
+    <mat-card-actions  *ngIf="p.type === 'subscription' && over_quota.length === 0">
         <button mat-raised-button *ngIf="!purchased; else unpurchase"
-		        [color]="p.pid < me.subscription ? 'accent' : 'primary'"
+		        [color]="is_downgrade ? 'accent' : 'primary'"
 		        (click)="order()"
 		        class="purchaseButton"
 		>
           <span *ngIf="me.is_trial">Subscribe</span>
           <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase</span>
-          <span *ngIf="!me.is_trial && p.pid == me.subscription">Renew</span>
+          <span *ngIf="!me.is_trial && p.pid === me.subscription">Renew</span>
           <span *ngIf="!me.is_trial && is_upgrade">Upgrade</span>
           <span *ngIf="!me.is_trial && is_downgrade">Downgrade</span>
           for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
