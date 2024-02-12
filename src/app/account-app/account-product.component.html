@@ -4,7 +4,7 @@
       {{ p.name }}
     </mat-card-title>
     <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
-      <h4><span *ngIf="p.pid === me.subscription"> Your current {{ p.type }} </span><br /></h4>
+      <h4><span *ngIf="is_current_subscription"> Your current {{ p.type }} </span><br /></h4>
       {{ p.description }}.
     </mat-card-subtitle>
     <mat-card-content>
