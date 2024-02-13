@@ -2,12 +2,13 @@
     <h1> Your Subscriptions </h1>
 
   <div *ngIf="quota_usage | async as q_usage; else usageLoading">
-    <div *ngIf="active_products.length === 0; else productsTable">
+    <div *ngIf="!loadedProducts; else productsTable">
         <app-runbox-loading text="Loading your subscriptions...">
         </app-runbox-loading>
     </div>
 
     <ng-template #productsTable>
+      <ng-container *ngIf="active_products.length > 0; else buyPlans">
 
         <p>
             These are the subscriptions associated with your account. You may renew any of them at any time, which will add the new period to the end of your current subscription.
@@ -159,8 +160,15 @@
             <tr mat-footer-row *matFooterRowDef="['renewal_name']"></tr>
         </table>
 
+      </ng-container>
     </ng-template>
   </div>
+
+  <ng-template #buyPlans>
+    <p>You do not have any of our currently available products.</p>
+    <p>Please visit <a routerLink='/account/plans'>Plans & Upgrades</a> to subscribe.</p>
+  </ng-template>
+
   <ng-template #usageLoading>
     <app-runbox-loading text="Loading your usage to tailor page...">
     </app-runbox-loading>
