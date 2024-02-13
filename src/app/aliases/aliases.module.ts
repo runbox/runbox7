@@ -24,6 +24,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { AliasesListerComponent} from './aliases.lister';
 import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
 
@@ -38,7 +39,8 @@ import { AliasesEditorModalComponent } from '../aliases/aliases.editor.modal';
         MatExpansionModule,
         MatCardModule,
         MatInputModule,
-        MatSelectModule
+        MatSelectModule,
+        MatButtonModule
     ],
     providers: [],
     bootstrap: []
