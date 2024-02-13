@@ -37,7 +37,7 @@ import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.servic
 })
 export class AccountUpgradesComponent implements OnInit {
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
-    me: RunboxMe = new RunboxMe();
+    me: RunboxMe;
 
     subaccounts    = new AsyncSubject<Product[]>();
     emailaddons    = new AsyncSubject<Product[]>();
@@ -50,7 +50,6 @@ export class AccountUpgradesComponent implements OnInit {
 
     limitedTimeOffer = false;
     limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
-
 
     constructor(
         public  cart:            CartService,
@@ -70,9 +69,6 @@ export class AccountUpgradesComponent implements OnInit {
         });
 
         this.paymentsservice.products.subscribe(products => {
-            // User's current subscription product:
-            this.current_sub = products.find(p => p.pid == this.me.subscription);
-
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
@@ -104,12 +100,17 @@ export class AccountUpgradesComponent implements OnInit {
                     this.snackbar.open('You can only buy one main account subscription at a time.', 'OK');
                 }
             });
+
+            this.rmmapi.me.subscribe(me => {
+                this.me = me;
+                // User's current subscription product:
+                if (this.subscriptions) {
+                    this.current_sub = products.find(p => p.pid === this.me.subscription);
+                }
+                this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
+            });
         });
 
-        this.rmmapi.me.subscribe(me => {
-            this.me = me;
-            this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
-        });
     }
 
     runboxTimerFinished(): void {

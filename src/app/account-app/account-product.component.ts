@@ -35,8 +35,7 @@ export class ProductComponent implements OnInit {
     @Input() active_sub: boolean;
     @Input() usage: DataUsageInterface;
     @Input() current_sub: Product;
-
-    me: RunboxMe = new RunboxMe();
+    @Input() me: RunboxMe;
 
     allow_multiple = false;
     quantity = 1;
@@ -46,6 +45,7 @@ export class ProductComponent implements OnInit {
     addon_usages = [];
     is_upgrade = false;
     is_downgrade = false;
+    is_current_subscription: boolean = false;
 
     constructor(
         private cart: CartService,
@@ -60,11 +60,8 @@ export class ProductComponent implements OnInit {
         this.allow_multiple = this.p.type === 'addon';
         this.over_quota = this.check_over_quota();
         this.addon_usages = this.get_addon_usages();
+        this.is_current_subscription = this.me && this.p.pid === this.me.subscription;
         this.check_up_down_grade();
-
-        this.rmmapi.me.subscribe(me => {
-            this.me = me;
-        });
     }
 
     // More or less disk space than the existing subscription?
