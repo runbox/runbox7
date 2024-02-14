@@ -7,13 +7,16 @@
       An alias is another email address that either uses one of the Runbox domains (e.g. runbox.com) or a domain of your own. You can manage your own email domains on the <a href="/mail/account_domain" target="rmm6">Email Hosting</a> page. Please allow up to 5 minutes for new aliases to propagate throughout the Runbox servers before using them.
     </p>
     <p>
-      Runbox addresses work across all of our domains, which means that if your username is example@runbox.com you can also receive email to your account if you give someone the address example@rbx.email. You can find a full list of our domains below.
+      Runbox addresses work across all of our domains, which means that if your username is example@runbox.com you can also receive email to your account at the address example@rbx.email. You can find a full list of our domains below.
     </p>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title> Show all Runbox domain names </mat-panel-title>
+        <mat-panel-title> Show Runbox domain names </mat-panel-title>
       </mat-expansion-panel-header>
-      <p><span *ngFor="let d of domains">{{ d.name }}, </span></p>
+      <p>
+        The synonymous Runbox domain names that can currently be used with your Runbox email aliases are:
+      </p>
+        <span *ngFor="let d of domains; let isLast=last">{{ d.name }}<span *ngIf="!isLast">, </span><span *ngIf="isLast">.</span></span>
     </mat-expansion-panel>
     <p>
       Note: Avoid aliases that could be perceived to be official Runbox addresses or ones used by other companies or individuals, as they may be deleted without prior notice.
@@ -35,7 +38,6 @@
         <ng-content select="[section-buttons]"></ng-content>
         <form *ngFor="let item of aliases; let i = index;">
             <div style='width: 100%'>
-                <mat-divider *ngIf="i > 0"></mat-divider>
 
                 <mat-form-field class="alias" style="margin: 10px;">
                     <input
@@ -74,6 +76,5 @@
                     Delete
                 </button>
             </div>
-            <mat-divider class='transparent'></mat-divider>
         </form>
     </div>

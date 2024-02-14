@@ -12,7 +12,7 @@
                     <span class="float-left">{{item.profile.email}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="1" rowspan="8" *ngIf="!mobile">
-                    <button mat-raised-button (click)="edit(item)" color="primary">EDIT</button>
+                    <button mat-raised-button (click)="edit(item)" color="primary">Edit</button>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">From Name:</span>
@@ -53,7 +53,7 @@
                     <mat-divider></mat-divider>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="3" *ngIf="mobile">
-                    <button mat-raised-button (click)="edit(item)" color="primary">EDIT</button>
+                    <button mat-raised-button (click)="edit(item)" color="primary">Edit</button>
                 </mat-grid-tile>
             </mat-grid-list>
         </mat-card-content>
