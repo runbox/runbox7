@@ -76,6 +76,8 @@ export class RMMAuthGuardService implements CanActivate, CanActivateChild {
                     // ugly? we could subscribe to it..
                     this.currentMe = me;
                     this.rmmapi.setRunboxMe(me);
+                } else {
+                    this.wasLoggedIn = false;
                 }
                 return this.checkStatus();
             }),
