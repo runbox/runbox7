@@ -39,7 +39,6 @@ describe('Profiles settings page', () => {
         cy.get('button#save').click();
         cy.wait('@postProfile');
 
-        cy.get('button#save').click();
         cy.get('app-profiles-edit').should('not.exist');
     });
 
