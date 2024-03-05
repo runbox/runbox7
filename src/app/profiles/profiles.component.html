@@ -32,7 +32,7 @@
               <p>Aliases are extra email addresses that deliver to your account, just as your main username/email address does. Below are identities you can use if you want to send messages from your aliases.</p>
               <p>These identities can be customised by adding a different From Name, Signature or Reply-to address. You can also change the Runbox domain an alias uses.</p>
               <p>You can't delete these identities as they are tied to your aliases.</p>
-                <p style="color: crimson" *ngIf="alias_limits?.current === alias_limits?.total">
+                <p style="color: crimson" *ngIf="alias_limits?.current >= alias_limits?.total">
                     You have reached the maximum allowed number of Runbox aliases.
                 </p>
               <p>To manage your aliases, please visit <a routerLink="../aliases">Email Aliases</a>.</p>
