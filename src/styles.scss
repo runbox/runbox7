@@ -937,6 +937,17 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     height: 40px;
 }
 
+#offerLocalIndex {
+    display: flex;
+    flex-flow: row;
+    white-space: normal;
+    line-height: 1em;
+
+    button {
+        margin-right: 10px;
+    }
+}
+
 #searchField {
     flex-grow: 10;
     margin: 0px 10px 0 10px;
