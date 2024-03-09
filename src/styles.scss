@@ -925,6 +925,10 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     white-space: normal;
     line-height: 1em;
 
+    mat-list-item {
+        flex-grow: 1;
+    }
+
     button {
         margin-right: 10px;
     }
