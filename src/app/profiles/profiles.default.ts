@@ -44,6 +44,7 @@ export class DefaultProfileComponent {
         });
     }
 
+    // Re-order froms list so newly selected is at the top (retain previous order otherwise)
     updateDefaultProfile() {
         const priorities: FromPriority[] = new Array();
         let p_value = 1;
