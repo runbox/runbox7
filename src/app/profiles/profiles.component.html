@@ -41,8 +41,8 @@
         <br><br>
 
         <app-profiles-lister
-            *ngIf="profileService.nonAliases.value.length > 0"
-            [profiles]="profileService.nonAliases.value">
+            *ngIf="profileService.otherProfiles.value.length > 0"
+            [profiles]="profileService.otherProfiles.value">
             <div section-header>
                 <h2>Other identities</h2>
             </div>
@@ -54,7 +54,7 @@
                 <button id="add-identity" mat-raised-button color='primary' style="margin: 10px;" (click)='add_profile()'>
                     Add Identity
                 </button>
-                {{profileService.nonAliases.value.length}} identities created
+                {{profileService.otherProfiles.value.length}} identities created
             </div>
         </app-profiles-lister>
     </div>
