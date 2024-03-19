@@ -178,7 +178,7 @@ describe('ProfileService', () => {
         });
     })
     it('loads non alias profile subsets', (done) => {
-        service.nonAliases.subscribe(profiles => {
+        service.otherProfiles.subscribe(profiles => {
             expect(profiles.length).toBe(2);
             done();
         });

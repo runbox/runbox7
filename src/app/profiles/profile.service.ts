@@ -65,7 +65,7 @@ export class Identity {
 export class ProfileService {
     public profiles: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
     public aliases: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
-    public nonAliases: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
+    public otherProfiles: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
     public validProfiles: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
     public composeProfile: Identity;
     public me: RunboxMe;
@@ -79,9 +79,12 @@ export class ProfileService {
     refresh() {
         this.rmmapi.getProfiles().subscribe(
             (res: Identity[]) => {
-                this.validProfiles.next(res.filter(p => p.type === 'aliases' || (p.reference_type === 'preference' && p.reference.status === 0)));
+                // Used by compose and friends, so should be in from_priority order
+                let validP = res.filter(p => p.type === 'aliases' || (p.reference_type === 'preference' && p.reference.status === 0));
+                validP.sort((a,b) => a.from_priority - b.from_priority);
+                this.validProfiles.next(validP);
                 this.aliases.next(res.filter(p => p.reference_type === 'aliases'));
-                this.nonAliases.next(res.filter(p => p.reference_type !== 'aliases'));
+                this.otherProfiles.next(res.filter(p => p.reference_type !== 'aliases' && p.type !== 'main'));
                 this.composeProfile = res.find(p => p.from_priority === 0);
                 if (!this.composeProfile) {
                     this.composeProfile = res.find(p => p.type === 'main');
