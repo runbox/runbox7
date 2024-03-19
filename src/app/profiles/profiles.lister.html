@@ -6,7 +6,7 @@
         <mat-card-content class="profile-content">
             <mat-grid-list cols="{{mobile?6:7}}" rowHeight="15px">
                 <mat-grid-tile *ngIf="item.type === 'main'" colspan="6" rowspan="2">
-                    <h4>Username Identity</h4>
+                    <h3>Username Identity</h3>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">Email:</span>
@@ -43,7 +43,7 @@
                 </mat-grid-tile>
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1"
                     *ngIf="item.reference_type === 'preference' && item.reference.status === 1">
-                    <span class="identity-warning">Email not validated.</span>
+                    <span class="warning">Email not validated.</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="mobile">
                     <mat-divider></mat-divider>

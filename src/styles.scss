@@ -20,6 +20,8 @@
 $rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
 $rmm-default-accent:     mat.define-palette(mat.$blue-palette, 200, 100, 400);
 $rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
+$rmm-default-caution:    mat.define-palette(mat.$deep-orange-palette, 500, A400, A700);
+$rmm-default-error:      mat.define-palette(mat.$red-palette, 500, A400, A700);
 $rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
 $rmm-default-highlight:  mat.define-palette(mat.$light-blue-palette, 100, 50, 200);
 $rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
@@ -322,6 +324,22 @@ mat-grid-tile.tableTitle {
 .description {
     font-size: 12px;
 }
+
++.warning {
+    color: mat.get-color-from-palette($rmm-default-warn);
+    font-weight: bold;
+}
+
+.caution {
+    color: mat.get-color-from-palette($rmm-default-caution);
+    font-weight: bold;
+}
+
+.error {
+    color: mat.get-color-from-palette($rmm-default-error);
+    font-weight: bold;
+}
+
 
 /* Palette colors */
 
