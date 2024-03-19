@@ -512,7 +512,6 @@ export class RunboxWebmailAPI {
         ).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(filter((res: any) => res.status === 'success'));
-        
     }
 
     public deleteProfile(profileId: number): Observable<boolean> {
@@ -540,7 +539,7 @@ export class RunboxWebmailAPI {
         this.subscribeShowBackendErrors(req);
         return req.pipe(filter((res: any) => res.status === 'success'));
     }
-    
+
     public getAliasLimits(): Observable<any> {
         return this.http.get('/rest/v1/aliases/limits');
     }

@@ -34,7 +34,6 @@ export class ProfilesComponent {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @Output() Close: EventEmitter<string> = new EventEmitter();
   domain;
-//  profiles: Identity[];
   alias_limits;
   dialog_ref: any;
 
