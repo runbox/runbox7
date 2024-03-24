@@ -35,6 +35,7 @@ export interface PaymentOption {
 @Component({
     selector: 'app-bitpay-payment-dialog-component',
     templateUrl: './bitpay-payment-dialog.component.html',
+    styleUrls: ['./bitpay-payment-dialog.component.scss'],
 })
 export class BitpayPaymentDialogComponent {
     tid:    number;
