@@ -48,7 +48,7 @@ export class DefaultProfileComponent {
     updateDefaultProfile() {
         const priorities: FromPriority[] = new Array();
         let p_value = 1;
-        for (const profile of this.profileService.profiles.value) {
+        for (const profile of this.profileService.validProfiles.value) {
             let from_p: FromPriority = {"from_priority": -1, "id": profile.id };
             if (profile.id === this.selectedProfile.id) {
                 from_p.from_priority = 0;

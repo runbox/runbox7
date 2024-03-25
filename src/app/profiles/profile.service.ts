@@ -84,11 +84,14 @@ export class ProfileService {
                 validP.sort((a,b) => a.from_priority - b.from_priority);
                 this.validProfiles.next(validP);
                 this.aliases.next(res.filter(p => p.reference_type === 'aliases'));
-                this.otherProfiles.next(res.filter(p => p.reference_type !== 'aliases' && p.type !== 'main'));
+                // All the non-default, non-aliases
+                this.otherProfiles.next(res.filter(p => p.reference_type !== 'aliases' && p.from_priority !== 0));
+                // Default profile (aka sorted to the top)
                 this.composeProfile = res.find(p => p.from_priority === 0);
                 if (!this.composeProfile) {
                     this.composeProfile = res.find(p => p.type === 'main');
                 }
+                // everything
                 this.profiles.next(res);
             }
         );
