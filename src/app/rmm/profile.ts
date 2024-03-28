@@ -36,6 +36,7 @@ export class Identity {
     smtp_password: string;
     smtp_port: string;
     smtp_username: string;
+    is_verified: boolean;
 }
 
 export class AllIdentities {

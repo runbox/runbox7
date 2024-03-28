@@ -126,7 +126,7 @@ export class ContactsServiceMock {
 
 export class RunboxWebMailAPIMock {
     public me = of({ uid: 33 });
-    public getFromAddress = () => of(['testuser@runbox.com']);
+    public getProfiles = () => of([{ 'email':'testuser@runbox.com'}]);
 }
 
 describe('RecipientsService', () => {

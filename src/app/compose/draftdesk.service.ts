@@ -21,12 +21,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
-import { FromAddress } from '../rmmapi/from_address';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
-import { RMM } from '../rmm';
+import { Identity, ProfileService } from '../profiles/profile.service';
 import { from, of, BehaviorSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
@@ -68,7 +67,7 @@ export class DraftFormModel {
     message_date = null;
 
     public static create(draftId: number,
-                         fromAddress: FromAddress,
+                         fromAddress: Identity,
                          to: string, subject: string,
                          preview?: string,
                          message_date?: Date): DraftFormModel {
@@ -87,7 +86,7 @@ export class DraftFormModel {
         return ret;
     }
 
-    public static reply(mailObj, froms: FromAddress[], all: boolean, useHTML: boolean): DraftFormModel {
+    public static reply(mailObj, froms: Identity[], all: boolean, useHTML: boolean): DraftFormModel {
         const ret = new DraftFormModel();
         ret.reply_to_id = mailObj.mid;
         ret.in_reply_to = mailObj.headers['message-id'];
@@ -165,7 +164,7 @@ export class DraftFormModel {
         return ret;
     }
 
-    public static forward(mailObj, froms: FromAddress[], useHTML: boolean): DraftFormModel {
+    public static forward(mailObj, froms: Identity[], useHTML: boolean): DraftFormModel {
         const ret = new DraftFormModel();
         ret.setFromForResponse(mailObj, froms);
 
@@ -214,7 +213,7 @@ ${mailObj.sanitized_html}`;
         return false;
     }
 
-    private setFromForResponse(mailObj, froms: FromAddress[]): void {
+    private setFromForResponse(mailObj, froms: Identity[]): void {
         if (froms.length > 0) {
             this.from = (
                 [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
@@ -234,21 +233,20 @@ ${mailObj.sanitized_html}`;
 @Injectable()
 export class DraftDeskService {
     draftModels: BehaviorSubject<DraftFormModel[]> = new BehaviorSubject([]);
-    fromsSubject: BehaviorSubject<FromAddress[]> = new BehaviorSubject([]);
+    fromsSubject: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
     isEditing = -1;
     composingNewDraft: DraftFormModel;
     shouldReturnToPreviousPage = false;
 
     constructor(public rmmapi: RunboxWebmailAPI,
                 private messagelistservice: MessageListService,
-                private http: HttpClient,
-                private rmm: RMM) {
-        this.rmm.profile.profiles.subscribe((_) => {
-            this.refreshFroms();
+                private profileService: ProfileService,
+                private http: HttpClient
+               ) {
+        this.profileService.validProfiles.subscribe((profiles) => {
+            this.fromsSubject.next(profiles);
         });
 
-        // run these at least once (rmm.blah is not a service!)
-        this.refreshFroms();
         // Recreate drafts when froms(identities) change
         this.fromsSubject
             .subscribe(froms => {
@@ -272,36 +270,8 @@ export class DraftDeskService {
     }
 
     // default identity for creating an email
-    public mainIdentity(): FromAddress {
-        return this.fromsSubject.value[0];
-    }
-
-    public refreshFroms() {
-        this.rmmapi.getFromAddress().pipe(
-            map((froms) => {
-                froms.sort((a, b) => {
-                    if (a.type === 'main') {
-                        return -1;
-                    } else if (b.type === 'main') {
-                        return 1;
-                    } else if (a.type === 'aliases') {
-                        return -1;
-                    } else if (b.type === 'aliases') {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-                froms.sort((a, b) => {
-                    return a.priority - b.priority;
-                });
-                return froms;
-            })).subscribe(
-                froms => this.fromsSubject.next(froms),
-                err => {
-                    console.error(err);
-                }
-            );
+    public mainIdentity(): Identity {
+        return this.profileService.composeProfile;
     }
 
     private refreshDrafts() {
@@ -319,7 +289,7 @@ export class DraftDeskService {
                         newDrafts.push(
                             DraftFormModel.create(
                                 msgInfo.id,
-                                this.fromsSubject.value[0],
+                                this.mainIdentity(),
                                 msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
                                     addr.address : addr.name + '<' + addr.address + '>').join(','),
                                 msgInfo.subject, null, msgInfo.messageDate)
@@ -349,7 +319,7 @@ export class DraftDeskService {
     ) {
         const draftObj = DraftFormModel.create(
             -1,
-            this.fromsSubject.value[0],
+            this.mainIdentity(),
             '"Runbox 7 Bug Reports" <bugs@runbox.com>',
             'Runbox 7 Bug Report'
         );
@@ -386,7 +356,7 @@ export class DraftDeskService {
                                              {responseType: 'text'}).toPromise();
         const draftObj = DraftFormModel.create(
             -1,
-            this.fromsSubject.value[0],
+            this.mainIdentity(),
             to,
             "Let's have a video call"
         );

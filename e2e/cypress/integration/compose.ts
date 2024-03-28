@@ -1,10 +1,14 @@
 /// <reference types="cypress" />
 
 describe('Composing emails', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
       localStorage.setItem('221:Desktop:localSearchPromptDisplayed', JSON.stringify('true'));
       localStorage.setItem('221:Mobile:localSearchPromptDisplayed', JSON.stringify('true'));
       localStorage.setItem('221:preference_keys', '["Desktop:localSearchPromptDisplayed","Mobile:localSearchPromptDisplayed"]');
+
+    (await indexedDB.databases())
+      .filter(db => db.name && /messageCache/.test(db.name))
+      .forEach(db => indexedDB.deleteDatabase(db.name!));
     });
 
     Cypress.config('requestTimeout', 100000);
@@ -55,10 +59,7 @@ describe('Composing emails', () => {
         cy.get('mailrecipient-input mat-error').should('not.exist');
     });
 
-    it('should open reply draft with HTML editor', async () => {
-        (await indexedDB.databases())
-            .filter(db => db.name && /messageCache/.test(db.name))
-            .forEach(db => indexedDB.deleteDatabase(db.name!));
+    it('should open reply draft with HTML editor', () => {
         // cy.visit('/');
         // cy.wait(1000);
         cy.intercept('/rest/v1/email/1').as('message1requested');

@@ -28,7 +28,7 @@ import { SearchService, SearchIndexDocumentData } from '../xapian/searchservice'
 import { isValidEmail } from '../compose/emailvalidator';
 import { filter, take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { ProfileService } from '../profiles/profile.service';
 import { UsageReportsService } from '../common/usage-reports.service';
 
 export interface ContactHilights {
@@ -105,13 +105,13 @@ export class StartDeskComponent implements OnInit {
     constructor(
         private cdr: ChangeDetectorRef,
         private searchService: SearchService,
-        private rmmapi: RunboxWebmailAPI,
+        private profileService: ProfileService,
         private usage: UsageReportsService,
     ) { }
 
     ngOnInit() {
         this.usage.report('overview-desk');
-        this.rmmapi.getFromAddress().subscribe(
+        this.profileService.validProfiles.subscribe(
             froms => this.ownAddresses.next(new Set(froms.map(f => f.email.toLowerCase()))),
             _err  => this.ownAddresses.next(new Set([])),
         );

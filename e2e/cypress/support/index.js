@@ -1,1 +1,2 @@
-import './commands'
+import './commands';
+require('cypress-terminal-report/src/installLogsCollector')();
