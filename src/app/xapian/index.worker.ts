@@ -241,14 +241,22 @@ class SearchIndexService {
   }
 
   public deleteLocalIndex(): Observable<any> {
+    if (!this.localSearchActivated) {
+      // called mid-index load and we hadnt loaded it anyway
+      // send indexDeleted so the progress dialog closes
+      console.log('Worker: Tried to delete local index when it is not present');
+      ctx.postMessage({'action': PostMessageAction.indexDeleted});
+      return of(null);
+    }
+
     this.localSearchActivated = false;
 
     return new Observable((observer) => {
       console.log('Worker: Closing xapian database');
       if (this.api) {
         console.log('Worker: API exists?');
+        this.api.closeXapianDatabase();
       }
-      this.api.closeXapianDatabase();
 
       FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
         if ( f !== '.' && f !== '..') {

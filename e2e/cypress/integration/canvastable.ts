@@ -12,7 +12,6 @@ describe('Selecting rows in canvastable', () => {
     it('should select one row', () => {
         cy.viewport('iphone-6');
         cy.visit('/');
-        cy.closeWelcomeDialog();
 
         // select
         canvas().click({ x: 15, y: 40 });
@@ -25,7 +24,6 @@ describe('Selecting rows in canvastable', () => {
     it('should select multiple rows', () => {
         cy.viewport('iphone-6');
         cy.visit('/');
-        cy.closeWelcomeDialog();
 
         canvas().trigger('mousedown', { x: 15, y: 10 });
         for (let ndx = 0; ndx <= 5; ndx++) {
