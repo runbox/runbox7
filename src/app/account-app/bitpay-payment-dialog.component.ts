@@ -19,9 +19,13 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+
+import { ProductOrder } from './product-order';
+import { Product } from './product';
 
 export interface PaymentOption {
     id:           string;
@@ -30,6 +34,10 @@ export interface PaymentOption {
     amount:       number;
     qrcode?:      string;
     exchangeRate: string;
+}
+
+class CartItem extends ProductOrder {
+    product: Product;
 }
 
 @Component({
@@ -59,6 +67,8 @@ export class BitpayPaymentDialogComponent {
     };
 
     constructor(
+        private route: ActivatedRoute,
+        private router: Router,
         private cart: CartService,
         private rmmapi: RunboxWebmailAPI,
         public dialogRef: MatDialogRef<BitpayPaymentDialogComponent>,
@@ -103,4 +113,32 @@ export class BitpayPaymentDialogComponent {
         }
         this.dialogRef.close(false);
     }
+
+    domregHash: string;
+    fromUrl = false;
+
+
+    items: CartItem[] = [];
+
+    async initiateCryptoPayment(method: string) {
+        const items = this.items.map(i => {
+            return { pid: i.pid, apid: i.apid, quantity: i.quantity };
+        });
+        const currency = this.items[0].product.currency;
+        this.rmmapi.orderProducts(items, method, currency, this.domregHash).subscribe(tx => {
+            let dialogRef: MatDialogRef<any>;
+                this.router.navigateByUrl('/account/receipt/' + tx.tid);
+                if (!this.fromUrl) {
+                    this.cart.clear();
+                }
+            return;
+            
+            dialogRef.afterClosed().subscribe(paid => {
+                if (paid && !this.fromUrl) {
+                    this.cart.clear();
+                }
+            });
+        });
+    }
+
 }

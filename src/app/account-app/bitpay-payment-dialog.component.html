@@ -8,13 +8,21 @@
         <p>
             You may now complete your payment via our cryptocurrency payment provider Coinbase.
         </p>
-        <p id="button">
+        <p class="button">
             <button mat-flat-button color="primary"> <a [href]="external_url">Proceed to Coinbase</a>
             </button>
         </p>
         <p>
             Processing your payment may take a little while.
             You will be notified with an email when the process is finished.
+        </p>
+        <p>
+          If you prefer to transfer cryptocurrency directly you may do so here:
+        </p>
+        <p class="button">
+          <button id="payDirectly" mat-raised-button (click)="initiateCryptoPayment('crypto')" color="primary">
+	        Cryptocurrency Transfer
+          </button>
         </p>
     </span>
     <span *ngIf="state === 'failed'">
