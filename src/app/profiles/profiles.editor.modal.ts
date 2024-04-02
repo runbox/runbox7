@@ -58,9 +58,8 @@ export class ProfilesEditorModalComponent {
         this.tinymce_plugin = new TinyMCEPlugin();
         if (!identity || !Object.keys(identity).length) {
             identity = new Identity;
-            const self = this;
             identity.name = ['first_name', 'last_name'].map((attr) => {
-                return self.profileService.me[attr];
+                return this.profileService.me[attr];
             }).join(' ');
         }
         if (identity.email) {

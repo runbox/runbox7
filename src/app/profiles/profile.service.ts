@@ -126,9 +126,6 @@ export class ProfileService {
         this.rmmapi.resendValidationEmail(id).subscribe(
             reply => {
                 this.refresh();
-                if ( !reply ) {
-                    // snackbar error msg?
-                }
           },
         );
     }
