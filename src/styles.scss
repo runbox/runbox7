@@ -727,8 +727,8 @@ mat-sidenav-container {
     border-right: 1px solid rgba(0, 0, 0, 0.12);
 
     mat-icon {
-	width: 20px;
-	height: 20px;
+	    width: 20px;
+	    height: 20px;
     }
 }
 
@@ -753,8 +753,14 @@ mat-sidenav-container {
     }
 }
 
-.sidenavMainMenu a {
-    width: 30%;
+.sidenavMainMenu {
+    .mat-mini-fab .mat-button-wrapper {
+        line-height: 18px;
+    }
+    
+    a {
+        width: 30%;
+    }
 }
 
 .sidenavSubMenu {
@@ -847,7 +853,14 @@ h3.sideNavHeader {
     width: 30px;
     line-height: 30px;
 }
-    
+
+rmm-folderlist {
+    .mat-icon-button {
+        height: 30px;
+        line-height: 24px;
+    }
+}
+
 .mailFolder div, .mailFolder span {
     height: 1em;
     vertical-align: middle;
