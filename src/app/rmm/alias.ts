@@ -30,29 +30,36 @@ export class Alias {
     ) {
     }
     load(): Observable<any> {
+        this.app.ua.http.get('/rest/v1/aliases/limits').subscribe(
+            res => {
+                this.aliases_counter = {
+                    total: res['result'].total,
+                    current: res['result'].current,
+                };
+            },
+            error => {
+                return this.app.show_error('Could not load alias limits', 'Dismiss');
+            }
+        );
+
         const req = this.app.ua.http.get('/rest/v1/aliases', {}).pipe(timeout(60000), share());
         req.subscribe(
-          data => {
-            const reply = data;
-            if ( reply['status'] === 'error' ) {
-              this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
-              return;
+            reply => {
+                if ( reply['status'] === 'error' ) {
+                    this.app.show_error( reply['error'].join( '' ), 'Dismiss' );
+                    return;
+                }
+                this.aliases = reply['result'].aliases;
+                const _unique = {};
+                for ( const value of this.aliases ) {
+                    _unique[ value.localpart + '@' + value.domain ] = 1;
+                }
+                this.aliases_unique = Object.keys(_unique);
+                return;
+            },
+            error => {
+                return this.app.show_error('Could not load aliases.', 'Dismiss');
             }
-            this.aliases = reply['result'].aliases;
-            const _unique = {};
-            for ( const value of this.aliases ) {
-                _unique[ value.localpart + '@' + value.domain ] = 1;
-            }
-            this.aliases_unique = Object.keys(_unique);
-            this.aliases_counter = {
-                total: reply['result'].counter.total,
-                current: reply['result'].counter.current,
-            };
-            return;
-          },
-          error => {
-            return this.app.show_error('Could not load aliases.', 'Dismiss');
-          }
         );
         return req;
     }

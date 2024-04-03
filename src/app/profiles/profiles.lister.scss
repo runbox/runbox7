@@ -24,6 +24,7 @@
     display: inline-flex;
     width: calc(100% - 10px);
     margin: 5px;
+    min-height: 200px;
     @media only screen and (min-width: 769px) {
         width: calc(50% - 10px);
         max-width: 600px;
@@ -45,8 +46,4 @@
     .mobile-edit {
         height: 50px;
     }
-}
-.identity-warning {
-    font-weight: bold;
-    color: crimson;
 }
