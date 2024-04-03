@@ -3,7 +3,7 @@
 describe('Login', () => {
     function expectLoginPage() {
         cy.visit('/');
-        cy.get('#loginHeader h1').should('contain', 'Runbox 7');
+        cy.get('#loginHeader h1').should('contain', 'Runbox');
     }
 
     function enterCredentials() {
@@ -18,7 +18,7 @@ describe('Login', () => {
 
     function expectWebmail() {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
-        cy.get('#offerLocalIndex').should('contain', 'Runbox 7');
+        cy.get('#offerLocalIndex').should('contain', 'Runbox');
         cy.get('#offerLocalIndex mat-list-item button[data-cy="cancel-button"]').click().should(() => {
           expect(JSON.parse(localStorage.getItem('221:Desktop:localSearchPromptDisplayed'))).to.equal('true');
         });

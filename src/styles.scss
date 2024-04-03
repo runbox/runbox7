@@ -944,13 +944,23 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     line-height: 1em;
 
     mat-list-item {
-        flex-grow: 1;
+        padding: 5px 0;
     }
 
     button {
         margin-right: 10px;
+        
+        @media(max-width: 540px) {
+            margin-right: 2px;
+            height: 30px;
+            line-height: 20px;
+        }
     }
 }
+
+#offerLocalIndex .mat-list-item-content {
+    padding: 0 5px;
+}    
 
 #searchField {
     flex-grow: 10;
