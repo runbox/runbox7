@@ -24,7 +24,6 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { FromAddress } from '../rmmapi/from_address';
 import { Observable, Subscription } from 'rxjs';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
@@ -37,6 +36,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { Identity } from '../profiles/profile.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 import { objectEqualWithKeys } from '../common/util';
@@ -124,7 +124,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.model.isUnsaved()) {
             this.editing = true;
             this.isUnsaved = true;
-            const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
+            const from: Identity = this.draftDeskservice.fromsSubject.value.find((f) =>
                 f.nameAndAddress === this.model.from || f.email === this.model.from);
 
             this.has_pasted_signature = false;
@@ -206,7 +206,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.formGroup.controls.from.valueChanges
             .pipe(debounceTime(1000))
             .subscribe((selected_from_address) => {
-                const from: FromAddress = this.draftDeskservice.fromsSubject.value.find((f) =>
+                const from: Identity = this.draftDeskservice.fromsSubject.value.find((f) =>
                     f.nameAndAddress === selected_from_address);
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
