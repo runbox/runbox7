@@ -943,6 +943,11 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     white-space: normal;
     line-height: 1em;
 
+    @media(max-width: 375px) {
+        font-size: 10px;
+        line-height: 12px;
+    }
+
     mat-list-item {
         padding: 5px 0;
     }
@@ -954,6 +959,9 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
             margin-right: 2px;
             height: 30px;
             line-height: 20px;
+            width: 40px;
+            min-width: 40px;
+            padding: 0;
         }
     }
 }
