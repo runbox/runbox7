@@ -66,6 +66,10 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
     font-size: 20px;
 }
 
+mat-form-field {
+    max-width: 100%;
+}
+
 .fieldRecipient {
     display: flex;
     overflow: hidden;
@@ -85,6 +89,10 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
         align-self: flex-start;
         margin-top: 10px;
     }
+}
+
+#fieldSubject {
+    width: 100%;
 }
 
 .draft-buttons {
