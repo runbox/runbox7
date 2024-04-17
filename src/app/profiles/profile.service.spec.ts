@@ -32,7 +32,7 @@ describe('Identity', () => {
     it('Should create an identity with name and email', () => {
         const ident = Identity.fromObject({
             'email': 'test@example.com',
-            'name':  'Fred Bloggs',
+            'from_name':  'Fred Bloggs',
         });
         expect(ident.nameAndAddress).toEqual('Fred Bloggs <test@example.com>');
     });
