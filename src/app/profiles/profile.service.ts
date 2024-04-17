@@ -57,7 +57,7 @@ export class Identity {
     }
 
     resolveNameAndAddress() {
-        this.nameAndAddress = this.name ? `${this.name} <${this.email}>` : this.email;
+        this.nameAndAddress = this.from_name ? `${this.from_name} <${this.email}>` : this.email;
     }
 }
 
