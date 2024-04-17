@@ -60,6 +60,7 @@ import { ExtendedKeyboardEvent, Hotkey, HotkeysService } from 'angular2-hotkeys'
 import { AppSettings } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
+import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
@@ -71,6 +72,7 @@ const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
+const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
     
 @Component({
@@ -184,6 +186,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
     private preferenceService: PreferencesService,
+    private storage: StorageService,
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
   ) {
@@ -319,10 +322,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // sidebar
       this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
       this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
-      this.localSearchIndexPrompted = prefs.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true';
 
       this.preferences = prefs;
     });
+    // localSearchIndexPrompted isnt a "preference" (users cant change it back)
+    // and we want it to prompt for eeach new device:
+    this.storage.get(LOCAL_STORAGE_INDEX_PROMPT).then((val) => {
+      this.localSearchIndexPrompted = val === 'true';
+    });
+
 
     this.updateTime();
   }
@@ -994,7 +1002,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public downloadIndexFromServer() {
-    this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
+    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
     this.searchService.downloadIndexFromServer().subscribe((res) => {
       if (res && !this.searchService.stopIndexDownloadingInProgress) {
@@ -1023,7 +1031,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.searchService.stopIndexDownloadingInProgress = true;
     }
     // User has had the initial prompt, stop asking
-    this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
+    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.offerInitialLocalIndex = false;
   }
 
