@@ -319,7 +319,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // sidebar
       this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
       this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
-      this.localSearchIndexPrompted = prefs.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true';
 
       this.preferences = prefs;
     });
