@@ -28,6 +28,11 @@ $rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, 
 
 $rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
 
+$rmm-default-lighter-gray: #eeeeee;
+$rmm-default-light-gray: #f4f4f4;
+$rmm-default-dark-gray: #949494;
+$rmm-default-black: #444444;
+
 @include mat.all-legacy-component-themes($rmm-default-theme);
 
 // GTA 13.06.2018: Load custom fonts
@@ -372,7 +377,7 @@ mat-grid-tile.tableTitle {
     color: #949494 !important;
 }
 .themePaletteBlack {
-    color: #444 !important;
+    color: #444444 !important;
 }
 
 /*** App-specific styles ***/
@@ -727,8 +732,11 @@ mat-sidenav-container {
     border-right: 1px solid rgba(0, 0, 0, 0.12);
 
     mat-icon {
-	    width: 20px;
-	    height: 20px;
+	    width: 22px;
+	    height: 22px;
+    }
+    .mat-line span {
+        vertical-align: middle !important;
     }
 }
 
@@ -856,15 +864,18 @@ h3.sideNavHeader {
 
 rmm-folderlist {
     .mat-icon-button {
-        height: 30px;
+        height: 24px;
         line-height: 24px;
     }
 }
 
 .mailFolder div, .mailFolder span {
-    height: 1em;
-    vertical-align: middle;
 }
+
+.mailFolder mat-icon {
+    vertical-align: top !important;
+}
+
 
 .folderIconStandard {
     color: mat.get-color-from-palette($rmm-default-primary);
@@ -885,13 +896,15 @@ rmm-folderlist {
 }
 
 .mat-badge-content {
-    color: white !important;
-    background-color: mat.get-color-from-palette($rmm-default-foreground) !important;
-    font-size: 10px;
-    line-height: 18px !important;
+    width: auto;
+    overflow: visible !important;
     right: auto !important;
     left: 0px;
-    padding: 2px 3px 2px 3px;
+    padding: 0px 3px;
+    background-color: $rmm-default-light-gray;
+    font-size: 10px;
+/*    line-height: 18px !important; */
+    color: black;
 }
 
 .foldersidebarcount {
