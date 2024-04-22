@@ -668,7 +668,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         } else {
             this.model.reply_to = from.reply_to;
             draft_from = from && from.id ?
-                from.name + '%' + from.email + '%' + from.id + '%' + from.folder :
+                from.from_name + '%' + from.email + '%' + from.id + '%' + from.folder :
                 from.email;
         }
         if (send) {
@@ -723,7 +723,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 return this.http.post('/rest/v1/draft', {
                     type: 'draft',
                     username: me.username,
-                    from: from && from.id ? from.name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
+                    from: from && from.id ? from.from_name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
                     to: this.model.to.map((recipient) => recipient.nameAndAddress).join(','),
                     cc: this.model.cc.map((recipient) => recipient.nameAndAddress).join(','),
