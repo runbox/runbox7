@@ -5,12 +5,14 @@
     <mat-card class="mat-elevation-z2 profile-card" *ngFor="let item of profiles; let i = index;">
         <mat-card-content class="profile-content">
             <mat-grid-list cols="{{mobile?6:7}}" rowHeight="15px">
+                <mat-grid-tile  *ngIf="item.type === 'main'" colspan="6" rowspan="2">
+                    <h3 class="heading">Account Username</h3>
+                </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right heading">Email Address:</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="4" rowspan="2">
-                    <span *ngIf="item.type !== 'main'" class="float-left heading">{{item.email}}</span><br />
-                    <span *ngIf="item.type === 'main'" class="float-left heading">{{item.email}}<br /> (Account Username) </span>
+                    <span class="float-left heading">{{item.email}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">From Name:</span>
