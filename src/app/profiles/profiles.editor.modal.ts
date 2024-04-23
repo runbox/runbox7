@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Input, Inject } from '@angular/core';
+import { Component, Input, Inject, OnDestroy } from '@angular/core';
 
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
@@ -32,7 +32,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
     templateUrl: 'profiles.editor.modal.html',
 })
 
-export class ProfilesEditorModalComponent {
+export class ProfilesEditorModalComponent implements OnDestroy {
     @Input() value: any[];
     field_errors: Identity;
     allowed_domains = [];
@@ -240,6 +240,11 @@ export class ProfilesEditorModalComponent {
                 editor.on('Change', () => {
                     this.identity.signature = editor.getContent();
                 });
+                editor.on('remove', () => {
+                    if(editor.queryCommandState('ToggleToolbarDrawer')) {
+                        editor.execCommand('ToggleToolbarDrawer');
+                    }
+                });
             },
             init_instance_callback: (editor) => {
                 editor.setContent(
@@ -253,5 +258,11 @@ export class ProfilesEditorModalComponent {
     }
     resend_validate_email(id) {
         this.profileService.reValidate(id);
+    }
+
+    ngOnDestroy() {
+        if (this.editor) {
+            this.tinymce_plugin.remove(this.editor);
+        }
     }
 }

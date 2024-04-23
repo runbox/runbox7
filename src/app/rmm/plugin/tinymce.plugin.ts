@@ -54,6 +54,8 @@ export class TinyMCEPlugin {
                             {text: 'C++', value: 'cpp'}
                         ]),
                 contextmenu: false,
+                relative_urls: false,
+                remove_script_host : false,
                 font_formats: 'Arial=arial,helvetica,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
                 image_list: (options.image_list || []),
                 menubar: (options.menubar || false),

@@ -498,6 +498,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.formGroup.controls['msg_body'].setValue(editor.getContent({ format: 'text' }));
                         this.model.html = editor.getContent();
                     });
+                    editor.on('remove', () => {
+                        if(editor.queryCommandState('ToggleToolbarDrawer')) {
+                            editor.execCommand('ToggleToolbarDrawer');
+                        }
+                    });
                 },
                 init_instance_callback: (editor) => {
                     editor.setContent(
