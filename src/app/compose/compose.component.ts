@@ -136,11 +136,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 if ( !this.has_pasted_signature && from.signature ) {
                     this.has_pasted_signature = true;
                     this.signature = from.signature;
-                    this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
                     if ( from.is_signature_html ) {
                         this.model.useHTML = true;
                         this.model.html = this.signature.concat('\n\n', this.model.html || this.model.msg_body);
+                    } else {
+                        this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
                     }
+
                 }
             }
             if (this.composeInHTMLByDefault) {
