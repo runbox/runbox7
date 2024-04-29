@@ -33,11 +33,11 @@ export class TinyMCEPlugin {
             tinymce.init({
                 selector: options.selector, // '#' + this.editorRef.nativeElement.id,
                 browser_spellcheck: true,
-                plugins: (options.plugins || 'print preview searchreplace autolink directionality ' +
+                plugins: (options.plugins || 'preview searchreplace autolink directionality ' +
                     'visualblocks visualchars fullscreen image link template codesample ' +
-                    'table charmap hr pagebreak ' +
-                    'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
-                    'textpattern help code'),
+                    'table charmap pagebreak ' +
+                    'nonbreaking anchor insertdatetime advlist lists wordcount ' +
+                    'help code'),
                 toolbar: (options.toolbar || 'formatselect | fontselect fontsizeselect bold italic strikethrough forecolor backcolor codesample | ' +
                         'link image | alignleft aligncenter alignright alignjustify  | ' +
                         'numlist bullist outdent indent | removeformat | addcomment | code'),
