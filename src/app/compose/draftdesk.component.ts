@@ -71,8 +71,10 @@ export class DraftDeskComponent implements OnInit {
 
     updateDraftsInView() {
         if (this.draftModelsInView.length > 0) {
-            // need to apply C(R)UD instead of setting the new array:
-            // Add any new ones
+            // Update in-place rather than just redrawing the whole array:
+            // Add any "new" ones
+            // This includes items we excluded because of max-length
+            // don't worry, the sort will fix em
             const newEntries = this.draftDeskservice.draftModels.value.filter(
                 (msg) => !this.draftModelsInView.some(
                     (dMsg) => dMsg.mid === msg.mid));
@@ -101,7 +103,7 @@ export class DraftDeskComponent implements OnInit {
                 }
             });
             this.draftModelsInView.splice(0, 0, ...newEntries);
-            this.draftModelsInView.sort((a,b) => a.mid < b.mid ? -1 : 1);
+            this.draftModelsInView.sort((a,b) => a.mid == -1 ? -1 : b.mid == -1 ? 1 : a.mid > b.mid ? -1 : 1);
             this.draftModelsInView = this.draftModelsInView.slice(0, this.currentMaxDraftsInView);
             deletedEntries.forEach(
                 (dMsgId) => this.draftModelsInView.splice(this.draftModelsInView.findIndex((dMsg) => dMsg.mid === dMsgId), 1));
