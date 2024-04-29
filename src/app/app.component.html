@@ -189,7 +189,7 @@
           <mat-list>
           <mat-list-item>
             <button mat-raised-button (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device" color="primary" [disabled]="searchService.indexDownloadingInProgress">OK!</button>
-            <button mat-raised-button (click)="cancelOrRefuseLocalIndex()" matTooltip="{{ searchService.indexDownloadingInProgress ? 'Cancel Download' : 'Do not synchronize index'}}" data-cy="cancel-button" color="warn">Later</button>
+            <button mat-raised-button (click)="cancelOrRefuseLocalIndex()" matTooltip="{{ searchService.indexDownloadingInProgress ? 'Cancel Download' : 'Do not synchronize index'}}" data-cy="cancel-button" color="warn">Cancel</button>
           </mat-list-item>
           </mat-list>
         </div>
