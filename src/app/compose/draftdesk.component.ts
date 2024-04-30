@@ -103,7 +103,7 @@ export class DraftDeskComponent implements OnInit {
                 }
             });
             this.draftModelsInView.splice(0, 0, ...newEntries);
-            this.draftModelsInView.sort((a,b) => a.mid == -1 ? -1 : b.mid == -1 ? 1 : a.mid > b.mid ? -1 : 1);
+            this.draftModelsInView.sort((a,b) => a.mid < 0 ? -1 : b.mid < 0 ? 1 : a.mid > b.mid ? -1 : 1);
             this.draftModelsInView = this.draftModelsInView.slice(0, this.currentMaxDraftsInView);
             deletedEntries.forEach(
                 (dMsgId) => this.draftModelsInView.splice(this.draftModelsInView.findIndex((dMsg) => dMsg.mid === dMsgId), 1));
