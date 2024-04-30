@@ -36,3 +36,6 @@
 mat-list-item.selectedFolder p.visibleOnHover {
     display: inherit;
 }
+.newMessagesCount .mat-badge-content {
+    width: auto;
+}
