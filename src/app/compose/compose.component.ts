@@ -219,7 +219,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
                         this.signature = new_signature;
                         if (this.formGroup.value.useHTML && this.editor) {
-                            this.model.html.replace(rgx, new_signature);
+                            this.model.html = this.model.html.replace(rgx, new_signature);
                             this.editor.setContent(this.model.html);
                         } else {
                             this.formGroup.controls.msg_body.setValue(msg_body);
