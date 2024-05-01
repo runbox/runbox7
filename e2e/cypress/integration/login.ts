@@ -20,7 +20,7 @@ describe('Login', () => {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
         cy.get('#offerLocalIndex').should('contain', 'Runbox');
         cy.get('#offerLocalIndex mat-list-item button[data-cy="cancel-button"]').click().should(() => {
-          expect(JSON.parse(localStorage.getItem('221:Desktop:localSearchPromptDisplayed'))).to.equal('true');
+          expect(JSON.parse(localStorage.getItem('221:localSearchPromptDisplayed'))).to.equal('true');
         });
     }
 

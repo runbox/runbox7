@@ -9,9 +9,8 @@ describe('Switching between folders (and not-folders)', () => {
     }
 
   it('can switch from welcome to inbox', () => {
-    localStorage.setItem('221:Desktop:localSearchPromptDisplayed', JSON.stringify('true'));
-    localStorage.setItem('221:Mobile:localSearchPromptDisplayed', JSON.stringify('true'));
-    localStorage.setItem('221:preference_keys', '["Desktop:localSearchPromptDisplayed","Mobile:localSearchPromptDisplayed"]');
+    localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
+    localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
 
     // start of on /welcome, like a fresh new user
     cy.visit('/welcome');

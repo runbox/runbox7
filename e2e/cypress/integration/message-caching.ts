@@ -2,8 +2,7 @@
 
 describe('Message caching', () => {
     beforeEach(async () => {
-        localStorage.setItem('Desktop:localSearchPromptDisplayed', 'true');
-        localStorage.setItem('Global:messageSubjectDragTipShown', 'true');
+        localStorage.setItem('221:localSearchPromptDisplayed', 'true');
         (await indexedDB.databases())
             .filter(db => db.name && /messageCache/.test(db.name))
             .forEach(db => indexedDB.deleteDatabase(db.name!));
