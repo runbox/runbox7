@@ -250,7 +250,9 @@ export class AccountRenewalsRenewNowButtonComponent {
         let oq = [];
         if (this.p && this.usage) {
             Object.keys(this.p.quotas).map((key) => {
-                if (this.usage[key] && this.usage[key].percentage_used >= this.close_percentage) {
+              if ( !key.endsWith('Subaccount')
+                && this.usage[key]
+                && this.usage[key].percentage_used >= this.close_percentage) {
                     oq.push({'quota': key, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type, 'percentage': this.usage[key].percentage_used });
                 }
             });
