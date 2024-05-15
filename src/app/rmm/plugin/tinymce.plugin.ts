@@ -36,7 +36,7 @@ export class TinyMCEPlugin {
                 plugins: (options.plugins ||
                     'preview searchreplace autolink directionality ' +
                     'visualblocks visualchars fullscreen image link template codesample ' +
-                    'table charmap pagebreak paste ' +
+                    'table charmap pagebreak ' +
                     'nonbreaking anchor insertdatetime advlist lists wordcount ' +
                     'help code'),
                 toolbar: (options.toolbar
@@ -60,8 +60,12 @@ export class TinyMCEPlugin {
                 contextmenu: false,
                 relative_urls: false,
                 remove_script_host: false,
-                block_unsupported_drop: false,
-                paste_data_images: true,
+                block_unsupported_drop: true,
+                automatic_uploads: ( options.automatic_uploads || false ),
+                paste_data_images: ( options.paste_data_images || false ),
+                images_upload_credentials: ( options.images_upload_credentials || false ),
+                images_upload_url: options.upload_url || '',
+                images_upload_handler: options.images_upload_handler,
                 paste_block_drop: false,
                 smart_paste: true,
                 font_formats: 'Arial=arial,helvetica,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
