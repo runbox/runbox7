@@ -297,7 +297,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
       this.viewmode = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_VIEWMODE}`);
-      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
+      this.conversationGroupingCheckbox = !this.unreadMessagesOnlyCheckbox && this.viewmode === 'conversations';
       this.messageSubjectDragTipShown = prefs.get(`${DefaultPrefGroups.Global}:messageSubjectDragTipShown`) === 'true';
 
       // jitsi video calling
@@ -815,6 +815,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.canvastable.topindex = 0;
       this.canvastable.rows = null;
       this.viewmode = 'messages';
+      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
+      this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
       this.dataReady = false;
       this.showingSearchResults = false;
       this.searchText = '';
