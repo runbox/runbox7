@@ -100,6 +100,7 @@ export class BitpayPaymentDialogComponent {
                 this.otherOptions = paymentOptions.filter(o => !o.qrcode);
 
                 this.external_url = res.hosted_url;
+
             },
             _err => {
                 this.state = 'failed';
@@ -107,6 +108,12 @@ export class BitpayPaymentDialogComponent {
         );
     }
 
+    directTransfer() {
+        this.router.navigateByUrl('/account/receipt/' + this.tid);
+        this.cart.clear();
+        this.dialogRef.close(true);
+    }
+    
     close(clearCart: boolean) {
         if (clearCart) {
             this.cart.clear();
@@ -119,26 +126,5 @@ export class BitpayPaymentDialogComponent {
 
 
     items: CartItem[] = [];
-
-    async initiateCryptoPayment(method: string) {
-        const items = this.items.map(i => {
-            return { pid: i.pid, apid: i.apid, quantity: i.quantity };
-        });
-        const currency = this.items[0].product.currency;
-        this.rmmapi.orderProducts(items, method, currency, this.domregHash).subscribe(tx => {
-            let dialogRef: MatDialogRef<any>;
-                this.router.navigateByUrl('/account/receipt/' + tx.tid);
-                if (!this.fromUrl) {
-                    this.cart.clear();
-                }
-            return;
-            
-            dialogRef.afterClosed().subscribe(paid => {
-                if (paid && !this.fromUrl) {
-                    this.cart.clear();
-                }
-            });
-        });
-    }
 
 }
