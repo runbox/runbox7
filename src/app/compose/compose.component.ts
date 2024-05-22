@@ -45,6 +45,7 @@ declare const MailParser;
 
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
+const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename='
 
 @Component({
     moduleId: 'angular2/app/compose/',
@@ -356,6 +357,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
 
     public removeAttachment(attachmentIndex: number) {
+        const toRemove = this.model.attachments[attachmentIndex];
+        const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const attUrlRegex = new RegExp('<img\\ssrc="[^"]*' + escapedUrl + toRemove.filename + '"[^>]+>');
+        this.model.html = this.model.html.replace(attUrlRegex, '');
+        this.editor.setContent(this.model.html);
         this.model.attachments.splice(attachmentIndex, 1);
         this.submit();
     }
@@ -433,7 +439,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             });
             this.finishImageUpload.subscribe((res) => {
                 if(res.length > 0) {
-                    resolve('/ajax/download_draft_attachment?filename=' + res);
+                    resolve(DOWNLOAD_DRAFT_URL + res);
                 } else {
                     reject({ message: 'Error storing image',
                              remove: true });
@@ -557,7 +563,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 },
                 image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
                     title: this.displayWithoutRBWUL(att.file),
-                    value: '/ajax/download_draft_attachment?filename=' + att.file
+                    value: DOWNLOAD_DRAFT_URL + att.file
                 })) : []),
                 paste_data_images: true,
                 automatic_uploads: true,
@@ -726,8 +732,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
+                const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                 this.model.msg_body = this.model.msg_body
-                    .replace(/\"[^"]*ajax\/download_draft_attachment\?filename\=RBWUL-([a-z0-9]+)_[^"]+\"/g, '"cid:$1"');
+                    .replace(new RegExp('"[^"]*' + escapedUrl + 'RBWUL-([a-z0-9]+)_[^"]+"', 'g'), '"cid:$1"');
             }
             if (!from) {
                 this.snackBar.open('You must set from address', 'OK', {duration: 1000});
