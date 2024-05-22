@@ -19,7 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -67,7 +67,6 @@ export class BitpayPaymentDialogComponent {
     };
 
     constructor(
-        private route: ActivatedRoute,
         private router: Router,
         private cart: CartService,
         private rmmapi: RunboxWebmailAPI,
