@@ -172,6 +172,14 @@ export class SearchService {
       this.indexWorker.onerror = (error) => {
         console.error(`Error from worker:  ${error.message}`);
         console.error(`${error.filename} ${error.lineno}`);
+
+        // Attempt to recover:
+        if (!this.localSearchActivated) {
+          console.log('Attempting to recover from index sync fail');
+          ProgressDialog.close();
+          this.messagelistservice.fetchFolderMessages();
+        }
+
       };
       console.log('Loaded worker');
     }
@@ -452,6 +460,7 @@ export class SearchService {
       return;
     }
     this.localSearchActivated = false;
+    this.indexWorker.postMessage({'action': PostMessageAction.stopIndexUpdates });
 
     return new Observable((observer) => {
       ProgressDialog.open(this.dialog);
@@ -477,6 +486,8 @@ export class SearchService {
     this.notifyOnNewMessages = false; // we don't want notification on first message update after index load
     this.init();
 
+    // initSubject returns false if no db yet, but that's fine
+    // we're downloading it here..
     return this.initSubject.pipe(
         mergeMap(() => this.checkIfDownloadableIndexExists()),
         mergeMap((res) => new Observable<boolean>( (observer) => {
