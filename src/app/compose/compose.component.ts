@@ -359,7 +359,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public removeAttachment(attachmentIndex: number) {
         const toRemove = this.model.attachments[attachmentIndex];
         const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const attUrlRegex = new RegExp('<img\\ssrc="[^"]*' + escapedUrl + toRemove.filename + '"[^>]+>');
+        const attUrlRegex = new RegExp('<img\\ssrc="[^"]*' + escapedUrl + toRemove.filename + '"[^>]*>');
         this.model.html = this.model.html.replace(attUrlRegex, '');
         this.editor.setContent(this.model.html);
         this.model.attachments.splice(attachmentIndex, 1);
