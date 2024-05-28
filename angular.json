@@ -40,6 +40,11 @@
               },
               {
                 "glob": "**/*",
+                "input": "node_modules/tinymce/models",
+                "output": "/tinymce/models/"
+              },
+              {
+                "glob": "**/*",
                 "input": "node_modules/@mdi/angular-material",
                 "output": "/assets/"
               },

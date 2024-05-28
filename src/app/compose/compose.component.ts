@@ -24,7 +24,7 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, AsyncSubject, BehaviorSubject } from 'rxjs';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
@@ -45,6 +45,7 @@ declare const MailParser;
 
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
+const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename='
 
 @Component({
     moduleId: 'angular2/app/compose/',
@@ -71,11 +72,13 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public editing = false;
     public isUnsaved = false;
     public savingInProgress = false;
-    public uploadprogress: number = null;
-    public uploadingFiles: FileList = null;
+    // public uploadprogress: number = null;
+    public uploadingFiles: File[] = [];
     public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
+    finishImageUpload: AsyncSubject<any> = null;
+    uploadProgress: BehaviorSubject<number> = new BehaviorSubject(-1);
     has_pasted_signature: boolean;
     signature: string;
     selector: string;
@@ -331,7 +334,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public onFilesSelected(event) {
-        this.uploadFiles(event.target.files);
+        this.uploadFiles([...event.target.files]);
         this.attachmentFileUploadInput.nativeElement.value = '';
     }
 
@@ -346,20 +349,25 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public dropFiles(event: DragEvent) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        if (!this.uploadingFiles) {
-            this.uploadFiles(event.dataTransfer.files);
+        if (this.uploadingFiles.length === 0) {
+            this.uploadFiles(Array.from(event.dataTransfer.files));
             this.hideDropZone();
         }
     }
 
 
     public removeAttachment(attachmentIndex: number) {
+        const toRemove = this.model.attachments[attachmentIndex];
+        const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const attUrlRegex = new RegExp('<img\\ssrc="[^"]*' + escapedUrl + toRemove.filename + '"[^>]*>');
+        this.model.html = this.model.html.replace(attUrlRegex, '');
+        this.editor.setContent(this.model.html);
         this.model.attachments.splice(attachmentIndex, 1);
         this.submit();
     }
 
-    public uploadFiles(files: FileList) {
-        this.uploadprogress = 0;
+    public uploadFiles(files: File[]) {
+        this.uploadProgress.next(0);
         this.uploadingFiles = files;
         const formdata: FormData = new FormData();
         for (let i = 0; i < files.length; i++) {
@@ -386,7 +394,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         )).subscribe((event) => {
             if (event.type === HttpEventType.UploadProgress) {
                 const progress = event.loaded * 100 / event.total;
-                this.uploadprogress = progress === 100 ? null : progress;
+                this.uploadProgress.next(progress);
             } else if (event.type === HttpEventType.Response) {
                 if (!this.model.attachments) {
                     this.model.attachments = [];
@@ -398,21 +406,57 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.model.attachments.push(att);
                     });
 
-                this.uploadprogress = null;
-                this.uploadingFiles = null;
+                this.uploadProgress.next(-1);
+                this.uploadingFiles = [];
+                if(this.finishImageUpload) {
+                    // We were submitting a dropped image attachment
+                    this.finishImageUpload.next((event.body as any).result.attachments[0].filename);
+                    this.finishImageUpload.complete();
+                    this.finishImageUpload = null;
+                }
                 this.submit();
             }
         }, error => {
-            this.uploadprogress = null;
-            this.uploadingFiles = null;
+            this.uploadProgress.next(-1);
+            this.uploadingFiles = [];
+            if(this.finishImageUpload) {
+                // We were submitting a dropped image attachment
+                this.finishImageUpload.next('');
+                this.finishImageUpload.complete();
+                this.finishImageUpload = null;
+            }
             this.snackBar.open(`Error uploading attachments: ${error.statusText}`, 'OK');
+        });
+    }
+
+    public tinyMCEUpload(blobInfo, progress) {
+        return new Promise((resolve, reject) => {
+            if(!this.finishImageUpload) {
+                this.finishImageUpload = new AsyncSubject();
+            }
+            this.uploadProgress.subscribe((res) => {
+                if(res > -1) {progress(res);}
+            });
+            this.finishImageUpload.subscribe((res) => {
+                if(res.length > 0) {
+                    resolve(DOWNLOAD_DRAFT_URL + res);
+                } else {
+                    reject({ message: 'Error storing image',
+                             remove: true });
+                }
+            });
+            this.uploadFiles([blobInfo.blob()]);
         });
     }
 
     public cancelAttachmentUpload() {
         this.uploadRequest.unsubscribe();
-        this.uploadprogress = null;
-        this.uploadingFiles = null;
+        this.uploadProgress.next(-1);
+        if (this.finishImageUpload) {
+            this.finishImageUpload.next('');
+            this.finishImageUpload.complete();
+        }
+        this.uploadingFiles = [];
     }
 
     public loadDraft(msgObj) {
@@ -519,9 +563,15 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 },
                 image_list: (cb) => cb(this.model.attachments ? this.model.attachments.map(att => ({
                     title: this.displayWithoutRBWUL(att.file),
-                    value: '/ajax/download_draft_attachment?filename=' + att.file
+                    value: DOWNLOAD_DRAFT_URL + att.file
                 })) : []),
-
+                paste_data_images: true,
+                automatic_uploads: true,
+                images_upload_credentials: true,
+                images_upload_handler: (blobInfo, progress) => {
+                    return this.tinyMCEUpload(blobInfo, progress);
+                },
+                // upload_url: this.router.createUrlTree(['/rest/v1/attachment/upload/single']).toString(),
             };
             this.tinymce_plugin.create(options);
             this.preferenceService .set(DefaultPrefGroups.Global, LOCAL_STORAGE_DEFAULT_HTML_COMPOSE, 'true');
@@ -682,8 +732,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
+                const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                 this.model.msg_body = this.model.msg_body
-                    .replace(/\"[^"]*ajax\/download_draft_attachment\?filename\=RBWUL-([a-z0-9]+)_[^"]+\"/g, '"cid:$1"');
+                    .replace(new RegExp('"[^"]*' + escapedUrl + 'RBWUL-([a-z0-9]+)_[^"]+"', 'g'), '"cid:$1"');
             }
             if (!from) {
                 this.snackBar.open('You must set from address', 'OK', {duration: 1000});

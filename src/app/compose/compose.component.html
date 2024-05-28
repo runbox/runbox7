@@ -102,20 +102,22 @@
             <input matInput placeholder="Subject" name="subject" formControlName="subject" />
         </mat-form-field>                     
         <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}" (dragover)="draggingOverDropZone=true" (dragleave)="draggingOverDropZone=false" (drop)="dropFiles($event)" id="dropZone">
-            <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>            
-            <mat-progress-bar *ngIf="uploadprogress!=null"                               
+          <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>
+          <ng-container *ngIf="uploadProgress | async as uprogress">
+            <mat-progress-bar *ngIf="uprogress > -1"
                 mode="determinate"
-                [value]="uploadprogress"
+                [value]="uprogress"
                >
             </mat-progress-bar>
-            <button mat-button *ngIf="uploadprogress !== null" (click)="cancelAttachmentUpload()">
+            <button mat-button *ngIf="uprogress > -1" (click)="cancelAttachmentUpload()">
                 <mat-icon svgIcon="close"></mat-icon> Cancel attachment upload
             </button>
-            <mat-card-content *ngIf="uploadprogress!=null">
-                <div *ngFor="let file of uploadingFiles">
-                    <p>{{file.name}}, {{formatBytes(file.size)}}</p>
-                </div>
+            <mat-card-content *ngIf="uprogress > -1">
+              <div *ngFor="let file of uploadingFiles">
+                <p>{{file.name}}, {{formatBytes(file.size)}}</p>
+              </div>
             </mat-card-content>
+          </ng-container>
         </section>
         <section *ngIf="editing && model.attachments && model.attachments.length>0" id="attachments">
 	  Attachments:&nbsp;

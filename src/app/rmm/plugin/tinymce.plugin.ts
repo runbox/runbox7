@@ -33,14 +33,18 @@ export class TinyMCEPlugin {
             tinymce.init({
                 selector: options.selector, // '#' + this.editorRef.nativeElement.id,
                 browser_spellcheck: true,
-                plugins: (options.plugins || 'print preview searchreplace autolink directionality ' +
+                plugins: (options.plugins ||
+                    'preview searchreplace autolink directionality ' +
                     'visualblocks visualchars fullscreen image link template codesample ' +
-                    'table charmap hr pagebreak ' +
-                    'nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools ' +
-                    'textpattern help code'),
-                toolbar: (options.toolbar || 'formatselect | fontselect fontsizeselect bold italic strikethrough forecolor backcolor codesample | ' +
-                        'link image | alignleft aligncenter alignright alignjustify  | ' +
-                        'numlist bullist outdent indent | removeformat | addcomment | code'),
+                    'table charmap pagebreak ' +
+                    'nonbreaking anchor insertdatetime advlist lists wordcount ' +
+                    'help code'),
+                toolbar: (options.toolbar
+                    || 'formatselect | fontselect fontsizeselect bold italic ' +
+                    'strikethrough forecolor backcolor codesample | ' +
+                    'link image paste pastetext | alignleft aligncenter ' +
+                    'alignright alignjustify  | ' +
+                    'numlist bullist outdent indent | removeformat | addcomment | code'),
                 codesample_languages: (options.codesample_languages || [
                             {text: 'HTML/XML', value: 'markup'},
                             {text: 'JavaScript', value: 'javascript'},
@@ -55,7 +59,15 @@ export class TinyMCEPlugin {
                         ]),
                 contextmenu: false,
                 relative_urls: false,
-                remove_script_host : false,
+                remove_script_host: false,
+                block_unsupported_drop: true,
+                automatic_uploads: ( options.automatic_uploads || false ),
+                paste_data_images: ( options.paste_data_images || false ),
+                images_upload_credentials: ( options.images_upload_credentials || false ),
+                images_upload_url: options.upload_url || '',
+                images_upload_handler: options.images_upload_handler,
+                paste_block_drop: false,
+                smart_paste: true,
                 font_formats: 'Arial=arial,helvetica,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
                 image_list: (options.image_list || []),
                 menubar: (options.menubar || false),
