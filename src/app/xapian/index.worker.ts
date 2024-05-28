@@ -242,7 +242,7 @@ class SearchIndexService {
 
   public deleteLocalIndex(): Observable<any> {
     this.localSearchActivated = false;
-
+    
     return new Observable((observer) => {
       console.log('Worker: Closing xapian database');
       if (this.api) {
@@ -908,7 +908,7 @@ not matching with rest api counts for current folder`);
    * @param destinationfolderPath
    */
   moveMessagesToFolder(messageIds: number[], destinationfolderPath: string) {
-    if (!this.api) {
+    if (!this.api || !this.localSearchActivated) {
       return;
     }
     of(this.folderList)
@@ -950,7 +950,7 @@ not matching with rest api counts for current folder`);
    * Delete messages instantly from the local index ( does not affect server )
    */
   deleteMessages(messageIds: number[]) {
-    if (!this.api) {
+    if (!this.api || !this.localSearchActivated) {
       return;
     }
     this.postMessagesToXapianWorker(messageIds.map(mid =>
@@ -966,7 +966,7 @@ const searchIndexService = new SearchIndexService();
 
 ctx.addEventListener('message', ({ data }) => {
   console.log('Message to worker ');
-  console.log(data);
+  console.log(data['action']);
   try {
     if (data['action'] === PostMessageAction.opendb) {
       searchIndexService.localdir = data['localdir'];
@@ -1014,10 +1014,10 @@ ctx.addEventListener('message', ({ data }) => {
             }
           }));
       });
-      if (searchIndexDocumentUpdates.length > 0) {
+      if (searchIndexDocumentUpdates.length > 0 && searchIndexService.localSearchActivated) {
         searchIndexService.postMessagesToXapianWorker(searchIndexDocumentUpdates);
       }
-    } else if (data['action'] === PostMessageAction.addTermToDocument) {
+    } else if (data['action'] === PostMessageAction.addTermToDocument && searchIndexService.localSearchActivated) {
       searchIndexService.postMessagesToXapianWorker([
         new SearchIndexDocumentUpdate(data['messageId'], async () => {
           try {
@@ -1027,7 +1027,7 @@ ctx.addEventListener('message', ({ data }) => {
             console.error(e);
           }
         }) ]);
-    } else if (data['action'] === PostMessageAction.removeTermFromDocument) {
+    } else if (data['action'] === PostMessageAction.removeTermFromDocument && searchIndexService.localSearchActivated) {
       searchIndexService.postMessagesToXapianWorker([
         new SearchIndexDocumentUpdate(data['messageId'], async () => {
           try {
