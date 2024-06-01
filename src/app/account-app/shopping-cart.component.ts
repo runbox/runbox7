@@ -217,7 +217,7 @@ export class ShoppingCartComponent implements OnInit {
                 dialogRef = this.dialog.open(StripePaymentDialogComponent, {
                     data: { tx }
                 });
-            } else if (method === 'bitpay') {
+            } else if (method === 'coinbase') {
                 dialogRef = this.dialog.open(BitpayPaymentDialogComponent, {
                     data: { tx }
                 });
