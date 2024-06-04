@@ -31,6 +31,7 @@ export class TinyMCEPlugin {
         setTimeout(() =>
             // Need to initialize in a timeout for the editor element to be available
             tinymce.init({
+                cache_suffix: '?v=6.8.3',
                 selector: options.selector, // '#' + this.editorRef.nativeElement.id,
                 browser_spellcheck: true,
                 plugins: (options.plugins ||
