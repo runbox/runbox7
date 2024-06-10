@@ -49,6 +49,7 @@ export class AccountTransactionsComponent implements OnInit {
 
     methods = {
         bitpay:     'Bitpay',
+        coinbase:   'Coinbase',
         creditcard: 'Netaxept',
         giro:       'Offline',
         paypal:     'PayPal',

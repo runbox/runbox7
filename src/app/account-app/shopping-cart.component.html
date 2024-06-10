@@ -137,7 +137,7 @@
             logo="/_img/pay/bitcoin.png"
             logo_alt="Bitcoin logo"
 	    disable_payment="{{total <= 0}}"
-            (clicked)="initiatePayment('bitpay')"
+            (clicked)="initiatePayment('coinbase')"
         >
             <h4>
                  Pay with cryptocurrencies using Coinbase
@@ -167,7 +167,7 @@
           </mat-expansion-panel-header>
       	  <p>
             <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')" color="primary">
-	            Bank Transfer or Cash Payment
+	            Bank Transfer, or Cash Payment
             </button>
           </p>
           <p>

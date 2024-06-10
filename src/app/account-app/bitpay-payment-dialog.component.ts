@@ -19,9 +19,13 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { Router } from '@angular/router';
 
 import { CartService } from './cart.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+
+import { ProductOrder } from './product-order';
+import { Product } from './product';
 
 export interface PaymentOption {
     id:           string;
@@ -32,9 +36,14 @@ export interface PaymentOption {
     exchangeRate: string;
 }
 
+class CartItem extends ProductOrder {
+    product: Product;
+}
+
 @Component({
     selector: 'app-bitpay-payment-dialog-component',
     templateUrl: './bitpay-payment-dialog.component.html',
+    styleUrls: ['./bitpay-payment-dialog.component.scss'],
 })
 export class BitpayPaymentDialogComponent {
     tid:    number;
@@ -58,6 +67,7 @@ export class BitpayPaymentDialogComponent {
     };
 
     constructor(
+        private router: Router,
         private cart: CartService,
         private rmmapi: RunboxWebmailAPI,
         public dialogRef: MatDialogRef<BitpayPaymentDialogComponent>,
@@ -89,6 +99,7 @@ export class BitpayPaymentDialogComponent {
                 this.otherOptions = paymentOptions.filter(o => !o.qrcode);
 
                 this.external_url = res.hosted_url;
+
             },
             _err => {
                 this.state = 'failed';
@@ -96,10 +107,23 @@ export class BitpayPaymentDialogComponent {
         );
     }
 
+    directTransfer() {
+        this.router.navigateByUrl('/account/receipt/' + this.tid);
+        this.cart.clear();
+        this.dialogRef.close(true);
+    }
+    
     close(clearCart: boolean) {
         if (clearCart) {
             this.cart.clear();
         }
         this.dialogRef.close(false);
     }
+
+    domregHash: string;
+    fromUrl = false;
+
+
+    items: CartItem[] = [];
+
 }
