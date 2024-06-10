@@ -143,7 +143,7 @@ export class MessageListService {
         return new Promise((resolve, _) => {
             return this.searchservice.pipe(take(1)).subscribe(searchservice => {
                 const xapianFolders = new Set(
-                    searchservice.localSearchActivated
+                    searchservice.localSearchActivated && searchservice.api
                         ?  searchservice.api.listFolders().map(f => f[0])
                         : []
                 );
