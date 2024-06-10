@@ -31,7 +31,7 @@ export class UpdateAlertService {
         private ngZone: NgZone,
         dialog: MatDialog
     ) {
-        if (environment.production) {
+        if (environment.production && swupdate.isEnabled) {
             console.log('UpdateAlertService started');
             
             const updatesAvailable = swupdate.versionUpdates.pipe(
