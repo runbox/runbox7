@@ -960,7 +960,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
             height: 30px;
             line-height: 20px;
             width: 40px;
-            min-width: 40px;
+            min-width: 55px;
             padding: 0;
         }
     }
@@ -1054,6 +1054,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 }
 
 #syncMessage {
+    width: 100%;
     margin-top: 20px;
     flex-grow: 1;
     text-align: center;
