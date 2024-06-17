@@ -130,6 +130,7 @@ describe('SingleMailViewerComponent', () => {
         { provide: RunboxWebmailAPI, useValue: {
           me: of({ uid: 9876 }),
           getProfiles() { return of([]); },
+          getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
           getMessageContents(messageId: number): Observable<MessageContents> {
             console.log('Get message contents for', messageId);
             return of(Object.assign(new MessageContents(), {
