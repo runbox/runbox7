@@ -150,7 +150,7 @@ describe('ProfileService', () => {
                         PROFILES.unshift(newprofile);
                         return of(PROFILES.length);
                     },
-                    
+                    getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
                 } },
                 ProfileService
             ],

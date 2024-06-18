@@ -69,10 +69,12 @@ export class ProfileService {
     public validProfiles: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
     public composeProfile: Identity;
     public me: RunboxMe;
+    public global_domains = [];
     constructor(
         public rmmapi: RunboxWebmailAPI
     ) {
         this.refresh();
+        this.rmmapi.getRunboxDomains().subscribe(domains => this.global_domains = domains);
         this.rmmapi.me.subscribe(me => this.me = me);
     }
 

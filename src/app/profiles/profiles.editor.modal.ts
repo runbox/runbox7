@@ -83,13 +83,13 @@ export class ProfilesEditorModalComponent implements OnDestroy {
     }
     set_localpart(identity) {
         if (identity.email.match(/@/g)) {
-            this.localpart = identity.email.replace(/@.+/g, '');
-            const regex = /(.+)@(.+)/g;
-            const match = regex.exec(identity.email);
-            identity.preferred_runbox_domain = match[2];
+            const parts = identity.email.split('@');
+            this.localpart = parts[0];
+            if (this.profileService.global_domains.find((d) => d.name == parts[1])) {
+                identity.preferred_runbox_domain = parts[1];
+            }
         } else {
             this.localpart = identity.email;
-            identity.preferred_runbox_domain = this.localpart;
         }
     }
     save() {
@@ -155,28 +155,9 @@ export class ProfilesEditorModalComponent implements OnDestroy {
             this.field_errors[field] = [];
         }
         if (field === 'preferred_runbox_domain') {
-            const identity = this.identity;
-            const selected_domain = identity.preferred_runbox_domain;
-            ['email'].forEach((attr) => {
-                let email = identity[attr];
-                if (email && email.match(/@/g)) {
-                    let is_replaced = false;
-                    this.rmm.runbox_domain.data
-                        .map((item) => item.name) // runbox domains array
-                        .forEach((runbox_domain) => {
-                            if (is_replaced) { return; }
-                            const rgx = '@' + runbox_domain + '$';
-                            const re = new RegExp(rgx, 'g');
-                            if (email.match(re)) {
-                                email = identity[attr].replace(re, '@' + selected_domain);
-                                this.identity[attr] = email;
-                                is_replaced = true;
-                            }
-                        });
-                } else {
-                    this.identity[attr] = [identity[attr], selected_domain].join('@');
-                }
-            });
+            if (this.localpart) {
+                this.identity.email = this.localpart + '@' + this.identity.preferred_runbox_domain;
+            }
         }
         if (field === 'is_different_reply_to') {
             if (!this.is_different_reply_to) {
@@ -196,24 +177,6 @@ export class ProfilesEditorModalComponent implements OnDestroy {
             this.is_visible_smtp_detail = true;
         } else {
             this.is_visible_smtp_detail = false;
-        }
-    }
-    is_aliases_global_domain(identity) {
-        return (identity.reference_type === 'aliases' && !identity.email.match(/@/g))
-            || (identity.reference_type === 'aliases' && identity.email && this.global_domains().filter((d) => {
-                const rgx = d.name;
-                const re = new RegExp(rgx, 'g');
-                if (identity.email.match(re)) {
-                    return true;
-                }
-                return false;
-            }).length);
-    }
-    global_domains() {
-        if (!this.rmm.runbox_domain.data) {
-            return [{ name: 'runbox.com' }, { name: 'runbox.no' }];
-        } else {
-            return this.rmm.runbox_domain.data;
         }
     }
     toggle_signature_html() {

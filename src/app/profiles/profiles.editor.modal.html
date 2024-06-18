@@ -31,13 +31,13 @@
             </mat-form-field>
 
             <mat-form-field class="form-field form-item"
-                *ngIf="is_aliases_global_domain(identity) && rmm.runbox_domain.data ; else other_content">
+                *ngIf="identity.type === 'aliases' && identity.preferred_runbox_domain && profileService.global_domains ; else other_content">
                 <mat-label>Email</mat-label>
                 <mat-select [(ngModel)]="identity.preferred_runbox_domain"
                     [(value)]="identity.preferred_runbox_domain"
                     (ngModelChange)="onchange_field('preferred_runbox_domain')" name="preferred_runbox_domain"
                     [ngModelOptions]="{standalone: true}">
-                    <mat-option *ngFor="let runbox_domain of rmm.runbox_domain.data" [value]="runbox_domain.name">
+                    <mat-option *ngFor="let runbox_domain of profileService.global_domains" [value]="runbox_domain.name">
                         {{localpart}}@{{runbox_domain.name}}
                     </mat-option>
                 </mat-select>
