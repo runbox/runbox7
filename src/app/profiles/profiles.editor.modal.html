@@ -31,7 +31,7 @@
             </mat-form-field>
 
             <mat-form-field class="form-field form-item"
-                *ngIf="identity.type === 'aliases' && identity.preferred_runbox_domain && profileService.global_domains ; else other_content">
+                *ngIf="(identity.type === 'aliases' || identity.type === 'main' ) && identity.preferred_runbox_domain && profileService.global_domains ; else other_content">
                 <mat-label>Email</mat-label>
                 <mat-select [(ngModel)]="identity.preferred_runbox_domain"
                     [(value)]="identity.preferred_runbox_domain"
