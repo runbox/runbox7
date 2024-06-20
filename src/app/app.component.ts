@@ -373,16 +373,40 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
 
     // Only update if actual changes found (else folderlist redraw takes 3sec or more)
-    this.displayedFolders =
-      this.messagelistservice.folderListSubject
-        .pipe(distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
-          return prev.length === curr.length
-            && prev.every((f, index) =>
-              objectEqualWithKeys(f, curr[index], [
-                'folderId', 'totalMessages', 'newMessages', 'folderName'
-              ]))
-        }))
-        .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
+    this.displayedFolders = this.messagelistservice.folderListSubject.pipe(
+      distinctUntilChanged((prev: FolderListEntry[], curr: FolderListEntry[]) => {
+        return (
+          prev.length === curr.length &&
+          prev.every((f, index) =>
+            objectEqualWithKeys(f, curr[index], ['folderId', 'totalMessages', 'newMessages', 'folderName'])
+          )
+        );
+      }),
+      map((folders: FolderListEntry[]) => {
+        const filteredFolders = folders.filter(folder => folder.folderPath.indexOf('Drafts') !== 0);
+    
+
+        const sortBySpecialFoldersAndName = (folderA, folderB) => {
+          // Special folders should always appear at the top in this order
+          const specialFolders = ['inbox', 'sent', 'spam', 'trash'];
+    
+          const indexA = specialFolders.indexOf(folderA.folderType);
+          const indexB = specialFolders.indexOf(folderB.folderType);
+    
+          if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
+          } else if (indexA !== -1) {
+            return -1;
+          } else if (indexB !== -1) {
+            return 1;
+          } else {
+            return folderA.folderName.localeCompare(folderB.folderName, undefined, { sensitivity: 'base' });
+          }
+        };
+    
+        const sortedFolders = filteredFolders.sort(sortBySpecialFoldersAndName);
+        return sortedFolders;
+      })
     );
 
     this.canvastable.scrollLimitHit.subscribe((limit) =>
