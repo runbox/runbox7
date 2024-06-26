@@ -52,6 +52,9 @@
 
       <mat-divider></mat-divider>
 
+
+      <mat-divider></mat-divider>
+
       <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
         <a mat-button (click)="compose();" matTooltip="Compose">
           <mat-icon  svgIcon="pencil" color="primary"></mat-icon></a>
@@ -121,7 +124,7 @@
       </mat-list-item>
     </mat-nav-list>
 
-    <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress===null">
+    <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress===null && !offerInitialLocalIndex">
       <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
         <mat-icon  svgIcon="sync" mat-list-icon></mat-icon>
         <p mat-line>Synchronize index</p>
@@ -176,38 +179,57 @@
       </button>
       
       <ng-container *ngIf="!hasChildRouterOutlet">
-        <mat-form-field id="searchField" floatLabel="auto"
-                        *ngIf="searchService.downloadProgress===null">
-          <input matInput #searchInputField type="text"
-                 (focus)="searchTextFieldFocus()"
-                 (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
-                 [value]="searchText" (keyup)="searchFor($event.target.value)" matTooltip="Enter one or more search terms, or click the wrench to display the advanced search pane" />
-          <!-- <app-search-expression-builder
-               [searchInputField]="searchInputField"
-               [currentFolder]="selectedFolder"
-               matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
-          <button *ngIf="searchText!==''"
-                  mat-icon-button
-                  matSuffix
-                  (click)="showSaveSearchDialog()"
-                  matTooltip="Save search">
-            <mat-icon svgIcon="content-save"></mat-icon>
-          </button>
-          <button *ngIf="!showMultipleSearchFields"
-                  mat-icon-button
-                  matSuffix
-                  (click)="showMultipleSearchFields = true"
-                  matTooltip="Show advanced search pane">
-            <mat-icon svgIcon="wrench"></mat-icon>
-          </button>
-          <button *ngIf="searchText!==''"
-                  mat-icon-button
-                  matSuffix
-                  (click)="searchFor('')"
-                  matTooltip="Clear search">
-            <mat-icon svgIcon="close"></mat-icon>
-          </button>
-        </mat-form-field>
+        <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex; else searchBar">
+          <p *ngIf="!mobileQuery.matches">
+            Runbox will now synchronize with your device to give you an optimal webmail experience. The data can be deleted at any time using the buttons beneath the folder list. <a href="https://help.runbox.com/runbox-7-webmail-new-features/#Synchronized_account_index" target="help">What's this?</a>
+          </p>
+          <p *ngIf="mobileQuery.matches">
+            Runbox will now synchronize with your device. <a href="https://help.runbox.com/runbox-7-webmail-new-features/#Synchronized_account_index" target="help" matTooltip="What's this?">?</a>
+          </p>
+          <mat-list>
+            <mat-list-item>
+              <button mat-raised-button (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device" color="primary" [disabled]="searchService.indexDownloadingInProgress">OK!</button>
+              <button mat-raised-button (click)="cancelOrRefuseLocalIndex()" matTooltip="{{ searchService.indexDownloadingInProgress ? 'Cancel Download' : 'Do not synchronize index'}}" data-cy="cancel-button" color="warn">Cancel</button>
+            </mat-list-item>
+          </mat-list>
+        </div>
+        <div *ngIf="searchService.downloadProgress!==null" id="syncMessage">
+          Synchronizing account index
+        </div>
+        <ng-template #searchBar>
+          <mat-form-field id="searchField" floatLabel="auto"
+                          *ngIf="searchService.downloadProgress===null">
+            <input matInput #searchInputField type="text"
+                   (focus)="searchTextFieldFocus()"
+                   (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
+                   [value]="searchText" (keyup)="searchFor($event.target.value)" matTooltip="Enter one or more search terms, or click the wrench to display the advanced search pane" />
+            <!-- <app-search-expression-builder
+                 [searchInputField]="searchInputField"
+                 [currentFolder]="selectedFolder"
+                 matSuffix matTooltip="Show search options"></app-search-expression-builder> -->
+            <button *ngIf="searchText!==''"
+                    mat-icon-button
+                    matSuffix
+                    (click)="showSaveSearchDialog()"
+                    matTooltip="Save search">
+              <mat-icon svgIcon="content-save"></mat-icon>
+            </button>
+            <button *ngIf="!showMultipleSearchFields"
+                    mat-icon-button
+                    matSuffix
+                    (click)="showMultipleSearchFields = true"
+                    matTooltip="Show advanced search pane">
+              <mat-icon svgIcon="wrench"></mat-icon>
+            </button>
+            <button *ngIf="searchText!==''"
+                    mat-icon-button
+                    matSuffix
+                    (click)="searchFor('')"
+                    matTooltip="Clear search">
+              <mat-icon svgIcon="close"></mat-icon>
+            </button>
+          </mat-form-field>
+        </ng-template>
 	    
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
                 matTooltip="Back to conversations list">
@@ -291,72 +313,69 @@
               <span>Report as spam</span>
 	        </button>
 	        <button *ngIf="morelistbuttonindex<8 && selectedFolder===messagelistservice.spamFolderName" mat-menu-item (click)="trainSpam({is_spam:0})">
-          <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
-          <span>Report as not spam</span>
-	    </button>
-      </mat-menu>
-	</div>
-
-    <mat-menu #tableViewOptionsMenu="matMenu">
-      <mat-list>
-        <mat-list-item>
-          <mat-checkbox
-            *ngIf="canvastable"
-            [(ngModel)]="canvastable.showContentTextPreview"
-            matLine
-            (change)="saveContentPreviewSetting()"
-            (click)="$event.stopPropagation()"
-            class="tableViewOptionsMenuElement"
-            >
-            <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
-            Inline previews
-          </mat-checkbox>
-        </mat-list-item>
-        <!-- currently only supporting threading for local index -->
-        <mat-list-item>
-          <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
-                        matLine
-                        (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
-                        (click)="$event.stopPropagation()"
-                        [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
-                        class="tableViewOptionsMenuElement"
-                        >
-            <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
-            Threaded view
-          </mat-checkbox>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-checkbox [(ngModel)]="unreadMessagesOnlyCheckbox"
-                        matLine
-                        (change)="updateSearch(true)"
-                        (click)="$event.stopPropagation()"
-                        [disabled]="viewmode==='conversations'"
-                        class="tableViewOptionsMenuElement"
-                        >
-            <mat-icon  svgIcon="email-open" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
-            Unread only
-          </mat-checkbox>
-        </mat-list-item>
+              <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
+              <span>Report as not spam</span>
+	        </button>
+          </mat-menu>
+	    </div>
         
-        <mat-list-item *ngIf="!mobileQuery.matches">
-          <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
-                        matLine
-                        (change)="saveMessagePaneSetting()"
-                        (click)="$event.stopPropagation()"
-                        >
-            <mat-icon  svgIcon="book-open" class="tableViewOptionsMenuElement" matTooltip="Keep preview pane open"></mat-icon>
-            Keep preview pane open
-          </mat-checkbox>
-        </mat-list-item>
-      </mat-list>
-    </mat-menu>
-    <button mat-icon-button [matMenuTriggerFor]="tableViewOptionsMenu" matTooltip="Show view options">
-      <mat-icon svgIcon="view-dashboard"></mat-icon>
-    </button>
+        <mat-menu #tableViewOptionsMenu="matMenu">
+          <mat-list>
+            <mat-list-item>
+              <mat-checkbox
+                *ngIf="canvastable"
+                [(ngModel)]="canvastable.showContentTextPreview"
+                matLine
+                (change)="saveContentPreviewSetting()"
+                (click)="$event.stopPropagation()"
+                class="tableViewOptionsMenuElement"
+                >
+                <mat-icon  svgIcon="view-list" class="tableViewOptionsMenuElement" matTooltip="Inline message previews"></mat-icon>
+                Inline previews
+              </mat-checkbox>
+            </mat-list-item>
+            <!-- currently only supporting threading for local index -->
+            <mat-list-item>
+              <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
+                            matLine
+                            (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
+                            (click)="$event.stopPropagation()"
+                            [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
+                            class="tableViewOptionsMenuElement"
+                            >
+                <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
+                Threaded view
+              </mat-checkbox>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-checkbox [(ngModel)]="unreadMessagesOnlyCheckbox"
+                            matLine
+                            (change)="updateSearch(true)"
+                            (click)="$event.stopPropagation()"
+                            [disabled]="viewmode==='conversations'"
+                            class="tableViewOptionsMenuElement"
+                            >
+                <mat-icon  svgIcon="email-open" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
+                Unread only
+              </mat-checkbox>
+            </mat-list-item>
+            
+            <mat-list-item *ngIf="!mobileQuery.matches">
+              <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
+                            matLine
+                            (change)="saveMessagePaneSetting()"
+                            (click)="$event.stopPropagation()"
+                            >
+                <mat-icon  svgIcon="book-open" class="tableViewOptionsMenuElement" matTooltip="Keep preview pane open"></mat-icon>
+                Keep preview pane open
+              </mat-checkbox>
+            </mat-list-item>
+          </mat-list>
+        </mat-menu>
+        <button mat-icon-button [matMenuTriggerFor]="tableViewOptionsMenu" matTooltip="Show view options">
+          <mat-icon svgIcon="view-dashboard"></mat-icon>
+        </button>
       </ng-container>
-      <div *ngIf="searchService.downloadProgress!==null" id="syncMessage">
-        Synchronizing account index
-      </div>
     </mat-toolbar>
     <mat-progress-bar *ngIf="searchService.downloadProgress!==null"
                       [mode]="searchService.downloadProgress===0 ? 'indeterminate' : 'determinate'"

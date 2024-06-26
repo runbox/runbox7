@@ -6,10 +6,10 @@ describe('Interacting with mailviewer', () => {
     }
 
     beforeEach(async () => {
-        localStorage.setItem('221:Desktop:localSearchPromptDisplayed', JSON.stringify('true'));
+        localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
         localStorage.setItem('221:Global:messageSubjectDragTipShown', JSON.stringify('true'));
         localStorage.setItem('221:Desktop:mailViewerOnRightSide', JSON.stringify('true'));
-        localStorage.setItem('221:preference_keys', '["Desktop:localSearchPromptDisplayed","Global:messageSubjectDragTipShown", "Desktop:mailViewerOnRightSide"]');
+        localStorage.setItem('221:preference_keys', '["Global:messageSubjectDragTipShown", "Desktop:mailViewerOnRightSide"]');
 
         (await indexedDB.databases())
             .filter(db => db.name && /messageCache/.test(db.name))

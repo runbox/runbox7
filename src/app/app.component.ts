@@ -43,7 +43,6 @@ import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams } from './dialog/dialog.module';
 import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ConfirmDialog } from './dialog/confirmdialog.component';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
@@ -61,6 +60,7 @@ import { ExtendedKeyboardEvent, Hotkey, HotkeysService } from 'angular2-hotkeys'
 import { AppSettings } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
+import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
@@ -72,6 +72,7 @@ const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
+const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
     
 @Component({
@@ -98,6 +99,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   conversationGroupingToolTip = 'Threaded conversation view';
   unreadMessagesOnlyCheckbox = false;
   unreadOnlyToolTip = 'Unread messages only';
+  localSearchIndexPrompted = false;
+  offerInitialLocalIndex = false;
 
   indexDocCount = 0;
 
@@ -183,6 +186,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
     private preferenceService: PreferencesService,
+    private storage: StorageService,
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
   ) {
@@ -321,6 +325,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
       this.preferences = prefs;
     });
+    // localSearchIndexPrompted isnt a "preference" (users cant change it back)
+    // and we want it to prompt for eeach new device:
+    this.storage.get(LOCAL_STORAGE_INDEX_PROMPT).then((val) => {
+      this.localSearchIndexPrompted = val === 'true';
+    });
+
 
     this.updateTime();
   }
@@ -994,15 +1004,37 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public downloadIndexFromServer() {
+    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
+    this.localSearchIndexPrompted = true;
     this.searchService.downloadIndexFromServer().subscribe((res) => {
-      if (res) {
+      if (res && !this.searchService.stopIndexDownloadingInProgress) {
         this.searchService.downloadPartitions().subscribe(() => {
-          // this.searchService.openDBOnWorker();
+          // only done prompting after all partitions fetched
+          if(this.searchService.stopIndexDownloadingInProgress) {
+            // decided to stop mid partition download
+            this.deleteLocalIndex();
+          }
+          this.searchService.indexDownloadingInProgress = false;
+          this.offerInitialLocalIndex = false;
         });
       } else {
-        console.log('Index download failed');
+        console.log('Index download cancelled or failed');
+        this.deleteLocalIndex();
+        this.searchService.indexDownloadingInProgress = false;
+        this.searchService.stopIndexDownloadingInProgress = false;
+        this.offerInitialLocalIndex = false;
       }
     });
+  }
+
+  public cancelOrRefuseLocalIndex() {
+    // Downloading is in progress, pause it:
+    if (this.searchService.indexDownloadingInProgress) {
+      this.searchService.stopIndexDownloadingInProgress = true;
+    }
+    // User has had the initial prompt, stop asking
+    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
+    this.offerInitialLocalIndex = false;
   }
 
   singleMailViewerClosed(action: string): void {
@@ -1340,7 +1372,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   promptLocalSearch() {
-    const localSearchIndexPrompted = this.preferences.get(`${this.preferenceService.prefGroup}:localSearchPromptDisplayed`) === 'true';
     console.log('promptLocalSearch');
     this.rmmapi.me.pipe(
       mergeMap(() => xapianLoadedSubject),
@@ -1351,35 +1382,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }),
       filter(xapianLoaded => xapianLoaded ? true : false),
       map(() => {
-        if (localSearchIndexPrompted) {
+        if (this.localSearchIndexPrompted) {
           this.usewebsocketsearch = true;
         } else {
-          const dialogRef = this.dialog.open(ConfirmDialog);
-          dialogRef.componentInstance.title = 'Welcome to Runbox 7!';
-          dialogRef.componentInstance.question =
-            `Runbox 7 will now synchronize with your device to give you an optimal webmail experience.
-            If you'd later like to remove the data from your device, use the synchronization controls at the bottom of the folder pane.`;
-          dialogRef.componentInstance.yesOptionTitle = `Sounds good, let's go!`;
-          dialogRef.componentInstance.noOptionTitle = `Don't synchronize with this device.`;
-          this.preferenceService.set(this.preferenceService.prefGroup, 'localSearchPromptDisplayed', 'true');
-
-          dialogRef.afterClosed().subscribe(res => {
-            let localIndexDecision = 'clicked-away';
-            if (res === true) {
-              localIndexDecision = 'yes';
-            }
-            if (res === false) {
-              localIndexDecision = 'no';
-            }
-            this.usage.report(`local-index-decision-${localIndexDecision}`);
-
-            if (res) {
-              this.downloadIndexFromServer();
-            } else {
-              this.usewebsocketsearch = true;
-            }
-            this.updateTooltips();
-          });
+          this.offerInitialLocalIndex = true;
         }
       })
     ).subscribe();

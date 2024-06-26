@@ -963,6 +963,39 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     height: 40px;
 }
 
+#offerLocalIndex {
+    display: flex;
+    flex-flow: row;
+    white-space: normal;
+    line-height: 1em;
+
+    @media(max-width: 375px) {
+        font-size: 10px;
+        line-height: 12px;
+    }
+
+    mat-list-item {
+        padding: 5px 0;
+    }
+
+    button {
+        margin-right: 10px;
+        
+        @media(max-width: 540px) {
+            margin-right: 2px;
+            height: 30px;
+            line-height: 20px;
+            width: 40px;
+            min-width: 55px;
+            padding: 0;
+        }
+    }
+}
+
+#offerLocalIndex .mat-list-item-content {
+    padding: 0 5px;
+}    
+
 #searchField {
     flex-grow: 10;
     margin: 0px 10px 0 10px;
@@ -1047,6 +1080,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 }
 
 #syncMessage {
+    width: 100%;
     margin-top: 20px;
     flex-grow: 1;
     text-align: center;
