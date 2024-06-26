@@ -499,7 +499,7 @@ not matching with index for current folder`);
             this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
 
             // Compare xapian index counts with rest api folder list:
-            if (this.localSearchActivated &&
+            if (this.localSearchActivated && this.api &&
               this.api.listFolders().find(f => f[0] === folderPath)
                ) {
               const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);

@@ -164,7 +164,7 @@ export function updateFolderCounts(folderName: string): Promise<any> {
     if (!response.ok) {
       throw new Error(`Failed to POST to /rest/v1/email_folder/stats/${folderName}` + response.statusText);
     }
-    return response;
+    return response.json();
   })
     .catch(
       (error) => console.error(error)

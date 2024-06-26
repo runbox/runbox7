@@ -220,20 +220,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // Ensure resizer child is loaded before setting height
     this.resizerQuery.changes.subscribe((resizer: QueryList<HorizResizerDirective>) => {
       setTimeout(() => {
-        if (this.adjustableHeight) {
-          if (this.previousHeight) {
-            // upgrade to Percentage
-            this.previousHeightPercentage = resizer.first.heightOffsetToPercentage(this.previousHeight);
-            this.previousHeight = undefined;
-            localStorage.removeItem(resizerHeightKey);
-          }
-          if (this.previousHeightPercentage) {
-            resizer.first.resizePercentage(this.previousHeightPercentage);
-          } else {
-            resizer.first.resizePercentage(50);
+        if (resizer.length > 0) {
+          if (this.adjustableHeight) {
+            if (this.previousHeight) {
+              // upgrade to Percentage
+              this.previousHeightPercentage = resizer.first.heightOffsetToPercentage(this.previousHeight);
+              this.previousHeight = undefined;
+              localStorage.removeItem(resizerHeightKey);
+            }
+            if (this.previousHeightPercentage) {
+              resizer.first.resizePercentage(this.previousHeightPercentage);
+            } else {
+              resizer.first.resizePercentage(50);
+            }
           }
         }
-      }, 0);
+      });
     });
 
     this.afterViewInit.emit(this.messageId);
