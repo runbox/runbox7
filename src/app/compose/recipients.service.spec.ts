@@ -20,18 +20,19 @@
 import { TestBed } from '@angular/core/testing';
 import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
-import { SearchService } from '../xapian/searchservice';
+import { SearchService, XAPIAN_GLASS_WR } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
 import { AsyncSubject, of, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { XapianAPI } from '@runboxcom/runbox-searchindex';
 import { xapianLoadedSubject } from '../xapian/xapianwebloader';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 
 declare var FS;
-declare var MEMFS;
+declare var IDBFS;
+//declare var MEMFS;
 
 let testcounter = 1;
 
@@ -57,10 +58,10 @@ export class MockSearchService {
         const dirname = 'testdir' + testcounter;
 
         FS.mkdir(dirname);
-        FS.mount(MEMFS, {}, '/' + dirname);
+        FS.mount(IDBFS, {}, '/' + dirname);
         FS.chdir('/' + dirname);
 
-        this.api.initXapianIndex('testindex' + testcounter);
+        this.api.initXapianIndex(XAPIAN_GLASS_WR);
         let docid = 1;
         const addMailToIndex = (from: MailAddressInfo, recipients: MailAddressInfo[]) => this.api.addSortableEmailToXapianIndex(
             'Q' + (docid++) ,

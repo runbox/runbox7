@@ -26,7 +26,7 @@ import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/lega
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 
 import { MessageListService } from '../rmmapi/messagelist.service';
-import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 
