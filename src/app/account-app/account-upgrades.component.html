@@ -22,7 +22,7 @@
         Here you can subscribe to Runbox, change your existing subscription, or add more accounts or email domains. Once you have added the desired items, click the shopping cart icon in the top right corner to review your selection.
       </p>
       <p>
-        Please feel free to browse the products below, and reach out via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions.
+        Please browse our products below, and reach out via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions.
       </p>
       <p>
         <mat-icon svgIcon="lightbulb"></mat-icon> To set up additional accounts under your main account, please see <a href = "#subaccounts">Sub-Accounts</a> further down.
@@ -66,13 +66,111 @@
     </div>
     -->
 
-      <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
-        <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage" [current_sub]="current_sub" [me] = "me">
-          <ul>
-            <li *ngFor="let detail of p.details"> {{ detail }}
-          </ul>
-        </app-account-product>
-      </div>
+    <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
+
+      {{ subs_regular[0].name }}
+
+      <table id="pricePlans">
+        <tr>
+          <th></th>
+          <th>Micro</th>
+          <th>Mini</th>
+          <th>Medium</th>
+          <th>Max</th>
+          <th>Max100</th>
+          <th>Max250</th>
+        </tr>
+        <tr>
+          <td><strong>Email storage</strong></td>
+          <td>2 GB</td>
+          <td>102 GB</td>
+          <td>25 GB</td>
+          <td>50 GB</td>
+          <td>100 GB</td>
+          <td>250 GB</td>
+        </tr>
+        <tr>
+          <td><strong>File storage</strong></td>
+          <td>200 MB</td>
+          <td>1 GB</td>
+          <td>2 GB</td>
+          <td>5 GB</td>
+          <td>10 GB</td>
+          <td>25 GB</td>
+        </tr>
+        <tr>
+          <td><strong>Email domains</strong></td>
+          <td>1</td>
+          <td>5</td>
+          <td>10</td>
+          <td>25</td>
+          <td>50 GB</td>
+          <td>100 GB</td>
+        </tr>
+        <tr>
+          <td><strong>Email aliases *</strong></td>
+          <td>Unlimited</td>
+          <td>Unlimited</td>
+          <td>Unlimited</td>
+          <td>Unlimited</td>
+          <td>Unlimited</td>
+          <td>Unlimited</td>
+        </tr>
+        <tr>
+          <td><strong>Email Message Size</strong></td>
+          <td>100 MB</td>
+          <td>100 MB</td>
+          <td>100 MB</td>
+          <td>100 MB</td>
+          <td>100 MB</td>
+          <td>100 MB</td>
+        </tr>
+        <tr>
+          <td><strong>Incoming Message Limit **</strong></td>
+          <td>5000</td>
+          <td>5000</td>
+          <td>5000</td>
+          <td>5000</td>
+          <td>5000</td>
+          <td>5000</td>
+        </tr>
+        <tr>
+          <td><strong>Outgoing Message Limit ***</strong></td>
+          <td>500</td>
+          <td>500</td>
+          <td>500</td>
+          <td>500</td>
+          <td>500</td>
+          <td>500</td>
+        </tr>
+        <tr>
+          <td><strong>Price per year (USD)</strong></td>
+          <td>19.95</td>
+          <td>34.95</td>
+          <td>49.95</td>
+          <td>79.95</td>
+          <td>119.95</td>
+          <td>179.95</td>
+        </tr>
+        <tr>
+          <td><strong>3-year price (USD)</strong></td>
+          <td>49,95 <br /> Save 9,90 <br /> <button value="Upgrade">Upgrade</button></td>
+          <td>89.95 <br /> Save 14,90 <br /> <button value="Upgrade">Upgrade</button></td>
+          <td>119.95 <br /> Save 29,90 <br /> <button value="Upgrade">Upgrade</button></td>
+          <td>189.95 <br /> Save 49,90 <br /> <button value="Upgrade">Upgrade</button></td>
+          <td>284.95 <br /> Save 74,90 <br /> <button value="Upgrade">Upgrade</button></td>
+          <td>424.95 <br /> Save 114,90 <br /> <button value="Upgrade">Upgrade</button></td>
+        </tr>
+      </table>
+
+      <br /><br /><br />
+      
+      <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage" [current_sub]="current_sub" [me] = "me">
+        <ul>
+          <li *ngFor="let detail of p.details"> {{ detail }} </li>
+        </ul>
+      </app-account-product>
+    </div>
 
 <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"

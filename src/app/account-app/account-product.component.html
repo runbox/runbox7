@@ -1,7 +1,9 @@
-<mat-card [ngClass]="{ 'addon': p.type === 'addon' }">
+<td [ngClass]="{ 'addon': p.type === 'addon' }">
+
+
   <h4 *ngIf="p.subtype === 'special'">Special Offer</h4>
     <mat-card-title [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
-      {{ p.name }}
+      {{ p.name.replace('Runbox', '') }}
     </mat-card-title>
     <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
       <h4><span *ngIf="is_current_subscription"> Your current {{ p.type }} </span><br /></h4>
@@ -73,4 +75,4 @@
             Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="quantity > 1">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ currency || "USD" }} {{ quantity * p.price | number:'1.2-2' }}
         </button>
     </mat-card-actions>
-</mat-card>
+</td>
