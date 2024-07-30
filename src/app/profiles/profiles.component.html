@@ -41,7 +41,6 @@
         <br><br>
 
         <app-profiles-lister
-            *ngIf="profileService.otherProfiles.value.length > 0"
             [profiles]="profileService.otherProfiles.value">
             <div section-header>
                 <h2>Other identities</h2>
