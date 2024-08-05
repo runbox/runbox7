@@ -41,7 +41,7 @@
     "@danielmoncada/angular-datetime-picker": "^15.0.2",
     "@danielmoncada/angular-datetime-picker-moment-adapter": "^2.2.0",
     "@mdi/angular-material": "^5.4.55",
-    "@runboxcom/runbox-searchindex": "file:../runbox-searchindex/dist/runboxcom-runbox-searchindex-0.2.4.tgz",
+    "@runboxcom/runbox-searchindex": "^0.2.4",
     "@sentry/browser": "^5.15.5",
     "angular-calendar": "0.31.0",
     "angular2-hotkeys": "13.3.0",

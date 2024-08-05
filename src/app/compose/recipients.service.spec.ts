@@ -34,7 +34,8 @@ export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();
     mockedRecentMessages: number[] = [];
     mockedRecipients: { [messageId: number]: { recipients: string[] } } = {};
-    
+    indexReloadedSubject = new Subject<void>();
+
     api;
 
     constructor() {
