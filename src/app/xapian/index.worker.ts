@@ -21,8 +21,8 @@
 import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
-import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
-import { DownloadableSearchIndexMap, DownloadablePartition } from 'runbox-searchindex/downloadablesearchindexmap.class';
+import { XapianAPI } from '@runboxcom/runbox-searchindex';
+import { DownloadableSearchIndexMap, DownloadablePartition } from '@runboxcom/runbox-searchindex/downloadablesearchindexmap.class';
 import { IndexingTools } from '../common/messageinfo';
 import { FolderListEntry } from '../common/folderlistentry';
 import { FolderStatsEntry } from '../common/folderstatsentry';
