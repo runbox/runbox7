@@ -13,33 +13,24 @@
       <h4>
         Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }})
       </h4>
-      
-      <p>
+      <h3>
         Welcome to our store -- we're happy to see you!
-      </p>
-      
+      </h3>
+        <img src="https://runbox.com/wp-content/uploads/cropped-sustainability-2-2400x632.png" id="NorwayGraphic" />
       <p>
-        Here you can subscribe to Runbox, change your existing subscription, or add more accounts or email domains. Once you have added the desired items, click the shopping cart icon in the top right corner to review your selection.
-      </p>
-      <p>
-        Please browse our products below, and reach out via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions.
+        By subscribing to Runbox you support an independent and sustainable business in Norway, where your email will stay secure and private indefinitely.
       </p>
       <p>
-        <mat-icon svgIcon="lightbulb"></mat-icon> To set up additional accounts under your main account, please see <a href = "#subaccounts">Sub-Accounts</a> further down.
+        Here you may subscribe to Runbox, change your existing subscription, or add more accounts or email domains. To set up additional accounts under your main account, please see <a href = "#subaccounts">Sub-Accounts</a> further down.
+      </p>
+      <p>
+        Feel free to contact us via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions about our plans.
       </p>
       
       <br />
       
       <h2> Main Account </h2>
       
-      <p>
-        When changing your main account's subscription plan, your account will be upgraded or downgraded immediately and the additional time added to the end of your existing subscription.
-      </p>
-      
-      <p>
-        You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
-      </p>
-
     <!--
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0">
@@ -66,49 +57,291 @@
     </div>
     -->
 
-    <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
+    <h3>Our recommended plans</h3>
 
-      {{ subs_regular[0].name }}
+      <p>
+        We offer a 20% discount on all our plans if you renew for 3 years, which locks in the current price for your entire selected subcription period. To review and compare all our plans, please see the table further down.
+      </p>
 
-      <table id="pricePlans">
+      <br /><br />
+    
+    <div *ngIf="subs_regular | async as subs_regular; else productsLoading">
+      <div class="productGrid">
+
+        <!-- Mini 3-year plan -->
+        
+        <mat-card class="productCardFeatured">
+          <mat-card-title class="Mini" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            {{ subs_regular[7].name.replace('Runbox', '') }}
+          </mat-card-title>
+          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            <h4><span *ngIf="is_current_subscription"> Your current subscription </span></h4>
+          </mat-card-subtitle>
+          <mat-card-content>
+            <div>
+              <p>An affordable plan if you don't need a lot of email or file storage.</p>
+              <ul class="planComponents">
+                <li>{{ subs_regular[7].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
+                <li>{{ subs_regular[7].quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
+                <li>{{ subs_regular[7].quotas.VirtualDomain.quota }} email domain names</li>
+                <li>{{ subs_regular[7].quotas.Alias.quota }} aliases @runbox domains</li>
+                <li>Unlimited aliases on your domains</li>
+              </ul>
+              <div class="threeYearDifferenceFeatured">
+                Save {{ subs_regular[1].currency.replace("USD","$") }}{{ subs_regular[1].price * 3 - subs_regular[7].price | number: '1.2-2' }} in total
+              </div>
+              compared to 3 * Mini 1-year
+            </div>
+            <ng-content></ng-content>
+            <h4 *ngFor="let us of addon_usages">
+              Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
+            </h4>
+          </mat-card-content>
+          <div *ngIf="over_quota.length > 0">
+            Your usage is too great for this plan:
+            <ul>
+              <li *ngFor="let oq of over_quota">
+                <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                are available
+              </li>
+            </ul>
+          </div>
+          <div class="threeYearStandardFeatured">&nbsp;{{ subs_regular[1].currency.replace("USD","$") }}{{ subs_regular[1].price * 3 | number: '1.2-2' }}&nbsp;</div>
+          <mat-card-actions  *ngIf="over_quota.length === 0">
+            <button mat-raised-button *ngIf="!purchased; else unpurchase"
+		            (click)="order(subs_regular[7])"
+		            class="purchaseButtonFeatured Mini"
+		            >
+              <span *ngIf="me.is_trial">Subscribe</span>
+              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+              <span *ngIf="!me.is_trial && (subs_regular[1].pid === me.subscription || subs_regular[7].pid === me.subscription)">Renew for</span>
+              <span *ngIf="!me.is_trial && subs_regular[7].quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
+              <span *ngIf="!me.is_trial && subs_regular[7].quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
+              {{ subs_regular[7].currency.replace("USD","$") || "$" }} {{ subs_regular[7].price | number:'1.2-2' }}
+            </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(subs_regular[7])"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+          </mat-card-actions>
+          <div>
+            Price per year: {{ subs_regular[7].currency.replace("USD","$") || "$" }} {{ subs_regular[7].price / 3 | number:'1.2-2' }} <br />
+            Annual price per GB: {{ subs_regular[7].currency.replace("USD","$") || "$" }} {{ subs_regular[7].price / 3 / ((subs_regular[7].quotas.Disk.quota + subs_regular[7].quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+          </div>
+          
+        </mat-card>
+
+        <!-- Medium 3-year plan -->
+
+        <mat-card class="productCardFeatured recommended">
+          <mat-card-title class="Medium" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            {{ subs_regular[8].name.replace('Runbox', '') }}
+          </mat-card-title>
+          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            <h4><span *ngIf="is_current_subscription"> Your current subscription </span></h4>
+          </mat-card-subtitle>
+          <mat-card-content>
+            <div>
+              <p>Our recommended plan with plenty of email and file storage, suitable for most people.</p>
+              <ul class="planComponents">
+                <li>{{ subs_regular[8].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
+                <li>{{ subs_regular[8].quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
+                <li>{{ subs_regular[8].quotas.VirtualDomain.quota }} email domain names</li>
+                <li>{{ subs_regular[8].quotas.Alias.quota }} aliases @runbox domains</li>
+                <li>Unlimited aliases on your domains</li>
+              </ul>
+              <div class="threeYearDifferenceFeatured">
+                Save {{ subs_regular[2].currency.replace("USD","$") }}{{ subs_regular[2].price * 3 - subs_regular[8].price | number: '1.2-2' }} in total
+              </div>
+              compared to 3 * Medium 1-year
+            </div>
+            <ng-content></ng-content>
+            <h4 *ngFor="let us of addon_usages">
+              Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
+            </h4>
+          </mat-card-content>
+          <div *ngIf="over_quota.length > 0">
+            Your usage is too great for this plan:
+            <ul>
+              <li *ngFor="let oq of over_quota">
+                <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                are available
+              </li>
+            </ul>
+          </div>
+          <div class="threeYearStandardFeatured">&nbsp;{{ subs_regular[2].currency.replace("USD","$") }}{{ subs_regular[2].price * 3 | number: '1.2-2' }}&nbsp;</div>
+          <mat-card-actions  *ngIf="over_quota.length === 0">
+            <button mat-raised-button *ngIf="!purchased; else unpurchase"
+		            (click)="order(subs_regular[8])"
+		            class="purchaseButtonFeatured Medium"
+		            >
+              <span *ngIf="me.is_trial">Subscribe</span>
+              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+              <span *ngIf="!me.is_trial && (subs_regular[2].pid === me.subscription || subs_regular[8].pid === me.subscription)">Renew for</span>
+              <span *ngIf="!me.is_trial && subs_regular[8].quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
+              <span *ngIf="!me.is_trial && subs_regular[8].quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
+              {{ subs_regular[8].currency.replace("USD","$") || "$" }} {{ subs_regular[8].price | number:'1.2-2' }}
+            </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(subs_regular[8])"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+          </mat-card-actions>
+          <div>
+            Price per year: {{ subs_regular[8].currency.replace("USD","$") || "$" }} {{ subs_regular[8].price / 3 | number:'1.2-2' }} <br />
+            Annual price per GB: {{ subs_regular[8].currency.replace("USD","$") || "$" }} {{ subs_regular[8].price / 3 / ((subs_regular[8].quotas.Disk.quota + subs_regular[8].quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+          </div>
+          
+        </mat-card>
+
+        <!-- Max 3-year plan -->
+
+        <mat-card class="productCardFeatured">
+          <mat-card-title class="Max" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            {{ subs_regular[9].name.replace('Runbox', '') }}
+          </mat-card-title>
+          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            <h4><span *ngIf="is_current_subscription"> Your current subscription </span></h4>
+          </mat-card-subtitle>
+          <mat-card-content>
+            <div>
+              <p>A solid plan built to last, perfect for professionals and businesses.</p>
+              <ul class="planComponents">
+                <li>{{ subs_regular[9].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
+                <li>{{ subs_regular[9].quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
+                <li>{{ subs_regular[9].quotas.VirtualDomain.quota }} email domain names</li>
+                <li>{{ subs_regular[9].quotas.Alias.quota }} aliases @runbox domains</li>
+                <li>Unlimited aliases on your domains</li>
+              </ul>
+              <div class="threeYearDifferenceFeatured">
+                Save {{ subs_regular[1].currency.replace("USD","$") }}{{ subs_regular[3].price * 3 - subs_regular[9].price | number: '1.2-2' }} in total
+              </div>
+              compared to 3 * Max 1-year
+            </div>
+            <ng-content></ng-content>
+            <h4 *ngFor="let us of addon_usages">
+              Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
+            </h4>
+          </mat-card-content>
+          <div *ngIf="over_quota.length > 0">
+            Your usage is too great for this plan:
+            <ul>
+              <li *ngFor="let oq of over_quota">
+                <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                are available
+              </li>
+            </ul>
+          </div>
+
+          <div class="threeYearStandardFeatured">&nbsp;{{ subs_regular[3].currency.replace("USD","$") }}{{ subs_regular[3].price * 3 | number: '1.2-2' }}&nbsp;</div>
+
+          <mat-card-actions  *ngIf="over_quota.length === 0">
+            <button mat-raised-button *ngIf="!purchased; else unpurchase"
+		            (click)="order(subs_regular[9])"
+		            class="purchaseButtonFeatured Max"
+		            >
+              <span *ngIf="me.is_trial">Subscribe</span>
+              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+              <span *ngIf="!me.is_trial && (subs_regular[3].pid === me.subscription || subs_regular[9].pid === me.subscription)">Renew for</span>
+              <span *ngIf="!me.is_trial && subs_regular[9].quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
+              <span *ngIf="!me.is_trial && subs_regular[9].quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
+              {{ subs_regular[9].currency.replace("USD","$") || "$" }} {{ subs_regular[9].price | number:'1.2-2' }}
+            </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(subs_regular[9])"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+          </mat-card-actions>
+          <p>
+            Price per year: {{ subs_regular[9].currency.replace("USD","$") || "$" }} {{ subs_regular[9].price / 3 | number:'1.2-2' }} <br />
+            Annual price per GB: {{ subs_regular[9].currency.replace("USD","$") || "$" }} {{ subs_regular[9].price / 3 / ((subs_regular[9].quotas.Disk.quota + subs_regular[9].quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+          </p>
+
+        </mat-card>
+        
+      </div>
+
+      <p>
+        <mat-icon svgIcon="lightbulb"></mat-icon> Note that upgrading or downgrading your main account will take effect right away, and the additional subscription time added to your current subscription. You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
+      </p>
+      
+      <br /><br />
+      
+      <h3>All our price plans</h3>
+
+      <p>
+        Compare all our main account plans for 1 and 3 years in the table below.
+      </p>
+
+      <table id="pricePlans" cellpadding = "0" cellspacing = "0">
         <tr>
-          <th></th>
-          <th>Micro</th>
-          <th>Mini</th>
-          <th>Medium</th>
-          <th>Max</th>
-          <th>Max100</th>
-          <th>Max250</th>
+          <th class="planComponentName">Runbox Plans</th>
+          <th class="planName {{ subs_regular[0].name.replace('Runbox', '') }}">{{ subs_regular[0].name.replace('Runbox', '') }}</th>
+          <th class="planName {{ subs_regular[1].name.replace('Runbox', '') }}">{{ subs_regular[1].name.replace('Runbox', '') }}</th>
+          <th class="planName {{ subs_regular[2].name.replace('Runbox', '') }}">{{ subs_regular[2].name.replace('Runbox', '') }}</th>
+          <th class="planName {{ subs_regular[3].name.replace('Runbox', '') }}">{{ subs_regular[3].name.replace('Runbox', '') }}</th>
+          <th class="planName {{ subs_regular[4].name.replace('Runbox', '') }}">{{ subs_regular[4].name.replace('Runbox', '') }}</th>
+          <th class="planName {{ subs_regular[5].name.replace('Runbox', '') }}">{{ subs_regular[5].name.replace('Runbox', '') }}</th>
         </tr>
         <tr>
-          <td><strong>Email storage</strong></td>
-          <td>2 GB</td>
-          <td>102 GB</td>
-          <td>25 GB</td>
-          <td>50 GB</td>
-          <td>100 GB</td>
-          <td>250 GB</td>
+          <td class="planComponent">Email storage</td>
+          <td>{{ subs_regular[0].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[1].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[2].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[3].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[4].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[5].quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
         </tr>
         <tr>
-          <td><strong>File storage</strong></td>
-          <td>200 MB</td>
-          <td>1 GB</td>
-          <td>2 GB</td>
-          <td>5 GB</td>
-          <td>10 GB</td>
-          <td>25 GB</td>
+          <td class="planComponent">File storage</td>
+          <td>{{ subs_regular[0].quotas.File.quota / 1024 / 1024 }} MB</td>
+          <td>{{ subs_regular[1].quotas.File.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[2].quotas.File.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[3].quotas.File.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[4].quotas.File.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td>{{ subs_regular[5].quotas.File.quota / 1024 / 1024 / 1024 }} GB</td>
         </tr>
         <tr>
-          <td><strong>Email domains</strong></td>
-          <td>1</td>
-          <td>5</td>
-          <td>10</td>
-          <td>25</td>
-          <td>50 GB</td>
-          <td>100 GB</td>
+          <td class="planComponent">Email domains</td>
+          <td>{{ subs_regular[0].quotas.VirtualDomain.quota }}</td>
+          <td>{{ subs_regular[1].quotas.VirtualDomain.quota }}</td>
+          <td>{{ subs_regular[2].quotas.VirtualDomain.quota }}</td>
+          <td>{{ subs_regular[3].quotas.VirtualDomain.quota }}</td>
+          <td>{{ subs_regular[4].quotas.VirtualDomain.quota }}</td>
+          <td>{{ subs_regular[5].quotas.VirtualDomain.quota }}</td>
         </tr>
         <tr>
-          <td><strong>Email aliases *</strong></td>
+          <td class="planComponent">Email aliases @runbox</td>
+          <td>100</td>
+          <td>100</td>
+          <td>100</td>
+          <td>100</td>
+          <td>100</td>
+          <td>100</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Email aliases on own domain</td>
           <td>Unlimited</td>
           <td>Unlimited</td>
           <td>Unlimited</td>
@@ -117,7 +350,7 @@
           <td>Unlimited</td>
         </tr>
         <tr>
-          <td><strong>Email Message Size</strong></td>
+          <td class="planComponent">Email message size</td>
           <td>100 MB</td>
           <td>100 MB</td>
           <td>100 MB</td>
@@ -126,50 +359,198 @@
           <td>100 MB</td>
         </tr>
         <tr>
-          <td><strong>Incoming Message Limit **</strong></td>
-          <td>5000</td>
-          <td>5000</td>
-          <td>5000</td>
-          <td>5000</td>
-          <td>5000</td>
-          <td>5000</td>
+          <td class="planComponent">Incoming messages (daily)</td>
+          <td>{{ subs_regular[0].quotas.Msg.quota }}</td>
+          <td>{{ subs_regular[1].quotas.Msg.quota }}</td>
+          <td>{{ subs_regular[2].quotas.Msg.quota }}</td>
+          <td>{{ subs_regular[3].quotas.Msg.quota }}</td>
+          <td>{{ subs_regular[4].quotas.Msg.quota }}</td>
+          <td>{{ subs_regular[5].quotas.Msg.quota }}</td>
         </tr>
         <tr>
-          <td><strong>Outgoing Message Limit ***</strong></td>
-          <td>500</td>
-          <td>500</td>
-          <td>500</td>
-          <td>500</td>
-          <td>500</td>
-          <td>500</td>
+          <td class="planComponent">Outgoing messages (daily)</td>
+          <td>{{ subs_regular[0].quotas.Sent.quota }}</td>
+          <td>{{ subs_regular[1].quotas.Sent.quota }}</td>
+          <td>{{ subs_regular[2].quotas.Sent.quota }}</td>
+          <td>{{ subs_regular[3].quotas.Sent.quota }}</td>
+          <td>{{ subs_regular[4].quotas.Sent.quota }}</td>
+          <td>{{ subs_regular[5].quotas.Sent.quota }}</td>
         </tr>
         <tr>
-          <td><strong>Price per year (USD)</strong></td>
-          <td>19.95</td>
-          <td>34.95</td>
-          <td>49.95</td>
-          <td>79.95</td>
-          <td>119.95</td>
-          <td>179.95</td>
+          <td class="planComponent priceForOneYear">Price for 1 year</td>
+          <td class="oneYear">
+            <div>
+              {{ subs_regular[0].currency.replace("USD","$") }}{{ subs_regular[0].price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_regular[0].pid,1)"
+		              class="purchaseButton {{ subs_regular[0].name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
+          <td class="oneYear">
+            <div>
+              {{ subs_regular[1].currency.replace("USD","$") }}{{ subs_regular[1].price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_regular[1].pid,1)"
+		              class="purchaseButton {{ subs_regular[1].name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
+          <td class="oneYear">
+            <div>
+              {{ subs_regular[2].currency.replace("USD","$") }}{{ subs_regular[2].price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_regular[2].pid,1)"
+		              class="purchaseButton {{ subs_regular[2].name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
+          <td class="oneYear">
+            <div>
+              {{ subs_regular[3].currency.replace("USD","$") }}{{ subs_regular[3].price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_regular[3].pid,1)"
+		              class="purchaseButton {{ subs_regular[3].name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
+          <td class="oneYear">
+            <div>
+              {{ subs_regular[4].currency.replace("USD","$") }}{{ subs_regular[4].price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_regular[4].pid,1)"
+		              class="purchaseButton {{ subs_regular[4].name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
+          <td class="oneYear">
+            <div>
+              {{ subs_regular[5].currency.replace("USD","$") }}{{ subs_regular[5].price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_regular[5].pid,1)"
+		              class="purchaseButton {{ subs_regular[5].name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
         </tr>
         <tr>
-          <td><strong>3-year price (USD)</strong></td>
-          <td>49,95 <br /> Save 9,90 <br /> <button value="Upgrade">Upgrade</button></td>
-          <td>89.95 <br /> Save 14,90 <br /> <button value="Upgrade">Upgrade</button></td>
-          <td>119.95 <br /> Save 29,90 <br /> <button value="Upgrade">Upgrade</button></td>
-          <td>189.95 <br /> Save 49,90 <br /> <button value="Upgrade">Upgrade</button></td>
-          <td>284.95 <br /> Save 74,90 <br /> <button value="Upgrade">Upgrade</button></td>
-          <td>424.95 <br /> Save 114,90 <br /> <button value="Upgrade">Upgrade</button></td>
+          <td class="planComponent priceForThreeYears">Price for 3 years</td>
+          <td class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ subs_regular[0].currency.replace("USD","$") }}{{ subs_regular[0].price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_regular[6].currency.replace("USD","$") }}{{ subs_regular[6].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_regular[6].pid,1)"
+		            class="purchaseButton {{ subs_regular[0].name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ subs_regular[0].currency.replace("USD","$") }}{{ subs_regular[0].price * 3 - subs_regular[6].price | number: '1.2-2' }}
+            </div>
+          </td>
+          <td class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ subs_regular[1].currency.replace("USD","$") }}{{ subs_regular[1].price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_regular[7].currency.replace("USD","$") }}{{ subs_regular[7].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_regular[7].pid,1)"
+		            class="purchaseButton {{ subs_regular[1].name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ subs_regular[1].currency.replace("USD","$") }}{{ subs_regular[1].price * 3 - subs_regular[7].price | number: '1.2-2' }}
+            </div>
+          </td>
+          <td class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ subs_regular[2].currency.replace("USD","$") }}{{ subs_regular[2].price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_regular[8].currency.replace("USD","$") }}{{ subs_regular[8].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_regular[8].pid,1)"
+		            class="purchaseButton {{ subs_regular[2].name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ subs_regular[2].currency.replace("USD","$") }}{{ subs_regular[2].price * 3 - subs_regular[8].price | number: '1.2-2' }}
+            </div>
+          </td>
+          <td class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ subs_regular[3].currency.replace("USD","$") }}{{ subs_regular[3].price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_regular[9].currency.replace("USD","$") }}{{ subs_regular[9].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_regular[9].pid,1)"
+		            class="purchaseButton {{ subs_regular[3].name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ subs_regular[3].currency.replace("USD","$") }}{{ subs_regular[3].price * 3 - subs_regular[9].price | number: '1.2-2' }}
+            </div>
+          </td>
+          <td class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ subs_regular[4].currency.replace("USD","$") }}{{ subs_regular[4].price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_regular[10].currency.replace("USD","$") }}{{ subs_regular[10].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_regular[10].pid,1)"
+		            class="purchaseButton {{ subs_regular[4].name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ subs_regular[4].currency.replace("USD","$") }}{{ subs_regular[4].price * 3 - subs_regular[10].price | number: '1.2-2' }}
+            </div>
+          </td>
+          <td class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ subs_regular[5].currency.replace("USD","$") }}{{ subs_regular[5].price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_regular[11].currency.replace("USD","$") }}{{ subs_regular[11].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_regular[11].pid,1)"
+		            class="purchaseButton {{ subs_regular[5].name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ subs_regular[5].currency.replace("USD","$") }}{{ subs_regular[5].price * 3 - subs_regular[11].price | number: '1.2-2' }}
+            </div>
+          </td>
         </tr>
       </table>
-
-      <br /><br /><br />
-      
-      <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage" [current_sub]="current_sub" [me] = "me">
-        <ul>
-          <li *ngFor="let detail of p.details"> {{ detail }} </li>
-        </ul>
-      </app-account-product>
     </div>
 
 <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
@@ -218,7 +599,7 @@
     <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings. </p>
     
     <p>
-      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
+      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below. Currently sub-accounts can only be purchased for one year at a time.
     </p>
     
     <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
@@ -233,5 +614,4 @@
     <app-runbox-loading text="Loading your usage to tailor the subscription plans...">
     </app-runbox-loading>
   </ng-template>
-
 </section>

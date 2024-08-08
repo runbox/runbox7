@@ -1,78 +1,83 @@
-<td [ngClass]="{ 'addon': p.type === 'addon' }">
-
+<mat-card>
+  
+  <div *ngIf="p.pid === 10033">
+    Best Plan
+  </div>
 
   <h4 *ngIf="p.subtype === 'special'">Special Offer</h4>
-    <mat-card-title [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
-      {{ p.name.replace('Runbox', '') }}
-    </mat-card-title>
-    <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
-      <h4><span *ngIf="is_current_subscription"> Your current {{ p.type }} </span><br /></h4>
-      {{ p.description }}.
-    </mat-card-subtitle>
-    <mat-card-content>
-        <ng-content></ng-content>
-        <ng-container *ngIf="p.type === 'addon'">
-            <h4 *ngFor="let us of addon_usages">
-            Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
-              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
-            </h4>
-        </ng-container>
-        <div *ngIf="allow_multiple" class="multipleButtons">
-            <button mat-icon-button (click)="less()">
-                <mat-icon svgIcon="minus-circle-outline"></mat-icon>
-            </button>
-            <button mat-button>
-                {{ quantity }}
-            </button>
-            <button mat-icon-button (click)="more()">
-                <mat-icon svgIcon="plus-circle-outline"></mat-icon>
-            </button>
-        </div>
-    </mat-card-content>
-    <div *ngIf="p.type === 'subscription' && over_quota.length > 0">
-      Your usage is too great for this plan:
-        <ng-container *ngIf="p.type === 'subscription'">
-          <ul>
-            <li *ngFor="let oq of over_quota">
-              <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
-              <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
-              are available
-            </li>
-          </ul>
-        </ng-container>
+  <mat-card-title [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
+    {{ p.name.replace('Runbox', '') }}
+  </mat-card-title>
+  <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && over_quota.length > 0)}">
+    <h4><span *ngIf="is_current_subscription"> Your current {{ p.type }} </span><br /></h4>
+    {{ p.description }}.
+  </mat-card-subtitle>
+  <mat-card-content>
+    <ng-content></ng-content>
+    <ng-container *ngIf="p.type === 'addon'">
+      <h4 *ngFor="let us of addon_usages">
+        Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+        <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
+      </h4>
+    </ng-container>
+    <div *ngIf="allow_multiple" class="multipleButtons">
+      <button mat-icon-button (click)="less()">
+        <mat-icon svgIcon="minus-circle-outline"></mat-icon>
+      </button>
+      <button mat-button>
+        {{ quantity }}
+      </button>
+      <button mat-icon-button (click)="more()">
+        <mat-icon svgIcon="plus-circle-outline"></mat-icon>
+      </button>
     </div>
-    <mat-card-actions  *ngIf="p.type === 'subscription' && over_quota.length === 0">
-        <button mat-raised-button *ngIf="!purchased; else unpurchase"
-		        [color]="is_downgrade ? 'accent' : 'primary'"
-		        (click)="order()"
-		        class="purchaseButton"
-		>
-          <span *ngIf="me.is_trial">Subscribe</span>
-          <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase</span>
-          <span *ngIf="!me.is_trial && p.pid === me.subscription">Renew</span>
-          <span *ngIf="!me.is_trial && is_upgrade">Upgrade</span>
-          <span *ngIf="!me.is_trial && is_downgrade">Downgrade</span>
-          for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
-        </button>
-        <ng-template #unpurchase>
-            <button mat-raised-button
-		    color="primary"
-                    (click)="unorder()"
-		    class="removeButton"
+  </mat-card-content>
+  <div *ngIf="p.type === 'subscription' && over_quota.length > 0">
+    Your usage is too great for this plan:
+    <ng-container *ngIf="p.type === 'subscription'">
+      <ul>
+        <li *ngFor="let oq of over_quota">
+          <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+          <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+          are available
+        </li>
+      </ul>
+    </ng-container>
+  </div>
+  <mat-card-actions  *ngIf="p.type === 'subscription' && over_quota.length === 0">
+    <button mat-raised-button *ngIf="!purchased; else unpurchase"
+		    [color]="is_downgrade ? 'accent' : 'primary'"
+		    (click)="order()"
+		    class="purchaseButton"
 		    >
-                Remove from cart
-            </button>
-        </ng-template>
-    </mat-card-actions>
-    <h5 *ngIf="p.type !== 'addon'" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
-      Price per GB email storage: {{ currency || "USD" }} {{ p.price / (p.quotas.Disk.quota  / 1024 / 1024 / 1024) | number:'1.2-2' }}
-    </h5>
-    <mat-card-actions  *ngIf="p.type !== 'subscription'">
-        <button mat-raised-button (click)="order()"
-		color="primary"
-		class="purchaseButton"
-		>
-            Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="quantity > 1">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ currency || "USD" }} {{ quantity * p.price | number:'1.2-2' }}
-        </button>
-    </mat-card-actions>
-</td>
+      <span *ngIf="me.is_trial">Subscribe</span>
+      <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase</span>
+      <span *ngIf="!me.is_trial && p.pid === me.subscription">Renew</span>
+      <span *ngIf="!me.is_trial && is_upgrade">Upgrade</span>
+      <span *ngIf="!me.is_trial && is_downgrade">Downgrade</span>
+      <!-- Catch-all for e.g. 3-year plans when current subscription is 1-year -->
+      <span *ngIf="!me.is_trial && !is_upgrade && !is_downgrade && p.pid !== me.subscription">Renew</span>
+      for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
+    </button>
+    <ng-template #unpurchase>
+      <button mat-raised-button
+		      color="primary"
+              (click)="unorder()"
+		      class="removeButton"
+		      >
+        Remove from cart
+      </button>
+    </ng-template>
+  </mat-card-actions>
+  <h5 *ngIf="p.type !== 'addon'" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+    Price per GB email storage: {{ currency || "USD" }} {{ p.price / (p.quotas.Disk.quota  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+  </h5>
+  <mat-card-actions  *ngIf="p.type !== 'subscription'">
+    <button mat-raised-button (click)="order()"
+		    color="primary"
+		    class="purchaseButton"
+		    >
+      Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="quantity > 1">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ currency || "USD" }} {{ quantity * p.price | number:'1.2-2' }}
+    </button>
+  </mat-card-actions>
+</mat-card>

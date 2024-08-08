@@ -18,6 +18,15 @@ mat-card {
 mat-card.addon {
 }
 
+mat-card.bestPlan {
+    border: 1px solid blue;
+}
+
+mat-card-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
 mat-card-subtitle {
     flex-grow: 1;
     margin: 0;
