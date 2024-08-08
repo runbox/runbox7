@@ -23,9 +23,16 @@ $rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700
 $rmm-default-caution:    mat.define-palette(mat.$deep-orange-palette, 500, A400, A700);
 $rmm-default-error:      mat.define-palette(mat.$red-palette, 500, A400, A700);
 $rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
-$rmm-default-highlight:  mat.define-palette(mat.$light-blue-palette, 100, 50, 200);
+$rmm-default-highlight:  mat.define-palette(mat.$blue-palette, 100, 50, 200);
 $rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
 
+$rmm-dark-background:       #011b40;
+$rmm-dark-background-03:    rgba(1,27,64,0.3);
+$rmm-darker-background:     #01001c;
+$rmm-gray:                  #dddddd;
+$rmm-gray-light:            #eeeeee;
+$rmm-gray-lighter:          #f3f3f3;
+    
 $rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
 
 $rmm-default-lighter-gray: #eeeeee;
@@ -1510,6 +1517,51 @@ app-calendar-event-editor-dialog p {
         line-height: 26px !important;
     }
 }
+
+.productGrid mat-card.recommended {
+    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+}    
+
+#pricePlans td {
+    /* border-right: 1px solid $rmm-dark-background !important; */
+    border-right: 2px solid white;
+    background-color: $rmm-gray-lighter;
+    text-align: center !important;
+    height: 30px;
+}
+
+#pricePlans th {
+    border-right: 2px solid white;
+    background-color: $rmm-gray-lighter;
+    text-align: center !important;
+    height: 30px;
+    color: white;
+}
+
+#pricePlans .planComponentName {
+    background-color: $rmm-gray;
+    color: black;
+}
+
+#pricePlans .priceForOneYear {
+    background-color: $rmm-gray-light;
+    font-size: 1.25em;
+}
+
+#pricePlans td.oneYear {
+    background-color: $rmm-gray-light;
+}
+
+#pricePlans .priceForThreeYears {
+    font-size: 1.25em;
+    background-color: $rmm-gray;
+}
+
+#pricePlans td.threeYear {
+    background-color: $rmm-gray;
+    padding: 10px !important;
+}
+
 
 
 /*** Runbox components ***/
