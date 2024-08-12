@@ -14,14 +14,25 @@
         Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }})
       </h4>
       <h3>
-        Welcome to our store -- we're happy to see you!
+        Welcome to our store!
       </h3>
         <img src="https://runbox.com/wp-content/uploads/cropped-sustainability-2-2400x632.png" id="NorwayGraphic" />
       <p>
         By subscribing to Runbox you support an independent and sustainable business in Norway, where your email will stay secure and private indefinitely.
       </p>
       <p>
-        Here you may subscribe to Runbox, change your existing subscription, or add more accounts or email domains. To set up additional accounts under your main account, please see <a href = "#subaccounts">Sub-Accounts</a> further down.
+        <button mat-raised-button routerLink="/account/#recommended" color="primary" class="plansLink">
+          Recommended plans
+        </button>
+        <button mat-raised-button routerLink="/account/#plans" color="primary" class="plansLink">
+          Compare price plans
+        </button>
+        <button mat-raised-button routerLink="/account/#subaccounts" color="primary" class="plansLink">
+          Additional accounts
+        </button>
+
+        To view your existing subscvriptions, please go to <a routerLink="/account/subscriptions">Your Subscriptions</a>.
+
       </p>
       <p>
         Feel free to contact us via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions about our plans.
@@ -57,7 +68,7 @@
     </div>
     -->
 
-    <h3>Our recommended plans</h3>
+    <a name="recommended"><h3>Our recommended plans</h3></a>
 
       <p>
         We offer a 20% discount on all our plans if you renew for 3 years, which locks in the current price for your entire selected subcription period. To review and compare all our plans, please see the table further down.
@@ -288,7 +299,7 @@
       
       <br /><br />
       
-      <h3>All our price plans</h3>
+       <a name="recommended"><h3>All our price plans</h3></a>
 
       <p>
         Compare all our main account plans for 1 and 3 years in the table below.
