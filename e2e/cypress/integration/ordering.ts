@@ -26,11 +26,11 @@ describe('Ordering products', () => {
 
         cy.get('#shoppingCartButton').should('not.exist');
 
-        cy.get('.productGrid .purchaseButton').contains('Add product').click();
+        cy.get('.productGrid .purchaseButton').contains('Add').click();
         cy.get('#shoppingCartButton').should('be.visible');
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
-        cy.get('.productGrid .purchaseButton').contains('Add product').click();
+        cy.get('.productGrid .purchaseButton').contains('Add').click();
         cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
