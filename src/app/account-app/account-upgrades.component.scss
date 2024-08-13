@@ -10,6 +10,11 @@
     margin: 0 20px;
 }
 
+.navigationButtons {
+    padding: 0 0 10px 0;
+    white-space: nowrap;
+}
+
 #productGrid, .productGrid {
     display: flex;
     flex-flow: row wrap;
