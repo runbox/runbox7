@@ -20,7 +20,7 @@
               "src/assets",
               {
                 "glob": "xapianasm*",
-                "input": "node_modules/runbox-searchindex/",
+                "input": "node_modules/@runboxcom/runbox-searchindex/",
                 "output": "/"
               },
               {

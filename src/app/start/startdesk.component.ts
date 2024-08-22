@@ -20,7 +20,7 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
 
-import { MailAddressInfo } from 'runbox-searchindex/mailaddressinfo';
+import { MailAddressInfo } from '@runboxcom/runbox-searchindex';
 import moment from 'moment';
 
 import { Contact } from '../contacts-app/contact';

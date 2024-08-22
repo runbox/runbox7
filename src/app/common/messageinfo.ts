@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
+import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { MailAddressInfo } from './mailaddressinfo';
 
 export class MessageInfo {

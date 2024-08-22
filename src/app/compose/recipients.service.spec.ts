@@ -20,80 +20,42 @@
 import { TestBed } from '@angular/core/testing';
 import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
-import { SearchService } from '../xapian/searchservice';
+import { SearchService, XAPIAN_GLASS_WR } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
 import { AsyncSubject, of, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { XapianAPI } from 'runbox-searchindex/rmmxapianapi';
-import { xapianLoadedSubject } from '../xapian/xapianwebloader';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-
-declare var FS;
-declare var MEMFS;
 
 let testcounter = 1;
 
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();
-    indexReloadedSubject = new Subject<void>();
     mockedRecentMessages: number[] = [];
     mockedRecipients: { [messageId: number]: { recipients: string[] } } = {};
+    indexReloadedSubject = new Subject<void>();
 
-    api: XapianAPI;
+    api;
 
     constructor() {
+        console.log('calling init');
         this.init();
     }
 
-    async init() {
-        await xapianLoadedSubject.toPromise();
-
-        this.api = new XapianAPI();
-
-        testcounter++;
-
-        const dirname = 'testdir' + testcounter;
-
-        FS.mkdir(dirname);
-        FS.mount(MEMFS, {}, '/' + dirname);
-        FS.chdir('/' + dirname);
-
-        this.api.initXapianIndex('testindex' + testcounter);
-        let docid = 1;
-        const addMailToIndex = (from: MailAddressInfo, recipients: MailAddressInfo[]) => this.api.addSortableEmailToXapianIndex(
-            'Q' + (docid++) ,
-            from.name,
-            from.name.toUpperCase(),
-            from.nameAndAddress,
-            recipients.map(r => r.nameAndAddress),
-            'Testmail',
-            'abcdef',
-            '20190106120022',
-            3,
-            'the message txt',
-            'Inbox',
-            false,
-            false,
-            false,
-            false
-        );
-
-        addMailToIndex(MailAddressInfo.parse('Test Person <test2@example.com>')[0],
-            MailAddressInfo.parse('TESTINGPERSON <test@example.com>'));
-        addMailToIndex(MailAddressInfo.parse('Test Person <test2@example.com>')[0],
-            MailAddressInfo.parse('"TESTINGG-PERSON" <test@example.com>'));
-        addMailToIndex(MailAddressInfo.parse('Test Person <test2@example.com>')[0],
-            MailAddressInfo.parse('TPERSON <test@example.com>'));
-        addMailToIndex(MailAddressInfo.parse('Test Person <test2@example.com>')[0],
-            MailAddressInfo.parse('TESTINGPERSON2 <test2@example.com>'));
-        addMailToIndex(MailAddressInfo.parse('Test Person4 <test4@example.com>')[0],
-            MailAddressInfo.parse('TEST5 <test5@example.com>'));
-
+    init() {
+        this.api = { termlist: () => {
+            // Mock SearchService results into termlist:
+            window['termlistresult'] = [
+                MailAddressInfo.parse('TESTINGPERSON <test@example.com>')[0].nameAndAddress,
+                MailAddressInfo.parse('"TESTINGG-PERSON" <test@example.com>')[0].nameAndAddress,
+                MailAddressInfo.parse('TPERSON <test@example.com>')[0].nameAndAddress,
+                MailAddressInfo.parse('TESTINGPERSON2 <test2@example.com>')[0].nameAndAddress,
+                MailAddressInfo.parse('TEST5 <test5@example.com>')[0].nameAndAddress
+            ];
+        }};
         this.initSubject.next(true);
         this.initSubject.complete();
-        this.indexReloadedSubject.next();
     }
 
     getMessagesInTimeRange(_start: Date, _end: Date, _folder?: string) {
@@ -142,8 +104,6 @@ describe('RecipientsService', () => {
             ]
         });
     });
-
-    afterEach(() => FS.chdir('/'));
 
     it('Should get recipients from contacts', async () => {
         const recipientsService = TestBed.inject(RecipientsService);
