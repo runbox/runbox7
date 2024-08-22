@@ -497,19 +497,20 @@ export class SearchService {
     // initSubject returns false if no db yet, but that's fine
     // we're downloading it here..
     return this.initSubject.pipe(
-        mergeMap(() => this.checkIfDownloadableIndexExists()),
-        mergeMap((res) => new Observable<boolean>( (observer) => {
+      mergeMap(() => this.checkIfDownloadableIndexExists()),
+      mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.localSearchActivated = false;
+          // just create one
+          this.api.initXapianIndex(XAPIAN_GLASS_WR);
+          this.localSearchActivated = true;
           this.indexLastUpdateTime = 0;
-          this.indexDownloadingInProgress = false;
-          // restart updates
+          this.api.closeXapianDatabase();
+          this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
+          this.openDBOnWorker();
+          this.indexReloadedSubject.next(undefined);
           this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
-          observer.next(false);
           return;
         }
-
-        // console.log('Download index');
 
         this.downloadProgress = 0;
         let loaded = 0;

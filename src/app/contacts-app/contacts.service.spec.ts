@@ -73,7 +73,7 @@ describe('ContactsService', () => {
     sut = new ContactsService(rmmapi, prefService, storage);
   });
 
-  it('should allow looking up remote avatars', () => {
+  it('should allow looking up remote avatars', (done) => {
     prefService.set(prefService.prefGroup, 'avatarSource', 'remote' );
 
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
@@ -87,10 +87,12 @@ describe('ContactsService', () => {
 
       avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
       expect(avatarUrl).toBeFalsy();
-    });
+
+      done();
+    },);
   });
 
-  it('should allow looking up local avatars', () => {
+  it('should allow looking up local avatars', (done) => {
     prefService.set(prefService.prefGroup, 'avatarSource', 'local');
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
       let avatarUrl = await sut.lookupAvatar('test@runbox.com');
@@ -98,18 +100,22 @@ describe('ContactsService', () => {
 
       avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
       expect(avatarUrl).toBeFalsy();
+
+      done();
     });
   });
 
-  it('should allow looking up avatars set to none', () => {
+  it('should allow looking up avatars set to none', (done) => {
     prefService.set(prefService.prefGroup, 'avatarSource', 'none');
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
       const avatarUrl = await sut.lookupAvatar('test@runbox.com');
       expect(avatarUrl).toBeFalsy();
+
+      done();
     });
   });
 
-  it('should allow resetting avatar source to remote', () => {
+  it('should allow resetting avatar source to remote', (done) => {
     // can enable it back again
     prefService.set(prefService.prefGroup, 'avatarSource', 'remote');
     prefService.preferences.pipe(take(1)).subscribe(async _ => {
@@ -117,6 +123,8 @@ describe('ContactsService', () => {
       expect(avatarUrl).toMatch(/gravatar/);
       avatarUrl = await sut.lookupAvatar('test@runbox.com');
       expect(avatarUrl).toMatch(/test.url/);
+
+      done();
     });
-    });
+  });
 });

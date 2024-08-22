@@ -1020,10 +1020,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       } else {
         console.log('Index download cancelled or failed');
         this.deleteLocalIndex();
-        this.searchService.indexDownloadingInProgress = false;
-        this.searchService.stopIndexDownloadingInProgress = false;
-        this.offerInitialLocalIndex = false;
       }
+      this.searchService.indexDownloadingInProgress = false;
+      this.searchService.stopIndexDownloadingInProgress = false;
+      this.offerInitialLocalIndex = false;
     });
   }
 
