@@ -505,7 +505,46 @@ END:VCALENDAR
                         'subtype':     'test',
                         'price':       '13.37',
                         'currency':    'EUR',
-                        'pid':         '9001',
+                        'pid':         '1006',
+                        'description': 'Test subscription including some stuff',
+                        "quotas": {
+                            "Alias": {
+                                "quota": 100,
+                                "type": "fixed"
+                            },
+                            "File": {
+                                "type": "fixed",
+                                "quota": 2147483648
+                            },
+                            "Traffic": {
+                                "quota": 10737418240,
+                                "type": "fixed"
+                            },
+                            "VirtualDomain": {
+                                "quota": 10,
+                                "type": "fixed"
+                            },
+                            "Disk": {
+                                "type": "fixed",
+                                "quota": 26843545600
+                            },
+                            "Msg": {
+                                "quota": 5000,
+                                "type": "fixed"
+                            },
+                            "Sent": {
+                                "type": "fixed",
+                                "quota": 500
+                            }
+                        },
+                    },
+                    {
+                        'name':        'Runbox Test 3-year',
+                        'type':        'subscription',
+                        'subtype':     'test',
+                        'price':       '13.37',
+                        'currency':    'EUR',
+                        'pid':         '10006',
                         'description': 'Test subscription including some stuff',
                         "quotas": {
                             "Alias": {
