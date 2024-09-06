@@ -181,7 +181,7 @@
       <ng-container *ngIf="!hasChildRouterOutlet">
         <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex; else searchBar">
           <p *ngIf="!mobileQuery.matches">
-            Runbox will now synchronize with your device to give you an optimal webmail experience. The data can be deleted at any time using the buttons beneath the folder list. <a href="https://help.runbox.com/runbox-7-webmail-new-features/#Synchronized_account_index" target="help">What's this?</a>
+            Runbox <span *ngIf="searchService.downloadProgress===null">will now synchronize</span><span *ngIf="searchService.downloadProgress!==null">is now synchronizing</span> with your device to give you an optimal webmail experience. The data can be deleted at any time using the buttons beneath the folder list. <a href="https://help.runbox.com/runbox-7-webmail-new-features/#Synchronized_account_index" target="help">What's this?</a>
           </p>
           <p *ngIf="mobileQuery.matches">
             Runbox will now synchronize with your device. <a href="https://help.runbox.com/runbox-7-webmail-new-features/#Synchronized_account_index" target="help" matTooltip="What's this?">?</a>
@@ -192,9 +192,6 @@
               <button mat-raised-button (click)="cancelOrRefuseLocalIndex()" matTooltip="{{ searchService.indexDownloadingInProgress ? 'Cancel Download' : 'Do not synchronize index'}}" data-cy="cancel-button" color="warn">Cancel</button>
             </mat-list-item>
           </mat-list>
-        </div>
-        <div *ngIf="searchService.downloadProgress!==null" id="syncMessage">
-          Synchronizing account index
         </div>
         <ng-template #searchBar>
           <mat-form-field id="searchField" floatLabel="auto"
