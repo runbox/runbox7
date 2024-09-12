@@ -56,11 +56,14 @@ export class AccountUpgradesComponent implements OnInit {
 
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
-    subaccounts    = new AsyncSubject<Product[]>();
-    emailaddons    = new AsyncSubject<Product[]>();
-    subscriptions  = new AsyncSubject<Product[]>();
-    subs_regular   = new AsyncSubject<Product[]>();
-    subs_special   = new AsyncSubject<Product[]>();
+    subaccounts      = new AsyncSubject<Product[]>();
+    emailaddons      = new AsyncSubject<Product[]>();
+    subscriptions    = new AsyncSubject<Product[]>();
+    subs_regular     = new AsyncSubject<Product[]>();
+    subs_three       = new AsyncSubject<Product[]>();
+    subs_special     = new AsyncSubject<Product[]>();
+    three_year_plans = new AsyncSubject<Product[]>();
+    orig_three_plans = new AsyncSubject<Product[]>();
 
     quota_usage    = new AsyncSubject<DataUsageInterface>(); 
 
@@ -89,9 +92,24 @@ export class AccountUpgradesComponent implements OnInit {
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
 
-            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
+            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special' && p.pid >= 1000 && p.pid <= 1010);
             this.subs_regular.next(subs_regular);
             this.subs_regular.complete();
+
+            const subs_three = products.filter(p => p.type === 'subscription' && p.subtype !== 'special' && p.pid >= 10000 && p.pid <= 20000);
+            this.subs_three.next(subs_three);
+            this.subs_three.complete();
+
+            // comparison columns:
+            const three_year_subtypes = ['mini3', 'medium3', 'max3'];
+            const three_year = products.sort((a,b) => a.pid - b.pid).filter(p => three_year_subtypes.includes(p.subtype));
+            this.three_year_plans.next(three_year);
+            this.three_year_plans.complete();
+
+            const orig_subtypes = ['mini', 'medium', 'maxi'];
+            const orig_plans = products.sort((a,b) => a.pid - b.pid).filter(p => orig_subtypes.includes(p.subtype));
+            this.orig_three_plans.next(orig_plans);
+            this.orig_three_plans.complete();
 
             const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
             this.subs_special.next(subs_special);
