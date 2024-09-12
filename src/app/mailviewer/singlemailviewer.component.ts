@@ -51,6 +51,7 @@ import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { PreferencesService } from '../common/preferences.service';
 // import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
+import { MailAddressInfo } from '../common/mailaddressinfo';
 
 // const DOMPurify = require('dompurify');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
@@ -399,7 +400,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
           throw res;
         }
         res.subject = res.headers.subject;
-        res.from = res.headers.from.value;
+        res.from = res.headers.from.value.map(f => new MailAddressInfo(f.name,f.address));
         res.to = res.headers.to ? res.headers.to.value : '';
         res.cc = res.headers.cc ? res.headers.cc.value : '';
 

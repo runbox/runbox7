@@ -198,6 +198,18 @@ export class RMM7MessageActions implements MessageActions {
         });
     }
 
+    blockSender(param) {
+        const msg = `Blocking sender: ${param}`;
+        const snackBarRef = this.snackBar.open(msg);
+        this.rmmapi.blockSender(param).subscribe((res) => {
+          if ( res.status === 'error' ) {
+            snackBarRef.dismiss();
+            this.snackBar.open('There was an error with Sender blocking functionality. Please try again.', 'Dismiss');
+          }
+        });
+        snackBarRef.dismiss();
+    }
+
     // Update mailviewer menu flag icon after flagging?
     flag() {
         this.updateMessages({

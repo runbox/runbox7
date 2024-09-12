@@ -31,5 +31,6 @@ export interface MessageActions {
   forward(useHTML?: boolean);
   markSeen(seen_flag_value?: number);
   trainSpam(params: any);
+  blockSender(param: String)
 }
 

@@ -22,7 +22,7 @@ import { MessageContents } from './rbwebmail';
 
 export class MessageCache {
     db: Dexie;
-    message_version = 5;
+    message_version = 6;
 
     constructor(userId: number) {
         // REMOVE THIS CODE AFTER 06-2024, delete old message caches

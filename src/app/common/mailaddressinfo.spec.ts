@@ -25,12 +25,14 @@ describe('MailAddressInfo', () => {
         expect(ma.name).toBe('Test');
         expect(ma.address).toBe('test1@runbox.com');
         expect(ma.nameAndAddress).toBe('"Test" <test1@runbox.com>');
+        expect(ma.domain).toBe('runbox.com');
     });
     it('Parse single email address', () => {
         const ma = MailAddressInfo.parse('test1@runbox.com');
         expect(ma[0].name).toBe(null);
         expect(ma[0].address).toBe('test1@runbox.com');
         expect(ma[0].nameAndAddress).toBe('test1@runbox.com');
+        expect(ma[0].domain).toBe('runbox.com');
     });
     it('Parse full single address', () => {
         const ma = MailAddressInfo.parse('"Test" <test1@runbox.com>');
@@ -67,5 +69,12 @@ describe('MailAddressInfo', () => {
         expect(ma_list[1].name).toBe('Test2');
         expect(ma_list[1].address).toBe('test2@runbox.com');
         expect(ma_list[1].nameAndAddress).toBe('"Test2" <test2@runbox.com>');
+    });
+    it('Parse multi-level domain', () => {
+        const ma_list = MailAddressInfo.parse('"Fred B" <fred@foo.bar.baz.tld>');
+        expect(ma_list[0].name).toBe('Fred B');
+        expect(ma_list[0].address).toBe('fred@foo.bar.baz.tld');
+        expect(ma_list[0].nameAndAddress).toBe('"Fred B" <fred@foo.bar.baz.tld>');
+        expect(ma_list[0].domain).toBe('foo.bar.baz.tld');
     });
 });
