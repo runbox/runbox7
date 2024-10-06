@@ -28,15 +28,21 @@
       </p>
       
       <div class="navigationButtons">
-        <button mat-raised-button routerLink="/account#recommended" color="accent" class="plansLink">
+        <a href="/account/plans#recommended">
+          <button mat-raised-button color="accent" class="plansLink">
           Recommended plans
-        </button>
-        <button mat-raised-button routerLink="/account#plans" color="accent" class="plansLink">
-          Compare price plans
-        </button>
-        <button mat-raised-button routerLink="/account#subaccounts" color="accent" class="plansLink">
-          Additional accounts
-        </button>
+          </button>
+        </a>
+        <a href="/account/plans#compare">
+          <button mat-raised-button color="accent" class="plansLink">
+            Compare price plans
+          </button>
+        </a>
+        <a href="/account/plans#subaccounts">
+          <button mat-raised-button color="accent" class="plansLink">
+            Additional accounts
+          </button>
+        </a>
       </div>
 
       <br />
@@ -164,7 +170,7 @@
       
       <br /><br />
       
-       <a name="plans"><h3>All our price plans</h3></a>
+       <a name="compare"><h3>All our price plans</h3></a>
 
       <p>
         Compare all our main account plans for 1 and 3 years in the table below.
