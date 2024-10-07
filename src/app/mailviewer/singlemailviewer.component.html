@@ -63,20 +63,36 @@
           <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
         </button>
       </ng-container>
-      <a *ngIf="morebuttonindex>8" mat-icon-button
+      <button mat-icon-button *ngIf="morebuttonindex>8" matTooltip="Block Sender/Domain" [matMenuTriggerFor]="blockSenderMenu">
+        <mat-icon svgIcon="filter-cog"></mat-icon>
+      </button>
+      <a *ngIf="morebuttonindex>9" mat-icon-button
         matTooltip="View source" [href]="'/rest/v1/email/'+messageId+'/raw'" target="_blank">
         <mat-icon svgIcon="code-tags"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>9" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
+      <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>10" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
         <mat-icon svgIcon="cog"></mat-icon>
       </button>
-      <a *ngIf="mailContentHTML && morebuttonindex>10" mat-icon-button
+      <a *ngIf="mailContentHTML && morebuttonindex>11" mat-icon-button
         matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
         <mat-icon svgIcon="alert"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="morebuttonindex < 11" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
+      <button mat-icon-button *ngIf="morebuttonindex < 12" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
+
+      <mat-menu #blockSenderMenu>
+        <button mat-menu-item (click)="messageActionsHandler.blockSender(mailObj.from[0].address)">
+          Block Sender Email
+        </button>
+        <button mat-menu-item (click)="messageActionsHandler.blockSender(mailObj.from[0].domain)">
+          Block Sender Domain
+        </button>
+        <a mat-menu-item
+           [href]="'/mail/rules'" target="rmm6">
+          Manage Blocking Rules
+        </a>
+      </mat-menu>
 
       <mat-menu #htmlSettingsMenu="matMenu">
           <mat-radio-group
@@ -153,6 +169,10 @@
             <span>Not spam</span>
           </button>
         </ng-container>
+        <button mat-menu-item *ngIf="morebuttonindex<9" [matMenuTriggerFor]="blockSenderMenu">
+          <mat-icon svgIcon="block"></mat-icon>
+          <span>Block Sender/Domain</span>
+        </button>
         <a *ngIf="morebuttonindex<9" mat-menu-item
           [href]="'/rest/v1/email/'+messageId+'/raw'" target="_blank">
           <mat-icon svgIcon="code-tags"></mat-icon>

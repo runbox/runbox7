@@ -82,4 +82,8 @@ export class RMM6MessageActions implements MessageActions {
     trainSpam() {
         throw new Error('Method not implemented.');
     }
+
+    blockSender() {
+        throw new Error('Method not implemented.');
+    }
 }

@@ -19,9 +19,11 @@
 
 export class MailAddressInfo {
     nameAndAddress: string;
+    domain: string;
 
     constructor(public name: string, public address: string) {
         this.nameAndAddress = name ? `"${name}" <${address}>` : address;
+        this.domain = address.split('@')[1];
     }
 
     public static parse(mailaddr: string): MailAddressInfo[] {

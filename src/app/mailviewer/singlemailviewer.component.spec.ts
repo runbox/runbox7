@@ -137,7 +137,8 @@ describe('SingleMailViewerComponent', () => {
               mid: messageId,
               headers: {
                 from: {
-                  value: 'test@runbox.com'
+                  value: [{ 'address': 'test@runbox.com',
+                           'name': 'Testy' }]
                 },
                 date: new Date(2016, 0, 1).toJSON(),
                 subject: 'Test subject'
@@ -198,6 +199,9 @@ describe('SingleMailViewerComponent', () => {
         throw new Error('Method not implemented.');
       }
       trainSpam(params: any) {
+        throw new Error('Method not implemented.');
+      }
+      blockSender(param: any) {
         throw new Error('Method not implemented.');
       }
     };
