@@ -1,6 +1,25 @@
+.plansLink {
+    margin-right: 10px;
+}
+
+#NorwayGraphic {
+    float: right;
+    width: 300px;
+    height: 175px;
+    object-fit: cover;
+    margin: 0 20px;
+}
+
+.navigationButtons {
+    padding: 0 0 10px 0;
+    white-space: nowrap;
+}
+
 #productGrid, .productGrid {
     display: flex;
     flex-flow: row wrap;
+    align-items: center;
+    margin-bottom: 30px;
 }
 
 .productCard {
@@ -16,6 +35,147 @@
 
 .productCardSpecial {
     text-align: center;
+}
+
+.productCardFeatured {
+    height: 430px;
+    width: 30%;
+    min-width: 250px;
+    margin-right: 2%;
+    padding: 0;
+    text-align: center;
+
+    mat-card-title {
+        padding: 10px 0;
+        color: white;
+    }
+
+    .mat-card-subtitle {
+        font-size: 1.1em;
+    }
+    
+    mat-card-content {
+        height: 55%;
+        padding: 0 5px;
+        font-size: 1.1em !important;
+    }
+
+    mat-card-actions {
+        margin-bottom: 5px;
+    }
+
+    p {
+        font-size: 1.0em;
+    }
+}
+
+.purchaseButtonFeatured {
+    font-size: 1.25em;
+}
+
+.threeYearDifferenceFeatured {
+    font-size: 1.1em;
+}
+
+.productGrid mat-card.recommended {
+    height: 475px;
+    width: 32%;
+    font-size: 1.1em;
+}
+    
+ul.planComponents {
+    padding-left: 25px;
+    text-align: left;
+    list-style-type: square;
+    font-size: 0.9em;
+}
+    
+
+#pricePlans {
+    width: 100%;
+}
+
+#pricePlans td {
+    text-align: right;
+    height: 30px;
+    padding: 5px 10px;
+    white-space: nowrap;
+}
+
+#pricePlans .planName {
+    text-align: center !important;
+}
+
+#pricePlans .planComponent {
+    text-align: left !important;
+    font-weight: bold;
+}
+
+.Micro {
+    background-color: #549bd6  !important;
+    color: white;
+}
+
+.Mini,.mini3 {
+    background-color: #3678ad !important;
+    color: white;
+}
+
+.Medium,.medium3 {
+    background-color: #236091 !important;
+    color: white;
+}
+
+.Max,.max3 {
+    background-color: #12446b !important;
+    color: white;
+}
+
+.Max100 {
+    background-color: #082d4a !important;
+    color: white;
+}
+
+.Max250 {
+    background-color: #021829 !important;
+    color: white;
+}
+
+.oneYear {
+    padding: 10px 0;
+    font-weight: bold;
+
+    button {
+        line-height: 24px;
+    }
+}
+
+.threeYearStandard {
+    font-size: 1em;
+    text-decoration: line-through;
+}
+
+.threeYearStandardFeatured {
+    font-size: 1.5em;
+    text-decoration: line-through;
+}
+
+.threeYear button {
+    width: 100%;
+}
+
+.threeYearDiscounted {
+    font-size: 1.5em;
+    padding: 10px 0;
+}
+
+.threeYearDiscountedFeatured {
+    font-size: 2em;
+    padding: 10px 0;
+}
+
+.threeYearDifference {
+    padding-top: 5px;
 }
 
 div.divider {
@@ -62,4 +222,3 @@ mat-icon.limitedTimeOffer {
 	margin: 2% 10%;
     padding: 20px;
 }
-

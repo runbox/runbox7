@@ -13,33 +13,42 @@
       <h4>
         Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }})
       </h4>
-      
+      <h3>
+        Welcome to our store!
+      </h3>
+        <img src="assets/payment/sustainability-2-cropped.jpg" id="NorwayGraphic" />
       <p>
-        Welcome to our store -- we're happy to see you!
+        By subscribing to Runbox you support an independent and sustainable business in Norway, where your email will stay secure and private indefinitely.
+      </p>
+      <p>
+        To view your existing subscriptions, please go to <a routerLink="/account/subscriptions">Your Subscriptions</a>.
+      </p>
+      <p>
+        Feel free to contact us via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions about our plans.
       </p>
       
-      <p>
-        Here you can subscribe to Runbox, change your existing subscription, or add more accounts or email domains. Once you have added the desired items, click the shopping cart icon in the top right corner to review your selection.
-      </p>
-      <p>
-        Please feel free to browse the products below, and reach out via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions.
-      </p>
-      <p>
-        <mat-icon svgIcon="lightbulb"></mat-icon> To set up additional accounts under your main account, please see <a href = "#subaccounts">Sub-Accounts</a> further down.
-      </p>
-      
+      <div class="navigationButtons">
+        <a routerLink="." fragment="recommended">
+          <button mat-raised-button color="accent" class="plansLink">
+          Recommended plans
+          </button>
+        </a>
+        <a routerLink="." fragment="compare">
+          <button mat-raised-button color="accent" class="plansLink">
+            Compare price plans
+          </button>
+        </a>
+        <a routerLink="." fragment="subaccounts">
+          <button mat-raised-button color="accent" class="plansLink">
+            Additional accounts
+          </button>
+        </a>
+      </div>
+
       <br />
       
       <h2> Main Account </h2>
       
-      <p>
-        When changing your main account's subscription plan, your account will be upgraded or downgraded immediately and the additional time added to the end of your existing subscription.
-      </p>
-      
-      <p>
-        You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
-      </p>
-
     <!--
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0">
@@ -66,13 +75,181 @@
     </div>
     -->
 
-      <div class="productGrid" *ngIf="subs_regular | async as subs_regular; else productsLoading">
-        <app-account-product *ngFor="let p of subs_regular" [ngClass]="'productCard'" [p]="p" [currency]="me.currency" [active_sub]="me.subscription === p.pid" [usage]="q_usage" [current_sub]="current_sub" [me] = "me">
-          <ul>
-            <li *ngFor="let detail of p.details"> {{ detail }}
-          </ul>
-        </app-account-product>
+    <a id="recommended"><h3>Our recommended plans</h3></a>
+
+      <p>
+        We offer a 20% discount on all our plans if you renew for 3 years, which locks in the current price for your entire selected subcription period. To review and compare all our plans, please see the table further down.
+      </p>
+
+      <br /><br />
+    
+    <div *ngIf="three_year_plans | async as three_year_plans; else productsLoading">
+    <div *ngIf="orig_three_plans | async as orig_three_plans; else productsLoading">
+      <div class="productGrid">
+
+        <!-- Mini 3-year plan -->
+        
+        <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
+          <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            {{ plan.name.replace('Runbox', '') }}
+          </mat-card-title>
+          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+            <h4><span *ngIf="is_current_subscription"> Your current subscription </span></h4>
+          </mat-card-subtitle>
+          <mat-card-content>
+            <div>
+                <p *ngIf="plan.subtype === 'mini3'">An affordable plan if you don't need a lot of email or file storage.</p>
+                <p *ngIf="plan.subtype === 'medium3'">Our recommended plan with plenty of email and file storage, suitable for most people.</p>
+                <p *ngIf="plan.subtype === 'max3'">A solid plan built to last, perfect for professionals and businesses.</p>
+                <ul class="planComponents">
+                <li>{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
+                <li>{{ plan.quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
+                <li>{{ plan.quotas.VirtualDomain.quota }} email domain names</li>
+                <li>{{ plan.quotas.Alias.quota }} aliases @runbox domains</li>
+                <li>Unlimited aliases on your domains</li>
+              </ul>
+              <div class="threeYearDifferenceFeatured">
+                Save {{ orig_three_plans[i].currency.replace("USD","$") }}{{ orig_three_plans[i].price * 3 - plan.price | number: '1.2-2' }} in total
+              </div>
+              compared to 3 * {{ orig_three_plans[i].subtype | titlecase }} 1-year
+            </div>
+            <ng-content></ng-content>
+            <h4 *ngFor="let us of addon_usages">
+              Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
+            </h4>
+          </mat-card-content>
+          <div *ngIf="over_quota.length > 0">
+            Your usage is too great for this plan:
+            <ul>
+              <li *ngFor="let oq of over_quota">
+                <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                are available
+              </li>
+            </ul>
+          </div>
+          <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency.replace("USD","$") }}{{ orig_three_plans[i].price * 3 | number: '1.2-2' }}&nbsp;</div>
+          <mat-card-actions  *ngIf="over_quota.length === 0">
+            <button mat-raised-button *ngIf="!purchased; else unpurchase"
+		            (click)="order(plan)"
+		            class="purchaseButtonFeatured {{ plan.subtype }}"
+		            >
+              <span *ngIf="me.is_trial">Subscribe</span>
+              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+              <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
+              <span *ngIf="!me.is_trial && plan.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
+              <span *ngIf="!me.is_trial && plan.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
+              {{ plan.currency.replace("USD","$") || "$" }} {{ plan.price | number:'1.2-2' }}
+            </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(plan)"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+          </mat-card-actions>
+          <div>
+            Price per year: {{ plan.currency.replace("USD","$") || "$" }} {{ plan.price / 3 | number:'1.2-2' }} <br />
+            Annual price per GB: {{ plan.currency.replace("USD","$") || "$" }} {{ plan.price / 3 / ((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+          </div>
+          
+        </mat-card>        
       </div>
+    </div>
+    </div>
+
+    <div *ngIf="subs_regular | async as subs_regular; else productsLoading">
+    <div *ngIf="subs_three | async as subs_three; else productsLoading">
+      <p>
+        <mat-icon svgIcon="lightbulb"></mat-icon> Note that upgrading or downgrading your main account will take effect right away, and the additional subscription time added to your current subscription. You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
+      </p>
+      
+      <br /><br />
+      
+       <a id="compare"><h3>All our price plans</h3></a>
+
+      <p>
+        Compare all our main account plans for 1 and 3 years in the table below.
+      </p>
+
+      <table id="pricePlans" cellpadding = "0" cellspacing = "0">
+        <tr>
+          <th class="planComponentName">Runbox Plans</th>
+          <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }}">{{ plan.name.replace('Runbox', '') }}</th>
+        </tr>
+        <tr>
+          <td class="planComponent">Email storage</td>
+          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+        </tr>
+        <tr>
+          <td class="planComponent">File storage</td>
+          <td *ngFor="let plan of subs_regular">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Email domains</td>
+          <td *ngFor="let plan of subs_regular">{{ plan.quotas.VirtualDomain.quota }}</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Email aliases @runbox</td>
+          <td *ngFor="let plan of subs_regular">100</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Email aliases on own domain</td>
+          <td *ngFor="let plan of subs_regular">Unlimited</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Email message size</td>
+          <td *ngFor="let plan of subs_regular">100 MB</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Incoming messages (daily)</td>
+          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Msg.quota }}</td>
+        </tr>
+        <tr>
+          <td class="planComponent">Outgoing messages (daily)</td>
+          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Sent.quota }}</td>
+        </tr>
+        <tr>
+          <td class="planComponent priceForOneYear">Price for 1 year</td>
+          <td  *ngFor="let plan of subs_regular" class="oneYear">
+            <div>
+              {{ plan.currency.replace("USD","$") }}{{ plan.price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+            </div>
+            <div>
+              <button mat-raised-button
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(plan.pid,1)"
+		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		              >
+                Select
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="planComponent priceForThreeYears">Price for 3 years</td>
+          <td *ngFor="let plan of subs_regular; index as i" class="threeYear">
+            <div class="threeYearStandard">&nbsp;{{ plan.currency.replace("USD","$") }}{{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_three[i].currency.replace("USD","$") }}{{ subs_three[i].price }}</div>
+            <button mat-raised-button
+		            [color]="is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(subs_three[i].pid,1)"
+		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		            >
+              Select
+            </button>
+            <div class="threeYearDifference">
+              Save {{ plan.currency.replace("USD","$") }}{{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    </div>
 
 <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
@@ -115,12 +292,12 @@
     
     <br /><br />
     
-    <h2> <a name="subaccounts">Sub-Accounts (additional accounts)</a> </h2>
+    <h2> <a id="subaccounts">Sub-Accounts (additional accounts)</a> </h2>
     
     <p> Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings. </p>
     
     <p>
-      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
+      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below. Currently sub-accounts can only be purchased for one year at a time.
     </p>
     
     <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
@@ -135,5 +312,4 @@
     <app-runbox-loading text="Loading your usage to tailor the subscription plans...">
     </app-runbox-loading>
   </ng-template>
-
 </section>

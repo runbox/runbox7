@@ -17,9 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-
+import { Router, NavigationEnd } from '@angular/router';
 import { CartService } from './cart.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
@@ -29,6 +29,7 @@ import { DataUsageInterface } from '../rmm/account-storage';
 import { RunboxTimerComponent } from './runbox-timer';
 import { AsyncSubject } from 'rxjs';
 import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
+import { ProductOrder } from './product-order';
 
 @Component({
     selector: 'app-account-upgrades-component',
@@ -36,15 +37,33 @@ import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.servic
     styleUrls: ['./account-upgrades.component.scss'],
 })
 export class AccountUpgradesComponent implements OnInit {
-    @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
-    me: RunboxMe;
+    @Input() p: Product;
+    @Input() currency: string;
+    @Input() active_sub: boolean;
+    @Input() usage: DataUsageInterface;
+    @Input() current_sub: Product;
+    @Input() me: RunboxMe;
 
-    subaccounts    = new AsyncSubject<Product[]>();
-    emailaddons    = new AsyncSubject<Product[]>();
-    subscriptions  = new AsyncSubject<Product[]>();
-    subs_regular   = new AsyncSubject<Product[]>();
-    subs_special   = new AsyncSubject<Product[]>();
-    current_sub;
+    allow_multiple = false;
+    quantity = 1;
+    purchased = false;
+
+    over_quota = [];
+    addon_usages = [];
+    is_upgrade = false;
+    is_downgrade = false;
+    is_current_subscription: boolean = false;
+
+    @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
+
+    subaccounts      = new AsyncSubject<Product[]>();
+    emailaddons      = new AsyncSubject<Product[]>();
+    subscriptions    = new AsyncSubject<Product[]>();
+    subs_regular     = new AsyncSubject<Product[]>();
+    subs_three       = new AsyncSubject<Product[]>();
+    subs_special     = new AsyncSubject<Product[]>();
+    three_year_plans = new AsyncSubject<Product[]>();
+    orig_three_plans = new AsyncSubject<Product[]>();
 
     quota_usage    = new AsyncSubject<DataUsageInterface>(); 
 
@@ -58,7 +77,17 @@ export class AccountUpgradesComponent implements OnInit {
         private snackbar:        MatSnackBar,
         private rmm:             RMM,
         public sidenavService:   RunboxSidenavService,
+        private router:          Router,
     ) {
+      this.router.events.subscribe(e => {
+        if (e instanceof NavigationEnd) {
+          const tree = router.parseUrl(router.url);
+          if (tree.fragment) {
+            const element = document.querySelector("#" + tree.fragment);
+            if (element) { element.scrollIntoView(true); }
+          }
+        }
+      });
     }
 
     ngOnInit() {
@@ -73,9 +102,24 @@ export class AccountUpgradesComponent implements OnInit {
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
 
-            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special');
+            const subs_regular = products.filter(p => p.type === 'subscription' && p.subtype !== 'special' && p.pid >= 1000 && p.pid <= 1010);
             this.subs_regular.next(subs_regular);
             this.subs_regular.complete();
+
+            const subs_three = products.filter(p => p.type === 'subscription' && p.subtype !== 'special' && p.pid >= 10000 && p.pid <= 20000);
+            this.subs_three.next(subs_three);
+            this.subs_three.complete();
+
+            // comparison columns:
+            const three_year_subtypes = ['mini3', 'medium3', 'max3'];
+            const three_year = products.sort((a,b) => a.pid - b.pid).filter(p => three_year_subtypes.includes(p.subtype));
+            this.three_year_plans.next(three_year);
+            this.three_year_plans.complete();
+
+            const orig_subtypes = ['mini', 'medium', 'maxi'];
+            const orig_plans = products.sort((a,b) => a.pid - b.pid).filter(p => orig_subtypes.includes(p.subtype));
+            this.orig_three_plans.next(orig_plans);
+            this.orig_three_plans.complete();
 
             const subs_special = products.filter(p => p.type === 'subscription' && p.subtype === 'special');
             this.subs_special.next(subs_special);
@@ -110,10 +154,61 @@ export class AccountUpgradesComponent implements OnInit {
                 this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
             });
         });
+    this.over_quota = this.check_over_quota();
+    }
 
+
+    // OverQuota for displayed product, if any of the limits have been hit
+    // Returns list of reasons why can't buy this product:
+    // Eg You have 2 virtual domains, this product only allows 1
+    check_over_quota() {
+        let oq = [];
+        if (this.p && this.usage) {
+            Object.keys(this.p.quotas).map((key) => {
+                // Subscriptions / main accounts
+                if (this.usage[key] && this.p.quotas[key].type === 'fixed' && this.p.quotas[key].quota < this.usage[key].usage) {
+                    oq.push({'quota': this.usage[key].name, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
+                }
+            });
+        }
+        return oq;
     }
 
     runboxTimerFinished(): void {
         this.limitedTimeOffer = false;
+    }
+
+    // Displays amount used up of currently owned quota
+    get_addon_usages(p) {
+        let pu = [];
+        if (p && this.usage && p.type === 'addon') {
+            Object.keys(p.quotas).map((key) => {
+                // addon items
+                if (p.quotas[key] && this.usage[key]) {
+                    pu.push({'quota': this.usage[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
+                }
+            });
+        }
+        return pu;
+    }
+
+
+    orderMainProduct(newProduct: number) {
+        this.cart.add(
+            new ProductOrder(newProduct, this.quantity)
+        );
+    }
+
+    order(p) {
+        console.log(p);
+        this.cart.add(
+            new ProductOrder(p.pid, this.quantity)
+        );
+    }
+
+    unorder(p) {
+        this.cart.remove(
+            new ProductOrder(p.pid, this.quantity)
+        );
     }
 }
