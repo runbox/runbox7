@@ -19,7 +19,7 @@
 
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-
+import { Router, NavigationEnd } from '@angular/router';
 import { CartService } from './cart.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { PaymentsService } from './payments.service';
@@ -77,7 +77,17 @@ export class AccountUpgradesComponent implements OnInit {
         private snackbar:        MatSnackBar,
         private rmm:             RMM,
         public sidenavService:   RunboxSidenavService,
+        private router:          Router,
     ) {
+      this.router.events.subscribe(e => {
+        if (e instanceof NavigationEnd) {
+          const tree = router.parseUrl(router.url);
+          if (tree.fragment) {
+            const element = document.querySelector("#" + tree.fragment);
+            if (element) { element.scrollIntoView(true); }
+          }
+        }
+      });
     }
 
     ngOnInit() {
