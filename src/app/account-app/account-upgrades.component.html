@@ -21,10 +21,10 @@
         By subscribing to Runbox you support an independent and sustainable business in Norway, where your email will stay secure and private indefinitely.
       </p>
       <p>
-        To view your existing subscriptions, please go to <a routerLink="/account/subscriptions">Your Subscriptions</a>.
+        Feel free to contact us via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions about our plans.
       </p>
       <p>
-        Feel free to contact us via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions about our plans.
+        To view your existing subscriptions, please go to <a routerLink="/account/subscriptions">Your Subscriptions</a>.
       </p>
       
       <div class="navigationButtons">
@@ -75,13 +75,16 @@
     </div>
     -->
 
-    <a id="recommended"><h3>Our recommended plans</h3></a>
+    <a id="recommended"><h3>Our Recommended Plans</h3></a>
 
       <p>
-        We offer a 20% discount on all our plans if you renew for 3 years, which locks in the current price for your entire selected subcription period. To review and compare all our plans, please see the table further down.
+        We currently offer a 20% discount on all our main account plans when you subscribe or renew for 3 years at a time.
       </p>
+      <p>
+        Lock in the current price for less than the price of a cup of coffee per month!
+      <p>
 
-      <br /><br />
+      <br />
     
     <div *ngIf="three_year_plans | async as three_year_plans; else productsLoading">
     <div *ngIf="orig_three_plans | async as orig_three_plans; else productsLoading">
@@ -90,6 +93,7 @@
         <!-- Mini 3-year plan -->
         
         <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
+          
           <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
             {{ plan.name.replace('Runbox', '') }}
           </mat-card-title>
@@ -99,7 +103,7 @@
           <mat-card-content>
             <div>
                 <p *ngIf="plan.subtype === 'mini3'">An affordable plan if you don't need a lot of email or file storage.</p>
-                <p *ngIf="plan.subtype === 'medium3'">Our recommended plan with plenty of email and file storage, suitable for most people.</p>
+                <p *ngIf="plan.subtype === 'medium3'">Suitable for most people, a popular  plan with plenty of email and file storage.</p>
                 <p *ngIf="plan.subtype === 'max3'">A solid plan built to last, perfect for professionals and businesses.</p>
                 <ul class="planComponents">
                 <li>{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
@@ -135,12 +139,12 @@
 		            (click)="order(plan)"
 		            class="purchaseButtonFeatured {{ plan.subtype }}"
 		            >
-              <span *ngIf="me.is_trial">Subscribe</span>
+              <span *ngIf="me.is_trial">Subscribe for</span>
               <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
               <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
               <span *ngIf="!me.is_trial && plan.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
               <span *ngIf="!me.is_trial && plan.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
-              {{ plan.currency.replace("USD","$") || "$" }} {{ plan.price | number:'1.2-2' }}
+              {{ plan.currency.replace("USD","$") }}{{ plan.price | number:'1.2-2' }}
             </button>
             <ng-template #unpurchase>
               <button mat-raised-button
@@ -153,8 +157,9 @@
             </ng-template>
           </mat-card-actions>
           <div>
-            Price per year: {{ plan.currency.replace("USD","$") || "$" }} {{ plan.price / 3 | number:'1.2-2' }} <br />
-            Annual price per GB: {{ plan.currency.replace("USD","$") || "$" }} {{ plan.price / 3 / ((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+            Price per year: {{ plan.currency.replace("USD","$") }}{{ plan.price / 3 | number:'1.2-2' }} <br />
+            Price per month: {{ plan.currency.replace("USD","$") }}{{ plan.price / 3 / 12 | number:'1.2-2' }} <br />
+            Annual price per GB: {{ plan.currency.replace("USD","$") }}{{ plan.price / 3 / ((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
           </div>
           
         </mat-card>        
@@ -170,7 +175,7 @@
       
       <br /><br />
       
-       <a id="compare"><h3>All our price plans</h3></a>
+       <a id="compare"><h3>All Main Account Price Plans</h3></a>
 
       <p>
         Compare all our main account plans for 1 and 3 years in the table below.
@@ -301,7 +306,7 @@
     </p>
     
     <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
-      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency" [usage]="q_usage">
+      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency.replace('USD','$')" [usage]="q_usage">
       </app-account-product>
     </div>
     
