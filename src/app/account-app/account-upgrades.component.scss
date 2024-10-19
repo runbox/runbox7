@@ -38,7 +38,7 @@
 }
 
 .productCardFeatured {
-    height: 430px;
+    height: 450px;
     width: 30%;
     min-width: 250px;
     margin-right: 2%;
@@ -55,7 +55,7 @@
     }
     
     mat-card-content {
-        height: 55%;
+        height: 50%;
         padding: 0 5px;
         font-size: 1.1em !important;
     }
@@ -78,7 +78,7 @@
 }
 
 .productGrid mat-card.recommended {
-    height: 475px;
+    height: 500px;
     width: 32%;
     font-size: 1.1em;
 }
