@@ -1,18 +1,19 @@
 <section class="mat-typography">
   <div class="welcomeDesk">
-    <h1>Welcome to Runbox</h1>
+    <h1>Congratulations -- your new Runbox account is ready!</h1>
     <div  *ngIf="postSignup == 'offer'" id="introSpecialOffer">
-      <h2>Congratulations -- your new Runbox account is ready!</h2>
+      <h3>Take advantage of our current 20% discount by proceeding to <a routerLink="/account/plans">Plans & Upgrades</a> below.</h3>
+      <h4> You can also <a routerLink="/welcome">continue setting up your account</a>, or go <a routerLink="/">straight to your Inbox</a>.</h4>
       <br />
       <a routerLink="/account/plans">
-        <img src="assets/intro-special-banner-2023.jpg" id="introSpecialOfferBanner" alt="Special Offer: Get a full year added to your main subscription for free"/>
+        <img src="assets/payment/price_plans.jpg" id="introSpecialOfferBanner" alt="Save 20% if you subscribe for 3 years"/>
       </a>
+      <br /><br />
       <p>
-        The price shown is the subscription fee for a Micro account for the first 2 years when taking advantage of the offer. This offer is valid for all main account plans within 24 hours of signing up, in addition to any other current offers. All initial subscription payments include a 60-day money back guarantee.
+        All initial subscription payments include a 60-day money back guarantee.
       </p>
       <h2><a routerLink="/account/plans">Continue to Account Plans Now</a></h2>
       <br />
-      <h4>You can also <a routerLink="/welcome">continue setting up your account</a>, or go <a routerLink="/">straight to your Inbox</a>.</h4>
     </div>
     <div *ngIf="!postSignup">
       <h3>Let's get you set up with Runbox and make you an email pro!</h3>
@@ -81,7 +82,6 @@
         </mat-card>
       </div>
     </div>
-    <br />
     <div id="introNote">
       <div>
         <mat-icon svgIcon="lightbulb"></mat-icon>
