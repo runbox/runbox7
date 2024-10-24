@@ -26,7 +26,7 @@ import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { Identity, ProfileService } from '../profiles/profile.service';
-import { from, of, BehaviorSubject } from 'rxjs';
+import { from, of, BehaviorSubject, forkJoin } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 import moment from 'moment';
@@ -307,6 +307,27 @@ export class DraftDeskService {
         let models = this.draftModels.value;
         models = models.filter(dm => dm.mid !== messageId);
         this.draftModels.next(models);
+    }
+
+    public async newTemplateDraft(
+        messageId: number,
+    ) {
+        forkJoin([
+            this.rmmapi.getMessageFields(messageId),
+            this.rmmapi.getCachedMessageContents(messageId)
+        ]).subscribe(([fields, contents]) => {
+            const draftFormModel = DraftFormModel.create(
+                -1,
+                this.mainIdentity(),
+                fields.from,
+                fields.subject
+            )
+
+            draftFormModel.msg_body = contents.text.text;
+            draftFormModel.html = contents.text.html;
+
+            return this.newDraft(draftFormModel);
+        })
     }
 
     public async newBugReport(

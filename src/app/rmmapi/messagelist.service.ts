@@ -62,6 +62,7 @@ export class MessageListService {
 
     trashFolderName = 'Trash';
     spamFolderName = 'Spam';
+    templateFolderName = 'Templates';
 
     ignoreUnreadInFolders = [ 'Sent' ];
 
