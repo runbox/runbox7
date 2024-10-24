@@ -919,6 +919,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
     this.showSelectOperations = this.canvastable.rows.anySelected();
 
+    if (this.selectedFolder === this.messagelistservice.templateFolderName) {
+      this.draftDeskService.newTemplateDraft(
+        this.canvastable.rows.getRowMessageId(rowIndex)
+      )
+      this.drafts()
+      return
+    }
+
+
     if (this.canvastable.rows.hasChanges) {
       this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
       this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
