@@ -19,6 +19,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
   selector: 'app-welcome',
@@ -27,10 +28,14 @@ import { ActivatedRoute } from '@angular/router';
 })
 
 export class WelcomeDeskComponent implements OnInit {
+  public me: RunboxMe;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-  ) { }
+    public rmmapi: RunboxWebmailAPI
+  ) {
+    this.rmmapi.me.subscribe(me => this.me = me);
+  }
   
   public postSignup = ''
     

@@ -24,6 +24,7 @@ export interface AccountDetailsInterface {
     first_name: string;
     last_name: string;
     email_alternative: string;
+    email_alternative_status: number;
     phone_number: number;
     company: string;
     org_number: number;
