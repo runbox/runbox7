@@ -3,6 +3,7 @@
     <h1>Congratulations -- your new Runbox account is ready!</h1>
     <div  *ngIf="postSignup == 'offer'" id="introSpecialOffer">
       <h3>Take advantage of our current 20% discount by proceeding to <a routerLink="/account/plans">Plans & Upgrades</a> below.</h3>
+      <h4 *ngIf="!me.is_alternative_email_validated">Please validate your alternative email addressm, <a routerLink="/account/details">Visit the Account Details page to resend the email</a>.</h4>
       <h4> You can also <a routerLink="/welcome">continue setting up your account</a>, or go <a routerLink="/">straight to your Inbox</a>.</h4>
       <br />
       <a routerLink="/account/plans">

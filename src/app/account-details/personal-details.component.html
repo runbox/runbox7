@@ -75,6 +75,7 @@
             </div>
             <div class="action-buttons">
                 <button mat-raised-button color="primary" (click)="update()">Save Details</button>
+                <button *ngIf="!is_alternative_email_validated" mat-raised-button color="primary" (click)="validate_alt_email()">Resend Alternative Email Validation</button>
             </div>
         </form>
     </div>

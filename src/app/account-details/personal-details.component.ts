@@ -48,6 +48,7 @@ export class PersonalDetailsComponent {
     modal_password_ref;
 
     details: Subject<AccountDetailsInterface> = new Subject();
+    is_alternative_email_validated = true;
 
     selectedCountry: any;
     selectedTimezone: any;
@@ -60,6 +61,7 @@ export class PersonalDetailsComponent {
     ) {
         this.details.subscribe((details: AccountDetailsInterface) => {
             this.detailsForm.patchValue(details);
+            this.is_alternative_email_validated = details.email_alternative_status == 0;
         });
 
         this.loadDetails();
@@ -158,10 +160,20 @@ export class PersonalDetailsComponent {
             .post('/rest/v1/account/details', updates)
             .pipe(map((res: HttpResponse<any>) => res['result']))
             .subscribe((details) => {
-                this.details.next(details);
+                if(details && details.email_alternative) {
+                    this.details.next(details);
+                    this.rmm.show_error('Account details updated', 'Dismiss');
+                } else {
+                    this.rmm.show_error('Failed to update details', 'Dismiss');
+                }
             });
+    }
 
-        this.rmm.show_error('Account details updated', 'Dismiss');
+    public validate_alt_email() {
+      this.http.post('/rest/v1/account/alt_email_validation', {})
+            .subscribe((res) => {
+                this.rmm.show_error('Validation email resent', 'Dismiss');
+            });;
     }
 
     show_modal_password() {
