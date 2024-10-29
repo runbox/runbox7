@@ -916,16 +916,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
-    this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
-    this.showSelectOperations = this.canvastable.rows.anySelected();
+    const isSelect = (columnIndex === 0) || multiSelect
 
-    if (this.selectedFolder === this.messagelistservice.templateFolderName) {
+    if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
         this.canvastable.rows.getRowMessageId(rowIndex)
       )
       this.drafts()
       return
     }
+
+    this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
+    this.showSelectOperations = this.canvastable.rows.anySelected();
 
 
     if (this.canvastable.rows.hasChanges) {

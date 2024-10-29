@@ -240,6 +240,7 @@ export class DraftDeskService {
 
     constructor(public rmmapi: RunboxWebmailAPI,
                 private messagelistservice: MessageListService,
+                private rbwebmailapi: RunboxWebmailAPI,
                 private profileService: ProfileService,
                 private http: HttpClient
                ) {
@@ -312,9 +313,10 @@ export class DraftDeskService {
     public async newTemplateDraft(
         messageId: number,
     ) {
+
         forkJoin([
             this.rmmapi.getMessageFields(messageId),
-            this.rmmapi.getCachedMessageContents(messageId)
+            this.rbwebmailapi.getMessageContents(messageId)
         ]).subscribe(([fields, contents]) => {
             const draftFormModel = DraftFormModel.create(
                 -1,
