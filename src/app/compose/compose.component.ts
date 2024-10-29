@@ -77,6 +77,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
+    public isTemplate: boolean = false;
     finishImageUpload: AsyncSubject<any> = null;
     uploadProgress: BehaviorSubject<number> = new BehaviorSubject(-1);
     has_pasted_signature: boolean;
@@ -673,6 +674,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send: boolean = false) {
+        const { isTemplate } = this;
         if (this.savingInProgress) {
             return;
         }
@@ -780,7 +782,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         } else {
             this.rmmapi.me.pipe(mergeMap((me) => {
                 return this.http.post('/rest/v1/draft', {
-                    type: 'draft',
+                    type: isTemplate ? 'template' : 'draft',
                     username: me.username,
                     from: from && from.id ? from.from_name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
@@ -796,6 +798,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     ctype: this.model.useHTML ? 'html' : null,
                     save: send ? 'Send' : 'Save',
                     mid: this.model.mid,
+                    ...(isTemplate ? {tid: this.model.mid} : {}),
                     attachments: this.model.attachments ?
                         this.model.attachments
                             .filter((att) => att.file !== 'UTF-8Q')
@@ -837,6 +840,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.saveErrorMessage = `Error saving draft: ${msg}`;
                 });
         }
+    }
+
+    public saveTemplate() {
+        this.isTemplate = true
+        this.submit(false);
     }
 
     ngOnDestroy() {
