@@ -26,7 +26,7 @@ import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { Identity, ProfileService } from '../profiles/profile.service';
-import { from, of, BehaviorSubject, forkJoin } from 'rxjs';
+import { from, of, BehaviorSubject } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 import moment from 'moment';
@@ -314,15 +314,17 @@ export class DraftDeskService {
         messageId: number,
     ) {
 
-        forkJoin([
-            this.rmmapi.getMessageFields(messageId),
-            this.rbwebmailapi.getMessageContents(messageId)
-        ]).subscribe(([fields, contents]) => {
+        this.rbwebmailapi.getMessageContents(messageId).subscribe((contents) => {
+            const res: any = Object.assign({}, contents);
+
+            const {to: {value: [{name, address}]}, subject} = res.headers
+            const to = new MailAddressInfo(name, address).nameAndAddress;
+
             const draftFormModel = DraftFormModel.create(
                 -1,
                 this.mainIdentity(),
-                fields.from,
-                fields.subject
+                to,
+                subject
             )
 
             draftFormModel.msg_body = contents.text.text;
