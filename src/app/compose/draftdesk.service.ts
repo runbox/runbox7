@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -131,7 +131,7 @@ export class DraftFormModel {
         const localTZ = moment.tz.guess();
         const replyHeaderHTML = 'On '
             + moment(mailObj.date, localTZ).format('yyyy-MM-DD HH:mm Z')
-            + ' ' + moment.tz(localTZ).format('z') 
+            + ' ' + moment.tz(localTZ).format('z')
             + ', '
             + (mailObj.from[0].name
                 ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt; wrote:`
@@ -316,10 +316,8 @@ export class DraftDeskService {
 
         this.rbwebmailapi.getMessageContents(messageId).subscribe((contents) => {
             const res: any = Object.assign({}, contents);
-
             const {to: {value: [{name, address}]}, subject} = res.headers
             const to = new MailAddressInfo(name, address).nameAndAddress;
-
             const draftFormModel = DraftFormModel.create(
                 -1,
                 this.mainIdentity(),
