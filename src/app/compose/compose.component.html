@@ -25,7 +25,7 @@
             <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
                 <mat-icon svgIcon="pencil"></mat-icon>
             </button>
-            <button *ngIf="editing" mat-icon-button matTooltip="Save as template" (click)="saveTemplate(true)" id="sendMail">
+            <button *ngIf="editing" mat-icon-button matTooltip="Save as template" (click)="saveTemplate(true)">
                 <mat-icon svgIcon="file-document"></mat-icon>
             </button>
             <button *ngIf="editing" mat-icon-button matTooltip="Send mail" (click)="submit(true)" id="sendMail">
