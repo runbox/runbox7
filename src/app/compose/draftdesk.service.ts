@@ -240,7 +240,6 @@ export class DraftDeskService {
 
     constructor(public rmmapi: RunboxWebmailAPI,
                 private messagelistservice: MessageListService,
-                private rbwebmailapi: RunboxWebmailAPI,
                 private profileService: ProfileService,
                 private http: HttpClient
                ) {
@@ -314,7 +313,7 @@ export class DraftDeskService {
         messageId: number,
     ) {
 
-        this.rbwebmailapi.getMessageContents(messageId).subscribe((contents) => {
+        this.rmmapi.getMessageContents(messageId).subscribe((contents) => {
             const res: any = Object.assign({}, contents);
             const {to: {value: [{name, address}]}, subject} = res.headers
             const to = new MailAddressInfo(name, address).nameAndAddress;
