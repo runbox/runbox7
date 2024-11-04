@@ -840,11 +840,22 @@ h3.sideNavHeader {
     padding-left: 20px;
 }
 
+a {
+    color: mat.get-color-from-palette($rmm-default-primary);
+}
+
+a:hover {
+    text-decoration: none;
+}
+
 .mat-nav-list a.textLink {
     color: mat.get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
+.mat-nav-list a.textLink:hover {
+    text-decoration: none;
+}
 
 /*** Welcome Desk ***/
 
