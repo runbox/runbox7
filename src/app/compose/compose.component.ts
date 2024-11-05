@@ -811,6 +811,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 });
             }
             )).subscribe((res: any) => {
+                if (this.isTemplate)  {
+                    this.snackBar.open('Saved to templates', 'Ok', { duration: 3000 });
+                }
+
                 if (res.mid) {
                     const newMid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
                     if (this.model.isUnsaved()) {
