@@ -153,7 +153,7 @@ describe('Composing emails', () => {
         cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
     });
 
-    it.only('should show a save template button and save on click', () => {
+    it('should show a save template button and save on click', () => {
         cy.visit('/compose?new=true');
         cy.get('input[data-placeholder="Subject"]').type('Template subject here');
         cy.get('button[mattooltip="Save as template"').click();
