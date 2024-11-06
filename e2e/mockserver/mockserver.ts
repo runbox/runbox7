@@ -371,7 +371,7 @@ END:VCALENDAR
                     response.end(JSON.stringify(this.emailFoldersListResponse()));
                     break;
                 case '/mail/download_xapian_index':
-                    response.end('');
+                    response.end(this.templatescontents());
                     break;
                 case '/mail/download_xapian_index?inbox':
                     response.end(this.inboxcontents());
@@ -427,6 +427,15 @@ END:VCALENDAR
                 `Test2<test2@lalala.no>	Re: nonsense	709	n	 `);
         }
         return trashlines.join('\n');
+    }
+
+    templatescontents() {
+        const lines = [];
+        for (let msg_id = 1000; msg_id < 10000; msg_id++) {
+            lines.push(`${msg_id}	1548071429	1547830043	Templates	1	0	0	"Template" <template@runbox.com>	` +
+                `Template2<template@example.org>	TEMPLATE	709	n	 `);
+        }
+        return lines.join('\n');
     }
 
     inboxcontents() {
