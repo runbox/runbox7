@@ -163,7 +163,5 @@ describe('Composing emails', () => {
         });
 
         cy.get('snack-bar-container').should('contain', 'Saved to templates');
-
-        cy.wait(10000);
     })
 });
