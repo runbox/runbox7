@@ -315,8 +315,13 @@ export class DraftDeskService {
 
         this.rmmapi.getMessageContents(messageId).subscribe((contents) => {
             const res: any = Object.assign({}, contents);
-            const {to: {value: [{name, address}]}, subject} = res.headers
-            const to = new MailAddressInfo(name, address).nameAndAddress;
+            const {subject} = res.headers
+            let { to } = res.headers
+
+            if (to) {
+                to = new MailAddressInfo(to.value.name, to.value.address).nameAndAddress;
+            }
+
             const draftFormModel = DraftFormModel.create(
                 -1,
                 this.mainIdentity(),
