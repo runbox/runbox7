@@ -1,6 +1,10 @@
 /// <reference types="cypress" />
 
 describe('Folder management', () => {
+    function canvas() {
+        return cy.get('canvastable canvas:first-of-type');
+    }
+
     it('should create folder at root level', () => {
         cy.visit('/');
 
@@ -26,4 +30,13 @@ describe('Folder management', () => {
         cy.contains('div.mat-menu-content button', 'Empty trash').click();
         cy.wait('@emptyTrashReq');
     });
+
+    it('should create new draft on templates folder message click', () => {
+	cy.visit('/')
+	cy.contains('mat-tree-node', 'Templates').click()
+        canvas().click({ x: 55, y: 40 });
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/compose');
+        });
+    })
 });
