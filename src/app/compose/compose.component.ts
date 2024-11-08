@@ -208,7 +208,15 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     'replying',
                 ]);
             }))
-            .subscribe(() => this.submit(false));
+            .subscribe(() => {
+                // Disable auto-save when in template edit mode. This prevents
+                // creating a draft while the user might be editing the template.
+                // The side-effect is that a draft created from a template won't
+                // have autosave until it was saved as a draft.
+                if (this.model.tid) return;
+
+                this.submit(false)
+            });
 
         this.formGroup.controls.from.valueChanges
             .pipe(debounceTime(1000))
@@ -461,6 +469,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public loadDraft(msgObj) {
+        if (msgObj.errors) {
+            this.snackBar.open(msgObj.errors[0], 'Ok')
+            throw msgObj
+        }
+
         const model = new DraftFormModel();
         model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
         this.draftDeskservice.isEditing = model.mid;
@@ -674,7 +687,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send: boolean = false) {
-        const { isTemplate } = this;
+        const isTemplate = Boolean(this.isTemplate ?? this.model.tid);
 
         if (this.savingInProgress) {
             return;
@@ -785,7 +798,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         } else {
             this.rmmapi.me.pipe(mergeMap((me) => {
                 return this.http.post('/rest/v1/draft', {
-                    type: isTemplate ? 'template' : 'draft',
+                    ...(isTemplate ? {
+                        type: 'template',
+                        mid: this.model.tid ?? this.model.mid,
+                        tid: this.model.tid ?? this.model.mid,
+                    } : {
+                        type: 'draft',
+                        mid: this.model.mid
+                    }),
                     username: me.username,
                     from: from && from.id ? from.from_name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
@@ -800,8 +820,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     tags: [],
                     ctype: this.model.useHTML ? 'html' : null,
                     save: send ? 'Send' : 'Save',
-                    mid: this.model.mid,
-                    ...(isTemplate ? {tid: this.model.mid} : {}),
                     attachments: this.model.attachments ?
                         this.model.attachments
                             .filter((att) => att.file !== 'UTF-8Q')
