@@ -49,6 +49,7 @@ export class DraftFormModel {
 
     from: string = null;
     mid: number = (DraftFormModel.newDraftCount--);
+    tid: number = null;
     to: MailAddressInfo[] = [];
     cc: MailAddressInfo[] = [];
     bcc: MailAddressInfo[] = [];
@@ -157,7 +158,7 @@ export class DraftFormModel {
     }
 
     public static trimmedPreview(preview: string): string {
-        let ret = preview.substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
+        let ret = (preview ?? '').substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
         if (ret.length === DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH) {
             ret += '...';
         }
@@ -329,6 +330,7 @@ export class DraftDeskService {
                 subject
             )
 
+            draftFormModel.tid = messageId;
             draftFormModel.msg_body = contents.text.text;
             draftFormModel.html = contents.text.html;
 
