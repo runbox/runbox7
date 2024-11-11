@@ -42,6 +42,10 @@
             <p *ngIf="experimentalFeatureEnabled">
                 <a routerLink="/onscreen" class="textLink"> (Experimental) create a video call </a>
             </p>
+            <p *ngIf="(rmmapi.me | async)?.is_alternative_email_validated">
+              <span style="color:red">Please confirm your Alternative Email address.</span>
+              <a class="textLink" routerLink="/account/details"> Visit the Account Details page to resend the email</a>
+            </p>
         </div>
         <div>
             <button mat-icon-button [matMenuTriggerFor]="settingsMenu" id="webmailSettingsMenuButton" matTooltip="Show webmail settings">
