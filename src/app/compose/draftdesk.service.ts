@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -49,6 +49,7 @@ export class DraftFormModel {
 
     from: string = null;
     mid: number = (DraftFormModel.newDraftCount--);
+    tid: number = null;
     to: MailAddressInfo[] = [];
     cc: MailAddressInfo[] = [];
     bcc: MailAddressInfo[] = [];
@@ -131,7 +132,7 @@ export class DraftFormModel {
         const localTZ = moment.tz.guess();
         const replyHeaderHTML = 'On '
             + moment(mailObj.date, localTZ).format('yyyy-MM-DD HH:mm Z')
-            + ' ' + moment.tz(localTZ).format('z') 
+            + ' ' + moment.tz(localTZ).format('z')
             + ', '
             + (mailObj.from[0].name
                 ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt; wrote:`
@@ -157,7 +158,7 @@ export class DraftFormModel {
     }
 
     public static trimmedPreview(preview: string): string {
-        let ret = preview.substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
+        let ret = (preview ?? '').substring(0, DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH);
         if (ret.length === DraftFormModel.MAX_DRAFT_PREVIEW_LENGTH) {
             ret += '...';
         }
@@ -307,6 +308,34 @@ export class DraftDeskService {
         let models = this.draftModels.value;
         models = models.filter(dm => dm.mid !== messageId);
         this.draftModels.next(models);
+    }
+
+    public async newTemplateDraft(
+        messageId: number,
+    ) {
+
+        this.rmmapi.getMessageContents(messageId).subscribe((contents) => {
+            const res: any = Object.assign({}, contents);
+            const {subject} = res.headers
+            let { to } = res.headers
+
+            if (to) {
+                to = new MailAddressInfo(to.value.name, to.value.address).nameAndAddress;
+            }
+
+            const draftFormModel = DraftFormModel.create(
+                -1,
+                this.mainIdentity(),
+                to,
+                subject
+            )
+
+            draftFormModel.tid = messageId;
+            draftFormModel.msg_body = contents.text.text;
+            draftFormModel.html = contents.text.html;
+
+            return this.newDraft(draftFormModel);
+        })
     }
 
     public async newBugReport(

@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -77,6 +77,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
+    public isTemplate: boolean = false;
     finishImageUpload: AsyncSubject<any> = null;
     uploadProgress: BehaviorSubject<number> = new BehaviorSubject(-1);
     has_pasted_signature: boolean;
@@ -207,7 +208,15 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     'replying',
                 ]);
             }))
-            .subscribe(() => this.submit(false));
+            .subscribe(() => {
+                // Disable auto-save when in template edit mode. This prevents
+                // creating a draft while the user might be editing the template.
+                // The side-effect is that a draft created from a template won't
+                // have autosave until it was saved as a draft.
+                if (this.model.tid) return;
+
+                this.submit(false)
+            });
 
         this.formGroup.controls.from.valueChanges
             .pipe(debounceTime(1000))
@@ -460,6 +469,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public loadDraft(msgObj) {
+        if (msgObj.errors) {
+            this.snackBar.open(msgObj.errors[0], 'Ok')
+            throw msgObj
+        }
+
         const model = new DraftFormModel();
         model.mid = typeof msgObj.mid === 'string' ? parseInt(msgObj.mid, 10) : msgObj.mid;
         this.draftDeskservice.isEditing = model.mid;
@@ -673,10 +687,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send: boolean = false) {
+        const isTemplate = Boolean(this.isTemplate ?? this.model.tid);
+
         if (this.savingInProgress) {
             return;
         }
+
         this.savingInProgress = true;
+
         if (send) {
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
@@ -780,7 +798,14 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         } else {
             this.rmmapi.me.pipe(mergeMap((me) => {
                 return this.http.post('/rest/v1/draft', {
-                    type: 'draft',
+                    ...(isTemplate ? {
+                        type: 'template',
+                        mid: this.model.tid ?? this.model.mid,
+                        tid: this.model.tid ?? this.model.mid,
+                    } : {
+                        type: 'draft',
+                        mid: this.model.mid
+                    }),
                     username: me.username,
                     from: from && from.id ? from.from_name + '%' + from.email + '%' + from.id : from ? from.email : undefined,
                     from_email: from ? from.email : '',
@@ -795,7 +820,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     tags: [],
                     ctype: this.model.useHTML ? 'html' : null,
                     save: send ? 'Send' : 'Save',
-                    mid: this.model.mid,
                     attachments: this.model.attachments ?
                         this.model.attachments
                             .filter((att) => att.file !== 'UTF-8Q')
@@ -805,6 +829,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 });
             }
             )).subscribe((res: any) => {
+                if (this.isTemplate)  {
+                    this.snackBar.open('Saved to templates', 'Ok', { duration: 3000 });
+                }
+
                 if (res.mid) {
                     const newMid = typeof res.mid === 'string' ? parseInt(res.mid, 10) : res.mid;
                     if (this.model.isUnsaved()) {
@@ -837,6 +865,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.saveErrorMessage = `Error saving draft: ${msg}`;
                 });
         }
+    }
+
+    public saveTemplate() {
+        this.isTemplate = true
+        this.submit(false);
     }
 
     ngOnDestroy() {

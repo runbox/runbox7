@@ -24,13 +24,16 @@
             </button>
             <button *ngIf="!editing" mat-icon-button (click)="editDraft()" matTooltip="Edit draft" id="editDraftIcon">
                 <mat-icon svgIcon="pencil"></mat-icon>
-            </button>                 
+            </button>
+            <button *ngIf="editing" mat-icon-button matTooltip="Save as template" (click)="saveTemplate(true)" id="saveTemplate">
+                <mat-icon svgIcon="file-document"></mat-icon>
+            </button>
             <button *ngIf="editing" mat-icon-button matTooltip="Send mail" (click)="submit(true)" id="sendMail">
                 <mat-icon svgIcon="send"></mat-icon>
             </button>
         </div>
-    </mat-card-actions>        
-    <mat-card-subtitle>                
+    </mat-card-actions>
+    <mat-card-subtitle>
         <mat-form-field floatPlaceholder="always" *ngIf="editing" style="width: 100%" id="fieldFrom">
             <mat-select placeholder="From" formControlName="from">
                 <mat-option *ngFor="let from of draftDeskservice.fromsSubject.value" [value]="from.nameAndAddress">
@@ -42,7 +45,7 @@
             <span *ngFor="let t of model.to">
                 {{t.nameAndAddress}}
             </span>
-        </span>        
+        </span>
         <div class="fieldRecipient">
             <mailrecipient-input *ngIf="editing" style="flex-grow: 1"
                 [initialfocus]="model.to.length === 0"
@@ -86,7 +89,7 @@
                 [recipients]="model.cc"
                 (updateRecipient)="onUpdateRecipient('cc', $event)"
             ></mailrecipient-input>
-            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>              
+            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>
         </div>
         <div style="display: flex;" *ngIf="editing && hasBCC" class="fieldRecipient" (drop)="recipientDropped($event, 'bcc')">
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
@@ -96,11 +99,11 @@
             ></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>
         </div>
-    </mat-card-subtitle>    
-    <mat-card-content>       
+    </mat-card-subtitle>
+    <mat-card-content>
         <mat-form-field *ngIf="editing" floatPlaceholder="auto" id="fieldSubject">
             <input matInput placeholder="Subject" name="subject" formControlName="subject" />
-        </mat-form-field>                     
+        </mat-form-field>
         <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}" (dragover)="draggingOverDropZone=true" (dragleave)="draggingOverDropZone=false" (drop)="dropFiles($event)" id="dropZone">
           <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>
           <ng-container *ngIf="uploadProgress | async as uprogress">
@@ -127,11 +130,11 @@
               <button mat-icon-button id="deleteAttachment" (click)="removeAttachment(i)"><mat-icon svgIcon="delete"></mat-icon></button>
             </ng-container>
           </div>
-        </section>      
+        </section>
         <span [hidden]="editing">
             {{this.model.preview}}
         </span>
-            
+
         <div [hidden]="!editing">
             <div class="draft-buttons">
                 <button *ngIf="editing" mat-icon-button matTooltip="Attach files" id="attachMobile" (click)="attachFilesClicked()">
@@ -142,21 +145,21 @@
           <textarea style="
 			   width: 100%;
 			   height: 300px;
-			   " 
+			   "
                     [id]="selector"
                     [hidden]="!formGroup.value.useHTML">
           </textarea>
           <mat-form-field id="messageTextArea" *ngIf="!formGroup.value.useHTML" floatPlaceholder="auto">
-            <textarea 
+            <textarea
                #messageTextArea
-               placeholder="Message text" 
-               matInput                                      
+               placeholder="Message text"
+               matInput
                formControlName="msg_body"
                rows="20"
                >
             </textarea>
-          </mat-form-field>   
-        </div>          
+          </mat-form-field>
+        </div>
     </mat-card-content>
 
 </mat-card>

@@ -95,7 +95,7 @@ describe('Composing emails', () => {
         cy.visit('/compose');
         cy.wait('@listAllmessages', {'timeout':10000});
         cy.visit('/compose?new=true');
-        
+
         cy.get('button[mattooltip="Close draft"').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
@@ -141,7 +141,7 @@ describe('Composing emails', () => {
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/contacts/id-mr-postcode');
             expect(loc.search).to.eq('');
-        }); 
+        });
     });
 
     it('should find the same address in original "To" and our "From" field in Reply', () => {
@@ -152,4 +152,16 @@ describe('Composing emails', () => {
         cy.get('button[mattooltip="Reply"]').click();
         cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
     });
+
+    it('should show a save template button and save on click', () => {
+        cy.visit('/compose?new=true');
+        cy.get('input[data-placeholder="Subject"]').type('Template subject here');
+        cy.get('button[mattooltip="Save as template"').click();
+        cy.location().should((loc) => {
+            expect(loc.pathname).to.eq('/compose');
+            expect(loc.search).to.eq('?new=true');
+        });
+
+        cy.get('snack-bar-container').should('contain', 'Saved to templates');
+    })
 });

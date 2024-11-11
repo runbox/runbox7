@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -105,6 +105,22 @@ export class MockServer {
             'subfolders': [],
             'type': 'trash'
         },
+	{
+	    'id': '2',
+	    'total': 1,
+	    'size': '344',
+	    'name': 'Templates',
+	    'new': 0,
+	    'folder': 'Templates',
+	    'type': 'templates',
+	    'old': 296,
+	    'msg_total': 1,
+	    'priority': '4',
+	    'subfolders': [],
+	    'msg_new': 0,
+	    'msg_size': '344',
+	    'parent': null
+	},
     ];
 
     vtimezone_oslo =
@@ -355,7 +371,7 @@ END:VCALENDAR
                     response.end(JSON.stringify(this.emailFoldersListResponse()));
                     break;
                 case '/mail/download_xapian_index':
-                    response.end('');
+                    response.end(this.templatescontents());
                     break;
                 case '/mail/download_xapian_index?inbox':
                     response.end(this.inboxcontents());
@@ -411,6 +427,15 @@ END:VCALENDAR
                 `Test2<test2@lalala.no>	Re: nonsense	709	n	 `);
         }
         return trashlines.join('\n');
+    }
+
+    templatescontents() {
+        const lines = [];
+        for (let msg_id = 1000; msg_id < 10000; msg_id++) {
+            lines.push(`${msg_id}	1548071429	1547830043	Templates	1	0	0	"Template" <template@runbox.com>	` +
+                `Template2<template@example.org>	TEMPLATE	709	n	 `);
+        }
+        return lines.join('\n');
     }
 
     inboxcontents() {
@@ -844,7 +869,7 @@ END:VCALENDAR
 
     profiles_verified() {
         return {
-                'results': 
+                'results':
                     [{
                         'smtp_username': null,
                         'email': 'a2@example.com',

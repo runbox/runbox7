@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -74,7 +74,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
-    
+
 @Component({
   moduleId: 'angular2/app/',
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -718,7 +718,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       ) - 1;
     }
   }
-    
+
 
   public openMarkOpMenu() {
     this.showSelectMarkOpMenu = true;
@@ -916,6 +916,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
+    const isSelect = (columnIndex === 0) || multiSelect
+
+    if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
+      this.draftDeskService.newTemplateDraft(
+        this.canvastable.rows.getRowMessageId(rowIndex)
+      );
+      this.drafts();
+
+      return;
+    }
+
     this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
     this.showSelectOperations = this.canvastable.rows.anySelected();
 
