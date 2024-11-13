@@ -18,6 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 /// <reference lib="webworker.importscripts" />
+
+import '../sentry';
+
 import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
