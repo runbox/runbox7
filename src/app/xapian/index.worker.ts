@@ -18,6 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 /// <reference lib="webworker.importscripts" />
+
+import '../sentry';
+
 import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
@@ -30,9 +33,9 @@ import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
 
-declare var FS;
-declare var IDBFS;
-declare var Module;
+declare let FS;
+declare let IDBFS;
+declare let Module;
 
 const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
@@ -121,7 +124,7 @@ class SearchIndexService {
 
   // constructor( private httpclient: HttpClient ) {}
 
-  loadSearchIndexes(db: IDBDatabase): Observable<Object> {
+  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
     console.log(`Worker: got localdir: ${this.localdir}`);
     return new Observable<any>((observer) => {
       try {
@@ -312,19 +315,19 @@ class SearchIndexService {
         // console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
         const req = self.indexedDB.deleteDatabase('/' + this.localdir);
         req.onsuccess = () =>
-          o.next();
+          o.next(undefined);
       }).pipe(
         mergeMap(() =>
           new Observable(o => {
             // console.log('Worker: Deleting indexeddb database', this.partitionsdir);
             const req = self.indexedDB.deleteDatabase(this.partitionsdir);
             req.onsuccess = () =>
-              o.next();
+              o.next(undefined);
           })
         )
       ).subscribe(() => {
         ctx.postMessage({'action': PostMessageAction.indexDeleted});
-        observer.next();
+        observer.next(undefined);
       });
     });
   }

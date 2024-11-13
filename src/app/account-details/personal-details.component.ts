@@ -175,7 +175,7 @@ export class PersonalDetailsComponent {
       this.http.post('/rest/v1/account/alt_email_validation', {})
             .subscribe((res) => {
                 this.rmm.show_error('Validation email resent', 'Dismiss');
-            });;
+            });
     }
 
     show_modal_password() {

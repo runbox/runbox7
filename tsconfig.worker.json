@@ -7,7 +7,7 @@
       "es2018",
       "webworker"
     ],
-    "types": []
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.worker.ts"

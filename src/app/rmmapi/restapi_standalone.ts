@@ -24,10 +24,10 @@ import { FolderStatsEntry } from '../common/folderstatsentry';
 const LIST_ALL_MESSAGES_CHUNK_SIZE = 10000;
 export function listAllMessages(
   page: number,
-  sinceid: number = 0,
-  sincechangeddate: number = 0,
+  sinceid = 0,
+  sincechangeddate = 0,
   pagesize: number = LIST_ALL_MESSAGES_CHUNK_SIZE,
-  skipContent: boolean = false,
+  skipContent = false,
   folder?: string)
 : Promise<MessageInfo[]> {
   // TODO: Need a JSON based REST api endpoint for this

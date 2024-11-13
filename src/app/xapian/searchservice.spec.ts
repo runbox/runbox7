@@ -31,8 +31,8 @@ import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 
-declare var FS;
-declare var IDBFS;
+declare let FS;
+declare let IDBFS;
 
 describe('SearchService', () => {
 
@@ -125,7 +125,7 @@ describe('SearchService', () => {
         const searchService = TestBed.inject(SearchService);
         await xapianLoadedSubject.toPromise();
 
-        let req = httpMock.expectOne('/rest/v1/email_folder/list');
+        const req = httpMock.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 
         expect(await searchService.initSubject.toPromise()).toBeFalsy();

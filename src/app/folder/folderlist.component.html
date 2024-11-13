@@ -26,12 +26,12 @@
           <mat-icon class="mat-icon-rtl-mirror" *ngIf="node.isExpandable" svgIcon="{{treeControl.isExpanded(node) ? 'chevron-down' : 'chevron-right'}}">
           </mat-icon>
         </button>
-        <mat-icon *ngIf="node.folderType=='inbox'" mat-list-icon class="folderIconStandard" svgIcon="inbox-arrow-down"></mat-icon>
-        <mat-icon *ngIf="node.folderType=='sent'" mat-list-icon class="folderIconStandard" svgIcon="send"></mat-icon>
-        <mat-icon *ngIf="node.folderType=='spam'" mat-list-icon class="folderIconStandard" svgIcon="cancel"></mat-icon>
-        <mat-icon *ngIf="node.folderType=='templates'" mat-list-icon class="folderIconStandard" svgIcon="file-document"></mat-icon>
-        <mat-icon *ngIf="node.folderType=='trash'" mat-list-icon class="folderIconStandard" svgIcon="delete"></mat-icon>
-        <mat-icon *ngIf="node.folderType=='user'" mat-list-icon class="folderIconUser" svgIcon="folder"></mat-icon>
+        <mat-icon *ngIf="node.folderType==='inbox'" mat-list-icon class="folderIconStandard" svgIcon="inbox-arrow-down"></mat-icon>
+        <mat-icon *ngIf="node.folderType==='sent'" mat-list-icon class="folderIconStandard" svgIcon="send"></mat-icon>
+        <mat-icon *ngIf="node.folderType==='spam'" mat-list-icon class="folderIconStandard" svgIcon="cancel"></mat-icon>
+        <mat-icon *ngIf="node.folderType==='templates'" mat-list-icon class="folderIconStandard" svgIcon="file-document"></mat-icon>
+        <mat-icon *ngIf="node.folderType==='trash'" mat-list-icon class="folderIconStandard" svgIcon="delete"></mat-icon>
+        <mat-icon *ngIf="node.folderType==='user'" mat-list-icon class="folderIconUser" svgIcon="folder"></mat-icon>
         <a
           href="#{{node.folderPath}}"
           draggable="true"
