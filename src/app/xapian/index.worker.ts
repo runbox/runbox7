@@ -18,6 +18,9 @@
 // ---------- END RUNBOX LICENSE ----------
 
 /// <reference lib="webworker.importscripts" />
+
+import '../sentry';
+
 import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
@@ -312,19 +315,19 @@ class SearchIndexService {
         // console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
         const req = self.indexedDB.deleteDatabase('/' + this.localdir);
         req.onsuccess = () =>
-          o.next();
+          o.next(undefined);
       }).pipe(
         mergeMap(() =>
           new Observable(o => {
             // console.log('Worker: Deleting indexeddb database', this.partitionsdir);
             const req = self.indexedDB.deleteDatabase(this.partitionsdir);
             req.onsuccess = () =>
-              o.next();
+              o.next(undefined);
           })
         )
       ).subscribe(() => {
         ctx.postMessage({'action': PostMessageAction.indexDeleted});
-        observer.next();
+        observer.next(undefined);
       });
     });
   }

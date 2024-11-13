@@ -24,7 +24,6 @@ import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { ProfileService } from './profile.service';
 
 @Component({
-  moduleId: 'angular2/app/profiles/',
   selector: 'app-profiles',
   templateUrl: 'profiles.component.html'
 })
