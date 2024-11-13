@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterEvent, Scroll } from '@angular/router';
+import { ActivatedRoute, Router, Scroll } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
 
 import { MobileQueryService } from '../mobile-query.service';
@@ -87,7 +87,7 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
     }
 
     ngAfterViewInit() {
-        this.router.events.subscribe((e: RouterEvent) => {
+        this.router.events.subscribe((e) => {
             // This should have been easy to handle using { anchorScrolling: 'enabled' }
             // in router options, but apparently that doesn't quite work (yet?).
             // Workaround borrowed from https://stackoverflow.com/a/56568668
