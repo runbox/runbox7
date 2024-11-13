@@ -62,7 +62,6 @@ export interface ElementTld {
 }
 
 @Component({
-  moduleId: 'angular2/app/domainregister/',
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'domain-register',
   templateUrl: 'domainregister.component.html'

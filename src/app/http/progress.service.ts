@@ -22,5 +22,5 @@ import {Subject, BehaviorSubject} from 'rxjs';
 
 @Injectable()
 export class ProgressService {
-  httpRequestInProgress: Subject<Boolean> = new BehaviorSubject(false);
+  httpRequestInProgress: Subject<boolean> = new BehaviorSubject(false);
 }

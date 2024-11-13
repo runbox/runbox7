@@ -253,7 +253,7 @@ export class ContactsService implements OnDestroy {
         });
     }
 
-    async saveContact(contact: Contact, syncNow: boolean = true): Promise<string> {
+    async saveContact(contact: Contact, syncNow = true): Promise<string> {
         this.activities.begin(Activity.SavingContact);
 
         // In case we're editing a hidden contact (settings only)

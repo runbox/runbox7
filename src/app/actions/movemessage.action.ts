@@ -30,12 +30,12 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
                 <mat-list-item *ngFor="let fce of folderListEntries" (click)="moveMessages(fce.folderId)"
                     [style.paddingLeft.px]="fce.folderLevel*10"
                 >
-                <mat-icon *ngIf="fce.folderType=='inbox'" mat-list-icon class="folderIconStandard" svgIcon="inbox-arrow-down"></mat-icon>
-                <mat-icon *ngIf="fce.folderType=='sent'" mat-list-icon class="folderIconStandard" svgIcon="send"></mat-icon>
-                <mat-icon *ngIf="fce.folderType=='spam'" mat-list-icon class="folderIconStandard" svgIcon="cancel"></mat-icon>
-                <mat-icon *ngIf="fce.folderType=='templates'" mat-list-icon class="folderIconStandard" svgIcon="file-document"></mat-icon>
-                <mat-icon *ngIf="fce.folderType=='trash'" mat-list-icon class="folderIconStandard" svgIcon="delete"></mat-icon>
-                <mat-icon *ngIf="fce.folderType=='user'" mat-list-icon class="folderIconUser" svgIcon="folder"></mat-icon>
+                <mat-icon *ngIf="fce.folderType==='inbox'" mat-list-icon class="folderIconStandard" svgIcon="inbox-arrow-down"></mat-icon>
+                <mat-icon *ngIf="fce.folderType==='sent'" mat-list-icon class="folderIconStandard" svgIcon="send"></mat-icon>
+                <mat-icon *ngIf="fce.folderType==='spam'" mat-list-icon class="folderIconStandard" svgIcon="cancel"></mat-icon>
+                <mat-icon *ngIf="fce.folderType==='templates'" mat-list-icon class="folderIconStandard" svgIcon="file-document"></mat-icon>
+                <mat-icon *ngIf="fce.folderType==='trash'" mat-list-icon class="folderIconStandard" svgIcon="delete"></mat-icon>
+                <mat-icon *ngIf="fce.folderType==='user'" mat-list-icon class="folderIconUser" svgIcon="folder"></mat-icon>
                     <p mat-line>{{fce.folderName}}</p>
                 </mat-list-item>
             </mat-nav-list>

@@ -352,10 +352,10 @@ export class RunboxWebmailAPI {
   // FIXME: duplicated in restapi_standalone (no gui) for web worker
   // make there be no duplicates!
     public listAllMessages(page: number,
-        sinceid: number = 0,
-        sincechangeddate: number = 0,
+        sinceid = 0,
+        sincechangeddate = 0,
         pagesize: number = RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
-        skipContent: boolean = false,
+        skipContent = false,
         folder?: string)
         : Observable<MessageInfo[]> {
         // TODO: Need a JSON based REST api endpoint for this
@@ -547,7 +547,7 @@ export class RunboxWebmailAPI {
     // Moves to Trash if not already in Trash
     // Deletes if currently in Trash
     public deleteMessages(messageIds: number[]): Observable<any> {
-        return this.http.post(`/rest/v1/email/batch_delete`, { ids: messageIds });
+        return this.http.post('/rest/v1/email/batch_delete', { ids: messageIds });
     }
 
     public markSeen(messageId: any, seen_flag_value = 1): Observable<any> {
@@ -613,7 +613,7 @@ export class RunboxWebmailAPI {
 
     public updateFromPriorities(priorities: FromPriority[]) {
         const req = this.http.post(
-          '/rest/v1/profile/from_priority/', {"from_priorities": priorities }
+          '/rest/v1/profile/from_priority/', {'from_priorities': priorities }
         ).pipe(share());
         this.subscribeShowBackendErrors(req);
         return req.pipe(filter((res: any) => res.status === 'success'));

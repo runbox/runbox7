@@ -21,9 +21,9 @@ import { XapianAPI } from '@runboxcom/runbox-searchindex';
 import { MessageInfo, IndexingTools } from '../common/messageinfo';
 import { Subject } from 'rxjs';
 
-declare var IDBFS;
-declare var FS;
-declare var Module;
+declare let IDBFS;
+declare let FS;
+declare let Module;
 
 export class Indexer {
     static xapianScriptElm: HTMLScriptElement;

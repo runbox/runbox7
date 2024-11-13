@@ -306,9 +306,9 @@ export class ContactDetailsComponent {
 
     delete(): void {
         const confirmDialog = this.dialog.open(ConfirmDialog);
-        confirmDialog.componentInstance.title = `Delete this contact?`;
+        confirmDialog.componentInstance.title = 'Delete this contact?';
         confirmDialog.componentInstance.question =
-            `Are you sure that you want to delete this contact?`;
+            'Are you sure that you want to delete this contact?';
         confirmDialog.componentInstance.noOptionTitle = 'no';
         confirmDialog.componentInstance.yesOptionTitle = 'yes';
         confirmDialog.afterClosed().pipe(

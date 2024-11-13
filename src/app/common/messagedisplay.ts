@@ -199,7 +199,7 @@ export abstract class MessageDisplay {
   }
 
   // filtering:
-  abstract filterBy(options: Map<String, any>);
+  abstract filterBy(options: Map<string, any>);
 
   // columns
   abstract getCanvasTableColumns(app: any): CanvasTableColumn[];

@@ -65,7 +65,6 @@ const TOOLBAR_BUTTON_WIDTH = 30;
 type Mail = any;
 
 @Component({
-  moduleId: 'angular2/app/mailviewer/',
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'single-mail-viewer',
   templateUrl: 'singlemailviewer.component.html',
@@ -188,10 +187,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public get resizerHeight() {
     return this.resizer ? this.resizer.currentHeight : 0;
-  }
-
-  public get messageId() {
-    return this._messageId;
   }
 
   public get showAttachments() {
@@ -756,6 +751,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     a.target = '_blank';
     document.body.removeChild(a);
     URL.revokeObjectURL(theurl);
+  }
+
+  public get messageId() {
+    return this._messageId;
   }
 
   public set messageId(id) {

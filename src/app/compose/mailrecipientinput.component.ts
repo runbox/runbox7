@@ -33,7 +33,6 @@ import { isValidEmailArray } from './emailvalidator';
 const COMMA = 188;
 
 @Component({
-    moduleId: 'angular2/app/compose/',
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mailrecipient-input',
     templateUrl: 'mailrecipientinput.component.html'

@@ -26,7 +26,6 @@ import { RecipientsService } from './recipients.service';
 const MAX_DRAFTS_IN_VIEW = 10;
 
 @Component({
-    moduleId: 'angular2/app/compose/',
     templateUrl: 'draftdesk.component.html',
     providers: [RecipientsService],
     styleUrls: ['draftdesk.component.scss']
