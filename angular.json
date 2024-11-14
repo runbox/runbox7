@@ -69,7 +69,7 @@
           "configurations": {
             "production": {
               "optimization": true,
-              "outputHashing": "all",
+              "outputHashing": "none",
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -177,7 +177,7 @@
           "configurations": {
             "production": {
               "optimization": true,
-              "outputHashing": "all",
+              "outputHashing": "none",
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
