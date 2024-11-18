@@ -3,6 +3,8 @@ const chalk = require('chalk');
 
 execSync('git checkout src/app/buildtimestamp.ts');
 execSync('git checkout ngsw-config.json');
+execSync('npx sentry-cli sourcemaps inject ./dist/');
+execSync('npx ngsw-config ./dist ngsw-config.json "/app/"');
 
 const changelogUpdated = execSync('git status --porcelain src/app/changelog/changes.ts').toString().trim();
 if (changelogUpdated) {
