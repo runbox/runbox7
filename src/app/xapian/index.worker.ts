@@ -204,8 +204,8 @@ class SearchIndexService {
             FS.syncfs(true, async () => {
               // console.log('Worker: Loading partitions');
               this.openStoredPartitions();
-              await this.updateIndexWithNewChanges();
               ctx.postMessage({'action': PostMessageAction.indexUpdated});
+              await this.updateIndexWithNewChanges();
             });
 
 
@@ -1022,7 +1022,8 @@ ctx.addEventListener('message', ({ data }) => {
       if (searchIndexDocumentUpdates.length > 0 && searchIndexService.localSearchActivated) {
         searchIndexService.postMessagesToXapianWorker(searchIndexDocumentUpdates);
       }
-    } else if (data['action'] === PostMessageAction.addTermToDocument && searchIndexService.localSearchActivated) {
+    } else if (data['action'] === PostMessageAction.addTermToDocument) {
+      if (searchIndexService.localSearchActivated) {
       searchIndexService.postMessagesToXapianWorker([
         new SearchIndexDocumentUpdate(data['messageId'], async () => {
           try {
@@ -1032,7 +1033,9 @@ ctx.addEventListener('message', ({ data }) => {
             console.error(e);
           }
         }) ]);
-    } else if (data['action'] === PostMessageAction.removeTermFromDocument && searchIndexService.localSearchActivated) {
+      }
+    } else if (data['action'] === PostMessageAction.removeTermFromDocument) {
+      if (searchIndexService.localSearchActivated) {
       searchIndexService.postMessagesToXapianWorker([
         new SearchIndexDocumentUpdate(data['messageId'], async () => {
           try {
@@ -1044,6 +1047,7 @@ ctx.addEventListener('message', ({ data }) => {
             console.error(e);
           }
         }) ]);
+      }
     } else if (data['action'] === PostMessageAction.setCurrentFolder) {
       searchIndexService.currentFolder = data['folder'];
     }

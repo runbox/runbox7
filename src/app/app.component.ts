@@ -107,7 +107,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   entireHistoryInProgress = false;
 
   displayedFolders = new Observable<FolderListEntry[]>();
-  selectedFolder = 'Inbox';
+  selectedFolder = '';
   composeSelected: boolean;
   draftsSelected: boolean;
   overviewSelected: boolean;
@@ -410,7 +410,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       fragment => {
         if (!fragment) {
           // This also runs when we load '/compose' .. but doesnt need to
-          this.messagelistservice.setCurrentFolder('Inbox');
+          this.switchToFolder('Inbox');
           if (this.singlemailviewer) {
             this.singlemailviewer.close();
           }
@@ -420,8 +420,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
         if (fragment !== this.fragment) {
           this.fragment = fragment;
+          this.selectMessageFromFragment(this.fragment);
           if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
-            this.selectMessageFromFragment(this.fragment);
             this.canvastable.jumpToOpenMessage();
           } else {
             this.jumpToFragment = true;
@@ -996,6 +996,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.showingWebSocketSearchResults = false;
     this.usewebsocketsearch = false;
+    this.showingSearchResults = true;
 
     // don't scroll to top when redrawing after index updates
     if (!this.hasChildRouterOutlet) {
