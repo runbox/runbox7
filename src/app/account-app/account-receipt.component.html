@@ -1,31 +1,31 @@
-<div *ngIf="receipt.status === 0">
-  <h1>Payment receipt</h1>
-  <p>
-    Thank you for your purchase. The details for your transaction are shown below.
-  </p>
-  <p>
-    You may save or print this receipt, which you will also receive by email in your Runbox account.
-  </p>
-</div>
-
-<div *ngIf="receipt.status === 1">
-  <h1>Pending payment</h1>
-  <p>
-    The details for your pending transaction are shown below.
-  </p>
-  <h4>
-    To complete your payment, please follow the instructions further down.
-  </h4>
-  <p>
-    You may save or print this receipt, which you will also receive by email in your Runbox account.
-  </p>
-</div>
-
-<h2>
-  Transaction summary
-</h2>
-
 <div *ngIf="ready | async; else loading">
+  <div *ngIf="receipt.status === '0'">
+    <h1>Payment receipt</h1>
+    <p>
+      Thank you for your purchase. The details for your transaction are shown below.
+    </p>
+    <p>
+      You may save or print this receipt, which you will also receive by email in your Runbox account.
+    </p>
+  </div>
+
+  <div *ngIf="receipt.status === '1'">
+    <h1>Pending payment</h1>
+    <p>
+      The details for your pending transaction are shown below.
+    </p>
+    <h4>
+      To complete your payment, please follow the instructions further down.
+    </h4>
+    <p>
+      You may save or print this receipt, which you will also receive by email in your Runbox account.
+    </p>
+  </div>
+
+  <h2>
+    Transaction summary
+  </h2>
+
   <table>
     <tr>
       <td><strong> Account username: </strong></td>
