@@ -21,9 +21,9 @@
                 <mat-form-field>
                     <mat-label>Alternative email address</mat-label>
                     <input type="email" matInput formControlName="email_alternative">
+                    <mat-icon matSuffix *ngIf="is_alternative_email_validated" svgIcon="check-bold" matTooltip="Alternative email address is validated"></mat-icon>
+                    <mat-icon matSuffix *ngIf="!is_alternative_email_validated" svgIcon="email-arrow-right" matTooltip="Resend alternative email address validation" (click)="validate_alt_email()"></mat-icon>
                 </mat-form-field>
-                <mat-icon *ngIf="is_alternative_email_validated" svgIcon="check-bold" matTooltip="Alternative email address is validated"></mat-icon>
-                <mat-icon *ngIf="!is_alternative_email_validated" svgIcon="email-arrow-right" matTooltip="Resend alternative email address validation" (click)="validate_alt_email()"></mat-icon>
                 <mat-form-field>
                     <mat-label>Phone number (optional)</mat-label>
                     <input type="tel" matInput formControlName="phone_number">
