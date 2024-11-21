@@ -1,5 +1,5 @@
 <div *ngIf="ready | async; else loading">
-  <div *ngIf="receipt.status === '0'">
+  <div *ngIf="receipt.status === 0">
     <h1>Payment receipt</h1>
     <p>
       Thank you for your purchase. The details for your transaction are shown below.
@@ -9,7 +9,7 @@
     </p>
   </div>
 
-  <div *ngIf="receipt.status === '1'">
+  <div *ngIf="receipt.status === 1">
     <h1>Pending payment</h1>
     <p>
       The details for your pending transaction are shown below.
