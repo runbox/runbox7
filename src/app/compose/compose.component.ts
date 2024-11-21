@@ -37,6 +37,7 @@ import { RecipientsService } from './recipients.service';
 import { isValidEmailArray } from './emailvalidator';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { Identity } from '../profiles/profile.service';
+import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 import { objectEqualWithKeys } from '../common/util';
@@ -103,6 +104,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         public snackBar: MatSnackBar,
         private rmmapi: RunboxWebmailAPI,
         public draftDeskservice: DraftDeskService,
+        private messageListService: MessageListService,
         private http: HttpClient,
         private formBuilder: UntypedFormBuilder,
         private location: Location,
@@ -829,6 +831,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 });
             }
             )).subscribe((res: any) => {
+                this.messageListService.refreshFolderList();
                 if (this.isTemplate)  {
                     this.snackBar.open('Saved to templates', 'Ok', { duration: 3000 });
                 }
