@@ -1085,8 +1085,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
         // FIXME: Make a "not indexed folder list" somewhere!?
         // moveMessagesToFolder cant see these cos not in index
-        if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
-          this.selectedFolder !== this.messagelistservice.trashFolderName) {
+        if (this.messagelistservice.unindexedFolders.includes(this.selectedFolder)) {
           // remove from current message display
           this.canvastable.rows.removeMessages(messageIds);
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
@@ -1267,8 +1266,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       console.log('us', this.usewebsocketsearch);
       if (
         this.usewebsocketsearch ||
-        this.selectedFolder === this.messagelistservice.spamFolderName ||
-        this.selectedFolder === this.messagelistservice.trashFolderName
+          this.messagelistservice.unindexedFolders.includes(this.selectedFolder)
       ) {
         /*
          * Message table from database, shown if local search index is not present

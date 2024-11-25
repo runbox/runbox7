@@ -36,7 +36,7 @@ describe('MessageListService', () => {
                             [3692892, 0, 12, 'inbox', 'Inbox', 'Inbox', 0],
                             [3692893, 0, 125, 'sent', 'Sent', 'Sent', 0],
                             [3693770, 0, 3, 'user', 'Subsent', 'Sent.Subsent', 1],
-                            [3692894, 0, 2, 'spam', 'CustomSpamFolderName', 'CustomSpamFolderName', 0],
+                            [3692894, 0, 2, 'spam', 'Spam', 'Spam', 0],
                             [3692895, 3, 239, 'trash', 'Trash', 'Trash', 0],
                             [3693665, 0, 6, 'user', 'EmailPrivacyTester', 'EmailPrivacyTester', 0]
                         ].map(entry => new FolderListEntry(
@@ -58,7 +58,7 @@ describe('MessageListService', () => {
             filter(folders =>
                 folders && folders.length > 0)
                 ).subscribe(() => {
-            expect(msglistservice.spamFolderName).toBe('CustomSpamFolderName');
+            expect(msglistservice.spamFolderName).toBe('Spam');
             done();
         });
     });
