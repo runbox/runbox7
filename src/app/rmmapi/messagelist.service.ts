@@ -62,6 +62,7 @@ export class MessageListService {
 
     trashFolderName = 'Trash';
     spamFolderName = 'Spam';
+    unindexedFolders = ['Trash', 'Spam', 'Templates'];
     templateFolderName = 'Templates';
 
     ignoreUnreadInFolders = [ 'Sent' ];
@@ -125,9 +126,8 @@ export class MessageListService {
         this.searchservice.pipe(take(1)).subscribe(searchservice => {
             // searchservice / index worker uses currentFolder for checking counts
             searchservice.setCurrentFolder(folder);
-            if (!searchservice.localSearchActivated ||
-                folder === this.spamFolderName ||
-                folder === this.trashFolderName ) {
+            if (!searchservice.localSearchActivated
+                || this.unindexedFolders.includes(folder) ) {
                 // Always fetch fresh folder listing when setting current folder
 
                 this.fetchFolderMessages(true);
@@ -186,15 +186,6 @@ export class MessageListService {
         return new Promise((resolve, _) => {
             this.rmmapi.getFolderList()
                 .subscribe((folders) => {
-                    const trashfolder = folders.find(folder => folder.folderType === 'trash');
-                    if (trashfolder) {
-                        this.trashFolderName = trashfolder.folderName;
-                    }
-                    const spamfolder = folders.find(folder => folder.folderType === 'spam');
-                    if (spamfolder) {
-                        this.spamFolderName = spamfolder.folderName;
-                    }
-
                     this.folderListSubject.next(folders);
                     resolve(folders);
                 });
@@ -342,10 +333,10 @@ export class MessageListService {
                 // we only have T/S messages now, so if index on
                 // might not have this one
                 // artificial count update
-                if (folderName === this.spamFolderName || folderName === this.trashFolderName) {
+                if (this.unindexedFolders.includes(folderName)) {
                     this.folderCounts[folderName].total++;
                 }
-                if (this.currentFolder === this.spamFolderName || this.currentFolder === this.trashFolderName) {
+                if (this.unindexedFolders.includes(this.currentFolder)) {
                     this.folderCounts[folderName].total--;
                 }
                 return;

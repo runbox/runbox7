@@ -83,8 +83,7 @@ class SearchIndexService {
   // postMessage ?
   // messagelistservice stuff!
   currentFolder   = 'Inbox';
-  spamFolderName  = 'Spam';
-  trashFolderName = 'Trash';
+  unindexedFolders = ['Trash', 'Spam', 'Templates'];
   folderList: FolderListEntry[];
   messageTextCache = new Map<number, string>();
 
@@ -560,16 +559,14 @@ not matching with rest api counts for current folder`);
             const docid = this.api.getDocIdFromUniqueIdTerm(uniqueIdTerm);
             if (
               docid === 0 && // document not found in the index
-              msginfo.folder !== this.spamFolderName &&
-              msginfo.folder !== this.trashFolderName
+                !this.unindexedFolders.includes(msginfo.folder)
             ) {
               searchIndexDocumentUpdates.push(
                 new SearchIndexDocumentUpdate(msginfo.id, async () => {
                   try {
-                    this.indexingTools.addMessageToIndex(msginfo, [
-                      this.spamFolderName,
-                      this.trashFolderName
-                    ]);
+                    this.indexingTools.addMessageToIndex(
+                      msginfo, this.unindexedFolders
+                    );
                     // Add term about missing body text so that later stage can add this
                     this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
                     if (msginfo.deletedFlag) {
@@ -606,7 +603,7 @@ not matching with rest api counts for current folder`);
                   term.substr(XAPIAN_TERM_FOLDER.length) !== msginfo.folder) {
                     // Folder changed
                     const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
-                    if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash')) {
+                    if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash') || destinationFolder.folderType === 'templates') {
                       addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
                       msgIsTrashed = true;
                     } else {
