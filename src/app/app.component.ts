@@ -1011,10 +1011,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public childRouteActivated(yes: boolean): void {
     this.hasChildRouterOutlet = yes;
     if (yes) {
+      // Don't highlight a folder if we're not viewing one
       this.selectedFolder = null;
-    } else {
-      // reset the default Folder
-      this.selectedFolder = 'Inbox';
     }
   }
 
