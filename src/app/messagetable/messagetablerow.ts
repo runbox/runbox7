@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 const datelen: number = 'yyyy-MM-dd'.length;
+import humanBytes from '../common/human-bytes'
 
 export class MessageTableRowTool {
 
@@ -75,18 +76,7 @@ export class MessageTableRowTool {
         ));
     }
 
-    public static formatBytes(a, b?): string {
-        if (0 === a) {
-            return'0 B';
-        }
-
-        const c = 1e3,
-            d = b || 0,
-            e = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            f = Math.floor(Math.log(a) / Math.log(c));
-
-        return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
-    }
+    public static formatBytes = humanBytes
 }
 
 export interface MessageTableRow {
