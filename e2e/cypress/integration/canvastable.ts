@@ -1,23 +1,21 @@
 /// <reference types="cypress" />
 
+import { checkMessage, checkedMessages, rangeCheckMessages } from '../component/message_list.ts';
+
+function moveButton() {
+    return cy.get('button[mattooltip*="Move"]');
+}
+
 describe('Selecting rows in canvastable', () => {
-    function canvas() {
-        return cy.get('canvastable canvas:first-of-type');
-    }
-
-    function moveButton() {
-        return cy.get('button[mattooltip*="Move"]');
-    }
-
-    it('should select one row', () => {
+    it('should select and deselect one row', () => {
         cy.viewport('iphone-6');
         cy.visit('/');
 
-        // select
-        canvas().click({ x: 15, y: 40 });
+        moveButton().should('not.exist');
+        checkMessage(0)
         moveButton().should('be.visible');
-        // unselect
-        canvas().click({ x: 21, y: 41, force: true });
+        checkedMessages().should('have.length', 1)
+        checkMessage(0)
         moveButton().should('not.exist');
     })
 
@@ -25,14 +23,22 @@ describe('Selecting rows in canvastable', () => {
         cy.viewport('iphone-6');
         cy.visit('/');
 
-        canvas().trigger('mousedown', { x: 15, y: 10 });
-        for (let ndx = 0; ndx <= 5; ndx++) {
-            canvas().trigger('mousemove', { x: 20, y: 36 * ndx + 11 });
-        }
+        rangeCheckMessages(0, 5)
+
+
+        // Verify multiple checkboxes are checked
+        checkedMessages().should('have.length', 6);
+
         moveButton().should('be.visible');
 
-        // unselect by moving mouse back up
-        canvas().trigger('mousemove', { x: 21, y: 12 });
+        checkMessage(0)
+
+        // Verify count decreases
+        checkedMessages().should('have.length', 5)
+
+        rangeCheckMessages(1, 5)
+        checkedMessages().should('have.length', 0)
         moveButton().should('not.exist');
-    })
+    });
+
 })

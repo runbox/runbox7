@@ -1,0 +1,22 @@
+table {
+  border-collapse: collapse; /* Removes space between table cells */
+  border-spacing: 0; /* Ensures no extra spacing between cells */
+  max-width: 100%;
+  table-layout: fixed;
+  user-select: none;
+  width: 100%;
+  box-shadow: unset;
+}
+
+cdk-virtual-scroll-viewport {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    ::ng-deep & table thead {
+        visibilty: hidden;
+        opacity: 0;
+    }
+}

@@ -6,7 +6,7 @@
       fixedTopGap="0"
       id="sideMenu"
       appResizable>
-    <mat-nav-list dense>      
+    <mat-nav-list dense>
       <app-sidenav-menu (closeMenu)="sidemenu.close()"></app-sidenav-menu>
 
       <mat-menu #settingsMenu="matMenu" xPosition="before">
@@ -189,7 +189,7 @@
       <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
 	    <mat-icon svgIcon="menu"></mat-icon>
       </button>
-      
+
       <ng-container *ngIf="!hasChildRouterOutlet">
         <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex; else searchBar">
           <p *ngIf="!mobileQuery.matches">
@@ -239,12 +239,12 @@
             </button>
           </mat-form-field>
         </ng-template>
-	    
+
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
                 matTooltip="Back to conversations list">
           <mat-icon svgIcon="arrow-left"></mat-icon>
         </button>
-        
+
 	    <!-- Message action menu for regular screens -->
 	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations" class="messageListActionButtonsRight" #toolbarListButtonContainer>
 	      <button *ngIf="morelistbuttonindex>0" mat-icon-button matTooltip="Move selected message(s) to folder" (click)="moveToFolder()">
@@ -283,7 +283,7 @@
           <button *ngIf="morelistbuttonindex < 7" [matMenuTriggerFor]="moreMailListActionsMenu" mat-icon-button matTooltip="More message actions">
             <mat-icon svgIcon="dots-vertical"></mat-icon>
           </button>
-          
+
           <!-- Message action overflow items for regular screens -->
           <mat-menu #moreMailListActionsMenu="matMenu">
 	        <button *ngIf="morelistbuttonindex<1" mat-menu-item (click)="moveToFolder()">
@@ -327,7 +327,7 @@
 	        </button>
           </mat-menu>
 	    </div>
-        
+
         <mat-menu #tableViewOptionsMenu="matMenu">
           <mat-list>
             <mat-list-item>
@@ -368,7 +368,7 @@
                 Unread only
               </mat-checkbox>
             </mat-list-item>
-            
+
             <mat-list-item *ngIf="!mobileQuery.matches">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
                             matLine
@@ -407,9 +407,269 @@
         </app-multiple-search-fields-input>
 
 	<div [hidden]="hasChildRouterOutlet">
-      <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
-        <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
-      </div>
+
+          <div
+            appResizeObserver
+            (horizontalResize)="onTableResize()"
+            id="canvasTableContainerArea"
+            [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
+
+            <canvastablecontainer
+              [canvastableselectlistener]="this"
+              (sortToggled)="updateSearch(true)">
+            </canvastablecontainer>
+
+            <app-virtual-scroll-table
+              [scrollToIndex]="scrollToIndex"
+              *ngIf="rows.length"
+              class="messages-table"
+
+              (renderedRangeChange)="onRenderedRangeChange($event)"
+              [items]="rows">
+
+                <ng-template #thead>
+                  <thead>
+                    <th
+                      class="checkbox-cell">
+                      <mat-checkbox
+                        (change)="onAllCheckboxChange($event)"
+                        [indeterminate]="rowsSelectionModel.hasValue() && !allItemsSelected"
+                        [checked]="rowsSelectionModel.hasValue()"
+                        ></mat-checkbox>
+                    </th>
+                    <th
+                      class="time-cell"
+                      [ngStyle]="{ width: widths.date + 'px' }">
+                      <app-sort-button
+                        [data]="2"
+                        [(order)]="orderSelectionModel.selected">
+                        Date
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.date"/>
+                    </th>
+                    <th
+                      class="from-cell"
+                      [ngStyle]="{ width: widths.from + 'px' }">
+                      <app-sort-button
+                        [data]="0"
+                        [(order)]="orderSelectionModel.selected">
+                        {{
+                        selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
+                        }}
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.from"/>
+                    </th>
+
+                    <th
+                      class="subject-cell"
+                      [ngStyle]="{ width: widths.subject + 'px' }">
+                      <app-sort-button
+                        [data]="1"
+                        [(order)]="orderSelectionModel.selected">
+                        Subject
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.subject"/>
+                    </th>
+                    <th
+                      *ngIf="viewmode === 'conversations'"
+                      class="conversations-cell"
+                      [ngStyle]="{ width: widths.count + 'px' }"
+                    >
+                      <app-sort-button
+                        disabled
+                      >
+                        Count
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.count"/>
+                    </th>
+                    <th
+                      class="size-cell"
+                      [ngStyle]="{ width: widths.size + 'px' }">
+                      <app-sort-button
+                        [data]="3"
+                        [(order)]="orderSelectionModel.selected">
+                        Size
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.size"/>
+                    </th>
+                    <th
+                      *ngIf="displayFolderColumn"
+                      class="folder-cell"
+                      [ngStyle]="{ width: widths.folder + 'px'}">
+                      <!-- Sort does not work for folders -->
+                      <app-sort-button
+                        [data]="folder"
+                        [(order)]="orderSelectionModel.selected"
+                      >
+                        Folder
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.folder"/>
+                    </th>
+                    <th
+                      class="attachments-cell">
+                      <span class="sr-only">Attachments</span>
+                    </th>
+                    <th
+                      class="answered-cell">
+                      <span class="sr-only">Answered</span>
+                    </th>
+                    <th
+                      class="flagged-cell">
+                      <span class="sr-only">Flagged</span>
+                    </th>
+
+                    <!-- Making resizing more predictable when columns have less width than 100%-->
+                    <th></th>
+                  </thead>
+                </ng-template>
+
+                <ng-template #tbody let-item let-index="index">
+                  <!-- Show a skeleton if is loading -->
+                  <tbody
+                    *ngIf="!item.loaded"
+                    [ngClass]="{
+                      focussed: lastCheckedIndex === index,
+                      selected: rowSelectionModel.isSelected(item),
+                      checked: rowsSelectionModel.isSelected(item)
+                    }"
+                  >
+                    <tr>
+                      <td class="checkbox-cell">
+                        <mat-checkbox
+                          tabindex="-1">
+                        </mat-checkbox>
+                      </td>
+                      <td>
+                        <span class="skeleton-bone"></span>
+                      </td>
+
+                      <td>
+                        <span class="skeleton-bone"></span>
+                      </td>
+
+                      <td class="subject text-primary">
+                        <span class="skeleton-bone"></span>
+                      </td>
+                      <td class="sm-hidden">
+                        <span class="skeleton-bone"></span>
+                      </td>
+                      <td class="sm-hidden"></td>
+                      <td class="sm-hidden"></td>
+                    </tr>
+                    <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
+                      <td><!--offset --></td>
+                      <td colspan="3">
+                        <span class="skeleton-bone"></span>
+                      </td>
+                      <td colspan="3"></td>
+                    </tr>
+                  </tbody>
+                  <tbody
+                    *ngIf="item.loaded"
+                    tabindex="0"
+                    role="button"
+                    (click)="onRowClick($event, item, index)"
+                    (keydown)="onRowKeydown($event, item, index)"
+                    (dragstart)="onMessagesDragStart($event, item)"
+                    draggable="true"
+                    [ngClass]="{
+                      focussed: lastCheckedIndex === item,
+                      selected: rowSelectionModel.isSelected(item),
+                      checked: rowsSelectionModel.isSelected(item)
+                    }"
+                  >
+                    <tr>
+                      <td (click)="onCheckboxClick($event, item, index)" class="checkbox-cell">
+                        <mat-checkbox
+                          (click)="onCheckboxClick($event, item, index)"
+                          [checked]="rowsSelectionModel.isSelected(item)"
+                          tabindex="-1">
+                        </mat-checkbox>
+                      </td>
+                      <td>
+                        {{item.messageDate}}
+                      </td>
+
+                      <td
+                        [ngClass]="{
+                          'bold': !item.seen
+                          }"
+
+                        class="text-primary">
+                        {{item.from}}
+                      </td>
+
+                      <td class="subject text-primary"
+                          [ngClass]="{
+                           bold: !item.seen
+                           }">
+                          {{item.subject}}
+                      </td>
+                      <td
+                        class="count"
+                        *ngIf="viewmode === 'conversations'"
+                      >
+                        <div
+                          *ngIf="item.count > 1"
+                        >
+                          {{item.count}}
+                        </div>
+                      </td>
+                      <td class="sm-hidden">
+                        {{item.size | humanBytes}}
+                      </td>
+                      <td
+                        *ngIf="displayFolderColumn"
+                      >
+                        {{item.folder}}
+                      </td>
+                      <td class="sm-hidden">
+                        <mat-icon
+                          style="transform: rotate(90deg);"
+                          *ngIf="item.attachment"
+                          aria-label="Has attachments"
+                          mat-list-icon
+                          svgIcon="attachment">
+                        </mat-icon>
+                      </td>
+                      <td class="sm-hidden">
+                        <mat-icon
+                          *ngIf="item.answered"
+                          aria-label="answered"
+                          mat-list-icon
+                          svgIcon="reply">
+                        </mat-icon>
+                      </td>
+                      <td class="sm-hidden">
+                        <mat-icon
+                          *ngIf="item.flagged"
+                          aria-label="Flagged"
+                          mat-list-icon
+                          svgIcon="flag">
+                        </mat-icon>
+                      </td>
+
+                      <!-- Making resizing more predictable when columns have less width than 100%-->
+                      <td></td>
+
+                    </tr>
+                    <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
+                      <!--offset -->
+                      <td (click)="onCheckboxClick($event, item, index)"></td>
+                      <td colspan="3">
+                        <span class="preview">{{item.plaintext | async}} </span>
+                      </td>
+                      <td class="sm-hidden" aria-hidden colspan="4"></td>
+                      <td aria-hidden *ngIf="displayFolderColumn"></td>
+                      <td aria-hidden *ngIf="viewmode === 'conversations'"></td>
+
+                      <!-- Making resizing more predictable when columns have less width than 100%-->
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </ng-template>
+            </app-virtual-scroll-table>
+          </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
           [adjustableHeight]="true"
@@ -449,7 +709,7 @@
       <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
     </button>
   </div>
-  
+
   <!-- Message action floating submenu for mobile screens -->
   <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
     <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
@@ -469,7 +729,14 @@
     </button>
   </div>
   <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
+
 </mat-sidenav-container>
+
+<app-follows-mouse *ngIf="dragEvent">
+  <mat-card>
+    <mat-icon>mail</mat-icon> Moving {{rowsSelectionModel.selected.length}}
+  </mat-card>
+</app-follows-mouse>
 
 <!-- This will cause an error in dev mode with the async pipe, should not be present however in production -->
 <div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"
@@ -477,3 +744,5 @@
     >
   <mat-spinner diameter="20" ></mat-spinner>
 </div>
+
+

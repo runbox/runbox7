@@ -70,7 +70,7 @@ type Mail = any;
   templateUrl: 'singlemailviewer.component.html',
   styleUrls: ['singlemailviewer.component.scss']
 })
-export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
+export class SingleMailViewerComponent implements OnInit, AfterViewInit, DoCheck {
 
   _messageId = null; // Message id or filename
 

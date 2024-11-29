@@ -98,4 +98,15 @@ export class WebSocketSearchMailList extends MessageDisplay {
         return columns;
     }
 
+    getRowData(rowIndex, app) {
+      return {
+        id: this.getRowMessageId(rowIndex),
+        selectbox: this.isSelectedRow(rowIndex),
+        messageDate: this.getRow(rowIndex).dateTime,
+        from: this.getRow(rowIndex).fromName,
+        subject: this.getRow(rowIndex).subject,
+        size: this.getRow(rowIndex).size,
+      };
+    }
+
 }
