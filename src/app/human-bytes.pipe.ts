@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2025 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -17,28 +17,13 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Pipe, PipeTransform } from '@angular/core';
+import humanBytes from './common/human-bytes'
 
-import { HelpComponent } from './help.component';
-
-describe('HelpComponent', () => {
-  let component: HelpComponent;
-  let fixture: ComponentFixture<HelpComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ HelpComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(HelpComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+@Pipe({
+  name: 'humanBytes',
+  standalone: true
+})
+export class HumanBytesPipe implements PipeTransform {
+  public transform = humanBytes
+}
