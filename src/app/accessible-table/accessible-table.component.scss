@@ -1,0 +1,43 @@
+table {
+  user-select: none;
+  width: 100%;
+}
+
+cdk-virtual-scroll-viewport {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+thead {
+  font-weight: bold;
+}
+
+tbody tr {
+  cursor: pointer;
+}
+
+table tbody:hover {
+  /* TODO: Use css properties */
+  background-color: #EEE;
+}
+
+table tbody:has(:checked) {
+  /* TODO: Use css properties */
+  background-color: #DDD;
+}
+
+table tbody.highlight-row {
+  /* TODO: Use css properties */
+  background-color: #CCC;
+}
+
+table {
+  border-collapse: collapse; /* Removes space between table cells */
+  border-spacing: 0; /* Ensures no extra spacing between cells */
+}
+
+
+
