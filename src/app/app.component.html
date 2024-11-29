@@ -6,7 +6,7 @@
       fixedTopGap="0"
       id="sideMenu"
       appResizable>
-    <mat-nav-list dense>      
+    <mat-nav-list dense>
       <app-sidenav-menu (closeMenu)="sidemenu.close()"></app-sidenav-menu>
 
       <mat-menu #settingsMenu="matMenu" xPosition="before">
@@ -182,7 +182,7 @@
       <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
 	    <mat-icon svgIcon="menu"></mat-icon>
       </button>
-      
+
       <ng-container *ngIf="!hasChildRouterOutlet">
         <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex; else searchBar">
           <p *ngIf="!mobileQuery.matches">
@@ -232,12 +232,12 @@
             </button>
           </mat-form-field>
         </ng-template>
-	    
+
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
                 matTooltip="Back to conversations list">
           <mat-icon svgIcon="arrow-left"></mat-icon>
         </button>
-        
+
 	    <!-- Message action menu for regular screens -->
 	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations" class="messageListActionButtonsRight" #toolbarListButtonContainer>
 	      <button *ngIf="morelistbuttonindex>0" mat-icon-button matTooltip="Move selected message(s) to folder" (click)="moveToFolder()">
@@ -276,7 +276,7 @@
           <button *ngIf="morelistbuttonindex < 7" [matMenuTriggerFor]="moreMailListActionsMenu" mat-icon-button matTooltip="More message actions">
             <mat-icon svgIcon="dots-vertical"></mat-icon>
           </button>
-          
+
           <!-- Message action overflow items for regular screens -->
           <mat-menu #moreMailListActionsMenu="matMenu">
 	        <button *ngIf="morelistbuttonindex<1" mat-menu-item (click)="moveToFolder()">
@@ -320,7 +320,7 @@
 	        </button>
           </mat-menu>
 	    </div>
-        
+
         <mat-menu #tableViewOptionsMenu="matMenu">
           <mat-list>
             <mat-list-item>
@@ -361,7 +361,7 @@
                 Unread only
               </mat-checkbox>
             </mat-list-item>
-            
+
             <mat-list-item *ngIf="!mobileQuery.matches">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
                             matLine
@@ -400,9 +400,16 @@
         </app-multiple-search-fields-input>
 
 	<div [hidden]="hasChildRouterOutlet">
-      <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
-        <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
-      </div>
+
+          <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
+            <canvastablecontainer
+              [canvastableselectlistener]="this"
+              (sortToggled)="updateSearch(true)">
+            </canvastablecontainer>
+
+            <accessible-table [rows]="canvastable?.rows?.rows ?? []"></accessible-table>
+          </div>
+
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
           [adjustableHeight]="true"
@@ -442,7 +449,7 @@
       <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
     </button>
   </div>
-  
+
   <!-- Message action floating submenu for mobile screens -->
   <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
     <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
@@ -462,6 +469,7 @@
     </button>
   </div>
   <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
+
 </mat-sidenav-container>
 
 <!-- This will cause an error in dev mode with the async pipe, should not be present however in production -->
@@ -470,3 +478,5 @@
     >
   <mat-spinner diameter="20" ></mat-spinner>
 </div>
+
+

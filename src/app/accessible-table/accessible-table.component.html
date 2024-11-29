@@ -1,0 +1,70 @@
+<cdk-virtual-scroll-viewport [itemSize]="firstRowHeight" class="email-viewport">
+  <table
+    mat-column-resize
+    class="mat-mdc-table mdc-data-table__table cdk-table mat-sort mat-elevation-z8"
+  >
+    <thead
+      class="mat-mdc-header-row mdc-data-table__header-row cdk-header-row ng-star-inserted"
+    >
+      <tr>
+        <td
+          class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
+        >
+          <mat-checkbox
+            [indeterminate]="isIndeterminite"
+            [checked]="allCheckboxIsChecked"
+            (change)="onAllCheckboxChange($event)"
+          ></mat-checkbox>
+        </td>
+        <td
+          class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
+          mat-resizable
+          *ngFor="let column of displayedColumns"
+        >
+          {{ column }}
+        </td>
+      </tr>
+    </thead>
+
+
+      <ng-container
+        *cdkVirtualFor="let row of rows; let $index = index"
+      >
+    <tbody
+        [ngClass]="{'highlight-row': $index === lastCheckedIndex}"
+        tabindex="0"
+        role="button"
+        (click)="onRowClick($event, row, $index)"
+        (keydown)="onRowKeydown($event, row, $index)"
+      >
+      <tr
+        class="mat-mdc-row mdc-data-table__row cdk-row ng-star-inserted"
+      >
+        <td
+          class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
+        >
+          <mat-checkbox
+            tabindex="-1"
+            (click)="onCheckboxClick($event, $index, row)"
+            (change)="onCheckboxChange($event, $index, row)"
+            [checked]="selected[$index]"
+          ></mat-checkbox>
+        </td>
+        <td
+          *ngFor="let column of displayedColumns"
+          class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
+        >
+          {{ row[column] }}
+        </td>
+      </tr>
+      <tr *ngIf="true">
+        <td></td>
+        <td [attr.colspan]="displayedColumns.length">This is a message preview</td>
+      </tr>
+    </tbody>
+      </ng-container>
+      <tfoot>
+        End of the list
+      </tfoot>
+  </table>
+</cdk-virtual-scroll-viewport>
