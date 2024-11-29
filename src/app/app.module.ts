@@ -52,6 +52,7 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
+import { AccessibleTableComponent } from './accessible-table/accessible-table.component'
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
@@ -142,6 +143,7 @@ const routes: Routes = [
 @NgModule({
     imports: [BrowserModule, FormsModule,
         HttpClientModule,
+        AccessibleTableComponent,
         HttpClientJsonpModule,
         CanvasTableModule,
         ComposeModule,
