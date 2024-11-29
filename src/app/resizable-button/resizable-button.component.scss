@@ -1,0 +1,25 @@
+button {
+    --fg: #333;
+    border-left: 1px solid var(--fg);
+    border-right: 1px solid var(--fg);
+    border-top: none;
+    border-bottom: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    cursor: col-resize;
+    right: 0;
+    width: 0.5rem;
+    border-radius: unset;
+    padding: 0;
+    margin: 0;
+    display: block;
+    transition: opacity 0.1s ease;
+    opacity: 0;
+    background: none;
+}
+
+button:hover, button:focus, button.resizing {
+    opacity: 1;
+}
+

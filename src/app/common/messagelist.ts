@@ -157,4 +157,23 @@ export class MessageList extends MessageDisplay {
 
     return columns;
   }
+
+  getRowData(rowIndex, app) {
+    const row = this.rows[rowIndex]
+
+    return {
+      id: row.id,
+      seen: row.seenFlag,
+      messageDate: MessageTableRowTool.formatTimestamp(row.messageDate.toJSON()),
+      from: app.selectedFolder === 'Sent'
+        ? this.getToColumnValueForRow(rowIndex)
+        : this.getFromColumnValueForRow(rowIndex),
+      subject: row.subject,
+      size: row.size,
+      attachment: row.attachment ,
+      answered: row.answeredFlag ,
+      flagged: row.flaggedFlag ,
+      plaintext: row.plaintext?.trim(),
+    }; 
+  }
 }
