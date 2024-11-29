@@ -2,6 +2,10 @@
     border-right: 1px solid darkgrey !important;
 }
 
+canvastablecontainer {
+    opacity: 0;
+}
+
 #rightPane {
     border-left: 1px solid darkgrey !important;
 }
@@ -66,5 +70,125 @@
 // Override default tooltip CSS
 ::ng-deep .multiline-tooltip {
     width: 150px;
+}
+
+.resizable {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.messages-table {
+    --checked-color: #eee;
+    --focussed-color: #ddd;
+    --selected-color: #ccc;
+    --border-color: #ddd;
+
+    --cell-y-spacing: 0.3lh;
+
+    & .checkbox-cell {
+        width: 2rem;
+        text-align: center;
+    }
+
+    & th {
+        text-align: left;
+        position: relative;
+        background-color: white;
+        z-index: 1;
+    }
+
+    & td {
+        padding-bottom: var(--cell-y-spacing);
+    }
+
+    & td,
+    & th {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    & tbody tr:first-child td {
+        padding-top: var(--cell-y-spacing);
+    }
+
+    & tbody {
+        cursor: pointer;
+    }
+
+    & tbody.checked {
+        background-color: var(--checked-color);
+    }
+
+    & tbody.focussed {
+        background-color: var(--focussed-color);
+    }
+
+    & tbody:hover,
+    & tbody.selected {
+        background-color: var(--selected-color);
+    }
+
+    & .preview {
+        display: block;
+        height: 1lh;
+    }
+
+    @media (max-width: 60rem) {
+        & {
+            display: block;
+        }
+
+        & thead {
+            display: none;
+        }
+
+        & tbody {
+            display: block;
+        }
+
+        td.sm-hidden {
+            display: none;
+        }
+
+        & tr {
+            margin-left: 8px;
+            display: flex;
+            flex-flow: row wrap;
+            gap: 0.5rem;
+        }
+
+        & td {
+            margin-top: auto;
+            margin-bottom: auto;
+
+            &.subject {
+                width: 100%;
+            }
+        }
+    }
+
+}
+
+::ng-deep table {
+    font-size: 13px;
+}
+
+tbody mat-icon {
+    /* Prevent icon from increasing tbody height */
+    max-height: 1.3em;
+    margin: -0.3em;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
