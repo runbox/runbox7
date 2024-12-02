@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input } from '@angular/core';
+import { Component, ContentChildren, ContentChild, QueryList, TemplateRef, AfterContentInit, ElementRef, Input } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -15,7 +15,12 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   styleUrls: ['./accessible-table.component.scss']
 })
 export class AccessibleTableComponent {
+  @ContentChildren('th', { read: TemplateRef }) thTemplates!: QueryList<TemplateRef<any>>;
+  @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
+  @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
+
   @Input() rows: any[] = [];
+  // rows = [];
   selected = [];
   displayedColumns: string[] = ['date', 'from', 'subject', 'size'];
   lastCheckedIndex: number|null = null
@@ -24,7 +29,7 @@ export class AccessibleTableComponent {
     private elementRef: ElementRef,
   ) {
     // for (let i = 0; i < 1000; i++) {
-    //   this.emails.push({
+    //   this.rows.push({
     //     date: new Date(2024, 10, i % 30 + 1).toISOString(),
     //     from: `user${i + 1}@example.com`,
     //     subject: `Subject ${i + 1}`,
