@@ -81,7 +81,7 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app',
   styleUrls: ['app.component.scss'],
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;

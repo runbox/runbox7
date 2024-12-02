@@ -3,6 +3,9 @@
     mat-column-resize
     class="mat-mdc-table mdc-data-table__table cdk-table mat-sort mat-elevation-z8"
   >
+    <colgroup>
+      <col>
+    </colgroup>
     <thead
       class="mat-mdc-header-row mdc-data-table__header-row cdk-header-row ng-star-inserted"
     >
@@ -16,13 +19,15 @@
             (change)="onAllCheckboxChange($event)"
           ></mat-checkbox>
         </td>
-        <td
-          class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
-          mat-resizable
-          *ngFor="let column of displayedColumns"
-        >
-          {{ column }}
-        </td>
+
+
+          <ng-container *ngFor="let thTemplate of thTemplates">
+            <td
+              class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
+              >
+              <ng-container *ngTemplateOutlet="thTemplate"></ng-container>
+            </td>
+          </ng-container>
       </tr>
     </thead>
 
@@ -50,21 +55,23 @@
             [checked]="selected[$index]"
           ></mat-checkbox>
         </td>
-        <td
-          *ngFor="let column of displayedColumns"
-          class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
-        >
-          {{ row[column] }}
-        </td>
+
+
+          <ng-container *ngFor="let tdTemplate of tdTemplates">
+            <td
+
+              class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
+              ><ng-container *ngTemplateOutlet="tdTemplate; context: { $implicit: row }"></ng-container></td>
+          </ng-container>
       </tr>
-      <tr *ngIf="true">
-        <td></td>
-        <td [attr.colspan]="displayedColumns.length">This is a message preview</td>
+
+      <tr>
+        <td aria-hidden="true"></td>
+        <td [attr.colspan]="thTemplates.length">
+          <ng-container *ngTemplateOutlet="previewTemplate; context: { $implicit: row }"></ng-container>
+        </td>
       </tr>
     </tbody>
       </ng-container>
-      <tfoot>
-        End of the list
-      </tfoot>
   </table>
 </cdk-virtual-scroll-viewport>
