@@ -89,6 +89,7 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
+import { HumanBytesPipe } from './human-bytes.pipe';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -182,7 +183,8 @@ const routes: Routes = [
         RunboxCommonModule,
         RouterModule.forRoot(routes),
         ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-        HotkeyModule.forRoot()
+        HotkeyModule.forRoot(),
+        HumanBytesPipe
     ],
     exports: [],
     declarations: [MainContainerComponent, AppComponent,
