@@ -1,41 +1,79 @@
-import { Component, ContentChildren, ContentChild, QueryList, TemplateRef, AfterContentInit, ElementRef, Input } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  ContentChildren,
+  ContentChild,
+  QueryList,
+  TemplateRef,
+  ElementRef,
+  Input,
+  Output,
+  EventEmitter,
+  AfterViewChecked,
+  OnChanges,
+  ViewChild,
+} from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatSortModule } from '@angular/material/sort';
-import { MatCardModule } from '@angular/material/card';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'accessible-table',
   standalone: true, // Make the component standalone
-  imports: [MatTableModule, MatSortModule, MatCardModule, ScrollingModule, CommonModule, MatCheckboxModule],
+  imports: [MatIconModule, ScrollingModule, CommonModule, MatCheckboxModule],
   templateUrl: './accessible-table.component.html',
   styleUrls: ['./accessible-table.component.scss']
 })
-export class AccessibleTableComponent {
+export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   @ContentChildren('th', { read: TemplateRef }) thTemplates!: QueryList<TemplateRef<any>>;
   @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
   @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
 
+  @ViewChild('dragPreview') dragPreview!: ElementRef<HTMLDivElement>;
+
   @Input() rows: any[] = [];
-  // rows = [];
-  selected = [];
+  @Input() selected: any[] = [];
+
+  @Output() rowClicked = new EventEmitter<any>();
+  @Output() rowSelected = new EventEmitter<any>();
+  @Output() selectionDragStarted = new EventEmitter<any>();
+
+  private dragEvent: null | DragEvent = null;
+  private selectedDragSize: number = 0;
+
   displayedColumns: string[] = ['date', 'from', 'subject', 'size'];
   lastCheckedIndex: number|null = null
+  firstRowHeight: number = 100;
 
   constructor(
     private elementRef: ElementRef,
-  ) {
-    // for (let i = 0; i < 1000; i++) {
-    //   this.rows.push({
-    //     date: new Date(2024, 10, i % 30 + 1).toISOString(),
-    //     from: `user${i + 1}@example.com`,
-    //     subject: `Subject ${i + 1}`,
-    //     size: Math.floor(Math.random() * 20) + 5
-    //   });
-    // }
+  ) { }
+
+  ngAfterViewChecked() {
+    this.updateFirstRowHeight();
+  }
+
+  ngOnChanges(changes) {
+    if (changes.rows) {
+      this.selected = []
+      this.lastCheckedIndex = null
+      this.elementRef
+        .nativeElement
+        .querySelector('cdk-virtual-scroll-viewport')
+        .scrollTop = 0;
+
+    }
+  }
+
+  private updateFirstRowHeight(): void {
+    this.firstRowHeight = this.elementRef
+    .nativeElement
+    .parentElement
+      ?.querySelector('tbody')
+      ?.offsetHeight
+      || 100;
   }
 
   onAllCheckboxChange({checked}) {
@@ -44,23 +82,31 @@ export class AccessibleTableComponent {
     } else {
       this.selected = []
     }
+    this.emitSelect()
   }
 
   // Change gets called before click.
   onCheckboxChange({checked}, index, message) {
-    this.selected[index] = checked ? message : undefined;
+    this.oneSelect(index, checked)
   }
 
   onRowClick(event, message, index) {
+    let selection = false
     if (event.shiftKey) {
       this.rangeSelect(index, !this.selected[index])
+      selection = true
     }
 
     if (event.ctrlKey || event.metaKey) {
-      this.selected[index] = !this.selected[index]
+      this.oneSelect(index, !this.selected[index])
+      selection = true
     }
 
     this.lastCheckedIndex = index;
+
+    if (!selection) {
+      this.rowClicked.emit({ index, message });
+    }
   }
 
   onRowKeydown(event, index, message) {
@@ -82,18 +128,39 @@ export class AccessibleTableComponent {
     this.lastCheckedIndex = index;
   }
 
-  rangeSelect(to, checked) {
-      if (this.lastCheckedIndex == null) return;
-
-      const startIndex = Math.min(this.lastCheckedIndex, to);
-      const endIndex = Math.max(this.lastCheckedIndex, to);
-
-      for (let i = startIndex; i <= endIndex; i++) {
-        this.selected[i] = checked ? this.rows[i] : null;  // Set the checked state based on the current checkbox
-      }
+  oneSelect(index, checked) {
+    this.rangeSelect(index, checked, index)
   }
 
-  get isIndeterminite() {
+  rangeSelect(to, checked, from = null) {
+    const start = from ?? this.lastCheckedIndex
+
+    if (start == null) return;
+
+    const startIndex = Math.min(start, to);
+    const endIndex = Math.max(start, to);
+
+    for (let i = startIndex; i <= endIndex; i++) {
+      this.selected[i] = checked ? this.rows[i] : null;  // Set the checked state based on the current checkbox
+    }
+
+    this.emitSelect()
+  }
+
+  selectedSet() {
+    const selected = new Set(this.selected)
+
+    selected.delete(null)
+    selected.delete(undefined)
+
+    return selected;
+  }
+
+  emitSelect() {
+    this.rowSelected.emit({selected: this.selectedSet()})
+  }
+
+  get isIndeterminate() {
     // Has both selected and unselected items. Might be better to use a
     let hasSelected = false;
     let hasUnselected = false;
@@ -112,13 +179,37 @@ export class AccessibleTableComponent {
     return this.selected.find(x => x != null)
   }
 
-  get firstRowHeight(): number {
-      return this.elementRef
-        .nativeElement
-        .parentElement
-        ?.querySelector('tbody')
-        ?.offsetHeight
-        ?? 100;
+  @HostListener('document:drag', ['$event'])
+  onDrag(event: DragEvent) {
+    this.dragPreview.nativeElement.style.display = 'block'
+    this.dragPreview.nativeElement.style.left = `${event.clientX}px`;
+    this.dragPreview.nativeElement.style.top = `${event.clientY}px`;
+
+  }
+
+  onDragEnd() {
+    this.dragEvent = null
+    this.dragPreview.nativeElement.style.display = 'none'
+  }
+
+  onDragStart(event, row, index) {
+    this.dragEvent = event;
+
+    const emptyImage = new Image();
+    event.dataTransfer?.setDragImage(emptyImage, 0, 0); // Set an empty image
+
+    const isSelected = this.selected[index]
+
+    const selected = isSelected
+      ? this.selectedSet()
+      : new Set([row]);
+
+    this.selectedDragSize = selected.size;
+
+    this.selectionDragStarted.emit({
+      event,
+      selected,
+    })
   }
 
 }

@@ -406,18 +406,49 @@
               (sortToggled)="updateSearch(true)">
             </canvastablecontainer>
 
-            <accessible-table [rows]="canvastable?.rows?.rows ?? []">
+            <accessible-table
+              (rowSelected)="onRowSelected($event)"
+              (rowClicked)="onRowClicked($event)"
+              (selectionDragStarted)="onSelectionDragStarted($event)"
+              [rows]="canvastable?.rows?.rows ?? []">
                 <ng-template #th>Date</ng-template>
                 <ng-template #th>From</ng-template>
                 <ng-template #th>Subject</ng-template>
                 <ng-template #th>Size</ng-template>
+                <ng-template #th><span class="sr-only">Attachments</span></ng-template>
 
-                <ng-template #td let-item>{{item.messageDate.toLocaleDateString()}}</ng-template>
-                <ng-template #td let-item>{{item.from[0].name || item.from[0].address}}</ng-template>
-                <ng-template #td let-item>{{item.subject}}</ng-template>
+                <ng-template #td let-item>{{item.messageDate | date:'shortDate'}}</ng-template>
+                <ng-template #td let-item>
+                  <span
+                    [ngClass]="{'bold-text': !item.seenFlag}"
+                    class="text-primary"
+                  >
+                    {{item.from?.[0].name || item.from?.[0].address || ""}}
+                  </span>
+                </ng-template>
+                <ng-template #td let-item>
+                  <span
+                    [ngClass]="{'bold-text': !item.seenFlag}"
+                    class="text-primary"
+                  >
+                    {{item.subject}}
+                  </span>
+                </ng-template>
                 <ng-template #td let-item>{{item.size | humanBytes}}</ng-template>
+                <ng-template #td let-item>
+                  <!-- TODO: Fix the style attribute -->
+                  <mat-icon
+                    style="transform: rotate(90deg);"
+                    *ngIf="item.attachment"
+                    mat-list-icon
+                    svgIcon="attachment">
+                  </mat-icon>
+                </ng-template>
 
-                <ng-template #preview let-item>
+                <ng-template
+                  *ngIf="canvastable.showContentTextPreview"
+                  #preview let-item
+                >
                   {{item.plaintext}}
                 </ng-template>
             </accessible-table>

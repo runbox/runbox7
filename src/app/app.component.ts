@@ -64,6 +64,7 @@ import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
+import { DatePipe } from '@angular/common';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -81,6 +82,7 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   selector: 'app',
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html',
+  imports: [DatePipe],
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;
@@ -92,6 +94,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   usewebsocketsearch = false;
 
+  selectedMessages = []
+
   preferences: Map<string, any> = new Map();
   viewmode = 'messages';
   keepMessagePaneOpen = true;
@@ -101,6 +105,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
+
+  dragEvent: null | {
+    event: DragEvent,
+    selected: Array<MessageInfo>
+  };
 
   indexDocCount = 0;
 
@@ -164,7 +173,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   morelistbuttonindex = 7;
 
-  constructor(public searchService: SearchService,
+  constructor(
+    public searchService: SearchService,
+    private elementRef: ElementRef,
     public rmmapi: RunboxWebmailAPI,
     public rmm: RMM,
     public snackBar: MatSnackBar,
@@ -662,7 +673,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     const snackBarRef = this.snackBar.open( msg );
-    const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
+    const unfilteredMessageIds = this.selectedMessageIds;
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
 
@@ -733,7 +744,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
+
+    console.log(status, messageIds)
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -766,7 +779,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -800,7 +813,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // Delete selected messages in current canvastable view
   // If looking at Trash, this will be "delete permanently"
   public deleteMessages() {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -877,6 +890,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.selectMessageFromFragment(this.fragment);
       }
     }
+
     this.filterMessageDisplay();
 
     // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
@@ -1076,7 +1090,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   dropToFolder(folderId): void {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const dragEvent = this.dragEvent
+
+    delete this.dragEvent;
+
+    const messageIds = Array.from(dragEvent.selected).map(x => x.id)
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -1105,7 +1123,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public moveToFolder() {
     const dialogRef: MatDialogRef<MoveMessageDialogComponent> = this.dialog.open(MoveMessageDialogComponent);
 //    dialogRef.componentInstance.messageActionsHandler = this.messageActionsHandler;
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     console.log('selected messages', messageIds);
     // dialogRef.componentInstance.selectedMessageIds = messageIds;
@@ -1419,6 +1437,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.router.navigate(['/'], { fragment });
     }
   }
+
+  onRowClicked(a) {
+    this.rowSelected(a.index, 3, false);
+  }
+
+  onRowSelected(event) {
+    this.selectedMessages = event.selected;
+  }
+
+  get selectedMessageIds() {
+    return Array.from(this.selectedMessages).map(x => x.id);
+  }
+
+  onSelectionDragStarted(event) {
+    this.dragEvent = event;
+  }
+
 }
 
 // vim: set shiftwidth=2
