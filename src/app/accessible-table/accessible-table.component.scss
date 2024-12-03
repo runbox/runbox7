@@ -42,3 +42,35 @@ table {
 colgroup col:nth-child(1) {
   width: 1rem;
 }
+
+@media screen and (max-width: 38rem) {
+  thead {
+    display: none;
+  }
+
+  td:not(:nth-child(-n+1)) {
+    display: block; /* Makes each cell take a full row */
+    width: 100%;    /* Ensures it spans the full width */
+  }
+}
+
+.preview {
+  display: block;
+  height: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  max-width: 28rem;
+  text-overflow: ellipsis;
+}
+
+.drag-preview {
+  display: none;
+  font-weight: bold;
+  background-color: #fff;
+  padding: 0.5rem;
+  border-radius: 4px;
+  position: fixed;
+  pointer-events: none; /* Prevents the drag preview from blocking interactions */
+  z-index: 1000;
+}

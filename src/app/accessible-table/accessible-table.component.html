@@ -14,12 +14,11 @@
           class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
         >
           <mat-checkbox
-            [indeterminate]="isIndeterminite"
+            [indeterminate]="isIndeterminate"
             [checked]="allCheckboxIsChecked"
             (change)="onAllCheckboxChange($event)"
           ></mat-checkbox>
         </td>
-
 
           <ng-container *ngFor="let thTemplate of thTemplates">
             <td
@@ -31,7 +30,6 @@
       </tr>
     </thead>
 
-
       <ng-container
         *cdkVirtualFor="let row of rows; let $index = index"
       >
@@ -41,6 +39,9 @@
         role="button"
         (click)="onRowClick($event, row, $index)"
         (keydown)="onRowKeydown($event, row, $index)"
+        (dragstart)="onDragStart($event, row, $index)"
+        (dragend)="onDragEnd($event, row, $index)"
+        draggable="true"
       >
       <tr
         class="mat-mdc-row mdc-data-table__row cdk-row ng-star-inserted"
@@ -56,22 +57,26 @@
           ></mat-checkbox>
         </td>
 
-
           <ng-container *ngFor="let tdTemplate of tdTemplates">
             <td
-
               class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
               ><ng-container *ngTemplateOutlet="tdTemplate; context: { $implicit: row }"></ng-container></td>
           </ng-container>
       </tr>
 
-      <tr>
+      <tr *ngIf="previewTemplate">
         <td aria-hidden="true"></td>
         <td [attr.colspan]="thTemplates.length">
-          <ng-container *ngTemplateOutlet="previewTemplate; context: { $implicit: row }"></ng-container>
+          <span class="preview">
+            <ng-container *ngTemplateOutlet="previewTemplate; context: { $implicit: row }"></ng-container>
+          </span>
         </td>
       </tr>
     </tbody>
       </ng-container>
   </table>
 </cdk-virtual-scroll-viewport>
+
+<div #dragPreview class="drag-preview">
+  <mat-icon>mail</mat-icon> Moving {{this.selectedDragSize}}
+</div>
