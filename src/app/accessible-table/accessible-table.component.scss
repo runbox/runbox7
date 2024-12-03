@@ -74,3 +74,9 @@ colgroup col:nth-child(1) {
   pointer-events: none; /* Prevents the drag preview from blocking interactions */
   z-index: 1000;
 }
+
+table td span {
+  height: 1rem;
+  display: inline-block;
+  overflow: hidden;
+}
