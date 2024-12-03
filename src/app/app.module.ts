@@ -91,7 +91,6 @@ import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
 import { HumanBytesPipe } from './human-bytes.pipe';
 
-
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
 
