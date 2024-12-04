@@ -447,8 +447,11 @@ export class MessageListService {
         folders.forEach((f) => this.staleFolders[f] = true);
         // check if current visible folder has updates
         // refresh if localsearch not activated (aka setCurrentFolder)
-        if (this.staleFolders[this.currentFolder]) {
+        this.searchservice.pipe(take(1)).subscribe(searchservice => {
+          if (!searchservice.localSearchActivated &&
+            this.staleFolders[this.currentFolder]) {
             this.fetchFolderMessages();
-        }
+          }
+        });
     }
 }

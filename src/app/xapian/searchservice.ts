@@ -231,8 +231,13 @@ export class SearchService {
       ).subscribe((hasLocalIndex: boolean) => {
         if (!this.isExpired) {
           if (hasLocalIndex) {
-            this.openDBOnWorker();
             this.init();
+            this.initSubject.subscribe((opened) => {
+              if (opened) {
+                this.indexReloadedSubject.next(undefined);
+                this.openDBOnWorker();
+              }
+            });
           } else {
             // We have no local index - but still need the polling loop here
             this.indexLastUpdateTime = new Date().getTime(); // Set the last update time to now since we don't have a local index
@@ -262,8 +267,8 @@ export class SearchService {
     this.indexReloadedSubject.subscribe(() => {
       // console.log('searchservice updating folderCounts');
       // we're sending both "indexUpdated", and "updateMessageListService"
-      this.messagelistservice.refreshFolderCounts();
-      // this.messagelistservice.refreshFolderList();
+      // this.messagelistservice.refreshFolderCounts();
+      this.messagelistservice.refreshFolderList();
     });
 
      this.messagelistservice.folderListSubject
@@ -293,40 +298,38 @@ export class SearchService {
     // but it doesn't. 
     this.rmmapi.messageFlagChangeSubject
       .subscribe((msgFlagChange) => {
-          if (msgFlagChange.flaggedFlag !== null) {
-            if (msgFlagChange.flaggedFlag === true) {
-              this.indexWorker.postMessage(
+        if (msgFlagChange.flaggedFlag !== null) {
+          if (msgFlagChange.flaggedFlag === true) {
+            this.indexWorker.postMessage(
               {'action': PostMessageAction.addTermToDocument,
                'messageId': msgFlagChange.id,
                'term': 'XFflagged'
-                });
-            } else {
-              this.indexWorker.postMessage(
-              {'action': PostMessageAction.removeTermFromDocument,
-               'messageId': msgFlagChange.id,
-               'term': 'XFflagged'
               });
-            }
-          } else if (msgFlagChange.seenFlag !== null) {
-            if (msgFlagChange.seenFlag === true) {
-              this.indexWorker.postMessage(
-              {'action': PostMessageAction.addTermToDocument,
-               'messageId': msgFlagChange.id,
-               'term': 'XFseen'
-                });
-            } else {
-              this.indexWorker.postMessage(
-              {'action': PostMessageAction.removeTermFromDocument,
-               'messageId': msgFlagChange.id,
-               'term': 'XFseen'
-              });
-            }
-            // counts and list to ensure we have uptodate data
-            this.messagelistservice.refreshFolderList();
           } else {
-            console.error('Empty flag change message', msgFlagChange);
+            this.indexWorker.postMessage(
+              {'action': PostMessageAction.removeTermFromDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFflagged'
+              });
           }
-          // console.log('Flag Change: local index');
+        } else if (msgFlagChange.seenFlag !== null) {
+          if (msgFlagChange.seenFlag === true) {
+            this.indexWorker.postMessage(
+              {'action': PostMessageAction.addTermToDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFseen'
+              });
+          } else {
+            this.indexWorker.postMessage(
+              {'action': PostMessageAction.removeTermFromDocument,
+               'messageId': msgFlagChange.id,
+               'term': 'XFseen'
+              });
+          }
+        } else {
+          console.error('Empty flag change message', msgFlagChange);
+        }
+        // console.log('Flag Change: local index');
       });
 
     // open for reading (for canvastable comms)
