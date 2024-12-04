@@ -33,10 +33,3 @@ if (changelogUpdated) {
     console.log('Run the following command to commit it:\n');
     console.log('git commit src/app/changelog/changes.ts -em "docs(changelog): Update changelog"');
 }
-
-if (!process.env.SENTRY_DSN) {
-    console.log(chalk.bold.yellow('This build did NOT use Sentry error reporting.'));
-    console.log('Re-run with SENTRY_DSN environment variable set to enable it');
-} else {
-    execSync('git checkout src/app/sentry.ts');
-}
