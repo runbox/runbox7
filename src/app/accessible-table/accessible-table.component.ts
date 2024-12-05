@@ -39,8 +39,8 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   @Output() rowClicked = new EventEmitter<any>();
   @Output() selectionDragStarted = new EventEmitter<any>();
 
+  firstRowHeight: number = 100;
   private lastCheckedRow: number|null = null
-  private firstRowHeight: number = 100;
 
   private shiftKey = false;
   private ctrlKey = false;
@@ -97,7 +97,7 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
     .parentElement
       ?.querySelector('tbody')
       ?.offsetHeight
-      || 100;
+      || this.firstRowHeight
   }
 
   onAllCheckboxChange({checked}) {

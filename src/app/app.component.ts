@@ -65,8 +65,6 @@ import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
-import { DatePipe } from '@angular/common';
-import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -84,16 +82,15 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   selector: 'app',
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html',
-  imports: [DatePipe],
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
 
-  private rows = [];
-  private selectedRow = null;
-  private selectedRows = [];
+  rows = [];
+  selectedRow = null;
+  selectedRows = [];
 
   lastSearchText = '';
   searchText = '';
@@ -247,7 +244,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.snackBar = snackBar;
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
-      // TODO: figure out how to get from this messageid to the selectedRow
       if (this.singlemailviewer.messageId) {
         if (evt.code === 'ArrowUp') {
           // slightly ugly as we need to call *this* rowSelected, not
@@ -954,6 +950,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
 
+    this.selectedRow = this.rows[rowIndex]
+
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
         this.canvastable.rows.getRowMessageId(rowIndex)
@@ -1470,6 +1468,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
+
     this.rows = (() => {
       if (!this.canvastable?.rows?.rows?.length) return []
 
@@ -1493,11 +1492,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       return this.canvastable.rows.rows || []
     })()
 
+
+    this.selectedRow = this.rows.find(x => x.id === this.singlemailviewer.messageId)
+
     console.log('rows', this.rows)
   }
 
   onSelectedRowChange(event) {
-    this.singlemailviewer.messageId = event.id;
+    this.rowSelected(this.rows.indexOf(event), 3, false);
   }
 
   onSelectionDragStarted(event) {
