@@ -91,6 +91,7 @@ import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
 import { HumanBytesPipe } from './human-bytes.pipe';
 import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
+import { DatePipe } from '@angular/common';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -143,6 +144,7 @@ const routes: Routes = [
 
 @NgModule({
     imports: [BrowserModule, FormsModule,
+        DatePipe,
         HttpClientModule,
         AccessibleTableComponent,
         HttpClientJsonpModule,
