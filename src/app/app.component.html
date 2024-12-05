@@ -406,13 +406,20 @@
               (sortToggled)="updateSearch(true)">
             </canvastablecontainer>
 
-            <accessible-table
-              (rowSelected)="onRowSelected($event)"
-              (rowClicked)="onRowClicked($event)"
+            <app-accessible-table
+
+              [(selectedRows)]="selectedRows"
+              [(selectedRow)]="selectedRow"
+              (selectedRowChange)="onSelectedRowChange($event)"
+
               (selectionDragStarted)="onSelectionDragStarted($event)"
-              [rows]="canvastable?.rows?.rows ?? []">
+              [rows]="rows">
                 <ng-template #th>Date</ng-template>
-                <ng-template #th>From</ng-template>
+
+                <ng-template #th>{{
+                  selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
+                }}</ng-template>
+
                 <ng-template #th>Subject</ng-template>
                 <ng-template #th>Size</ng-template>
                 <ng-template #th><span class="sr-only">Attachments</span></ng-template>
@@ -421,10 +428,11 @@
                 <ng-template #td let-item>
                   <span
                     [ngClass]="{'bold-text': !item.seenFlag}"
-                    class="text-primary"
-                  >
-                    {{item.from?.[0].name || item.from?.[0].address || ""}}
-                  </span>
+                    class="text-primary">{{
+                    selectedFolder === messagelistservice.sentFolderName
+                      ? item.to?.join(", ")
+                      : item.from?.[0].name || item.from?.[0].address || ""
+                  }}</span>
                 </ng-template>
                 <ng-template #td let-item>
                   <span
@@ -451,7 +459,7 @@
                 >
                   {{item.plaintext}}
                 </ng-template>
-            </accessible-table>
+            </app-accessible-table>
           </div>
 
 
@@ -514,6 +522,12 @@
   <router-outlet (activate)="childRouteActivated(true)" (deactivate)="childRouteActivated(false)"></router-outlet>
 
 </mat-sidenav-container>
+
+<app-follows-mouse *ngIf="dragEvent">
+  <mat-card>
+    <mat-icon>mail</mat-icon> Moving {{dragEvent.selected.size}}
+  </mat-card>
+</app-follows-mouse>
 
 <!-- This will cause an error in dev mode with the async pipe, should not be present however in production -->
 <div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"
