@@ -203,21 +203,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private usage: UsageReportsService,
   ) {
     this.hotkeysService.add(
-        new Hotkey(['j', 'k'],
-        (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-            if (combo === 'k') {
-                this.canvastable.scrollUp();
-                combo = null;
-            }
-            if (combo === 'j') {
-                this.canvastable.scrollDown();
-            }
-            const e: ExtendedKeyboardEvent = event;
-            e.returnValue = false;
-            return e;
-        })
-    );
-    this.hotkeysService.add(
         new Hotkey(
             'up up down down left right left right b a',
             (event: KeyboardEvent): ExtendedKeyboardEvent => {
