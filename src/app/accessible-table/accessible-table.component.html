@@ -34,13 +34,15 @@
         *cdkVirtualFor="let row of rows; let $index = index"
       >
     <tbody
-        [ngClass]="{'highlight-row': $index === lastCheckedIndex}"
+        [ngClass]="{
+          'checked-row': row === lastCheckedRow,
+          'selected-row': row === selectedRow
+        }"
         tabindex="0"
         role="button"
         (click)="onRowClick($event, row, $index)"
         (keydown)="onRowKeydown($event, row, $index)"
         (dragstart)="onDragStart($event, row, $index)"
-        (dragend)="onDragEnd($event, row, $index)"
         draggable="true"
       >
       <tr
@@ -51,9 +53,9 @@
         >
           <mat-checkbox
             tabindex="-1"
-            (click)="onCheckboxClick($event, $index, row)"
-            (change)="onCheckboxChange($event, $index, row)"
-            [checked]="selected[$index]"
+            (change)="onCheckboxChange($event, row, $index)"
+            (click)="onCheckboxClick($event, row, $index)"
+            [checked]="selectedRows[$index]"
           ></mat-checkbox>
         </td>
 
@@ -81,6 +83,3 @@
   </table>
 </cdk-virtual-scroll-viewport>
 
-<div #dragPreview class="drag-preview">
-  <mat-icon>mail</mat-icon> Moving {{this.selectedDragSize}}
-</div>

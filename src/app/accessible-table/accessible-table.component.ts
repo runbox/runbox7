@@ -1,6 +1,6 @@
 import {
-  Component,
   HostListener,
+  Component,
   ContentChildren,
   ContentChild,
   QueryList,
@@ -11,18 +11,15 @@ import {
   EventEmitter,
   AfterViewChecked,
   OnChanges,
-  ViewChild,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'accessible-table',
+  selector: 'app-accessible-table',
   standalone: true, // Make the component standalone
-  imports: [MatIconModule, ScrollingModule, CommonModule, MatCheckboxModule],
+  imports: [ScrollingModule, CommonModule, MatCheckboxModule],
   templateUrl: './accessible-table.component.html',
   styleUrls: ['./accessible-table.component.scss']
 })
@@ -31,34 +28,61 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
   @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
 
-  @ViewChild('dragPreview') dragPreview!: ElementRef<HTMLDivElement>;
+  @Input() selectedRow: any = null;
+  @Output() selectedRowChange = new EventEmitter<any>;
+
+  @Input() selectedRows: any[] = [];
+  @Output() selectedRowsChange = new EventEmitter<any[]>();
 
   @Input() rows: any[] = [];
-  @Input() selected: any[] = [];
 
   @Output() rowClicked = new EventEmitter<any>();
-  @Output() rowSelected = new EventEmitter<any>();
   @Output() selectionDragStarted = new EventEmitter<any>();
 
-  private dragEvent: null | DragEvent = null;
-  private selectedDragSize: number = 0;
+  private lastCheckedRow: number|null = null
+  private firstRowHeight: number = 100;
 
-  displayedColumns: string[] = ['date', 'from', 'subject', 'size'];
-  lastCheckedIndex: number|null = null
-  firstRowHeight: number = 100;
+  private shiftKey = false;
+  private ctrlKey = false;
+  private metaKey = false;
 
   constructor(
     private elementRef: ElementRef,
   ) { }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Shift') {
+      this.shiftKey = true;
+    }
+    if (event.key === 'Control') {
+      this.ctrlKey = true;
+    }
+    if (event.key === 'Meta') {
+      this.metaKey = true;
+    }
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent): void {
+    if (event.key === 'Shift') {
+      this.shiftKey = false;
+    }
+    if (event.key === 'Control') {
+      this.ctrlKey = false;
+    }
+    if (event.key === 'Meta') {
+      this.metaKey = false;
+    }
+  }
 
   ngAfterViewChecked() {
     this.updateFirstRowHeight();
   }
 
   ngOnChanges(changes) {
+    // TODO: Add scroll to index behavior.
     if (changes.rows) {
-      this.selected = []
-      this.lastCheckedIndex = null
       this.elementRef
         .nativeElement
         .querySelector('cdk-virtual-scroll-viewport')
@@ -78,77 +102,65 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
 
   onAllCheckboxChange({checked}) {
     if (checked) {
-      Object.assign(this.selected, this.rows)
+      this.selectedRowsChange.emit(this.rows)
     } else {
-      this.selected = []
+      this.selectedRowsChange.emit([])
     }
-    this.emitSelect()
   }
 
   // Change gets called before click.
-  onCheckboxChange({checked}, index, message) {
-    this.oneSelect(index, checked)
+  onCheckboxChange(event, row, index) {
+    this.onRowClick(event, row, index)
   }
 
-  onRowClick(event, message, index) {
-    let selection = false
-    if (event.shiftKey) {
-      this.rangeSelect(index, !this.selected[index])
-      selection = true
-    }
-
-    if (event.ctrlKey || event.metaKey) {
-      this.oneSelect(index, !this.selected[index])
-      selection = true
-    }
-
-    this.lastCheckedIndex = index;
-
-    if (!selection) {
-      this.rowClicked.emit({ index, message });
-    }
+  onCheckboxClick(event, row, index) {
+    // We don not want to trigger the row click when clicking on checkbox.
+    event.stopPropagation()
   }
 
-  onRowKeydown(event, index, message) {
+  rangeSelect(to, check) {
+    return this.rangeSelectFrom(this.rows.indexOf(this.lastCheckedRow), to, check)
+  }
+
+  oneSelect(index, check) {
+    this.rangeSelectFrom(index, index, check)
+  }
+
+  rangeSelectFrom(from: number, to: number, check: boolean) {
+      const left = Math.min(from, to)
+      const right = Math.max(from, to)
+      const clone = [...this.selectedRows]
+
+      for (let i = left; i <= right; i++) {
+        clone[i] = check ? this.rows[i] : null
+      }
+
+      this.selectedRowsChange.emit(clone)
+      this.lastCheckedRow = this.rows[to]
+  }
+
+  onRowClick(event, row, index) {
+    if (this.shiftKey) {
+      return this.rangeSelect(index, !this.selectedRows[index])
+    }
+
+    if (this.ctrlKey || this.metaKey) {
+      return this.oneSelect(index, !this.selectedRows[index])
+    }
+
+    this.selectedRowChange.emit(row)
+    this.lastCheckedRow = row
+  }
+
+  onRowKeydown(event, row, index) {
     // Only work on Enter and space.
     if (event.key !== 'Enter') return;
 
-    return this.onRowClick(event, index, message)
-  }
-
-  // Click gets called before change.
-  onCheckboxClick(event, index, message): void {
-    // Prevent the table row click from triggering.
-    event.stopPropagation();
-
-    if (event.shiftKey) {
-      this.rangeSelect(index, event.target.checked)
-    }
-
-    this.lastCheckedIndex = index;
-  }
-
-  oneSelect(index, checked) {
-    this.rangeSelect(index, checked, index)
-  }
-
-  rangeSelect(to, checked, from = null) {
-    const start = from ?? this.lastCheckedIndex
-
-    if (start == null) return;
-
-    const startIndex = Math.min(start, to);
-    const endIndex = Math.max(start, to);
-
-    for (let i = startIndex; i <= endIndex; i++) {
-      this.selected[i] = checked ? this.rows[i] : null;  // Set the checked state based on the current checkbox
-    }
-
-    this.emitSelect()
+    return this.onRowClick(event, row, index)
   }
 
   selectedSet() {
-    const selected = new Set(this.selected)
+    const selected = new Set(this.selectedRows)
 
     selected.delete(null)
     selected.delete(undefined)
@@ -157,7 +169,7 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   }
 
   emitSelect() {
-    this.rowSelected.emit({selected: this.selectedSet()})
+    return
   }
 
   get isIndeterminate() {
@@ -166,7 +178,7 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
     let hasUnselected = false;
 
     return this.rows.find((_value, index) => {
-      const v = this.selected[index]
+      const v = this.selectedRows[index]
 
       hasSelected = hasSelected || Boolean(v);
       hasUnselected = hasUnselected || Boolean(!v);
@@ -176,35 +188,18 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   }
 
   get allCheckboxIsChecked() {
-    return this.selected.find(x => x != null)
-  }
-
-  @HostListener('document:drag', ['$event'])
-  onDrag(event: DragEvent) {
-    this.dragPreview.nativeElement.style.display = 'block'
-    this.dragPreview.nativeElement.style.left = `${event.clientX}px`;
-    this.dragPreview.nativeElement.style.top = `${event.clientY}px`;
-
-  }
-
-  onDragEnd() {
-    this.dragEvent = null
-    this.dragPreview.nativeElement.style.display = 'none'
+    return this.selectedRows.find(x => x != null)
   }
 
   onDragStart(event, row, index) {
-    this.dragEvent = event;
-
     const emptyImage = new Image();
     event.dataTransfer?.setDragImage(emptyImage, 0, 0); // Set an empty image
 
-    const isSelected = this.selected[index]
+    const isSelected = this.selectedRows[index]
 
     const selected = isSelected
       ? this.selectedSet()
       : new Set([row]);
-
-    this.selectedDragSize = selected.size;
 
     this.selectionDragStarted.emit({
       event,

@@ -19,19 +19,24 @@ tbody tr {
   cursor: pointer;
 }
 
-table tbody:hover {
-  /* TODO: Use css properties */
-  background-color: #EEE;
-}
-
-table tbody:has(:checked) {
+table.mat-mdc-table tbody:hover {
   /* TODO: Use css properties */
   background-color: #DDD;
 }
 
-table tbody.highlight-row {
+table tbody:has(:checked) {
   /* TODO: Use css properties */
-  background-color: #CCC;
+  background-color: #EEE;
+}
+
+table tbody.selected-row {
+  /* TODO: Use css properties */
+  background-color: #DDD;
+}
+
+table tbody.checked-row {
+  /* TODO: Use css properties */
+  background-color: #DDD;
 }
 
 table {
@@ -62,17 +67,6 @@ colgroup col:nth-child(1) {
   overflow: hidden;
   max-width: 28rem;
   text-overflow: ellipsis;
-}
-
-.drag-preview {
-  display: none;
-  font-weight: bold;
-  background-color: #fff;
-  padding: 0.5rem;
-  border-radius: 4px;
-  position: fixed;
-  pointer-events: none; /* Prevents the drag preview from blocking interactions */
-  z-index: 1000;
 }
 
 table td span {
