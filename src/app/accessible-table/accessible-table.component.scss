@@ -44,6 +44,10 @@ table {
   border-spacing: 0; /* Ensures no extra spacing between cells */
 }
 
+table th {
+  text-align: left;
+}
+
 colgroup col:nth-child(1) {
   width: 1rem;
 }
