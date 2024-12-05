@@ -90,6 +90,7 @@ import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
 import { HumanBytesPipe } from './human-bytes.pipe';
+import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -183,7 +184,8 @@ const routes: Routes = [
         RouterModule.forRoot(routes),
         ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
         HotkeyModule.forRoot(),
-        HumanBytesPipe
+        HumanBytesPipe,
+        FollowsMouseComponent
     ],
     exports: [],
     declarations: [MainContainerComponent, AppComponent,

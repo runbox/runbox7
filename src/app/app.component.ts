@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -65,6 +65,7 @@ import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { DatePipe } from '@angular/common';
+import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -88,13 +89,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
+
+  private rows = [];
+  private selectedRow = null;
+  private selectedRows = [];
+
   lastSearchText = '';
   searchText = '';
   dataReady = false;
 
   usewebsocketsearch = false;
-
-  selectedMessages = []
 
   preferences: Map<string, any> = new Map();
   viewmode = 'messages';
@@ -161,6 +165,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   messageActionsHandler: RMM7MessageActions = new RMM7MessageActions();
 
+
   dynamicSearchFieldPlaceHolder: string;
   numHistoryChunksProcessed = 0;
 
@@ -175,7 +180,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   constructor(
     public searchService: SearchService,
-    private elementRef: ElementRef,
     public rmmapi: RunboxWebmailAPI,
     public rmm: RMM,
     public snackBar: MatSnackBar,
@@ -242,6 +246,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.snackBar = snackBar;
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
+      // TODO: figure out how to get from this messageid to the selectedRow
       if (this.singlemailviewer.messageId) {
         if (evt.code === 'ArrowUp') {
           // slightly ugly as we need to call *this* rowSelected, not
@@ -486,7 +491,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if ('serviceWorker' in navigator) {
         try  {
           Notification.requestPermission();
-        } catch (e) {}
+        } catch (e) {
+          console.error(e)
+        }
       }
 
       this.subscribeToNotifications();
@@ -902,6 +909,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // NB this triggers hasChanged for us and forces a redraw
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
+    this.updateRows()
+    console.log(this.canvastable.rows)
   }
 
   public filterMessageDisplay() {
@@ -924,6 +933,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public selectRowByMessageId(messageId: number) {
+    // TODO: Select by fragment should keep working.
     const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
@@ -1090,11 +1100,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   dropToFolder(folderId): void {
-    const dragEvent = this.dragEvent
-
-    delete this.dragEvent;
-
-    const messageIds = Array.from(dragEvent.selected).map(x => x.id)
+    const messageIds = Array.from(this.dragEvent.selected).map(x => x.id)
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -1365,7 +1371,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
               this.canvastable.scrollTop();
             }
           }
-        } catch (e) { }
+        } catch (e) {
+          console.error(e)
+        }
 
       }
     }
@@ -1438,22 +1446,52 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  onRowClicked(a) {
-    this.rowSelected(a.index, 3, false);
-  }
-
-  onRowSelected(event) {
-    this.selectedMessages = event.selected;
-  }
-
   get selectedMessageIds() {
-    return Array.from(this.selectedMessages).map(x => x.id);
+    return Array.from(this.selectedRows).map(x => x.id);
+  }
+
+  updateRows() {
+    this.rows = (() => {
+      if (!this.canvastable?.rows?.rows?.length) return []
+
+      if (Array.isArray(this.canvastable.rows.rows[0]))
+        return this.canvastable?.rows?.rows.map(([rowId]) => {
+          //return this.canvastable.rows.getRow(index)
+          const data = {}
+          const doc = this.searchService.getDocData(rowId)
+          Object.assign(data, doc, {
+            size: this.searchService.api.getNumericValue(rowId, 3),
+            messageDate: this.parseSillyDate(this.searchService.api.getStringValue(rowId, 2)),
+            from: [{name: doc.from}],
+            to: doc.recipients, // TODO: Turn into MailAddressInfo
+            id: this.searchService.getMessageIdFromDocId(rowId),
+            plaintext: doc.textcontent?.trim() || '',
+          });
+
+          return data
+        }) || []
+
+      return this.canvastable.rows.rows || []
+    })()
+
+    console.log('rows', this.rows)
+  }
+
+  onSelectedRowChange(event) {
+    this.singlemailviewer.messageId = event.id;
   }
 
   onSelectionDragStarted(event) {
     this.dragEvent = event;
   }
 
-}
+  @HostListener('document:dragend', ['$event'])
+  onDragEnded() {
+    delete this.dragEvent;
+  }
 
-// vim: set shiftwidth=2
+  private parseSillyDate(dateString) {
+    return new Date(`${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}T${dateString.slice(8, 10)}:${dateString.slice(10, 12)}:00`);
+  }
+
+}
