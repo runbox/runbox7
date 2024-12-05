@@ -1,4 +1,5 @@
 import {
+  ViewChild,
   HostListener,
   Component,
   ContentChildren,
@@ -11,10 +12,11 @@ import {
   EventEmitter,
   AfterViewChecked,
   OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-accessible-table',
@@ -27,6 +29,8 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   @ContentChildren('th', { read: TemplateRef }) thTemplates!: QueryList<TemplateRef<any>>;
   @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
   @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
+
+  @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
 
   @Input() selectedRow: any = null;
   @Output() selectedRowChange = new EventEmitter<any>;
@@ -80,15 +84,17 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
     this.updateFirstRowHeight();
   }
 
-  ngOnChanges(changes) {
-    // TODO: Add scroll to index behavior.
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.rows) {
-      this.elementRef
-        .nativeElement
-        .querySelector('cdk-virtual-scroll-viewport')
-        .scrollTop = 0;
-
+      this.selectedRowsChange.emit([])
+      this.viewport.scrollToIndex(0, 'smooth')
     }
+
+    if (changes.selectedRow) {
+      const index = this.rows.indexOf(this.selectedRow)
+      this.viewport.scrollToIndex(index, 'smooth');
+    }
+
   }
 
   private updateFirstRowHeight(): void {
@@ -119,7 +125,12 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   }
 
   rangeSelect(to, check) {
-    return this.rangeSelectFrom(this.rows.indexOf(this.lastCheckedRow), to, check)
+    let from = this.rows.indexOf(this.lastCheckedRow)
+
+    // When nothing is selected yet.
+    if (from === -1) return this.oneSelect(to, check)
+
+    return this.rangeSelectFrom(from, to, check)
   }
 
   oneSelect(index, check) {
