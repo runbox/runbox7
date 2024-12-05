@@ -10,7 +10,7 @@
       class="mat-mdc-header-row mdc-data-table__header-row cdk-header-row ng-star-inserted"
     >
       <tr>
-        <td
+        <th
           class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
         >
           <mat-checkbox
@@ -18,14 +18,14 @@
             [checked]="allCheckboxIsChecked"
             (change)="onAllCheckboxChange($event)"
           ></mat-checkbox>
-        </td>
+        </th>
 
           <ng-container *ngFor="let thTemplate of thTemplates">
-            <td
+            <th
               class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
               >
               <ng-container *ngTemplateOutlet="thTemplate"></ng-container>
-            </td>
+            </th>
           </ng-container>
       </tr>
     </thead>
