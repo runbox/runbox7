@@ -734,8 +734,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const snackBarRef = this.snackBar.open('Toggling read status...');
     const messageIds = this.selectedMessageIds;
 
-    console.log(status, messageIds)
-
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
@@ -891,7 +889,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
     this.updateRows()
-    console.log(this.canvastable.rows)
   }
 
   public filterMessageDisplay() {
@@ -914,7 +911,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public selectRowByMessageId(messageId: number) {
-    // TODO: Select by fragment should keep working.
     const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
@@ -1434,13 +1430,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
-
     this.rows = (() => {
       if (!this.canvastable?.rows?.rows?.length) return []
 
       if (Array.isArray(this.canvastable.rows.rows[0]))
         return this.canvastable?.rows?.rows.map(([rowId]) => {
-          //return this.canvastable.rows.getRow(index)
           const data = {}
           const doc = this.searchService.getDocData(rowId)
           Object.assign(data, doc, {
@@ -1458,10 +1452,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       return this.canvastable.rows.rows || []
     })()
 
-
     this.selectedRow = this.rows.find(x => x.id === this.singlemailviewer.messageId)
-
-    console.log('rows', this.rows)
   }
 
   onSelectedRowChange(event) {
