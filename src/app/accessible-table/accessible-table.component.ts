@@ -40,7 +40,6 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
 
   @Input() rows: any[] = [];
 
-  @Output() rowClicked = new EventEmitter<any>();
   @Output() selectionDragStarted = new EventEmitter<any>();
 
   firstRowHeight: number = 100;
