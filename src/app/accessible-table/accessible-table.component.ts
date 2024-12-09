@@ -59,13 +59,14 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.rows) {
-      this.selectedRowsChange.emit([])
-      this.viewport.scrollToIndex(0, 'smooth')
+      if (this.selectedRows.length) this.selectedRowsChange.emit([])
+
+      this.viewport?.scrollToIndex(0, 'smooth')
     }
 
     if (changes.selectedRow) {
       const index = this.rows.indexOf(this.selectedRow)
-      this.viewport.scrollToIndex(index, 'smooth');
+      this.viewport?.scrollToIndex(index, 'smooth');
     }
 
   }
@@ -87,13 +88,8 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
     }
   }
 
-  // Change gets called before click.
-  onCheckboxChange(event, row, index) {
-    this.onRowClick(event, row, index)
-  }
-
   onCheckboxClick(event, row, index) {
-    // We don not want to trigger the row click when clicking on checkbox.
+    this.onRowClick(event, row, index, true)
     event.stopPropagation()
   }
 
@@ -123,7 +119,7 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
       this.lastCheckedRow = this.rows[to]
   }
 
-  onRowClick(event, row, index) {
+  onRowClick(event, row, index, checkbox = false) {
     const shiftKey = event.getModifierState("Shift")
 
     if (shiftKey) {
@@ -137,7 +133,10 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
       return this.oneSelect(index, !this.selectedRows[index])
     }
 
-    this.selectedRowChange.emit(row)
+    if (!checkbox) {
+      this.selectedRowChange.emit(row)
+    }
+
     this.lastCheckedRow = row
   }
 

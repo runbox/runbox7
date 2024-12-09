@@ -53,7 +53,6 @@
         >
           <mat-checkbox
             tabindex="-1"
-            (change)="onCheckboxChange($event, row, $index)"
             (click)="onCheckboxClick($event, row, $index)"
             [checked]="selectedRows[$index]"
           ></mat-checkbox>
