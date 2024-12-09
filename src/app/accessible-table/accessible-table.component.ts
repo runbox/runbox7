@@ -53,32 +53,6 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
     private elementRef: ElementRef,
   ) { }
 
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Shift') {
-      this.shiftKey = true;
-    }
-    if (event.key === 'Control') {
-      this.ctrlKey = true;
-    }
-    if (event.key === 'Meta') {
-      this.metaKey = true;
-    }
-  }
-
-  @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent): void {
-    if (event.key === 'Shift') {
-      this.shiftKey = false;
-    }
-    if (event.key === 'Control') {
-      this.ctrlKey = false;
-    }
-    if (event.key === 'Meta') {
-      this.metaKey = false;
-    }
-  }
-
   ngAfterViewChecked() {
     this.updateFirstRowHeight();
   }
@@ -150,11 +124,16 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   }
 
   onRowClick(event, row, index) {
-    if (this.shiftKey) {
+    const shiftKey = event.getModifierState("Shift")
+
+    if (shiftKey) {
       return this.rangeSelect(index, !this.selectedRows[index])
     }
 
-    if (this.ctrlKey || this.metaKey) {
+    const ctrlKey = event.getModifierState("Control")
+    const metaKey = event.getModifierState("Meta")
+
+    if (ctrlKey || metaKey) {
       return this.oneSelect(index, !this.selectedRows[index])
     }
 
