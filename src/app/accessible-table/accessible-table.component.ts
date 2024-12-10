@@ -82,8 +82,6 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
   }
 
   ngAfterViewInit() {
-    console.log('this.viewport', this.viewport)
-
     this.renderedRangeSub = this.viewport.renderedRangeStream.subscribe(range => {
       this.renderedRangeChange.emit(range)
     });
@@ -98,9 +96,6 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes.rows', changes.rows)
-    // this.viewport.checkViewportSize()
-
     if (changes.rows) {
       if (this.selectedRows.length) this.selectedRowsChange.emit([])
 
@@ -181,6 +176,8 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
 
     if (!checkbox) {
       this.selectedRowChange.emit(row)
+    } else {
+      this.oneSelect(index, !this.selectedRows[index])
     }
 
     this.lastCheckedRow = row
