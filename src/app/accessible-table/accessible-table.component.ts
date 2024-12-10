@@ -1,4 +1,5 @@
 import {
+  OnDestroy,
   AfterViewChecked,
   ChangeDetectionStrategy,
   AfterViewInit,
@@ -45,7 +46,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./accessible-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessibleTableComponent implements AfterViewChecked, AfterViewInit, OnChanges {
+export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, AfterViewInit, OnChanges {
   @ContentChildren('th', { read: TemplateRef }) thTemplates!: QueryList<TemplateRef<any>>;
   @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
   @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
