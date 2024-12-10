@@ -5,7 +5,11 @@
   >
     <colgroup>
       <col>
+      <ng-container *ngFor="let thTemplate of thTemplates">
+        <col>
+      </ng-container>
     </colgroup>
+
     <thead
       class="mat-mdc-header-row mdc-data-table__header-row cdk-header-row ng-star-inserted"
     >
@@ -24,14 +28,16 @@
             <th
               class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
               >
+              <span>
               <ng-container *ngTemplateOutlet="thTemplate"></ng-container>
+              </span>
             </th>
           </ng-container>
       </tr>
     </thead>
 
       <ng-container
-        *cdkVirtualFor="let row of rows; let $index = index"
+        *cdkVirtualFor="let row of rows; let $index = index;"
       >
     <tbody
         [ngClass]="{
