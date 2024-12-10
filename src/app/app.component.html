@@ -411,6 +411,7 @@
 
               [(selectedRows)]="selectedRows"
               [(selectedRow)]="selectedRow"
+              (renderedRangeChange)="onRenderedRangeChange($event)"
               (selectedRowChange)="onSelectedRowChange($event)"
 
               (selectionDragStarted)="onSelectionDragStarted($event)"

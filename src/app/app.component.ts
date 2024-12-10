@@ -66,6 +66,8 @@ import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 
+const fetchedSymbol = Symbol('fetched')
+
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
@@ -1449,29 +1451,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
-    this.rows = (() => {
-      if (!this.canvastable?.rows?.rows?.length) return []
+    this.rows = this.canvastable?.rows?.rows ?? []
 
-      if (Array.isArray(this.canvastable.rows.rows[0]))
-        return this.canvastable?.rows?.rows.map(([rowId]) => {
-          const data = {}
-          const doc = this.searchService.getDocData(rowId)
-          Object.assign(data, doc, {
-            size: this.searchService.api.getNumericValue(rowId, 3),
-            messageDate: this.parseSillyDate(this.searchService.api.getStringValue(rowId, 2)),
-            from: [{name: doc.from}],
-            to: doc.recipients, // TODO: Turn into MailAddressInfo
-            id: this.searchService.getMessageIdFromDocId(rowId),
-            plaintext: doc.textcontent?.trim() || '',
-          });
+    console.log('canvastable.rows', this.canvastable?.rows)
 
-          return data
-        }) || []
-
-      return this.canvastable.rows.rows || []
-    })()
-
-    this.selectedRow = this.rows.find(x => x.id === this.singlemailviewer.messageId)
+    // Need to recompute when the mapOverIndexes causes the reference to change.
+    this.selectedRow = this.canvastable?.rows?.rows[this.canvastable?.rows.selectedRowId]
+      // this.rows.find(x => x.id === this.singlemailviewer.messageId)
   }
 
   onSelectedRowChange(event) {
@@ -1487,8 +1473,67 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     delete this.dragEvent;
   }
 
+  // TODO: The this.rows can change after a onRenderedRangeChange is called.
+  // This will drop the resolved values.
+  async onRenderedRangeChange({start, end}) {
+    console.log('onRenderedRangeChange', start, end)
+    this.rows = await Promise.all(mapOverIndexes(async (value) => {
+      if (value.id) {
+        return value
+      }
+
+      const [ rowId ] = value
+
+      const doc = this.searchService.getDocData(rowId)
+
+      return Object.assign({}, doc, {
+        size: this.searchService.api.getNumericValue(rowId, 3),
+        messageDate: this.parseSillyDate(this.searchService.api.getStringValue(rowId, 2)),
+        from: [{name: doc.from}],
+        to: doc.recipients, // TODO: Turn into MailAddressInfo
+        id: this.searchService.getMessageIdFromDocId(rowId),
+        plaintext: doc.textcontent?.trim() || '',
+      })
+
+    }, start, end - 1, this.rows))
+  }
+
   private parseSillyDate(dateString) {
     return new Date(`${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}T${dateString.slice(8, 10)}:${dateString.slice(10, 12)}:00`);
   }
 
+}
+
+
+/**
+ * Applies a transformation function to a range of indexes in an array.
+ *
+ * @param array - The array to process.
+ * @param leftIndex - The start index (inclusive) of the range to transform.
+ * @param rightIndex - The end index (inclusive) of the range to transform.
+ * @param transformFn - The function to apply to elements in the specified range.
+ * @returns A new array with transformed elements within the range.
+ * @throws An error if `leftIndex` or `rightIndex` is out of bounds.
+ */
+function mapOverIndexes<T>(
+  transformFn: (item: T) => T,
+  leftIndex: number,
+  rightIndex: number,
+  array: T[],
+): T[] {
+  if (leftIndex < 0 || rightIndex >= array.length || leftIndex > rightIndex) {
+    throw new Error(
+      `Invalid indexes: leftIndex (${leftIndex}) and rightIndex (${rightIndex}) must be within array bounds [0, ${
+        array.length - 1
+      }] and leftIndex <= rightIndex.`
+    );
+  }
+
+  const result = Object.create(array); // Create a copy of the array to avoid mutation
+
+  for (let i = leftIndex; i <= rightIndex; i++) {
+    result[i] = transformFn(result[i]);
+  }
+
+  return result;
 }
