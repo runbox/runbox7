@@ -48,6 +48,12 @@ table th {
   text-align: left;
 }
 
+table th span {
+  resize: horizontal;
+  display: block;
+  overflow: hidden;
+}
+
 colgroup col:nth-child(1) {
   width: 1rem;
 }

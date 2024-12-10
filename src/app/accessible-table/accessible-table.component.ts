@@ -1,31 +1,51 @@
 import {
-  ViewChild,
-  HostListener,
-  Component,
-  ContentChildren,
-  ContentChild,
-  QueryList,
-  TemplateRef,
-  ElementRef,
-  Input,
-  Output,
-  EventEmitter,
   AfterViewChecked,
+  ChangeDetectionStrategy,
+  AfterViewInit,
+  Component,
+  ContentChild,
+  ContentChildren,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
   OnChanges,
+  Output,
+  QueryList,
   SimpleChanges,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { ListRange } from '@angular/cdk/collections';
+import { Subscription } from 'rxjs';
+
+// function withResize() {
+//
+//   // Detect on double click if the cursor is the resize one. This is how I know if the user wants to make the column auto or jump to shortest value.
+//   // var cursor = e.target.style.cursor;
+//
+//   // 1. First let the table be rendered and do nothing. (unless absolute values have already been assigned).
+//   // 2. On click we assign the absolute values to all columns and start resizing the current one. (Prevents other columns from moving during resize).
+//   // 3. On resize done we remove the absolute values of all columns that have not been given an explicit width.
+//   // 4. We store the latest configured value in the preferences service.
+//
+//   // - dblclick event remove the absolute value. It checks if the style.cursor is the resize one.
+//
+// }
+
 
 @Component({
   selector: 'app-accessible-table',
   standalone: true, // Make the component standalone
   imports: [ScrollingModule, CommonModule, MatCheckboxModule],
   templateUrl: './accessible-table.component.html',
-  styleUrls: ['./accessible-table.component.scss']
+  styleUrls: ['./accessible-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
+export class AccessibleTableComponent implements AfterViewChecked, AfterViewInit, OnChanges {
   @ContentChildren('th', { read: TemplateRef }) thTemplates!: QueryList<TemplateRef<any>>;
   @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
   @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
@@ -38,6 +58,8 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   @Input() selectedRows: any[] = [];
   @Output() selectedRowsChange = new EventEmitter<any[]>();
 
+  @Output() renderedRangeChange = new EventEmitter<ListRange>();
+
   @Input() rows: any[] = [];
 
   @Output() selectionDragStarted = new EventEmitter<any>();
@@ -48,6 +70,7 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
   private shiftKey = false;
   private ctrlKey = false;
   private metaKey = false;
+  private renderedRangeSub!: Subscription;
 
   constructor(
     private elementRef: ElementRef,
@@ -57,11 +80,31 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
     this.updateFirstRowHeight();
   }
 
+  ngAfterViewInit() {
+    console.log('this.viewport', this.viewport)
+
+    this.renderedRangeSub = this.viewport.renderedRangeStream.subscribe(range => {
+      this.renderedRangeChange.emit(range)
+    });
+
+    // this.viewport.elementScrolled().subscribe(() => {
+    //   this.renderedRangeChange.emit(this.viewport.getRenderedRange())
+    // });
+  }
+
+  ngOnDestroy(): void {
+    this.renderedRangeSub?.unsubscribe();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('changes.rows', changes.rows)
+    // this.viewport.checkViewportSize()
+
     if (changes.rows) {
       if (this.selectedRows.length) this.selectedRowsChange.emit([])
 
-      this.viewport?.scrollToIndex(0, 'smooth')
+      // TODO: Figure out when and how to scroll to top.
+      // this.viewport?.scrollToIndex(0, 'smooth')
     }
 
     if (changes.selectedRow) {
@@ -115,6 +158,8 @@ export class AccessibleTableComponent implements AfterViewChecked, OnChanges {
         clone[i] = check ? this.rows[i] : null
       }
 
+      // TODO: Consider filtering out selectedRows that are no longer part
+      // of the this.rows.
       this.selectedRowsChange.emit(clone)
       this.lastCheckedRow = this.rows[to]
   }
