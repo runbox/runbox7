@@ -424,6 +424,7 @@
                 <ng-template #th>Subject</ng-template>
                 <ng-template #th>Size</ng-template>
                 <ng-template #th><span class="sr-only">Attachments</span></ng-template>
+                <ng-template #th><span class="sr-only">Flagged</span></ng-template>
 
                 <ng-template #td let-item>{{item.messageDate | date:'shortDate'}}</ng-template>
                 <ng-template #td let-item>
@@ -445,12 +446,20 @@
                 </ng-template>
                 <ng-template #td let-item>{{item.size | humanBytes}}</ng-template>
                 <ng-template #td let-item>
-                  <!-- TODO: Fix the style attribute -->
+                  <!-- TODO: Remove the style attribute -->
                   <mat-icon
                     style="transform: rotate(90deg);"
                     *ngIf="item.attachment"
                     mat-list-icon
                     svgIcon="attachment">
+                  </mat-icon>
+                </ng-template>
+
+                <ng-template #td let-item>
+                  <mat-icon
+                    *ngIf="item.flagged"
+                    mat-list-icon
+                    svgIcon="flag">
                   </mat-icon>
                 </ng-template>
 
