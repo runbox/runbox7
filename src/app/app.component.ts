@@ -1493,6 +1493,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   onCheckboxClick(event, row, index) {
     this.onRowClick(event, row, index, true)
     event.stopPropagation()
+    event.preventDefault()
   }
 
   rangeSelect(to, check) {
@@ -1510,7 +1511,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   onRowClick(event, row, index, checkbox = false) {
-    console.log(event, row, index, checkbox)
     const shiftKey = event.getModifierState("Shift")
 
     const check = !this.rowsSelectionModel.isSelected(this.rows[index])
