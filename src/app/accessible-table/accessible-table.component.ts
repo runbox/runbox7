@@ -97,7 +97,7 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.rows) {
-      if (this.selectedRows.length) this.selectedRowsChange.emit([])
+      // if (this.selectedRows.length) this.selectedRowsChange.emit([])
 
       // TODO: Figure out when and how to scroll to top.
       // this.viewport?.scrollToIndex(0, 'smooth')
@@ -105,7 +105,9 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
 
     if (changes.selectedRow) {
       const index = this.rows.indexOf(this.selectedRow)
-      this.viewport?.scrollToIndex(index, 'smooth');
+      if (index !== -1) {
+        this.viewport?.scrollToIndex(index, 'smooth');
+      }
     }
 
   }

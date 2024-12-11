@@ -177,6 +177,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianLoaded = xapianLoadedSubject;
 
   morelistbuttonindex = 7;
+  renderedRange = {start: 0, end: 0}; // First ten messages.
 
   constructor(
     public searchService: SearchService,
@@ -913,12 +914,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public clearSelection() {
-    if (this.canvastable.rows) {
-      this.canvastable.rows.clearSelection();
-    }
-    this.canvastable.hasChanges = true;
-    this.showSelectOperations = false;
-    this.showSelectMarkOpMenu = false;
+    this.selectedRows = []
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -1129,7 +1125,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 //    dialogRef.componentInstance.messageActionsHandler = this.messageActionsHandler;
     const messageIds = this.selectedMessageIds;
 
-    console.log('selected messages', messageIds);
     // dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
@@ -1447,36 +1442,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   get selectedMessageIds() {
-    return Array.from(this.selectedRows).map(x => x.id);
+    return Array
+      .from(this.selectedRows)
+      .reduce((acc, x) => x?.id ? acc.concat(x.id) : acc, [])
   }
 
   updateRows() {
     this.rows = this.canvastable?.rows?.rows ?? []
 
-    console.log('canvastable.rows', this.canvastable?.rows)
-
     // Need to recompute when the mapOverIndexes causes the reference to change.
     this.selectedRow = this.canvastable?.rows?.rows[this.canvastable?.rows.selectedRowId]
       // this.rows.find(x => x.id === this.singlemailviewer.messageId)
+    return this.enrichRows()
   }
 
-  onSelectedRowChange(event) {
-    this.rowSelected(this.rows.indexOf(event), 3, false);
-  }
+  async enrichRows() {
+    const { start, end } = this.renderedRange
 
-  onSelectionDragStarted(event) {
-    this.dragEvent = event;
-  }
-
-  @HostListener('document:dragend', ['$event'])
-  onDragEnded() {
-    delete this.dragEvent;
-  }
-
-  // TODO: The this.rows can change after a onRenderedRangeChange is called.
-  // This will drop the resolved values.
-  async onRenderedRangeChange({start, end}) {
-    console.log('onRenderedRangeChange', start, end)
     this.rows = await Promise.all(mapOverIndexes(async (value) => {
       if (value.id) {
         return value
@@ -1495,7 +1477,27 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         plaintext: doc.textcontent?.trim() || '',
       })
 
-    }, start, end - 1, this.rows))
+    }, start, end, this.rows))
+  }
+
+  onSelectedRowChange(event) {
+    this.rowSelected(this.rows.indexOf(event), 3, false);
+  }
+
+  onSelectionDragStarted(event) {
+    this.dragEvent = event;
+  }
+
+  @HostListener('document:dragend', ['$event'])
+  onDragEnded() {
+    delete this.dragEvent;
+  }
+
+  // TODO: The this.rows can change after a onRenderedRangeChange is called.
+  // This will drop the resolved values.
+  onRenderedRangeChange(event) {
+    this.renderedRange = event;
+    this.enrichRows()
   }
 
   private parseSillyDate(dateString) {
@@ -1521,17 +1523,20 @@ function mapOverIndexes<T>(
   rightIndex: number,
   array: T[],
 ): T[] {
-  if (leftIndex < 0 || rightIndex >= array.length || leftIndex > rightIndex) {
+  rightIndex = Math.min(rightIndex, array.length)
+
+  if (leftIndex < 0 || leftIndex > rightIndex) {
     throw new Error(
       `Invalid indexes: leftIndex (${leftIndex}) and rightIndex (${rightIndex}) must be within array bounds [0, ${
-        array.length - 1
+        array.length
       }] and leftIndex <= rightIndex.`
     );
   }
 
   const result = Object.create(array); // Create a copy of the array to avoid mutation
 
-  for (let i = leftIndex; i <= rightIndex; i++) {
+
+  for (let i = leftIndex; i < rightIndex; i++) {
     result[i] = transformFn(result[i]);
   }
 
