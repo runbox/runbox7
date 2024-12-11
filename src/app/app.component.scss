@@ -72,10 +72,45 @@ canvastablecontainer {
     width: 150px;
 }
 
-.text-primary {
-    color: #01579b;
-}
+.messages-table {
+    --checked-color: #eee;
+    --focussed-color: #ddd;
+    --selected-color: #ccc;
+    --border-color: #ddd;
 
-.bold-text {
-    font-weight: bold;
+    & thead th {
+        text-align: left;
+    }
+
+    & thead th.text-center {
+        text-align: center;
+    }
+
+
+    & td > span {
+        display: block;
+        max-width: 28rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    & tbody {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    & tbody.checked {
+        background-color: var(--checked-color);
+    }
+
+    & tbody.focussed {
+        background-color: var(--focussed-color);
+    }
+
+    & tbody:hover, & tbody.selected {
+        background-color: var(--selected-color);
+    }
+
 }
