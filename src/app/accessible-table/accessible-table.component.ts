@@ -21,7 +21,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ListRange } from '@angular/cdk/collections';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 // function withResize() {
 //
@@ -65,7 +65,7 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
 
   @Output() selectionDragStarted = new EventEmitter<any>();
 
-  firstRowHeight: number = 100;
+  private firstRowHeight = new BehaviorSubject<number>(100);
   private lastCheckedRow: number|null = null
 
   private shiftKey = false;
@@ -111,12 +111,14 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
   }
 
   private updateFirstRowHeight(): void {
-    this.firstRowHeight = this.elementRef
+    const value = this.elementRef
     .nativeElement
     .parentElement
       ?.querySelector('tbody')
       ?.offsetHeight
-      || this.firstRowHeight
+      || this.firstRowHeight.getValue();
+
+    this.firstRowHeight.next(value)
   }
 
   onAllCheckboxChange({checked}) {
