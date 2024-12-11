@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -65,6 +65,8 @@ import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 
+const fetchedSymbol = Symbol('fetched')
+
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
@@ -80,11 +82,16 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app',
   styleUrls: ['app.component.scss'],
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
+
+
+  rows = [];
+  selectedRow = null;
+  selectedRows = [];
 
   lastSearchText = '';
   searchText = '';
@@ -101,6 +108,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
+
+  dragEvent: null | {
+    event: DragEvent,
+    selected: Array<MessageInfo>
+  };
 
   indexDocCount = 0;
 
@@ -152,6 +164,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   messageActionsHandler: RMM7MessageActions = new RMM7MessageActions();
 
+
   dynamicSearchFieldPlaceHolder: string;
   numHistoryChunksProcessed = 0;
 
@@ -163,8 +176,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianLoaded = xapianLoadedSubject;
 
   morelistbuttonindex = 7;
+  renderedRange = {start: 0, end: 0}; // First ten messages.
 
-  constructor(public searchService: SearchService,
+  constructor(
+    public searchService: SearchService,
     public rmmapi: RunboxWebmailAPI,
     public rmm: RMM,
     public snackBar: MatSnackBar,
@@ -190,21 +205,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
   ) {
-    this.hotkeysService.add(
-        new Hotkey(['j', 'k'],
-        (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-            if (combo === 'k') {
-                this.canvastable.scrollUp();
-                combo = null;
-            }
-            if (combo === 'j') {
-                this.canvastable.scrollDown();
-            }
-            const e: ExtendedKeyboardEvent = event;
-            e.returnValue = false;
-            return e;
-        })
-    );
     this.hotkeysService.add(
         new Hotkey(
             'up up down down left right left right b a',
@@ -475,7 +475,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if ('serviceWorker' in navigator) {
         try  {
           Notification.requestPermission();
-        } catch (e) {}
+        } catch (e) {
+          console.error(e)
+        }
       }
 
       this.subscribeToNotifications();
@@ -662,7 +664,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     const snackBarRef = this.snackBar.open( msg );
-    const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
+    const unfilteredMessageIds = this.selectedMessageIds;
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
 
@@ -733,7 +735,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -766,7 +768,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -800,7 +802,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // Delete selected messages in current canvastable view
   // If looking at Trash, this will be "delete permanently"
   public deleteMessages() {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -877,6 +879,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.selectMessageFromFragment(this.fragment);
       }
     }
+
     this.filterMessageDisplay();
 
     // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
@@ -888,6 +891,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // NB this triggers hasChanged for us and forces a redraw
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
+    this.updateRows()
   }
 
   public filterMessageDisplay() {
@@ -901,12 +905,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public clearSelection() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
-      this.canvastable.rows.clearSelection();
-    }
-    this.canvastable.hasChanges = true;
-    this.showSelectOperations = false;
-    this.showSelectMarkOpMenu = false;
+    this.selectedRows = []
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -920,6 +919,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
+
+    this.selectedRow = this.rows[rowIndex]
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -1076,7 +1077,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   dropToFolder(folderId): void {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = Array.from(this.dragEvent.selected).map(x => x.id)
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -1105,9 +1106,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public moveToFolder() {
     const dialogRef: MatDialogRef<MoveMessageDialogComponent> = this.dialog.open(MoveMessageDialogComponent);
 //    dialogRef.componentInstance.messageActionsHandler = this.messageActionsHandler;
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
-    console.log('selected messages', messageIds);
     // dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
@@ -1347,7 +1347,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
               this.canvastable.scrollTop();
             }
           }
-        } catch (e) { }
+        } catch (e) {
+          console.error(e)
+        }
 
       }
     }
@@ -1419,6 +1421,105 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.router.navigate(['/'], { fragment });
     }
   }
+
+  get selectedMessageIds() {
+    return Array
+      .from(this.selectedRows)
+      .reduce((acc, x) => x?.id ? acc.concat(x.id) : acc, [])
+  }
+
+  updateRows() {
+    this.rows = this.canvastable?.rows?.rows ?? []
+
+    // Need to recompute when the mapOverIndexes causes the reference to change.
+    this.selectedRow = this.canvastable?.rows?.rows[this.canvastable?.rows.selectedRowId]
+      // this.rows.find(x => x.id === this.singlemailviewer.messageId)
+    return this.enrichRows()
+  }
+
+  async enrichRows() {
+    const { start, end } = this.renderedRange
+
+    this.rows = await Promise.all(mapOverIndexes(async (value) => {
+      if (value.id) {
+        return value
+      }
+
+      const [ rowId ] = value
+
+      const doc = this.searchService.getDocData(rowId)
+
+      return Object.assign({}, doc, {
+        size: this.searchService.api.getNumericValue(rowId, 3),
+        messageDate: this.parseSillyDate(this.searchService.api.getStringValue(rowId, 2)),
+        from: [{name: doc.from}],
+        to: doc.recipients, // TODO: Turn into MailAddressInfo
+        id: this.searchService.getMessageIdFromDocId(rowId),
+        plaintext: doc.textcontent?.trim() || '',
+      })
+
+    }, start, end, this.rows))
+  }
+
+  onSelectedRowChange(event) {
+    this.rowSelected(this.rows.indexOf(event), 3, false);
+  }
+
+  onSelectionDragStarted(event) {
+    this.dragEvent = event;
+  }
+
+  @HostListener('document:dragend', ['$event'])
+  onDragEnded() {
+    delete this.dragEvent;
+  }
+
+  // TODO: The this.rows can change after a onRenderedRangeChange is called.
+  // This will drop the resolved values.
+  onRenderedRangeChange(event) {
+    this.renderedRange = event;
+    this.enrichRows()
+  }
+
+  private parseSillyDate(dateString) {
+    return new Date(`${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}T${dateString.slice(8, 10)}:${dateString.slice(10, 12)}:00`);
+  }
+
 }
 
-// vim: set shiftwidth=2
+
+/**
+ * Applies a transformation function to a range of indexes in an array.
+ *
+ * @param array - The array to process.
+ * @param leftIndex - The start index (inclusive) of the range to transform.
+ * @param rightIndex - The end index (inclusive) of the range to transform.
+ * @param transformFn - The function to apply to elements in the specified range.
+ * @returns A new array with transformed elements within the range.
+ * @throws An error if `leftIndex` or `rightIndex` is out of bounds.
+ */
+function mapOverIndexes<T>(
+  transformFn: (item: T) => T,
+  leftIndex: number,
+  rightIndex: number,
+  array: T[],
+): T[] {
+  rightIndex = Math.min(rightIndex, array.length)
+
+  if (leftIndex < 0 || leftIndex > rightIndex) {
+    throw new Error(
+      `Invalid indexes: leftIndex (${leftIndex}) and rightIndex (${rightIndex}) must be within array bounds [0, ${
+        array.length
+      }] and leftIndex <= rightIndex.`
+    );
+  }
+
+  const result = Object.create(array); // Create a copy of the array to avoid mutation
+
+
+  for (let i = leftIndex; i < rightIndex; i++) {
+    result[i] = transformFn(result[i]);
+  }
+
+  return result;
+}

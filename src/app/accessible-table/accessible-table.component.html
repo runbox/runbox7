@@ -1,0 +1,90 @@
+<cdk-virtual-scroll-viewport [itemSize]="firstRowHeight | async" class="email-viewport">
+  <table
+    mat-column-resize
+    class="mat-mdc-table mdc-data-table__table cdk-table mat-sort mat-elevation-z8"
+  >
+    <colgroup>
+      <col>
+      <ng-container *ngFor="let thTemplate of thTemplates">
+        <col>
+      </ng-container>
+    </colgroup>
+
+    <thead
+      class="mat-mdc-header-row mdc-data-table__header-row cdk-header-row ng-star-inserted"
+    >
+      <tr>
+        <th
+          class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
+        >
+          <mat-checkbox
+            [indeterminate]="isIndeterminate"
+            [checked]="allCheckboxIsChecked"
+            (change)="onAllCheckboxChange($event)"
+          ></mat-checkbox>
+        </th>
+
+          <ng-container *ngFor="let thTemplate of thTemplates">
+            <th
+              class="mat-sort-header mat-mdc-header-cell mdc-data-table__header-cell cdk-header-cell ng-tns-c292-11 cdk-column-date mat-column-date ng-star-inserted"
+              >
+              <span>
+              <ng-container *ngTemplateOutlet="thTemplate"></ng-container>
+              </span>
+            </th>
+          </ng-container>
+      </tr>
+    </thead>
+
+      <ng-container
+        *cdkVirtualFor="let row of rows; let $index = index;"
+      >
+    <tbody
+        [ngClass]="{
+          'checked-row': row === lastCheckedRow,
+          'selected-row': row === selectedRow
+        }"
+        tabindex="0"
+        role="button"
+        (click)="onRowClick($event, row, $index)"
+        (keydown)="onRowKeydown($event, row, $index)"
+        (dragstart)="onDragStart($event, row, $index)"
+        draggable="true"
+      >
+      <tr
+        class="mat-mdc-row mdc-data-table__row cdk-row ng-star-inserted"
+      >
+        <td
+          class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
+        >
+          <mat-checkbox
+            tabindex="-1"
+            (click)="onCheckboxClick($event, row, $index)"
+            [checked]="selectedRows[$index]"
+          ></mat-checkbox>
+        </td>
+
+          <ng-container *ngFor="let tdTemplate of tdTemplates">
+            <td
+              class="mat-mdc-cell mdc-data-table__cell cdk-cell cdk-column-date mat-column-date ng-star-inserted"
+              >
+              <span>
+              <ng-container *ngTemplateOutlet="tdTemplate; context: { $implicit: row }"></ng-container>
+              </span>
+            </td>
+          </ng-container>
+      </tr>
+
+      <tr *ngIf="previewTemplate">
+        <td aria-hidden="true"></td>
+        <td [attr.colspan]="thTemplates.length">
+          <span class="preview">
+            <ng-container *ngTemplateOutlet="previewTemplate; context: { $implicit: row }"></ng-container>
+          </span>
+        </td>
+      </tr>
+    </tbody>
+      </ng-container>
+  </table>
+</cdk-virtual-scroll-viewport>
+

@@ -1,0 +1,86 @@
+table {
+  user-select: none;
+  width: 100%;
+}
+
+cdk-virtual-scroll-viewport {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+thead {
+  font-weight: bold;
+}
+
+tbody tr {
+  cursor: pointer;
+}
+
+table.mat-mdc-table tbody:hover {
+  /* TODO: Use css properties */
+  background-color: #DDD;
+}
+
+table tbody:has(:checked) {
+  /* TODO: Use css properties */
+  background-color: #EEE;
+}
+
+table tbody.selected-row {
+  /* TODO: Use css properties */
+  background-color: #DDD;
+}
+
+table tbody.checked-row {
+  /* TODO: Use css properties */
+  background-color: #DDD;
+}
+
+table {
+  border-collapse: collapse; /* Removes space between table cells */
+  border-spacing: 0; /* Ensures no extra spacing between cells */
+}
+
+table th {
+  text-align: left;
+}
+
+table th span {
+  resize: horizontal;
+  display: block;
+  overflow: hidden;
+}
+
+colgroup col:nth-child(1) {
+  width: 1rem;
+}
+
+@media screen and (max-width: 38rem) {
+  thead {
+    display: none;
+  }
+
+  td:not(:nth-child(-n+1)) {
+    display: block; /* Makes each cell take a full row */
+    width: 100%;    /* Ensures it spans the full width */
+  }
+}
+
+.preview {
+  display: block;
+  height: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  max-width: 28rem;
+  text-overflow: ellipsis;
+}
+
+table td span {
+  height: 1rem;
+  display: inline-block;
+  overflow: hidden;
+}
