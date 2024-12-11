@@ -407,71 +407,114 @@
             </canvastablecontainer>
 
             <app-accessible-table
+              [scrollToIndex]="scrollToIndex"
+              *ngIf="rows.length"
+              class="messages-table"
 
-              [(selectedRows)]="selectedRows"
-              [(selectedRow)]="selectedRow"
               (renderedRangeChange)="onRenderedRangeChange($event)"
-              (selectedRowChange)="onSelectedRowChange($event)"
-
               (selectionDragStarted)="onSelectionDragStarted($event)"
-              [rows]="rows">
-                <ng-template #th>Date</ng-template>
+              [items]="rows">
 
-                <ng-template #th>{{
-                  selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
-                }}</ng-template>
+                <ng-template #thead>
 
-                <ng-template #th>Subject</ng-template>
-                <ng-template #th>Size</ng-template>
-                <ng-template #th><span class="sr-only">Attachments</span></ng-template>
-                <ng-template #th><span class="sr-only">Flagged</span></ng-template>
+                  <thead>
+                    <th class="text-center">
+                      <mat-checkbox
+                        (change)="onAllCheckboxChange($event)"
+                        [indeterminate]="rowsSelectionModel.hasValue() && !allItemsSelected"
+                        [checked]="rowsSelectionModel.hasValue()"
+                        ></mat-checkbox>
+                    </th>
+                    <th>Date</th>
+                    <th>
+                      {{
+                        selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
+                      }}
+                    </th>
 
-                <ng-template #td let-item>{{item.messageDate | date:'shortDate'}}</ng-template>
-                <ng-template #td let-item>
-                  <span
-                    [ngClass]="{'bold-text': !item.seenFlag}"
-                    class="text-primary">{{
-                    selectedFolder === messagelistservice.sentFolderName
-                      ? item.to?.join(", ")
-                      : item.from?.[0].name || item.from?.[0].address || ""
-                  }}</span>
+                    <th>Subject</th>
+                    <th>Size</th>
+                    <th><span class="sr-only">Attachments</span></th>
+                    <th><span class="sr-only">Flagged</span></th>
+                  </thead>
                 </ng-template>
-                <ng-template #td let-item>
-                  <span
-                    [ngClass]="{'bold-text': !item.seenFlag}"
-                    class="text-primary"
+
+                <ng-template #tbody let-item let-index="index">
+                  <!-- Check if is loaded -->
+                  <tbody
+                    *ngIf="item?.id"
+                    tabindex="0"
+                    role="button"
+                    (click)="onRowClick($event, item, index)"
+                    (keydown)="onRowKeydown($event, item, index)"
+                    draggable="true"
+                    [ngClass]="{
+                      focussed: lastCheckedRow === item,
+                      selected: rowSelectionModel.isSelected(item),
+                      checked: rowsSelectionModel.isSelected(item)
+                    }"
                   >
-                    {{item.subject}}
-                  </span>
-                </ng-template>
-                <ng-template #td let-item>{{item.size | humanBytes}}</ng-template>
-                <ng-template #td let-item>
-                  <!-- TODO: Remove the style attribute -->
-                  <mat-icon
-                    style="transform: rotate(90deg);"
-                    *ngIf="item.attachment"
-                    mat-list-icon
-                    svgIcon="attachment">
-                  </mat-icon>
-                </ng-template>
-
-                <ng-template #td let-item>
-                  <mat-icon
-                    *ngIf="item.flagged"
-                    mat-list-icon
-                    svgIcon="flag">
-                  </mat-icon>
-                </ng-template>
-
-                <ng-template
-                  *ngIf="canvastable.showContentTextPreview"
-                  #preview let-item
-                >
-                  {{item.plaintext}}
+                    <tr>
+                      <td class="text-center">
+                        <mat-checkbox
+                          (click)="onCheckboxClick($event, item, index)"
+                          [checked]="rowsSelectionModel.isSelected(item)"
+                          tabindex="-1">
+                        </mat-checkbox>
+                      </td>
+                      <td>
+                        {{item.messageDate | date:'shortDate'}}
+                      </td>
+                      <td>
+                        <span
+                          [ngClass]="{bold: !item.seen}"
+                          class="text-primary">
+                          {{
+                          selectedFolder === messagelistservice.sentFolderName
+                            ? item.to?.join(", ")
+                            : item.from?.[0].name || item.from?.[0].address || ""
+                          }}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          [ngClass]="{bold: !item.seen}"
+                          class="text-primary"
+                        >
+                          {{item.subject}}
+                        </span>
+                      </td>
+                      <td>
+                        <span>
+                          {{item.size | humanBytes}}
+                        </span>
+                      </td>
+                      <td>
+                        <mat-icon
+                          style="transform: rotate(90deg);"
+                          *ngIf="item.attachment"
+                          mat-list-icon
+                          svgIcon="attachment">
+                        </mat-icon>
+                      </td>
+                      <td>
+                        <mat-icon
+                          *ngIf="item.flagged"
+                          mat-list-icon
+                          svgIcon="flag">
+                        </mat-icon>
+                      </td>
+                    </tr>
+                    <tr *ngIf="canvastable.showContentTextPreview">
+                      <td><!--offset --></td>
+                      <td colspan="6">
+                        <span>{{item.plaintext}} </span>
+                      </td>
+                    </tr>
+                  </tbody>
                 </ng-template>
             </app-accessible-table>
           </div>
-
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
           [adjustableHeight]="true"
