@@ -38,6 +38,14 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 // }
 
 
+// TODO: Consider use selection model in order to deal with reference issues. Either in here or app.component
+// https://github.com/angular/components/blob/main/src/cdk/collections/selection-model.ts#L237
+//   - Seriously consider placing the checkboxes outside of this component and in the app.component.
+//     - This would make the app.component responsible for selection state which would make this component more dumb
+//       The beneift of that is that we don't need to pass it equality checkers and such.
+//   - Think about what to do with clicks on the row with shift and ctrl.
+//   - Think about how to share whether a row is selected or not. (for styling).
+//     - Changing the templating API might give more freedom to style.
 @Component({
   selector: 'app-accessible-table',
   standalone: true, // Make the component standalone
@@ -47,30 +55,18 @@ import { BehaviorSubject, Subscription } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, AfterViewInit, OnChanges {
-  @ContentChildren('th', { read: TemplateRef }) thTemplates!: QueryList<TemplateRef<any>>;
-  @ContentChildren('td', { read: TemplateRef }) tdTemplates!: QueryList<TemplateRef<any>>;
-  @ContentChild('preview', { read: TemplateRef }) previewTemplate!: TemplateRef<any> | null;
+  @ContentChild('tbody', { read: TemplateRef }) tbodyTemplate!: TemplateRef<any> | null;
+  @ContentChild('thead', { read: TemplateRef }) theadTemplate!: TemplateRef<any> | null;
 
   @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
 
-  @Input() selectedRow: any = null;
-  @Output() selectedRowChange = new EventEmitter<any>;
-
-  @Input() selectedRows: any[] = [];
-  @Output() selectedRowsChange = new EventEmitter<any[]>();
-
   @Output() renderedRangeChange = new EventEmitter<ListRange>();
+  @Input() items: any[] = [];
 
-  @Input() rows: any[] = [];
-
-  @Output() selectionDragStarted = new EventEmitter<any>();
+  @Input() scrollToIndex: null | number = null
 
   private firstRowHeight = new BehaviorSubject<number>(100);
-  private lastCheckedRow: number|null = null
 
-  private shiftKey = false;
-  private ctrlKey = false;
-  private metaKey = false;
   private renderedRangeSub!: Subscription;
 
   constructor(
@@ -85,10 +81,6 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
     this.renderedRangeSub = this.viewport.renderedRangeStream.subscribe(range => {
       this.renderedRangeChange.emit(range)
     });
-
-    // this.viewport.elementScrolled().subscribe(() => {
-    //   this.renderedRangeChange.emit(this.viewport.getRenderedRange())
-    // });
   }
 
   ngOnDestroy(): void {
@@ -96,20 +88,9 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.rows) {
-      // if (this.selectedRows.length) this.selectedRowsChange.emit([])
-
-      // TODO: Figure out when and how to scroll to top.
-      // this.viewport?.scrollToIndex(0, 'smooth')
+    if (changes.scrollToIndex && this.items.length > this.scrollToIndex) {
+      this.viewport?.scrollToIndex(this.scrollToIndex, 'smooth');
     }
-
-    if (changes.selectedRow) {
-      const index = this.rows.indexOf(this.selectedRow)
-      if (index !== -1) {
-        this.viewport?.scrollToIndex(index, 'smooth');
-      }
-    }
-
   }
 
   private updateFirstRowHeight(): void {
@@ -122,124 +103,4 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
 
     this.firstRowHeight.next(value)
   }
-
-  onAllCheckboxChange({checked}) {
-    if (checked) {
-      this.selectedRowsChange.emit(this.rows)
-    } else {
-      this.selectedRowsChange.emit([])
-    }
-  }
-
-  onCheckboxClick(event, row, index) {
-    this.onRowClick(event, row, index, true)
-    event.stopPropagation()
-  }
-
-  rangeSelect(to, check) {
-    let from = this.rows.indexOf(this.lastCheckedRow)
-
-    // When nothing is selected yet.
-    if (from === -1) return this.oneSelect(to, check)
-
-    return this.rangeSelectFrom(from, to, check)
-  }
-
-  oneSelect(index, check) {
-    this.rangeSelectFrom(index, index, check)
-  }
-
-  rangeSelectFrom(from: number, to: number, check: boolean) {
-      const left = Math.min(from, to)
-      const right = Math.max(from, to)
-      const clone = [...this.selectedRows]
-
-      for (let i = left; i <= right; i++) {
-        clone[i] = check ? this.rows[i] : null
-      }
-
-      // TODO: Consider filtering out selectedRows that are no longer part
-      // of the this.rows.
-      this.selectedRowsChange.emit(clone)
-      this.lastCheckedRow = this.rows[to]
-  }
-
-  onRowClick(event, row, index, checkbox = false) {
-    const shiftKey = event.getModifierState("Shift")
-
-    if (shiftKey) {
-      return this.rangeSelect(index, !this.selectedRows[index])
-    }
-
-    const ctrlKey = event.getModifierState("Control")
-    const metaKey = event.getModifierState("Meta")
-
-    if (ctrlKey || metaKey) {
-      return this.oneSelect(index, !this.selectedRows[index])
-    }
-
-    if (!checkbox) {
-      this.selectedRowChange.emit(row)
-    } else {
-      this.oneSelect(index, !this.selectedRows[index])
-    }
-
-    this.lastCheckedRow = row
-  }
-
-  onRowKeydown(event, row, index) {
-    // Only work on Enter and space.
-    if (event.key !== 'Enter') return;
-
-    return this.onRowClick(event, row, index)
-  }
-
-  selectedSet() {
-    const selected = new Set(this.selectedRows)
-
-    selected.delete(null)
-    selected.delete(undefined)
-
-    return selected;
-  }
-
-  emitSelect() {
-    return
-  }
-
-  get isIndeterminate() {
-    // Has both selected and unselected items. Might be better to use a
-    let hasSelected = false;
-    let hasUnselected = false;
-
-    return this.rows.find((_value, index) => {
-      const v = this.selectedRows[index]
-
-      hasSelected = hasSelected || Boolean(v);
-      hasUnselected = hasUnselected || Boolean(!v);
-
-      return (hasSelected && hasUnselected)
-    })
-  }
-
-  get allCheckboxIsChecked() {
-    return this.selectedRows.find(x => x != null)
-  }
-
-  onDragStart(event, row, index) {
-    const emptyImage = new Image();
-    event.dataTransfer?.setDragImage(emptyImage, 0, 0); // Set an empty image
-
-    const isSelected = this.selectedRows[index]
-
-    const selected = isSelected
-      ? this.selectedSet()
-      : new Set([row]);
-
-    this.selectionDragStarted.emit({
-      event,
-      selected,
-    })
-  }
-
 }

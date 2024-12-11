@@ -65,6 +65,7 @@ import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
+import { SelectionModel } from '@angular/cdk/collections';
 
 const fetchedSymbol = Symbol('fetched')
 
@@ -91,8 +92,20 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
 
   rows = [];
-  selectedRow = null;
-  selectedRows = [];
+  lastCheckedRow = null;
+  scrollToIndex: number = 0;
+  rowSelectionModel = new SelectionModel(
+    false,
+    [],
+    false,
+    (a, b) => a?.id === b?.id // Custom comparison based on `id`
+  );
+  rowsSelectionModel = new SelectionModel(
+    true,
+    [],
+    false,
+    (a, b) => a?.id === b?.id // Custom comparison based on `id`
+  );
 
   lastSearchText = '';
   searchText = '';
@@ -914,7 +927,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public clearSelection() {
-    this.selectedRows = []
+    this.rowsSelectionModel.clear()
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -929,7 +942,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
 
-    this.selectedRow = this.rows[rowIndex]
+    this.scrollToIndex = rowIndex
+
+    this.rowSelectionModel.select(this.rows[rowIndex])
+
+    // TODO: Consider using SelectionModel here too
+    this.lastCheckedRow = this.rows[rowIndex]
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -1442,17 +1460,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   get selectedMessageIds() {
-    return Array
-      .from(this.selectedRows)
-      .reduce((acc, x) => x?.id ? acc.concat(x.id) : acc, [])
+    return this.rowsSelectionModel.selected.reduce((acc, x) => x?.id ? acc.concat(x.id): acc, [])
   }
 
   updateRows() {
     this.rows = this.canvastable?.rows?.rows ?? []
 
-    // Need to recompute when the mapOverIndexes causes the reference to change.
-    this.selectedRow = this.canvastable?.rows?.rows[this.canvastable?.rows.selectedRowId]
-      // this.rows.find(x => x.id === this.singlemailviewer.messageId)
     return this.enrichRows()
   }
 
@@ -1480,8 +1493,82 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }, start, end, this.rows))
   }
 
-  onSelectedRowChange(event) {
-    this.rowSelected(this.rows.indexOf(event), 3, false);
+  rangeSelectFrom(from: number, to: number, check: boolean) {
+    const left = Math.min(from, to)
+    const right = Math.max(from, to)
+
+    for (let i = left; i <= right; i++) {
+      if (check) {
+        this.rowsSelectionModel.select(this.rows[i])
+      } else {
+        this.rowsSelectionModel.deselect(this.rows[i])
+      }
+    }
+
+    this.lastCheckedRow = this.rows[to]
+
+  }
+
+  onCheckboxClick(event, row, index) {
+    this.onRowClick(event, row, index, true)
+    event.stopPropagation()
+  }
+
+  rangeSelect(to, check) {
+    let from = this.rows.indexOf(this.lastCheckedRow)
+
+    // When nothing is selected yet.
+    if (from === -1) return this.oneSelect(to, check)
+
+
+    return this.rangeSelectFrom(from, to, check)
+  }
+
+  oneSelect(index, check) {
+    this.rangeSelectFrom(index, index, check)
+  }
+
+  onRowClick(event, row, index, checkbox = false) {
+    console.log(event, row, index, checkbox)
+    const shiftKey = event.getModifierState("Shift")
+
+    const check = !this.rowsSelectionModel.isSelected(this.rows[index])
+
+    if (shiftKey) {
+      return this.rangeSelect(index, check)
+    }
+
+    const ctrlKey = event.getModifierState("Control")
+    const metaKey = event.getModifierState("Meta")
+
+    if (ctrlKey || metaKey) {
+      return this.oneSelect(index, check)
+    }
+
+    if (!checkbox) {
+      this.rowSelected(this.rows.indexOf(row), 3, false);
+    } else {
+      this.oneSelect(index, check)
+    }
+  }
+
+  onRowKeydown(event, row, index) {
+    // Only work on Enter and space.
+    if (event.key !== 'Enter') return;
+
+    return this.onRowClick(event, row, index)
+  }
+
+  onAllCheckboxChange(event) {
+    if (this.rowsSelectionModel.isEmpty()) {
+      this.rowsSelectionModel.select(...this.rows);
+    } else {
+      this.rowsSelectionModel.deselect(...this.rows);
+    }
+  }
+
+  get allItemsSelected() {
+    return this.rowsSelectionModel.selected.length === this.rows.length
   }
 
   onSelectionDragStarted(event) {

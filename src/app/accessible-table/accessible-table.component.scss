@@ -11,34 +11,6 @@ cdk-virtual-scroll-viewport {
     right: 0;
 }
 
-thead {
-  font-weight: bold;
-}
-
-tbody tr {
-  cursor: pointer;
-}
-
-table.mat-mdc-table tbody:hover {
-  /* TODO: Use css properties */
-  background-color: #DDD;
-}
-
-table tbody:has(:checked) {
-  /* TODO: Use css properties */
-  background-color: #EEE;
-}
-
-table tbody.selected-row {
-  /* TODO: Use css properties */
-  background-color: #DDD;
-}
-
-table tbody.checked-row {
-  /* TODO: Use css properties */
-  background-color: #DDD;
-}
-
 table {
   border-collapse: collapse; /* Removes space between table cells */
   border-spacing: 0; /* Ensures no extra spacing between cells */
