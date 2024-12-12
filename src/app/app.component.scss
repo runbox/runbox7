@@ -78,18 +78,16 @@ canvastablecontainer {
     --selected-color: #ccc;
     --border-color: #ddd;
 
+
     & thead th {
         text-align: left;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
     }
-
-    & thead th.text-center {
-        text-align: center;
-    }
-
 
     & td > span {
         display: block;
-        max-width: 28rem;
+        max-width: 32rem;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -111,6 +109,39 @@ canvastablecontainer {
 
     & tbody:hover, & tbody.selected {
         background-color: var(--selected-color);
+    }
+
+
+    @media (max-width: 60rem) {
+        & {
+            display: block;
+        }
+        & thead {
+            display: none;
+        }
+        & tbody {
+            display: block;
+        }
+
+        td.sm-hidden {
+            display: none;
+        }
+
+        & tr {
+            margin-left: 8px;
+            display: flex;
+            flex-flow: row wrap;
+            gap: 0.5rem;
+        }
+
+        & td {
+            margin-top: auto;
+            margin-bottom: auto;
+
+            &.subject {
+                width: 100%;
+            }
+        }
     }
 
 }
