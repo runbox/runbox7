@@ -72,6 +72,13 @@ canvastablecontainer {
     width: 150px;
 }
 
+.resizable {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .messages-table {
     --checked-color: #eee;
     --focussed-color: #ddd;
