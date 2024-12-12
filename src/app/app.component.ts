@@ -65,7 +65,7 @@ import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
-import { SelectionModel } from '@angular/cdk/collections';
+import { FilterSelectionModel } from './models/filter-selection-model';
 
 const fetchedSymbol = Symbol('fetched')
 
@@ -94,17 +94,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   rows = [];
   lastCheckedRow = null;
   scrollToIndex: number = 0;
-  rowSelectionModel = new SelectionModel(
+  rowSelectionModel = new FilterSelectionModel(
     false,
     [],
     false,
-    (a, b) => a?.id === b?.id // Custom comparison based on `id`
+    messagesEqual,
+    hasId
   );
-  rowsSelectionModel = new SelectionModel(
+  rowsSelectionModel = new FilterSelectionModel(
     true,
     [],
     false,
-    (a, b) => a?.id === b?.id // Custom comparison based on `id`
+    messagesEqual,
+    hasId
   );
 
   lastSearchText = '';
@@ -123,10 +125,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
 
-  dragEvent: null | {
-    event: DragEvent,
-    selected: Array<MessageInfo>
-  };
+  dragEvent: DragEvent | null = null
 
   indexDocCount = 0;
 
@@ -191,6 +190,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   morelistbuttonindex = 7;
   renderedRange = {start: 0, end: 0}; // First ten messages.
+
+  dateWidth = 10;
 
   constructor(
     public searchService: SearchService,
@@ -627,7 +628,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       true, spamFolderName
     ).toPromise();
 
-    const messageIds = messageLists.map(msg => msg.id);
+    const messageIds = messageLists.map(idValue);
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName),
@@ -768,7 +769,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             new MessageFlagChange(id, status, null)
           );
         });
-        this.clearSelection();
         if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.mailObj.seen_flag = status ? 1 : 0;
         }
@@ -801,7 +801,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             new MessageFlagChange(id, null, status)
           );
         });
-        this.clearSelection();
         if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.mailObj.flagged_flag = status ? 1 : 0;
         }
@@ -1107,8 +1106,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
+  onMessagesDragStart(event: DragEvent, row) {
+
+    // If no messages are selected we'll select the current message
+    if (this.rowsSelectionModel.isEmpty()) {
+      this.rowsSelectionModel.select(row)
+    }
+
+    // Remove the default image
+    event.dataTransfer?.setDragImage(new Image(), 0, 0); // Set an empty image
+
+    this.dragEvent = event
+  }
+
   dropToFolder(folderId): void {
-    const messageIds = Array.from(this.dragEvent.selected).map(x => x.id)
+    const messageIds = this.selectedMessageIds
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -1460,7 +1472,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   get selectedMessageIds() {
-    return this.rowsSelectionModel.selected.reduce((acc, x) => x?.id ? acc.concat(x.id): acc, [])
+    return this.rowsSelectionModel.isEmpty()
+      ? this.rowSelectionModel.selected.map(idValue)
+      : this.rowsSelectionModel.selected.map(idValue)
   }
 
   updateRows() {
@@ -1571,10 +1585,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.rowsSelectionModel.selected.length === this.rows.length
   }
 
-  onSelectionDragStarted(event) {
-    this.dragEvent = event;
-  }
-
   @HostListener('document:dragend', ['$event'])
   onDragEnded() {
     delete this.dragEvent;
@@ -1629,3 +1639,7 @@ function mapOverIndexes<T>(
 
   return result;
 }
+
+const idValue = x => x.id
+const messagesEqual = (a, b) => a?.id === b?.id
+const hasId = (x) => Boolean(x?.id)
