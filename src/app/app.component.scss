@@ -85,6 +85,8 @@ canvastablecontainer {
     --selected-color: #ccc;
     --border-color: #ddd;
 
+    --cell-y-spacing: 0.7lh;
+
     & .checkbox-cell {
         width: 2rem;
         text-align: center;
@@ -92,25 +94,19 @@ canvastablecontainer {
 
     & th {
         text-align: left;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
         position: relative;
-        min-width: 2rem;
     }
 
     & td, & th {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+
+        padding-bottom: var(--cell-y-spacing);
     }
 
-    & td > span {
-        display: block;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
+    & tbody tr:first-child td {
+        padding-top: var(--cell-y-spacing);
     }
 
     & tbody {
@@ -128,11 +124,6 @@ canvastablecontainer {
     & tbody:hover, & tbody.selected {
         background-color: var(--selected-color);
     }
-
-    & .preview {
-        height: 1rem;
-    }
-
 
     @media (max-width: 60rem) {
         & {
