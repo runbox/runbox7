@@ -14,16 +14,21 @@ export class ResizableButtonComponent implements AfterViewInit {
   private isResizing = false;
   private startX: number = 0;
   private startWidth: number = 0;
-  private currentWidth: number;
+
+  // Hold the reference to the event listeners
+  private onMouseMoveListener: (event: MouseEvent) => void;
+  private onMouseUpListener: () => void;
 
   constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit() {
-    // Initialize any necessary state after the view has been initialized
-    this.currentWidth = this.elementRef.nativeElement.parentElement?.offsetWidth;
+    const parentElement = this.elementRef.nativeElement.parentElement;
+    if (parentElement) {
+      this.widthChange.emit(parentElement.offsetWidth);
+    }
   }
 
-  onMouseDown(event: MouseEvent) {
+  onMouseDown(event: MouseEvent): void {
     this.isResizing = true;
     this.startX = event.clientX;
     const parentElement = this.elementRef.nativeElement.parentElement;
@@ -31,35 +36,36 @@ export class ResizableButtonComponent implements AfterViewInit {
       this.startWidth = parentElement.offsetWidth;
     }
 
-    // Add the mousemove event listener to the document
-    document.addEventListener('mousemove', this.onMouseMove.bind(this));
+    // Define the mouse move and up handlers
+    this.onMouseMoveListener = this.onMouseMove.bind(this);
+    this.onMouseUpListener = this.onMouseUp.bind(this);
+
+    // Add the mousemove and mouseup event listeners to the document
+    document.addEventListener('mousemove', this.onMouseMoveListener);
+    document.addEventListener('mouseup', this.onMouseUpListener);
 
     // Prevent text selection during resizing
     event.preventDefault();
   }
 
-  onMouseMove(event: MouseEvent) {
+  private onMouseMove(event: MouseEvent): void {
     if (!this.isResizing) return;
 
     const parentElement = this.elementRef.nativeElement.parentElement;
     if (parentElement) {
       const diff = event.clientX - this.startX;
       const newWidth = this.startWidth + diff;
-
-      // Emit the new width
-      this.currentWidth = newWidth
       this.widthChange.emit(newWidth);
     }
   }
 
-  @HostListener('document:mouseup')
-  onMouseUp() {
+  private onMouseUp(): void {
     this.isResizing = false;
-
-    document.removeEventListener('mousemove', this.onMouseMove.bind(this));
+    this.removeMouseListeners();
   }
 
-  onKeyDown(event: KeyboardEvent) {
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
     if (!this.elementRef.nativeElement.contains(document.activeElement)) {
       return;
     }
@@ -71,21 +77,23 @@ export class ResizableButtonComponent implements AfterViewInit {
     const currentWidth = parentElement.offsetWidth;
 
     if (event.key === 'ArrowRight') {
-      // Increase width
-      this.currentWidth = currentWidth + step;
       this.widthChange.emit(currentWidth + step);
     } else if (event.key === 'ArrowLeft') {
-      // Decrease width
-      this.currentWidth = currentWidth - step;
       this.widthChange.emit(currentWidth - step);
     }
   }
 
   @HostListener('window:blur')
   @HostListener('window:focus')
-  onWindowFocus() {
+  onWindowFocus(): void {
     if (this.isResizing) {
       this.isResizing = false;  // Stop resizing immediately
+      this.removeMouseListeners();  // Remove listeners if resizing was interrupted
     }
+  }
+
+  private removeMouseListeners(): void {
+    document.removeEventListener('mousemove', this.onMouseMoveListener);
+    document.removeEventListener('mouseup', this.onMouseUpListener);
   }
 }
