@@ -1,0 +1,10 @@
+<button
+    (mousedown)="onMouseDown($event)"
+    (keydown)="onKeyDown($event)"
+    [class.resizing]="isResizing"
+    [attr.aria-valuenow]="currentWidth"
+    role="slider"
+    aria-valuemin="0"
+    aria-valuemax="10000"
+    aria-label="Column resizer"
+></button>

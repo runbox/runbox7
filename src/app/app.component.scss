@@ -85,16 +85,27 @@ canvastablecontainer {
     --selected-color: #ccc;
     --border-color: #ddd;
 
+    & .checkbox-cell {
+        width: 2rem;
+        text-align: center;
+    }
 
-    & thead th {
+    & th {
         text-align: left;
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
+        position: relative;
+        min-width: 2rem;
+    }
+
+    & td, & th {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     & td > span {
         display: block;
-        max-width: 32rem;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -116,6 +127,10 @@ canvastablecontainer {
 
     & tbody:hover, & tbody.selected {
         background-color: var(--selected-color);
+    }
+
+    & .preview {
+        height: 1rem;
     }
 
 
