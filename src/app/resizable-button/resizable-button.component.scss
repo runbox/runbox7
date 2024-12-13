@@ -1,5 +1,6 @@
 button {
-    --fg: white;
+    --fg: #333;
+    background-color: var(--fg);
     position: absolute;
     top: 0;
     bottom: 0;
@@ -7,7 +8,6 @@ button {
     right: 0;
     border: none;
     width: 1rem;
-    border-right: var(--fg);
     padding: 0;
     margin: 0;
     display: block;
@@ -16,7 +16,7 @@ button {
 }
 
 button:hover, button:focus, button.resizing {
-    opacity: 0.8;
+    opacity: 1;
+    background-color: var(--fg);
 }
-
 
