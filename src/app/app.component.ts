@@ -190,7 +190,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   morelistbuttonindex = 7;
   renderedRange = {start: 0, end: 0}; // First ten messages.
 
-  dateWidth = 10;
+  widths = {};
 
   constructor(
     public searchService: SearchService,
@@ -1486,6 +1486,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       })
 
     }, start, end, this.rows))
+
+    this.lastCheckedRow = this.rows[0]
   }
 
   rangeSelectFrom(from: number, to: number, check: boolean) {

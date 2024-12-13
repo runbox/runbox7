@@ -415,34 +415,34 @@
               [items]="rows">
 
                 <ng-template #thead>
-                  <colgroup>
-                    <col>
-                    <col [ngStyle]="{
-                      width: dateWidth + 'px'
-                    }">
-                  </colgroup>
-
                   <thead>
-                    <th class="text-center px-1-2rem">
+                    <th
+                      class="checkbox-cell">
                       <mat-checkbox
                         (change)="onAllCheckboxChange($event)"
                         [indeterminate]="rowsSelectionModel.hasValue() && !allItemsSelected"
                         [checked]="rowsSelectionModel.hasValue()"
                         ></mat-checkbox>
                     </th>
-                    <th>
-                      <span appResizable [(value)]="dateWidth">
-                        Date
-                      </span>
+                    <th [ngStyle]="{ width: widths.date + 'px' }">
+                      Date
+                      <app-resizable-button [(width)]="widths.date"/>
                     </th>
-                    <th>
+                    <th [ngStyle]="{ width: widths.from + 'px' }">
                       {{
-                        selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
+                      selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
                       }}
+                      <app-resizable-button [(width)]="widths.from"/>
                     </th>
 
-                    <th>Subject</th>
-                    <th>Size</th>
+                    <th [ngStyle]="{ width: widths.subject + 'px' }">
+                      Subject
+                      <app-resizable-button [(width)]="widths.subject"/>
+                    </th>
+                    <th [ngStyle]="{ width: widths.size + 'px' }">
+                      Size
+                      <app-resizable-button [(width)]="widths.size"/>
+                    </th>
                     <th><span class="sr-only">Attachments</span></th>
                     <th><span class="sr-only">Flagged</span></th>
                   </thead>
@@ -452,7 +452,7 @@
                   <!-- Check if is loaded -->
                   <tbody *ngIf="!item?.id">
                     <tr>
-                      <td class="text-center">
+                      <td class="checkbox-cell">
                         <mat-checkbox
                           disabled="true"
                           tabindex="-1">
@@ -476,7 +476,7 @@
                     }"
                   >
                     <tr>
-                      <td class="text-center">
+                      <td class="checkbox-cell">
                         <mat-checkbox
                           (click)="onCheckboxClick($event, item, index)"
                           [checked]="rowsSelectionModel.isSelected(item)"
@@ -484,33 +484,30 @@
                         </mat-checkbox>
                       </td>
                       <td>
-                        <span>
                         {{item.messageDate | date:'shortDate'}}
-                        </span>
                       </td>
-                      <td>
-                        <span
-                          [ngClass]="{bold: !item.seen ?? false}"
-                          class="text-primary">
-                          {{
-                          selectedFolder === messagelistservice.sentFolderName
-                            ? item.to?.join(", ")
-                            : item.from?.[0].name || item.from?.[0].address || ""
-                          }}
-                        </span>
+
+                      <td
+                        [ngClass]="{
+                          'bold': !item.seen ?? false
+                          }"
+
+                        class="text-primary">
+                        {{
+                        selectedFolder === messagelistservice.sentFolderName
+                        ? item.to?.join(", ")
+                        : item.from?.[0].name || item.from?.[0].address || ""
+                        }}
                       </td>
-                      <td class="subject">
-                        <span
-                          [ngClass]="{bold: !item.seen ?? false}"
-                          class="text-primary"
-                        >
+
+                      <td class="subject text-primary"
+                          [ngClass]="{
+                           bold: !item.seen ?? false
+                           }">
                           {{item.subject}}
-                        </span>
                       </td>
                       <td class="sm-hidden">
-                        <span>
-                          {{item.size | humanBytes}}
-                        </span>
+                        {{item.size | humanBytes}}
                       </td>
                       <td class="sm-hidden">
                         <mat-icon
@@ -532,9 +529,10 @@
                     </tr>
                     <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
                       <td><!--offset --></td>
-                      <td colspan="6">
-                        <span>{{item.plaintext}} </span>
+                      <td colspan="3">
+                        <span class="preview">{{item.plaintext}} </span>
                       </td>
+                      <td colspan="3"></td>
                     </tr>
                   </tbody>
                 </ng-template>
