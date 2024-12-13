@@ -424,22 +424,30 @@
                         [checked]="rowsSelectionModel.hasValue()"
                         ></mat-checkbox>
                     </th>
-                    <th [ngStyle]="{ width: widths.date + 'px' }">
+                    <th
+                      style="width: 10ch;"
+                      [ngStyle]="{ width: widths.date + 'px' }">
                       Date
                       <app-resizable-button [(width)]="widths.date"/>
                     </th>
-                    <th [ngStyle]="{ width: widths.from + 'px' }">
+                    <th
+                      style="width: 10%"
+                      [ngStyle]="{ width: widths.from + 'px' }">
                       {{
                       selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
                       }}
                       <app-resizable-button [(width)]="widths.from"/>
                     </th>
 
-                    <th [ngStyle]="{ width: widths.subject + 'px' }">
+                    <th
+                      style="width: 50%"
+                      [ngStyle]="{ width: widths.subject + 'px' }">
                       Subject
                       <app-resizable-button [(width)]="widths.subject"/>
                     </th>
-                    <th [ngStyle]="{ width: widths.size + 'px' }">
+                    <th
+                      style="width: 8ch"
+                      [ngStyle]="{ width: widths.size + 'px' }">
                       Size
                       <app-resizable-button [(width)]="widths.size"/>
                     </th>
