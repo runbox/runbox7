@@ -125,6 +125,11 @@ canvastablecontainer {
         background-color: var(--selected-color);
     }
 
+    & .preview {
+        display: block;
+        height: 1lh;
+    }
+
     @media (max-width: 60rem) {
         & {
             display: block;

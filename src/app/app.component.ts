@@ -1622,7 +1622,8 @@ function mapOverIndexes<T>(
   rightIndex: number,
   array: T[],
 ): T[] {
-  rightIndex = Math.min(rightIndex, array.length)
+  rightIndex = Math.max(leftIndex, Math.min(rightIndex, array.length))
+  leftIndex = Math.min(leftIndex, rightIndex)
 
   if (leftIndex < 0 || leftIndex > rightIndex) {
     throw new Error(
