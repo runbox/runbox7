@@ -427,28 +427,44 @@
                     <th
                       style="width: 10ch;"
                       [ngStyle]="{ width: widths.date + 'px' }">
-                      Date
+                      <app-sort-button
+                        [data]="2"
+                        [(order)]="orderSelectionModel.selected">
+                        Date
+                      </app-sort-button>
                       <app-resizable-button [(width)]="widths.date"/>
                     </th>
                     <th
                       style="width: 10%"
                       [ngStyle]="{ width: widths.from + 'px' }">
-                      {{
-                      selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
-                      }}
+                      <app-sort-button
+                        [data]="0"
+                        [(order)]="orderSelectionModel.selected">
+                        {{
+                        selectedFolder !== messagelistservice.sentFolderName ? "From" : "To"
+                        }}
+                      </app-sort-button>
                       <app-resizable-button [(width)]="widths.from"/>
                     </th>
 
                     <th
                       style="width: 50%"
                       [ngStyle]="{ width: widths.subject + 'px' }">
-                      Subject
+                      <app-sort-button
+                        [data]="1"
+                        [(order)]="orderSelectionModel.selected">
+                        Subject
+                      </app-sort-button>
                       <app-resizable-button [(width)]="widths.subject"/>
                     </th>
                     <th
                       style="width: 8ch"
                       [ngStyle]="{ width: widths.size + 'px' }">
-                      Size
+                      <app-sort-button
+                        [data]="3"
+                        [(order)]="orderSelectionModel.selected">
+                        Size
+                      </app-sort-button>
                       <app-resizable-button [(width)]="widths.size"/>
                     </th>
                     <th><span class="sr-only">Attachments</span></th>
