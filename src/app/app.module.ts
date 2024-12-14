@@ -93,6 +93,7 @@ import { HumanBytesPipe } from './human-bytes.pipe';
 import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
 import { DatePipe } from '@angular/common';
 import { ResizableButtonComponent } from './resizable-button/resizable-button.component';
+import { SortButtonComponent } from './sort-button/sort-button.component';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -147,6 +148,7 @@ const routes: Routes = [
     imports: [BrowserModule, FormsModule,
         DatePipe,
         ResizableButtonComponent,
+        SortButtonComponent,
         HttpClientModule,
         AccessibleTableComponent,
         HttpClientJsonpModule,
