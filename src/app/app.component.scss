@@ -97,12 +97,14 @@ canvastablecontainer {
         position: relative;
     }
 
+    & td {
+        padding-bottom: var(--cell-y-spacing);
+    }
+
     & td, & th {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-
-        padding-bottom: var(--cell-y-spacing);
     }
 
     & tbody tr:first-child td {

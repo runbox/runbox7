@@ -66,6 +66,8 @@ import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { FilterSelectionModel } from './models/filter-selection-model';
+import { BindableSelectionModel } from './models/bindable-selection-model';
+import { Direction } from './sort-button/sort-button.component';
 
 const fetchedSymbol = Symbol('fetched')
 
@@ -108,6 +110,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     messagesEqual,
     hasId
   );
+  orderSelectionModel = new BindableSelectionModel(
+    false,
+    [],
+    true,
+  )
 
   lastSearchText = '';
   searchText = '';
@@ -220,6 +227,20 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
   ) {
+    this.orderSelectionModel.selectionModel.changed.subscribe(() => {
+      const {data: column, direction} = this.orderSelectionModel.selected
+
+      if (direction === Direction.None) {
+        this.canvastablecontainer.sortColumn = 2;
+        this.canvastablecontainer.sortDescending = true;
+      } else {
+        this.canvastablecontainer.sortColumn = column;
+        this.canvastablecontainer.sortDescending = Direction.Descending === direction;
+      }
+
+      this.updateSearch(true)
+    })
+
     this.hotkeysService.add(
         new Hotkey(
             'up up down down left right left right b a',
@@ -379,8 +400,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.preferences.has(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`)) {
       this.canvastable.columnWidths = this.preferences.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
     }
-    this.canvastablecontainer.sortColumn = 2;
-    this.canvastablecontainer.sortDescending = true;
+    this.orderSelectionModel.selected = {
+      data: 2,
+      direction: Direction.Descending
+    }
     this.resetColumns();
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
