@@ -568,6 +568,7 @@ export class SearchService {
             this.localSearchActivated = true;
             this.messagelistservice.refreshFolderList();
 
+            this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
             this.updateIndexLastUpdateTime();
 
             this.downloadProgress = null;
