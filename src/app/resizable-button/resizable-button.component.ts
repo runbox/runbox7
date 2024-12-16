@@ -18,14 +18,22 @@ export class ResizableButtonComponent implements AfterViewInit {
   // Hold the reference to the event listeners
   private onMouseMoveListener: (event: MouseEvent) => void;
   private onMouseUpListener: () => void;
+  private initialWidth: string | null = null;
 
   constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit() {
     const parentElement = this.elementRef.nativeElement.parentElement;
+    this.initialWidth = window.getComputedStyle(parentElement).width;
+
     if (parentElement) {
       this.widthChange.emit(parentElement.offsetWidth);
     }
+  }
+
+  resetWidth(event) {
+    const parentElement = this.elementRef.nativeElement.parentElement;
+    parentElement.style.width = this.initialWidth;
   }
 
   onMouseDown(event: MouseEvent): void {

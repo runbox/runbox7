@@ -1,6 +1,7 @@
 <button
     (mousedown)="onMouseDown($event)"
     (keydown)="onKeyDown($event)"
+    (dblclick)="resetWidth($event)"
     [class.resizing]="isResizing"
     [attr.aria-valuenow]="width"
     role="slider"
