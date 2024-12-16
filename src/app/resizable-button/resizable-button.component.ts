@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output, HostListener, AfterViewInit, Input } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, AfterViewInit, Input, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-resizable-button',
@@ -31,9 +31,14 @@ export class ResizableButtonComponent implements AfterViewInit {
     }
   }
 
-  resetWidth(event) {
+  resetWidth() {
     const parentElement = this.elementRef.nativeElement.parentElement;
     parentElement.style.width = this.initialWidth;
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.resetWidth();
   }
 
   onMouseDown(event: MouseEvent): void {
