@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -144,6 +144,7 @@ class SearchIndexService {
           db.close();
         };
       } catch (e) {
+        console.error(e)
         console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
         // console.log('Worker: Req failed');
@@ -232,7 +233,9 @@ class SearchIndexService {
           this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   private openStoredMainPartition() {
@@ -249,7 +252,7 @@ class SearchIndexService {
     }
 
     this.localSearchActivated = false;
-    
+
     return new Observable((observer) => {
       console.log('Worker: Closing xapian database');
       if (this.api) {
@@ -266,7 +269,9 @@ class SearchIndexService {
       FS.rmdir(XAPIAN_GLASS_WR);
       try {
         FS.unlink('xapianglass');
-      } catch (e) {}
+      } catch (e) {
+        console.error(e)
+      }
 
 
 
@@ -276,6 +281,7 @@ class SearchIndexService {
       try {
         FS.stat(this.partitionsdir);
       } catch (e) {
+        console.error(e);
         hasPartitionsDir = false;
       }
       if (hasPartitionsDir) {
@@ -525,7 +531,10 @@ not matching with rest api counts for current folder`);
                   updateFolderCounts(folderPath).then(
                     (result) => console.log(result.result.result.msg)
                   ).catch(
-                    (err) => console.log('Error updating folder counts: ' + err.errors.join(','))
+                    (err) => {
+                      console.error(err)
+                      console.log('Error updating folder counts: ' + err.errors.join(','))
+                    }
                   );
                 }
               });
@@ -544,6 +553,7 @@ not matching with rest api counts for current folder`);
                 try {
                   this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
                 } catch (e) {
+                  console.error(e)
                   console.error('Worker: Unable to delete message from index', msgid);
                 }
               })
@@ -928,7 +938,7 @@ not matching with rest api counts for current folder`);
                   this.api.deleteDocumentByUniqueTerm('Q' + mid);
                   console.log('Deleted msg id search index', mid);
                 } catch (e) {
-                  console.error('Unable to delete message from search index (not found?)', mid);
+                  console.error('Unable to delete message from search index (not found?)', mid, e);
                 }
               })
             )
@@ -942,7 +952,7 @@ not matching with rest api counts for current folder`);
                   this.api.changeDocumentsFolder('Q' + mid, dotSeparatedDestinationfolderPath);
                 } catch (e) {
                   console.error('Unable to change index document folder', mid, dotSeparatedDestinationfolderPath,
-                    '(not found since moving from trash/spam folder?');
+                    '(not found since moving from trash/spam folder?', e);
                 }
               })
             )
@@ -1053,7 +1063,7 @@ ctx.addEventListener('message', ({ data }) => {
     }
     console.log('Dealt with message');
   } catch (e) {
-    console.error('Failed to deal with message: ' + e);
+    console.error('Failed to deal with message: ', e);
   }
 });
 

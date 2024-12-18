@@ -119,9 +119,10 @@ export class RecipientsService {
                 groups.map(g => this.recipientFromGroup(g))
             ).then((updateGroups) => {
                 this.updateRecipients(updateGroups);
-            }).catch(
-                () => this.recipients.next([])
-            );
+            }).catch((error) => {
+                console.error(error)
+                return this.recipients.next([])
+            });
         });
 
         this.recipients.subscribe(recipients => console.debug(recipients.length, 'recipients ready to use'));
@@ -196,9 +197,10 @@ export class RecipientsService {
                                 return null;
                             }
                         }
-                    ).catch(
-                        () => null
-                    )
+                    ).catch((error) => {
+                        console.error(error)
+                        return null
+                    })
                 );
             } else if (m.email) {
                 if (m.name) {
