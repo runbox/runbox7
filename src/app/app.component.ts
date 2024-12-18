@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -64,6 +64,11 @@ import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
+import { FilterSelectionModel } from './models/filter-selection-model';
+import { BindableSelectionModel } from './models/bindable-selection-model';
+import { Direction } from './sort-button/sort-button.component';
+
+const fetchedSymbol = Symbol('fetched')
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -80,11 +85,35 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app',
   styleUrls: ['app.component.scss'],
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
+
+
+  rows = [];
+  lastCheckedRow = null;
+  scrollToIndex: number = 0;
+  rowSelectionModel = new FilterSelectionModel(
+    false,
+    [],
+    false,
+    messagesEqual,
+    hasId
+  );
+  rowsSelectionModel = new FilterSelectionModel(
+    true,
+    [],
+    false,
+    messagesEqual,
+    hasId
+  );
+  orderSelectionModel = new BindableSelectionModel(
+    false,
+    [],
+    true,
+  )
 
   lastSearchText = '';
   searchText = '';
@@ -101,6 +130,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
+
+  dragEvent: DragEvent | null = null
 
   indexDocCount = 0;
 
@@ -152,6 +183,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   messageActionsHandler: RMM7MessageActions = new RMM7MessageActions();
 
+
   dynamicSearchFieldPlaceHolder: string;
   numHistoryChunksProcessed = 0;
 
@@ -163,8 +195,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianLoaded = xapianLoadedSubject;
 
   morelistbuttonindex = 7;
+  renderedRange = {start: 0, end: 0}; // First ten messages.
 
-  constructor(public searchService: SearchService,
+  widths = {};
+
+  constructor(
+    public searchService: SearchService,
     public rmmapi: RunboxWebmailAPI,
     public rmm: RMM,
     public snackBar: MatSnackBar,
@@ -190,21 +226,20 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
   ) {
-    this.hotkeysService.add(
-        new Hotkey(['j', 'k'],
-        (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-            if (combo === 'k') {
-                this.canvastable.scrollUp();
-                combo = null;
-            }
-            if (combo === 'j') {
-                this.canvastable.scrollDown();
-            }
-            const e: ExtendedKeyboardEvent = event;
-            e.returnValue = false;
-            return e;
-        })
-    );
+    this.orderSelectionModel.selectionModel.changed.subscribe(() => {
+      const {data: column, direction} = this.orderSelectionModel.selected
+
+      if (direction === Direction.None) {
+        this.canvastablecontainer.sortColumn = 2;
+        this.canvastablecontainer.sortDescending = true;
+      } else {
+        this.canvastablecontainer.sortColumn = column;
+        this.canvastablecontainer.sortDescending = Direction.Descending === direction;
+      }
+
+      this.updateSearch(true)
+    })
+
     this.hotkeysService.add(
         new Hotkey(
             'up up down down left right left right b a',
@@ -364,8 +399,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.preferences.has(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`)) {
       this.canvastable.columnWidths = this.preferences.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
     }
-    this.canvastablecontainer.sortColumn = 2;
-    this.canvastablecontainer.sortDescending = true;
+    this.orderSelectionModel.selected = {
+      data: 2,
+      direction: Direction.Descending
+    }
     this.resetColumns();
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
@@ -475,7 +512,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if ('serviceWorker' in navigator) {
         try  {
           Notification.requestPermission();
-        } catch (e) {}
+        } catch (e) {
+          console.error(e)
+        }
       }
 
       this.subscribeToNotifications();
@@ -603,7 +642,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       true, spamFolderName
     ).toPromise();
 
-    const messageIds = messageLists.map(msg => msg.id);
+    const messageIds = messageLists.map(idValue);
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName),
@@ -662,7 +701,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     const snackBarRef = this.snackBar.open( msg );
-    const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
+    const unfilteredMessageIds = this.selectedMessageIds;
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
 
@@ -733,7 +772,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setReadStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling read status...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -744,7 +783,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             new MessageFlagChange(id, status, null)
           );
         });
-        this.clearSelection();
         if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.mailObj.seen_flag = status ? 1 : 0;
         }
@@ -766,7 +804,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setFlaggedStatus(status: boolean) {
     const snackBarRef = this.snackBar.open('Toggling flags...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -777,7 +815,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             new MessageFlagChange(id, null, status)
           );
         });
-        this.clearSelection();
         if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.mailObj.flagged_flag = status ? 1 : 0;
         }
@@ -800,7 +837,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // Delete selected messages in current canvastable view
   // If looking at Trash, this will be "delete permanently"
   public deleteMessages() {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -877,6 +914,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.selectMessageFromFragment(this.fragment);
       }
     }
+
     this.filterMessageDisplay();
 
     // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
@@ -888,6 +926,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // NB this triggers hasChanged for us and forces a redraw
     this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
+    this.updateRows()
   }
 
   public filterMessageDisplay() {
@@ -901,12 +940,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public clearSelection() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
-      this.canvastable.rows.clearSelection();
-    }
-    this.canvastable.hasChanges = true;
-    this.showSelectOperations = false;
-    this.showSelectMarkOpMenu = false;
+    this.rowsSelectionModel.clear()
   }
 
   public selectRowByMessageId(messageId: number) {
@@ -920,6 +954,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
+
+    this.scrollToIndex = rowIndex
+
+    this.rowSelectionModel.select(this.rows[rowIndex])
+
+    // TODO: Consider using SelectionModel here too
+    this.lastCheckedRow = this.rows[rowIndex]
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -1075,8 +1116,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
+  onMessagesDragStart(event: DragEvent, row) {
+
+    // If no messages are selected we'll select the current message
+    if (this.rowsSelectionModel.isEmpty()) {
+      this.rowsSelectionModel.select(row)
+    }
+
+    // Remove the default image
+    event.dataTransfer?.setDragImage(new Image(), 0, 0); // Set an empty image
+
+    this.dragEvent = event
+  }
+
   dropToFolder(folderId): void {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
@@ -1105,9 +1159,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public moveToFolder() {
     const dialogRef: MatDialogRef<MoveMessageDialogComponent> = this.dialog.open(MoveMessageDialogComponent);
 //    dialogRef.componentInstance.messageActionsHandler = this.messageActionsHandler;
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
-    console.log('selected messages', messageIds);
     // dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
@@ -1347,7 +1400,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
               this.canvastable.scrollTop();
             }
           }
-        } catch (e) { }
+        } catch (e) {
+          console.error(e)
+        }
 
       }
     }
@@ -1419,6 +1474,179 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.router.navigate(['/'], { fragment });
     }
   }
+
+  get selectedMessageIds() {
+    return this.rowsSelectionModel.isEmpty()
+      ? this.rowSelectionModel.selected.map(idValue)
+      : this.rowsSelectionModel.selected.map(idValue)
+  }
+
+  updateRows() {
+    this.rows = this.canvastable?.rows?.rows ?? []
+
+    return this.enrichRows()
+  }
+
+  async enrichRows() {
+    const { start, end } = this.renderedRange
+
+    this.rows = await Promise.all(mapOverIndexes(async (value) => {
+      if (value.id) {
+        return value
+      }
+
+      const [ rowId ] = value
+
+      const doc = this.searchService.getDocData(rowId)
+
+      return Object.assign({}, doc, {
+        size: this.searchService.api.getNumericValue(rowId, 3),
+        messageDate: this.parseSillyDate(this.searchService.api.getStringValue(rowId, 2)),
+        from: [{name: doc.from}],
+        to: doc.recipients, // TODO: Turn into MailAddressInfo
+        id: this.searchService.getMessageIdFromDocId(rowId),
+        plaintext: doc.textcontent?.trim() || '',
+      })
+
+    }, start, end, this.rows))
+
+    this.lastCheckedRow = this.rows[0]
+  }
+
+  rangeSelectFrom(from: number, to: number, check: boolean) {
+    const left = Math.min(from, to)
+    const right = Math.max(from, to)
+
+    for (let i = left; i <= right; i++) {
+      if (check) {
+        this.rowsSelectionModel.select(this.rows[i])
+      } else {
+        this.rowsSelectionModel.deselect(this.rows[i])
+      }
+    }
+
+    this.lastCheckedRow = this.rows[to]
+
+  }
+
+  onCheckboxClick(event, row, index) {
+    this.onRowClick(event, row, index, true)
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
+  rangeSelect(to, check) {
+    let from = this.rows.indexOf(this.lastCheckedRow)
+
+    // When nothing is selected yet.
+    if (from === -1) return this.oneSelect(to, check)
+
+
+    return this.rangeSelectFrom(from, to, check)
+  }
+
+  oneSelect(index, check) {
+    this.rangeSelectFrom(index, index, check)
+  }
+
+  onRowClick(event, row, index, checkbox = false) {
+    const shiftKey = event.getModifierState("Shift")
+
+    const check = !this.rowsSelectionModel.isSelected(this.rows[index])
+
+    if (shiftKey) {
+      return this.rangeSelect(index, check)
+    }
+
+    const ctrlKey = event.getModifierState("Control")
+    const metaKey = event.getModifierState("Meta")
+
+    if (ctrlKey || metaKey) {
+      return this.oneSelect(index, check)
+    }
+
+    if (!checkbox) {
+      this.rowSelected(this.rows.indexOf(row), 3, false);
+    } else {
+      this.oneSelect(index, check)
+    }
+  }
+
+  onRowKeydown(event, row, index) {
+    // Only work on Enter and space.
+    if (event.key !== 'Enter') return;
+
+    return this.onRowClick(event, row, index)
+  }
+
+  onAllCheckboxChange(event) {
+    if (this.rowsSelectionModel.isEmpty()) {
+      this.rowsSelectionModel.select(...this.rows);
+    } else {
+      this.rowsSelectionModel.deselect(...this.rows);
+    }
+  }
+
+  get allItemsSelected() {
+    return this.rowsSelectionModel.selected.length === this.rows.length
+  }
+
+  @HostListener('document:dragend', ['$event'])
+  onDragEnded() {
+    delete this.dragEvent;
+  }
+
+  // TODO: The this.rows can change after a onRenderedRangeChange is called.
+  // This will drop the resolved values.
+  onRenderedRangeChange(event) {
+    this.renderedRange = event;
+    this.enrichRows()
+  }
+
+  private parseSillyDate(dateString) {
+    return new Date(`${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}T${dateString.slice(8, 10)}:${dateString.slice(10, 12)}:00`);
+  }
+
 }
 
-// vim: set shiftwidth=2
+
+/**
+ * Applies a transformation function to a range of indexes in an array.
+ *
+ * @param array - The array to process.
+ * @param leftIndex - The start index (inclusive) of the range to transform.
+ * @param rightIndex - The end index (inclusive) of the range to transform.
+ * @param transformFn - The function to apply to elements in the specified range.
+ * @returns A new array with transformed elements within the range.
+ * @throws An error if `leftIndex` or `rightIndex` is out of bounds.
+ */
+function mapOverIndexes<T>(
+  transformFn: (item: T) => T,
+  leftIndex: number,
+  rightIndex: number,
+  array: T[],
+): T[] {
+  rightIndex = Math.max(leftIndex, Math.min(rightIndex, array.length))
+  leftIndex = Math.min(leftIndex, rightIndex)
+
+  if (leftIndex < 0 || leftIndex > rightIndex) {
+    throw new Error(
+      `Invalid indexes: leftIndex (${leftIndex}) and rightIndex (${rightIndex}) must be within array bounds [0, ${
+        array.length
+      }] and leftIndex <= rightIndex.`
+    );
+  }
+
+  const result = Object.create(array); // Create a copy of the array to avoid mutation
+
+
+  for (let i = leftIndex; i < rightIndex; i++) {
+    result[i] = transformFn(result[i]);
+  }
+
+  return result;
+}
+
+const idValue = x => x.id
+const messagesEqual = (a, b) => a?.id === b?.id
+const hasId = (x) => Boolean(x?.id)

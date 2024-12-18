@@ -1,0 +1,22 @@
+button {
+    --fg: #333;
+    background-color: var(--fg);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    cursor: col-resize;
+    right: 0;
+    border: none;
+    width: 1rem;
+    padding: 0;
+    margin: 0;
+    display: block;
+    transition: opacity 0.1s ease;
+    opacity: 0.1;
+}
+
+button:hover, button:focus, button.resizing {
+    opacity: 1;
+    background-color: var(--fg);
+}
+

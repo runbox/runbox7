@@ -1,0 +1,12 @@
+<cdk-virtual-scroll-viewport [itemSize]="firstRowHeight | async" class="email-viewport">
+  <table
+    class="mat-mdc-table mdc-data-table__table cdk-table mat-sort mat-elevation-z8"
+  >
+    <ng-container *ngTemplateOutlet="theadTemplate"></ng-container>
+
+    <ng-container *cdkVirtualFor="let item of items; let $index = index;">
+      <ng-container *ngTemplateOutlet="tbodyTemplate; context: {$implicit: item, item: item, index: $index}"></ng-container>
+    </ng-container>
+
+  </table>
+</cdk-virtual-scroll-viewport>
