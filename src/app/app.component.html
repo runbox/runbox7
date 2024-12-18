@@ -473,16 +473,46 @@
                 </ng-template>
 
                 <ng-template #tbody let-item let-index="index">
-                  <!-- Check if is loaded -->
-                  <tbody *ngIf="!item?.id">
+                  <!-- Show a skeleton if is loading -->
+                  <tbody
+                    *ngIf="!item?.id"
+                    [ngClass]="{
+                      focussed: lastCheckedRow === item,
+                      selected: rowSelectionModel.isSelected(item),
+                      checked: rowsSelectionModel.isSelected(item)
+                    }"
+                  >
                     <tr>
                       <td class="checkbox-cell">
                         <mat-checkbox
-                          disabled="true"
+                          (click)="onCheckboxClick($event, item, index)"
+                          [checked]="rowsSelectionModel.isSelected(item)"
                           tabindex="-1">
                         </mat-checkbox>
                       </td>
-                      <td><span>Loading</span></td>
+                      <td>
+                        <span class="skeleton-bone"></span>
+                      </td>
+
+                      <td>
+                        <span class="skeleton-bone"></span>
+                      </td>
+
+                      <td class="subject text-primary">
+                        <span class="skeleton-bone"></span>
+                      </td>
+                      <td class="sm-hidden">
+                        <span class="skeleton-bone"></span>
+                      </td>
+                      <td class="sm-hidden"></td>
+                      <td class="sm-hidden"></td>
+                    </tr>
+                    <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
+                      <td><!--offset --></td>
+                      <td colspan="3">
+                        <span class="skeleton-bone"></span>
+                      </td>
+                      <td colspan="3"></td>
                     </tr>
                   </tbody>
                   <tbody
