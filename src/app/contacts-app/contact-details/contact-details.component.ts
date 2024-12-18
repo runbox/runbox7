@@ -294,7 +294,10 @@ export class ContactDetailsComponent {
         console.log('Saving contact:', this.contact);
         this.contactsservice.saveContact(this.contact).then(
             id => this.router.navigateByUrl('/contacts/' + id)
-        ).catch(err => this.snackBar.open(err.message, 'Ok'));
+        ).catch(err => {
+            console.error(err);
+            return this.snackBar.open(err.message, 'Ok');
+        });
     }
 
     rollback(): void {
