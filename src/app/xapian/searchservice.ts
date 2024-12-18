@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -171,6 +171,7 @@ export class SearchService {
                 tag: 'newmessages'
               });
             } catch (e) {
+              console.error(e);
               console.log('Should have displayed notification about new messages:', newMessagesTitle);
             }
           }
@@ -222,6 +223,7 @@ export class SearchService {
                   db.close();
                 };
               } catch (e) {
+                console.error(e)
                 console.log('Unable to open local xapian index', (e ? e.message : ''));
                 db.close();
                 observer.next(false);
@@ -295,7 +297,7 @@ export class SearchService {
     // Update local index with message seen flag
     // FIXME: Is this seeing a different copy to the one the worker opened?
     // seems stuff ought to work without this, after the indexUpdate loop
-    // but it doesn't. 
+    // but it doesn't.
     this.rmmapi.messageFlagChangeSubject
       .subscribe((msgFlagChange) => {
         if (msgFlagChange.flaggedFlag !== null) {
@@ -364,6 +366,7 @@ export class SearchService {
                 this.indexLastUpdateTime = new Date().getTime();
               }
             } catch (e) {
+              console.error(e)
               if (!this.updateIndexLastUpdateTime()) {
                 // Corrupt xapian index - delete it and subscribe to changes (fallback to websocket search)
                 // Deal with this on the non-worker side, then tell it to
@@ -383,6 +386,7 @@ export class SearchService {
 
 
           } catch (e) {
+            console.error(e)
             console.log('No xapian db');
             this.initSubject.next(false);
           }
@@ -406,7 +410,9 @@ export class SearchService {
           this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   public openDBOnWorker() {
@@ -554,6 +560,7 @@ export class SearchService {
         try {
           FS.stat(XAPIAN_GLASS_WR);
         } catch (e) {
+          console.error(e)
           FS.mkdir(XAPIAN_GLASS_WR);
         }
 
@@ -780,6 +787,7 @@ export class SearchService {
                         try {
                           FS.stat(`${this.partitionsdir}/${dirname}`);
                         } catch (e) {
+                          console.error(e)
                           FS.mkdir(`${this.partitionsdir}/${dirname}`);
                         }
 
@@ -829,13 +837,13 @@ export class SearchService {
     //
     // Abusing the fact that getDocData is called multiple times for the same message,
     // this cache ensures that at least the future calls will get the textcontent synchronously
-    // eslint-disable-next-line @typescript-eslint/member-ordering, 
+    // eslint-disable-next-line @typescript-eslint/member-ordering,
     messageTextCache = new Map<number, string>();
 
     /**
      * Look up document data from the database. If the id is the same as from the previous request, it will use
      * the previous lookup result, otherwise look up from the database with the new id
-     * 
+     *
      * @param docid the id of the document in the Xapian database (NOT the same as the RMM message id)
      */
     public getDocData (docid: number): SearchIndexDocumentData {
