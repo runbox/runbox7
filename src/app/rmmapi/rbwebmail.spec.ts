@@ -23,6 +23,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { MessageCache } from './messagecache';
 import { firstValueFrom } from 'rxjs';
 
 describe('RBWebMail', () => {
@@ -85,7 +86,6 @@ describe('RBWebMail', () => {
 
         messageContentsObservable = rmmapi.getMessageContents(123, true);
         await new Promise(resolve => setTimeout(resolve, 0));
-        httpTestingController.expectOne('/rest/v1/email/123').flush({
         req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
             status: 'success',
