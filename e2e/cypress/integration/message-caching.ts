@@ -9,7 +9,7 @@ describe('Message caching', () => {
 
     });
 
-    it('should cache all messages on first time page load', () => {
+  it('should fetch all messages on first time page load', () => {
         cy.intercept('/rest/v1/email/download/*').as('message12requested');
 
         cy.visit('/');
@@ -18,7 +18,7 @@ describe('Message caching', () => {
     });
 
     it('should not re-request messages after a page reload', () => {
-        cy.intercept('/rest/v1/email/12').as('message12requested');
+        cy.intercept('/rest/v1/email/download/*').as('message12requested');
 
         cy.visit('/');
         cy.wait('@message12requested', {'timeout':10000});
