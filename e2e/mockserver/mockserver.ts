@@ -260,6 +260,7 @@ END:VCALENDAR
                     'status': 'success',
                     'result': messages,
                 }));
+                return;
             }
 
             const emailendpoint = requesturl.match(/\/rest\/v1\/email\/([0-9]+)/);
@@ -994,18 +995,21 @@ END:VCALENDAR
 
     getMessage(mailid: number): any {
         let message_obj = mail_message_obj;
+        message_obj.status = 'success';
         if (mailid === 11) {
             message_obj = JSON.parse(JSON.stringify(mail_message_obj));
             const to = message_obj.result.headers['to'];
             delete message_obj.result.headers['to'];
             message_obj.result.headers['cc'] = to;
             message_obj.result.headers['subject'] = "No 'To', just 'CC'";
+            message_obj.result.mid = mailid;
         }
         if (mailid === 12) {
             message_obj = JSON.parse(JSON.stringify(mail_message_obj));
             message_obj.result.headers['to'].value[0].address = "TESTMAIL@TESTMAIL.COM";
             message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
             message_obj.result.headers['subject'] = "Default from fix test";
+            message_obj.result.mid = mailid;
         }
         if (mailid === 13) {
             message_obj = JSON.parse(JSON.stringify(mail_message_obj));
@@ -1013,9 +1017,10 @@ END:VCALENDAR
             delete message_obj.result.headers['to'];
             message_obj.result.headers['cc'] = to;
             message_obj.result.headers['subject'] = "";
+            message_obj.result.mid = mailid;
         }
         // This one warns, we couldnt find it!
-        if (mailid === '14') {
+        if (mailid === 14) {
             message_obj = {
               'status':'warning',
               'errors': [
@@ -1023,8 +1028,6 @@ END:VCALENDAR
               ]
            };
         }
-
-        message_obj.status = 'success';
 
         return message_obj;
     }

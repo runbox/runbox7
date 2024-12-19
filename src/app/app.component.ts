@@ -24,6 +24,7 @@ import {
 } from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
+import { PostMessageAction } from './xapian/messageactions';
 
 import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -464,12 +465,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       const messageIds = rowIndexes.filter(
         idx => idx < this.canvastable.rows.rowCount()
       ).map(idx => this.canvastable.rows.getRowMessageId(idx));
+      // FIXME: promise errors?
       this.rmmapi.downloadMessages(messageIds).then(
         (messages) => {
-          for (const msg messages) {
-            this.searchService.updateMessageText(parseInt(msg['id'], 10));
+          const updateWorker = new Map();
+          for (const msg of messages) {
+            this.searchService.updateMessageText(msg['mid']);
+            updateWorker.set(msg['mid'], msg.text.text);
+          };
+          // Send to the messageCache in the worker, so we can add the text to the index:
+          if(updateWorker.size > 0) {
+            this.searchService.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'updates': updateWorker });
+            this.canvastable.hasChanges = true;
           }
-          this.canvastable.hasChanges = true;
         });
     });
 

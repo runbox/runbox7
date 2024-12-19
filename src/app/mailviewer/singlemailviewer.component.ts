@@ -461,7 +461,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   private processMessageContents(messageContents: MessageContents): Mail {
-      console.log('processMessageContents processing', messageContents);
     const res: any = Object.assign({}, messageContents);
     if (res.status === 'warning') {
       // status === 'error' already displayed in showBackendErrors?
@@ -500,7 +499,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
     res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
-    res.visible_attachment_count = res.attachments.filter((att) => !att.inte    
+    res.visible_attachment_count = res.attachments.filter((att) => !att.inteinternal).length;    
 
     // Remove style tag otherwise angular sanitazion will display style tag content as text
 

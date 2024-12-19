@@ -42,12 +42,24 @@ export class LRUMessageCache<T> {
         }
     }
 
+    checkIds(ids: number[]): number[] {
+        const keys = [...this.messages.keys()];
+        const matches = keys.filter((val) => ids.includes(val));
+        return matches;
+    }
+
     get(id: number): T {
         const row = this.messages.get(id);
         if (row) {
             row.accessTime = this.now();
         }
         return row?.message;
+    }
+
+    getMany(ids: number[]): T[] {
+        const found = this.checkIds(ids);
+        const results = found.map((id) => this.get(id));
+        return results;
     }
 
     delete(id: number): void {

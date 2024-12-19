@@ -33,7 +33,7 @@ export class MessageCache {
             this.db.version(3).stores({
                 // use out-of-line keys, but index "id"
                 // yes, empty first arg is deliberate
-                messages: ',&id',
+                messages: ',&mid',
             });
         } catch (err) {
             console.log(`Error initializing messagecache: ${err}`);
@@ -50,7 +50,7 @@ export class MessageCache {
     // verify which ids we already have
     async checkIds(ids: number[]): Promise<number[]> {
         return this.db?.table('messages')
-            .where('id')
+            .where('mid')
             .anyOf(ids)
             .primaryKeys()
             .then(
@@ -60,7 +60,7 @@ export class MessageCache {
 
     async getMany(ids: number[]): Promise<MessageContents[]> {
         return this.db?.table('messages')
-            .where('id')
+            .where('mid')
             .anyOf(ids)
             .toArray()
             .then(

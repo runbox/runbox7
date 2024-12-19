@@ -916,8 +916,6 @@ export class SearchService {
       this.rmmapi.getMessageContents(messageId).subscribe((content) => {
         if (content['status'] === 'success') {
           this.messageTextCache.set(messageId, content.text.text);
-          // Send to the messageCache in the worker, so we can add the text to the index:
-          this.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'msgId': messageId, 'value':  content.text.text });
           if (this.messagelistservice.messagesById[messageId]) {
             this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
           }
