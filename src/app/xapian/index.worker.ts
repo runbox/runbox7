@@ -1011,7 +1011,8 @@ ctx.addEventListener('message', ({ data }) => {
       searchIndexService.folderList = data['value'];
     } else if (data['action'] === PostMessageAction.messageCache) {
       // Add / update the text of a message which we can add to the search index
-      searchIndexService.messageTextCache.set(data['msgId'], data['value']);
+      const updates = data['updates'];
+      updates.forEach((val, key) => searchIndexService.messageTextCache.set(key, val));
     } else if (data['action'] === PostMessageAction.moveMessagesToFolder) {
       searchIndexService.moveMessagesToFolder(data['messageIds'], data['value']);
     } else if (data['action'] === PostMessageAction.deleteMessages) {

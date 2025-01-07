@@ -26,7 +26,7 @@ describe('Interacting with mailviewer', () => {
     // });
 
     it('can open an email and go back and forth in browser history', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/#Inbox:11');
 
          cy.wait('@get11', {'timeout':10000});
@@ -45,7 +45,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To"', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/#Inbox:11')
         cy.wait('@get11', {'timeout':10000});
         // cy.get('#messageContents');
@@ -59,7 +59,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can forward an email with no "To"', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/');
         cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
@@ -74,7 +74,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
-        cy.intercept('/rest/v1/email/13').as('get13');
+        cy.intercept('/rest/v1/email/download/*').as('get13');
         cy.visit('/');
         cy.wait('@get13', {'timeout':10000});
         cy.visit('/#Inbox:13');
@@ -89,7 +89,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
-        cy.intercept('/rest/v1/email/13').as('get13');
+        cy.intercept('/rest/v1/email/download/*').as('get13');
         cy.visit('/');
         cy.wait('@get13', {'timeout':10000});
         cy.visit('/#Inbox:13');
@@ -104,7 +104,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/');
         cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
@@ -116,7 +116,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Changing viewpane height is stored', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/');
         cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
@@ -133,7 +133,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Half height reduces stored pane height', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/');
         cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
@@ -161,7 +161,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Revisit open email in horizontal mode loads it', () => {
-        cy.intercept('/rest/v1/email/11').as('get11');
+        cy.intercept('/rest/v1/email/download/*').as('get11');
         cy.visit('/');
         cy.wait('@get11', {'timeout':10000});
         cy.visit('/#Inbox:11');
@@ -177,7 +177,7 @@ describe('Interacting with mailviewer', () => {
     });
 
     it('Can go out of mailviewer and back and still see our email', () => {
-        cy.intercept('/rest/v1/email/12').as('get12');
+        cy.intercept('/rest/v1/email/download/*').as('get12');
         cy.visit('/');
         cy.wait('@get12',{'timeout':10000});
         cy.visit('/#Inbox:12');

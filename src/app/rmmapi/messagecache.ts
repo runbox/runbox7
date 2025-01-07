@@ -30,8 +30,10 @@ export class MessageCache {
 
         try {
             this.db = new Dexie(`messageCache-${userId}`);
-            this.db.version(2).stores({
-                messages: '', // use out-of-line keys
+            this.db.version(3).stores({
+                // use out-of-line keys, but index "id"
+                // yes, empty first arg is deliberate
+                messages: ',&mid',
             });
         } catch (err) {
             console.log(`Error initializing messagecache: ${err}`);
@@ -43,6 +45,28 @@ export class MessageCache {
             result => Object.assign(new MessageContents(), result).version === this.message_version ? result : null,
             _error => null,
         );
+    }
+
+    // verify which ids we already have
+    async checkIds(ids: number[]): Promise<number[]> {
+        return this.db?.table('messages')
+            .where('mid')
+            .anyOf(ids)
+            .primaryKeys()
+            .then(
+                (keys) => keys.map((key) => key as number)
+            );
+    }
+
+    async getMany(ids: number[]): Promise<MessageContents[]> {
+        return this.db?.table('messages')
+            .where('mid')
+            .anyOf(ids)
+            .toArray()
+            .then(
+            result => result,
+                _error => null,
+            );
     }
 
     set(id: number, contents: MessageContents): void {
