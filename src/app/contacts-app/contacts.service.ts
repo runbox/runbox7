@@ -96,6 +96,10 @@ class AvatarCache {
         return null;
     }
 
+    has(email: string): boolean {
+        return this.entries.hasOwnProperty(email);
+    }
+
     trash(email: string = null) {
         if (email) {
             this.entries[email] = null;
@@ -330,8 +334,8 @@ export class ContactsService implements OnDestroy {
             return Promise.resolve(null);
         }
 
-        if (this.avatarCache.get(email)) {
-            return Promise.resolve(this.avatarCache.get(email));
+        if (this.avatarCache.has(email)) {
+            return this.avatarCache.get(email);
         }
 
         const contact = await this.lookupContact(email);
