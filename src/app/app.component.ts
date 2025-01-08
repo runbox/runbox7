@@ -68,8 +68,6 @@ import { FilterSelectionModel } from './models/filter-selection-model';
 import { BindableSelectionModel } from './models/bindable-selection-model';
 import { Direction } from './sort-button/sort-button.component';
 
-const fetchedSymbol = Symbol('fetched')
-
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
