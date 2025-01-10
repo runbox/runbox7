@@ -24,16 +24,23 @@ export class ResizableButtonComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     const parentElement = this.elementRef.nativeElement.parentElement;
-    this.initialWidth = window.getComputedStyle(parentElement).width;
 
-    if (parentElement) {
-      this.widthChange.emit(parentElement.offsetWidth);
-    }
+    this.initialWidth = parentElement.style.width;
+
+    this.resetWidth()
   }
 
   resetWidth() {
     const parentElement = this.elementRef.nativeElement.parentElement;
+
     parentElement.style.width = this.initialWidth;
+
+    setTimeout(() => {
+      const width = window.getComputedStyle(parentElement).width;
+
+      parentElement.style.width = width;
+      this.widthChange.emit(parentElement.offsetWidth);
+    }, 10);
   }
 
   @HostListener('window:resize')
