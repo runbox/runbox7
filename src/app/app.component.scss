@@ -4,7 +4,7 @@
 
 /* Transition causes column width calculations to glitch. */
 .mat-drawer-transition .mat-drawer-content {
-  transition: none !important;
+    transition: none !important;
 }
 
 canvastablecontainer {
@@ -106,7 +106,8 @@ canvastablecontainer {
         padding-bottom: var(--cell-y-spacing);
     }
 
-    & td, & th {
+    & td,
+    & th {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
@@ -128,7 +129,8 @@ canvastablecontainer {
         background-color: var(--focussed-color);
     }
 
-    & tbody:hover, & tbody.selected {
+    & tbody:hover,
+    & tbody.selected {
         background-color: var(--selected-color);
     }
 
@@ -141,9 +143,11 @@ canvastablecontainer {
         & {
             display: block;
         }
+
         & thead {
             display: none;
         }
+
         & tbody {
             display: block;
         }
@@ -172,21 +176,25 @@ canvastablecontainer {
 }
 
 .skeleton-bone {
-  content: ' ';
-  display: inline-block;
-  width: 100%; /* Adjust based on the required placeholder size */
-  height: 1em; /* Adjust for height */
-  background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite;
-  border-radius: 4px; /* Optional for rounded edges */
+    content: ' ';
+    display: inline-block;
+    width: 100%;
+    /* Adjust based on the required placeholder size */
+    height: 1em;
+    /* Adjust for height */
+    background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    /* Optional for rounded edges */
 }
 
 @keyframes skeleton-loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
