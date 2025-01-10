@@ -1510,7 +1510,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     }, start, end, this.rows))
 
-    this.lastCheckedRow = this.rows[0]
+    this.lastCheckedRow = this.lastCheckedRow ?? this.rows[0]
   }
 
   rangeSelectFrom(from: number, to: number, check: boolean) {
