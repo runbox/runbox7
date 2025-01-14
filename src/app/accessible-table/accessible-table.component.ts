@@ -19,7 +19,6 @@
 
 import {
   OnDestroy,
-  AfterViewChecked,
   ChangeDetectionStrategy,
   AfterViewInit,
   Component,
@@ -47,7 +46,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
   styleUrls: ['./accessible-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, AfterViewInit, OnChanges {
+export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnChanges {
   @ContentChild('tbody', { read: TemplateRef }) tbodyTemplate!: TemplateRef<any> | null;
   @ContentChild('thead', { read: TemplateRef }) theadTemplate!: TemplateRef<any> | null;
 
@@ -66,10 +65,6 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
     private elementRef: ElementRef,
   ) { }
 
-  ngAfterViewChecked() {
-    this.updateFirstRowHeight();
-  }
-
   ngAfterViewInit() {
     this.renderedRangeSub = this.viewport.renderedRangeStream.subscribe(range => {
       this.renderedRangeChange.emit(range)
@@ -81,6 +76,8 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewChecked, Af
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    this.updateFirstRowHeight();
+
     if (changes.scrollToIndex && this.items.length > this.scrollToIndex) {
       this.viewport?.scrollToIndex(this.scrollToIndex, 'smooth');
     }
