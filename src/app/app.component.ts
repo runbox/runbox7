@@ -901,7 +901,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public clearSelection() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+    if (this.canvastable.rows) {
       this.canvastable.rows.clearSelection();
     }
     this.canvastable.hasChanges = true;
@@ -1093,6 +1093,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
+        this.clearSelection();
+        if(this.singlemailviewer && this.singlemailviewer.messageId && messageIds.includes(this.singlemailviewer.messageId)) {
+          this.singlemailviewer.close();
+        }
       },
       updateRemote: (msgIds: number[]) => {
         const userFolders = this.messagelistservice.folderListSubject.value;
@@ -1128,7 +1132,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);
             this.clearSelection();
-            this.canvastable.rows.clearOpenedRow();
+            if(this.singlemailviewer && this.singlemailviewer.messageId && messageIds.includes(this.singlemailviewer.messageId)) {
+              this.singlemailviewer.close();
+            }
           },
           updateRemote: (msgIds: number[]) => {
             const userFolders = this.messagelistservice.folderListSubject.value;
