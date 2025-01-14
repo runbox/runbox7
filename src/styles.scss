@@ -1764,3 +1764,8 @@ table.detailsTable tr td:nth-of-type(2) {
     text-align: center;
 }
 
+/* Transition causes column width calculations to glitch. */
+.mat-drawer-transition .mat-drawer-content {
+    transition: none !important;
+}
+
