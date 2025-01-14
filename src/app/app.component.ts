@@ -1645,6 +1645,6 @@ function mapOverIndexes<T>(
   return result;
 }
 
-const idValue = x => x.id
-const messagesEqual = (a, b) => a?.id === b?.id
-const hasId = (x) => Boolean(x?.id)
+const idValue = (x: any) => x.id
+const messagesEqual = (a: any, b: any) => a?.id === b?.id
+const hasId = (x: any) => Boolean(x?.id)
