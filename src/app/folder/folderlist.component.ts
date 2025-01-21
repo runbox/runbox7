@@ -240,6 +240,7 @@ export class FolderListComponent implements OnChanges {
         this.dropAboveOrBelowOrInside = DropPosition.NONE;
         this.dragFolderInProgress = false;
         this.dropFolderId = 0;
+        document.getElementById('thedragcanvas').remove();
     }
 
     dragFolderStart(event, folderId: NumberConstructor): void {

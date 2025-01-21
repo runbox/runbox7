@@ -443,7 +443,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           }
         }
         this.hoverRowIndex = newHoverRowIndex;
-        this.updateDragImage(newHoverRowIndex);
       }
 
       if (this.dragSelectionDirectionIsDown === null) {
@@ -590,7 +589,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     );
   }
 
-  private updateDragImage(selectedRowIndex: number) {
+  private updateDragImage(selectedRowIndex: number) :HTMLCanvasElement {
     const dragImageYCoords: number[][] = [];
     let dragImageDestY = 0;
 
@@ -609,21 +608,29 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         }
       });
 
-    const dragImageCanvas = document.getElementById('thedragimage') as HTMLCanvasElement;
+    const dragImageCanvas = document.createElement("canvas");
     dragImageCanvas.width = this.canv.width - 20;
     dragImageCanvas.height = dragImageYCoords.length * this.rowheight;
 
     const dragContext = dragImageCanvas.getContext('2d');
-    dragImageYCoords.forEach(ycoords =>
+    dragContext.clearRect(0,0,dragImageCanvas.width,dragImageCanvas.height);
+    dragContext.fillStyle = 'red';
+    dragContext.fillRect(0,0,dragImageCanvas.width,dragImageCanvas.height);
+    dragImageYCoords.forEach(ycoords => {
       dragContext.drawImage(this.canv,
         0, ycoords[0], this.canv.width - 20, this.rowheight,
         0,
         ycoords[1],
         this.canv.width - 20, this.rowheight
-      ));
+                           );
+    });
 
-    // const dragImage = document.getElementById('thedragimage') as HTMLImageElement;
-    // dragImage.src = dragImageCanvas.toDataURL();
+    document.body.append(dragImageCanvas);
+    dragImageCanvas.setAttribute('id', 'thedragcanvas');
+    dragImageCanvas.style.position = "absolute"; dragImageCanvas.style.top = "0px"; dragImageCanvas.style.left = "-"+ dragImageCanvas.width + "px";
+
+    
+    return dragImageCanvas;
   }
 
   public dragColumnOverlay(event: DragEvent) {
@@ -632,10 +639,11 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const selectedRowIndex = this.getRowIndexByClientY(event.clientY);
 
     if (!this.columns[selectedColIndex].checkbox) {
-      event.dataTransfer.dropEffect = 'move';
-      event.dataTransfer.setDragImage(document.getElementById('thedragimage'), 0, 0);
-      event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
       this.selectListener.rowSelected(selectedRowIndex, -1);
+      const dragCanvas = this.updateDragImage(selectedRowIndex);
+      event.dataTransfer.dropEffect = 'move';
+      event.dataTransfer.setDragImage(dragCanvas, 0, 0);
+      event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
     } else {
       event.preventDefault();
       this.lastMouseDownEvent = event;
@@ -763,7 +771,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.getColIndexByClientX(clientX),
       multiSelect);
 
-    this.updateDragImage(selectedRowIndex);
     this.hasChanges = true;
   }
 
