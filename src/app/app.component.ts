@@ -1509,14 +1509,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   async enrichRows() {
     const { start, end } = this.renderedRange
 
-    console.log('onooo')
-
     for (let index = start; index < end; index++) {
       const item = {
         ...this.rows[index],
         id: this.canvastable.rows.getRowMessageId(index),
         size: this.canvastable.columns[4].getValue(index),
-        messageDate: this.canvastable.columns[1].getValue(index),
+        messageDate: this.canvastable.columns[1].getFormattedValue(this.canvastable.columns[1].getValue(index)),
         plaintext: this.canvastable.columns[3].getContentPreviewText(index), // Only when preview is active.
         subject: this.canvastable.columns[3].getValue(index),
         attachment: this.canvastable.columns[5].getValue(index),

@@ -539,7 +539,7 @@
                         </mat-checkbox>
                       </td>
                       <td>
-                        {{item.messageDate | date:'shortDate'}}
+                        {{item.messageDate}}
                       </td>
 
                       <td
@@ -548,11 +548,7 @@
                           }"
 
                         class="text-primary">
-                        {{
-                        selectedFolder === messagelistservice.sentFolderName
-                        ? item.to?.join(", ")
-                        : item.from?.[0].name || item.from?.[0].address || ""
-                        }}
+                        {{item.from}}
                       </td>
 
                       <td class="subject text-primary"
