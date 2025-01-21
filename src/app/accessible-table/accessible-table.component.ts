@@ -37,6 +37,7 @@ import { CommonModule } from '@angular/common';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ListRange } from '@angular/cdk/collections';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-accessible-table',
@@ -66,9 +67,11 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
   ) { }
 
   ngAfterViewInit() {
-    this.renderedRangeSub = this.viewport.renderedRangeStream.subscribe(range => {
-      this.renderedRangeChange.emit(range)
-    });
+    this.renderedRangeSub = this.viewport.renderedRangeStream
+      .pipe(debounceTime(100))
+      .subscribe(range => {
+        this.renderedRangeChange.emit(range)
+      });
   }
 
   ngOnDestroy(): void {
@@ -90,6 +93,8 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
       ?.querySelector('tbody')
       ?.offsetHeight
       || this.firstRowHeight.getValue();
+
+    console.log('firstRowHeight', value)
 
     this.firstRowHeight.next(value)
   }

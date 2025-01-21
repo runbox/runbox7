@@ -477,7 +477,7 @@
                   <tbody
                     *ngIf="!item?.id"
                     [ngClass]="{
-                      focussed: lastCheckedRow === item,
+                      focussed: lastCheckedIndex === index,
                       selected: rowSelectionModel.isSelected(item),
                       checked: rowsSelectionModel.isSelected(item)
                     }"
@@ -524,7 +524,7 @@
                     (dragstart)="onMessagesDragStart($event, item)"
                     draggable="true"
                     [ngClass]="{
-                      focussed: lastCheckedRow === item,
+                      focussed: lastCheckedIndex === item,
                       selected: rowSelectionModel.isSelected(item),
                       checked: rowsSelectionModel.isSelected(item)
                     }"
@@ -543,7 +543,7 @@
 
                       <td
                         [ngClass]="{
-                          'bold': !item.seen ?? false
+                          'bold': item.unseen
                           }"
 
                         class="text-primary">
@@ -556,7 +556,7 @@
 
                       <td class="subject text-primary"
                           [ngClass]="{
-                           bold: !item.seen ?? false
+                           bold: item.unseen
                            }">
                           {{item.subject}}
                       </td>

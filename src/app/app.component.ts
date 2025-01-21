@@ -91,7 +91,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
 
   rows = [];
-  lastCheckedRow = null;
+  lastCheckedIndex: number = null;
   scrollToIndex: number = 0;
   rowSelectionModel = new FilterSelectionModel(
     false,
@@ -953,12 +953,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
 
+    console.log('scrollToIndex', this.scrollToIndex)
     this.scrollToIndex = rowIndex
 
     this.rowSelectionModel.select(this.rows[rowIndex])
 
     // TODO: Consider using SelectionModel here too
-    this.lastCheckedRow = this.rows[rowIndex]
+    this.lastCheckedIndex = rowIndex
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -1480,6 +1481,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
+    console.log('canvastable', this.canvastable)
     this.rows = this.canvastable?.rows?.rows ?? []
 
     return this.enrichRows()
@@ -1488,10 +1490,45 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   async enrichRows() {
     const { start, end } = this.renderedRange
 
-    this.rows = await Promise.all(mapOverIndexes(async (value) => {
-      if (value.id) {
-        return value
+    console.log('onooo')
+
+    for (let index = start; index < end; index++) {
+      const item = {
+        ...this.rows[index],
+        id: this.canvastable.rows.getRowMessageId(index),
+        size: this.canvastable.columns[4].getValue(index),
+        messageDate: this.canvastable.columns[1].getValue(index),
+        plaintext: this.canvastable.columns[3].getContentPreviewText(index), // Only when preview is active.
+        subject: this.canvastable.columns[3].getValue(index),
+        attachment: this.canvastable.columns[5].getValue(index),
+        from: this.canvastable.columns[2].getValue(index),
+        flagged: this.canvastable.columns[7].getValue(index),
+        answered: this.canvastable.columns[6].getValue(index),
+        // unseen: false,
+        unseen: !this.canvastable.rows.getRowSeen(index),
       }
+
+      this.rows[index] = item
+    }
+
+    this.rows = Object.create(this.rows)
+
+    // Use an emit to trigger redraw in table
+    return
+
+    this.rows = await Promise.all(mapOverIndexes(async (value, index) => {
+      // const [ index ] = value
+
+      // if (value.id) {
+      //   value.plaintext = this.canvastable.columns[3].getContentPreviewText(index)
+      //   return value
+      // }
+
+      console.log('getRowSeen', this.canvastable.rows.getRowSeen(index))
+
+      console.log('getRowMessageId', this.canvastable.rows.getRowMessageId(index))
+
+
 
       const [ rowId ] = value
 
@@ -1508,7 +1545,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     }, start, end, this.rows))
 
-    this.lastCheckedRow = this.lastCheckedRow ?? this.rows[0]
+    this.lastCheckedIndex = this.lastCheckedIndex?? this.rows[0]
   }
 
   rangeSelectFrom(from: number, to: number, check: boolean) {
@@ -1523,7 +1560,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     }
 
-    this.lastCheckedRow = this.rows[to]
+    this.lastCheckedIndex = to
 
   }
 
@@ -1533,8 +1570,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     event.preventDefault()
   }
 
-  rangeSelect(to, check) {
-    let from = this.rows.indexOf(this.lastCheckedRow)
+  rangeSelect(to: number, check: boolean) {
+    let from = this.lastCheckedIndex;
 
     // When nothing is selected yet.
     if (from === -1) return this.oneSelect(to, check)
@@ -1577,7 +1614,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.onRowClick(event, row, index)
   }
 
-  onAllCheckboxChange(event) {
+  onAllCheckboxChange() {
     if (this.rowsSelectionModel.isEmpty()) {
       this.rowsSelectionModel.select(...this.rows);
     } else {
@@ -1601,7 +1638,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.enrichRows()
   }
 
-  private parseSillyDate(dateString) {
+  private parseSillyDate(dateString: string) {
     return new Date(`${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}T${dateString.slice(8, 10)}:${dateString.slice(10, 12)}:00`);
   }
 
@@ -1619,7 +1656,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
  * @throws An error if `leftIndex` or `rightIndex` is out of bounds.
  */
 function mapOverIndexes<T>(
-  transformFn: (item: T) => T,
+  transformFn: (item: T, index?: number) => T,
   leftIndex: number,
   rightIndex: number,
   array: T[],
@@ -1639,7 +1676,7 @@ function mapOverIndexes<T>(
 
 
   for (let i = leftIndex; i < rightIndex; i++) {
-    result[i] = transformFn(result[i]);
+    result[i] = transformFn(result[i], i);
   }
 
   return result;
