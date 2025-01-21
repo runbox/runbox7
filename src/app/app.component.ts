@@ -962,12 +962,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
 
-    console.log('scrollToIndex', this.scrollToIndex)
     this.scrollToIndex = rowIndex
-
     this.rowSelectionModel.select(this.rows[rowIndex])
-
-    // TODO: Consider using SelectionModel here too
     this.lastCheckedIndex = rowIndex
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
@@ -1099,7 +1095,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.offerInitialLocalIndex = false;
   }
 
-  singleMailViewerClosed(action: string): void {
+  singleMailViewerClosed(): void {
     this.canvastable.rows.clearOpenedRow();
     this.updateUrlFragment();
   }
@@ -1500,7 +1496,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
-    console.log('canvastable', this.canvastable)
     this.rows = this.canvastable?.rows?.rows ?? []
 
     return this.enrichRows()
@@ -1540,12 +1535,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       //   value.plaintext = this.canvastable.columns[3].getContentPreviewText(index)
       //   return value
       // }
-
-      console.log('getRowSeen', this.canvastable.rows.getRowSeen(index))
-
-      console.log('getRowMessageId', this.canvastable.rows.getRowMessageId(index))
-
-
 
       const [ rowId ] = value
 
@@ -1618,10 +1607,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     if (!checkbox) {
-      this.rowSelected(this.rows.indexOf(row), 3, false);
-    } else {
-      this.oneSelect(index, check)
+      // Deselect an email when clicking on a selected email.
+      if (this.rowSelectionModel.isSelected(this.canvastable.rows.rows[index])) {
+        this.singlemailviewer.messageId = null;
+        this.rowSelectionModel.clear()
+        return this.singleMailViewerClosed()
+      }
+
+      return this.rowSelected(this.rows.indexOf(row), 3, false);
     }
+
+    this.oneSelect(index, check)
   }
 
   onRowKeydown(event, row, index) {
