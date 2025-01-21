@@ -32,7 +32,7 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowSeen(index: number): boolean {
-    return this.searchService.getDocData(this.rows[index][0]).seen ? false : true;
+    return this.searchService.getDocData(this.getRowId(index)).seen;
   }
 
   getRowId(index: number): number {
@@ -42,7 +42,7 @@ export class SearchMessageDisplay extends MessageDisplay {
   getRowMessageId(index: number): number {
     let msgId = 0;
     try {
-      msgId = this.searchService.getMessageIdFromDocId(this.rows[index][0]);
+      msgId = this.searchService.getMessageIdFromDocId(this.getRowId(index));
     } catch (e) {
       // This shouldnt happen, it means something changed the stored
       // data without updating the messagedisplay rows.
