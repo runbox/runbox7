@@ -238,7 +238,7 @@
         </button>
         
 	    <!-- Message action menu for regular screens -->
-	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet" class="messageListActionButtonsRight" #toolbarListButtonContainer>
+	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations" class="messageListActionButtonsRight" #toolbarListButtonContainer>
 	      <button *ngIf="morelistbuttonindex>0" mat-icon-button matTooltip="Move selected message(s) to folder" (click)="moveToFolder()">
             <mat-icon svgIcon="folder"></mat-icon>
 	      </button>
