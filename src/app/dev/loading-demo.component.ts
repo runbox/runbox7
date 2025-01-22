@@ -20,7 +20,6 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: 'angular2/app/dev/',
   template: `
 <style>
 .frame {

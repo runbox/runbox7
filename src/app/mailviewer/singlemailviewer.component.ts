@@ -63,7 +63,6 @@ const TOOLBAR_BUTTON_WIDTH = 30;
 
 
 @Component({
-  moduleId: 'angular2/app/mailviewer/',
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'single-mail-viewer',
   templateUrl: 'singlemailviewer.component.html',

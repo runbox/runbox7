@@ -21,7 +21,6 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
 
 @Component({
-    moduleId: 'angular2/app/rmm6/',
     templateUrl: 'rmm6search.component.html'
 })
 export class RMM6SearchComponent {

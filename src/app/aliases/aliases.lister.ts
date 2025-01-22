@@ -23,7 +23,6 @@ import { RMM } from '../rmm';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-  moduleId: 'angular2/app/aliases/',
   selector: 'app-aliases-lister',
   styleUrls: ['aliases.lister.scss'],
   templateUrl: 'aliases.lister.html'

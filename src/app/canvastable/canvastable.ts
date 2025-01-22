@@ -80,7 +80,6 @@ export namespace CanvasTable {
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastable',
-  moduleId: 'angular2/app/canvastable/',
   templateUrl: 'canvastable.component.html'
 })
 export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
@@ -1356,7 +1355,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastablecontainer',
   templateUrl: 'canvastablecontainer.component.html',
-  moduleId: 'angular2/app/canvastable/',
   styleUrls: ['canvastablecontainer.component.scss']
 })
 export class CanvasTableContainerComponent implements OnInit {
