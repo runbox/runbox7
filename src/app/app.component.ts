@@ -47,7 +47,7 @@ import { WebSocketSearchService } from './websocketsearch/websocketsearch.servic
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, Observable } from 'rxjs';
+import { from, Observable, BehaviorSubject } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -91,6 +91,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
 
   rows = [];
+
+  private rowsSubject= new BehaviorSubject(this.rows);
+  debouncedRows$ = this.rowsSubject.asObservable().pipe(debounceTime(300));
+  
   lastCheckedIndex: number = null;
   scrollToIndex: number = 0;
   rowSelectionModel = new FilterSelectionModel(
@@ -945,6 +949,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
+      // For some reason this needs a timeout.
+      setTimeout(() => {
+        this.scrollToIndex = matchingRowIndex
+      }, 1000)
     } else {
       this.singlemailviewer.close();
     }
@@ -953,7 +961,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
 
-    this.scrollToIndex = rowIndex
     this.rowSelectionModel.select(this.rows[rowIndex])
     this.lastCheckedIndex = rowIndex
 
@@ -1483,7 +1490,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   async enrichRows() {
-    const { start, end } = this.renderedRange
+    const { start, end } = this.renderedRange;
 
     for (let index = start; index < end; index++) {
       const item = {
@@ -1505,34 +1512,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.rows = Object.create(this.rows)
-
-    // Use an emit to trigger redraw in table
-    return
-
-    this.rows = await Promise.all(mapOverIndexes(async (value, index) => {
-      // const [ index ] = value
-
-      // if (value.id) {
-      //   value.plaintext = this.canvastable.columns[3].getContentPreviewText(index)
-      //   return value
-      // }
-
-      const [ rowId ] = value
-
-      const doc = this.searchService.getDocData(rowId)
-
-      return Object.assign({}, doc, {
-        size: this.searchService.api.getNumericValue(rowId, 3),
-        messageDate: this.parseSillyDate(this.searchService.api.getStringValue(rowId, 2)),
-        from: [{name: doc.from}],
-        to: doc.recipients, // TODO: Turn into MailAddressInfo
-        id: this.searchService.getMessageIdFromDocId(rowId),
-        plaintext: doc.textcontent?.trim() || '',
-      })
-
-    }, start, end, this.rows))
-
-    this.lastCheckedIndex = this.lastCheckedIndex?? this.rows[0]
+    this.rowsSubject.next(this.rows)
   }
 
   rangeSelectFrom(from: number, to: number, check: boolean) {
@@ -1632,48 +1612,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.enrichRows()
   }
 
-  private parseSillyDate(dateString: string) {
-    return new Date(`${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}T${dateString.slice(8, 10)}:${dateString.slice(10, 12)}:00`);
-  }
-
-}
-
-
-/**
- * Applies a transformation function to a range of indexes in an array.
- *
- * @param array - The array to process.
- * @param leftIndex - The start index (inclusive) of the range to transform.
- * @param rightIndex - The end index (inclusive) of the range to transform.
- * @param transformFn - The function to apply to elements in the specified range.
- * @returns A new array with transformed elements within the range.
- * @throws An error if `leftIndex` or `rightIndex` is out of bounds.
- */
-function mapOverIndexes<T>(
-  transformFn: (item: T, index?: number) => T,
-  leftIndex: number,
-  rightIndex: number,
-  array: T[],
-): T[] {
-  rightIndex = Math.max(leftIndex, Math.min(rightIndex, array.length))
-  leftIndex = Math.min(leftIndex, rightIndex)
-
-  if (leftIndex < 0 || leftIndex > rightIndex) {
-    throw new Error(
-      `Invalid indexes: leftIndex (${leftIndex}) and rightIndex (${rightIndex}) must be within array bounds [0, ${
-        array.length
-      }] and leftIndex <= rightIndex.`
-    );
-  }
-
-  const result = Object.create(array); // Create a copy of the array to avoid mutation
-
-
-  for (let i = leftIndex; i < rightIndex; i++) {
-    result[i] = transformFn(result[i], i);
-  }
-
-  return result;
 }
 
 const idValue = (x: any) => x.id

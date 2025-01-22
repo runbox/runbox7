@@ -1,10 +1,11 @@
-<cdk-virtual-scroll-viewport [itemSize]="firstRowHeight | async" tabindex="0" class="email-viewport">
+<cdk-virtual-scroll-viewport [itemSize]="firstRowHeight" class="email-viewport">
   <table
+    tabindex="0" role="group" aria-label="Messages"
     class="mat-mdc-table mdc-data-table__table cdk-table mat-sort mat-elevation-z8"
   >
     <ng-container *ngTemplateOutlet="theadTemplate"></ng-container>
 
-    <ng-container *cdkVirtualFor="let item of items; let $index = index;">
+    <ng-container *cdkVirtualFor="let item of items; trackBy: trackBy; let $index = index;">
       <ng-container *ngTemplateOutlet="tbodyTemplate; context: {$implicit: item, item: item, index: $index}"></ng-container>
     </ng-container>
 

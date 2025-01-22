@@ -85,7 +85,7 @@ canvastablecontainer {
     --selected-color: #ccc;
     --border-color: #ddd;
 
-    --cell-y-spacing: 0.7lh;
+    --cell-y-spacing: 0.3lh;
 
     & .checkbox-cell {
         width: 2rem;
@@ -110,10 +110,6 @@ canvastablecontainer {
 
     & tbody tr:first-child td {
         padding-top: var(--cell-y-spacing);
-    }
-
-    & tbody {
-        border-bottom: 1px solid var(--border-color);
     }
 
     & tbody.checked {
