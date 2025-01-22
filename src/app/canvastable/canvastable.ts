@@ -133,6 +133,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   columnResizeInProgress = false;
   private scrollbarArea = false;
 
+  private jumpToMessage = false;
+  
   visibleColumnSeparatorAlpha = 0;
   visibleColumnSeparatorIndex = 0;
   lastClientY: number;
@@ -856,11 +858,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   // When loading a url with a fragment containing a msg id - scroll to there
   public jumpToOpenMessage() {
-    // currently selected row in the centre:
-    if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
-      this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
-      this.enforceScrollLimit();
-    }
+    this.jumpToMessage = true;
   }
 
   private enforceScrollLimit() {
@@ -971,6 +969,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.canv.height = this.wantedCanvasHeight;
 
       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
+      if(this.jumpToMessage) {
+        // currently selected row in the centre:
+        if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
+          this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
+        }
+        this.jumpToMessage = false;
+      }
       this.enforceScrollLimit();
       this.hasChanges = true;
       if (this.canv.clientWidth < this.autoRowWrapModeWidth) {
