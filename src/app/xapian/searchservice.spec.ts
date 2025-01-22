@@ -21,6 +21,7 @@ import { SearchService, XAPIAN_GLASS_WR } from './searchservice';
 import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
+import { MessageCache } from '../rmmapi/messagecache';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
@@ -106,6 +107,7 @@ describe('SearchService', () => {
           ],
             providers: [
                 SearchService,
+                MessageCache,
                 MessageListService,
                 RunboxWebmailAPI
                 // { provide: Worker, useValue: {
@@ -245,6 +247,7 @@ describe('SearchService', () => {
 
 
         expect(await searchService.initSubject.toPromise()).toBeTruthy();
+        console.log('search service initialised');
         expect(searchService.localSearchActivated).toBeTruthy();
         expect(localdir).toEqual(searchService.localdir);
 
@@ -286,12 +289,16 @@ describe('SearchService', () => {
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        req = httpMock.expectOne('/rest/v1/email/' + testMessageId);
+        req = httpMock.expectOne('/rest/v1/email/download/' + testMessageId);
         req.flush({
             status: 'success',
             result: {
-                text: {
-                    text: 'message body test text SecretSauceFormula'
+                [testMessageId]: {
+                    json: {
+                        text: {
+                            text: 'message body test text SecretSauceFormula'
+                        }
+                    }
                 }
             }
         });
@@ -314,7 +321,5 @@ describe('SearchService', () => {
 
         FS.chdir('/');
         FS.unmount('/' + localdir);
-
-        console.log(searchService.api.getXapianDocCount(), 'docs in xapian db');
     });
 });

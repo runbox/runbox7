@@ -417,7 +417,10 @@
       </mat-card-content>
     </mat-card>
   </div>
-  <div *ngIf="err">
-    {{err}}
+  <div *ngIf="!mailObj && !err">
+    <app-runbox-loading text="Loading your message"></app-runbox-loading>
   </div>
+  <app-runbox-contact-support *ngIf="err">
+    There was an error loading your message: {{ err }}.
+  </app-runbox-contact-support>
 </div>

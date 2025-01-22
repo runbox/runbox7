@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {
   Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
@@ -39,7 +39,7 @@ import { ProgressDialog } from '../dialog/progress.dialog';
 import { MobileQueryService } from '../mobile-query.service';
 
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { MessageContents, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
@@ -61,6 +61,8 @@ const resizerPercentageKey = 'rmm7resizerpercentage';
 
 const TOOLBAR_BUTTON_WIDTH = 30;
 
+
+type Mail = any;
 
 @Component({
   moduleId: 'angular2/app/mailviewer/',
@@ -96,7 +98,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public downloadProgress: number;
 
-  public mailObj: any;
+  public mailObj: Mail;
   public err: any;
 
   public mailContentHTML: string = null;
@@ -236,7 +238,18 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             }
           }
         }
-      });
+      }, 0);
+    });
+
+    // messageHeaderHTML loads after message is loaded
+    this.messageHeaderHTMLQuery.changes.subscribe((forwardHeader: QueryList<ElementRef>) => {
+      setTimeout(() => {
+          const nativeElement = forwardHeader.first?.nativeElement;
+          if (nativeElement) {
+            this.mailObj.origMailHeaderHTML = '<table>' + nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderText = nativeElement.innerText;
+          }
+      }, 0);
     });
 
     this.afterViewInit.emit(this.messageId);
@@ -392,105 +405,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // ProgressDialog.open(this.dialog);
 
     this.rbwebmailapi.getMessageContents(this.messageId).pipe(
-      map((messageContents) => {
-        const res: any = Object.assign({}, messageContents);
-        if (res.status === 'warning') {
-          // status === 'error' already displayed in showBackendErrors?
-          // Skip if we previously had an issue loading this messge
-          throw res;
-        }
-        res.subject = res.headers.subject;
-        res.from = res.headers.from.value.map(f => new MailAddressInfo(f.name,f.address));
-        res.to = res.headers.to ? res.headers.to.value : '';
-        res.cc = res.headers.cc ? res.headers.cc.value : '';
-
-        // RFC 5322 says "Date" and "From" are the only 2 required fields
-        // and yet we get emails without em.
-        if (!res.headers.date) {
-          res.headers.date = '1970-01-01T00:00:00.000Z';
-        }
-        res.date = (
-          (arr: string[]): Date =>
-            new Date(
-              parseInt(arr[1], 10),
-              parseInt(arr[2], 10) - 1,
-              parseInt(arr[3], 10),
-              parseInt(arr[4], 10),
-              parseInt(arr[5], 10),
-              parseInt(arr[6], 10),
-              parseInt(arr[7], 10)
-            )
-        )
-          (
-            new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
-              '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
-              .exec(res.headers.date)
-          );
-
-        res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
-
-        res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
-        res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
-        res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
-
-
-        // Remove style tag otherwise angular sanitazion will display style tag content as text
-
-        if (res.text.html) {
-          // Pre-sanitized, however we need to escape ampersands and
-          // quotes for srcdoc, let angular do it:
-          res.html = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html));
-          res.html_without_images = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html_without_images));
-        } else {
-          res.html = null;
-        }
-
-        /**
-         * Transform the links so that they are clickable
-         */
-        let text = res.text.text;
-        res.rawtext = text;
-        text = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-        const LINKY_URL_REGEXP =
-          /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/i,
-          MAILTO_REGEXP = /^mailto:/i;
-
-        let match;
-        let raw = text;
-        const html = [];
-        let url;
-        let i;
-
-        while ((match = raw.match(LINKY_URL_REGEXP))) {
-          // We can not end in these as they are sometimes found at the end of the sentence
-          url = match[0];
-          // if we did not match ftp/http/www/mailto then assume mailto
-          if (!match[2] && !match[4]) {
-            url = (match[3] ? 'http://' : 'mailto:') + url;
-          }
-          i = match.index;
-          html.push(raw.substr(0, i));
-          ((u, t) => {
-            html.push('<a ');
-            html.push('target="_blank" rel="noopener"');
-            html.push('href="',
-              u.replace(/"/g, '&quot;'),
-              '">');
-            html.push(t);
-            html.push('</a>');
-          })(url, match[0].replace(MAILTO_REGEXP, ''));
-
-          raw = raw.substring(i + match[0].length);
-        }
-        html.push(raw);
-        text = html.join('');
-
-        // res.text = text;
-        res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
-        return res;
-      }))
-      .subscribe((res) => {
+      catchError((err: Error) => {
+        console.warn(`Error loading message ${this.messageId}: ${err.toString()}, retrying`);
+        return this.rbwebmailapi.getMessageContents(this.messageId, true);
+      }),
+      map((res: MessageContents) => this.processMessageContents(res))
+    ).subscribe(
+      (res: Mail) => {
         if (res.html) {
           // default to no images
           this.mailContentHTML = res.html_without_images;
@@ -513,6 +434,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         if (this.mailObj.seen_flag === 0) {
           this.messageActionsHandler.markSeen();
         }
+        setTimeout(() => {
+          // If forwarding HTML copy mail header from the visible mail viewer header
+          if (this.messageHeaderHTML) {
+            this.mailObj.origMailHeaderHTML = '<table>' + this.messageHeaderHTML.nativeElement.innerHTML + '</table>';
+            this.mailObj.origMailHeaderText = this.messageHeaderHTML.nativeElement.innerText;
+          }
+        }, 0);
       },
       err => {
         console.error('Error fetching message: ' + this.messageId);
@@ -528,8 +456,106 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         // close the viewer pane
         this.close();
         // else - not outputting normal JS errors!
-      }
+      },
+    );
+  }
+
+  private processMessageContents(messageContents: MessageContents): Mail {
+    const res: any = Object.assign({}, messageContents);
+    if (res.status === 'warning') {
+      // status === 'error' already displayed in showBackendErrors?
+      // Skip if we previously had an issue loading this messge
+      throw res;
+    }
+    res.subject = res.headers.subject;
+    res.from = res.headers.from.value.map(f => new MailAddressInfo(f.name,f.address));
+    res.to = res.headers.to ? res.headers.to.value : '';
+    res.cc = res.headers.cc ? res.headers.cc.value : '';
+
+    // RFC 5322 says "Date" and "From" are the only 2 required fields
+    // and yet we get emails without em.
+    if (!res.headers.date) {
+      res.headers.date = '1970-01-01T00:00:00.000Z';
+    }
+    res.date = (
+      (arr: string[]): Date =>
+        new Date(
+          parseInt(arr[1], 10),
+          parseInt(arr[2], 10) - 1,
+          parseInt(arr[3], 10),
+          parseInt(arr[4], 10),
+          parseInt(arr[5], 10),
+          parseInt(arr[6], 10),
+          parseInt(arr[7], 10)
+        )
+    )
+      (
+        new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
+          '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
+          .exec(res.headers.date)
       );
+
+    res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
+
+    res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
+    res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
+    res.visible_attachment_count = res.attachments.filter((att) => !att.inteinternal).length;    
+
+    // Remove style tag otherwise angular sanitazion will display style tag content as text
+
+    if (res.text.html) {
+      // Pre-sanitized, however we need to escape ampersands and
+      // quotes for srcdoc, let angular do it:
+      res.html = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html));
+      res.html_without_images = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.sanitized_html_without_images));
+    } else {
+      res.html = null;
+    }
+
+    /**
+     * Transform the links so that they are clickable
+     */
+    let text = res.text.text;
+    res.rawtext = text;
+    text = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const LINKY_URL_REGEXP =
+      /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/i,
+      MAILTO_REGEXP = /^mailto:/i;
+
+    let match;
+    let raw = text;
+    const html = [];
+    let url;
+    let i;
+
+    while ((match = raw.match(LINKY_URL_REGEXP))) {
+      // We can not end in these as they are sometimes found at the end of the sentence
+      url = match[0];
+      // if we did not match ftp/http/www/mailto then assume mailto
+      if (!match[2] && !match[4]) {
+        url = (match[3] ? 'http://' : 'mailto:') + url;
+      }
+      i = match.index;
+      html.push(raw.substr(0, i));
+      ((u, t) => {
+        html.push('<a ');
+        html.push('target="_blank" rel="noopener"');
+        html.push('href="',
+          u.replace(/"/g, '&quot;'),
+          '">');
+        html.push(t);
+        html.push('</a>');
+      })(url, match[0].replace(MAILTO_REGEXP, ''));
+
+      raw = raw.substring(i + match[0].length);
+    }
+    html.push(raw);
+    text = html.join('');
+
+   //  res.text = text;
+    res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
+    return res;
   }
 
   expandAttachmentData(attachments: any[], html: string): string {
