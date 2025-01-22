@@ -36,7 +36,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ListRange } from '@angular/cdk/collections';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -45,7 +45,7 @@ import { debounceTime } from 'rxjs/operators';
   imports: [ScrollingModule, CommonModule, MatCheckboxModule],
   templateUrl: './accessible-table.component.html',
   styleUrls: ['./accessible-table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnChanges {
   @ContentChild('tbody', { read: TemplateRef }) tbodyTemplate!: TemplateRef<any> | null;
@@ -58,7 +58,7 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
 
   @Input() scrollToIndex: null | number = null
 
-  firstRowHeight = new BehaviorSubject<number>(100);
+  firstRowHeight: number = 100;
 
   private renderedRangeSub!: Subscription;
 
@@ -68,10 +68,14 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
 
   ngAfterViewInit() {
     this.renderedRangeSub = this.viewport.renderedRangeStream
-      .pipe(debounceTime(100))
+      .pipe(debounceTime(500))
       .subscribe(range => {
         this.renderedRangeChange.emit(range)
       });
+
+      setTimeout(() => {
+        this.updateFirstRowHeight();
+      }, 1000)
   }
 
   ngOnDestroy(): void {
@@ -79,23 +83,28 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.updateFirstRowHeight();
+    this.updateFirstRowHeight()
 
     if (changes.scrollToIndex && this.items.length > this.scrollToIndex) {
-      this.viewport?.scrollToIndex(this.scrollToIndex, 'smooth');
+      this.doScrollToIndex(this.scrollToIndex)
     }
   }
 
+  trackBy(index: number) {
+    return index;
+  }
+
+  doScrollToIndex(index: number) {
+    return this.viewport?.scrollToIndex(index, 'smooth');
+  }
+
   private updateFirstRowHeight(): void {
-    const value = this.elementRef
-    .nativeElement
-    .parentElement
-      ?.querySelector('tbody')
-      ?.offsetHeight
-      || this.firstRowHeight.getValue();
-
-    console.log('firstRowHeight', value)
-
-    this.firstRowHeight.next(value)
+    this.firstRowHeight = this
+      .elementRef
+      .nativeElement
+      .parentElement
+        ?.querySelector('tbody')
+        ?.offsetHeight
+        || this.firstRowHeight;
   }
 }
