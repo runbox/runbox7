@@ -20,11 +20,13 @@ import { Component } from '@angular/core';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RMM } from '../rmm';
 import { share, timeout } from 'rxjs/operators';
+import { QrCodeComponent } from 'ng-qrcode';
 
 @Component({
     selector: 'app-account-password',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'account-password.component.html',
+    imports: [ QrCodeComponent ],
 })
 export class AccountPasswordComponent {
     old_password: string;
