@@ -52,6 +52,7 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
+import { AccessibleTableComponent } from './accessible-table/accessible-table.component'
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
@@ -88,7 +89,11 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
-
+import { HumanBytesPipe } from './human-bytes.pipe';
+import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
+import { DatePipe } from '@angular/common';
+import { ResizableButtonComponent } from './resizable-button/resizable-button.component';
+import { SortButtonComponent } from './sort-button/sort-button.component';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -141,7 +146,11 @@ const routes: Routes = [
 
 @NgModule({
     imports: [BrowserModule, FormsModule,
+        DatePipe,
+        ResizableButtonComponent,
+        SortButtonComponent,
         HttpClientModule,
+        AccessibleTableComponent,
         HttpClientJsonpModule,
         CanvasTableModule,
         ComposeModule,
@@ -180,7 +189,9 @@ const routes: Routes = [
         RunboxCommonModule,
         RouterModule.forRoot(routes),
         ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-        HotkeyModule.forRoot()
+        HotkeyModule.forRoot(),
+        HumanBytesPipe,
+        FollowsMouseComponent
     ],
     exports: [],
     declarations: [MainContainerComponent, AppComponent,

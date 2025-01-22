@@ -2,6 +2,10 @@
     border-right: 1px solid darkgrey !important;
 }
 
+canvastablecontainer {
+    opacity: 0;
+}
+
 #rightPane {
     border-left: 1px solid darkgrey !important;
 }
@@ -68,3 +72,120 @@
     width: 150px;
 }
 
+.resizable {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.messages-table {
+    --checked-color: #eee;
+    --focussed-color: #ddd;
+    --selected-color: #ccc;
+    --border-color: #ddd;
+
+    --cell-y-spacing: 0.3lh;
+
+    & .checkbox-cell {
+        width: 2rem;
+        text-align: center;
+    }
+
+    & th {
+        text-align: left;
+        position: relative;
+    }
+
+    & td {
+        padding-bottom: var(--cell-y-spacing);
+    }
+
+    & td,
+    & th {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    & tbody tr:first-child td {
+        padding-top: var(--cell-y-spacing);
+    }
+
+    & tbody.checked {
+        background-color: var(--checked-color);
+    }
+
+    & tbody.focussed {
+        background-color: var(--focussed-color);
+    }
+
+    & tbody:hover,
+    & tbody.selected {
+        background-color: var(--selected-color);
+    }
+
+    & .preview {
+        display: block;
+        height: 1lh;
+    }
+
+    @media (max-width: 60rem) {
+        & {
+            display: block;
+        }
+
+        & thead {
+            display: none;
+        }
+
+        & tbody {
+            display: block;
+        }
+
+        td.sm-hidden {
+            display: none;
+        }
+
+        & tr {
+            margin-left: 8px;
+            display: flex;
+            flex-flow: row wrap;
+            gap: 0.5rem;
+        }
+
+        & td {
+            margin-top: auto;
+            margin-bottom: auto;
+
+            &.subject {
+                width: 100%;
+            }
+        }
+    }
+
+}
+
+.skeleton-bone {
+    content: ' ';
+    display: inline-block;
+    width: 100%;
+    /* Adjust based on the required placeholder size */
+    height: 1em;
+    /* Adjust for height */
+    background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    /* Optional for rounded edges */
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
