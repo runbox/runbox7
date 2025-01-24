@@ -79,6 +79,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   @Output() afterViewInit: EventEmitter<any> = new EventEmitter();
   @Output() orientationChangeRequest: EventEmitter<string> = new EventEmitter();
+  @Output() afterLoadMessage: EventEmitter<boolean> = new EventEmitter();
 
   @Input() messageActionsHandler: MessageActions;
   @Input() adjustableHeight: boolean;
@@ -777,6 +778,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
             this.resizer.resizePercentage(50);
           }
         }
+        this.afterLoadMessage.emit();
       }, 0);
     }
 
