@@ -114,7 +114,6 @@ export class DraftDeskComponent implements OnInit {
 
     draftDeleted(messageId) {
         this.draftDeskservice.deleteDraft(messageId);
-        this.updateDraftsInView();
     }
 
     exitToTable() {
