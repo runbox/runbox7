@@ -468,7 +468,21 @@
                       </app-sort-button>
                       <app-resizable-button [(width)]="widths.size"/>
                     </th>
+                    <th
+                      *ngIf="displayFolderColumn"
+                      style="width: 8ch"
+                      [ngStyle]="{ width: widths.folder + 'px'}">
+                      <!-- Sort does not work for folders -->
+                      <app-sort-button
+                        [data]="folder"
+                        [(order)]="orderSelectionModel.selected"
+                      >
+                        Folder
+                      </app-sort-button>
+                      <app-resizable-button [(width)]="widths.folder"/>
+                    </th>
                     <th><span class="sr-only">Attachments</span></th>
+                    <th><span class="sr-only">Answered</span></th>
                     <th><span class="sr-only">Flagged</span></th>
                   </thead>
                 </ng-template>
@@ -560,6 +574,11 @@
                       <td class="sm-hidden">
                         {{item.size | humanBytes}}
                       </td>
+                      <td
+                        *ngIf="displayFolderColumn"
+                      >
+                        {{item.folder}}
+                      </td>
                       <td class="sm-hidden">
                         <mat-icon
                           style="transform: rotate(90deg);"
@@ -567,6 +586,14 @@
                           aria-label="Has attachments"
                           mat-list-icon
                           svgIcon="attachment">
+                        </mat-icon>
+                      </td>
+                      <td class="sm-hidden">
+                        <mat-icon
+                          *ngIf="item.answered"
+                          aria-label="answered"
+                          mat-list-icon
+                          svgIcon="reply">
                         </mat-icon>
                       </td>
                       <td class="sm-hidden">

@@ -1503,7 +1503,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
-    this.rows = this.canvastable?.rows?.rows ?? []
+    this.rows = [...this.canvastable?.rows?.rows] ?? []
 
     return this.enrichRows()
   }
@@ -1512,22 +1512,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const { start, end } = this.renderedRange;
 
     for (let index = start; index < end; index++) {
-      const item = {
-        ...this.rows[index],
-        id: this.canvastable.rows.getRowMessageId(index),
-        size: this.canvastable.columns[4].getValue(index),
-        messageDate: this.canvastable.columns[1].getFormattedValue(this.canvastable.columns[1].getValue(index)),
-        plaintext: this.canvastable.columns[3].getContentPreviewText(index), // Only when preview is active.
-        subject: this.canvastable.columns[3].getValue(index),
-        attachment: this.canvastable.columns[5].getValue(index),
-        from: this.canvastable.columns[2].getValue(index),
-        flagged: this.canvastable.columns[7].getValue(index),
-        answered: this.canvastable.columns[6].getValue(index),
-        // unseen: false,
-        unseen: !this.canvastable.rows.getRowSeen(index),
-      }
+      if (index >= this.rows.length) break
 
-      this.rows[index] = item
+      this.rows[index] = this.canvastable.rows.getRowData(index, this)
     }
 
     this.rows = Object.create(this.rows)

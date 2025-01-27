@@ -46,7 +46,7 @@ export class SearchMessageDisplay extends MessageDisplay {
     } catch (e) {
       // This shouldnt happen, it means something changed the stored
       // data without updating the messagedisplay rows.
-      console.log('Tried to lookup ' + index + ' in searchIndex, isnt there! ' + e);
+      console.error('Tried to lookup ' + index + ' in searchIndex, isnt there! ' + e);
     }
     return msgId;
   }
@@ -214,5 +214,37 @@ export class SearchMessageDisplay extends MessageDisplay {
       });
     }
     return columns;
+  }
+
+  public getRowData(index: number, app: any) {
+    const rowData: any = {
+      id: this.getRowMessageId(index),
+      messageDate: MessageTableRowTool.formatTimestampFromStringWithoutSeparators(this.searchService.api.getStringValue(this.getRowId(index), 2)),
+      from: app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn
+        ? this.searchService.getDocData(this.getRowId(index)).recipients.join(', ')
+        : this.searchService.getDocData(this.getRowId(index)).from,
+      subject: this.searchService.getDocData(this.getRowId(index)).subject,
+      plaintext: this.searchService.getDocData(this.getRowId(index)).textcontent?.trim(),
+      size: this.searchService.api.getNumericValue(this.getRowId(index), 3),
+      attachment: this.searchService.getDocData(this.getRowId(index)).attachment ? true : false,
+      answered: this.searchService.getDocData(this.getRowId(index)).answered ? true : false,
+      flagged: this.searchService.getDocData(this.getRowId(index)).flagged ? true : false,
+      folder: this.searchService.getDocData(this.getRowId(index)).folder,
+    };
+
+    if (app.viewmode === 'conversations') {
+      const row = this.getRow(index);
+      if (!row[2]) {
+        const conversationId = this.searchService.api.getStringValue(row[0], 1);
+        const results = this.searchService.api.sortedXapianQuery(
+          `conversation:${conversationId}..${conversationId}`,
+          1, 0, 0, 1000, 1
+        );
+        row[2] = `${results[0][1] + 1}`;
+      }
+      rowData.count = row[2];
+    } 
+
+    return rowData;
   }
 }
