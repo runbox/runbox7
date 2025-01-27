@@ -62,6 +62,7 @@ export interface OrderEvent {
         border: none;
         font-size: inherit;
         font-weight: inherit;
+        padding-left: 0;
       }
 
       .sort-button:hover {
@@ -97,7 +98,6 @@ export class SortButtonComponent {
   ]);
 
   get directionIcon() {
-
     return (this.data === this.order?.data)
       ? this.directionIconMap.get(this.order?.direction)
       : this.directionIconMap.get(Direction.None);

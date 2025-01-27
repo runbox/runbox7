@@ -112,6 +112,10 @@ canvastablecontainer {
         padding-top: var(--cell-y-spacing);
     }
 
+    & tbody {
+        cursor: pointer;
+    }
+
     & tbody.checked {
         background-color: var(--checked-color);
     }
@@ -189,3 +193,4 @@ canvastablecontainer {
         background-position: -200% 0;
     }
 }
+
