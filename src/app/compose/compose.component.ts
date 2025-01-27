@@ -877,6 +877,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     ngOnDestroy() {
         if (this.editor) {
+            // turn off onChange handler because it changes the
+            // msg_body and causes auto-save to trigger. See
+            // https://github.com/runbox/runbox7/issues/644#issuecomment-1651655948
+            this.editor.off('change');
             this.tinymce_plugin.remove(this.editor);
         }
     }
