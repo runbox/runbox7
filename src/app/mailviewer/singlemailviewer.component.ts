@@ -23,8 +23,7 @@ import {
   ViewChildren,
   QueryList,
   ElementRef,
-  AfterViewInit,
-  DoCheck
+  AfterViewInit
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import DOMPurify from 'dompurify';
@@ -71,7 +70,7 @@ type Mail = any;
   templateUrl: 'singlemailviewer.component.html',
   styleUrls: ['singlemailviewer.component.scss']
 })
-export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
+export class SingleMailViewerComponent implements OnInit, AfterViewInit {
 
   _messageId = null; // Message id or filename
 
@@ -257,10 +256,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.calculateWidthDependentElements();
   }
 
-  ngDoCheck() {
-    this.calculateWidthDependentElements();
-  }
+  // Should be doing it on resize.
+  // ADD THIS BACK TEMPORARY COMMENT OUT.
+  // ngDoCheck() {
+  //   this.calculateWidthDependentElements();
+  // }
 
+  // TODO: This needs to be fixed
   calculateWidthDependentElements() {
     if (this.toolbarButtonContainer) {
       const toolbarwidth = (this.toolbarButtonContainer.nativeElement as HTMLDivElement).clientWidth;

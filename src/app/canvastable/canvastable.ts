@@ -26,7 +26,7 @@ import {
   NgModule, Component, AfterViewInit,
   Input, Output,
   ElementRef,
-  DoCheck, EventEmitter, OnInit, ViewChild
+  EventEmitter, OnInit, ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
@@ -111,8 +111,8 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   private canv: HTMLCanvasElement;
 
   // private ctx: CanvasRenderingContext2D;
-  private wantedCanvasWidth = 300;
-  private wantedCanvasHeight = 300;
+  // private wantedCanvasWidth = 300;
+  // private wantedCanvasHeight = 300;
 
   private _rowheight = 28;
   // private fontheight = 14;
@@ -778,11 +778,14 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   }
 
   public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
+    // Make innert
+    return
+
     if (!this.canv || this._columns.length === 0) {
       return;
     }
 
-    const canvasWidth = Math.floor(this.wantedCanvasWidth / window.devicePixelRatio) - this.scrollbarwidth - 2;
+    const canvasWidth = Math.floor(window.devicePixelRatio) - this.scrollbarwidth - 2;
 
     const columnsTotalWidth = () => this.columns.reduce((prev, curr) => prev + curr.width, 0);
 
