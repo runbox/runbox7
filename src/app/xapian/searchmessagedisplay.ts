@@ -230,6 +230,7 @@ export class SearchMessageDisplay extends MessageDisplay {
       answered: this.searchService.getDocData(this.getRowId(index)).answered ? true : false,
       flagged: this.searchService.getDocData(this.getRowId(index)).flagged ? true : false,
       folder: this.searchService.getDocData(this.getRowId(index)).folder,
+      seen: this.searchService.getDocData(this.getRowId(index)).seen,
     };
 
     if (app.viewmode === 'conversations') {
