@@ -83,7 +83,7 @@ export namespace CanvasTable {
   moduleId: 'angular2/app/canvastable/',
   templateUrl: 'canvastable.component.html'
 })
-export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
+export class CanvasTableComponent implements AfterViewInit, OnInit {
   static incrementalId = 1;
   public elementId: string;
   private _topindex = 0.0;
@@ -225,18 +225,19 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   constructor(elementRef: ElementRef) {
   }
 
-  ngDoCheck() {
-    if (this.canv) {
+  // No need to track changes.
+  // ngDoCheck() {
+  //   if (this.canv) {
 
-      const devicePixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
-      this.wantedCanvasWidth = this.canv.parentElement.parentElement.clientWidth * devicePixelRatio;
-      this.wantedCanvasHeight = this.canv.parentElement.parentElement.clientHeight * devicePixelRatio;
+  //     const devicePixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
+  //     this.wantedCanvasWidth = this.canv.parentElement.parentElement.clientWidth * devicePixelRatio;
+  //     this.wantedCanvasHeight = this.canv.parentElement.parentElement.clientHeight * devicePixelRatio;
 
-      if (this.canv.width !== this.wantedCanvasWidth || this.canv.height !== this.wantedCanvasHeight) {
-        this.hasChanges = true;
-      }
-    }
-  }
+  //     if (this.canv.width !== this.wantedCanvasWidth || this.canv.height !== this.wantedCanvasHeight) {
+  //       this.hasChanges = true;
+  //     }
+  //   }
+  // }
 
   private calculateColumnWidths(columns: CanvasTableColumn[]) {
     const colWidthSet = columns.map((col) => col.name).filter((cname) => cname.length > 0).join(',');
