@@ -1506,6 +1506,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   updateRows() {
     this.rows = [...this.canvastable?.rows?.rows] ?? []
 
+    console.log(this.rows)
+
     return this.enrichRows()
   }
 
@@ -1516,6 +1518,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (index >= this.rows.length) break
 
       this.rows[index] = this.canvastable.rows.getRowData(index, this)
+      this.rows[index].loaded = true
     }
 
     this.rows = Object.create(this.rows)

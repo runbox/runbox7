@@ -490,7 +490,7 @@
                 <ng-template #tbody let-item let-index="index">
                   <!-- Show a skeleton if is loading -->
                   <tbody
-                    *ngIf="!item?.id"
+                    *ngIf="!item.loaded"
                     [ngClass]="{
                       focussed: lastCheckedIndex === index,
                       selected: rowSelectionModel.isSelected(item),
@@ -531,7 +531,7 @@
                     </tr>
                   </tbody>
                   <tbody
-                    *ngIf="item?.id"
+                    *ngIf="item.loaded"
                     tabindex="0"
                     role="button"
                     (click)="onRowClick($event, item, index)"
@@ -558,7 +558,7 @@
 
                       <td
                         [ngClass]="{
-                          'bold': item.unseen
+                          'bold': !item.seen
                           }"
 
                         class="text-primary">
@@ -567,7 +567,7 @@
 
                       <td class="subject text-primary"
                           [ngClass]="{
-                           bold: item.unseen
+                           bold: !item.seen
                            }">
                           {{item.subject}}
                       </td>

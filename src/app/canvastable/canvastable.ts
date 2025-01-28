@@ -406,109 +406,110 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     //   }
     // });
 
-    this.canv.onmousemove = (event: MouseEvent) => {
-      if (this.scrollbarDragInProgress === true || this.columnResizeInProgress === true) {
-        event.preventDefault();
-        return;
-      }
+    // this.canv.onmousemove = (event: MouseEvent) => {
+    //   if (this.scrollbarDragInProgress === true || this.columnResizeInProgress === true) {
+    //     event.preventDefault();
+    //     return;
+    //   }
 
-      const canvrect = this.canv.getBoundingClientRect();
-      const clientX = event.clientX - canvrect.left;
+    //   const canvrect = this.canv.getBoundingClientRect();
+    //   const clientX = event.clientX - canvrect.left;
 
-      let newHoverRowIndex = this.getRowIndexByClientY(event.clientY);
-      if (this.scrollbarDragInProgress || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
-        newHoverRowIndex = null;
-      }
+    //   let newHoverRowIndex = this.getRowIndexByClientY(event.clientY);
+    //   if (this.scrollbarDragInProgress || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
+    //     newHoverRowIndex = null;
+    //   }
 
-      if (this.hoverRowIndex !== newHoverRowIndex) {
-        // check if mouse is down
-        if (this.lastMouseDownEvent) {
-          // set drag select direction to true if down, or false if up
-          const newDragSelectionDirectionIsDown = newHoverRowIndex > this.hoverRowIndex ? true : false;
+    //   if (this.hoverRowIndex !== newHoverRowIndex) {
+    //     // check if mouse is down
+    //     if (this.lastMouseDownEvent) {
+    //       // set drag select direction to true if down, or false if up
+    //       const newDragSelectionDirectionIsDown = newHoverRowIndex > this.hoverRowIndex ? true : false;
 
-          if (this.dragSelectionDirectionIsDown !== newDragSelectionDirectionIsDown) {
-            // select previous row on drag select direction change
-            this.selectRowByIndex(this.lastMouseDownEvent.clientX, this.hoverRowIndex);
-            this.dragSelectionDirectionIsDown = newDragSelectionDirectionIsDown;
-          }
-          let rowIndex = this.hoverRowIndex;
-          // Select all rows between the previous and current hover row index
-          while (
-            (newDragSelectionDirectionIsDown === true && rowIndex < newHoverRowIndex) ||
-            (newDragSelectionDirectionIsDown === false && rowIndex > newHoverRowIndex)
-            ) {
-            if (newDragSelectionDirectionIsDown === true) {
-              rowIndex ++;
-            } else {
-              rowIndex --;
-            }
-            this.selectRowByIndex(this.lastMouseDownEvent.clientX, rowIndex);
-          }
-        }
-        this.hoverRowIndex = newHoverRowIndex;
-      }
+    //       if (this.dragSelectionDirectionIsDown !== newDragSelectionDirectionIsDown) {
+    //         // select previous row on drag select direction change
+    //         this.selectRowByIndex(this.lastMouseDownEvent.clientX, this.hoverRowIndex);
+    //         this.dragSelectionDirectionIsDown = newDragSelectionDirectionIsDown;
+    //       }
+    //       let rowIndex = this.hoverRowIndex;
+    //       // Select all rows between the previous and current hover row index
+    //       while (
+    //         (newDragSelectionDirectionIsDown === true && rowIndex < newHoverRowIndex) ||
+    //         (newDragSelectionDirectionIsDown === false && rowIndex > newHoverRowIndex)
+    //         ) {
+    //         if (newDragSelectionDirectionIsDown === true) {
+    //           rowIndex ++;
+    //         } else {
+    //           rowIndex --;
+    //         }
+    //         this.selectRowByIndex(this.lastMouseDownEvent.clientX, rowIndex);
+    //       }
+    //     }
+    //     this.hoverRowIndex = newHoverRowIndex;
+    //     this.updateDragImage(newHoverRowIndex);
+    //   }
 
-      if (this.dragSelectionDirectionIsDown === null) {
-        // Check for column resize
-        if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
-          this.columnresize.emit(this.visibleColumnSeparatorIndex);
-        } else {
-          this.updateVisibleColumnSeparatorIndex(clientX);
-        }
+    //   if (this.dragSelectionDirectionIsDown === null) {
+    //     // Check for column resize
+    //     if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
+    //       this.columnresize.emit(this.visibleColumnSeparatorIndex);
+    //     } else {
+    //       this.updateVisibleColumnSeparatorIndex(clientX);
+    //     }
 
-        if (this.visibleColumnSeparatorIndex > 0) {
-          this.lastClientY = event.clientY - canvrect.top;
-          this.hasChanges = true;
-          return;
-        }
-      }
+    //     if (this.visibleColumnSeparatorIndex > 0) {
+    //       this.lastClientY = event.clientY - canvrect.top;
+    //       this.hasChanges = true;
+    //       return;
+    //     }
+    //   }
 
-      if (this.dragSelectionDirectionIsDown === null && this.hoverRowIndex !== null) {
-        const colIndex = this.getColIndexByClientX(clientX);
-        let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
+    //   if (this.dragSelectionDirectionIsDown === null && this.hoverRowIndex !== null) {
+    //     const colIndex = this.getColIndexByClientX(clientX);
+    //     let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
-        let tooltipText: string | ((rowIndex: any) => string) =
-              this.columns[colIndex] && this.columns[colIndex].tooltipText;
+    //     let tooltipText: string | ((rowIndex: any) => string) =
+    //           this.columns[colIndex] && this.columns[colIndex].tooltipText;
 
-        // FIXME: message display class
-        if (typeof tooltipText === 'function' && this.rows.rowExists(this.hoverRowIndex)) {
-          tooltipText = tooltipText(this.hoverRowIndex);
-        }
+    //     // FIXME: message display class
+    //     if (typeof tooltipText === 'function' && this.rows.rowExists(this.hoverRowIndex)) {
+    //       tooltipText = tooltipText(this.hoverRowIndex);
+    //     }
 
-        if (!event.shiftKey && !this.lastMouseDownEvent &&
-            (tooltipText || (this.columns[colIndex] && this.columns[colIndex].draggable))
-          ) {
-          if (this.rowWrapMode &&
-            colIndex >= this.rowWrapModeWrapColumn) {
-            // Subtract first row width if in row wrap mode
-            colStartX -= this.columns.reduce((prev, curr, ndx) =>
-              ndx < this.rowWrapModeWrapColumn ? prev + curr.width : prev, 0);
-          }
+    //     if (!event.shiftKey && !this.lastMouseDownEvent &&
+    //         (tooltipText || (this.columns[colIndex] && this.columns[colIndex].draggable))
+    //       ) {
+    //       if (this.rowWrapMode &&
+    //         colIndex >= this.rowWrapModeWrapColumn) {
+    //         // Subtract first row width if in row wrap mode
+    //         colStartX -= this.columns.reduce((prev, curr, ndx) =>
+    //           ndx < this.rowWrapModeWrapColumn ? prev + curr.width : prev, 0);
+    //       }
 
-          this.floatingTooltip = new FloatingTooltip(
-            (this.hoverRowIndex - this.topindex) * this.rowheight,
-            colStartX - this.horizScroll + this.colpaddingleft,
-            this.columns[colIndex].width - this.colpaddingright - this.colpaddingleft,
-            this.rowheight, tooltipText as string);
+    //       this.floatingTooltip = new FloatingTooltip(
+    //         (this.hoverRowIndex - this.topindex) * this.rowheight,
+    //         colStartX - this.horizScroll + this.colpaddingleft,
+    //         this.columns[colIndex].width - this.colpaddingright - this.colpaddingleft,
+    //         this.rowheight, tooltipText as string);
 
-          if (this.rowWrapMode) {
-            this.floatingTooltip.top +=
-              + (colIndex >= this.rowWrapModeWrapColumn ? this.rowheight / 2 : 0);
-            this.floatingTooltip.height = this.rowheight / 2;
-          }
+    //       if (this.rowWrapMode) {
+    //         this.floatingTooltip.top +=
+    //           + (colIndex >= this.rowWrapModeWrapColumn ? this.rowheight / 2 : 0);
+    //         this.floatingTooltip.height = this.rowheight / 2;
+    //       }
 
-          setTimeout(() => {
-            if (this.columnOverlay) {
-              this.columnOverlay.show(300);
-            }
-          }, 0);
-        } else {
-          this.floatingTooltip = null;
-        }
-      } else {
-        this.floatingTooltip = null;
-      }
-    };
+    //       setTimeout(() => {
+    //         if (this.columnOverlay) {
+    //           this.columnOverlay.show(300);
+    //         }
+    //       }, 0);
+    //     } else {
+    //       this.floatingTooltip = null;
+    //     }
+    //   } else {
+    //     this.floatingTooltip = null;
+    //   }
+    // };
 
     this.canv.onmouseout = (event: MouseEvent) => {
       const newHoverRowIndex = null;
