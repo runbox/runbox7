@@ -24,7 +24,7 @@
 
 import {
   NgModule, Component, AfterViewInit,
-  Input, Output, Renderer2,
+  Input, Output,
   ElementRef,
   DoCheck, EventEmitter, OnInit, ViewChild
 } from '@angular/core';
@@ -222,7 +222,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // Are we selecting all rows, or just the visible ones?
   public selectWhichRows = CanvasTable.RowSelect.Visible;
 
-  constructor(elementRef: ElementRef, private renderer: Renderer2) {
+  constructor(elementRef: ElementRef) {
   }
 
   ngDoCheck() {
@@ -273,7 +273,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           break;
       }
 
-      this.enforceScrollLimit();
+      // this.enforceScrollLimit();
     };
 
     /**
@@ -378,7 +378,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           previousTouchY = newTouchY;
           previousTouchX = newTouchX;
         }
-        this.enforceScrollLimit();
+        // this.enforceScrollLimit();
         this.touchscroll.emit(this.horizScroll);
       }
 
@@ -398,12 +398,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
     });
 
-    this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
-      if (this.scrollbarDragInProgress === true) {
-        event.preventDefault();
-        this.doScrollBarDrag(event.clientY);
-      }
-    });
+    // this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
+    //   if (this.scrollbarDragInProgress === true) {
+    //     event.preventDefault();
+    //     this.doScrollBarDrag(event.clientY);
+    //   }
+    // });
 
     this.canv.onmousemove = (event: MouseEvent) => {
       if (this.scrollbarDragInProgress === true || this.columnResizeInProgress === true) {
@@ -516,13 +516,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       }
     };
 
-    this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
-      this.lastMouseDownEvent = undefined;
-      if (this.scrollbarDragInProgress) {
-        this.scrollbarDragInProgress = false;
-        this.hasChanges = true;
-      }
-    });
+    // this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
+    //   this.lastMouseDownEvent = undefined;
+    //   if (this.scrollbarDragInProgress) {
+    //     this.scrollbarDragInProgress = false;
+    //     this.hasChanges = true;
+    //   }
+    // });
 
     this.canv.onmouseup = (event: MouseEvent) => {
       event.preventDefault();
@@ -543,7 +543,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     };
 
 
-    this.renderer.listen('window', 'resize', () => true);
+    // this.renderer.listen('window', 'resize', () => true);
 
     // const paintLoop = () => {
     //   if (this.hasChanges) {
@@ -663,7 +663,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     const canvrect = this.canv.getBoundingClientRect();
     this.topindex = this.rows.rowCount() * ((clientY - canvrect.top) / this.canv.scrollHeight);
 
-    this.enforceScrollLimit();
+    // this.enforceScrollLimit();
   }
 
   private getRowIndexByClientY(clientY: number) {
@@ -826,13 +826,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public scrollUp() {
     this.topindex--;
-    this.enforceScrollLimit();
+    // this.enforceScrollLimit();
     this.hasChanges = true;
   }
 
   public scrollDown() {
     this.topindex++;
-    this.enforceScrollLimit();
+    // this.enforceScrollLimit();
     this.hasChanges = true;
   }
 
@@ -850,7 +850,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public updateRows(newList) {
     this.rows.setRows(newList);
-    this.enforceScrollLimit();
+    // this.enforceScrollLimit();
     this.hasChanges = true;
   }
 
@@ -865,32 +865,36 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   // When loading a url with a fragment containing a msg id - scroll to there
   public jumpToOpenMessage() {
-    this.jumpToMessage = true;
-  }
-
-  private enforceScrollLimit() {
-    if (this.topindex < 0) {
-      this.topindex = 0;
-    } else if (this.rows && this.rows.rowCount() < this.maxVisibleRows) {
-      this.topindex = 0;
-    } else if (this.rows && this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
-      this.topindex = this.rows.rowCount() - this.maxVisibleRows;
-      // send max rows hit events (use to fetch more data)
-      this.scrollLimitHit.next(this.rows.rowCount());
-    }
-
-
-    const columnsTotalWidth = this.columns.reduce((width, col) =>
-      col.width + width, 0);
-
-    if (this.horizScroll < 0) {
-      this.horizScroll = 0;
-    } else if (
-      this.canv.scrollWidth < columnsTotalWidth &&
-      this.horizScroll + this.canv.scrollWidth > columnsTotalWidth) {
-      this.horizScroll = columnsTotalWidth - this.canv.scrollWidth;
+    // currently selected row in the centre:
+    if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
+      this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
+      // this.enforceScrollLimit();
     }
   }
+
+  // private enforceScrollLimit() {
+  //   if (this.topindex < 0) {
+  //     this.topindex = 0;
+  //   } else if (this.rows && this.rows.rowCount() < this.maxVisibleRows) {
+  //     this.topindex = 0;
+  //   } else if (this.rows && this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
+  //     this.topindex = this.rows.rowCount() - this.maxVisibleRows;
+  //     // send max rows hit events (use to fetch more data)
+  //     this.scrollLimitHit.next(this.rows.rowCount());
+  //   }
+
+
+  //   const columnsTotalWidth = this.columns.reduce((width, col) =>
+  //     col.width + width, 0);
+
+  //   if (this.horizScroll < 0) {
+  //     this.horizScroll = 0;
+  //   } else if (
+  //     this.canv.scrollWidth < columnsTotalWidth &&
+  //     this.horizScroll + this.canv.scrollWidth > columnsTotalWidth) {
+  //     this.horizScroll = columnsTotalWidth - this.canv.scrollWidth;
+  //   }
+  // }
 
   /**
    * Draws a rounded rectangle using the current state of the canvas.
@@ -1364,7 +1368,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   moduleId: 'angular2/app/canvastable/',
   styleUrls: ['canvastablecontainer.component.scss']
 })
-export class CanvasTableContainerComponent implements OnInit {
+export class CanvasTableContainerComponent {
   colResizeInitialClientX: number;
   colResizeColumnIndex: number;
   colResizePreviousWidth: number;
@@ -1390,7 +1394,7 @@ export class CanvasTableContainerComponent implements OnInit {
   RowSelect = CanvasTable.RowSelect;
   private selectAllTimeout;
 
-  constructor(private renderer: Renderer2) {
+  constructor() {
     // const oldSavedColumnWidths = localStorage.getItem('canvasNamedColumnWidths');
     // if (oldSavedColumnWidths) {
     //   const colWidthSet = Object.keys(JSON.parse(oldSavedColumnWidths)).filter((col) => col.length > 0).join(',');
@@ -1417,23 +1421,23 @@ export class CanvasTableContainerComponent implements OnInit {
     // localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(this.columnWidths));
   }
 
-  ngOnInit() {
-    this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
-      if (this.colResizeInitialClientX) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.colresize(event.clientX);
-      }
-    });
+  // ngOnInit() {
+    // this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
+    //   if (this.colResizeInitialClientX) {
+    //     event.preventDefault();
+    //     event.stopPropagation();
+    //     this.colresize(event.clientX);
+    //   }
+    // });
 
-    this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
-      if (this.colResizeInitialClientX) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.colresizeend();
-      }
-    });
-  }
+    // this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
+    //   if (this.colResizeInitialClientX) {
+    //     event.preventDefault();
+    //     event.stopPropagation();
+    //     this.colresizeend();
+    //   }
+    // });
+  // }
 
   colresizestart(clientX: number, colIndex: number) {
     if (colIndex > 0) {
