@@ -195,7 +195,7 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     }
   }
 
-  private dragSelectionDirectionIsDown: Boolean = null;
+  // private dragSelectionDirectionIsDown: Boolean = null;
 
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
@@ -331,7 +331,7 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       }
 
       // Reset drag select direction
-      this.dragSelectionDirectionIsDown = null;
+      // this.dragSelectionDirectionIsDown = null;
     };
 
     let previousTouchY: number;
@@ -541,7 +541,7 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       }
 
       this.lastMouseDownEvent = null;
-      this.dragSelectionDirectionIsDown = null;
+      // this.dragSelectionDirectionIsDown = null;
     };
 
 
