@@ -583,12 +583,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           this.hasChanges = false;
         }
       }
-      window.requestAnimationFrame(() => paintLoop());
+      // window.requestAnimationFrame(() => paintLoop());
     };
 
-    this._ngZone.runOutsideAngular(() =>
-      window.requestAnimationFrame(() => paintLoop())
-    );
+    // this._ngZone.runOutsideAngular(() =>
+    //   window.requestAnimationFrame(() => paintLoop())
+    // );
   }
 
   private updateDragImage(selectedRowIndex: number) :HTMLCanvasElement {
