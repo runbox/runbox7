@@ -26,7 +26,7 @@ import {
   NgModule, Component, AfterViewInit,
   Input, Output, Renderer2,
   ElementRef,
-  DoCheck, NgZone, EventEmitter, OnInit, ViewChild
+  DoCheck, EventEmitter, OnInit, ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
@@ -222,7 +222,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // Are we selecting all rows, or just the visible ones?
   public selectWhichRows = CanvasTable.RowSelect.Visible;
 
-  constructor(elementRef: ElementRef, private renderer: Renderer2, private _ngZone: NgZone) {
+  constructor(elementRef: ElementRef, private renderer: Renderer2) {
   }
 
   ngDoCheck() {
@@ -545,46 +545,46 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
     this.renderer.listen('window', 'resize', () => true);
 
-    const paintLoop = () => {
-      if (this.hasChanges) {
-        if (Math.abs(this.touchScrollSpeedY) > 0) {
-          // Scroll if speed
-          this.topindex -= this.touchScrollSpeedY / this.rowheight;
+    // const paintLoop = () => {
+    //   if (this.hasChanges) {
+    //     if (Math.abs(this.touchScrollSpeedY) > 0) {
+    //       // Scroll if speed
+    //       this.topindex -= this.touchScrollSpeedY / this.rowheight;
 
-          // ---- Enforce scroll limit
-          if (this.topindex < 0) {
-            this.topindex = 0;
-          } else if (this.rows.rowCount() < this.maxVisibleRows) {
-            this.topindex = 0;
-          } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
-            this.topindex = this.rows.rowCount() - this.maxVisibleRows;
-          }
-          // ---------
+    //       // ---- Enforce scroll limit
+    //       if (this.topindex < 0) {
+    //         this.topindex = 0;
+    //       } else if (this.rows.rowCount() < this.maxVisibleRows) {
+    //         this.topindex = 0;
+    //       } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
+    //         this.topindex = this.rows.rowCount() - this.maxVisibleRows;
+    //       }
+    //       // ---------
 
-          // Slow down
-          this.touchScrollSpeedY *= 0.9;
-          if (Math.abs(this.touchScrollSpeedY) < 0.4) {
-            this.touchScrollSpeedY = 0;
-          }
-        }
-        try {
-          this.dopaint();
-          if (this.rows) {
-            this.repaintDoneSubject.next(undefined);
-          }
-        } catch (e) {
-          console.log(e);
-        }
+    //       // Slow down
+    //       this.touchScrollSpeedY *= 0.9;
+    //       if (Math.abs(this.touchScrollSpeedY) < 0.4) {
+    //         this.touchScrollSpeedY = 0;
+    //       }
+    //     }
+    //     try {
+    //       this.dopaint();
+    //       if (this.rows) {
+    //         this.repaintDoneSubject.next(undefined);
+    //       }
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
 
-        if (Math.abs(this.touchScrollSpeedY) > 0) {
-          // Continue scrolling while we have scroll speed
-          this.hasChanges = true;
-        } else {
-          this.hasChanges = false;
-        }
-      }
-      // window.requestAnimationFrame(() => paintLoop());
-    };
+    //     if (Math.abs(this.touchScrollSpeedY) > 0) {
+    //       // Continue scrolling while we have scroll speed
+    //       this.hasChanges = true;
+    //     } else {
+    //       this.hasChanges = false;
+    //     }
+    //   }
+    //   // window.requestAnimationFrame(() => paintLoop());
+    // };
 
     // this._ngZone.runOutsideAngular(() =>
     //   window.requestAnimationFrame(() => paintLoop())
