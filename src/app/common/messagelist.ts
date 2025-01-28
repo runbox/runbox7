@@ -163,6 +163,7 @@ export class MessageList extends MessageDisplay {
 
     return {
       id: row.id,
+      seen: row.seenFlag,
       messageDate: MessageTableRowTool.formatTimestamp(row.messageDate.toJSON()),
       from: app.selectedFolder === 'Sent'
         ? this.getToColumnValueForRow(rowIndex)
