@@ -23,7 +23,8 @@ import {
   ViewChildren,
   QueryList,
   ElementRef,
-  AfterViewInit
+  AfterViewInit,
+  DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import DOMPurify from 'dompurify';
@@ -70,7 +71,7 @@ type Mail = any;
   templateUrl: 'singlemailviewer.component.html',
   styleUrls: ['singlemailviewer.component.scss']
 })
-export class SingleMailViewerComponent implements OnInit, AfterViewInit {
+export class SingleMailViewerComponent implements OnInit, AfterViewInit, DoCheck {
 
   _messageId = null; // Message id or filename
 
