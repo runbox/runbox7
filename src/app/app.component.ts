@@ -391,7 +391,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     } else {
       this.dynamicSearchFieldPlaceHolder = null;
     }
-    // this.calculateWidthDependentElements();
+    this.calculateWidthDependentElements();
   }
 
   ngOnInit(): void {
@@ -763,7 +763,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
   }
 
-  // TODO: fix this shit
   calculateWidthDependentElements() {
     if (this.toolbarListButtonContainer) {
       const toolbarlistwidth = (this.toolbarListButtonContainer.nativeElement as HTMLDivElement).clientWidth;

@@ -256,13 +256,10 @@ export class SingleMailViewerComponent implements OnInit, AfterViewInit {
     this.calculateWidthDependentElements();
   }
 
-  // Should be doing it on resize.
-  // ADD THIS BACK TEMPORARY COMMENT OUT.
-  // ngDoCheck() {
-  //   this.calculateWidthDependentElements();
-  // }
+  ngDoCheck() {
+    this.calculateWidthDependentElements();
+  }
 
-  // TODO: This needs to be fixed
   calculateWidthDependentElements() {
     if (this.toolbarButtonContainer) {
       const toolbarwidth = (this.toolbarButtonContainer.nativeElement as HTMLDivElement).clientWidth;
