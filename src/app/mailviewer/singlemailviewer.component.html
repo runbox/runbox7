@@ -63,7 +63,7 @@
           <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
         </button>
       </ng-container>
-      <button mat-icon-button *ngIf="morebuttonindex>8" matTooltip="Block Sender/Domain" [matMenuTriggerFor]="blockSenderMenu">
+      <button mat-icon-button *ngIf="morebuttonindex>8" matTooltip="Block/Allow Sender" [matMenuTriggerFor]="senderRulesMenu">
         <mat-icon svgIcon="filter-cog"></mat-icon>
       </button>
       <a *ngIf="morebuttonindex>9" mat-icon-button
@@ -81,7 +81,10 @@
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
 
-      <mat-menu #blockSenderMenu>
+      <mat-menu #senderRulesMenu>
+        <button mat-menu-item (click)="messageActionsHandler.allowListSender(mailObj.from[0].address)">
+          AllowList Sender
+        </button>
         <button mat-menu-item (click)="messageActionsHandler.blockSender(mailObj.from[0].address)">
           Block Sender Email
         </button>

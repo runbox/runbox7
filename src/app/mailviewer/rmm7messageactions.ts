@@ -210,6 +210,18 @@ export class RMM7MessageActions implements MessageActions {
         snackBarRef.dismiss();
     }
 
+    allowListSender(param) {
+        const msg = `AllowListing sender: ${param}`;
+        const snackBarRef = this.snackBar.open(msg);
+        this.rmmapi.allowListSender(param).subscribe((res) => {
+          if ( res.status === 'error' ) {
+            snackBarRef.dismiss();
+            this.snackBar.open('There was an error with Sender allowlisting functionality. Please try again.', 'Dismiss');
+          }
+        });
+        snackBarRef.dismiss();
+    }
+
     // Update mailviewer menu flag icon after flagging?
     flag() {
         this.updateMessages({
