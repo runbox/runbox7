@@ -601,16 +601,16 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
           &&
           (this.rows.isSelectedRow(ndx) || ndx === selectedRowIndex)
         ) {
-          const dragImageDataY = Math.floor((ndx - this.topindex) * this.rowheight);
+          const dragImageDataY = Math.floor((ndx - this.topindex) * this.rowheight * devicePixelRatio);
           dragImageYCoords.push([dragImageDataY, dragImageDestY]);
 
-          dragImageDestY += this.rowheight;
+          dragImageDestY += this.rowheight * devicePixelRatio;
         }
       });
 
     const dragImageCanvas = document.createElement("canvas");
     dragImageCanvas.width = this.canv.width - 20;
-    dragImageCanvas.height = dragImageYCoords.length * this.rowheight;
+    dragImageCanvas.height = dragImageYCoords.length * this.rowheight * devicePixelRatio;
 
     const dragContext = dragImageCanvas.getContext('2d');
     dragContext.clearRect(0,0,dragImageCanvas.width,dragImageCanvas.height);
@@ -618,18 +618,18 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     dragContext.fillRect(0,0,dragImageCanvas.width,dragImageCanvas.height);
     dragImageYCoords.forEach(ycoords => {
       dragContext.drawImage(this.canv,
-        0, ycoords[0], this.canv.width - 20, this.rowheight,
+        0, ycoords[0], this.canv.width - 20, this.rowheight * devicePixelRatio,
         0,
         ycoords[1],
-        this.canv.width - 20, this.rowheight
+        this.canv.width - 20, this.rowheight * devicePixelRatio
                            );
     });
 
     document.body.append(dragImageCanvas);
     dragImageCanvas.setAttribute('id', 'thedragcanvas');
     dragImageCanvas.style.position = "absolute"; dragImageCanvas.style.top = "0px"; dragImageCanvas.style.left = "-"+ dragImageCanvas.width + "px";
+    dragImageCanvas.style.width = Math.floor(((this.canv.width - 20) / devicePixelRatio)) + 'px';
 
-    
     return dragImageCanvas;
   }
 
