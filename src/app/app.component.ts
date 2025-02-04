@@ -1064,6 +1064,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.updateUrlFragment();
   }
 
+  updateMessageListHeight() {
+    this.canvastable.jumpToOpenMessage();
+  }
+
   searchTextFieldFocus() {
     if (!this.usewebsocketsearch && !this.dataReady) {
       this.usewebsocketsearch = true;

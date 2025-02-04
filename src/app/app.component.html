@@ -160,6 +160,7 @@
       <single-mail-viewer #singlemailviewer
       [messageActionsHandler]="messageActionsHandler"
       [adjustableHeight]="false"
+      (afterLoadMessage)="updateMessageListHeight()"
       (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
       (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
       <div *ngIf="mailViewerOnRightSide && !singlemailviewer.messageId"
@@ -407,6 +408,7 @@
           [adjustableHeight]="true"
           [showVerticalSplitButton]="allowMailViewerOrientationChange"
           [messageActionsHandler]="messageActionsHandler"
+          (afterLoadMessage)="updateMessageListHeight()"
           (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
           (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
     </div>
