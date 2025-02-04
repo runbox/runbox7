@@ -133,8 +133,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   columnResizeInProgress = false;
   private scrollbarArea = false;
 
-  private jumpToMessage = false;
-  
   visibleColumnSeparatorAlpha = 0;
   visibleColumnSeparatorIndex = 0;
   lastClientY: number;
