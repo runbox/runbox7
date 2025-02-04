@@ -958,10 +958,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
-      // For some reason this needs a timeout.
-      setTimeout(() => {
-        this.scrollToIndex = matchingRowIndex
-      }, 1000)
     } else {
       this.singlemailviewer.close();
     }
@@ -972,6 +968,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.rowSelectionModel.select(this.rows[rowIndex])
     this.lastCheckedIndex = rowIndex
+      // For some reason this needs a timeout.
+
+    setTimeout(() => {
+      this.scrollToIndex = rowIndex
+    }, 1000)
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -1562,7 +1563,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   onRowClick(event, row, index, checkbox = false) {
     const shiftKey = event.getModifierState("Shift")
-
     const check = !this.rowsSelectionModel.isSelected(this.rows[index])
 
     if (shiftKey) {
