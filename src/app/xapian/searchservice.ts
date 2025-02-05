@@ -528,7 +528,7 @@ export class SearchService {
             if (!this.stopIndexDownloadingInProgress) {
               return this.httpclient.request(
                 new HttpRequest<any>(
-                  'GET', '/mail/download_xapian_index?fileno=' + fileno,
+                  'GET', '/mail/download_xapian_index?ngsw-bypass=1&fileno=' + fileno,
                   {responseType: 'arraybuffer', reportProgress: true}
                 )).pipe(
                   map(event => {
@@ -679,7 +679,7 @@ export class SearchService {
   }
 
   checkIfDownloadableIndexExists(): Observable<boolean> {
-      return this.httpclient.get('/mail/download_xapian_index?exists=check').pipe(
+      return this.httpclient.get('/mail/download_xapian_index?ngsw-bypass=1&exists=check').pipe(
             map((stat: any) => {
               this.serverIndexSize = stat.size;
               this.serverIndexSizeUncompressed = stat.uncompressedsize;
@@ -757,7 +757,7 @@ export class SearchService {
                       this.httpclient.request(
                         new HttpRequest(
                           'GET',
-                          `/rest/v1/searchindex/file/${p.folder}/${file.filename}`, {
+                          `/rest/v1/searchindex/file/${p.folder}/${file.filename}?ngsw-bypass=1`, {
                             reportProgress: true,
                             responseType: 'arraybuffer'
                           }
