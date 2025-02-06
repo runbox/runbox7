@@ -18,6 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, ElementRef, EventEmitter, Output, AfterViewInit, Input, HostListener } from '@angular/core';
+import { Subject } from 'rxjs';
+import { take } from 'rxjs/operators';
+
+const userResize = new Subject()
 
 @Component({
   selector: 'app-resizable-button',
@@ -39,12 +43,15 @@ export class ResizableButtonComponent implements AfterViewInit {
   private onMouseUpListener: () => void;
   private initialWidth: string | null = null;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+    // Only set absolute value when the user does a resize.
+    userResize.pipe(take(1)).subscribe(() => {
+      this.setAbsoluteWidth();
+    });
+  }
 
   ngAfterViewInit() {
     this.initialWidth = this.parentElement.style.width
-    console.log(this.initialWidth)
-    this.setAbsoluteWidth()
   }
 
   get parentElement() {
@@ -52,18 +59,18 @@ export class ResizableButtonComponent implements AfterViewInit {
   }
 
   setAbsoluteWidth() {
-    if (!this.parentElement) return
+    setTimeout(() => {
+      if (!this.parentElement) return
 
-    this.widthChange.emit(this.parentElement.offsetWidth);
+      this.changeWidth(this.parentElement.offsetWidth);
+    }, 0)
   }
 
   resetWidth() {
     const parentElement = this.elementRef.nativeElement.parentElement;
 
     parentElement.style.width = this.initialWidth;
-    setTimeout(() => {
-      this.setAbsoluteWidth()
-    }, 10)
+    this.setAbsoluteWidth()
   }
 
   @HostListener('window:resize')
@@ -98,7 +105,7 @@ export class ResizableButtonComponent implements AfterViewInit {
     if (parentElement) {
       const diff = event.clientX - this.startX;
       const newWidth = this.startWidth + diff;
-      this.widthChange.emit(newWidth);
+      this.changeWidth(newWidth);
     }
   }
 
@@ -120,10 +127,15 @@ export class ResizableButtonComponent implements AfterViewInit {
     const currentWidth = parentElement.offsetWidth;
 
     if (event.key === 'ArrowRight') {
-      this.widthChange.emit(currentWidth + step);
+      this.changeWidth(currentWidth + step);
     } else if (event.key === 'ArrowLeft') {
-      this.widthChange.emit(currentWidth - step);
+      this.changeWidth(currentWidth - step);
     }
+  }
+
+  changeWidth(pixels: number) {
+    this.widthChange.emit(pixels)
+    userResize.next(pixels)
   }
 
   @HostListener('window:blur')
