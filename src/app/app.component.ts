@@ -65,6 +65,8 @@ import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
+import { UpdateAlertService } from './updatealert/updatealert.service';
+import { UpdateAlertComponent } from './updatealert/updatealert.component';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -165,7 +167,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   morelistbuttonindex = 7;
 
-  constructor(public searchService: SearchService,
+  constructor(
+    public searchService: SearchService,
     public rmmapi: RunboxWebmailAPI,
     public rmm: RMM,
     public snackBar: MatSnackBar,
@@ -190,6 +193,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private storage: StorageService,
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
+    public updateService: UpdateAlertService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -434,6 +438,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     );
 
+    this.updateService.updateIsReady.subscribe(res => {
+      if(res) {
+        this.updateService.updateIsReady.next(false);
+        // Update is available, ask user if they want to restart:
+        this.snackBar.openFromComponent(UpdateAlertComponent, {
+          data: this.updateService.updateStatus,
+          duration: 10000,
+        });
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -481,14 +495,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         });
     });
 
-      if ('serviceWorker' in navigator) {
-        try  {
-          Notification.requestPermission();
-        } catch (e) {}
-      }
+    if ('serviceWorker' in navigator) {
+      try  {
+        Notification.requestPermission();
+      } catch (e) {}
+    }
 
-      this.subscribeToNotifications();
-      this.calculateWidthDependentElements();
+    this.subscribeToNotifications();
+    this.calculateWidthDependentElements();
+  }
+
+  reload(): void {
+    location.reload();
   }
 
   selectMessageFromFragment(fragment: string): void {
@@ -670,7 +688,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
-    const snackBarRef = this.snackBar.open( msg );
+    this.snackBar.open( msg );
     const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
@@ -706,17 +724,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const res = this.rmmapi.trainSpam({is_spam: params.is_spam, from_folder_id: currentFolderId, messages: messageIds});
         res.subscribe(data => {
           if ( data.status === 'error' ) {
-            snackBarRef.dismiss();
             this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
           }
-          snackBarRef.dismiss();
         }, (err) => {
           console.error('Error reporting spam', err);
           this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
-        },
-       () => {
-         snackBarRef.dismiss();
-       });
+        });
         return res;
       }
     });
@@ -741,7 +754,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public setReadStatus(status: boolean) {
-    const snackBarRef = this.snackBar.open('Toggling read status...');
+    this.snackBar.open('Toggling read status...');
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
     this.messageActionsHandler.updateMessages({
@@ -766,15 +779,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           },
           ids: msgIds
         })
-      ,
-      afterwards: (result) => {
-        snackBarRef.dismiss();
-      }
     });
   }
 
   public setFlaggedStatus(status: boolean) {
-    const snackBarRef = this.snackBar.open('Toggling flags...');
+    this.snackBar.open('Toggling flags...');
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
     this.messageActionsHandler.updateMessages({
@@ -799,10 +808,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           },
           ids: msgIds
         })
-      ,
-      afterwards: (result) => {
-        snackBarRef.dismiss();
-      }
     });
   }
 

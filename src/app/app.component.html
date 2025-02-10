@@ -147,6 +147,13 @@
     <p style="text-align: center; font-size: 12px">
         Runbox 7 build time: {{buildtimestampstring}} <br>
         <a routerLink="/changelog"> Read the changelog </a>
+        <ng-container *ngIf="updateService.updateIsReady | async">
+          <br><span>An update of the application is available, and you may reload the app now to use the latest version.</span>
+          <br>
+          <button mat-raised-button (click)="reload()" color="primary">
+            Reload app
+          </button>
+        </ng-container>
     </p>
   </mat-sidenav>
   <mat-sidenav *ngIf="mailViewerOnRightSide" position="end" mode="side"

@@ -155,7 +155,7 @@ export class RMM7MessageActions implements MessageActions {
     // FIXME: How does the view change? close mailview, show "next" email or?
     trainSpam(params) {
         const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
-        const snackBarRef = this.snackBar.open(msg);
+        this.snackBar.open(msg);
         this.updateMessages({
             messageIds: [this.mailViewerComponent.messageId],
             updateLocal: (msgIds: number[]) => {
@@ -182,7 +182,6 @@ export class RMM7MessageActions implements MessageActions {
                 const res = this.rmmapi.trainSpam({is_spam: params.is_spam, messages: msgIds});
                 res.subscribe(data => {
                     if ( data.status === 'error' ) {
-                        snackBarRef.dismiss();
                         this.snackBar.open('There was an error with Spam functionality. Please try again.', 'Dismiss');
                     }
                 }, (err) => {
@@ -192,7 +191,6 @@ export class RMM7MessageActions implements MessageActions {
                 return res;
             },
             afterwards: (result) => {
-                snackBarRef.dismiss();
                 this.mailViewerComponent.close();
             }
         });
@@ -200,9 +198,8 @@ export class RMM7MessageActions implements MessageActions {
 
     blockSender(param) {
         const msg = `Blocking sender: ${param}`;
-        const snackBarRef = this.snackBar.open(msg);
+        this.snackBar.open(msg);
         this.rmmapi.blockSender(param).subscribe((res) => {
-          snackBarRef.dismiss();
           if ( res.status === 'error' ) {
             this.snackBar.open('There was an error with Sender blocking functionality. Please try again.', 'Dismiss');
           } else {
@@ -213,10 +210,9 @@ export class RMM7MessageActions implements MessageActions {
 
     allowListSender(param) {
         const msg = `AllowListing sender: ${param}`;
-        const snackBarRef = this.snackBar.open(msg);
+        this.snackBar.open(msg);
         this.rmmapi.allowListSender(param).subscribe((res) => {
           if ( res.status === 'error' ) {
-            snackBarRef.dismiss();
             this.snackBar.open('There was an error with Sender allowlisting functionality. Please try again.', 'Dismiss');
           } else {
             this.snackBar.open(`${param} added to allowlist.`, 'Dismiss');

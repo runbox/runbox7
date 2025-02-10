@@ -18,22 +18,21 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from "@angular/material/snack-bar";
 
 @Component({
     templateUrl: 'updatealert.component.html'
 })
 export class UpdateAlertComponent {
     constructor(
-        private dialogRef: MatDialogRef<UpdateAlertComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any
+        @Inject(MAT_SNACK_BAR_DATA) public data: any,
+        public snackBarRef: MatSnackBarRef<UpdateAlertComponent>,
     ) {
-        console.log('Update details:', data);
     }
 
 
     close() {
-        this.dialogRef.close();
+        this.snackBarRef.dismiss();
     }
 
     reload() {
