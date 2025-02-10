@@ -610,7 +610,8 @@
                       <td colspan="3">
                         <span class="preview">{{item.plaintext}} </span>
                       </td>
-                      <td colspan="3"></td>
+                      <td aria-hidden colspan="4"></td>
+                      <td aria-hidden *ngIf="displayFolderColumn"></td>
                     </tr>
                   </tbody>
                 </ng-template>

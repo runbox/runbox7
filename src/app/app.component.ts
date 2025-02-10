@@ -87,7 +87,6 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   templateUrl: 'app.component.html',
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
-  showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
 
@@ -377,6 +376,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.singlemailviewer && this.singlemailviewer.adjustableHeight
       ? this.singlemailviewer.resizerHeight
       : 0;
+  }
+
+  get showSelectOperations() {
+    return !this.rowsSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty()
   }
 
   ngDoCheck(): void {
@@ -984,7 +987,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
-    this.showSelectOperations = this.canvastable.rows.anySelected();
 
     if (this.canvastable.rows.hasChanges) {
       this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
