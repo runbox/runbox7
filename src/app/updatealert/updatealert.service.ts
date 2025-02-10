@@ -17,16 +17,35 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ApplicationRef, Injectable, NgZone } from '@angular/core';
+import { ApplicationRef, Injectable } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { UpdateAlertComponent } from './updatealert.component';
 import { environment } from '../../environments/environment';
-import { concat, timer } from 'rxjs';
+import { concat, interval, BehaviorSubject } from 'rxjs';
 import { filter, map, first } from 'rxjs/operators';
+
+interface UpdateStatus {
+    type: string;
+    current: {
+        hash: string;
+        appData?: object;
+    };
+    available: {
+        hash: string;
+        appData?: object;
+    };
+}
 
 @Injectable()
 export class UpdateAlertService {
+    public updateIsReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public updateStatus: UpdateStatus = {
+        'type':'UPDATE_AVAILABLE',
+        'current':
+        {'hash':'blah', 'appData':{'build_epoch':'XX'}},
+        'available':
+        {'hash':'blah', 'appData':{'commit':'test', 'build_time': 'time', 'build_epoch':'XX'}},
+    };
     constructor(
         private appRef: ApplicationRef,
         private swupdate: SwUpdate,
@@ -37,17 +56,22 @@ export class UpdateAlertService {
             
             const updatesAvailable = swupdate.versionUpdates.pipe(
                 filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
-                map(evt => ({
-                    type: 'UPDATE_AVAILABLE',
-                    current: evt.currentVersion,
-                    available: evt.latestVersion,
-                })));
+                map(evt => {
+                    const update: UpdateStatus = {
+                        type: 'UPDATE_AVAILABLE',
+                        current: evt.currentVersion,
+                        available: evt.latestVersion,
+                    };
+                    return update;
+                })
+            );
             updatesAvailable.subscribe(ev => {
-                dialog.open(UpdateAlertComponent, { data: ev });
+              this.updateStatus = ev;
+              this.updateIsReady.next(true);
             });
 
             const appIsStable = this.appRef.isStable.pipe(first(isStable => isStable === true));
-            const everyFiveMins = timer(0, 5 * 60 * 1000);
+            const everyFiveMins = interval(5 * 60 * 1000);
             const everyFiveMinsOnceAppIsStable = concat(appIsStable, everyFiveMins);
             everyFiveMinsOnceAppIsStable.subscribe(() =>
                 this.checkForUpdates()

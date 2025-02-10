@@ -1,5 +1,4 @@
-<h1 mat-dialog-title>App update available!</h1>
-<mat-dialog-content>
+<div matSnackBarLabel>
   <p>
     An update of the application is available, and you may reload the app now to use the latest version.
   </p>
@@ -11,10 +10,10 @@
     and the changes can be seen in the Runbox 7 changelog
     <a href="/app/changelog?since={{ data.current.appData.build_epoch }}">here</a>.<br />
     To provide feedback on Runbox 7 features, please visit our <a href="https://community.runbox.com/c/runbox-7/runbox-7-webmail/10" target="forum">community forum</a>.
-  </p>
-</mat-dialog-content>
-<mat-dialog-actions style="display: flex">
+    </p>
+  </div>
+<div style="display: flex" matSnackBarActions>
     <span style="flex-grow: 1"></span>
-    <button mat-button (click)="reload()">Reload now</button>
-    <button mat-button (click)="close()">Later</button>
-</mat-dialog-actions>
+    <button mat-button matSnackBarAction (click)="reload()">Reload now</button>
+    <button mat-button matSnackBarAction (click)="close()">Later</button>
+</div>
