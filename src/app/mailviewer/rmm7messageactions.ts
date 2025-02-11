@@ -202,12 +202,13 @@ export class RMM7MessageActions implements MessageActions {
         const msg = `Blocking sender: ${param}`;
         const snackBarRef = this.snackBar.open(msg);
         this.rmmapi.blockSender(param).subscribe((res) => {
+          snackBarRef.dismiss();
           if ( res.status === 'error' ) {
-            snackBarRef.dismiss();
             this.snackBar.open('There was an error with Sender blocking functionality. Please try again.', 'Dismiss');
+          } else {
+            this.snackBar.open(`${param} added to blocklist.`, 'Dismiss');
           }
         });
-        snackBarRef.dismiss();
     }
 
     allowListSender(param) {
@@ -217,9 +218,10 @@ export class RMM7MessageActions implements MessageActions {
           if ( res.status === 'error' ) {
             snackBarRef.dismiss();
             this.snackBar.open('There was an error with Sender allowlisting functionality. Please try again.', 'Dismiss');
+          } else {
+            this.snackBar.open(`${param} added to allowlist.`, 'Dismiss');
           }
         });
-        snackBarRef.dismiss();
     }
 
     // Update mailviewer menu flag icon after flagging?
