@@ -148,9 +148,9 @@ export class AccountUpgradesComponent implements OnInit {
             this.rmmapi.me.subscribe(me => {
                 this.me = me;
                 // User's current subscription product:
-                if (this.subscriptions) {
-                    this.current_sub = products.find(p => p.pid === this.me.subscription);
-                }
+                this.rmmapi.getProducts([this.me.subscription]).subscribe(res => {
+                    this.current_sub = res[0];
+                });
                 this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
             });
         });
