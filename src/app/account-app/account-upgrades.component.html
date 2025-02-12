@@ -98,7 +98,7 @@
             {{ plan.name.replace('Runbox', '') }}
           </mat-card-title>
           <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
-            <h4><span *ngIf="is_current_subscription"> Your current subscription </span></h4>
+            <h4><span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current subscription </span></h4>
           </mat-card-subtitle>
           <mat-card-content>
             <div>
@@ -142,8 +142,8 @@
               <span *ngIf="me.is_trial">Subscribe for</span>
               <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
               <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
-              <span *ngIf="!me.is_trial && plan.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
-              <span *ngIf="!me.is_trial && plan.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
+              <span *ngIf="!me.is_trial && current_sub && plan.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
+              <span *ngIf="!me.is_trial && current_sub && plan.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
               {{ plan.currency.replace("USD","$") }}{{ plan.price | number:'1.2-2' }}
             </button>
             <ng-template #unpurchase>
@@ -222,7 +222,7 @@
           <td class="planComponent priceForOneYear">Price for 1 year</td>
           <td  *ngFor="let plan of subs_regular" class="oneYear">
             <div>
-              {{ plan.currency.replace("USD","$") }}{{ plan.price }} <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+              {{ plan.currency.replace("USD","$") }}{{ plan.price }} <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
             </div>
             <div>
               <button mat-raised-button
