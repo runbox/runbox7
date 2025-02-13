@@ -60,7 +60,6 @@ export interface OrderEvent {
         cursor: pointer;
         background: none;
         border: none;
-        font-size: inherit;
         font-weight: inherit;
         padding-left: 0;
       }

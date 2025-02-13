@@ -184,9 +184,14 @@ canvastablecontainer {
     /* Optional for rounded edges */
 }
 
+::ng-deep table {
+    font-size: 80%;
+}
+
 tbody mat-icon {
     /* Prevent icon from increasing tbody height */
-    margin: -0.3rem;
+    max-height: 1.3em;
+    margin: -0.3em;
 }
 
 @keyframes skeleton-loading {
