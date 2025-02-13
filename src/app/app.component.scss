@@ -184,6 +184,11 @@ canvastablecontainer {
     /* Optional for rounded edges */
 }
 
+tbody mat-icon {
+    /* Prevent icon from increasing tbody height */
+    margin: -0.3rem;
+}
+
 @keyframes skeleton-loading {
     0% {
         background-position: 200% 0;
