@@ -1,4 +1,4 @@
-<cdk-virtual-scroll-viewport [itemSize]="firstRowHeight" class="email-viewport">
+<cdk-virtual-scroll-viewport [maxBufferPx]="maxBufferPx" [minBufferPx]="maxBufferPx / 2" [itemSize]="firstRowHeight" class="email-viewport">
   <table
     tabindex="0" role="group" aria-label="Messages"
     class="mat-mdc-table mdc-data-table__table cdk-table mat-sort mat-elevation-z8"

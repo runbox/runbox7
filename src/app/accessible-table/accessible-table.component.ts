@@ -59,8 +59,10 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
   @Input() scrollToIndex: null | number = null
 
   firstRowHeight: number = 100;
+  maxBufferPx: number;
 
   private renderedRangeSub!: Subscription;
+  private resizeObserver: ResizeObserver;
 
   constructor(
     private elementRef: ElementRef,
@@ -68,23 +70,29 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
 
   ngAfterViewInit() {
     this.renderedRangeSub = this.viewport.renderedRangeStream
-      .pipe(debounceTime(500))
+      .pipe(debounceTime(50))
       .subscribe(range => {
         this.renderedRangeChange.emit(range)
       });
 
-      setTimeout(() => {
-        this.updateFirstRowHeight();
-      }, 1000)
+    setTimeout(() => {
+      this.updateFirstRowHeight()
+    }, 1000)
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      this.maxBufferPx = window.innerHeight
+      this.updateFirstRowHeight()
+    });
+
+    this.resizeObserver.observe(this.elementRef.nativeElement.parentElement.querySelector('table'));
   }
 
   ngOnDestroy(): void {
-    this.renderedRangeSub?.unsubscribe();
+    this.renderedRangeSub.unsubscribe();
+    this.resizeObserver.disconnect();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.updateFirstRowHeight()
-
     if (changes.scrollToIndex && this.items.length > this.scrollToIndex) {
       this.doScrollToIndex(this.scrollToIndex)
     }
@@ -99,11 +107,13 @@ export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnCha
   }
 
   private updateFirstRowHeight(): void {
-    this.firstRowHeight = this
+    const elem = this
       .elementRef
       .nativeElement
       .parentElement
         ?.querySelector('tbody')
+
+    this.firstRowHeight = elem
         ?.offsetHeight
         || this.firstRowHeight;
   }
