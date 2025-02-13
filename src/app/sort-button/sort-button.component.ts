@@ -34,11 +34,11 @@ export interface OrderEvent {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, MatIconModule], // Use MatIconModule instead of MatIcon
+  imports: [CommonModule, MatIconModule],
   selector: 'app-sort-button',
   template: `
     <button
-      (click)="toggleSort()"
+      (click)="onClick()"
       class="sort-button"
       aria-live="polite"
     >
@@ -76,13 +76,11 @@ export class SortButtonComponent {
   @Input() data: any;
   @Output() orderChange = new EventEmitter<OrderEvent>();
 
-  readonly Direction = Direction; // Make enum accessible in template
+  readonly Direction = Direction;
 
-  // Map defining the state transitions
   private readonly directionCycle = new Map<Direction, Direction>([
     [Direction.Ascending, Direction.Descending],
-    [Direction.Descending, Direction.None],
-    [Direction.None, Direction.Ascending],
+    [Direction.Descending, Direction.Ascending],
   ]);
 
   private readonly hrDirectionTr = new Map<Direction, string>([
@@ -92,8 +90,8 @@ export class SortButtonComponent {
   ])
 
   private readonly directionIconMap = new Map<Direction, string>([
-    [Direction.Ascending, 'arrow_upward'],
-    [Direction.Descending, 'arrow_downward'],
+    [Direction.Ascending, 'arrow_downward'],
+    [Direction.Descending, 'arrow_upward'],
     [Direction.None, 'empty'],
   ]);
 
@@ -107,10 +105,10 @@ export class SortButtonComponent {
       return this.hrDirectionTr.get(this.order?.direction)
   }
 
-  toggleSort(): void {
+  onClick(): void {
     // Set direction to Ascending when switching columns.
     const direction = (this.order?.data !== this.data)
-     ? Direction.Ascending
+     ? Direction.Descending
      : this.directionCycle.get(this.order?.direction) ?? Direction.Ascending
 
     this.orderChange.emit({
