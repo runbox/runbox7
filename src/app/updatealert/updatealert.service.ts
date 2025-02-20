@@ -17,12 +17,12 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ApplicationRef, Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { environment } from '../../environments/environment';
-import { concat, interval, BehaviorSubject } from 'rxjs';
-import { filter, map, first } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 interface UpdateStatus {
     type: string;
@@ -47,7 +47,7 @@ export class UpdateAlertService {
         {'hash':'blah', 'appData':{'commit':'test', 'build_time': 'time', 'build_epoch':'XX'}},
     };
     constructor(
-        private appRef: ApplicationRef,
+        private ngZone: NgZone,
         private swupdate: SwUpdate,
         dialog: MatDialog
     ) {
@@ -70,19 +70,18 @@ export class UpdateAlertService {
               this.updateIsReady.next(true);
             });
 
-            const appIsStable = this.appRef.isStable.pipe(first(isStable => isStable === true));
-            const everyFiveMins = interval(5 * 60 * 1000);
-            const everyFiveMinsOnceAppIsStable = concat(appIsStable, everyFiveMins);
-            everyFiveMinsOnceAppIsStable.subscribe(() =>
-                this.checkForUpdates()
-            );
+            this.ngZone.runOutsideAngular(() => {
+                this.checkForUpdates();
+                setInterval(() => this.ngZone.run(() =>
+                    this.checkForUpdates()
+                ), 5 * 60 * 1000);
+            });
         }
     }
 
     checkForUpdates() {
         console.log(' checking for updates');
         this.swupdate.checkForUpdate()
-            .then(() => this.checkForUpdates())
             .catch((err) => console.log('Unable to check for updates', err));
     }
 }
