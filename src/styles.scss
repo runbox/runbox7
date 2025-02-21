@@ -406,6 +406,17 @@ mat-grid-tile.tableTitle {
     justify-content: center;
 }
 
+/* Snackbar */
+
+.snackbar {
+    a {
+        color: #fff !important;
+    }
+}
+
+.mat-button-wrapper {
+    color: mat.get-color-from-palette($rmm-default-foreground) !important;
+}
 
 /*** Login screen ***/
 
