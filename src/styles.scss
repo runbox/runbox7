@@ -408,14 +408,13 @@ mat-grid-tile.tableTitle {
 
 /* Snackbar */
 
-.snackbar {
+.mat-snack-bar-container {
     a {
         color: #fff !important;
     }
-}
-
-.mat-button-wrapper {
-    color: mat.get-color-from-palette($rmm-default-foreground) !important;
+    .mat-button-wrapper {
+        color: mat.get-color-from-palette($rmm-default-foreground) !important;
+    }
 }
 
 /*** Login screen ***/
