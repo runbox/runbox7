@@ -71,7 +71,7 @@ import { ResizerModule } from './directives/resizer.module';
 import { MainContainerComponent } from './maincontainer.component';
 import { HeaderToolbarComponent } from './menu/headertoolbar.component';
 import { LocalSearchIndexModule } from './xapian/localsearchindex.module';
-import { ServiceWorkerModule } from '@angular/service-worker';
+import { ServiceWorkerModule, SwRegistrationOptions } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SearchExpressionBuilderModule } from './xapian/search-expression-builder/search-expression-builder.module';
 import { UpdateAlertModule } from './updatealert/updatealert.module';
@@ -201,6 +201,8 @@ const routes: Routes = [
         StorageService,
         { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
         { provide: ErrorHandler, useClass: SentryErrorHandler },
+        { provide: SwRegistrationOptions,
+          useFactory: () => ({ registrationStrategy: 'registerWithDelay:5000' }) }
     ],
     bootstrap: [MainContainerComponent]
 })

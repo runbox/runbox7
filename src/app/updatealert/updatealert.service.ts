@@ -20,15 +20,35 @@
 import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { UpdateAlertComponent } from './updatealert.component';
 import { environment } from '../../environments/environment';
-import {filter, map} from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
+
+interface UpdateStatus {
+    type: string;
+    current: {
+        hash: string;
+        appData?: object;
+    };
+    available: {
+        hash: string;
+        appData?: object;
+    };
+}
 
 @Injectable()
 export class UpdateAlertService {
+    public updateIsReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public updateStatus: UpdateStatus = {
+        'type':'UPDATE_AVAILABLE',
+        'current':
+        {'hash':'blah', 'appData':{'build_epoch':'XX'}},
+        'available':
+        {'hash':'blah', 'appData':{'commit':'test', 'build_time': 'time', 'build_epoch':'XX'}},
+    };
     constructor(
-        private swupdate: SwUpdate,
         private ngZone: NgZone,
+        private swupdate: SwUpdate,
         dialog: MatDialog
     ) {
         if (environment.production && swupdate.isEnabled) {
@@ -36,28 +56,32 @@ export class UpdateAlertService {
             
             const updatesAvailable = swupdate.versionUpdates.pipe(
                 filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
-                map(evt => ({
-                    type: 'UPDATE_AVAILABLE',
-                    current: evt.currentVersion,
-                    available: evt.latestVersion,
-                })));
+                map(evt => {
+                    const update: UpdateStatus = {
+                        type: 'UPDATE_AVAILABLE',
+                        current: evt.currentVersion,
+                        available: evt.latestVersion,
+                    };
+                    return update;
+                })
+            );
             updatesAvailable.subscribe(ev => {
-                dialog.open(UpdateAlertComponent, { data: ev });
+              this.updateStatus = ev;
+              this.updateIsReady.next(true);
             });
 
-            this.checkForUpdates();
+            this.ngZone.runOutsideAngular(() => {
+                this.checkForUpdates();
+                setInterval(() => this.ngZone.run(() =>
+                    this.checkForUpdates()
+                ), 5 * 60 * 1000);
+            });
         }
     }
 
     checkForUpdates() {
-        // Check for updates every minute
-        this.ngZone.runOutsideAngular(() =>
-            setTimeout(() => this.ngZone.run(() => {
-                console.log(' checking for updates');
-                this.swupdate.checkForUpdate()
-                    .then(() => this.checkForUpdates())
-                    .catch((err) => console.log('Unable to check for updates', err));
-            }), 60 * 1000)
-        );
+        console.log(' checking for updates');
+        this.swupdate.checkForUpdate()
+            .catch((err) => console.log('Unable to check for updates', err));
     }
 }

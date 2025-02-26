@@ -609,11 +609,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public trashDraft() {
-        const snackBarRef = this.snackBar.open('Deleting');
+        this.snackBar.open('Deleting');
         this.draftDeskservice.isEditing = -1;
         this.draftDeskservice.composingNewDraft = null;
         this.rmmapi.deleteMessages([this.model.mid]).subscribe(() => {
-            snackBarRef.dismiss();
             this.draftDeleted.emit(this.model.mid);
             this.exitIfNeeded();
         });
