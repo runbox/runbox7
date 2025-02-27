@@ -50,6 +50,10 @@ export class PaymentsService {
         });
     }
 
+    customerSession(): Observable<any> {
+        return this.rmmapi.createCustomerSession();
+    }
+
     submitStripePayment(tid: number, token: string): Observable<any> {
         return this.rmmapi.payWithStripe(tid, token);
     }
