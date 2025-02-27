@@ -21,7 +21,7 @@ import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angula
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 
 import { PaymentsService } from '../payments.service';
-import { AsyncSubject } from 'rxjs';
+import { firstValueFrom, AsyncSubject } from 'rxjs';
 
 let stripeLoader: AsyncSubject<void> = null;
 declare var Stripe: any;
@@ -35,15 +35,15 @@ export class StripeAddCardDialogComponent implements AfterViewInit {
     clientSecret: string;
 
     stripe: any;
+    elements: any;
+    payment: any;
     card: any;
 
     stripeError: string;
     zipCode: string;
     failure: string;
 
-    @ViewChild('cardNumber') cardNumber: ElementRef;
-    @ViewChild('cardExpiry') cardExpiry: ElementRef;
-    @ViewChild('cardCvc')    cardCvc:    ElementRef;
+    @ViewChild('paymentElement') paymentElement:      ElementRef;
 
     constructor(
         private paymentsservice: PaymentsService,
@@ -66,29 +66,32 @@ export class StripeAddCardDialogComponent implements AfterViewInit {
     async ngAfterViewInit() {
         await stripeLoader.toPromise();
         const stripePubkey = await this.paymentsservice.stripePubkey.toPromise();
-
-        const stripeStyle = {
-            base: {
-                fontSize: '18px',
-                color: '#32325d',
-                textAlign: 'center',
-            }
-        };
+        const customerSession = await firstValueFrom(this.paymentsservice.customerSession());
 
         this.stripe = Stripe(stripePubkey);
-        const elements = this.stripe.elements();
+        const options = {
+            clientSecret: this.clientSecret,
+            appearance: {
+                rules: {
+                    '.CheckboxInput': {
+                        border: '1px solid #32325d'
+                    }
+                },
+                variables: { colorPrimaryText: '#32325d'},
+            }
+        };
+        if (Object.keys(customerSession).includes('customer_session_client_secret')) {
+            options['customerSessionClientSecret'] = customerSession['customer_session_client_secret'];
+        }
+        this.elements = this.stripe.elements(options);
 
-        this.card = elements.create('cardNumber', {style: stripeStyle});
-        this.card.mount(this.cardNumber.nativeElement);
-        this.card.addEventListener('change', e => this.errorHandler(e));
-
-        const expiry = elements.create('cardExpiry', {style: stripeStyle});
-        expiry.mount(this.cardExpiry.nativeElement);
-        expiry.addEventListener('change', e => this.errorHandler(e));
-
-        const cvc = elements.create('cardCvc', {style: stripeStyle});
-        cvc.mount(this.cardCvc.nativeElement);
-        cvc.addEventListener('change', e => this.errorHandler(e));
+        this.payment = this.elements.create('payment', {
+            layout: { 'type': 'accordion',
+                      'defaultCollapsed': false,
+                      'radios': true
+                    }
+        });
+        this.payment.mount(this.paymentElement.nativeElement);
 
         this.state = 'initial';
     }
@@ -104,15 +107,15 @@ export class StripeAddCardDialogComponent implements AfterViewInit {
     submitCardDetails() {
         this.state = 'processing';
 
-        this.stripe.confirmCardSetup(this.clientSecret, {
-            payment_method: {
-                card: this.card,
-                billing_details: {
-                    // 'name': 'John Nhoj'
-                    address: { postal_code: this.zipCode },
-                },
-            },
-        }).then((result: any) => {
+        this.stripe.confirmSetup(
+            {
+                elements: this.elements,
+                redirect: 'if_required',
+                // confirmParams: {
+                //     return_url: '',
+                // }
+            }
+        ).then((result: any) => {
             console.log(result);
             if (result.setupIntent.status === 'succeeded') {
                 this.stripeError = '';

@@ -23,7 +23,7 @@ import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALO
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PaymentsService } from './payments.service';
-import { AsyncSubject } from 'rxjs';
+import { firstValueFrom, AsyncSubject } from 'rxjs';
 
 let stripeLoader: AsyncSubject<void> = null;
 declare var Stripe: any;
@@ -38,20 +38,18 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     total:  number;
     currency: string;
 
+    elements: any;
     paymentRequestsSupported = false;
     state = 'loading';
 
     stripe: any;
-    card: any;
+    payment: any;
 
     stripeError: string;
     zipCode: string;
     failure: string;
 
-    @ViewChild('paymentRequestButton') paymentRequestButton: ElementRef;
-    @ViewChild('cardNumber') cardNumber:           ElementRef;
-    @ViewChild('cardExpiry') cardExpiry:           ElementRef;
-    @ViewChild('cardCvc') cardCvc:              ElementRef;
+    @ViewChild('paymentElement') paymentElement:      ElementRef;
 
     constructor(
         private paymentsservice: PaymentsService,
@@ -77,55 +75,37 @@ export class StripePaymentDialogComponent implements AfterViewInit {
 
     async ngAfterViewInit() {
         await stripeLoader.toPromise();
-        const stripePubkey = await this.paymentsservice.stripePubkey.toPromise();
-
-        const stripeStyle = {
-            base: {
-                fontSize: '18px',
-                color: '#32325d',
-                textAlign: 'center',
-            }
-        };
+        const stripePubkey = await firstValueFrom(this.paymentsservice.stripePubkey);
+        const customerSession = await firstValueFrom(this.paymentsservice.customerSession());
 
         this.stripe = Stripe(stripePubkey);
-        const elements = this.stripe.elements();
-
-        const paymentRequest = this.stripe.paymentRequest({
-            country: 'NO',
+        const options = {
+            mode: 'payment',
+            amount: Math.trunc(this.total * 100),
             currency: this.currency.toLowerCase(),
-            total: {
-                label: 'Runbox purchase #' + this.tid,
-                amount: Math.trunc(this.total * 100),
-            },
-        });
-
-        const prButton = elements.create('paymentRequestButton', {
-            paymentRequest: paymentRequest,
-        });
-        paymentRequest.canMakePayment().then(result => {
-            if (result) {
-                prButton.mount(this.paymentRequestButton.nativeElement);
-                this.paymentRequestsSupported = true;
-                paymentRequest.on('paymentmethod', (ev: any) => {
-                    this.handlePaymentMethod(ev.paymentMethod).then(
-                        () => ev.complete('success'),
-                        () => ev.complete('fail'),
-                    );
-                });
+            // setup_future_usage: 'off_session',
+            'paymentMethodOptions[require_cvc_recollection]': true,
+            appearance: {
+                rules: {
+                    '.CheckboxInput': {
+                        border: '1px solid #32325d'
+                    }
+                },
+                variables: { colorPrimaryText: '#32325d'},
             }
+        };
+        if (Object.keys(customerSession).includes('customer_session_client_secret')) {
+            options['customerSessionClientSecret'] = customerSession['customer_session_client_secret'];
+        }
+        this.elements = this.stripe.elements(options);
+
+        this.payment = this.elements.create('payment', {
+            layout: { 'type': 'tabs',
+                      'defaultCollapsed': false,
+                      'radios': true
+                    }
         });
-
-        this.card = elements.create('cardNumber', {style: stripeStyle});
-        this.card.mount(this.cardNumber.nativeElement);
-        this.card.addEventListener('change', e => this.errorHandler(e));
-
-        const expiry = elements.create('cardExpiry', {style: stripeStyle});
-        expiry.mount(this.cardExpiry.nativeElement);
-        expiry.addEventListener('change', e => this.errorHandler(e));
-
-        const cvc = elements.create('cardCvc', {style: stripeStyle});
-        cvc.mount(this.cardCvc.nativeElement);
-        cvc.addEventListener('change', e => this.errorHandler(e));
+        this.payment.mount(this.paymentElement.nativeElement);
 
         this.state = 'initial';
     }
@@ -138,26 +118,30 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         }
     }
 
-    submitPayment() {
+    async submitPayment() {
         this.state = 'processing';
 
-        const additionals = { billing_details: { address: { postal_code: this.zipCode } } };
+        await this.elements.submit();
+        
+        // const additionals = { billing_details: { address: { postal_code: this.zipCode } } };
 
-        this.stripe.createPaymentMethod('card', this.card, additionals).then(result => {
+        this.stripe.createConfirmationToken({
+            'elements': this.elements}
+        ).then(result => {
             if (result.error) {
                 this.stripeError = result.error.message;
                 this.state = 'initial';
             } else {
                 console.log(result);
-                this.handlePaymentMethod(result.paymentMethod);
+                this.handleConfirmationToken(result.confirmationToken.id);
             }
         });
     }
 
-    handlePaymentMethod(paymentMethod: any) {
+    handleConfirmationToken(cId: string) {
         return new Promise<void>((resolve, reject) => {
-            this.paymentsservice.submitStripePayment(this.tid, paymentMethod.id).subscribe(res => {
-                if (res.status === 'requires_source_action') {
+            this.paymentsservice.submitStripePayment(this.tid, cId).subscribe(res => {
+                if (res.status === 'requires_action') {
                     const client_secret = res.client_secret;
                     this.stripe.handleCardAction(client_secret).then(actionRes => {
                         if (actionRes.error) {

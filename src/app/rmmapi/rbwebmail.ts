@@ -825,6 +825,12 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public createCustomerSession(): Observable<string> {
+        return this.http.get('/rest/v1/account_product/stripe/session').pipe(
+            map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
     public payWithBitpay(tid: number, return_url: string, cancel_url: string): Observable<any> {
         return this.http.post('/rest/v1/account_product/crypto/pay', {
             tid, return_url, cancel_url
@@ -841,9 +847,9 @@ export class RunboxWebmailAPI {
         );
     }
 
-    public payWithStripe(tid: number, paymentMethod: string): Observable<any> {
+    public payWithStripe(tid: number, confirmation_id: string): Observable<any> {
         return this.http.post('/rest/v1/account_product/stripe/pay', {
-            tid: tid, payment_method: paymentMethod
+            tid: tid, confirmation_id: confirmation_id
         }).pipe(
             map((res: HttpResponse<any>) => res['result'])
         );
