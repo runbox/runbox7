@@ -52,7 +52,7 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
 import { CanvasTableModule } from './canvastable/canvastable';
-import { AccessibleTableComponent } from './accessible-table/accessible-table.component'
+import { VirtualScrollTableComponent } from './virtual-scroll-table/virtual-scroll-table.component'
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
@@ -150,7 +150,7 @@ const routes: Routes = [
         ResizableButtonComponent,
         SortButtonComponent,
         HttpClientModule,
-        AccessibleTableComponent,
+        VirtualScrollTableComponent,
         HttpClientJsonpModule,
         CanvasTableModule,
         ComposeModule,

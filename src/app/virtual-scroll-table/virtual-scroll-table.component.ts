@@ -40,14 +40,14 @@ import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-accessible-table',
+  selector: 'app-virtual-scroll-table',
   standalone: true, // Make the component standalone
   imports: [ScrollingModule, CommonModule, MatCheckboxModule],
-  templateUrl: './accessible-table.component.html',
-  styleUrls: ['./accessible-table.component.scss'],
+  templateUrl: './virtual-scroll-table.component.html',
+  styleUrls: ['./virtual-scroll-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AccessibleTableComponent implements OnDestroy, AfterViewInit, OnChanges {
+export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit, OnChanges {
   @ContentChild('tbody', { read: TemplateRef }) tbodyTemplate!: TemplateRef<any> | null;
   @ContentChild('thead', { read: TemplateRef }) theadTemplate!: TemplateRef<any> | null;
 

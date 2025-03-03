@@ -407,7 +407,7 @@
               (sortToggled)="updateSearch(true)">
             </canvastablecontainer>
 
-            <app-accessible-table
+            <app-virtual-scroll-table
               [scrollToIndex]="scrollToIndex"
               *ngIf="rows.length"
               class="messages-table"
@@ -628,7 +628,7 @@
                     </tr>
                   </tbody>
                 </ng-template>
-            </app-accessible-table>
+            </app-virtual-scroll-table>
           </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
