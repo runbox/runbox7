@@ -234,17 +234,24 @@ export class SearchMessageDisplay extends MessageDisplay {
     };
 
     if (app.viewmode === 'conversations') {
-      const row = this.getRow(index);
-      if (!row[2]) {
-        const conversationId = this.searchService.api.getStringValue(row[0], 1);
-        const results = this.searchService.api.sortedXapianQuery(
-          `conversation:${conversationId}..${conversationId}`,
-          1, 0, 0, 1000, 1
-        );
-        row[2] = `${results[0][1] + 1}`;
+      const rowObj = this.getRow(index);
+
+      const conversationId = this.searchService.api.getStringValue(rowObj[0], 1);
+      this.searchService.api.setStringValueRange(1, 'conversation:');
+      const conversationSearchText = `conversation:${conversationId}..${conversationId}`;
+      const results = this.searchService.api.sortedXapianQuery(
+        conversationSearchText,
+        1, 0, 0, 1000, 1
+      );
+      this.searchService.api.clearValueRange();
+
+      if (results[0]?.[1]) {
+        rowObj[2] = `${results[0][1] + 1}`;
+        rowData.count = rowObj[2];
+      } else {
+        rowData.count = 1
       }
-      rowData.count = row[2];
-    } 
+    }
 
     return rowData;
   }

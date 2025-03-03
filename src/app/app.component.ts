@@ -48,7 +48,7 @@ import { WebSocketSearchService } from './websocketsearch/websocketsearch.servic
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, Observable, BehaviorSubject } from 'rxjs';
+import { from, Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -325,7 +325,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`);
       }
-      console.log(this.mailViewerOnRightSide);
     });
 
 
@@ -397,7 +396,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.calculateWidthDependentElements();
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    await firstValueFrom(this.xapianLoaded);
+
     this.canvastable = this.canvastablecontainer.canvastable;
     if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
       this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
@@ -498,41 +499,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.overviewSelected = this.router.url === '/overview';
     });
 
-    // Download visible messages in the background
-    this.canvastable.repaintDoneSubject.pipe(
-        filter(() => !this.canvastable.isScrollInProgress()),
-        throttleTime(1000)
-    ).subscribe(() => {
-      const rowIndexes = this.canvastable.getVisibleRowIndexes();
-      const messageIds = rowIndexes.filter(
-        idx => idx < this.canvastable.rows.rowCount()
-      ).map(idx => this.canvastable.rows.getRowMessageId(idx));
-      // FIXME: promise errors?
-      this.rmmapi.downloadMessages(messageIds).then(
-        (messages) => {
-          const updateWorker = new Map();
-          for (const msg of messages) {
-            this.searchService.updateMessageText(msg['mid']);
-            updateWorker.set(msg['mid'], msg.text.text);
-          };
-          // Send to the messageCache in the worker, so we can add the text to the index:
-          if(updateWorker.size > 0) {
-            this.searchService.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'updates': updateWorker });
-            this.canvastable.hasChanges = true;
-          }
-        });
-    });
-
-      if ('serviceWorker' in navigator) {
-        try  {
-          Notification.requestPermission();
-        } catch (e) {
-          console.error(e)
-        }
+    if ('serviceWorker' in navigator) {
+      try  {
+        Notification.requestPermission();
+      } catch (e) {
+        console.error(e)
       }
+    }
 
-      this.subscribeToNotifications();
-      this.calculateWidthDependentElements();
+    this.subscribeToNotifications();
+    this.calculateWidthDependentElements();
   }
 
   selectMessageFromFragment(fragment: string): void {
@@ -541,9 +517,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       const [folder, msgId] = fragmentTarget;
       this.switchToFolder(folder);
       if (msgId === null) {
-        if (this.singlemailviewer) {
-          this.singlemailviewer.close();
-        }
+        this.singlemailviewer?.close();
       }
       if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
         this.selectRowByMessageId(msgId);
@@ -960,10 +934,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   public selectRowByMessageId(messageId: number) {
     const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
+      this.rowSelectionModel.select({id: messageId});
       this.rowSelected(matchingRowIndex, 1, false);
-    } else {
-      this.singlemailviewer.close();
-    }
+    } 
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
@@ -971,11 +944,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.rowSelectionModel.select(this.rows[rowIndex])
     this.lastCheckedIndex = rowIndex
-      // For some reason this needs a timeout.
 
     setTimeout(() => {
       this.scrollToIndex = rowIndex
-    }, 1000)
+    }, 200)
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -997,6 +969,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.preferenceService.set(DefaultPrefGroups.Global, 'messageSubjectDragTipShown', 'true');
       }
       // FIXME: [2] is searchservice specific!
+
       if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
         this.resetColumns();
@@ -1492,11 +1465,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       fragment += `:${messageId}`;
     }
 
-    // navigating to the same page does not fire off our fragment.subscribe
-    if (fragment !== this.fragment) {
-      this.fragment = fragment;
-      this.router.navigate(['/'], { fragment });
-    }
+    this.router.navigate(['/'], { fragment });
   }
 
   get selectedMessageIds() {
@@ -1506,9 +1475,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateRows() {
-    this.rows = [...this.canvastable?.rows?.rows] ?? []
-
-    console.log(this.rows)
+    this.rows = this.canvastable?.rows?.rows ? [...this.canvastable.rows.rows] : []
 
     return this.enrichRows()
   }
@@ -1580,13 +1547,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     if (!checkbox) {
       // Deselect an email when clicking on a selected email.
-      if (this.rowSelectionModel.isSelected(this.canvastable.rows.rows[index])) {
+      if (this.rowSelectionModel.isSelected(this.rows[index])) {
         this.singlemailviewer.messageId = null;
         this.rowSelectionModel.clear()
         return this.singleMailViewerClosed()
       }
 
-      return this.rowSelected(this.rows.indexOf(row), 3, false);
+      return this.rowSelected(index, 3, false);
     }
 
     this.oneSelect(index, check)
