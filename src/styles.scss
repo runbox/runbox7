@@ -1769,3 +1769,16 @@ table.detailsTable tr td:nth-of-type(2) {
     transition: none !important;
 }
 
+.skeleton-bone {
+    content: ' ';
+    display: inline-block;
+    width: 100%;
+    /* Adjust based on the required placeholder size */
+    height: 1em;
+    /* Adjust for height */
+    background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    /* Optional for rounded edges */
+}

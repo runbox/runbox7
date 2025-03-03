@@ -17,13 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Pipe, PipeTransform } from '@angular/core';
-import humanBytes from './common/human-bytes'
+export default function humanBytes(value: number, decimalPlaces: number = 0): string {
+  if (value === 0) {
+    return '0 B';
+  }
 
-@Pipe({
-  name: 'humanBytes',
-  standalone: true
-})
-export class HumanBytesPipe implements PipeTransform {
-  public transform = humanBytes
+  const base = 1000;
+  const suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const exponent = Math.floor(Math.log(value) / Math.log(base));
+
+  const result = (value / Math.pow(base, exponent)).toFixed(decimalPlaces);
+  return `${parseFloat(result)} ${suffixes[exponent]}`;
 }
