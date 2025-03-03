@@ -1583,6 +1583,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     delete this.dragEvent;
   }
 
+  onTableResize() {
+    this.widths = {};
+  }
+
   // TODO: The this.rows can change after a onRenderedRangeChange is called.
   // This will drop the resolved values.
   onRenderedRangeChange(event) {

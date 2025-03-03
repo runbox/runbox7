@@ -401,7 +401,12 @@
 
 	<div [hidden]="hasChildRouterOutlet">
 
-          <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
+          <div
+            appResizeObserver
+            (resize)="onTableResize()"
+            id="canvasTableContainerArea"
+            [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
+
             <canvastablecontainer
               [canvastableselectlistener]="this"
               (sortToggled)="updateSearch(true)">

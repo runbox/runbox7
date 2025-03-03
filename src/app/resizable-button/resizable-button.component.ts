@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ElementRef, EventEmitter, Output, AfterViewInit, Input, HostListener } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, AfterViewInit, Input, HostListener, OnChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -29,7 +29,7 @@ const userResize = new Subject()
   styleUrls: ['./resizable-button.component.scss'],
   standalone: true,
 })
-export class ResizableButtonComponent implements AfterViewInit {
+export class ResizableButtonComponent implements AfterViewInit, OnChanges {
 
   @Input() width: number;
   @Output() widthChange = new EventEmitter<number>();
@@ -54,6 +54,12 @@ export class ResizableButtonComponent implements AfterViewInit {
     this.initialWidth = this.parentElement.style.width
   }
 
+  ngOnChanges(changes) {
+    if (this.initialWidth && changes.width?.currentValue == null) {
+      this.resetWidth();
+    }
+  }
+
   get parentElement() {
     return this.elementRef.nativeElement.parentElement;
   }
@@ -71,11 +77,6 @@ export class ResizableButtonComponent implements AfterViewInit {
 
     parentElement.style.width = this.initialWidth;
     this.setAbsoluteWidth()
-  }
-
-  @HostListener('window:resize')
-  onWindowResize() {
-    this.resetWidth();
   }
 
   onMouseDown(event: MouseEvent): void {
