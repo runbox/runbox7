@@ -25,7 +25,7 @@ import { Component } from '@angular/core';
 <div class="mainTextContent">
     <h1> Runbox 7 Contacts </h1>
     <p>
-        Runbox 7 Contacts lets you easily import, manage, and synchronize all your contacts.
+        Runbox 7 Contacts (beta) lets you easily import, manage, and synchronize all your contacts.
     </p>
     <p>
         If it's your first time here, you may want to check out the
