@@ -458,8 +458,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.route.fragment.subscribe(
       fragment => {
         if (!fragment) {
-          // This also runs when we load '/compose' .. but doesnt need to
-          this.switchToFolder('Inbox');
           if (this.singlemailviewer) {
             this.singlemailviewer.close();
           }
