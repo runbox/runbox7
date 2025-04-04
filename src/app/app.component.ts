@@ -1482,6 +1482,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   async enrichRows() {
+    if (!this.canvastable.rows) return;
+
     const { start, end } = this.renderedRange;
 
     for (let index = start; index < end; index++) {
