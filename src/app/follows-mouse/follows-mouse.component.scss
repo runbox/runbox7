@@ -1,0 +1,8 @@
+.follows-mouse {
+  /* Ensure the mouse can interact with underlying elements */
+  pointer-events: none;
+  transition: transform 0.1s ease;
+  z-index: 10000;
+  display: inline-block;
+  white-space: nowrap;
+}
