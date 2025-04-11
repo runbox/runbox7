@@ -50,6 +50,20 @@
       "rules": {
         "@angular-eslint/template/eqeqeq": "warn"
       }
+    },
+    {
+      "files": [
+        "./src/build/*.js"
+      ],
+      "parserOptions": {
+        "ecmaVersion": 2015
+      },
+      "extends": [
+        "eslint:recommended"
+      ],
+      "env": {
+        "node": true
+      }
     }
   ]
 }
