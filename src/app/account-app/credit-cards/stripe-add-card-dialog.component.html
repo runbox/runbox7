@@ -42,31 +42,8 @@
 </ng-template>
 
 <div mat-dialog-content style="max-width: 500px;">
-    <div style="width: 100%; text-align: center">
-        <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
-    </div>
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
-        <div class="payment-row">
-            <div class="payment-field payment-field-big">
-                <div #cardNumber></div>
-                <label for="cardNumber">Card number</label>
-            </div>
-        </div>
-        <div class="payment-row">
-            <div class="payment-field payment-field-small">
-                <div #cardExpiry></div>
-                <label for="cardExpiry">Expiration date</label>
-            </div>
-            <div class="payment-field payment-field-small">
-                <div #cardCvc></div>
-                <label for="cardCvc">CVC code</label>
-            </div>
-            <div class="payment-field payment-field-small StripeElement">
-                <mat-form-field>
-                    <input matInput [(ngModel)]="zipCode" placeholder="ZIP code">
-                </mat-form-field>
-            </div>
-        </div>
+      <div #paymentElement id="payment-element"></div>
 
         <div id="card-errors" role="alert" style="display: flex; justify-content: center;">
             <strong> {{ stripeError }} </strong>
