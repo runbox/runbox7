@@ -113,7 +113,7 @@
                 <li>Unlimited aliases on your domains</li>
               </ul>
               <div class="threeYearDifferenceFeatured">
-                Save {{ orig_three_plans[i].currency.replace("USD","$") }}{{ orig_three_plans[i].price * 3 - plan.price | number: '1.2-2' }} in total
+                Save {{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price * 3 - plan.price | number: '1.2-2' }} in total
               </div>
               compared to 3 * {{ orig_three_plans[i].subtype | titlecase }} 1-year
             </div>
@@ -133,7 +133,7 @@
               </li>
             </ul>
           </div>
-          <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency.replace("USD","$") }}{{ orig_three_plans[i].price * 3 | number: '1.2-2' }}&nbsp;</div>
+          <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price * 3 | number: '1.2-2' }}&nbsp;</div>
           <mat-card-actions  *ngIf="over_quota.length === 0">
             <button mat-raised-button *ngIf="!purchased; else unpurchase"
 		            (click)="order(plan)"
@@ -144,7 +144,7 @@
               <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
               <span *ngIf="!me.is_trial && current_sub && plan.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
               <span *ngIf="!me.is_trial && current_sub && plan.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
-              {{ plan.currency.replace("USD","$") }}{{ plan.price | number:'1.2-2' }}
+              {{ plan.currency }} {{ plan.price | number:'1.2-2' }}
             </button>
             <ng-template #unpurchase>
               <button mat-raised-button
@@ -157,9 +157,9 @@
             </ng-template>
           </mat-card-actions>
           <div>
-            Price per year: {{ plan.currency.replace("USD","$") }}{{ plan.price / 3 | number:'1.2-2' }} <br />
-            Price per month: {{ plan.currency.replace("USD","$") }}{{ plan.price / 3 / 12 | number:'1.2-2' }} <br />
-            Annual price per GB: {{ plan.currency.replace("USD","$") }}{{ plan.price / 3 / ((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
+            Price per year: {{ plan.currency }} {{ plan.price / 3 | number:'1.2-2' }} <br />
+            Price per month: {{ plan.currency }} {{ plan.price / 3 / 12 | number:'1.2-2' }} <br />
+            Annual price per GB: {{ plan.currency }} {{ plan.price / 3 / ((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024) | number:'1.2-2' }}
           </div>
           
         </mat-card>        
@@ -222,7 +222,7 @@
           <td class="planComponent priceForOneYear">Price for 1 year</td>
           <td  *ngFor="let plan of subs_regular" class="oneYear">
             <div>
-              {{ plan.currency.replace("USD","$") }}{{ plan.price }} <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
+              {{ plan.currency }} {{ plan.price }} <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
             </div>
             <div>
               <button mat-raised-button
@@ -238,8 +238,8 @@
         <tr>
           <td class="planComponent priceForThreeYears">Price for 3 years</td>
           <td *ngFor="let plan of subs_regular; index as i" class="threeYear">
-            <div class="threeYearStandard">&nbsp;{{ plan.currency.replace("USD","$") }}{{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
-            <div class="threeYearDiscounted">{{ subs_three[i].currency.replace("USD","$") }}{{ subs_three[i].price }}</div>
+            <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
+            <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
             <button mat-raised-button
 		            [color]="is_downgrade ? 'accent' : 'primary'"
 		            (click)="orderMainProduct(subs_three[i].pid,1)"
@@ -248,7 +248,7 @@
               Select
             </button>
             <div class="threeYearDifference">
-              Save {{ plan.currency.replace("USD","$") }}{{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
+              Save {{ plan.currency }} {{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
             </div>
           </td>
         </tr>
@@ -306,7 +306,7 @@
     </p>
     
     <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
-      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency.replace('USD','$')" [usage]="q_usage">
+      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency" [usage]="q_usage">
       </app-account-product>
     </div>
     
