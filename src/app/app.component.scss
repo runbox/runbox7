@@ -2,6 +2,10 @@
     border-right: 1px solid darkgrey !important;
 }
 
+canvastablecontainer {
+    opacity: 0;
+}
+
 #rightPane {
     border-left: 1px solid darkgrey !important;
 }
@@ -66,5 +70,141 @@
 // Override default tooltip CSS
 ::ng-deep .multiline-tooltip {
     width: 150px;
+}
+
+.resizable {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+#canvasTableContainerArea {
+    container-type: inline-size; // or use `container: inline-size;`
+
+    .messages-table {
+        --checked-color: #eee;
+        --focussed-color: #ddd;
+        --selected-color: #ccc;
+        --border-color: #ddd;
+        --cell-y-spacing: 0.3lh;
+        --row-y-spacing: 0.3lh;
+
+        .checkbox-cell {
+            width: 2rem;
+            text-align: center;
+        }
+
+        th {
+            text-align: left;
+            position: relative;
+            background-color: white;
+            z-index: 1;
+        }
+
+        td {
+            padding-bottom: var(--cell-y-spacing);
+        }
+
+        tbody tr:first-child td {
+            padding-top: var(--cell-y-spacing);
+        }
+
+        td,
+        th {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        tbody {
+            cursor: pointer;
+
+            &.checked {
+                background-color: var(--checked-color);
+            }
+
+            &.focussed {
+                background-color: var(--focussed-color);
+            }
+
+            &:hover,
+            &.selected {
+                background-color: var(--selected-color);
+            }
+        }
+
+        .preview {
+            display: block;
+            height: 1lh;
+        }
+
+        // Container query replaces media query
+        @container (max-width: 25rem) {
+            display: block;
+
+            thead {
+                display: none;
+            }
+
+            tbody {
+                border-bottom: 1px solid var(--border-color);
+                position: relative;
+                display: block;
+                padding-top: var(--row-y-spacing);
+                padding-bottom: var(--row-y-spacing);
+            }
+
+            td, tbody tr:first-child td {
+                padding: 0;
+                display: inline-block;
+                margin-top: auto;
+                margin-bottom: auto;
+                margin-left: 2rem;
+
+                &.sm-hidden {
+                    display: none;
+                }
+
+                &.subject {
+                    width: 100%;
+                }
+
+                &.checkbox-cell {
+                    position: absolute;
+                    margin-left: -6px;
+                }
+            }
+
+            tr {
+                padding-top: unset;
+                padding-bottom: unset;
+                margin-left: 8px;
+                display: flex;
+                flex-flow: row wrap;
+            }
+        }
+    }
+}
+
+::ng-deep table {
+    font-size: 13px;
+}
+
+tbody mat-icon {
+    /* Prevent icon from increasing tbody height */
+    max-height: 1.3em;
+    margin: -0.3em;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
