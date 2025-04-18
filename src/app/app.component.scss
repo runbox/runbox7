@@ -156,8 +156,8 @@ canvastablecontainer {
                 padding-bottom: var(--row-y-spacing);
             }
 
-            td {
-                padding: 0 !important;
+            td, tbody tr:first-child td {
+                padding: 0;
                 display: inline-block;
                 margin-top: auto;
                 margin-bottom: auto;
