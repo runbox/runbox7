@@ -113,7 +113,6 @@ canvastablecontainer {
 
     & tbody {
         cursor: pointer;
-        border-bottom: 1px solid var(--border-color);
     }
 
     & tbody.checked {
@@ -144,6 +143,7 @@ canvastablecontainer {
         }
 
         & tbody {
+            border-bottom: 1px solid var(--border-color);
             position: relative;
             display: block;
         }
