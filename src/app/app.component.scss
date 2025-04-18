@@ -79,117 +79,113 @@ canvastablecontainer {
     white-space: nowrap;
 }
 
-.messages-table {
-    --checked-color: #eee;
-    --focussed-color: #ddd;
-    --selected-color: #ccc;
-    --border-color: #ddd;
 
-    --cell-y-spacing: 0.3lh;
-    --row-y-spacing: 0.3lh;
+#canvasTableContainerArea {
+    container-type: inline-size; // or use `container: inline-size;`
 
-    & .checkbox-cell {
-        width: 2rem;
-        text-align: center;
-    }
+    .messages-table {
+        --checked-color: #eee;
+        --focussed-color: #ddd;
+        --selected-color: #ccc;
+        --border-color: #ddd;
+        --cell-y-spacing: 0.3lh;
+        --row-y-spacing: 0.3lh;
 
-    & th {
-        text-align: left;
-        position: relative;
-        background-color: white;
-        z-index: 1;
-    }
-
-    & td {
-        padding-bottom: var(--cell-y-spacing);
-    }
-
-    & tbody tr:first-child td {
-        padding-top: var(--cell-y-spacing);
-    }
-
-    & td,
-    & th {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-
-    & tbody {
-        cursor: pointer;
-    }
-
-    & tbody.checked {
-        background-color: var(--checked-color);
-    }
-
-    & tbody.focussed {
-        background-color: var(--focussed-color);
-    }
-
-    & tbody:hover,
-    & tbody.selected {
-        background-color: var(--selected-color);
-    }
-
-    & .preview {
-        display: block;
-        height: 1lh;
-    }
-
-    @media (max-width: 60rem) {
-        & {
-            display: block;
+        .checkbox-cell {
+            width: 2rem;
+            text-align: center;
         }
 
-        & thead {
-            display: none;
-        }
-
-        & tbody {
-            border-bottom: 1px solid var(--border-color);
+        th {
+            text-align: left;
             position: relative;
+            background-color: white;
+            z-index: 1;
+        }
+
+        td {
+            padding-bottom: var(--cell-y-spacing);
+        }
+
+        tbody tr:first-child td {
+            padding-top: var(--cell-y-spacing);
+        }
+
+        td,
+        th {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        tbody {
+            cursor: pointer;
+
+            &.checked {
+                background-color: var(--checked-color);
+            }
+
+            &.focussed {
+                background-color: var(--focussed-color);
+            }
+
+            &:hover,
+            &.selected {
+                background-color: var(--selected-color);
+            }
+        }
+
+        .preview {
             display: block;
+            height: 1lh;
         }
 
-        & td {
-            padding-bottom: unset;
-            padding-top: unset;
-        }
+        // Container query replaces media query
+        @container (max-width: 25rem) {
+            display: block;
 
-        & tr {
-            padding-bottom: var(--row-y-spacing);
-            padding-top: var(--row-y-spacing);
-        }
+            thead {
+                display: none;
+            }
 
-        & td.sm-hidden {
-            display: none;
-        }
+            tbody {
+                border-bottom: 1px solid var(--border-color);
+                position: relative;
+                display: block;
+                padding-top: var(--row-y-spacing);
+                padding-bottom: var(--row-y-spacing);
+            }
 
-        & tr {
-            margin-left: 8px;
-            display: flex;
-            flex-flow: row wrap;
-            gap: 0.5rem;
-        }
+            td {
+                padding: 0 !important;
+                display: inline-block;
+                margin-top: auto;
+                margin-bottom: auto;
+                margin-left: 2rem;
 
-        & td.checkbox-cell {
-            position: absolute;
-            margin-left: -6px;
-        }
+                &.sm-hidden {
+                    display: none;
+                }
 
-        & td {
-            display: inline-block;
-            margin-top: auto;
-            margin-bottom: auto;
-            margin-left: 2rem;
+                &.subject {
+                    width: 100%;
+                }
 
-            &.subject {
-                width: 100%;
+                &.checkbox-cell {
+                    position: absolute;
+                    margin-left: -6px;
+                }
+            }
+
+            tr {
+                padding-top: unset;
+                padding-bottom: unset;
+                margin-left: 8px;
+                display: flex;
+                flex-flow: row wrap;
             }
         }
     }
-
 }
 
 ::ng-deep table {
