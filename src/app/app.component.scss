@@ -85,6 +85,7 @@ canvastablecontainer {
     --selected-color: #ccc;
     --border-color: #ddd;
 
+    --cell-y-spacing: 0.3lh;
     --row-y-spacing: 0.3lh;
 
     & .checkbox-cell {
@@ -99,9 +100,12 @@ canvastablecontainer {
         z-index: 1;
     }
 
-    & tr {
-        padding-bottom: var(--row-y-spacing);
-        padding-top: var(--row-y-spacing);
+    & td {
+        padding-bottom: var(--cell-y-spacing);
+    }
+
+    & tbody tr:first-child td {
+        padding-top: var(--cell-y-spacing);
     }
 
     & td,
@@ -146,6 +150,16 @@ canvastablecontainer {
             border-bottom: 1px solid var(--border-color);
             position: relative;
             display: block;
+        }
+
+        & td {
+            padding-bottom: unset;
+            padding-top: unset;
+        }
+
+        & tr {
+            padding-bottom: var(--row-y-spacing);
+            padding-top: var(--row-y-spacing);
         }
 
         & td.sm-hidden {
