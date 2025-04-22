@@ -105,6 +105,10 @@ canvastablecontainer {
 
         td {
             padding-bottom: var(--cell-y-spacing);
+
+            &.count {
+                text-align: center;
+            }
         }
 
         tbody tr:first-child td {
@@ -116,6 +120,13 @@ canvastablecontainer {
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
+        }
+
+        td.count > div {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.2em 0.4em;
+            line-height: 1.2;
         }
 
         tbody {
@@ -165,6 +176,13 @@ canvastablecontainer {
 
                 &.sm-hidden {
                     display: none;
+                }
+
+                &.count > div {
+                    position: absolute;
+                    top: var(--row-y-spacing);
+                    right: 0;
+                    margin-right: 8px;
                 }
 
                 &.subject {
