@@ -38,6 +38,7 @@ export interface OrderEvent {
   selector: 'app-sort-button',
   template: `
     <button
+      [disabled]="isDisabled"
       (click)="onClick()"
       class="sort-button"
       aria-live="polite"
@@ -64,8 +65,17 @@ export interface OrderEvent {
         padding-left: 0;
       }
 
+      .sort-button[disabled] {
+        color: black;
+      }
+
       .sort-button:hover {
         text-decoration: underline;
+      }
+
+      .sort-button[disabled]:hover {
+        cursor: not-allowed;
+        text-decoration: none;
       }
     `,
   ],
@@ -73,6 +83,8 @@ export interface OrderEvent {
 export class SortButtonComponent {
   @Input() order: OrderEvent = { data: Symbol('init'), direction: Direction.None };
   @Input() data: any;
+  @Input() disabled?:any;
+
   @Output() orderChange = new EventEmitter<OrderEvent>();
 
   readonly Direction = Direction;
@@ -93,6 +105,11 @@ export class SortButtonComponent {
     [Direction.Descending, 'arrow_upward'],
     [Direction.None, 'empty'],
   ]);
+
+  // Optional helper getter if you want cleaner template usage
+  get isDisabled(): boolean {
+      return this.disabled !== undefined && this.disabled !== false;
+  }
 
   get directionIcon() {
     return (this.data === this.order?.data)
