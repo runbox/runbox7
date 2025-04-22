@@ -34,6 +34,7 @@ import { ContactsService } from './contacts-app/contacts.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
@@ -153,6 +154,7 @@ const routes: Routes = [
         DatePipe,
         ResizableButtonComponent,
         SortButtonComponent,
+        MatBadgeModule,
         HttpClientModule,
         VirtualScrollTableComponent,
         HttpClientJsonpModule,
