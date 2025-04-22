@@ -473,8 +473,13 @@
                     <th
                       *ngIf="viewmode === 'conversations'"
                       style="width: 10%"
+                      [ngStyle]="{ width: widths.count + 'px' }"
                     >
-                      Count
+                      <app-sort-button
+                        disabled
+                      >
+                        Count
+                      </app-sort-button>
                       <app-resizable-button [(width)]="widths.count"/>
                     </th>
                     <th
@@ -589,9 +594,14 @@
                           {{item.subject}}
                       </td>
                       <td
+                        class="count"
                         *ngIf="viewmode === 'conversations'"
                       >
-                        {{item.count}}
+                        <div
+                          *ngIf="item.count > 1"
+                        >
+                          {{item.count}}
+                        </div>
                       </td>
                       <td class="sm-hidden">
                         {{item.size | humanBytes}}
