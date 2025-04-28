@@ -639,7 +639,7 @@
                     </tr>
                     <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
                       <!--offset -->
-                      <td (click)="$event.stopPropagation()"></td>
+                      <td (click)="onCheckboxClick($event, item, index)"></td>
                       <td colspan="3">
                         <span class="preview">{{item.plaintext}} </span>
                       </td>
