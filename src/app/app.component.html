@@ -567,7 +567,7 @@
                     }"
                   >
                     <tr>
-                      <td class="checkbox-cell">
+                      <td (click)="onCheckboxClick($event, item, index)" class="checkbox-cell">
                         <mat-checkbox
                           (click)="onCheckboxClick($event, item, index)"
                           [checked]="rowsSelectionModel.isSelected(item)"
@@ -638,7 +638,8 @@
                       </td>
                     </tr>
                     <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
-                      <td><!--offset --></td>
+                      <!--offset -->
+                      <td (click)="$event.stopPropagation()"></td>
                       <td colspan="3">
                         <span class="preview">{{item.plaintext}} </span>
                       </td>
