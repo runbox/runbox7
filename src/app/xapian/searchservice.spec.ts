@@ -264,7 +264,7 @@ describe('SearchService', () => {
         await new Promise(resolve => setTimeout(resolve, 100));
         req = httpMock.expectOne(mockrequest =>
                 mockrequest.urlWithParams.indexOf('/mail/download_xapian_index?' +
-            'listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(indexLastUpdateTime / 1000) +
+            'ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=' + Math.floor(indexLastUpdateTime / 1000) +
             '&pagesize=' + RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE + '&skipcontent=1&avoidcacheuniqueparam=') === 0);
         // message timestamps are in seconds:
         // message time must be later so that indexLastUpdateTime is updated
