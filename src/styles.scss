@@ -60,11 +60,21 @@ $rmm-default-black: #444444;
     font-weight: normal;
 }
 
+@font-face {
+    font-family: "Avenir Next Pro Demi";
+    src: url("assets/Avenir-Next-LT-Pro-Demi.otf");
+    font-style: normal;
+    font-weight: normal;
+}
+
 // GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
 
 $custom-typography: mat.define-legacy-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
+
+$font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+$font-family-bold: "Avenir Next Pro Demi", "Helvetica Neue", sans-serif;
 
 // TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
 //  The following line adds:
@@ -87,7 +97,7 @@ html {
 body {
     margin: 0;
     height: 100%;
-    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+    font-family: $font-family;
     overscroll-behavior: contain;
 }
 
@@ -388,7 +398,7 @@ mat-grid-tile.tableTitle {
     color: #949494 !important;
 }
 .themePaletteBlack {
-    color: #444444 !important;
+    color: $rmm-default-black !important;
 }
 
 /*** App-specific styles ***/
@@ -918,12 +928,12 @@ rmm-folderlist {
 }
 
 .folderName {
-    color: #444;
+    color: $rmm-default-black;
 }
 
 .folderNameUnread {
-    font-family: "Avenir Next Pro Medium";
-    color: #444;
+    font-family: "Avenir Next Pro Demi", "Helvetica Neue", sans-serif;
+    color: $rmm-default-black;
     font-weight: bold !important;
 }
 
@@ -1116,7 +1126,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     margin-top: 20px;
     flex-grow: 1;
     text-align: center;
-    font-family: "Avenir Next Pro Regular ", "Helvetica Neue", sans-serif;
+    font-family: $font-family;
     font-weight: 400;
     font-size: 13px;
     color: #949494;
@@ -1127,6 +1137,22 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     top: 55px;
     left: 0px;
     right: 0px;
+}
+
+#canvasTableContainerArea {
+    
+    tbody {
+        border-bottom: 1px solid $rmm-gray-light;
+    }
+    tbody:hover {
+        background-color: $rmm-gray;
+    }
+    tbody.checked {
+        background-color: mat.get-color-from-palette($rmm-default-highlight);
+    }
+    .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+        background-color: mat.get-color-from-palette($rmm-default-primary);
+    }
 }
 
 .mat-fab.mat-accent {
@@ -1767,6 +1793,7 @@ table.detailsTable tr td:nth-of-type(2) {
 }
 
 .bold {
+    font-family: $font-family-bold;
     font-weight: bold;
 }
 
