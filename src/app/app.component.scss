@@ -84,15 +84,14 @@ canvastablecontainer {
     container-type: inline-size; // or use `container: inline-size;`
 
     .messages-table {
-        --checked-color: #eee;
-        --focussed-color: #ddd;
-        --selected-color: #ccc;
-        --border-color: #ddd;
-        --cell-y-spacing: 0.3lh;
+        --cell-y-spacing-top: 0.3lh;
+        --cell-y-spacing-top-first: 0.15lh;
+        --cell-y-spacing-bottom: 0.2lh;
         --row-y-spacing: 0.3lh;
 
         .checkbox-cell {
-            width: 2rem;
+            width: 2.5rem;
+            padding-left: 0.5rem;
             text-align: center;
         }
 
@@ -104,15 +103,16 @@ canvastablecontainer {
         }
 
         td {
-            padding-bottom: var(--cell-y-spacing);
+            padding-top: var(--cell-y-spacing-top);
+            padding-bottom: var(--cell-y-spacing-bottom);
 
             &.count {
                 text-align: center;
             }
         }
 
-        tbody tr:first-child td {
-            padding-top: var(--cell-y-spacing);
+        tbody tr td:first-child {
+            padding-top: var(--cell-y-spacing-top-first);
         }
 
         td,
@@ -131,19 +131,6 @@ canvastablecontainer {
 
         tbody {
             cursor: pointer;
-
-            &.checked {
-                background-color: var(--checked-color);
-            }
-
-            &.focussed {
-                background-color: var(--focussed-color);
-            }
-
-            &:hover,
-            &.selected {
-                background-color: var(--selected-color);
-            }
         }
 
         .preview {
@@ -160,7 +147,6 @@ canvastablecontainer {
             }
 
             tbody {
-                border-bottom: 1px solid var(--border-color);
                 position: relative;
                 display: block;
                 padding-top: var(--row-y-spacing);
@@ -207,7 +193,8 @@ canvastablecontainer {
 }
 
 ::ng-deep table {
-    font-size: 13px;
+    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+    font-size: 14px;
 }
 
 tbody mat-icon {
