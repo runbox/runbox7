@@ -12,7 +12,7 @@ describe('Composing emails', () => {
     Cypress.config('requestTimeout', 100000);
 
     it('should display draft card', () => {
-        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
         cy.wait('@listAllmessages', {'timeout':10000});
@@ -21,7 +21,7 @@ describe('Composing emails', () => {
     });
 
     it('should update action bar text to subject', () => {
-        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
         cy.wait('@listAllmessages', {'timeout':10000});
@@ -32,7 +32,7 @@ describe('Composing emails', () => {
     });
 
     it('should complain on invalid email address, blur', () => {
-        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
         cy.wait('@listAllmessages', {'timeout':10000});
@@ -45,7 +45,7 @@ describe('Composing emails', () => {
     });
 
     it('should complain on invalid email address, enter', () => {
-        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
         cy.wait('@listAllmessages', {'timeout':10000});
@@ -78,7 +78,7 @@ describe('Composing emails', () => {
     });
 
     it('emailing a contact should not use their nickname', () => {
-        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose?new=true');
         cy.wait('@listAllmessages', {'timeout':10000});
@@ -90,7 +90,7 @@ describe('Composing emails', () => {
     });
 
     it('closing a newly composed email should return where we started', () => {
-        cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
                    // /mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=1654682375451
         cy.visit('/compose');
         cy.wait('@listAllmessages', {'timeout':10000});
