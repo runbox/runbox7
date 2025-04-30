@@ -1,66 +1,8 @@
-<style>
-    .payment-row {
-        display: -ms-flexbox;
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 5px;
-        margin: 0 5px 10px;
-    }
-
-    .payment-field {
-        position: relative;
-        height: 50px;
-        padding: 5px;
-        text-align: center;
-    }
-
-    @media only screen and (max-width: 767px) {
-        .payment-field {
-            font-size: 14px;
-        }
-    }
-
-    .payment-field-big {
-        width: 100%;
-    }
-
-    .payment-field-small {
-        flex: 1 0 25%;
-    }
-</style>
-
 <h1 mat-dialog-title>Card payment</h1>
-    <div style="width: 95%; text-align: center; margin: auto;">
-        <img src="/_img/pay/stripe-logo.png" alt="VISA, MasterCard, AmEx" style="width: inherit; height: auto" />
-    </div>
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
-        <div id="payment-button-row" class="payment-row" [style.display]="paymentRequestsSupported ? 'block' : 'none'">
-            <div class="payment-field payment-field-big">
-                <div #paymentRequestButton></div>
-            </div>
-        </div>
-        <div class="payment-row" autofocus>
-            <div class="payment-field payment-field-big">
-                <label for="cardNumber">Card number</label>
-                <div #cardNumber id="cardNumber"></div>
-            </div>
-        </div>
-        <div class="payment-row">
-            <div class="payment-field payment-field-small">
-                <label for="cardExpiry">Expiration date</label>
-                <div #cardExpiry></div>
-            </div>
-            <div class="payment-field payment-field-small">
-                <label for="cardCvc">CVC code</label>
-                <div #cardCvc></div>
-            </div>
-            <div class="payment-field payment-field-small StripeElement">
-                <mat-form-field>
-                    <input matInput [(ngModel)]="zipCode" placeholder="ZIP/postal code">
-                </mat-form-field>
-            </div>
-        </div>
+      <div >
+        <div #paymentElement id="payment-element"></div>
+      </div>
 
         <div id="card-errors" role="alert" style="display: flex; justify-content: center;">
             <strong> {{ stripeError }} </strong>
