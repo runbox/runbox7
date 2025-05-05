@@ -1490,10 +1490,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (index >= this.rows.length) break
 
       this.rows[index] = this.canvastable.rows.getRowData(index, this)
+      this.rows[index].plaintext = this.searchService.messageText(this.rows[index].id)
       this.rows[index].loaded = true
     }
 
     this.rows = Object.create(this.rows)
+
     this.rowsSubject.next(this.rows)
   }
 
