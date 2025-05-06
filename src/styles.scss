@@ -1147,6 +1147,9 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     tbody:hover {
         background-color: $rmm-gray;
     }
+    tbody.selected {
+        background-color: $rmm-gray-light;
+    }
     tbody.checked {
         background-color: mat.get-color-from-palette($rmm-default-highlight);
     }
