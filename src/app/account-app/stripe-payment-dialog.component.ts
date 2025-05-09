@@ -143,14 +143,14 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             this.paymentsservice.submitStripePayment(this.tid, cId).subscribe(res => {
                 if (res.status === 'requires_action') {
                     const client_secret = res.client_secret;
-                    this.stripe.handleCardAction(client_secret).then(actionRes => {
+                    this.stripe.handleNextAction({"clientSecret":client_secret}).then(actionRes => {
                         if (actionRes.error) {
                             this.state = 'failure';
                             this.stripeError = actionRes.error.message;
                             reject();
                         } else {
                             console.log(actionRes.paymentIntent);
-                            this.confirmPayment(actionRes.paymentIntent.id).then(resolve, reject);
+                            this.confirmPayment(actionRes.paymentIntent).then(resolve, reject);
                         }
                     });
                 } else if (res.status === 'succeeded') {
@@ -169,26 +169,32 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         });
     }
 
-    confirmPayment(paymentIntentId: string): Promise<void> {
+    confirmPayment(paymentIntent: any): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
-                pi => {
-                    if (pi.status === 'succeeded') {
-                        this.state = 'finished';
-                        resolve();
-                    } else if (pi.error) {
-                        this.fail(pi.error.message);
-                        reject();
-                    } else {
-                        this.unhandled_status(pi.status);
+            if(paymentIntent.status != 'succeeded') {
+                this.paymentsservice.confirmStripePayment(paymentIntent.id).subscribe(
+                    pi => {
+                        if (pi.status === 'succeeded') {
+                            this.state = 'finished';
+                            resolve();
+                        } else if (pi.error) {
+                            this.fail(pi.error.message);
+                            reject();
+                        } else {
+                            this.unhandled_status(pi.status);
+                            reject();
+                        }
+                    }, error => {
+                        this.fail(error);
                         reject();
                     }
-                }, error => {
-                    this.fail(error);
-                    reject();
-                }
-            );
-        });
+                );
+            } else {
+                // nextAction already finished it succeeded!
+                this.state = 'finished';
+                resolve();
+            }
+            });
     }
 
     fail(error: any) {
