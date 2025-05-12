@@ -82,7 +82,7 @@ export class ResizableButtonComponent implements AfterViewInit, OnChanges {
   onMouseDown(event: MouseEvent): void {
     this.isResizing = true;
     this.startX = event.clientX;
-    const parentElement = this.elementRef.nativeElement.parentElement;
+    const parentElement = this.parentElement;
     if (parentElement) {
       this.startWidth = parentElement.offsetWidth;
     }
@@ -102,7 +102,7 @@ export class ResizableButtonComponent implements AfterViewInit, OnChanges {
   private onMouseMove(event: MouseEvent): void {
     if (!this.isResizing) return;
 
-    const parentElement = this.elementRef.nativeElement.parentElement;
+    const parentElement = this.parentElement;
     if (parentElement) {
       const diff = event.clientX - this.startX;
       const newWidth = this.startWidth + diff;
