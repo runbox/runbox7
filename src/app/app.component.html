@@ -438,7 +438,7 @@
                         ></mat-checkbox>
                     </th>
                     <th
-                      style="width: 10ch;"
+                      class="time-cell"
                       [ngStyle]="{ width: widths.date + 'px' }">
                       <app-sort-button
                         [data]="2"
@@ -448,7 +448,7 @@
                       <app-resizable-button [(width)]="widths.date"/>
                     </th>
                     <th
-                      style="width: 10%"
+                      class="from-cell"
                       [ngStyle]="{ width: widths.from + 'px' }">
                       <app-sort-button
                         [data]="0"
@@ -461,7 +461,7 @@
                     </th>
 
                     <th
-                      style="width: 50%"
+                      class="subject-cell"
                       [ngStyle]="{ width: widths.subject + 'px' }">
                       <app-sort-button
                         [data]="1"
@@ -472,7 +472,7 @@
                     </th>
                     <th
                       *ngIf="viewmode === 'conversations'"
-                      style="width: 10%"
+                      class="conversations-cell"
                       [ngStyle]="{ width: widths.count + 'px' }"
                     >
                       <app-sort-button
@@ -483,7 +483,7 @@
                       <app-resizable-button [(width)]="widths.count"/>
                     </th>
                     <th
-                      style="width: 8ch"
+                      class="size-cell"
                       [ngStyle]="{ width: widths.size + 'px' }">
                       <app-sort-button
                         [data]="3"
@@ -494,7 +494,7 @@
                     </th>
                     <th
                       *ngIf="displayFolderColumn"
-                      style="width: 8ch"
+                      class="folder-cell"
                       [ngStyle]="{ width: widths.folder + 'px'}">
                       <!-- Sort does not work for folders -->
                       <app-sort-button
@@ -505,9 +505,18 @@
                       </app-sort-button>
                       <app-resizable-button [(width)]="widths.folder"/>
                     </th>
-                    <th><span class="sr-only">Attachments</span></th>
-                    <th><span class="sr-only">Answered</span></th>
-                    <th><span class="sr-only">Flagged</span></th>
+                    <th
+                      class="attachments-cell">
+                      <span class="sr-only">Attachments</span>
+                    </th>
+                    <th
+                      class="answered-cell">
+                      <span class="sr-only">Answered</span>
+                    </th>
+                    <th
+                      class="flagged-cell">
+                      <span class="sr-only">Flagged</span>
+                    </th>
                   </thead>
                 </ng-template>
 

@@ -89,12 +89,6 @@ canvastablecontainer {
         --cell-y-spacing-bottom: 0.2lh;
         --row-y-spacing: 0.3lh;
 
-        .checkbox-cell {
-            width: 2.5rem;
-            padding-left: 0.5rem;
-            text-align: center;
-        }
-
         th {
             text-align: left;
             position: relative;
@@ -133,6 +127,48 @@ canvastablecontainer {
             cursor: pointer;
         }
 
+        .checkbox-cell {
+            width: 5%;
+            padding-left: 0.5rem;
+            text-align: center;
+        }
+        
+        .time-cell {
+            width: 10%;
+        }
+        
+        .from-cell {
+            width: 20%;
+        }
+
+        .subject-cell {
+            width: 30%;
+        }
+
+        .conversations-cell {
+            width: 10%;
+        }
+
+        .size-cell {
+            width: 5%;
+        }
+ 
+        .folder-cell {
+            width: 10%;
+        }
+
+        .attachments-cell {
+            width: 2%;
+        }
+        
+        .answered-cell {
+            width: 2%;
+        }
+        
+        .flagged-cell {
+            width: 2%;
+        }
+        
         .preview {
             display: block;
             height: 1lh;
@@ -177,7 +213,7 @@ canvastablecontainer {
 
                 &.checkbox-cell {
                     position: absolute;
-                    margin-left: -6px;
+                    margin-left: 4px;
                 }
             }
 
