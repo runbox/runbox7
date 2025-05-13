@@ -947,7 +947,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.lastCheckedIndex = rowIndex
 
     setTimeout(() => {
-      this.scrollToIndex = rowIndex
+      if (this.scrollToIndex === 0) {
+        this.scrollToIndex = rowIndex - 1
+      }
     }, 200)
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
