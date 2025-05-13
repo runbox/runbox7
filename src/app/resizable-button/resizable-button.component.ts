@@ -41,7 +41,6 @@ export class ResizableButtonComponent implements OnChanges {
   // Hold the reference to the event listeners
   private onMouseMoveListener: (event: MouseEvent) => void;
   private onMouseUpListener: () => void;
-  private initialWidth: string | null = null;
 
   constructor(private elementRef: ElementRef) {
     // Only set absolute value when the user does a resize.
