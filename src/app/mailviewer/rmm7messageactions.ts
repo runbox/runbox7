@@ -155,7 +155,7 @@ export class RMM7MessageActions implements MessageActions {
     // FIXME: How does the view change? close mailview, show "next" email or?
     trainSpam(params) {
         const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
-        this.snackBar.open(msg);
+        this.snackBar.open(msg, 'Dismiss');
         this.updateMessages({
             messageIds: [this.mailViewerComponent.messageId],
             updateLocal: (msgIds: number[]) => {
@@ -192,6 +192,10 @@ export class RMM7MessageActions implements MessageActions {
             },
             afterwards: (result) => {
                 this.mailViewerComponent.close();
+                this.snackBar.open(
+                    result['result']['feedback'], 'Dismiss', {
+                        duration: 3000
+                    } );
             }
         });
     }

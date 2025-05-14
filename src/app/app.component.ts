@@ -688,7 +688,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
-    this.snackBar.open( msg );
+    this.snackBar.open( msg, 'Dismiss' );
     const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
@@ -731,7 +731,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
         });
         return res;
-      }
+      },
+      afterwards: (result) => this.snackBar.open(
+        result['result']['feedback'], 'Dismiss', {
+          duration: 3000
+        } )
     });
   }
 
