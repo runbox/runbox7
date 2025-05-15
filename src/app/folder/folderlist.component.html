@@ -18,7 +18,6 @@
         (drop)="dropToFolder($event,node.folderId)"         
         (dragover)="allowDropToFolder($event,node)" 
         (dragend)="dragCancel()" 
-        (click)="selectFolder(node.folderPath)"
       >
         <button mat-icon-button matTreeNodeToggle
                 [attr.aria-label]="'toggle ' + node.folderName"
@@ -33,11 +32,14 @@
         <mat-icon *ngIf="node.folderType=='templates'" mat-list-icon class="folderIconStandard" svgIcon="file-document"></mat-icon>
         <mat-icon *ngIf="node.folderType=='trash'" mat-list-icon class="folderIconStandard" svgIcon="delete"></mat-icon>
         <mat-icon *ngIf="node.folderType=='user'" mat-list-icon class="folderIconUser" svgIcon="folder"></mat-icon>
-        <div style="margin-left: 5px;" 
-              draggable="true"
-              (dragstart)="dragFolderStart($event, node.folderId)">
-              {{node.folderName}}
-        </div>
+        <a
+          href="#{{node.folderPath}}"
+          draggable="true"
+          (dragstart)="dragFolderStart($event, node.folderId)"
+          (click)="onFolderClick($event, node.folderPath)"
+        >
+          {{node.folderName}}
+        </a>
         <span *ngIf="folderMessageCounts | async as messageCounts">
           <span *ngIf="messageCounts[node.folderPath] !== undefined">
             <span

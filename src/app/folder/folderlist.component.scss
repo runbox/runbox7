@@ -1,7 +1,28 @@
-.mailFolder:hover {
+.mailFolder {
+    position: relative;
+}
+
+.mailFolder:hover,
+.mailFolder:focus-within,
+.mailFolder:has(a:focus) {
     background-color: #F5F5F5;
     cursor: pointer;
-}  
+}
+
+.mailFolder a {
+    margin-left: 1ch;
+    text-decoration: none;
+    color: #444;
+}
+
+.mailFolder a::after {
+    content: "";
+    position: absolute;    
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
 
 .nonLocalFolder {
     opacity: 0.5;
