@@ -25,6 +25,7 @@ import { HttpClient } from '@angular/common/http';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { map, filter } from 'rxjs/operators';
 import { ProgressService } from '../http/progress.service';
+import { NgForm } from '@angular/forms';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -92,21 +93,17 @@ export class LoginComponent implements OnInit {
             })).subscribe();
     }
 
-    public onSubmit(loginform) {
-        const loginBodyObj = { user: loginform.username, password: loginform.password };
+    public onSubmit(ngForm: NgForm) {
+        const { value } = ngForm
+
         this.login_errors_reset();
-        const login_checkboxes = ['is_use_rmm6', 'is_keep_logged'];
-        login_checkboxes.forEach((v) => {
-            if ( loginform[v] ) {
-                loginBodyObj[v] = true;
-            }
-        });
-        this.httpclient.post('/ajax_mfa_authenticate', loginBodyObj).subscribe(
+
+        this.httpclient.post('/ajax_mfa_authenticate', value).subscribe(
             (loginresonseobj: any) => {
                 if (loginresonseobj.code === 200) {
-                    this.handleLoginResponse(loginresonseobj, loginBodyObj);
+                    this.handleLoginResponse(loginresonseobj, value);
                 } else if (loginresonseobj.is_2fa_enabled === '1') {
-                    this.twofactor = loginBodyObj;
+                    this.twofactor = value;
                     this.unlock_question = loginresonseobj.unlock_question;
                 } else {
                     this.handleLoginError(loginresonseobj);
