@@ -16,7 +16,7 @@
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 35vh; left: 85vw; height: 20vh; width: auto; filter: opacity(100%)" />
   </div>
   
-  <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginform.value)" #loginform="ngForm">
+  <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
     <div class="loginScreen">
       <div id="loginArea">
 	<div>
@@ -24,10 +24,10 @@
 	  <p>Log in below or <a href="/signup?runbox7=1" class="login-link">create a new account</a>.</p>
 	</div>
 	<mat-form-field>
-          <input matInput placeholder="Username" name="username" type="email" inputmode="email" autofocus ngModel />
+          <input matInput autocomplete="email" placeholder="Username" name="user" type="email" inputmode="email" autofocus ngModel />
 	</mat-form-field>
 	<mat-form-field>
-          <input matInput placeholder="Password" type="password" name="password" ngModel />
+          <input matInput autocomplete="current-password" placeholder="Password" type="password" name="password" ngModel />
   </mat-form-field>
   <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	<button mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
