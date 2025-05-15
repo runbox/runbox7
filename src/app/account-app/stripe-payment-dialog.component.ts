@@ -57,11 +57,15 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         public dialogRef: MatDialogRef<StripePaymentDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        console.log('Opening stripe form for transaction', data.tx);
-        this.tid    = data.tx.tid;
-        this.total  = data.tx.total;
-        this.currency = data.tx.currency;
-
+        if (data.tx) {
+            console.log('Opening stripe form for transaction', data.tx);
+            this.tid    = data.tx.tid;
+            this.total  = data.tx.total;
+            this.currency = data.tx.currency;
+        } else {
+            console.log('Opening stripe form for pending intent', data.pid);
+            this.confirmPayment(data.pid);
+        }
         if (stripeLoader === null) {
             stripeLoader = new AsyncSubject<void>();
             console.log('Loading Stripe.js');
@@ -169,32 +173,26 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         });
     }
 
-    confirmPayment(paymentIntent: any): Promise<void> {
+    confirmPayment(paymentIntentId: any): Promise<void> {
         return new Promise((resolve, reject) => {
-            if(paymentIntent.status != 'succeeded') {
-                this.paymentsservice.confirmStripePayment(paymentIntent.id).subscribe(
-                    pi => {
-                        if (pi.status === 'succeeded') {
-                            this.state = 'finished';
-                            resolve();
-                        } else if (pi.error) {
-                            this.fail(pi.error.message);
-                            reject();
-                        } else {
-                            this.unhandled_status(pi.status);
-                            reject();
-                        }
-                    }, error => {
-                        this.fail(error);
+            this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
+                pi => {
+                    if (pi.status === 'succeeded') {
+                        this.state = 'finished';
+                        resolve();
+                    } else if (pi.error) {
+                        this.fail(pi.error.message);
+                        reject();
+                    } else {
+                        this.unhandled_status(pi.status);
                         reject();
                     }
-                );
-            } else {
-                // nextAction already finished it succeeded!
-                this.state = 'finished';
-                resolve();
-            }
-            });
+                }, error => {
+                    this.fail(error);
+                    reject();
+                }
+            );
+        });
     }
 
     fail(error: any) {
