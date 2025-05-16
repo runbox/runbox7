@@ -47,7 +47,6 @@ import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, dis
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { BUILD_TIMESTAMP } from './buildtimestamp';
 import { from, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
@@ -133,7 +132,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
 
-  buildtimestampstring = BUILD_TIMESTAMP;
+  buildtimestampstring = environment.BUILD_TIMESTAMP;
 
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
