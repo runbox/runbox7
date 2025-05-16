@@ -87,7 +87,7 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
     }
 
     ngAfterViewInit() {
-        this.router.events.subscribe((e: RouterEvent) => {
+        this.router.events.subscribe((e) => {
             // This should have been easy to handle using { anchorScrolling: 'enabled' }
             // in router options, but apparently that doesn't quite work (yet?).
             // Workaround borrowed from https://stackoverflow.com/a/56568668
