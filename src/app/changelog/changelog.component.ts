@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterEvent, Scroll } from '@angular/router';
+import { ActivatedRoute, Router, Scroll } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
 
 import { MobileQueryService } from '../mobile-query.service';

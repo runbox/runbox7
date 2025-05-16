@@ -13,7 +13,9 @@
     "baseUrl": "./",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "skipLibCheck": true,
+    "incremental": true
   },
   "include": ["./src/"]
 }
