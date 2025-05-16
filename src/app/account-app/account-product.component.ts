@@ -45,7 +45,7 @@ export class ProductComponent implements OnInit {
     addon_usages = [];
     is_upgrade = false;
     is_downgrade = false;
-    is_current_subscription: boolean = false;
+    is_current_subscription = false;
 
     constructor(
         private cart: CartService,
@@ -83,7 +83,7 @@ export class ProductComponent implements OnInit {
     // Returns list of reasons why can't buy this product:
     // Eg You have 2 virtual domains, this product only allows 1
     check_over_quota() {
-        let oq = [];
+        const oq = [];
         if (this.p && this.usage) {
             Object.keys(this.p.quotas).map((key) => {
                 // Subscriptions / main accounts
@@ -97,7 +97,7 @@ export class ProductComponent implements OnInit {
 
     // Displays amount used up of currently owned quota
     get_addon_usages() {
-        let pu = [];
+        const pu = [];
         if (this.p && this.usage && this.p.type === 'addon') {
             Object.keys(this.p.quotas).map((key) => {
                 // addon items

@@ -31,7 +31,6 @@ import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-pag
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 
 @Component({
-  moduleId: 'angular2/app/dkim/',
   selector: 'app-dkim',
   templateUrl: 'dkim.component.html',
   styles: [`

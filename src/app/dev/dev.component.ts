@@ -19,7 +19,6 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: 'angular2/app/dev/',
   selector: 'app-dev',
   templateUrl: 'dev.component.html'
 })

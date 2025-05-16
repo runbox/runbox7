@@ -69,7 +69,7 @@ describe('ProgressService', () => {
         // We now expect login / httpauth to set the runboxme values
         rmmapiservice.setRunboxMe({'uid': '11', 'last_name': 'testuser'});
 
-        const last_on_req = httpMock.expectOne(`/rest/v1/last_on`);
+        const last_on_req = httpMock.expectOne('/rest/v1/last_on');
         last_on_req.flush(200);
 
         const me = await rmmapiservice.me.toPromise();
