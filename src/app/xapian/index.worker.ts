@@ -124,7 +124,7 @@ class SearchIndexService {
 
   // constructor( private httpclient: HttpClient ) {}
 
-  loadSearchIndexes(db: IDBDatabase): Observable<Object> {
+  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
     console.log(`Worker: got localdir: ${this.localdir}`);
     return new Observable<any>((observer) => {
       try {
