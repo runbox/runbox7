@@ -484,7 +484,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           for (const msg of messages) {
             this.searchService.updateMessageText(msg['mid']);
             updateWorker.set(msg['mid'], msg.text.text);
-          };
+          }
           // Send to the messageCache in the worker, so we can add the text to the index:
           if(updateWorker.size > 0) {
             this.searchService.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'updates': updateWorker });
@@ -1101,9 +1101,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
-        let folderPath;
         const folders = this.messagelistservice.folderListSubject.value;
-        folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
+        const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
 
         // FIXME: Make a "not indexed folder list" somewhere!?
         // moveMessagesToFolder cant see these cos not in index
@@ -1138,9 +1137,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.messageActionsHandler.updateMessages({
           messageIds: messageIds,
           updateLocal: (msgIds: number[]) => {
-            let folderPath;
             const folders = this.messagelistservice.folderListSubject.value;
-            folderPath = folders.find(fld => fld.folderId === folder).folderPath;
+            const folderPath = folders.find(fld => fld.folderId === folder).folderPath;
             console.log('Moving to folder', folderPath, messageIds);
             // FIXME: Make a "not indexed folder list" somewhere!?
             // moveMessagesToFolder cant see these cos not in index

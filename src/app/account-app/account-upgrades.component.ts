@@ -52,7 +52,7 @@ export class AccountUpgradesComponent implements OnInit {
     addon_usages = [];
     is_upgrade = false;
     is_downgrade = false;
-    is_current_subscription: boolean = false;
+    is_current_subscription = false;
 
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
@@ -83,7 +83,7 @@ export class AccountUpgradesComponent implements OnInit {
         if (e instanceof NavigationEnd) {
           const tree = router.parseUrl(router.url);
           if (tree.fragment) {
-            const element = document.querySelector("#" + tree.fragment);
+            const element = document.querySelector('#' + tree.fragment);
             if (element) { element.scrollIntoView(true); }
           }
         }
@@ -162,7 +162,7 @@ export class AccountUpgradesComponent implements OnInit {
     // Returns list of reasons why can't buy this product:
     // Eg You have 2 virtual domains, this product only allows 1
     check_over_quota() {
-        let oq = [];
+        const oq = [];
         if (this.p && this.usage) {
             Object.keys(this.p.quotas).map((key) => {
                 // Subscriptions / main accounts
@@ -180,7 +180,7 @@ export class AccountUpgradesComponent implements OnInit {
 
     // Displays amount used up of currently owned quota
     get_addon_usages(p) {
-        let pu = [];
+        const pu = [];
         if (p && this.usage && p.type === 'addon') {
             Object.keys(p.quotas).map((key) => {
                 // addon items

@@ -33,9 +33,9 @@ import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
 
-declare var FS;
-declare var IDBFS;
-declare var Module;
+declare let FS;
+declare let IDBFS;
+declare let Module;
 
 const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
@@ -124,7 +124,7 @@ class SearchIndexService {
 
   // constructor( private httpclient: HttpClient ) {}
 
-  loadSearchIndexes(db: IDBDatabase): Observable<Object> {
+  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
     console.log(`Worker: got localdir: ${this.localdir}`);
     return new Observable<any>((observer) => {
       try {

@@ -24,7 +24,7 @@ import { PaymentsService } from '../payments.service';
 import { firstValueFrom, AsyncSubject } from 'rxjs';
 
 let stripeLoader: AsyncSubject<void> = null;
-declare var Stripe: any;
+declare let Stripe: any;
 
 @Component({
     selector: 'app-stripe-add-card-dialog',

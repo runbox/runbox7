@@ -69,9 +69,9 @@ export class AliasesListerComponent {
     dialogRef.componentInstance.isUpdate = true;
     dialogRef.afterClosed().subscribe(result => {
         if (result !== undefined) {
-            const item = this.aliases.find(v => v.id === result.id);
+            const alias = this.aliases.find(v => v.id === result.id);
             // modify reference
-            Object.assign(item, result);
+            Object.assign(alias, result);
         }
     });
   }

@@ -4,7 +4,6 @@ function should_check(filename) {
     const excluded_files = [
         'src/test.ts',
         'src/polyfills.ts',
-        'src/typings.d.ts',
         'src/app/buildtimestamp.ts',
         'src/environments/env.ts',
     ];
