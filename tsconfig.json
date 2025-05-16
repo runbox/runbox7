@@ -8,7 +8,6 @@
     "experimentalDecorators": true,
     "target": "ES2022",
     "typeRoots": ["node_modules/@types"],
-    "types": ["node", "dom"],
     "lib": ["es2022", "dom"],
     "module": "ES2020",
     "baseUrl": "./",
