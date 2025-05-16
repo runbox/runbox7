@@ -189,10 +189,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     return this.resizer ? this.resizer.currentHeight : 0;
   }
 
-  public get messageId() {
-    return this._messageId;
-  }
-
   public get showAttachments() {
     // Show attachments section IIF:
     // We have any attachments at all AND
@@ -755,6 +751,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     a.target = '_blank';
     document.body.removeChild(a);
     URL.revokeObjectURL(theurl);
+  }
+
+  public get messageId() {
+    return this._messageId;
   }
 
   public set messageId(id) {

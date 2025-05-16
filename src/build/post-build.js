@@ -3,7 +3,6 @@ const execSync = require('node:child_process').execSync;
 const chalk = require('chalk');
 const fs = require('node:fs')
 
-execSync('git checkout src/app/buildtimestamp.ts');
 execSync('git checkout ngsw-config.json');
 execSync('npx sentry-cli sourcemaps inject ./dist/');
 execSync('npx ngsw-config ./dist ngsw-config.json "/app/"');

@@ -22,7 +22,7 @@ import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { HttpClient } from '@angular/common/http';
 
-declare var openCompose: (url: string) => void;
+declare let openCompose: (url: string) => void;
 
 export class RMM6MessageActions implements MessageActions {
     mailViewerComponent: SingleMailViewerComponent;

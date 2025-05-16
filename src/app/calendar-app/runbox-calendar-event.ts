@@ -175,6 +175,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
         return new Date(shownEnd.toString());
     }
 
+    set allDay(value) {
+        this._dtstart.isDate = value;
+        if (this._dtend) {
+            this._dtend.isDate = value;
+        }
+    }
+
     get allDay(): boolean {
         // isDate in ICAL.Event means "has no time"
         return this._dtstart.isDate;
@@ -334,13 +341,6 @@ export class RunboxCalendarEvent implements CalendarEvent {
         const recur = this.event.component.getFirstPropertyValue('rrule');
         recur.setComponent('bymonth', value);
         this.event.component.updatePropertyWithValue('rrule', recur);
-    }
-
-    set allDay(value) {
-        this._dtstart.isDate = value;
-        if (this._dtend) {
-            this._dtend.isDate = value;
-        }
     }
 
     get isException(): boolean {

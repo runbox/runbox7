@@ -20,8 +20,8 @@
 import { AsyncSubject, of } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
-declare var Module;
-declare var WebAssembly;
+declare let Module;
+declare let WebAssembly;
 
 let _xapianLoadedSubject: AsyncSubject<any> = null;
 
@@ -56,12 +56,12 @@ function loadXapian() {
 
 export const xapianLoadedSubject = of(true).pipe(mergeMap(() => loadXapian()));
 
-declare var IDBFS;
-declare var FS;
-declare var PATH;
-declare var assert;
-declare var MEMFS;
-declare var window;
+declare let IDBFS;
+declare let FS;
+declare let PATH;
+declare let assert;
+declare let MEMFS;
+declare let window;
 
 /* eslint-disable curly */
 /* eslint-disable no-var */
@@ -129,9 +129,9 @@ function patchIDBFS() {
         },
         DB_VERSION: 21,
         DB_STORE_NAME: 'FILE_DATA',
-        mount: function(mount) {
+        mount: function(mount, ...rest) {
         // reuse all of the core MEMFS functionality
-        return MEMFS.mount.apply(null, arguments);
+        return MEMFS.mount.call(null, mount, ...rest);
         },
         syncfs: function(mount, populate, callback) {
         IDBFS.getLocalSet(mount, function(err, local) {
@@ -217,7 +217,7 @@ function patchIDBFS() {
             }
 
             if (FS.isDir(stat.mode)) {
-            check.push.apply(check, FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
+            check.push.call(check, ...FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
             }
 
             entries[path] = { timestamp: stat.mtime };

@@ -246,7 +246,7 @@ export class AccountRenewalsRenewNowButtonComponent {
 
   // OverQuota for displayed product, if any of the (space) limits have been hit
     check_close_quota() {
-        let oq = [];
+        const oq = [];
         if (this.p && this.usage) {
             Object.keys(this.p.quotas).map((key) => {
               if ( !key.endsWith('Subaccount')
