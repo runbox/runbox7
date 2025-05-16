@@ -3,11 +3,12 @@
   "ignorePatterns": [
     "projects/**/*"
   ],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "parserOptions": {
         "project": [
           "tsconfig.json",
@@ -17,9 +18,14 @@
       },
       "extends": [
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:@typescript-eslint/recommended"
       ],
       "rules": {
+        "@typescript-eslint/quotes": ["error", "single"],
+        "@typescript-eslint/no-unused-expressions": "error",
+        "@typescript-eslint/member-ordering": "warn",
+        "@typescript-eslint/no-shadow": "error",
         "@angular-eslint/component-selector": [
           "error",
           {
@@ -41,9 +47,7 @@
       }
     },
     {
-      "files": [
-        "*.html"
-      ],
+      "files": ["*.html"],
       "extends": [
         "plugin:@angular-eslint/template/recommended"
       ],
@@ -52,9 +56,7 @@
       }
     },
     {
-      "files": [
-        "./src/build/*.js"
-      ],
+      "files": ["./src/build/*.js"],
       "parserOptions": {
         "ecmaVersion": 2015
       },
