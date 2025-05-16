@@ -60,7 +60,6 @@ export class RenameFolderEvent {
 }
 
 @Component({
-    moduleId: 'angular2/app/folder/',
     templateUrl: 'folderlist.component.html',
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm-folderlist',

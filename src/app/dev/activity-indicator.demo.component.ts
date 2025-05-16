@@ -26,7 +26,6 @@ enum Activity {
 }
 
 @Component({
-  moduleId: 'angular2/app/dev/',
   template: `
 <style>
 .frame {
