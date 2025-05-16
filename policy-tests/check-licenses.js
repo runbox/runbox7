@@ -6,6 +6,7 @@ function should_check(filename) {
         'src/polyfills.ts',
         'src/typings.d.ts',
         'src/app/buildtimestamp.ts',
+        'src/environments/env.ts',
     ];
     if (excluded_files.indexOf(filename) != -1) {
         return false;
