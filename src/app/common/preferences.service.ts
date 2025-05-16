@@ -245,15 +245,15 @@ export class PreferencesService {
                 prefs.set(`Global:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`, localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY));
             }
             if (localStorage.getItem('messageSubjectDragTipShown') !== null) {
-                prefs.set(`Global:messageSubjectDragTipShown`, localStorage.getItem('messageSubjectDragTipShown'));
+                prefs.set('Global:messageSubjectDragTipShown', localStorage.getItem('messageSubjectDragTipShown'));
             }
             const calendarSettings = localStorage.getItem('calendarSettings');
             if (calendarSettings) {
-                prefs.set(`Global:calendarSettings`, JSON.parse(calendarSettings));
+                prefs.set('Global:calendarSettings', JSON.parse(calendarSettings));
             }
             const avatarCache = localStorage.getItem(`${uid}:avatarCache`);
             if (avatarCache) {
-                prefs.set(`Global:avatarCache`, JSON.parse(avatarCache));
+                prefs.set('Global:avatarCache', JSON.parse(avatarCache));
             }
         } else {
             const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);

@@ -485,7 +485,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           for (const msg of messages) {
             this.searchService.updateMessageText(msg['mid']);
             updateWorker.set(msg['mid'], msg.text.text);
-          };
+          }
           // Send to the messageCache in the worker, so we can add the text to the index:
           if(updateWorker.size > 0) {
             this.searchService.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'updates': updateWorker });

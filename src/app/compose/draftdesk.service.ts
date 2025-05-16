@@ -139,7 +139,7 @@ export class DraftFormModel {
                 : `${mailObj.from[0].address} wrote:`);
 
         if (!useHTML && mailObj.rawtext) {
-            var replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
+            let replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
             replyHeaderText = replyHeaderText.replaceAll('&gt;', '>');
             ret.msg_body = '\n' + replyHeaderText + '\n'
           + mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
@@ -387,7 +387,7 @@ export class DraftDeskService {
             -1,
             this.mainIdentity(),
             to,
-            "Let's have a video call"
+            'Let\'s have a video call'
         );
         draftObj.msg_body = template.replace('%%URL%%', url.toString());
 

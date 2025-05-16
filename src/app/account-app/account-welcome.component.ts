@@ -27,7 +27,7 @@ import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.servic
     styleUrls: ['./account-welcome.component.scss']
 })
 export class AccountWelcomeComponent {
-    rmm6tooltip = "This area isn't upgraded to Runbox 7 yet and will open in a new tab";
+    rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     isMainAccount: boolean;
 
     constructor(rmmapi: RunboxWebmailAPI,

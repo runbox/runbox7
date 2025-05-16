@@ -20,8 +20,8 @@
 import { AsyncSubject, of } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
-declare var Module;
-declare var WebAssembly;
+declare let Module;
+declare let WebAssembly;
 
 let _xapianLoadedSubject: AsyncSubject<any> = null;
 
@@ -56,12 +56,12 @@ function loadXapian() {
 
 export const xapianLoadedSubject = of(true).pipe(mergeMap(() => loadXapian()));
 
-declare var IDBFS;
-declare var FS;
-declare var PATH;
-declare var assert;
-declare var MEMFS;
-declare var window;
+declare let IDBFS;
+declare let FS;
+declare let PATH;
+declare let assert;
+declare let MEMFS;
+declare let window;
 
 /* eslint-disable curly */
 /* eslint-disable no-var */

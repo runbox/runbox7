@@ -46,10 +46,10 @@ export class DefaultProfileComponent {
 
     // Re-order froms list so newly selected is at the top (retain previous order otherwise)
     updateDefaultProfile() {
-        const priorities: FromPriority[] = new Array();
+        const priorities: FromPriority[] = [];
         let p_value = 1;
         for (const profile of this.profileService.validProfiles.value) {
-            let from_p: FromPriority = {"from_priority": -1, "id": profile.id };
+            const from_p: FromPriority = {'from_priority': -1, 'id': profile.id };
             if (profile.id === this.selectedProfile.id) {
                 from_p.from_priority = 0;
                 profile.from_priority = 0;
