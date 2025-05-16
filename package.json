@@ -97,7 +97,7 @@
     "ts-loader": "^9.4.2",
     "ts-node": "~10.9.1",
     "tslib": "^2.5.0",
-    "typescript": "~4.9.5",
+    "typescript": "^5.1.6",
     "webdriver-manager": "~12.1.9"
   },
   "peerDependencies": {
