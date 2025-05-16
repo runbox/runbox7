@@ -55,6 +55,8 @@ fs.writeFileSync('src/environments/env.ts', `// --------- BEGIN RUNBOX LICENSE -
 
 // This file is auto-generated.
 
+/* eslint-disable @typescript-eslint/quotes */
+
 export default ${JSON.stringify(
     env.reduce((acc, [name, fn]) => {
         acc[name] = fn(process.env[name], name)
