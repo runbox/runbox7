@@ -8,7 +8,10 @@ const debug = Debug('runbox:gen-env')
 
 debug(`Writing env file to ${target}.`)
 
+process.env.BUILD_TIMESTAMP ??=  new Date().toJSON()
+
 const env = [
+    ['BUILD_TIMESTAMP', assertString],
     ['SENTRY_DSN', tryCatch(assertString, orNull)],
 ]
 
@@ -33,6 +36,7 @@ function tryCatch (tryFn, catchFn) {
 function orNull () {
     return null
 }
+
 
 fs.writeFileSync('src/environments/env.ts', `// --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).

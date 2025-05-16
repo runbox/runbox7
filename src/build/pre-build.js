@@ -22,10 +22,6 @@ cp.execSync('git checkout package-lock.json');
 
 console.log('All dependency versions ok. Will build production bundle.');
 
-console.log('Updating build timestamp');
-const build_time = new Date().toJSON();
-fs.writeFileSync('src/app/buildtimestamp.ts', "export const BUILD_TIMESTAMP = '" + build_time + "';\n");
-
 console.log(cp.execFileSync('node', ['src/build/gen-env.js']).toString().trim())
 
 if (!process.env.SKIP_CHANGELOG) {

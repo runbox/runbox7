@@ -24,7 +24,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MobileQueryService } from '../mobile-query.service';
 
 import { ChangelogEntry, EntryType, changelog } from './changes';
-import { BUILD_TIMESTAMP } from '../buildtimestamp';
+import { environment } from '../../environments/environment';
 
 @Component({
     selector: 'app-changelog',
@@ -46,7 +46,7 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
 
     sideMenuOpened = true;
 
-    buildtimestampstring = BUILD_TIMESTAMP;
+    buildtimestampstring = environment.BUILD_TIMESTAMP;
 
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
 
