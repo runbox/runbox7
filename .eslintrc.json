@@ -22,6 +22,10 @@
         "plugin:@typescript-eslint/recommended"
       ],
       "rules": {
+        "@typescript-eslint/no-namespace": "warn",
+        "@typescript-eslint/no-empty-function": "warn",
+        "@typescript-eslint/no-useless-constructor": "off",
+        "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/quotes": ["error", "single"],
         "@typescript-eslint/no-unused-expressions": "error",
         "@typescript-eslint/member-ordering": "warn",

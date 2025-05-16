@@ -75,18 +75,23 @@ export enum ContactKind {
 }
 
 // this hack allows us to pretend to have methods for enums
-export namespace ContactKind {
-    export function fromString(name: string): ContactKind {
-        // nullable types suck >:(
-        const lowerName = name ? name.toLowerCase() : null;
-        const mapping = {
-            'group':    ContactKind.GROUP,
-            'org':      ContactKind.ORG,
-            'location': ContactKind.LOCATION,
-            'settingsonly': ContactKind.SETTINGSONLY,
-        };
-        return mapping[lowerName] || ContactKind.INVIDIDUAL;
-    }
+export enum ContactKind {
+  GROUP = 'group',
+  ORG = 'org',
+  LOCATION = 'location',
+  SETTINGSONLY = 'settingsonly',
+  INVIDIDUAL = 'individual',
+}
+
+export function contactKindFromString(name: string): ContactKind {
+  const lowerName = name?.toLowerCase() ?? '';
+  const mapping: Record<string, ContactKind> = {
+    group: ContactKind.GROUP,
+    org: ContactKind.ORG,
+    location: ContactKind.LOCATION,
+    settingsonly: ContactKind.SETTINGSONLY,
+  };
+  return mapping[lowerName] || ContactKind.INVIDIDUAL;
 }
 
 export class AddressDetails {

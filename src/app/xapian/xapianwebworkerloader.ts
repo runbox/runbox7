@@ -129,9 +129,9 @@ function patchIDBFS() {
         },
         DB_VERSION: 21,
         DB_STORE_NAME: 'FILE_DATA',
-        mount: function(mount) {
+        mount: function(mount, ...args) {
         // reuse all of the core MEMFS functionality
-        return MEMFS.mount.apply(null, arguments);
+        return MEMFS.mount.call(null, mount, ...args);
         },
         syncfs: function(mount, populate, callback) {
         IDBFS.getLocalSet(mount, function(err, local) {
@@ -217,7 +217,7 @@ function patchIDBFS() {
             }
 
             if (FS.isDir(stat.mode)) {
-            check.push.apply(check, FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
+            check.push.call(check, ...FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
             }
 
             entries[path] = { timestamp: stat.mtime };

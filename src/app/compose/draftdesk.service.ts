@@ -186,10 +186,11 @@ ${fwdSubjectStr} <br />`
 <span>CC: <span>` + fwdCC.join('</span><span>') + '</span></span> <br />' : '');
         ret.setSubjectForResponse(mailObj, 'Fwd: ');
         if (!useHTML) {
-            var fwdHeaderText = fwdHeaderHTML.replaceAll(' <br />', '');
-            var fwdHeaderText = fwdHeaderText.replaceAll(/<\/?span>/g, '');
-            var fwdHeaderText = fwdHeaderText.replaceAll('&lt;', '<');
-            var fwdHeaderText = fwdHeaderText.replaceAll('&gt;', '>');
+            let fwdHeaderText = fwdHeaderHTML
+                .replaceAll(' <br />', '');
+                .replaceAll(/<\/?span>/g, '');
+                .replaceAll('&lt;', '<');
+                .replaceAll('&gt;', '>');
             ret.msg_body = '\n\n----------------------------------------------\nForwarded message:\n' +
                 fwdHeaderText + '\n\n\n' + mailObj.rawtext;
         } else {
