@@ -64,7 +64,7 @@ export class RenameFolderEvent {
     templateUrl: 'folderlist.component.html',
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm-folderlist',
-    styleUrls: ['folderlist.component.css']
+    styleUrls: ['folderlist.component.scss']
 })
 export class FolderListComponent implements OnChanges {
     dropFolderId: number;
@@ -253,6 +253,11 @@ export class FolderListComponent implements OnChanges {
         this.dropFolderId = 0;
         this.dragFolderInProgress = false;
         this.dropAboveOrBelowOrInside = DropPosition.NONE;
+    }
+
+    onFolderClick($event, folder) {
+        $event.preventDefault()
+        this.selectFolder(folder)
     }
 
     selectFolder(folder: string): void {
