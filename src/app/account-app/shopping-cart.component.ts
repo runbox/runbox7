@@ -106,6 +106,8 @@ export class ShoppingCartComponent implements OnInit {
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
             const forParam = params['for'];
+            // redirect response from Stripe after 3dsecure
+            const piParam = params['payment_intent'];
             if (forParam) {
                 const source = JSON.parse(forParam);
                 this.fromUrl = true;
@@ -125,6 +127,25 @@ export class ShoppingCartComponent implements OnInit {
                 this.cart.items.subscribe(items => {
                     this.loadProducts(items).then(loadedItems => {
                         this.itemsSubject.next(loadedItems);
+                        if(piParam) {
+                            // Returning after a 3DSecure redirect?
+                            // visit dialog to get Stripe context then
+                            // confirm payment
+
+                            // somehow ! we need to do the equiv of
+                            // initiatePayment without the "order"
+                            // part as we already have a tx
+
+                            const dialogRef = this.dialog.open(
+                                StripePaymentDialogComponent, {
+                                    data: { pid: piParam }
+                                });
+                            dialogRef.afterClosed().subscribe(paid => {
+                                if (paid && !this.fromUrl) {
+                                    this.cart.clear();
+                                }
+                            });
+                        }
                     }).catch(e => {
                         this.orderError = CartError.CANT_LOAD_PRODUCTS;
                         throw e;
