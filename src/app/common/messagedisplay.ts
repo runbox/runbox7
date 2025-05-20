@@ -203,4 +203,5 @@ export abstract class MessageDisplay {
 
   // columns
   abstract getCanvasTableColumns(app: any): CanvasTableColumn[];
+  abstract getRowData(index: number, app: any): any;
 }
