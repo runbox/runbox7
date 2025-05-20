@@ -950,18 +950,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
+    const shouldScroll = this.scrollToIndex === 0 || this.singlemailviewer.messageId
 
     this.rowSelectionModel.select(this.rows[rowIndex])
-    this.lastCheckedIndex = rowIndex;
+    this.lastCheckedIndex = rowIndex
 
-    ((messageId: number|null) => {
-      setTimeout(() => {
-        console.log(this.singlemailviewer.messageId)
-        if (this.scrollToIndex === 0 || !messageId) {
-          this.scrollToIndex = rowIndex - 1
-        }
-      }, 200)
-    })(this.singlemailviewer.messageId)
+    setTimeout(() => {
+      if (shouldScroll) {
+        this.scrollToIndex = rowIndex - 1
+      }
+    }, 2000)
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
