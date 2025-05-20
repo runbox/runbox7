@@ -950,7 +950,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
-    const shouldScroll = this.scrollToIndex === 0 || this.singlemailviewer.messageId
+    const shouldScroll = this.scrollToIndex === 0 || !this.singlemailviewer.messageId
 
     this.rowSelectionModel.select(this.rows[rowIndex])
     this.lastCheckedIndex = rowIndex
