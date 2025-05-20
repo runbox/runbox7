@@ -5,6 +5,12 @@
     "url": "https://community.runbox.com"
   },
   "version": "0.1.1",
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead",
+    "not IE 11"
+  ],
   "repository": "https://github.com/runbox/runbox7",
   "license": "GPL-3.0-or-later",
   "scripts": {
