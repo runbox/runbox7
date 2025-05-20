@@ -26,7 +26,7 @@ import { PaymentsService } from './payments.service';
 import { firstValueFrom, AsyncSubject } from 'rxjs';
 
 let stripeLoader: AsyncSubject<void> = null;
-declare var Stripe: any;
+declare let Stripe: any;
 
 @Component({
     selector: 'app-stripe-payments-payment-dialog-component',
@@ -147,7 +147,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             this.paymentsservice.submitStripePayment(this.tid, cId).subscribe(res => {
                 if (res.status === 'requires_action') {
                     const client_secret = res.client_secret;
-                    this.stripe.handleNextAction({"clientSecret":client_secret}).then(actionRes => {
+                    this.stripe.handleNextAction({'clientSecret':client_secret}).then(actionRes => {
                         if (actionRes.error) {
                             this.state = 'failure';
                             this.stripeError = actionRes.error.message;
@@ -199,7 +199,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         this.state = 'failure';
 
         if (!error) {
-            this.stripeError = `Payment did not succeed. Please try a different payment method or contact Runbox Support`;
+            this.stripeError = 'Payment did not succeed. Please try a different payment method or contact Runbox Support';
         } else if (typeof error === 'string') {
             this.stripeError = error;
         } else if (error instanceof HttpErrorResponse) {

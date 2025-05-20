@@ -17,4 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-// ADD SENTRY HERE
+import { environment } from '../environments/environment'
+import * as Sentry from '@sentry/browser';
+
+Sentry.init({
+  dsn: environment.SENTRY_DSN,
+  integrations: [Sentry.captureConsoleIntegration()],
+});

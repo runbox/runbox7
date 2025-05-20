@@ -17,19 +17,19 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
-import { AliasesListerComponent } from "./aliases.lister";
-import { MatLegacyDialogModule } from "@angular/material/legacy-dialog";
-import { MatLegacySnackBarModule } from "@angular/material/legacy-snack-bar";
-import { HttpClientTestingModule } from "@angular/common/http/testing";
-import { RunboxWebmailAPI } from "../rmmapi/rbwebmail";
-import { RMM } from "../rmm";
-import { of } from "rxjs";
-import { CommonModule } from "@angular/common";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { AliasesEditorModalComponent } from "./aliases.editor.modal";
-import { MatLegacyCommonModule, MatLegacyOptionModule } from "@angular/material/legacy-core";
-import { HttpClient } from "@angular/common/http";
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { AliasesListerComponent } from './aliases.lister';
+import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RMM } from '../rmm';
+import { of } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { AliasesEditorModalComponent } from './aliases.editor.modal';
+import { MatLegacyCommonModule, MatLegacyOptionModule } from '@angular/material/legacy-core';
+import { HttpClient } from '@angular/common/http';
 
 describe('AliasesListerComponent', () => {
     let component: AliasesListerComponent;
@@ -38,9 +38,9 @@ describe('AliasesListerComponent', () => {
     const DEFAULT_EMAIL = 'a.kalou@shadowcat.co.uk';
     const ALLOWED_DOMAINS = ['runbox.com', 'shadowcat.co.uk'];
     const ALIASES = [
-        {localpart: "testyface", domain: "runbox.com", forward_to: "mctestface@runbox.com"},
-        {localpart: "testface", domain: "runbox.com", forward_to: "mctestface@runbox.com"},
-        {localpart: "akalou", domain: "runbox.com", forward_to: "a.kalou@shadowcat.co.uk"},
+        {localpart: 'testyface', domain: 'runbox.com', forward_to: 'mctestface@runbox.com'},
+        {localpart: 'testface', domain: 'runbox.com', forward_to: 'mctestface@runbox.com'},
+        {localpart: 'akalou', domain: 'runbox.com', forward_to: 'a.kalou@shadowcat.co.uk'},
     ];
 
     beforeEach(() => {
@@ -114,9 +114,9 @@ describe('AliasesListerComponent', () => {
 
     it('lists all available aliases', () => {
         component.aliases = [
-            {localpart: "testyface", domain: "runbox.com", forward_to: "mctestface@runbox.com"},
-            {localpart: "testface", domain: "runbox.com", forward_to: "mctestface@runbox.com"},
-            {localpart: "akalou", domain: "runbox.com", forward_to: "a.kalou@shadowcat.co.uk"},
+            {localpart: 'testyface', domain: 'runbox.com', forward_to: 'mctestface@runbox.com'},
+            {localpart: 'testface', domain: 'runbox.com', forward_to: 'mctestface@runbox.com'},
+            {localpart: 'akalou', domain: 'runbox.com', forward_to: 'a.kalou@shadowcat.co.uk'},
         ];
         fixture.detectChanges();
 
@@ -139,7 +139,7 @@ describe('AliasesListerComponent', () => {
 
         fixture.detectChanges();
         const forwardTo: HTMLInputElement = 
-            modal.querySelector("input[name='forward_to']");
+            modal.querySelector('input[name=\'forward_to\']');
         // FIXME: doesn't work, value isn't set, probably because of ngModel
         // expect(forwardTo.value)
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
@@ -155,7 +155,7 @@ describe('AliasesListerComponent', () => {
         expect(modal).toBeTruthy();
 
         const domain: HTMLSelectElement = 
-            modal.querySelector("mat-select[name='domain']");
+            modal.querySelector('mat-select[name=\'domain\']');
 
         ALLOWED_DOMAINS.forEach(allowed_domain => {
             expect(domain.textContent).toContain(allowed_domain);

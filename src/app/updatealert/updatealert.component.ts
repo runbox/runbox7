@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from "@angular/material/snack-bar";
+import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 @Component({
     templateUrl: 'updatealert.component.html'

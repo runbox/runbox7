@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { objectEqual, withKeys, objectEqualWithKeys } from "./util";
+import { objectEqual, withKeys, objectEqualWithKeys } from './util';
 
 describe('objectEqual', () => {
     it('matches empty objects', () => {

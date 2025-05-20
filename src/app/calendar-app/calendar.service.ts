@@ -559,17 +559,15 @@ export class CalendarService implements OnDestroy {
     // (forward and back), generate if not
     updateEventList(viewPeriod?: ViewPeriod) {
         this.activities.begin(Activity.GeneratingEvents);
-        let this_month, start, end_month, next_month: moment.Moment;
-        // Too much is better than not enough!
-        if (viewPeriod) {
-            this_month = moment(viewPeriod.start).startOf('month');
-        } else {
-            this_month  = moment().startOf('month');
-        }
+
+        const this_month = viewPeriod
+            ? moment(viewPeriod.start).startOf('month')
+            : moment().startOf('month');
+
         // generate now(viewdate) +/- 1 month (max display size)
-        start       = this_month.clone(); start.subtract(1, 'month');
-        end_month   = this_month.clone(); end_month.add(1, 'month');
-        next_month  = this_month.clone(); next_month.add(3, 'month');
+        const start       = this_month.clone(); start.subtract(1, 'month');
+        const end_month   = this_month.clone(); end_month.add(1, 'month');
+        const next_month  = this_month.clone(); next_month.add(3, 'month');
 
         // Could try and be clever and generate only last month / next month
         // assuming some previous code did current one, but.. how to only insert

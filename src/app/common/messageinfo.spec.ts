@@ -31,7 +31,7 @@ describe('MessageInfo', () => {
     });
 
     it('testAddMessageToIndexWithDeleteFolders', () => {
-        console.log(`Testing that messages added to specified folders will be deleted`);
+        console.log('Testing that messages added to specified folders will be deleted');
         const msg = new MessageInfo(1,
             new Date(),
             new Date(),
