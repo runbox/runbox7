@@ -1380,7 +1380,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     }
   }
-
+ 
   mailViewerOrientationChangeRequest(orientation: string) {
     const currentMessageId = this.singlemailviewer.messageId;
     if (orientation === 'vertical') {
