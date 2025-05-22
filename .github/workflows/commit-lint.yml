@@ -1,0 +1,23 @@
+name: Commitlint
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Include the target branch.
+          fetch-depth: 0
+          # Do not use the branch that has a Merge commit
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - run: |
+          set -ue
+          BASE=$(git merge-base origin/master HEAD)
+          echo "Linting commits from $BASE to HEAD"
+          # Look for commits that do not use correct format.
+          ! git log --pretty=format:'%s' $BASE..HEAD | grep -vP '^(build|feat|refactor|fix)\(\w+\): '
