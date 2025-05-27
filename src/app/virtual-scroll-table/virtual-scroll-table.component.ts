@@ -27,7 +27,6 @@ import {
   EventEmitter,
   Input,
   Output,
-  SimpleChanges,
   TemplateRef,
   ViewChild,
 } from '@angular/core';
