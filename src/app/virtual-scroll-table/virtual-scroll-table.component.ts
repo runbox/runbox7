@@ -26,7 +26,6 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  OnChanges,
   Output,
   SimpleChanges,
   TemplateRef,
@@ -36,18 +35,18 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ListRange } from '@angular/cdk/collections';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-virtual-scroll-table',
-  standalone: true, // Make the component standalone
+  standalone: true,
   imports: [ScrollingModule, CommonModule, MatCheckboxModule],
   templateUrl: './virtual-scroll-table.component.html',
   styleUrls: ['./virtual-scroll-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit, OnChanges {
+export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit {
   @ContentChild('tbody', { read: TemplateRef }) tbodyTemplate!: TemplateRef<any> | null;
   @ContentChild('thead', { read: TemplateRef }) theadTemplate!: TemplateRef<any> | null;
 
@@ -56,65 +55,87 @@ export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit, On
   @Output() renderedRangeChange = new EventEmitter<ListRange>();
   @Input() items: any[] = [];
 
-  @Input() scrollToIndex: null | number = null
+  
+  @Input()
+  set scrollToIndex(index: number) {
+    this.pendingScrollToIndex = index;
+    this.inputChanges$.next()
+  }
 
-  firstRowHeight: number = 100;
+  firstRowHeight: number = 50;
   maxBufferPx: number;
 
   private renderedRangeSub!: Subscription;
-  private resizeObserver: ResizeObserver;
+  private inputChangesSub!: Subscription;
+  private inputChanges$ = new Subject<void>();
 
-  constructor(
-    private elementRef: ElementRef,
-  ) { }
+  private mutationObserver?: MutationObserver;
+  private pendingScrollToIndex: number | null = null;
+
+  constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit() {
     this.renderedRangeSub = this.viewport.renderedRangeStream
       .pipe(debounceTime(50))
       .subscribe(range => {
-        this.renderedRangeChange.emit(range)
+        this.renderedRangeChange.emit(range);
       });
 
-    setTimeout(() => {
-      this.updateFirstRowHeight()
-    }, 1000)
+    this.inputChangesSub = this.inputChanges$
+      .pipe(debounceTime(500))
+      .subscribe(() => {
+        this.updateFirstRowHeight();
 
-    this.resizeObserver = new ResizeObserver((entries) => {
-      this.maxBufferPx = window.innerHeight
-      this.updateFirstRowHeight()
+        this.doScrollToIndex(this.pendingScrollToIndex);
+      });
+
+    const elem = this.elementRef.nativeElement;
+
+    this.mutationObserver = new MutationObserver((mutations) => {
+      this.inputChanges$.next();
     });
 
-    this.resizeObserver.observe(this.elementRef.nativeElement.parentElement.querySelector('table'));
+    this.mutationObserver.observe(elem, {
+      childList: true,  
+      subtree: true,    
+      attributes: false 
+    });
   }
 
   ngOnDestroy(): void {
     this.renderedRangeSub.unsubscribe();
-    this.resizeObserver.disconnect();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.scrollToIndex && this.items.length > this.scrollToIndex) {
-      this.doScrollToIndex(this.scrollToIndex)
-    }
+    this.inputChangesSub.unsubscribe();
+    this.mutationObserver.disconnect();
   }
 
   trackBy(index: number) {
     return index;
   }
 
-  doScrollToIndex(index: number) {
-    return this.viewport?.scrollToIndex(index, 'smooth');
+  doScrollToIndex(index: number, retries: number = 5, delayMs: number = 500): void {
+    if (!this.viewport || index == null) return;
+    if (this.pendingScrollToIndex == null) return
+
+    const scrollPosBefore = this.viewport.measureScrollOffset();
+
+    this.viewport.scrollToIndex(index, 'smooth');
+
+    setTimeout(() => {
+      const scrollPosAfter = this.viewport.measureScrollOffset();
+
+      const isStable = Math.abs(scrollPosAfter - scrollPosBefore) < 1;
+
+      if (!isStable && retries > 0) {
+        this.doScrollToIndex(index, retries - 1, delayMs);
+      } else {
+        this.pendingScrollToIndex = null;
+      }
+    }, delayMs);
   }
 
   private updateFirstRowHeight(): void {
-    const elem = this
-      .elementRef
-      .nativeElement
-      .parentElement
-        ?.querySelector('tbody')
+    const elem = this.elementRef.nativeElement.querySelector('tbody');
 
-    this.firstRowHeight = elem
-        ?.offsetHeight
-        || this.firstRowHeight;
+    this.firstRowHeight = elem?.offsetHeight || this.firstRowHeight;
   }
 }
