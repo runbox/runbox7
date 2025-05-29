@@ -154,7 +154,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                             reject();
                         } else {
                             console.log(actionRes.paymentIntent);
-                            this.confirmPayment(actionRes.paymentIntent).then(resolve, reject);
+                            this.confirmPayment(actionRes.paymentIntent.id).then(resolve, reject);
                         }
                     });
                 } else if (res.status === 'succeeded') {
