@@ -19,7 +19,7 @@
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Subject } from 'rxjs';
 import { RMM } from '../rmm';
@@ -48,7 +48,7 @@ export class PersonalDetailsComponent {
     modal_password_ref;
 
     details: Subject<AccountDetailsInterface> = new Subject();
-    is_alternative_email_validated = true;
+    is_alternative_email_validated = false;
 
     selectedCountry: any;
     selectedTimezone: any;
@@ -60,6 +60,8 @@ export class PersonalDetailsComponent {
         public rmm: RMM,
     ) {
         this.details.subscribe((details: AccountDetailsInterface) => {
+            if (!details) return;
+
             this.detailsForm.patchValue(details);
             this.is_alternative_email_validated = details.email_alternative_status === 0;
         });
@@ -80,7 +82,7 @@ export class PersonalDetailsComponent {
         return this.fb.group({
             first_name: this.fb.control(''),
             last_name: this.fb.control(''),
-            email_alternative: this.fb.control(''),
+            email_alternative: this.fb.control('', [Validators.email]),
             phone_number: this.fb.control(''),
             company: this.fb.control(''),
             org_number: this.fb.control(''),
