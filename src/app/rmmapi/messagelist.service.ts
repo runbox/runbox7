@@ -326,7 +326,7 @@ export class MessageListService {
     }
 
     // Non-index users (or trash/spam) - move to other folder
-    public moveMessages(messageIds: number[], folderName: string, decache: boolean = false) {
+    public moveMessages(messageIds: number[], folderName: string, decache = false) {
         messageIds.forEach((msgId) => {
             const msg = this.messagesById[msgId];
             if (!msg) {
@@ -348,11 +348,11 @@ export class MessageListService {
             // Default the folderCounts, in case (why?) not set yet
             if (!this.folderCounts[msg.folder]) {
                 this.folderCounts[msg.folder] = new FolderMessageCountEntry(0, 0);
-                console.error(`moveMessages: Missing folderCounts for {msg.folder}`);
+                console.error('moveMessages: Missing folderCounts for {msg.folder}');
             }
             if (!this.folderCounts[folderName]) {
                 this.folderCounts[folderName] = new FolderMessageCountEntry(0, 0);
-                console.error(`moveMessages: Missing folderCounts for {folderName}`);
+                console.error('moveMessages: Missing folderCounts for {folderName}');
             }
             // Remove from visible emails
             // If we havent loaded/viewed this folder, we won't have any

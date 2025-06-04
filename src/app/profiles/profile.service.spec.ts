@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Identity, ProfileService } from "./profile.service";
+import { Identity, ProfileService } from './profile.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
@@ -42,7 +42,7 @@ describe('ProfileService', () => {
     let service: ProfileService;
 
     const DEFAULT_EMAIL = 'a2@example.com';
-    let PROFILES =        [{
+    const PROFILES =        [{
         'email': 'a2@example.com',
         'reference_type': 'aliases',
         'id': 16455,

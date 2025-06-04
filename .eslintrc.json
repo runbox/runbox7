@@ -1,13 +1,16 @@
 {
   "root": true,
   "ignorePatterns": [
-    "projects/**/*"
+    "*.scss",
+    "*.css",
+    "*.json"
+  ],
+  "plugins": [
+    "@typescript-eslint"
   ],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "parserOptions": {
         "project": [
           "tsconfig.json",
@@ -17,9 +20,18 @@
       },
       "extends": [
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:@typescript-eslint/recommended"
       ],
       "rules": {
+        "@typescript-eslint/no-namespace": "warn",
+        "@typescript-eslint/no-empty-function": "warn",
+        "@typescript-eslint/no-useless-constructor": "off",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/quotes": ["error", "single"],
+        "@typescript-eslint/no-unused-expressions": "error",
+        "@typescript-eslint/member-ordering": "warn",
+        "@typescript-eslint/no-shadow": "error",
         "@angular-eslint/component-selector": [
           "error",
           {
@@ -41,14 +53,25 @@
       }
     },
     {
-      "files": [
-        "*.html"
-      ],
+      "files": ["*.html"],
       "extends": [
         "plugin:@angular-eslint/template/recommended"
       ],
       "rules": {
         "@angular-eslint/template/eqeqeq": "warn"
+      }
+    },
+    {
+      "files": ["*.js"],
+      "parserOptions": {
+        "ecmaVersion": 2024,
+        "sourceType": "script"
+      },
+      "extends": [
+        "eslint:recommended"
+      ],
+      "env": {
+        "node": true
       }
     }
   ]

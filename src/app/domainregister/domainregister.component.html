@@ -590,16 +590,16 @@
                                 *ngFor="let doc of generic_docs"
                                 >
                                 <h2 class="mat-h2 {{doc.css_class}}"
-                                    *ngIf="doc.type == 'h2'"
+                                    *ngIf="doc.type === 'h2'"
                                     >{{doc.label}}
                                 </h2>
                                 <h3 class="mat-h3 {{doc.css_class}}"
-                                    *ngIf="doc.type == 'h3'"
+                                    *ngIf="doc.type === 'h3'"
                                     >{{doc.label}}
                                 </h3>
                                 <mat-form-field
                                     class=" {{doc.css_class}}"
-                                    *ngIf="doc.type == 'text'" 
+                                    *ngIf="doc.type === 'text'" 
                                     >
                                     <input
                                         matInput
@@ -612,7 +612,7 @@
                                         />
                                 </mat-form-field>
                                 <mat-select 
-                                    *ngIf="doc.type == 'select'" 
+                                    *ngIf="doc.type === 'select'" 
                                     class=" {{doc.css_class}}"
                                     [placeholder]="doc.label + (doc.sublabel ? ' ' + doc.sublabel + '' : '' )"
                                     [(ngModel)]="doc.value"
@@ -708,7 +708,7 @@
                             <br>
                             <div>
                                 <input 
-                                    *ngIf="doc.type == 'text'" 
+                                    *ngIf="doc.type === 'text'" 
                                     matInput 
                                     placeholder="" 
                                     [placeholder]="doc.description" 
@@ -719,7 +719,7 @@
                                     />
 
                                 <mat-select 
-                                    *ngIf="doc.type == 'select'" 
+                                    *ngIf="doc.type === 'select'" 
                                     [placeholder]="doc.description" 
                                     [(ngModel)]="doc.value"
                                     [name]="doc.name"
