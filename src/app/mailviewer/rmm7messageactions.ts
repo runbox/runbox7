@@ -207,19 +207,19 @@ export class RMM7MessageActions implements MessageActions {
           if ( res.status === 'error' ) {
             this.snackBar.open('There was an error with Sender blocking functionality. Please try again.', 'Dismiss');
           } else {
-            this.snackBar.open(`${param} added to blocklist.`, 'Dismiss');
+            this.snackBar.open(`${param} added to Block list.`, 'Dismiss');
           }
         });
     }
 
-    allowListSender(param) {
-        const msg = `AllowListing sender: ${param}`;
+    allowSender(param) {
+        const msg = `Allowing sender: ${param}`;
         this.snackBar.open(msg);
-        this.rmmapi.allowListSender(param).subscribe((res) => {
+        this.rmmapi.allowSender(param).subscribe((res) => {
           if ( res.status === 'error' ) {
-            this.snackBar.open('There was an error with Sender allowlisting functionality. Please try again.', 'Dismiss');
+            this.snackBar.open('There was an error with Sender allowing functionality. Please try again.', 'Dismiss');
           } else {
-            this.snackBar.open(`${param} added to allowlist.`, 'Dismiss');
+            this.snackBar.open(`${param} added to Allow list.`, 'Dismiss');
           }
         });
     }

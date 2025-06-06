@@ -536,7 +536,7 @@ export class RunboxWebmailAPI {
         return this.http.post('/rest/v1/spam/', JSON.stringify(params));
     }
 
-    public allowListSender(param): Observable<any> {
+    public allowSender(param): Observable<any> {
         return this.http.post('/rest/v1/rules/update_nospam_list', JSON.stringify({'email_addresses': [param]}));
     }
 
