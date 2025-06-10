@@ -73,12 +73,12 @@
             </mat-select>
         </mat-form-field>
         </p><p>
-          <ng-container *ngIf="recurring_frequency == 'WEEKLY'" style="margin-top: 10px;display: flex;">
+          <ng-container *ngIf="recurring_frequency === 'WEEKLY'" style="margin-top: 10px;display: flex;">
             <mat-label> on day(s) </mat-label>
             <mat-checkbox *ngFor="let wday of weekdays" (selectionChange)="updateWeekdays()" [(ngModel)]="wday.recurs_on" [value]="wday.val" [disabled]="!event_recurs">{{ wday.name }}</mat-checkbox>
           </ng-container>
         </p>
-        <ng-container *ngIf="recurring_frequency == 'MONTHLY' || recurring_frequency == 'YEARLY'" style="margin-top: 10px;display: flex;">
+        <ng-container *ngIf="recurring_frequency === 'MONTHLY' || recurring_frequency === 'YEARLY'" style="margin-top: 10px;display: flex;">
           <p style="display: flex; justify-content: space-between; align-items: center;">
             on the
             <mat-select style="width:auto;" (selectionChange)="updateMonthlyNth($event)" [(value)]="recur_by_monthyeardays" multiple [disabled]="!event_recurs">
@@ -88,10 +88,10 @@
               <mat-option value="day">day</mat-option>
               <mat-option *ngFor="let wday of weekdays"[value]="wday.val" ngDefaultControl>{{ wday.name }}</mat-option>
             </mat-select>
-            <span *ngIf="recurring_frequency == 'MONTHLY'">
+            <span *ngIf="recurring_frequency === 'MONTHLY'">
               of the month
             </span>
-            <span *ngIf="recurring_frequency == 'YEARLY'">
+            <span *ngIf="recurring_frequency === 'YEARLY'">
               of
               <mat-select style="width:auto;" (selectionChange)="updateMonths($event)" [(value)]="recur_by_months" multiple [disabled]="!event_recurs">
                 <mat-option *ngFor="let month of year_months" [value]="month.val" ngDefaultControl>{{ month.name }}</mat-option>

@@ -51,7 +51,7 @@ export class SearchMessageDisplay extends MessageDisplay {
     return msgId;
   }
 
-  filterBy(options: Map<String, any>) {
+  filterBy(options: Map<string, any>) {
   }
 
   // columns

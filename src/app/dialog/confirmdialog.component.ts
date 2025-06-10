@@ -25,7 +25,6 @@ import { Component } from '@angular/core';
 import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
-    moduleId: 'angular2/app/dialog/',
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'confirm-dialog',
     templateUrl: 'confirmdialog.component.html'

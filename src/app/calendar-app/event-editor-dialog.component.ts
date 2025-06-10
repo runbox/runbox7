@@ -268,7 +268,7 @@ export class EventEditorDialogComponent {
         // and the day when picking a weekday? Need a ViewChild?
         if (event.value.length > 1
             && event.value.find((entry) => entry === 'day')) {
-            console.log("Event editor - can't pick 'day' plus anything else");
+            console.log('Event editor - can\'t pick \'day\' plus anything else');
             const filtered_values = event.value.filter((entry) => entry !== 'day');
             this.recur_by_weekdays = filtered_values;
         }

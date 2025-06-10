@@ -82,7 +82,7 @@ export class ProfileService {
         this.rmmapi.getProfiles().subscribe(
             (res: Identity[]) => {
                 // Used by compose and friends, so should be in from_priority order
-                let validP = res.filter(p => p.type === 'aliases' || (p.reference_type === 'preference' && p.reference.status === 0));
+                const validP = res.filter(p => p.type === 'aliases' || (p.reference_type === 'preference' && p.reference.status === 0));
                 validP.sort((a,b) => a.from_priority - b.from_priority);
                 this.validProfiles.next(validP);
                 this.aliases.next(res.filter(p => p.reference_type === 'aliases'));

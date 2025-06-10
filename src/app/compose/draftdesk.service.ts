@@ -139,7 +139,7 @@ export class DraftFormModel {
                 : `${mailObj.from[0].address} wrote:`);
 
         if (!useHTML && mailObj.rawtext) {
-            var replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
+            let replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
             replyHeaderText = replyHeaderText.replaceAll('&gt;', '>');
             ret.msg_body = '\n' + replyHeaderText + '\n'
           + mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
@@ -186,10 +186,11 @@ ${fwdSubjectStr} <br />`
 <span>CC: <span>` + fwdCC.join('</span><span>') + '</span></span> <br />' : '');
         ret.setSubjectForResponse(mailObj, 'Fwd: ');
         if (!useHTML) {
-            var fwdHeaderText = fwdHeaderHTML.replaceAll(' <br />', '');
-            var fwdHeaderText = fwdHeaderText.replaceAll(/<\/?span>/g, '');
-            var fwdHeaderText = fwdHeaderText.replaceAll('&lt;', '<');
-            var fwdHeaderText = fwdHeaderText.replaceAll('&gt;', '>');
+            const fwdHeaderText = fwdHeaderHTML
+                .replaceAll(' <br />', '')
+                .replaceAll(/<\/?span>/g, '')
+                .replaceAll('&lt;', '<')
+                .replaceAll('&gt;', '>');
             ret.msg_body = '\n\n----------------------------------------------\nForwarded message:\n' +
                 fwdHeaderText + '\n\n\n' + mailObj.rawtext;
         } else {
@@ -387,7 +388,7 @@ export class DraftDeskService {
             -1,
             this.mainIdentity(),
             to,
-            "Let's have a video call"
+            'Let\'s have a video call'
         );
         draftObj.msg_body = template.replace('%%URL%%', url.toString());
 

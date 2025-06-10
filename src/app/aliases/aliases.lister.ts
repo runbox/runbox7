@@ -23,7 +23,6 @@ import { RMM } from '../rmm';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-  moduleId: 'angular2/app/aliases/',
   selector: 'app-aliases-lister',
   styleUrls: ['aliases.lister.scss'],
   templateUrl: 'aliases.lister.html'
@@ -70,9 +69,9 @@ export class AliasesListerComponent {
     dialogRef.componentInstance.isUpdate = true;
     dialogRef.afterClosed().subscribe(result => {
         if (result !== undefined) {
-            const item = this.aliases.find(v => v.id === result.id);
+            const alias = this.aliases.find(v => v.id === result.id);
             // modify reference
-            Object.assign(item, result);
+            Object.assign(alias, result);
         }
     });
   }
