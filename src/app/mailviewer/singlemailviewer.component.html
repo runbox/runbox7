@@ -82,8 +82,8 @@
       </button>
 
       <mat-menu #senderRulesMenu>
-        <button mat-menu-item (click)="messageActionsHandler.allowListSender(mailObj.from[0].address)">
-          AllowList Sender
+        <button mat-menu-item (click)="messageActionsHandler.allowSender(mailObj.from[0].address)">
+          Allow Sender
         </button>
         <button mat-menu-item (click)="messageActionsHandler.blockSender(mailObj.from[0].address)">
           Block Sender Email
