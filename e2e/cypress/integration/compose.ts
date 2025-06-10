@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { firstMessage } from '../component/message_list.ts';
+
 describe('Composing emails', () => {
   beforeEach(async () => {
       localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
@@ -104,10 +106,7 @@ describe('Composing emails', () => {
     });
 
     it('closing a new reply should return to inbox', () => {
-        cy.visit('/');
-        cy.wait(1000);
         cy.visit('/#Inbox:1');
-        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
         cy.get('single-mail-viewer').should('exist');
         cy.get('button[mattooltip="Reply"]').click();
         cy.get('button[mattooltip="Close draft"').click();

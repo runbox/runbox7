@@ -32,7 +32,7 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowSeen(index: number): boolean {
-    return this.searchService.getDocData(this.rows[index][0]).seen ? false : true;
+    return this.searchService.getDocData(this.getRowId(index)).seen;
   }
 
   getRowId(index: number): number {
@@ -42,11 +42,11 @@ export class SearchMessageDisplay extends MessageDisplay {
   getRowMessageId(index: number): number {
     let msgId = 0;
     try {
-      msgId = this.searchService.getMessageIdFromDocId(this.rows[index][0]);
+      msgId = this.searchService.getMessageIdFromDocId(this.getRowId(index));
     } catch (e) {
       // This shouldnt happen, it means something changed the stored
       // data without updating the messagedisplay rows.
-      console.log('Tried to lookup ' + index + ' in searchIndex, isnt there! ' + e);
+      console.error('Tried to lookup ' + index + ' in searchIndex, isnt there! ', e);
     }
     return msgId;
   }
@@ -214,5 +214,45 @@ export class SearchMessageDisplay extends MessageDisplay {
       });
     }
     return columns;
+  }
+
+  public getRowData(index: number, app: any) {
+    const rowData: any = {
+      id: this.getRowMessageId(index),
+      messageDate: MessageTableRowTool.formatTimestampFromStringWithoutSeparators(this.searchService.api.getStringValue(this.getRowId(index), 2)),
+      from: app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn
+        ? this.searchService.getDocData(this.getRowId(index)).recipients.join(', ')
+        : this.searchService.getDocData(this.getRowId(index)).from,
+      subject: this.searchService.getDocData(this.getRowId(index)).subject,
+      plaintext: this.searchService.getDocData(this.getRowId(index)).textcontent?.trim(),
+      size: this.searchService.api.getNumericValue(this.getRowId(index), 3),
+      attachment: this.searchService.getDocData(this.getRowId(index)).attachment ? true : false,
+      answered: this.searchService.getDocData(this.getRowId(index)).answered ? true : false,
+      flagged: this.searchService.getDocData(this.getRowId(index)).flagged ? true : false,
+      folder: this.searchService.getDocData(this.getRowId(index)).folder,
+      seen: this.searchService.getDocData(this.getRowId(index)).seen,
+    };
+
+    if (app.viewmode === 'conversations') {
+      const rowObj = this.getRow(index);
+
+      const conversationId = this.searchService.api.getStringValue(rowObj[0], 1);
+      this.searchService.api.setStringValueRange(1, 'conversation:');
+      const conversationSearchText = `conversation:${conversationId}..${conversationId}`;
+      const results = this.searchService.api.sortedXapianQuery(
+        conversationSearchText,
+        1, 0, 0, 1000, 1
+      );
+      this.searchService.api.clearValueRange();
+
+      if (results[0]?.[1]) {
+        rowObj[2] = `${results[0][1] + 1}`;
+        rowData.count = rowObj[2];
+      } else {
+        rowData.count = 1
+      }
+    }
+
+    return rowData;
   }
 }
