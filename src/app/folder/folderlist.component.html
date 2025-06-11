@@ -19,7 +19,7 @@
         (dragover)="allowDropToFolder($event,node)" 
         (dragend)="dragCancel()" 
       >
-        <button mat-icon-button matTreeNodeToggle
+        <button class="expand-button" mat-icon-button matTreeNodeToggle
                 [attr.aria-label]="'toggle ' + node.folderName"
                 [disabled]="!node.isExpandable"
                 >
