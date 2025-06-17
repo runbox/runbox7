@@ -22,7 +22,7 @@ import { MatLegacySnackBarRef as MatSnackBarRef, MatLegacySnackBar as MatSnackBa
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
-    template: `{{progressmessage | async}}`
+    template: '{{progressmessage | async}}'
 })
 export class ProgressSnackbarComponent {
     progressmessage = new BehaviorSubject<string>('');
