@@ -21,4 +21,4 @@ jobs:
           set -ue
           BASE=$(git merge-base origin/${{ github.event.pull_request.base.ref }} HEAD)
           echo "Linting commits from $BASE to HEAD"
-          ! git log --no-merges --pretty=format:'%s' $BASE..HEAD | grep -vP '^(build|ci|docs|feat|feature|fix|perf|refactor|style|test)\(\w+\): '
+          ! git log --no-merges --pretty=format:'%s' $BASE..HEAD | grep -vP '^(build|ci|docs|feat|feature|fix|perf|refactor|style|test)\([\w-]+\): '
