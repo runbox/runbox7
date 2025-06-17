@@ -30,7 +30,6 @@
           <input matInput autocomplete="current-password" placeholder="Password" type="password" name="password" ngModel required />
   </mat-form-field>
   <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
-
 	<button [disabled]="loginForm.invalid" mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
 	<p *ngIf='accountSuspended' class='login_error_html'>
           Your Runbox account has been suspended. <br>
