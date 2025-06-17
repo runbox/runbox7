@@ -415,6 +415,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       (res: Mail) => {
         if (res.html) {
           // default to no images
+          // NB: This does not include "inline" images either
           this.mailContentHTML = res.html_without_images;
           this.mailContentHTMLWithoutImages = res.html_without_images;
           this.mailContentHTMLWithImages = res.html;
@@ -499,8 +500,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
     res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
-    res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
     res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;    
+
+    res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
 
     // Remove style tag otherwise angular sanitazion will display style tag content as text
 
@@ -563,7 +565,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (attachments.length > 0) {
       attachments.forEach((att, ndx) => {
         let isImage = false;
-        att.internal = false;
+        if(!att.internal) {
+          att.internal = false;
+        }
         if (att.contentType && att.contentType.indexOf('image/') === 0) {
           isImage = true;
         }
