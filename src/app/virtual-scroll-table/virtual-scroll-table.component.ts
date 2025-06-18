@@ -61,7 +61,7 @@ export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit {
     this.inputChanges$.next()
   }
 
-  firstRowHeight: number = 50;
+  firstRowHeight: number = 24;
   maxBufferPx: number;
 
   private renderedRangeSub!: Subscription;
@@ -81,7 +81,7 @@ export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit {
       });
 
     this.inputChangesSub = this.inputChanges$
-      .pipe(debounceTime(500))
+      .pipe(debounceTime(50))
       .subscribe(() => {
         this.updateFirstRowHeight();
 
