@@ -16,7 +16,7 @@ cdk-virtual-scroll-viewport {
     right: 0;
 
     ::ng-deep & table thead {
-        visibilty: hidden;
+        visibility: hidden;
         opacity: 0;
     }
 }
