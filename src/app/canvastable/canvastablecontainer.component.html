@@ -36,8 +36,6 @@
         <ng-container *ngIf="col.checkbox">
         <button mat-icon-button style="margin-top: -8px"
                 (click)="canvastable.selectRows()"
-                (mousedown)="mouseOverSelectAll()"
-                (mouseup)="mouseLeftSelectAll()"
                 >
             <mat-icon matTooltipPosition="left" matTooltip="Check visible/all messages. Long press for options." matTooltipClass="multiline-tooltip" svgIcon="select-all"></mat-icon>
         </button>
@@ -52,7 +50,7 @@
         <div
             *ngIf="!col.checkbox"
             (click)="toggleSort(col.sortColumn)"
-          style="
+            style="
               display: flex;
               position: absolute;
               top: 0px;
@@ -82,7 +80,7 @@
       <ng-container *ngFor="let col of canvastable.columns; let colIndex = index">
         <div *ngIf="col.sortColumn!==null"
             (click)="toggleSort(col.sortColumn)"
-            (touchstart)="$event.preventDefault();toggleSort(col.sortColumn)" style="   
+            style="
               padding: 4px;                          
               margin-right: 5px;
               border-radius: 5px;
@@ -108,7 +106,6 @@
         [style.top.px]="canvastable.rowWrapMode && !canvastable.hasSortColumns ? 0 : 25"
         >          
       <canvastable [selectListener]="canvastableselectlistener"
-        (touchscroll)="handleTouchScroll($event)"
         (columnresizestart)="colresizestart($event.clientx, $event.colindex)"
         (columnresizeend)="colresizeend()"
         (columnresize)="colresize($event)"
@@ -117,10 +114,6 @@
       </canvastable>
     </div>
     <div [hidden]="canvastable.rowWrapMode" *ngFor="let col of canvastable.columns; let colIndex = index"          
-        (touchstart)="colresizestart($event.targetTouches[0].clientX,colIndex)"
-        (mousedown)="colresizestart($event.clientX,colIndex)"            
-        (touchmove)="$event.preventDefault();colresize($event.targetTouches[0].clientX)"
-        (touchend)="colresizeend()"            
         (click)="toggleSort(col.sortColumn)"
         class="footerColumn"
               
