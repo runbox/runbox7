@@ -110,14 +110,7 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   private canv: HTMLCanvasElement;
 
-  // private ctx: CanvasRenderingContext2D;
-  // private wantedCanvasWidth = 300;
-  // private wantedCanvasHeight = 300;
-
   private _rowheight = 28;
-  // private fontheight = 14;
-  // private fontheightSmall = 13;
-  // private fontheightSmaller = 12;
 
   private scrollbarwidth = 12;
 
@@ -193,8 +186,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     }
   }
 
-  // private dragSelectionDirectionIsDown: Boolean = null;
-
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
 
@@ -205,8 +196,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   public _showContentTextPreview = false;
 
   public hasChanges: boolean;
-
-  // private formattedValueCache: { [key: string]: string; } = {};
 
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
 
@@ -222,20 +211,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   constructor(elementRef: ElementRef) {
   }
-
-  // No need to track changes.
-  // ngDoCheck() {
-  //   if (this.canv) {
-
-  //     const devicePixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
-  //     this.wantedCanvasWidth = this.canv.parentElement.parentElement.clientWidth * devicePixelRatio;
-  //     this.wantedCanvasHeight = this.canv.parentElement.parentElement.clientHeight * devicePixelRatio;
-
-  //     if (this.canv.width !== this.wantedCanvasWidth || this.canv.height !== this.wantedCanvasHeight) {
-  //       this.hasChanges = true;
-  //     }
-  //   }
-  // }
 
   private calculateColumnWidths(columns: CanvasTableColumn[]) {
     const colWidthSet = columns.map((col) => col.name).filter((cname) => cname.length > 0).join(',');
@@ -253,7 +228,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     this.canv = this.canvRef.nativeElement;
-    // this.ctx = this.canv.getContext('2d');
 
     this.canv.onwheel = (event: WheelEvent) => {
       event.preventDefault();
@@ -272,7 +246,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
           break;
       }
 
-      // this.enforceScrollLimit();
     };
 
     /**
@@ -327,9 +300,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       if (this.visibleColumnSeparatorIndex > 0) {
         this.columnresizestart.emit({ colindex: this.visibleColumnSeparatorIndex, clientx: event.clientX });
       }
-
-      // Reset drag select direction
-      // this.dragSelectionDirectionIsDown = null;
     };
 
     let previousTouchY: number;
@@ -377,7 +347,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
           previousTouchY = newTouchY;
           previousTouchX = newTouchX;
         }
-        // this.enforceScrollLimit();
         this.touchscroll.emit(this.horizScroll);
       }
 
@@ -397,132 +366,12 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       }
     });
 
-    // this.renderer.listen('window', 'mousemove', (event: MouseEvent) => {
-    //   if (this.scrollbarDragInProgress === true) {
-    //     event.preventDefault();
-    //     this.doScrollBarDrag(event.clientY);
-    //   }
-    // });
-
-    // this.canv.onmousemove = (event: MouseEvent) => {
-    //   if (this.scrollbarDragInProgress === true || this.columnResizeInProgress === true) {
-    //     event.preventDefault();
-    //     return;
-    //   }
-
-    //   const canvrect = this.canv.getBoundingClientRect();
-    //   const clientX = event.clientX - canvrect.left;
-
-    //   let newHoverRowIndex = this.getRowIndexByClientY(event.clientY);
-    //   if (this.scrollbarDragInProgress || checkIfScrollbarArea(event.clientX, event.clientY, true)) {
-    //     newHoverRowIndex = null;
-    //   }
-
-    //   if (this.hoverRowIndex !== newHoverRowIndex) {
-    //     // check if mouse is down
-    //     if (this.lastMouseDownEvent) {
-    //       // set drag select direction to true if down, or false if up
-    //       const newDragSelectionDirectionIsDown = newHoverRowIndex > this.hoverRowIndex ? true : false;
-
-    //       if (this.dragSelectionDirectionIsDown !== newDragSelectionDirectionIsDown) {
-    //         // select previous row on drag select direction change
-    //         this.selectRowByIndex(this.lastMouseDownEvent.clientX, this.hoverRowIndex);
-    //         this.dragSelectionDirectionIsDown = newDragSelectionDirectionIsDown;
-    //       }
-    //       let rowIndex = this.hoverRowIndex;
-    //       // Select all rows between the previous and current hover row index
-    //       while (
-    //         (newDragSelectionDirectionIsDown === true && rowIndex < newHoverRowIndex) ||
-    //         (newDragSelectionDirectionIsDown === false && rowIndex > newHoverRowIndex)
-    //         ) {
-    //         if (newDragSelectionDirectionIsDown === true) {
-    //           rowIndex ++;
-    //         } else {
-    //           rowIndex --;
-    //         }
-    //         this.selectRowByIndex(this.lastMouseDownEvent.clientX, rowIndex);
-    //       }
-    //     }
-    //     this.hoverRowIndex = newHoverRowIndex;
-    //     this.updateDragImage(newHoverRowIndex);
-    //   }
-
-    //   if (this.dragSelectionDirectionIsDown === null) {
-    //     // Check for column resize
-    //     if (this.lastMouseDownEvent && this.visibleColumnSeparatorIndex > 0) {
-    //       this.columnresize.emit(this.visibleColumnSeparatorIndex);
-    //     } else {
-    //       this.updateVisibleColumnSeparatorIndex(clientX);
-    //     }
-
-    //     if (this.visibleColumnSeparatorIndex > 0) {
-    //       this.lastClientY = event.clientY - canvrect.top;
-    //       this.hasChanges = true;
-    //       return;
-    //     }
-    //   }
-
-    //   if (this.dragSelectionDirectionIsDown === null && this.hoverRowIndex !== null) {
-    //     const colIndex = this.getColIndexByClientX(clientX);
-    //     let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
-
-    //     let tooltipText: string | ((rowIndex: any) => string) =
-    //           this.columns[colIndex] && this.columns[colIndex].tooltipText;
-
-    //     // FIXME: message display class
-    //     if (typeof tooltipText === 'function' && this.rows.rowExists(this.hoverRowIndex)) {
-    //       tooltipText = tooltipText(this.hoverRowIndex);
-    //     }
-
-    //     if (!event.shiftKey && !this.lastMouseDownEvent &&
-    //         (tooltipText || (this.columns[colIndex] && this.columns[colIndex].draggable))
-    //       ) {
-    //       if (this.rowWrapMode &&
-    //         colIndex >= this.rowWrapModeWrapColumn) {
-    //         // Subtract first row width if in row wrap mode
-    //         colStartX -= this.columns.reduce((prev, curr, ndx) =>
-    //           ndx < this.rowWrapModeWrapColumn ? prev + curr.width : prev, 0);
-    //       }
-
-    //       this.floatingTooltip = new FloatingTooltip(
-    //         (this.hoverRowIndex - this.topindex) * this.rowheight,
-    //         colStartX - this.horizScroll + this.colpaddingleft,
-    //         this.columns[colIndex].width - this.colpaddingright - this.colpaddingleft,
-    //         this.rowheight, tooltipText as string);
-
-    //       if (this.rowWrapMode) {
-    //         this.floatingTooltip.top +=
-    //           + (colIndex >= this.rowWrapModeWrapColumn ? this.rowheight / 2 : 0);
-    //         this.floatingTooltip.height = this.rowheight / 2;
-    //       }
-
-    //       setTimeout(() => {
-    //         if (this.columnOverlay) {
-    //           this.columnOverlay.show(300);
-    //         }
-    //       }, 0);
-    //     } else {
-    //       this.floatingTooltip = null;
-    //     }
-    //   } else {
-    //     this.floatingTooltip = null;
-    //   }
-    // };
-
     this.canv.onmouseout = (event: MouseEvent) => {
       const newHoverRowIndex = null;
       if (this.hoverRowIndex !== newHoverRowIndex) {
         this.hoverRowIndex = newHoverRowIndex;
       }
     };
-
-    // this.renderer.listen('window', 'mouseup', (event: MouseEvent) => {
-    //   this.lastMouseDownEvent = undefined;
-    //   if (this.scrollbarDragInProgress) {
-    //     this.scrollbarDragInProgress = false;
-    //     this.hasChanges = true;
-    //   }
-    // });
 
     this.canv.onmouseup = (event: MouseEvent) => {
       event.preventDefault();
@@ -539,56 +388,8 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       }
 
       this.lastMouseDownEvent = null;
-      // this.dragSelectionDirectionIsDown = null;
     };
 
-
-    // this.renderer.listen('window', 'resize', () => true);
-
-    // const paintLoop = () => {
-    //   if (this.hasChanges) {
-    //     if (Math.abs(this.touchScrollSpeedY) > 0) {
-    //       // Scroll if speed
-    //       this.topindex -= this.touchScrollSpeedY / this.rowheight;
-
-    //       // ---- Enforce scroll limit
-    //       if (this.topindex < 0) {
-    //         this.topindex = 0;
-    //       } else if (this.rows.rowCount() < this.maxVisibleRows) {
-    //         this.topindex = 0;
-    //       } else if (this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
-    //         this.topindex = this.rows.rowCount() - this.maxVisibleRows;
-    //       }
-    //       // ---------
-
-    //       // Slow down
-    //       this.touchScrollSpeedY *= 0.9;
-    //       if (Math.abs(this.touchScrollSpeedY) < 0.4) {
-    //         this.touchScrollSpeedY = 0;
-    //       }
-    //     }
-    //     try {
-    //       this.dopaint();
-    //       if (this.rows) {
-    //         this.repaintDoneSubject.next(undefined);
-    //       }
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-
-    //     if (Math.abs(this.touchScrollSpeedY) > 0) {
-    //       // Continue scrolling while we have scroll speed
-    //       this.hasChanges = true;
-    //     } else {
-    //       this.hasChanges = false;
-    //     }
-    //   }
-    //   // window.requestAnimationFrame(() => paintLoop());
-    // };
-
-    // this._ngZone.runOutsideAngular(() =>
-    //   window.requestAnimationFrame(() => paintLoop())
-    // );
   }
 
   private updateDragImage(selectedRowIndex: number) :HTMLCanvasElement {
@@ -662,8 +463,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   public doScrollBarDrag(clientY: number) {
     const canvrect = this.canv.getBoundingClientRect();
     this.topindex = this.rows.rowCount() * ((clientY - canvrect.top) / this.canv.scrollHeight);
-
-    // this.enforceScrollLimit();
   }
 
   private getRowIndexByClientY(clientY: number) {
@@ -829,13 +628,11 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   public scrollUp() {
     this.topindex--;
-    // this.enforceScrollLimit();
     this.hasChanges = true;
   }
 
   public scrollDown() {
     this.topindex++;
-    // this.enforceScrollLimit();
     this.hasChanges = true;
   }
 
@@ -853,7 +650,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   public updateRows(newList) {
     this.rows.setRows(newList);
-    // this.enforceScrollLimit();
     this.hasChanges = true;
   }
 
@@ -871,86 +667,8 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     // currently selected row in the centre:
     if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
       this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
-      // this.enforceScrollLimit();
     }
   }
-
-  // private enforceScrollLimit() {
-  //   if (this.topindex < 0) {
-  //     this.topindex = 0;
-  //   } else if (this.rows && this.rows.rowCount() < this.maxVisibleRows) {
-  //     this.topindex = 0;
-  //   } else if (this.rows && this.topindex + this.maxVisibleRows > this.rows.rowCount()) {
-  //     this.topindex = this.rows.rowCount() - this.maxVisibleRows;
-  //     // send max rows hit events (use to fetch more data)
-  //     this.scrollLimitHit.next(this.rows.rowCount());
-  //   }
-
-
-  //   const columnsTotalWidth = this.columns.reduce((width, col) =>
-  //     col.width + width, 0);
-
-  //   if (this.horizScroll < 0) {
-  //     this.horizScroll = 0;
-  //   } else if (
-  //     this.canv.scrollWidth < columnsTotalWidth &&
-  //     this.horizScroll + this.canv.scrollWidth > columnsTotalWidth) {
-  //     this.horizScroll = columnsTotalWidth - this.canv.scrollWidth;
-  //   }
-  // }
-
-  /**
-   * Draws a rounded rectangle using the current state of the canvas.
-   * If you omit the last three params, it will draw a rectangle
-   * outline with a 5 pixel border radius
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {Number} x The top left x coordinate
-   * @param {Number} y The top left y coordinate
-   * @param {Number} width The width of the rectangle
-   * @param {Number} height The height of the rectangle
-   * @param {Number} [radius = 5] The corner radius; It can also be an object
-   *                 to specify different radii for corners
-   * @param {Number} [radius.tl = 0] Top left
-   * @param {Number} [radius.tr = 0] Top right
-   * @param {Number} [radius.br = 0] Bottom right
-   * @param {Number} [radius.bl = 0] Bottom left
-   * @param {Boolean} [fill = false] Whether to fill the rectangle.
-   * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
-   */
-  // private roundRect(ctx: CanvasRenderingContext2D, x: number, y: number,
-  //   width: number, height: number,
-  //   radius?: any, fill?: boolean, stroke?: boolean) {
-  //   if (typeof stroke === 'undefined') {
-  //     stroke = true;
-  //   }
-  //   if (typeof radius === 'undefined') {
-  //     radius = 5;
-  //   }
-  //   if (typeof radius === 'number') {
-  //     radius = { tl: radius, tr: radius, br: radius, bl: radius };
-  //   } else {
-  //     const defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
-  //     Object.keys(defaultRadius).forEach(side =>
-  //       radius[side] = radius[side] || defaultRadius[side]);
-  //   }
-  //   ctx.beginPath();
-  //   ctx.moveTo(x + radius.tl, y);
-  //   ctx.lineTo(x + width - radius.tr, y);
-  //   ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-  //   ctx.lineTo(x + width, y + height - radius.br);
-  //   ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-  //   ctx.lineTo(x + radius.bl, y + height);
-  //   ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-  //   ctx.lineTo(x, y + radius.tl);
-  //   ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-  //   ctx.closePath();
-  //   if (fill) {
-  //     ctx.fill();
-  //   }
-  //   if (stroke) {
-  //     ctx.stroke();
-  //   }
-  // }
 
   // Height of message list rows
   public get rowheight(): number {
@@ -965,403 +683,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     }
   }
 
-//   private dopaint() {
-//     const devicePixelRatio = window.devicePixelRatio;
-//     if (this.canv.width !== this.wantedCanvasWidth ||
-//       this.canv.height !== this.wantedCanvasHeight) {
-
-//       const widthChanged = this.canv.width !== this.wantedCanvasWidth;
-//       /* Only resize on detection of width change
-//        * otherwise reducing column widths so that the scrollbar
-//        * disappears indicates a change of height and triggers resize
-//        */
-
-//       this.canv.style.width = (this.wantedCanvasWidth / devicePixelRatio) + 'px';
-//       this.canv.style.height = (this.wantedCanvasHeight / devicePixelRatio) + 'px';
-
-//       this.canv.width = this.wantedCanvasWidth;
-//       this.canv.height = this.wantedCanvasHeight;
-
-//       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
-//       this.enforceScrollLimit();
-//       this.hasChanges = true;
-//       if (this.canv.clientWidth < this.autoRowWrapModeWidth) {
-//         this.rowWrapMode = true;
-//       } else {
-//         this.rowWrapMode = false;
-//       }
-
-//       this.canvasResizedSubject.next(widthChanged);
-//     }
-
-//     if (devicePixelRatio !== 1) {
-//       // This is not scale() as that would keep multiplying
-//       // Moved out of above if() statement as something (!?)
-//       // was resetting transform, still not sure what
-//       this.ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-//     }
-
-//     this.ctx.textBaseline = 'middle';
-//     this.ctx.font = this.fontheight + 'px ' + this.fontFamily;
-
-//     const canvwidth: number = this.canv.scrollWidth;
-//     const canvheight: number = this.canv.scrollHeight;
-
-//     let colx = 0 - this.horizScroll;
-//     // Columns
-//     for (let colindex = 0; colindex < this.columns.length; colindex++) {
-//       const col: CanvasTableColumn = this.columns[colindex];
-//       if (colx + col.width > 0 && colx < canvwidth) {
-//         this.ctx.fillStyle = col.backgroundColor ? col.backgroundColor : '#fff';
-//         this.ctx.fillRect(colx,
-//           0,
-//           colindex === this.columns.length - 1 ?
-//             canvwidth - colx :
-//             col.width,
-//           canvheight
-//         );
-//       }
-//       colx += col.width;
-//     }
-
-//     if (!this.rows || this.rows.rowCount() < 1) {
-//       return;
-//     }
-
-//     // Rows
-//     for (let n = this.topindex; n < this.rows.rowCount(); n += 1.0) {
-//       const rowIndex = Math.floor(n);
-
-//       if (rowIndex > this.rows.rowCount()) {
-//         break;
-//       }
-
-// //      const rowobj = this.rows[rowIndex];
-
-//       const halfrowheight = (this.rowheight / 2);
-//       const rowy = (rowIndex - this.topindex) * this.rowheight;
-//       if (this.rows.rowExists(rowIndex)) {
-//         // Clear row area
-//         // Alternating row colors:
-//         // let rowBgColor : string = (rowIndex%2===0 ? "#e8e8e8" : "rgba(255,255,255,0.7)");
-//         // Single row color:
-//         let rowBgColor = '#fff';
-
-//         const isBoldRow = this.rows.isBoldRow(rowIndex);
-//         const isSelectedRow = this.rows.isSelectedRow(rowIndex);
-//         const isOpenedRow = this.rows.isOpenedRow(rowIndex);
-//         if (this.hoverRowIndex === rowIndex) {
-//           rowBgColor = this.hoverRowColor;
-//         }
-//         if (isSelectedRow) {
-//           rowBgColor = this.selectedRowColor;
-//         }
-//         if (isOpenedRow) {
-//           rowBgColor = this.openedRowColor;
-//         }
-
-//         this.ctx.fillStyle = rowBgColor;
-//         this.ctx.fillRect(0, rowy, canvwidth, this.rowheight);
-
-//         // Row borders separating each row 
-//         this.ctx.strokeStyle = '#eee';
-//         this.ctx.beginPath();
-//         this.ctx.moveTo(0, rowy);
-//         this.ctx.lineTo(canvwidth, rowy);
-//         this.ctx.stroke();
-
-//         let x = 0;
-//         for (let colindex = 0; colindex < this.columns.length; colindex++) {
-//           const col: CanvasTableColumn = this.columns[colindex];
-//           let val: any = col.getValue(rowIndex);
-//           if (val === 'RETRY') {
-//             // retry later if value is null
-//             setTimeout(() => this.hasChanges = true, 2);
-//             val = '';
-//           }
-//           let formattedVal: string;
-//           const formattedValueCacheKey: string = col.cacheKey + ':' + val;
-//           if (this.formattedValueCache[formattedValueCacheKey]) {
-//             formattedVal = this.formattedValueCache[formattedValueCacheKey];
-//           } else if (('' + val).length > 0 && col.getFormattedValue) {
-//             formattedVal = col.getFormattedValue(val);
-//             this.formattedValueCache[formattedValueCacheKey] = formattedVal;
-//           } else {
-//             formattedVal = '' + val;
-//             this.formattedValueCache[formattedValueCacheKey] = formattedVal;
-//           }
-//           if (this.rowWrapMode && col.rowWrapModeHidden) {
-//             continue;
-//           } else if (this.rowWrapMode && col.rowWrapModeChipCounter && parseInt(val, 10) > 1) {
-//             this.ctx.save();
-
-//             this.ctx.strokeStyle = '';
-
-//             this.roundRect(this.ctx,
-//               canvwidth - 50,
-//               rowy + 9,
-//               28,
-//               15, 10, false);
-//             this.ctx.font = '10px ' + this.fontFamily;
-
-//             this.ctx.strokeStyle = '#000';
-//             if (isSelectedRow) {
-//               this.ctx.fillStyle = this.textColor;
-//             } else {
-//               this.ctx.fillStyle = this.textColor;
-//             }
-//             this.ctx.textAlign = 'center';
-//             this.ctx.fillText(formattedVal + '', canvwidth - 36, rowy + halfrowheight - 15);
-
-//             this.ctx.restore();
-
-//             continue;
-//           } else if (this.rowWrapMode && col.rowWrapModeChipCounter) {
-//             continue;
-//           }
-//           if (this.rowWrapMode && colindex === this.rowWrapModeWrapColumn) {
-//             x = 0;
-//           }
-
-//           x += this.colpaddingleft;
-
-//           if ((x - this.horizScroll + col.width) >= 0 && formattedVal.length > 0) {
-//             this.ctx.fillStyle = this.textColor; // Text color of unselected row
-//             if (isSelectedRow) {
-//               this.ctx.fillStyle = this.textColor; // Text color of selected row
-//             }
-
-//             if (this.rowWrapMode) {
-//               // Wrap rows if in row wrap mode (for e.g. mobile portrait view)
-
-//               // Check box
-//               const texty: number = rowy + halfrowheight;
-//               const textx: number = x - this.horizScroll;
-
-//               const width = col.width - this.colpaddingright - this.colpaddingleft;
-
-//               this.ctx.save();
-//               this.ctx.beginPath();
-//               this.ctx.moveTo(textx, rowy);
-//               this.ctx.lineTo(textx + width, rowy);
-//               this.ctx.lineTo(textx + width, rowy + this.rowheight);
-//               this.ctx.lineTo(textx, rowy + this.rowheight);
-//               this.ctx.closePath();
-
-//               if (col.checkbox) {
-//                 const checkboxWidthHeight = 12;
-//                 const checkboxCheckedPadding = 3;
-//                 const checkboxLeftPadding = 4;
-//                 this.ctx.strokeStyle = this.textColor;
-//                 this.ctx.beginPath();
-//                 this.ctx.rect(checkboxLeftPadding + textx, texty - checkboxWidthHeight / 2, checkboxWidthHeight, checkboxWidthHeight);
-//                 this.ctx.stroke();
-//                 if (val) {
-//                   this.ctx.beginPath();
-//                   this.ctx.rect(checkboxLeftPadding + textx + checkboxCheckedPadding,
-//                     checkboxCheckedPadding + texty - checkboxWidthHeight / 2,
-//                     checkboxWidthHeight - checkboxCheckedPadding * 2,
-//                     checkboxWidthHeight - checkboxCheckedPadding * 2);
-//                   this.ctx.fill();
-//                 }
-//               } else {
-
-//                 // Other columns
-//                 if (colindex >= this.rowWrapModeWrapColumn) {
-//                   // Subject
-//                   x += 30; // Increase padding before Subject
-//                   this.ctx.save();
-//                   if (isBoldRow) {
-//                     this.ctx.save();
-//                     this.ctx.font = 'bold ' + this.fontheight + 'px ' + this.fontFamilyBold;
-//                     this.ctx.fillStyle = this.textColorLink;
-//                   } else {
-//                     this.ctx.save();
-//                     this.ctx.font = this.fontheight + 'px ' + this.fontFamily;
-//                     this.ctx.fillStyle = this.textColorLink;
-//                   }
-//                   this.ctx.fillText(formattedVal, x, rowy + halfrowheight + 12
-//                         - (this.showContentTextPreview ? 12 : 0)
-//                       );
-//                   this.ctx.restore();
-//                 } else if (col.rowWrapModeMuted) {
-//                   // Date/time
-//                   x = 42; // sufficiently away from the checkbox
-//                   this.ctx.save();
-//                   this.ctx.font = this.fontheightSmaller + 'px ' + this.fontFamily;
-//                   this.ctx.fillStyle = this.textColor;
-//                   this.ctx.fillText(formattedVal, x, rowy + halfrowheight - 10
-//                     - (this.showContentTextPreview ? 8 : 0)
-//                     );
-//                   this.ctx.restore();
-//                 } else {
-//                   x = 128; // far enough to make the date above fit nicely
-//                   this.ctx.font = this.fontheightSmall + 'px ' + this.fontFamily;
-//                   this.ctx.fillText(formattedVal, x, rowy + halfrowheight - 10
-//                     - (this.showContentTextPreview ? 8 : 0));
-//                   this.ctx.fillStyle = this.textColorLink;
-//                 }
-//               }
-//               this.ctx.restore();
-//             } else if (x - this.horizScroll < canvwidth) {
-//               // Normal no-wrap mode
-
-//               // Check box
-//               const texty: number = rowy + halfrowheight - (this.showContentTextPreview ? 10 : 0);
-//               let textx: number = x - this.horizScroll;
-
-//               const width = col.width - this.colpaddingright - this.colpaddingleft;
-
-//               this.ctx.save();
-//               this.ctx.beginPath();
-//               this.ctx.moveTo(textx, rowy);
-//               this.ctx.lineTo(textx + width, rowy);
-//               this.ctx.lineTo(textx + width, rowy + this.rowheight);
-//               this.ctx.lineTo(textx, rowy + this.rowheight);
-//               this.ctx.closePath();
-
-//               this.ctx.clip();
-
-//               if (col.checkbox) {
-//                 const checkboxWidthHeight = 12;
-//                 const checkboxCheckedPadding = 3;
-//                 const checkboxLeftPadding = 4;
-//                 this.ctx.strokeStyle = this.textColor;
-//                 this.ctx.beginPath();
-//                 this.ctx.rect(checkboxLeftPadding + textx, texty - checkboxWidthHeight / 2, checkboxWidthHeight, checkboxWidthHeight);
-//                 this.ctx.stroke();
-//                 if (val) {
-//                   this.ctx.beginPath();
-//                   this.ctx.rect(checkboxLeftPadding + textx + checkboxCheckedPadding,
-//                     checkboxCheckedPadding + texty - checkboxWidthHeight / 2,
-//                     checkboxWidthHeight - checkboxCheckedPadding * 2,
-//                     checkboxWidthHeight - checkboxCheckedPadding * 2);
-//                   this.ctx.fill();
-//                 }
-//               } else {
-//                 // Other columns
-//                 if (col.textAlign === 1) {
-//                   textx += width;
-//                   this.ctx.textAlign = 'end';
-//                 }
-
-//                 if (col.font) {
-//                   this.ctx.font = col.font;
-//                 }
-//                 if (colindex === 2 || colindex === 3) {
-//                   // Column 2 is From, 3 is Subject
-//                   this.ctx.fillStyle = this.textColorLink;
-//                   if (isBoldRow) {
-//                     this.ctx.font = 'bold ' + this.fontheight + 'px ' + this.fontFamilyBold;
-//                   }
-//                 }
-//                 this.ctx.fillText(formattedVal, textx, texty);
-//               }
-//               this.ctx.restore();
-//             }
-//           }
-
-//           x += (Math.round(col.width * (this.rowWrapMode && col.rowWrapModeMuted ?
-//             (10 / this.fontheight) : 1)) - this.colpaddingleft); // We've already added colpaddingleft above
-//         }
-//       } else {
-//         // skipping rows we've removed while canvas was updating....
-//         console.log('Skipped repainting a row as its data is missing, continuing anyway');
-//       }
-//       if (this.showContentTextPreview) {
-//         const contentTextPreviewColumn = this.columns
-//           .find(col => col.getContentPreviewText ? true : false);
-//         if (contentTextPreviewColumn) {
-//           const contentPreviewText = contentTextPreviewColumn.getContentPreviewText(rowIndex);
-//           if (contentPreviewText) {
-//             this.ctx.save();
-//             this.ctx.fillStyle = this.textColor;
-//             this.ctx.font = this.fontheightSmaller + 'px ' + this.fontFamily;
-//           const contentTextPreviewColumnPadding = this.rowWrapMode ? 2 : 10; // Increase left padding of content preview
-//             this.ctx.fillText(contentPreviewText, this.columns[0]. width + contentTextPreviewColumnPadding,
-//               rowy + halfrowheight + (this.rowWrapMode ? 18 : 15));
-//             this.ctx.restore();
-//           }
-//         }
-//       }
-
-//       if (rowy > canvheight) {
-//         break;
-//       }
-//       this.ctx.fillStyle = this.textColor;
-
-//     }
-
-//     // Column separators
-
-//     if (!this.rowWrapMode) {
-//       // No column separators in row wrap mode
-//       this.ctx.fillStyle = `rgba(166,166,166,${this.visibleColumnSeparatorAlpha})`;
-//       this.ctx.strokeStyle = `rgba(176,176,176,${this.visibleColumnSeparatorAlpha})`;
-
-//       if (this.visibleColumnSeparatorAlpha < 1) {
-//         this.visibleColumnSeparatorAlpha += 0.01;
-//         setTimeout(() => this.hasChanges = true, 0);
-//       }
-
-//       let x = 0;
-//       for (let colindex = 0; colindex < this.columns.length; colindex++) {
-//         if (colindex > 0 && this.visibleColumnSeparatorIndex === colindex) {
-//           // Only draw column separator near the mouse pointer
-//           this.ctx.beginPath();
-//           this.ctx.moveTo(x - this.horizScroll, 0);
-//           this.ctx.lineTo(x - this.horizScroll, canvheight);
-//           this.ctx.stroke();
-
-//           this.ctx.fillRect(x - this.horizScroll - 5, this.lastClientY - 10, 10, 20);
-//         }
-//         x += this.columns[colindex].width;
-//       }
-//     }
-
-//     // Scrollbar
-//     let scrollbarheight = (this.maxVisibleRows / this.rows.rowCount()) * canvheight;
-//     if (scrollbarheight < 20) {
-//       scrollbarheight = 20;
-//     }
-//     const scrollbarpos =
-//       (this.topindex / (this.rows.rowCount() - this.maxVisibleRows)) * (canvheight - scrollbarheight);
-
-//     if (scrollbarheight < canvheight) {
-//       const scrollbarverticalpadding = 4;
-
-//       const scrollbarx = canvwidth - this.scrollbarwidth;
-//       this.ctx.fillStyle = '#aaa';
-//       this.ctx.fillRect(scrollbarx, 0, this.scrollbarwidth, canvheight);
-//       this.ctx.fillStyle = '#fff';
-//       this.scrollBarRect = {
-//         x: scrollbarx + 1,
-//         y: scrollbarpos + scrollbarverticalpadding / 2,
-//         width: this.scrollbarwidth - 2,
-//         height: scrollbarheight - scrollbarverticalpadding
-//       };
-
-//       if (this.scrollbarDragInProgress) {
-//         this.ctx.fillStyle = 'rgba(200,200,255,0.5)';
-//         this.roundRect(this.ctx,
-//           this.scrollBarRect.x - 4,
-//           this.scrollBarRect.y - 4,
-//           this.scrollBarRect.width + 8,
-//           this.scrollBarRect.height + 8, 5, true);
-
-//         this.ctx.fillStyle = '#fff';
-//         this.ctx.fillRect(this.scrollBarRect.x,
-//           this.scrollBarRect.y,
-//           this.scrollBarRect.width,
-//           this.scrollBarRect.height);
-//       } else {
-//         this.ctx.fillStyle = '#fff';
-//         this.ctx.fillRect(this.scrollBarRect.x, this.scrollBarRect.y, this.scrollBarRect.width, this.scrollBarRect.height);
-//       }
-
-//     }
-
-//   }
 }
 
 @Component({
@@ -1405,7 +726,6 @@ export class CanvasTableContainerComponent {
     }
     this.columnWidths[colWidthSet] = newColWidths;
     this.canvastableselectlistener.saveColumnWidthsPreference(this.columnWidths);
-    // localStorage.setItem('canvasNamedColumnWidthsBySet', JSON.stringify(this.columnWidths));
   }
 
   colresizestart(clientX: number, colIndex: number) {
