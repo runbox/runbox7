@@ -262,7 +262,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       const canvrect = this.canv.getBoundingClientRect();
       if (checkIfScrollbarArea(clientX, clientY)) {
         this.scrollbarDragInProgress = true;
-        this.scrollbarArea = true;
       } else if (checkIfScrollbarArea(clientX, clientY, true)) {
         // Check if click is above or below scrollbar slider
 
@@ -274,16 +273,12 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
           // below
           this.topindex += this.canv.scrollHeight / this.rowheight;
         }
-        this.scrollbarArea = true;
-      } else {
-        this.scrollbarArea = false;
       }
     };
 
     this.canv.onmousedown = (event: MouseEvent) => {
       event.preventDefault();
       checkScrollbarDrag(event.clientX, event.clientY);
-      this.lastMouseDownEvent = event;
 
       if (this.visibleColumnSeparatorIndex > 0) {
         this.columnresizestart.emit({ colindex: this.visibleColumnSeparatorIndex, clientx: event.clientX });
@@ -349,14 +344,12 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
       event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
     } else {
       event.preventDefault();
-      this.lastMouseDownEvent = event;
     }
 
     this.hasChanges = true;
   }
 
   public columnOverlayClicked(event: MouseEvent) {
-    this.lastMouseDownEvent = null;
     this.selectRow(event.clientX, event.clientY);
   }
 
