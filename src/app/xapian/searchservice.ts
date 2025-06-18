@@ -258,10 +258,10 @@ export class SearchService {
       FS.syncfs(true, () => {
           // console.log('Main: Syncd files:');
           // console.log(FS.stat(XAPIAN_GLASS_WR));
-          // FS.readdir(this.partitionsdir).forEach((f) => {
+          FS.readdir(this.partitionsdir).forEach((f) => {
             // console.log(`${f}`);
             // console.log(FS.stat(`${this.partitionsdir}/${f}`));
-          // });
+          });
         this.api.reloadXapianDatabase();
         this.indexReloadedSubject.next(undefined);
       });

@@ -32,7 +32,7 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowSeen(index: number): boolean {
-    return this.searchService.getDocData(this.getRowId(index)).seen;
+    return this.searchService.getDocData(this.rows[index][0]).seen ? false : true;
   }
 
   getRowId(index: number): number {
