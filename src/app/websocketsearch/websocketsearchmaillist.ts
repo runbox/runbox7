@@ -106,6 +106,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
         from: this.getRow(rowIndex).fromName,
         subject: this.getRow(rowIndex).subject,
         size: this.getRow(rowIndex).size,
+        seen: this.getRowSeen(rowIndex)
       };
     }
 
