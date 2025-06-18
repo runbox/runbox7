@@ -120,10 +120,8 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   private scrollBarRect: any;
 
-  private isTouchZoom = false;
   private scrollbarDragInProgress = false;
   columnResizeInProgress = false;
-  private scrollbarArea = false;
 
   visibleColumnSeparatorAlpha = 0;
   visibleColumnSeparatorIndex = 0;
@@ -174,16 +172,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   public colpaddingleft = 10;
   public colpaddingright = 10;
   public seprectextraverticalpadding = 4; // Extra padding above/below for separator rectangles
-
-  private lastMouseDownEvent: MouseEvent;
-  private _hoverRowIndex: number;
-  private get hoverRowIndex(): number { return this._hoverRowIndex; }
-  private set hoverRowIndex(hoverRowIndex: number) {
-    if (this._hoverRowIndex !== hoverRowIndex) {
-      this._hoverRowIndex = hoverRowIndex;
-      this.hasChanges = true;
-    }
-  }
 
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
@@ -300,10 +288,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
         this.columnresizestart.emit({ colindex: this.visibleColumnSeparatorIndex, clientx: event.clientX });
       }
     };
-
-    let previousTouchY: number;
-    let previousTouchX: number;
-    let touchMoved = false;
 
   }
 
