@@ -1217,6 +1217,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.searchFor('');
     this.switchToFolder(folder);
     this.updateUrlFragment();
+    // Little hack to trigger scroll to top. Alternative is using rxjs.
+    this.scrollToIndex = this.scrollToIndex === 0 ? -1 : 0;
   }
 
   private switchToFolder(folder: string): void {
