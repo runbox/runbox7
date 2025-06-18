@@ -51,10 +51,6 @@
         </ng-container>
         <div
             *ngIf="!col.checkbox"
-            (touchstart)="colresizestart($event.targetTouches[0].clientX,colIndex)"
-            (mousedown)="colresizestart($event.clientX,colIndex)"            
-            (touchmove)="$event.preventDefault();colresize($event.targetTouches[0].clientX)"
-            (touchend)="colresizeend()"            
             (click)="toggleSort(col.sortColumn)"
           style="
               display: flex;
