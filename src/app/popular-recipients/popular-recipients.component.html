@@ -7,10 +7,10 @@
     <mat-nav-list dense>
         <ng-content></ng-content>
 
-        <mat-list-item *ngFor="let recipient of recipients"
+        <button mat-list-item *ngFor="let recipient of recipients"
             (click)="recipientClicked.emit(recipient.address)"
         >
             {{ recipient.name }} ({{ recipient.address }})
-        </mat-list-item>
+        </button>
     </mat-nav-list>
 </mat-expansion-panel>
