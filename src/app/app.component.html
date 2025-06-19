@@ -140,6 +140,10 @@
         <mat-icon matListIcon svgIcon="spider"></mat-icon>
         Compose a bug report
       </button>
+      <button *ngIf="showNotificationButton" mat-list-item (click)="enableNotification()">
+        <mat-icon matListIcon svgIcon="bell"></mat-icon>
+        Enable Notifications
+      </button>
     </mat-nav-list>
 
     <mat-divider></mat-divider>
