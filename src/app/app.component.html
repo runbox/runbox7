@@ -107,7 +107,7 @@
         [folders]="displayedFolders"
         [folderMessageCounts]="messagelistservice.folderMessageCountSubject"
         [selectedFolder]="selectedFolder"
-        (folderSelected)="selectFolder($event)"
+        (folderSelected)="onFolderSelect($event)"
         (droppedToFolder)="dropToFolder($event)"
         (emptyTrash)="emptyTrash($event)"
         (emptySpam)="emptySpam($event)"
@@ -420,7 +420,7 @@
             </canvastablecontainer>
 
             <app-virtual-scroll-table
-              [scrollToIndex]="scrollToIndex"
+              [scrollToIndex$]="scrollToIndex$"
               *ngIf="rows.length"
               class="messages-table"
 
