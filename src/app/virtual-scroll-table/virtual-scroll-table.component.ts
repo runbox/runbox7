@@ -19,6 +19,7 @@
 
 import {
   OnDestroy,
+  OnInit,
   ChangeDetectionStrategy,
   AfterViewInit,
   Component,
@@ -34,7 +35,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { ListRange } from '@angular/cdk/collections';
-import { Subject, Subscription } from 'rxjs';
+import { Subject, Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -45,7 +46,7 @@ import { debounceTime } from 'rxjs/operators';
   styleUrls: ['./virtual-scroll-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit {
+export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @ContentChild('tbody', { read: TemplateRef }) tbodyTemplate!: TemplateRef<any> | null;
   @ContentChild('thead', { read: TemplateRef }) theadTemplate!: TemplateRef<any> | null;
 
@@ -54,24 +55,27 @@ export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit {
   @Output() renderedRangeChange = new EventEmitter<ListRange>();
   @Input() items: any[] = [];
 
-  
-  @Input()
-  set scrollToIndex(index: number) {
-    this.pendingScrollToIndex = index;
-    this.inputChanges$.next()
-  }
+  @Input() scrollToIndex$!: BehaviorSubject<number>;
 
   firstRowHeight: number = 24;
   maxBufferPx: number;
 
   private renderedRangeSub!: Subscription;
   private inputChangesSub!: Subscription;
+  private scrollToIndexSub!: Subscription;
   private inputChanges$ = new Subject<void>();
 
   private mutationObserver?: MutationObserver;
   private pendingScrollToIndex: number | null = null;
 
   constructor(private elementRef: ElementRef) {}
+
+  ngOnInit() {
+    this.scrollToIndexSub = this.scrollToIndex$.subscribe(index => {
+      this.pendingScrollToIndex = index;
+      this.inputChanges$.next()
+    });
+  }
 
   ngAfterViewInit() {
     this.renderedRangeSub = this.viewport.renderedRangeStream
@@ -103,6 +107,7 @@ export class VirtualScrollTableComponent implements OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.renderedRangeSub.unsubscribe();
+    this.scrollToIndexSub.unsubscribe();
     this.inputChangesSub.unsubscribe();
     this.mutationObserver.disconnect();
   }

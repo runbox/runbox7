@@ -47,7 +47,7 @@ import { WebSocketSearchService } from './websocketsearch/websocketsearch.servic
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
 import { BUILD_TIMESTAMP } from './buildtimestamp';
-import { from, Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
+import { from, Subject, Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -97,7 +97,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   debouncedRows$ = this.rowsSubject.asObservable().pipe(debounceTime(300));
 
   lastCheckedIndex: number = -1;
-  scrollToIndex: number = 0;
+  scrollToIndex$ = new BehaviorSubject<number>(0);
   rowSelectionModel = new FilterSelectionModel(
     false,
     [],
@@ -950,13 +950,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
     const isSelect = (columnIndex === 0) || multiSelect
-    const shouldScroll = this.scrollToIndex === 0 || !this.singlemailviewer.messageId
+    const shouldScroll = !this.singlemailviewer.messageId
 
     this.rowSelectionModel.select(this.rows[rowIndex])
     this.lastCheckedIndex = rowIndex
 
     if (shouldScroll) {
-      this.scrollToIndex = rowIndex - 1
+      this.scrollToIndex$.next(rowIndex - 1);
     }
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
@@ -1212,6 +1212,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
+  onFolderSelect(folder: string) {
+    this.scrollToIndex$.next(0);
+    this.selectFolder(folder)
+  }
+
   selectFolder(folder: string): void {
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
@@ -1220,8 +1225,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.searchFor('');
     this.switchToFolder(folder);
     this.updateUrlFragment();
-    // Little hack to trigger scroll to top. Alternative is using rxjs.
-    this.scrollToIndex = this.scrollToIndex === 0 ? -1 : 0;
   }
 
   private switchToFolder(folder: string): void {
