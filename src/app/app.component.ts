@@ -495,13 +495,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         });
     });
 
-    if ('serviceWorker' in navigator) {
-      try  {
-        Notification.requestPermission();
-      } catch (e) {}
-    }
-
-    this.subscribeToNotifications();
+    this.enableNotification();
     this.calculateWidthDependentElements();
   }
 
@@ -1035,6 +1029,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public downloadIndexFromServer() {
+    this.enableNotification();
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
     this.searchService.downloadIndexFromServer().subscribe((res) => {
@@ -1059,6 +1054,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public cancelOrRefuseLocalIndex() {
+    this.enableNotification();
     // Downloading is in progress, pause it:
     if (this.searchService.indexDownloadingInProgress) {
       this.searchService.stopIndexDownloadingInProgress = true;
@@ -1447,6 +1443,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.router.navigate(['/'], { fragment });
     }
   }
-}
 
-// vim: set shiftwidth=2
+  get showNotificationButton() {
+    return (
+      navigator.serviceWorker &&
+      Notification.permission !== 'granted'
+    )
+  }
+
+  async enableNotification() {
+    console.log('request notification permission')
+
+    try {
+      const result = await Notification.requestPermission()
+      console.log('Notification.permission', Notification.permission)
+      if (result === 'granted') this.subscribeToNotifications();
+    } catch (error) {
+      console.error(error)
+    }
+  }
+}
