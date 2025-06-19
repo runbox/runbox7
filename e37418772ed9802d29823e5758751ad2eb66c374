@@ -1,0 +1,4 @@
+Consider splitting this branch into.
+
+1. Fix accessiblity of buttons in side menu.
+2. Perform notification permission request on user click.
