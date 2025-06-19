@@ -7,7 +7,7 @@
     <mat-nav-list dense>
         <ng-content></ng-content>
 
-        <mat-list-item *ngFor="let search of searches; let idx = index"
+        <button mat-list-item *ngFor="let search of searches; let idx = index"
             (click)="searchClicked.emit(search.query)"
         >
             {{ search.name }}
@@ -15,6 +15,6 @@
             <button mat-icon-button (click)="remove(idx)">
                 <mat-icon svgIcon="delete"></mat-icon>
             </button>
-        </mat-list-item>
+        </button>
     </mat-nav-list>
 </mat-expansion-panel>
