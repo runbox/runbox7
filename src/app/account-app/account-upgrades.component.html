@@ -94,10 +94,10 @@
         
         <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
           
-          <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+          <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
             {{ plan.name.replace('Runbox', '') }}
           </mat-card-title>
-          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
             <h4><span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current subscription </span></h4>
           </mat-card-subtitle>
           <mat-card-content>
@@ -123,10 +123,10 @@
               <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
             </h4>
           </mat-card-content>
-          <div *ngIf="over_quota.length > 0">
+          <div *ngIf="plan.over_quota.length > 0">
             Your usage is too great for this plan:
             <ul>
-              <li *ngFor="let oq of over_quota">
+              <li *ngFor="let oq of plan.over_quota">
                 <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
                 <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
                 are available
@@ -134,7 +134,7 @@
             </ul>
           </div>
           <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price * 3 | number: '1.2-2' }}&nbsp;</div>
-          <mat-card-actions  *ngIf="over_quota.length === 0">
+          <mat-card-actions  *ngIf="plan.over_quota.length === 0">
             <button mat-raised-button *ngIf="!purchased; else unpurchase"
 		            (click)="order(plan)"
 		            class="purchaseButtonFeatured {{ plan.subtype }}"
@@ -226,11 +226,11 @@
             </div>
             <div>
               <button mat-raised-button
-		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              [color]="plan.is_downgrade ? 'accent' : 'primary'"
 		              (click)="orderMainProduct(plan.pid,1)"
 		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		              >
-                Select
+                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
               </button>
             </div>
           </td>
@@ -245,7 +245,8 @@
 		            (click)="orderMainProduct(subs_three[i].pid,1)"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		            >
-              Select
+              {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+
             </button>
             <div class="threeYearDifference">
               Save {{ plan.currency }} {{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
