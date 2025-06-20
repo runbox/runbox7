@@ -98,7 +98,7 @@
             {{ plan.name.replace('Runbox', '') }}
           </mat-card-title>
           <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
-            <h4><span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current subscription </span></h4>
+            <h4><span *ngIf="current_sub && current_sub.pid == plan.pid">Your current subscription</span></h4>
           </mat-card-subtitle>
           <mat-card-content>
             <div>
@@ -125,7 +125,7 @@
           </mat-card-content>
           <div *ngIf="plan.over_quota.length > 0">
             Your usage is too great for this plan:
-            <ul>
+            <ul class="overQuota">
               <li *ngFor="let oq of plan.over_quota">
                 <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
                 <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
@@ -222,16 +222,17 @@
           <td class="planComponent priceForOneYear">Price for 1 year</td>
           <td  *ngFor="let plan of subs_regular" class="oneYear">
             <div>
-              {{ plan.currency }} {{ plan.price }} <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
+              {{ plan.currency }} {{ plan.price }}<br />
             </div>
             <div>
               <button mat-raised-button
 		              [color]="plan.is_downgrade ? 'accent' : 'primary'"
 		              (click)="orderMainProduct(plan.pid,1)"
-		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		              class="purchaseButton {{ plan.name.replace('Runbox', '') }} {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray'  : '' }}"
 		              >
                 {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-              </button>
+              </button><br />
+              <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
             </div>
           </td>
         </tr>
@@ -246,8 +247,9 @@
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		            >
               {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-
             </button>
+            <br />
+            <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
             <div class="threeYearDifference">
               Save {{ plan.currency }} {{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
             </div>
