@@ -143,7 +143,10 @@ export class AccountUpgradesComponent implements OnInit {
                 this.check_over_quota(three_year, usage.result);
                 this.three_year_plans.next(three_year);
                 this.three_year_plans.complete();
-});
+                this.check_over_quota(subs_regular, usage.result);
+                this.subs_regular.next(subs_regular);
+                this.subs_regular.complete();
+            });
 
             this.rmmapi.me.subscribe(me => {
                 this.me = me;
