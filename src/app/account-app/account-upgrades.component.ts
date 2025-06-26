@@ -43,9 +43,7 @@ export class AccountUpgradesComponent implements OnInit {
     @Input() current_sub: Product;
     @Input() me: RunboxMe;
 
-    allow_multiple = false;
     quantity = 1;
-    purchased = false;
 
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
@@ -58,7 +56,10 @@ export class AccountUpgradesComponent implements OnInit {
     three_year_plans = new AsyncSubject<Product[]>();
     orig_three_plans = new AsyncSubject<Product[]>();
 
-    quota_usage    = new AsyncSubject<DataUsageInterface>(); 
+    quota_usage    = new AsyncSubject<DataUsageInterface>();
+
+    cart_items_subject = new AsyncSubject<Map<number, boolean>>();
+    cart_items = new Map();
 
     limitedTimeOffer = false;
     limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
@@ -85,6 +86,9 @@ export class AccountUpgradesComponent implements OnInit {
 
     ngOnInit() {
         this.paymentsservice.products.subscribe(products => {
+            products.map(p => this.cart_items.set(p.pid, false));
+            this.cart_items_subject.next(this.cart_items);
+            this.cart_items_subject.complete();
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
@@ -121,6 +125,9 @@ export class AccountUpgradesComponent implements OnInit {
             this.emailaddons.complete();
 
             this.cart.items.subscribe(items => {
+                items.map(i => this.cart_items.set(i.pid, true));
+                this.cart_items_subject.next(this.cart_items);
+                this.cart_items_subject.complete();
                 const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
 
                 if (ordered_subs.length > 1) {
@@ -208,22 +215,25 @@ export class AccountUpgradesComponent implements OnInit {
         }
     }
 
-    orderMainProduct(newProduct: number) {
+    orderMainProduct(newProduct: number, type: string, quantity: number) {
         this.cart.add(
-            new ProductOrder(newProduct, this.quantity)
+            new ProductOrder(newProduct, type, quantity)
         );
     }
 
-    order(p) {
+    order(p: Product) {
         console.log(p);
         this.cart.add(
-            new ProductOrder(p.pid, this.quantity)
+            new ProductOrder(p.pid, p.type, this.quantity)
         );
     }
 
-    unorder(p) {
+    unorder(p: Product) {
+        this.cart_items.set(p.pid, false);
+        this.cart_items_subject.next(this.cart_items);
+        this.cart_items_subject.complete();
         this.cart.remove(
-            new ProductOrder(p.pid, this.quantity)
+            new ProductOrder(p.pid, p.type, this.quantity)
         );
     }
 }

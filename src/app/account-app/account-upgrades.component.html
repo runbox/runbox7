@@ -8,6 +8,7 @@
 
   <div class="divider"></div>
 
+  <div *ngIf="cart_items_subject | async as cart_items_subj; else cartLoading">
   <div *ngIf="quota_usage | async as q_usage; else usageLoading">
     <div *ngIf="rmmapi.me | async as me; else loading">
       <h4>
@@ -135,7 +136,7 @@
           </div>
           <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price * 3 | number: '1.2-2' }}&nbsp;</div>
           <mat-card-actions  *ngIf="plan.over_quota.length === 0">
-            <button mat-raised-button *ngIf="!purchased; else unpurchase"
+            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
 		            (click)="order(plan)"
 		            class="purchaseButtonFeatured {{ plan.subtype }}"
 		            >
@@ -224,19 +225,25 @@
             <div>
               {{ plan.currency }} {{ plan.price }}<br />
             </div>
-            <div *ngIf="plan.over_quota.length === 0">
-              <button mat-raised-button
-		              [color]="plan.is_downgrade ? 'accent' : 'primary'"
-		              (click)="orderMainProduct(plan.pid,1)"
-		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(plan.pid,plan.type,1)"
+                    [disabled]="plan.over_quota > 0"
+		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		              >
                 {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-              </button><br />
-              <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
-            </div>
-            <div *ngIf="plan.over_quota.length > 0">
-              Over Quota
-            </div>
+            </button><br />
+            <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(plan)"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+
           </td>
         </tr>
         <tr>
@@ -244,18 +251,23 @@
           <td *ngFor="let plan of subs_regular; index as i" class="threeYear">
             <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
             <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
-            <div *ngIf="plan.over_quota.length === 0">
-              <button mat-raised-button
+            <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
 		            [color]="is_downgrade ? 'accent' : 'primary'"
-		            (click)="orderMainProduct(subs_three[i].pid,1)"
+		            (click)="orderMainProduct(subs_three[i].pid,subs_three[i].type,1)"
+                    [disabled]="plan.over_quota > 0"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		            >
               {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+            </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(subs_three[i])"
+		              class="removeButton"
+		              >
+                Remove from cart
               </button>
-            </div>
-            <div *ngIf="plan.over_quota.length > 0">
-              Over Quota
-            </div>
+            </ng-template>
             <br />
             <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
             <div class="threeYearDifference">
@@ -323,7 +335,12 @@
     
     <br /><br />
   </div>
+  </div>
   
+  <ng-template #cartLoading>
+    <app-runbox-loading text="Loading your cart...">
+    </app-runbox-loading>
+  </ng-template>
   <ng-template #usageLoading>
     <app-runbox-loading text="Loading your usage to tailor the subscription plans...">
     </app-runbox-loading>
