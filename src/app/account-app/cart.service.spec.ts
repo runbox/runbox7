@@ -32,7 +32,7 @@ describe('CartService', () => {
         let cart = new CartService(storage);
         cart.clear();
 
-        const order = new ProductOrder(401, 3);
+        const order = new ProductOrder(401, 'subscription', 3);
         cart.add(order);
         expect(await cart.contains(401)).toBe(true, 'cart contains the added product');
 
@@ -44,7 +44,7 @@ describe('CartService', () => {
         localStorage.clear();
         const cart = new CartService(storage);
 
-        const order = new ProductOrder(401, 3, 402);
+        const order = new ProductOrder(401,'subscription', 3, 402);
         await cart.add(order);
         console.log(await cart.items.pipe(take(1)).toPromise());
         expect(await cart.contains(401, 402)).toBe(true, 'cart contains the renewal product');
@@ -55,10 +55,10 @@ describe('CartService', () => {
         localStorage.clear();
         const cart = new CartService(storage);
 
-        const order = new ProductOrder(402, 1);
+        const order = new ProductOrder(402,'subscription', 1);
         await cart.add(order);
         expect(await cart.contains(402)).toBe(true, 'cart contains the ordered product');
-        await cart.remove(new ProductOrder(402, 1));
+        await cart.remove(new ProductOrder(402,'subscription', 1));
         expect(await cart.contains(402)).toBe(false, 'cart contains the product no more');
     });
 
@@ -66,9 +66,9 @@ describe('CartService', () => {
         localStorage.clear();
         const cart = new CartService(storage);
 
-        await cart.add(new ProductOrder(403, 1));
-        await cart.add(new ProductOrder(404, 1));
-        await cart.add(new ProductOrder(405, 1));
+        await cart.add(new ProductOrder(403,'subscription', 1));
+        await cart.add(new ProductOrder(404,'add-on', 1));
+        await cart.add(new ProductOrder(405,'add-on', 1));
         expect(await cart.contains(403)).toBe(true, 'cart contains added products');
         expect(await cart.contains(404)).toBe(true, 'cart contains added products');
         expect(await cart.contains(405)).toBe(true, 'cart contains added products');
@@ -82,13 +82,23 @@ describe('CartService', () => {
         localStorage.clear();
         const cart = new CartService(storage);
 
-        await cart.add(new ProductOrder(403, 1));
-        await cart.add(new ProductOrder(403, 1));
-        await cart.remove(new ProductOrder(403, 1));
+        await cart.add(new ProductOrder(403, 'add-on', 1));
+        await cart.add(new ProductOrder(403, 'add-on', 1));
+        await cart.remove(new ProductOrder(403, 'add-on', 1));
         expect(await cart.contains(403)).toBe(true, 'cart contains added products');
-        await cart.remove(new ProductOrder(403, 1));
+        await cart.remove(new ProductOrder(403, 'add-on', 1));
         expect(await cart.contains(403)).toBe(false, 'cart contains added products no more');
-        await cart.remove(new ProductOrder(403, 1));
+        await cart.remove(new ProductOrder(403, 'add-on', 1));
         expect(await cart.contains(403)).toBe(false, 'cart contains added products no more');
+    });
+
+  it('should not add more than one subscription product', async () => {
+        localStorage.clear();
+        const cart = new CartService(storage);
+
+        await cart.add(new ProductOrder(403, 'subscription', 1));
+        await cart.add(new ProductOrder(404, 'subscription', 1));
+        expect(await cart.contains(403)).toBe(true, 'cart contains added products');
+        expect(await cart.contains(404)).toBe(false, 'cart does not contain 2nd subscription');
     });
 });

@@ -122,13 +122,13 @@ export class ProductComponent implements OnInit {
 
     order() {
         this.cart.add(
-            new ProductOrder(this.p.pid, this.quantity)
+            new ProductOrder(this.p.pid, this.p.type, this.quantity)
         );
     }
 
     unorder() {
         this.cart.remove(
-            new ProductOrder(this.p.pid, this.quantity)
+            new ProductOrder(this.p.pid, this.p.type, this.quantity)
         );
     }
 }

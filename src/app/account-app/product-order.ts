@@ -19,11 +19,13 @@
 
 export class ProductOrder {
     pid:      number;
+    type:     string;
     apid?:    number;
     quantity: number;
 
-    constructor(pid: number, quantity: number, apid?: number) {
+    constructor(pid: number, type: string, quantity: number, apid?: number) {
         this.pid      = pid;
+        this.type     = type;
         this.quantity = quantity;
         this.apid     = apid;
     }
