@@ -185,50 +185,50 @@
       <table id="pricePlans" cellpadding = "0" cellspacing = "0">
         <tr>
           <th class="planComponentName">Runbox Plans</th>
-          <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }}">{{ plan.name.replace('Runbox', '') }}</th>
+          <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }} {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.name.replace('Runbox', '') }}</th>
         </tr>
         <tr>
-          <td class="planComponent">Email storage</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td class="planComponent" >Email storage</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
         </tr>
         <tr>
           <td class="planComponent">File storage</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
         </tr>
         <tr>
           <td class="planComponent">Email domains</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.VirtualDomain.quota }}</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.VirtualDomain.quota }}</td>
         </tr>
         <tr>
           <td class="planComponent">Email aliases @runbox</td>
-          <td *ngFor="let plan of subs_regular">100</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100</td>
         </tr>
         <tr>
           <td class="planComponent">Email aliases on own domain</td>
-          <td *ngFor="let plan of subs_regular">Unlimited</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">Unlimited</td>
         </tr>
         <tr>
           <td class="planComponent">Email message size</td>
-          <td *ngFor="let plan of subs_regular">100 MB</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100 MB</td>
         </tr>
         <tr>
           <td class="planComponent">Incoming messages (daily)</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Msg.quota }}</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Msg.quota }}</td>
         </tr>
         <tr>
           <td class="planComponent">Outgoing messages (daily)</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Sent.quota }}</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Sent.quota }}</td>
         </tr>
         <tr>
           <td class="planComponent priceForOneYear">Price for 1 year</td>
-          <td  *ngFor="let plan of subs_regular" class="oneYear">
+          <td  *ngFor="let plan of subs_regular" class="oneYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
             <div>
               {{ plan.currency }} {{ plan.price }}<br />
             </div>
             <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
 		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
 		            (click)="orderMainProduct(plan.pid,plan.type,1)"
-                    [disabled]="plan.over_quota > 0"
+                    [disabled]="plan.over_quota.length > 0"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		              >
                 {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
@@ -248,13 +248,13 @@
         </tr>
         <tr>
           <td class="planComponent priceForThreeYears">Price for 3 years</td>
-          <td *ngFor="let plan of subs_regular; index as i" class="threeYear">
+          <td *ngFor="let plan of subs_regular; index as i" class="threeYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
             <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
             <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
             <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
 		            [color]="is_downgrade ? 'accent' : 'primary'"
 		            (click)="orderMainProduct(subs_three[i].pid,subs_three[i].type,1)"
-                    [disabled]="plan.over_quota > 0"
+                    [disabled]="plan.over_quota.length > 0"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		            >
               {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
