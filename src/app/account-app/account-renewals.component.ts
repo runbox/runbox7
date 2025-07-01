@@ -244,13 +244,14 @@ export class AccountRenewalsRenewNowButtonComponent {
         this.close_to_quota = this.check_close_quota();
     }
 
-    // OverQuota for displayed product, if any of the limits have been hit
+  // OverQuota for displayed product, if any of the (space) limits have been hit
     check_close_quota() {
         let oq = [];
         if (this.p && this.usage) {
             Object.keys(this.p.quotas).map((key) => {
               if ( !key.endsWith('Subaccount')
                 && this.usage[key]
+                && this.usage[key].type === 'bytes'
                 && this.usage[key].percentage_used >= this.close_percentage) {
                     oq.push({'quota': key, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type, 'percentage': this.usage[key].percentage_used });
                 }
