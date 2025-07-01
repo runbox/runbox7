@@ -269,7 +269,7 @@
               </button>
             </ng-template>
             <br />
-            <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
+            <span *ngIf="current_sub && current_sub.pid === subs_three[i].pid"> Your current {{ plan.type }} </span>
             <div class="threeYearDifference">
               Save {{ plan.currency }} {{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
             </div>
