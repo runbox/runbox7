@@ -43,9 +43,14 @@ export class CartService {
 
     async add(p: ProductOrder): Promise<void> {
         const items = await this.items.pipe(take(1)).toPromise();
-        // if an item like this is already ordered, increase the quantity
+
         for (const i of items) {
-            if (i.isSameProduct(p)) {
+            // Cannot order multiples of subscription products
+            if (i.type === 'subscription' && p.type === 'subscription') {
+                return;
+            }
+            // if an item like this is already ordered, increase the quantity
+            if (i.isSameProduct(p) ) {
                 i.quantity += p.quantity;
                 this.items.next(items);
                 return;

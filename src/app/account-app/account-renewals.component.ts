@@ -191,7 +191,6 @@ export class AccountRenewalsComponent {
     <mat-checkbox *ngIf="!p.changingAutorenew"
         [checked]="p.active"
         (change)="toggle.emit()">
-        {{ p.active ? 'Yes' : 'No' }}
     </mat-checkbox>
     <app-runbox-loading *ngIf="p.changingAutorenew"
         size="tiny"

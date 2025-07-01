@@ -8,6 +8,7 @@
 
   <div class="divider"></div>
 
+  <div *ngIf="cart_items_subject | async as cart_items_subj; else cartLoading">
   <div *ngIf="quota_usage | async as q_usage; else usageLoading">
     <div *ngIf="rmmapi.me | async as me; else loading">
       <h4>
@@ -94,11 +95,11 @@
         
         <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
           
-          <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
+          <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
             {{ plan.name.replace('Runbox', '') }}
           </mat-card-title>
-          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': over_quota.length > 0}">
-            <h4><span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current subscription </span></h4>
+          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
+            <h4><span *ngIf="current_sub && current_sub.pid === plan.pid">Your current subscription</span></h4>
           </mat-card-subtitle>
           <mat-card-content>
             <div>
@@ -123,10 +124,10 @@
               <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
             </h4>
           </mat-card-content>
-          <div *ngIf="over_quota.length > 0">
+          <div *ngIf="plan.over_quota.length > 0">
             Your usage is too great for this plan:
-            <ul>
-              <li *ngFor="let oq of over_quota">
+            <ul class="overQuota">
+              <li *ngFor="let oq of plan.over_quota">
                 <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
                 <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
                 are available
@@ -134,8 +135,8 @@
             </ul>
           </div>
           <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price * 3 | number: '1.2-2' }}&nbsp;</div>
-          <mat-card-actions  *ngIf="over_quota.length === 0">
-            <button mat-raised-button *ngIf="!purchased; else unpurchase"
+          <mat-card-actions  *ngIf="plan.over_quota.length === 0">
+            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
 		            (click)="order(plan)"
 		            class="purchaseButtonFeatured {{ plan.subtype }}"
 		            >
@@ -184,69 +185,91 @@
       <table id="pricePlans" cellpadding = "0" cellspacing = "0">
         <tr>
           <th class="planComponentName">Runbox Plans</th>
-          <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }}">{{ plan.name.replace('Runbox', '') }}</th>
+          <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }} {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.name.replace('Runbox', '') }}</th>
         </tr>
         <tr>
-          <td class="planComponent">Email storage</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+          <td class="planComponent" >Email storage</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
         </tr>
         <tr>
           <td class="planComponent">File storage</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
         </tr>
         <tr>
           <td class="planComponent">Email domains</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.VirtualDomain.quota }}</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.VirtualDomain.quota }}</td>
         </tr>
         <tr>
           <td class="planComponent">Email aliases @runbox</td>
-          <td *ngFor="let plan of subs_regular">100</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100</td>
         </tr>
         <tr>
           <td class="planComponent">Email aliases on own domain</td>
-          <td *ngFor="let plan of subs_regular">Unlimited</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">Unlimited</td>
         </tr>
         <tr>
           <td class="planComponent">Email message size</td>
-          <td *ngFor="let plan of subs_regular">100 MB</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100 MB</td>
         </tr>
         <tr>
           <td class="planComponent">Incoming messages (daily)</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Msg.quota }}</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Msg.quota }}</td>
         </tr>
         <tr>
           <td class="planComponent">Outgoing messages (daily)</td>
-          <td *ngFor="let plan of subs_regular">{{ plan.quotas.Sent.quota }}</td>
+          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Sent.quota }}</td>
         </tr>
         <tr>
           <td class="planComponent priceForOneYear">Price for 1 year</td>
-          <td  *ngFor="let plan of subs_regular" class="oneYear">
+          <td  *ngFor="let plan of subs_regular" class="oneYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
             <div>
-              {{ plan.currency }} {{ plan.price }} <span *ngIf="current_sub && current_sub.pid == plan.pid"> Your current {{ plan.type }} </span>
+              {{ plan.currency }} {{ plan.price }}<br />
             </div>
-            <div>
-              <button mat-raised-button
-		              [color]="is_downgrade ? 'accent' : 'primary'"
-		              (click)="orderMainProduct(plan.pid,1)"
-		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderMainProduct(plan.pid,plan.type,1)"
+                    [disabled]="plan.over_quota.length > 0"
+		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		              >
-                Select
+                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+            </button><br />
+            <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(plan)"
+		              class="removeButton"
+		              >
+                Remove from cart
               </button>
-            </div>
+            </ng-template>
+
           </td>
         </tr>
         <tr>
           <td class="planComponent priceForThreeYears">Price for 3 years</td>
-          <td *ngFor="let plan of subs_regular; index as i" class="threeYear">
+          <td *ngFor="let plan of subs_regular; index as i" class="threeYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
             <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
             <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
-            <button mat-raised-button
+            <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
 		            [color]="is_downgrade ? 'accent' : 'primary'"
-		            (click)="orderMainProduct(subs_three[i].pid,1)"
+		            (click)="orderMainProduct(subs_three[i].pid,subs_three[i].type,1)"
+                    [disabled]="plan.over_quota.length > 0"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		            >
-              Select
+              {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
             </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorder(subs_three[i])"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+            <br />
+            <span *ngIf="current_sub && current_sub.pid === subs_three[i].pid"> Your current {{ plan.type }} </span>
             <div class="threeYearDifference">
               Save {{ plan.currency }} {{ plan.price * 3 - subs_three[i].price | number: '1.2-2' }}
             </div>
@@ -312,7 +335,12 @@
     
     <br /><br />
   </div>
+  </div>
   
+  <ng-template #cartLoading>
+    <app-runbox-loading text="Loading your cart...">
+    </app-runbox-loading>
+  </ng-template>
   <ng-template #usageLoading>
     <app-runbox-loading text="Loading your usage to tailor the subscription plans...">
     </app-runbox-loading>

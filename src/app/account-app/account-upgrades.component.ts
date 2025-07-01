@@ -37,22 +37,13 @@ import { ProductOrder } from './product-order';
     styleUrls: ['./account-upgrades.component.scss'],
 })
 export class AccountUpgradesComponent implements OnInit {
-    @Input() p: Product;
     @Input() currency: string;
     @Input() active_sub: boolean;
     @Input() usage: DataUsageInterface;
     @Input() current_sub: Product;
     @Input() me: RunboxMe;
 
-    allow_multiple = false;
     quantity = 1;
-    purchased = false;
-
-    over_quota = [];
-    addon_usages = [];
-    is_upgrade = false;
-    is_downgrade = false;
-    is_current_subscription: boolean = false;
 
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
@@ -65,7 +56,10 @@ export class AccountUpgradesComponent implements OnInit {
     three_year_plans = new AsyncSubject<Product[]>();
     orig_three_plans = new AsyncSubject<Product[]>();
 
-    quota_usage    = new AsyncSubject<DataUsageInterface>(); 
+    quota_usage    = new AsyncSubject<DataUsageInterface>();
+
+    cart_items_subject = new AsyncSubject<Map<number, boolean>>();
+    cart_items = new Map();
 
     limitedTimeOffer = false;
     limited_time_offer_age = 24 * 60 * 60 * 1000; // 24hours in microseconds
@@ -91,13 +85,10 @@ export class AccountUpgradesComponent implements OnInit {
     }
 
     ngOnInit() {
-        // User's current usage:
-        this.rmm.account_storage.getUsage().subscribe(usage => {
-            this.quota_usage.next(usage.result);
-            this.quota_usage.complete();
-        });
-
         this.paymentsservice.products.subscribe(products => {
+            products.map(p => this.cart_items.set(p.pid, false));
+            this.cart_items_subject.next(this.cart_items);
+            this.cart_items_subject.complete();
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
@@ -134,6 +125,9 @@ export class AccountUpgradesComponent implements OnInit {
             this.emailaddons.complete();
 
             this.cart.items.subscribe(items => {
+                items.map(i => this.cart_items.set(i.pid, true));
+                this.cart_items_subject.next(this.cart_items);
+                this.cart_items_subject.complete();
                 const ordered_subs = items.filter(order => subs_all.find(s => s.pid === order.pid));
 
                 if (ordered_subs.length > 1) {
@@ -145,70 +139,101 @@ export class AccountUpgradesComponent implements OnInit {
                 }
             });
 
+            // User's current usage:
+            this.rmm.account_storage.getUsage().subscribe(usage => {
+                this.quota_usage.next(usage.result);
+                this.quota_usage.complete();
+
+                // replace three_year_plans with a set that has an over_quota
+                // value
+                this.three_year_plans = new AsyncSubject<Product[]>();
+                this.check_over_quota(three_year, usage.result);
+                this.three_year_plans.next(three_year);
+                this.three_year_plans.complete();
+                this.check_over_quota(subs_regular, usage.result);
+                this.subs_regular.next(subs_regular);
+                this.subs_regular.complete();
+            });
+
             this.rmmapi.me.subscribe(me => {
                 this.me = me;
                 // User's current subscription product:
                 this.rmmapi.getProducts([this.me.subscription]).subscribe(res => {
                     this.current_sub = res[0];
+
+                    // replace subs_regular with a set that has the is_upgrade
+                    // is_downgrade values
+                    this.subs_regular = new AsyncSubject<Product[]>();
+                    this.merge_subs_with_usage(subs_regular);
+                    this.subs_regular.next(subs_regular);
+                    this.subs_regular.complete();
                 });
                 this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
             });
         });
-    this.over_quota = this.check_over_quota();
     }
 
 
     // OverQuota for displayed product, if any of the limits have been hit
     // Returns list of reasons why can't buy this product:
     // Eg You have 2 virtual domains, this product only allows 1
-    check_over_quota() {
-        let oq = [];
-        if (this.p && this.usage) {
-            Object.keys(this.p.quotas).map((key) => {
-                // Subscriptions / main accounts
-                if (this.usage[key] && this.p.quotas[key].type === 'fixed' && this.p.quotas[key].quota < this.usage[key].usage) {
-                    oq.push({'quota': this.usage[key].name, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
-                }
-            });
+    check_over_quota(plans, usage) {
+        if (plans && usage) {
+            for(const p of plans) {
+                let oq = [];
+                Object.keys(p.quotas).map((key) => {
+                    if (usage[key] && p.quotas[key].type === 'fixed' && p.quotas[key].quota < usage[key].usage) {
+                        oq.push({'quota': usage[key].name, 'allowed': p.quotas[key].quota, 'current': usage[key].usage, 'type': usage[key].type });
+                    }
+                });
+                p.over_quota = oq;
+            }
         }
-        return oq;
     }
 
     runboxTimerFinished(): void {
         this.limitedTimeOffer = false;
     }
 
-    // Displays amount used up of currently owned quota
-    get_addon_usages(p) {
-        let pu = [];
-        if (p && this.usage && p.type === 'addon') {
-            Object.keys(p.quotas).map((key) => {
-                // addon items
-                if (p.quotas[key] && this.usage[key]) {
-                    pu.push({'quota': this.usage[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
-                }
-            });
+    // Set upgrade/downgrade flags on regular plans using current_sub quotas
+    merge_subs_with_usage(subs_reg) {
+        if(!this.current_sub || !subs_reg) {
+            return;
         }
-        return pu;
+        // subs_reg is output as a table, add is_upgrade/is_downgrade booleans
+        for (const plan of subs_reg) {
+            if (this.me.is_trial) {
+                plan.is_upgrade = true;
+                plan.is_downgrade = false;
+                continue;
+            }
+            if (plan.quotas.Disk.quota < this.current_sub.quotas.Disk.quota) {
+                plan.is_downgrade = true;
+            } else if (plan.quotas.Disk.quota > this.current_sub.quotas.Disk.quota) {
+                plan.is_upgrade = true;
+            }
+        }
     }
 
-
-    orderMainProduct(newProduct: number) {
+    orderMainProduct(newProduct: number, type: string, quantity: number) {
         this.cart.add(
-            new ProductOrder(newProduct, this.quantity)
+            new ProductOrder(newProduct, type, quantity)
         );
     }
 
-    order(p) {
+    order(p: Product) {
         console.log(p);
         this.cart.add(
-            new ProductOrder(p.pid, this.quantity)
+            new ProductOrder(p.pid, p.type, this.quantity)
         );
     }
 
-    unorder(p) {
+    unorder(p: Product) {
+        this.cart_items.set(p.pid, false);
+        this.cart_items_subject.next(this.cart_items);
+        this.cart_items_subject.complete();
         this.cart.remove(
-            new ProductOrder(p.pid, this.quantity)
+            new ProductOrder(p.pid, p.type, this.quantity)
         );
     }
 }
