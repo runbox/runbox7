@@ -1449,4 +1449,3 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 }
 
-// vim: set shiftwidth=2

@@ -66,7 +66,7 @@ describe('PopularRecipientsComponent', () => {
         let event: string;
         component.recipientClicked.subscribe((e: string) => event = e);
 
-        fixture.debugElement.nativeElement.querySelector('mat-list-item:nth-of-type(2)').click();
+        fixture.debugElement.nativeElement.querySelector('[mat-list-item]:nth-of-type(2)').click();
 
         expect(event).toBe('bar@runbox.com');
     });
