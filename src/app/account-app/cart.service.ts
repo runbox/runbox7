@@ -32,7 +32,7 @@ export class CartService {
         private storage: StorageService,
     ) {
         this.storage.get('shoppingCart').then(cart => {
-            const items = cart ? cart.map(i => new ProductOrder(i.pid, i.quantity, i.apid)) : [];
+          const items = cart ? cart.map(i => new ProductOrder(i.pid, i.type, i.quantity, i.apid)) : [];
             this.items.next(items);
         });
 

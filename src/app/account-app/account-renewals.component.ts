@@ -115,7 +115,7 @@ export class AccountRenewalsComponent {
 
     renew(p: ActiveProduct) {
         if (p.subtype !== 'domain') {
-            this.cart.add(new ProductOrder(p.pid, p.quantity, p.apid));
+            this.cart.add(new ProductOrder(p.pid, p.type, p.quantity, p.apid));
         } else {
             this.renewDomain(p);
         }
