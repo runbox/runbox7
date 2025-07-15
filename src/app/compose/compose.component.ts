@@ -49,7 +49,6 @@ const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
 const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename='
 
 @Component({
-    moduleId: 'angular2/app/compose/',
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
     templateUrl: 'compose.component.html',
@@ -78,7 +77,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public uploadRequest: Subscription = null;
     public saved: Date = null;
     public tinymce_plugin: TinyMCEPlugin;
-    public isTemplate: boolean = false;
+    public isTemplate = false;
     finishImageUpload: AsyncSubject<any> = null;
     uploadProgress: BehaviorSubject<number> = new BehaviorSubject(-1);
     has_pasted_signature: boolean;
@@ -369,7 +368,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public removeAttachment(attachmentIndex: number) {
         const toRemove = this.model.attachments[attachmentIndex];
-        const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const attUrlRegex = new RegExp('<img\\ssrc="[^"]*' + escapedUrl + toRemove.filename + '"[^>]*>');
         this.model.html = this.model.html.replace(attUrlRegex, '');
         this.editor.setContent(this.model.html);
@@ -687,7 +686,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.exitIfNeeded();
     }
 
-    public submit(send: boolean = false) {
+    public submit(send = false) {
         const isTemplate = Boolean(this.isTemplate ?? this.model.tid);
 
         if (this.savingInProgress) {
@@ -751,7 +750,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (send) {
             if (this.model.useHTML) {
                 // Replace RBWUL with ContentId
-                const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                const escapedUrl = DOWNLOAD_DRAFT_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 this.model.msg_body = this.model.msg_body
                     .replace(new RegExp('"[^"]*' + escapedUrl + 'RBWUL-([a-z0-9]+)_[^"]+"', 'g'), '"cid:$1"');
             }

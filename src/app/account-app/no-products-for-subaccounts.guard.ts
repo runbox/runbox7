@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, CanActivateChild, CanActivate, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
@@ -31,7 +31,7 @@ import { CreditCardsComponent } from './credit-cards/credit-cards.component';
 @Injectable({
     providedIn: 'root'
 })
-export class NoProductsForSubaccountsGuard implements CanActivate, CanActivateChild {
+export class NoProductsForSubaccountsGuard  {
     banned_components = [
         AccountUpgradesComponent,
         AccountTransactionsComponent,

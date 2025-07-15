@@ -27,7 +27,7 @@ import { ActivatedRoute } from '@angular/router';
 import { StorageService } from '../storage.service';
 
 let jitsiLoader: AsyncSubject<void> = null;
-declare var JitsiMeetExternalAPI: any;
+declare let JitsiMeetExternalAPI: any;
 
 @Component({
     selector: 'app-onscreen-component',

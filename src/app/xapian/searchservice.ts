@@ -38,9 +38,9 @@ import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
 
-declare var FS;
-declare var IDBFS;
-declare var Module;
+declare let FS;
+declare let IDBFS;
+declare let Module;
 
 const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
@@ -110,7 +110,7 @@ export class SearchService {
   localdir: string;
   partitionsdir: string;
 
-  isExpired: boolean = false;
+  isExpired = false;
   initcalled = false;
 
   persistIndexInProgressSubject: AsyncSubject<any> = null;
@@ -162,7 +162,7 @@ export class SearchService {
             const newMessagesTitle = data.prototype.hasOwnProperty('newMessages')
               && data['newMessages'].length > 1 ?
               `${data['newMessages'].length} new email messages` :
-              `New email message`;
+              'New email message';
             try {
               // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               new Notification(newMessagesTitle, {
@@ -250,7 +250,7 @@ export class SearchService {
             this.initSubject.complete();
           }
         } else {
-          console.log("Account has expired, access to /account/subscriptions only");
+          console.log('Account has expired, access to /account/subscriptions only');
         }
       });
 

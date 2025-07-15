@@ -4,8 +4,8 @@ const fs = require('fs');
 console.log('WARNING: Reverting to committed package-lock.json. If that means your changes are lost you should rebuild it.')
 cp.execSync('git checkout package-lock.json');
 
-const packageLockJSON = JSON.parse(fs.readFileSync('package-lock.json'));
-const packageJSON = JSON.parse(fs.readFileSync('package.json'));
+// const packageLockJSON = JSON.parse(fs.readFileSync('package-lock.json'));
+// const packageJSON = JSON.parse(fs.readFileSync('package.json'));
 
 // FIXME: is this necessary? the package.json & package-lock.json format has changed, package.json no longer
 // contains a _integrity field, package-lock.json not uses the field packages instead of dependencies.
@@ -22,14 +22,7 @@ const packageJSON = JSON.parse(fs.readFileSync('package.json'));
 
 console.log('All dependency versions ok. Will build production bundle.');
 
-console.log('Updating build timestamp');
-const build_time = new Date().toJSON();
-fs.writeFileSync('src/app/buildtimestamp.ts', "export const BUILD_TIMESTAMP = '" + build_time + "';\n");
-
-if (process.env.SENTRY_DSN) {
-    console.log('Adding Sentry setup to app.component.ts');
-    console.log(cp.execFileSync('node', ['src/build/add-sentry.js']).toString().trim())
-}
+console.log(cp.execFileSync('node', ['src/build/gen-env.js']).toString().trim())
 
 if (!process.env.SKIP_CHANGELOG) {
     console.log('Updating changelog');

@@ -361,7 +361,7 @@
     </div>
 
     <!-- We have an HTML message, but no text version and the user has not chosen to show HTML -->
-    <div *ngIf="mailContentHTML && !showHTML && (mailObj.text === 'undefined' || mailObj.text.changingThisBreaksApplicationSecurity == '')" class="notificationContainer">
+    <div *ngIf="mailContentHTML && !showHTML && (mailObj.text === 'undefined' || mailObj.text.changingThisBreaksApplicationSecurity === '')" class="notificationContainer">
       <span class="inMessageNotification">No text version of this message is available.<br />Please click the HTML button above to view the HTML version.</span>
     </div>
 

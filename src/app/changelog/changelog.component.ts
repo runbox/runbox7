@@ -18,13 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterEvent, Scroll } from '@angular/router';
+import { ActivatedRoute, Router, Scroll } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
 
 import { MobileQueryService } from '../mobile-query.service';
 
 import { ChangelogEntry, EntryType, changelog } from './changes';
-import { BUILD_TIMESTAMP } from '../buildtimestamp';
+import { environment } from '../../environments/environment';
 
 @Component({
     selector: 'app-changelog',
@@ -46,7 +46,7 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
 
     sideMenuOpened = true;
 
-    buildtimestampstring = BUILD_TIMESTAMP;
+    buildtimestampstring = environment.BUILD_TIMESTAMP;
 
     @ViewChild(MatSidenav) sideMenu: MatSidenav;
 
@@ -87,7 +87,7 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
     }
 
     ngAfterViewInit() {
-        this.router.events.subscribe((e: RouterEvent) => {
+        this.router.events.subscribe((e) => {
             // This should have been easy to handle using { anchorScrolling: 'enabled' }
             // in router options, but apparently that doesn't quite work (yet?).
             // Workaround borrowed from https://stackoverflow.com/a/56568668
