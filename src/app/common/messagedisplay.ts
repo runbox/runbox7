@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2025 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -21,15 +21,17 @@ import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 export abstract class MessageDisplay {
   public openedRowIndex: number;
   public selectedRowId: number;
-  //  public openedRowId: number;
+  public sortColumn: number = 2;
+  public sortDescending: boolean = true;
   public msgIdsSelected: { [key: number]: boolean } = {};
-  // public selectedRowIds: { [key: number]: boolean } = {};
   public hasChanges: boolean;
 
   // ALL rows
   public _rows = [];
-  // Rows for actual display
+  // Filtered row list (original format)
   public rows = [];
+  // Rows for actual display
+  public displayRows = [];
 
   constructor(rows: any) {
     this._rows = rows;
@@ -162,6 +164,15 @@ export abstract class MessageDisplay {
     }
   }
 
+  getRowMessageIds(start: number, end: number): Map<number,number> {
+    // messageIds back to indexes
+    const messageIds = new Map();
+    for (let index = start; index < end; index++) {
+      messageIds.set(this.getRowMessageId(index), index);
+    }
+    return messageIds;
+  }
+
   // row entries
   abstract getRowSeen(index: number): boolean;
   abstract getRowId(index: number): number;
@@ -196,6 +207,15 @@ export abstract class MessageDisplay {
 
   clearOpenedRow() {
     this.openedRowIndex = null;
+  }
+
+  // create display-rows from original row data
+  async enrichRow(index: number, txt: String, app: any) {
+    if (index >= this.rows.length) return;
+
+    this.displayRows[index] = this.getRowData(index, app);
+    this.displayRows[index].plaintext = txt;
+    this.displayRows[index].loaded = true;
   }
 
   // filtering:

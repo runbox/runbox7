@@ -24,7 +24,7 @@ import {
 } from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
-
+import { PostMessageAction } from './xapian/messageactions';
 import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -61,6 +61,7 @@ import { AppSettings } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
 import { StorageService } from './storage.service';
+import { MessageDisplay } from './common/messagedisplay';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
@@ -89,7 +90,6 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectMarkOpMenu: boolean;
-
 
   rows = [];
 
@@ -182,6 +182,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   fragment: string;
   jumpToFragment = false;
 
+  // current MessageDisplay child instance (actual rows on screen)
+  messagedisplay: MessageDisplay;
+
   messagelist: Array<MessageInfo> = [];
 
   messageActionsHandler: RMM7MessageActions = new RMM7MessageActions();
@@ -198,7 +201,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianLoaded = xapianLoadedSubject;
 
   morelistbuttonindex = 7;
-  renderedRange = {start: 0, end: 0}; // First ten messages.
+  renderedRange = {start: 0, end: 10}; // First ten messages.
 
   widths = {};
 
@@ -233,16 +236,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.orderSelectionModel.selectionModel.changed.subscribe(() => {
       const {data: column, direction} = this.orderSelectionModel.selected
 
-      if (direction === Direction.None) {
-        this.canvastablecontainer.sortColumn = 2;
-        this.canvastablecontainer.sortDescending = true;
-      } else {
-        this.canvastablecontainer.sortColumn = column;
-        this.canvastablecontainer.sortDescending = Direction.Descending === direction;
-      }
+      if (this.messagedisplay) {
+        if (direction === Direction.None) {
+          this.messagedisplay.sortColumn = 2;
+          this.messagedisplay.sortDescending = true;
+        } else {
+          this.messagedisplay.sortColumn = column;
+          this.messagedisplay.sortDescending = Direction.Descending === direction;
+        }
 
-      this.updateSearch(true)
-    })
+        this.updateSearch(true);
+      }
+    });
 
     this.hotkeysService.add(
         new Hotkey(
@@ -274,7 +279,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (evt.code === 'ArrowUp') {
           // slightly ugly as we need to call *this* rowSelected, not
           // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex - 1;
+          const newRowIndex = this.messagedisplay.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollUp();
@@ -284,8 +289,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         } else if (evt.code === 'ArrowDown') {
           // slightly ugly as we need to call *this* rowSelected, not
           // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex + 1;
-          if (newRowIndex < this.canvastable.rows.rowCount()) {
+          const newRowIndex = this.messagedisplay.openedRowIndex + 1;
+          if (newRowIndex < this.messagedisplay.rowCount()) {
             this.rowSelected(newRowIndex, 3, false);
             this.canvastable.scrollDown();
             this.canvastable.hasChanges = true;
@@ -380,7 +385,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   get showSelectOperations() {
-    return !this.rowsSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty()
+    return !this.rowsSelectionModel.isEmpty();
   }
 
   ngDoCheck(): void {
@@ -423,11 +428,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         ) && res) {
         this.setMessageDisplay('messagelist', this.messagelist);
         if (this.jumpToFragment && res.length > 0) {
-            this.selectMessageFromFragment(this.fragment);
-            this.canvastable.jumpToOpenMessage();
+          this.selectMessageFromFragment(this.fragment);
           this.jumpToFragment = false;
         }
-        this.canvastable.hasChanges = true;
       }
     });
 
@@ -468,9 +471,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (fragment !== this.fragment) {
           this.fragment = fragment;
           this.selectMessageFromFragment(this.fragment);
-          if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
-            this.canvastable.jumpToOpenMessage();
-          } else {
+          if (!this.messagedisplay || this.messagedisplay.rowCount() > 0) {
             this.jumpToFragment = true;
           }
         }
@@ -717,7 +718,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // Move to spam folder (delete from index), set spam flag
         if (params.is_spam) {
           // remove from message display
-          this.canvastable.rows.removeMessages(messageIds);
+          this.messagedisplay.removeMessages(messageIds);
           this.searchService.deleteMessages(msgIds);
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.spamFolderName, true);
         } else {
@@ -840,7 +841,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // remove from message display
-        this.canvastable.rows.removeMessages(messageIds);
+        this.messagedisplay.removeMessages(messageIds);
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -860,7 +861,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.searchService.localSearchActivated || this.dataReady) {
       this.usewebsocketsearch = true;
       this.canvastable.topindex = 0;
-      this.canvastable.rows = null;
+      this.messagedisplay = null;
       this.viewmode = 'messages';
       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
       this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
@@ -885,28 +886,28 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
-      if (this.canvastable.rows instanceof SearchMessageDisplay) {
-        this.canvastable.updateRows(args[1]);
+      if (this.messagedisplay instanceof SearchMessageDisplay) {
+        this.messagedisplay.setRows(args[1]);
       } else {
-        this.canvastable.rows = new SearchMessageDisplay(...args);
+        this.messagedisplay = new SearchMessageDisplay(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'messagelist') {
-      if (this.canvastable.rows instanceof MessageList) {
-        this.canvastable.updateRows(args[0]);
+      if (this.messagedisplay instanceof MessageList) {
+        this.messagedisplay.setRows(args[0]);
       } else {
-        this.canvastable.rows = new MessageList(...args);
+        this.messagedisplay = new MessageList(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'websocketlist') {
-      if (this.canvastable.rows instanceof WebSocketSearchMailList) {
-        this.canvastable.updateRows(args[0]);
+      if (this.messagedisplay instanceof WebSocketSearchMailList) {
+        this.messagedisplay.setRows(args[0]);
       } else {
-        this.canvastable.rows = new WebSocketSearchMailList(...args);
+        this.messagedisplay = new WebSocketSearchMailList(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
@@ -921,17 +922,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
     // would that slow things down?
     // NB this triggers hasChanged for us and forces a redraw
-    this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
+    this.canvastable.columns =  this.messagedisplay.getCanvasTableColumns(this);
 
-    this.updateRows()
+    this.enrichRows()
   }
 
   public filterMessageDisplay() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+    if (this.messagedisplay && this.messagedisplay.rowCount() > 0) {
       const options = new Map();
       options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
       options.set('searchText', this.searchText);
-      this.canvastable.rows.filterBy(options);
+      this.messagedisplay.filterBy(options);
       this.canvastable.hasChanges = true;
     }
   }
@@ -941,9 +942,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public selectRowByMessageId(messageId: number) {
-    const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
+    const matchingRowIndex = this.messagedisplay.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
-      this.rowSelectionModel.select({id: messageId});
       this.rowSelected(matchingRowIndex, 1, false);
     } 
   }
@@ -961,18 +961,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
-        this.canvastable.rows.getRowMessageId(rowIndex)
+        this.messagedisplay.getRowMessageId(rowIndex)
       );
       this.drafts();
 
       return;
     }
 
-    this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
+    this.messagedisplay.rowSelected(rowIndex, columnIndex, multiSelect);
 
-    if (this.canvastable.rows.hasChanges) {
-      this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
-      this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
+    if (this.messagedisplay.hasChanges) {
+      this.updateUrlFragment(this.messagedisplay.getRowMessageId(rowIndex));
+      this.singlemailviewer.messageId = this.messagedisplay.getRowMessageId(rowIndex);
 
       if (!this.mobileQuery.matches && !this.messageSubjectDragTipShown) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
@@ -980,14 +980,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
       // FIXME: [2] is searchservice specific!
 
-      if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
+      if (this.viewmode === 'conversations' && this.messagedisplay.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
         this.resetColumns();
         this.clearSelection();
 
         // FIXME [0] is searchservice specific!
         const conversationId =
-          this.searchService.api.getStringValue(this.canvastable.rows.getCurrentRow()[0], 1)
+          this.searchService.api.getStringValue(this.messagedisplay.getCurrentRow()[0], 1)
           .replace(/[^0-9A-Z]/g, '_');
 
         this.conversationSearchText = 'conversation:' + conversationId + '..' + conversationId;
@@ -1089,12 +1089,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(): void {
-    this.canvastable.rows.clearOpenedRow();
+    this.messagedisplay.clearOpenedRow();
     this.updateUrlFragment();
-  }
-
-  updateMessageListHeight() {
-    this.canvastable.jumpToOpenMessage();
   }
 
   searchTextFieldFocus() {
@@ -1144,7 +1140,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         // moveMessagesToFolder cant see these cos not in index
         if (this.messagelistservice.unindexedFolders.includes(this.selectedFolder)) {
           // remove from current message display
-          this.canvastable.rows.removeMessages(messageIds);
+          this.messagedisplay.removeMessages(messageIds);
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1181,7 +1177,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
               this.selectedFolder !== this.messagelistservice.trashFolderName) {
               // remove from current message display
-              this.canvastable.rows.removeMessages(messageIds);
+              this.messagedisplay.removeMessages(messageIds);
               this.searchService.moveMessagesToFolder(msgIds, folderPath);
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1274,8 +1270,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   resetColumns() {
-    if (this.canvastable && this.canvastable.rows) {
-      this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
+    if (this.canvastable && this.messagedisplay) {
+      this.canvastable.columns = this.messagedisplay.getCanvasTableColumns(this);
     }
     this.canvastable.rowWrapModeWrapColumn = 3;
     this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
@@ -1396,8 +1392,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.ngZone.runOutsideAngular(() => {
             searchResults = this.searchService.api.sortedXapianQuery(
               querytext,
-              this.canvastablecontainer.sortColumn,
-              this.canvastablecontainer.sortDescending ? 1 : 0, 0, 50000,
+              this.messagedisplay.sortColumn,
+              this.messagedisplay.sortDescending ? 1 : 0, 0, 50000,
               this.viewmode === 'conversations' ? 1 : -1
             );
           });
@@ -1489,28 +1485,23 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       : this.rowsSelectionModel.selected.map(idValue)
   }
 
-  updateRows() {
-    this.rows = this.canvastable?.rows?.rows ? [...this.canvastable.rows.rows] : []
+  // updateRows() {
+  //   this.rows = this.messagedisplay?.rows ? [...this.messagedisplay.rows] : []
 
-    return this.enrichRows()
-  }
+  //   return this.enrichRows()
+  // }
 
   async enrichRows() {
-    if (!this.canvastable.rows) return;
+    if (!this.messagedisplay) return;
 
     const { start, end } = this.renderedRange;
 
     for (let index = start; index < end; index++) {
-      if (index >= this.rows.length) break
-
-      this.rows[index] = this.canvastable.rows.getRowData(index, this)
-      this.rows[index].plaintext = this.searchService.messageText(this.rows[index].id)
-      this.rows[index].loaded = true
+      this.messagedisplay.enrichRow(index, await this.searchService.messageText(this.messagedisplay.rows[index].id), this);
     }
+    this.rows = Object.create(this.messagedisplay.displayRows);
 
-    this.rows = Object.create(this.rows)
-
-    this.rowsSubject.next(this.rows)
+    this.rowsSubject.next(this.rows);
   }
 
   rangeSelectFrom(from: number, to: number, check: boolean) {
@@ -1609,7 +1600,35 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   // This will drop the resolved values.
   onRenderedRangeChange(event) {
     this.renderedRange = event;
-    this.enrichRows()
+    // fetch new message data (whole range)
+    const { start, end } = this.renderedRange;
+    const messageIdMap = this.messagedisplay.getRowMessageIds(start, end);
+    this.rmmapi.downloadMessages(Array.from(messageIdMap.keys())).then((messages) => {
+      const updateWorker = new Map();
+      for (const msg of messages) {
+        // text for main thread text cache + messagelist service:
+        // This ought to take the text + set it? no need to re-fetch really
+        this.searchService.messageText(msg['mid']);
+
+        // index worker's copy of the index:
+        updateWorker.set(msg['mid'], msg.text.text);
+
+        // local messagelist copy
+        // we have a copy in messagelist service, and another in here..
+        this.messagedisplay.enrichRow(messageIdMap.get(msg['mid']), msg.text.text, this);
+      };
+      // Send to the messageCache in the worker, so we can add the text to the index:
+      if(updateWorker.size > 0) {
+        this.searchService.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'updates': updateWorker });
+      }
+
+      // update displayed rows:
+      this.rows = Object.create(this.messagedisplay.displayRows);
+
+      this.rowsSubject.next(this.rows);
+    });
+
+    // this.enrichRows()
   }
 
 }
