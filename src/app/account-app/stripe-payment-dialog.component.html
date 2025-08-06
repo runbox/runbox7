@@ -1,6 +1,7 @@
 <h1 mat-dialog-title>Card payment</h1>
+  <div mat-dialog-content>
     <div [style.display]="state === 'initial' ? 'block' : 'none'">
-      <div >
+      <div>
         <div #paymentElement id="payment-element"></div>
       </div>
 
@@ -28,7 +29,7 @@
     </div>
 
     <div class="description" style="text-align: center"> Payment form not working? <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.</a> </div>
-
+  </div>
     <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
       <button mat-button (click)="close()"> Cancel </button>
     </div>

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog as MatDialog, MatDialogRef as MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
@@ -236,6 +236,7 @@ export class ShoppingCartComponent implements OnInit {
             let dialogRef: MatDialogRef<any>;
             if (method === 'stripe') {
                 dialogRef = this.dialog.open(StripePaymentDialogComponent, {
+                    'height': '90%',
                     data: { tx }
                 });
             } else if (method === 'coinbase') {
@@ -244,6 +245,8 @@ export class ShoppingCartComponent implements OnInit {
                 });
             } else if (method === 'paypal') {
                 dialogRef = this.dialog.open(PaypalPaymentDialogComponent, {
+                    'height': '300px',
+                    'width': '500px',
                     data: { tx }
                 });
             } else if (method === 'giro') {
