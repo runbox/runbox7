@@ -18,33 +18,33 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
     selector: 'app-paypal-payment-dialog-component',
     template: `
-<div mat-dialog-content style="width: 500px; height: 300px;">
-  <h1 mat-dialog-title>PayPal payment</h1>
-  <div *ngIf="!redirect_url">
-    <div> We're preparing your Paypal payment, please wait...</div>
-    <mat-spinner style="margin:0 auto;"></mat-spinner>
-  </div>
-  <div *ngIf="redirect_url">
-    Your PayPal payment link is ready. Please click the button below to be transferred to PayPal and complete your payment.
-  </div>
-  <br /><br />
-  <div style="text-align: center">
-    <a *ngIf="redirect_url" mat-flat-button color="primary" [href]="redirect_url" style="background: none">
+<h1 mat-dialog-title>PayPal payment</h1>
+  <div mat-dialog-content>
+    <div *ngIf="!redirect_url">
+      <div> We're preparing your Paypal payment, please wait...</div>
+      <mat-spinner style="margin:0 auto;"></mat-spinner>
+    </div>
+    <div *ngIf="redirect_url">
+      Your PayPal payment link is ready. Please click the button below to be transferred to PayPal and complete your payment.
+    </div>
+    <br /><br />
+    <div style="text-align: center">
+      <a *ngIf="redirect_url" mat-flat-button color="primary" [href]="redirect_url" style="background: none">
       <img src="/_img/pay/paypal_bundle_s.png" alt="PayPal">
-    </a>
+      </a>
+    </div>
   </div>
   <div mat-dialog-actions style="justify-content: space-between;">
     <button mat-button (click)="close()"> Cancel </button>
     <a *ngIf="redirect_url" mat-flat-button color="primary" [href]="redirect_url"> Continue to PayPal </a>
   </div>
-</div>
 `
 })
 export class PaypalPaymentDialogComponent {
