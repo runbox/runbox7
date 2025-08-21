@@ -39,6 +39,7 @@ import { LRUMessageCache } from './lru-message-cache';
 import moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 import { PreferencesResult } from '../common/preferences.service';
+import { Domain } from '../dkim/domain.service';
 
 export class MessageFields {
     id: number;
@@ -970,6 +971,22 @@ export class RunboxWebmailAPI {
     setSavedSearches(savedSearches: SavedSearchStorage): Observable<SavedSearchStorage> {
         return this.http.post('/rest/v1/webmail/saved_searches', savedSearches).pipe(
             map((res: HttpResponse<any>) => res['result'])
+        );
+    }
+
+    public getUserDomains(): Observable<Domain[]> {
+        return this.http.get('/rest/v1/dkim/domains').pipe(
+            map((res: HttpResponse<any>) => {
+                return res['result']['domains'].map(d => Domain.fromObject(d));
+            })
+        );
+    }
+
+    public checkDomainCName(domain: string, selector: string): Observable<boolean> {
+        return this.http.get('/rest/v1/dkim/' + domain + '/check_cname/' + selector).pipe(
+            map((res: HttpResponse<any>) => {
+                return res['result'];
+            })
         );
     }
 }
