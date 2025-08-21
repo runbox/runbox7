@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2025 Runbox Solutions AS (runbox.com).
 // 
 // This file is part of Runbox 7.
 // 
@@ -23,12 +23,14 @@ create initial keys: POST   /rest/v1/dkim/$domain/keys/create
         replace key: PUT    /rest/v1/dkim/$domain/key/update/$selector -- or selector2
          delete key: DELETE /rest/v1/dkim/$domain/key/remove/$selector -- or selector2
 */
-import { Component, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ConfirmDialog } from '../dialog/dialog.module';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { Router, ActivatedRoute } from '@angular/router';
+import { DomainService, Domain, DomainKey } from './domain.service';
 
 @Component({
   selector: 'app-dkim',
@@ -55,7 +57,7 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
   `],
 })
 
-export class DkimComponent implements AfterViewInit {
+export class DkimComponent implements OnInit {
   panelOpenState = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -63,22 +65,49 @@ export class DkimComponent implements AfterViewInit {
 
   dkim_domain;
   dkim_domains = [];
-  domain;
+  chosenDomain: string;
   is_creating_keys = false;
   is_rotating = 0;
   key = {};
   keys = [];
   is_deleting_keys = false;
 
-  ngAfterViewInit() {
+  constructor(
+    private dialog: MatDialog,
+    private http: HttpClient,
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
+    private router: Router,
+    public domainService: DomainService,
+  ) {
   }
 
-  disable () {
-    const del_dkim_domain = this.http.delete('/rest/v1/dkim/domain/' + this.domain);
+  ngOnInit(): void {
+    this.route.fragment.subscribe(
+      fragment => {
+        if (fragment !== this.chosenDomain) {
+          this.chosenDomain = fragment;
+          console.log(`scrolling to ${this.chosenDomain}`);
+          const el = document.getElementById(`panel-${this.chosenDomain}`);
+          el.scrollIntoView();
+        }
+      }
+    );
+  }
+
+  updateFragment(domainName: string) {
+    if(domainName !== this.chosenDomain) {
+      this.chosenDomain = domainName;
+      this.router.navigate(['/dkim'], { fragment: domainName });
+    }
+  }
+
+  disable (domain: string) {
+    const del_dkim_domain = this.http.delete('/rest/v1/dkim/domain/' + domain);
     const confirmDialog = this.dialog.open(ConfirmDialog);
-    confirmDialog.componentInstance.title = `Delete dkim for domain ${this.domain}?`;
+    confirmDialog.componentInstance.title = `Delete dkim for domain ${domain}?`;
     confirmDialog.componentInstance.question =
-        `Are you sure that you want to delete DKIM settings for domain ${this.domain}?`;
+        `Are you sure that you want to delete DKIM settings for domain ${domain}?`;
     confirmDialog.componentInstance.noOptionTitle = 'cancel';
     confirmDialog.componentInstance.yesOptionTitle = 'ok';
     confirmDialog.afterClosed().subscribe(result => {
@@ -88,147 +117,60 @@ export class DkimComponent implements AfterViewInit {
           (r: any) => {
             this.is_deleting_keys = false;
             if ( r.status === 'success' ) {
-              this.keys = [];
-              this.key = {};
-              this.load_dkim_domains();
-              this.load_keys();
-              return this.show_error( 'Settings will be deleted shortly. Please check in a few minutes!', 'Dismiss' );
+              this.domainService.refresh();
+              return this.show_snackbar( 'Settings will be deleted shortly. Please check in a few minutes!', 'Dismiss' );
             } else if ( r.status === 'error' ) {
-              return this.show_error( r.errors.join('\n'), 'Dismiss' );
+              return this.show_snackbar( r.errors.join('\n'), 'Dismiss' );
             } else {
-              return this.show_error( 'Unknown error has happened.', 'Dismiss' );
+              return this.show_snackbar( 'Unknown error has happened.', 'Dismiss' );
             }
           },
           error => {
             this.is_deleting_keys = false;
-            return this.show_error('Could not list dkim domains list.', 'Dismiss');
+            return this.show_snackbar('Could not list dkim domains list.', 'Dismiss');
           }
         );
       }
     });
   }
 
-  ev_get_domain () {
-    this.load_dkim_domains();
-    this.load_keys();
-  }
-
-  load_dkim_domains () {
-   // const get_dkim_domains = this.http.get()
-    const get_domains = this.http.get('/rest/v1/dkim/domains');
-    get_domains.subscribe(
-      (r: any) => {
-        if ( r.status === 'success' ) {
-          this.dkim_domains = r.result.domains;
-          const filtered = this.dkim_domains.filter((o) => o.domain === this.domain);
-          this.dkim_domain = filtered[0];
-          if ( ! this.dkim_domain ) {
-            return setTimeout(() => { this.load_dkim_domains(); }, 5000);
-          }
-          if ( !this.domain && this.dkim_domain ) {
-            this.domain = this.dkim_domain.domain;
-          }
-        } else if ( r.status === 'error' ) {
-          return this.show_error( r.errors.join('\n'), 'Dismiss' );
-        } else {
-          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
-        }
-      },
-      error => {
-        return this.show_error('Could not list dkim domains list.', 'Dismiss');
-      }
-    );
-  }
-
-  load_keys () {
-    if ( ! this.domain ) { return; }
-    const get_keys = this.http.get('/rest/v1/dkim/' + this.domain + '/keys');
-    get_keys.subscribe(
-      (r: any) => {
-        if ( r.status === 'success' ) {
-          this.key = {};
-          this.keys = r.result.keys;
-          this.domain = r.result.domain.name;
-          this.is_rotating = r.result.domain.is_rotating;
-          this.keys.forEach( (k) => this.key[k.selector] = k );
-        } else if ( r.status === 'error' ) {
-          this.keys = [];
-          return this.show_error( r.errors.join('\n'), 'Dismiss' );
-        } else {
-          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
-        }
-      },
-      error => {
-      }
-    );
-  }
 
   create_keys () {
     this.is_creating_keys = true;
-    const req = this.http.post('/rest/v1/dkim/' + this.domain + '/keys/create', {});
+    const req = this.http.post('/rest/v1/dkim/' + this.chosenDomain + '/keys/create', {});
     req.subscribe(
       (r: any) => {
         if ( r.status === 'success' ) {
           this.is_creating_keys = false;
           this.keys = r.result.keys;
-          this.load_dkim_domains();
-          this.load_keys();
+          this.domainService.refresh();
         } else if ( r.status === 'error' ) {
           this.is_creating_keys = false;
-          return this.show_error( r.errors.join('\n'), 'Dismiss' );
+          return this.show_snackbar( r.errors.join('\n'), 'Dismiss' );
         } else {
           this.is_creating_keys = false;
-          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
+          return this.show_snackbar( 'Unknown error has happened.', 'Dismiss' );
         }
       },
       error => {
         this.is_creating_keys = false;
-        return this.show_error('Could not create dkim keys', 'Dismiss');
+        return this.show_snackbar('Could not create dkim keys', 'Dismiss');
       }
     );
   }
 
-  check_cname (item) {
-    const url = '/rest/v1/dkim/' + this.domain + '/check_cname/' + item.selector;
-    const req = this.http.put(url, {});
-    req.subscribe(
-      (r: any) => {
-        if ( r.status === 'success' ) {
-          this.show_error( 'This CNAME will be checked shortly.', 'Dismiss');
-          this.load_keys();
-          this.load_dkim_domains();
-        } else if ( r.status === 'error' ) {
-          return this.show_error( r.errors.join('\n'), 'Dismiss' );
-        } else {
-          return this.show_error( 'Unknown error has happened.', 'Dismiss' );
-        }
-      },
-      error => {
-        return this.show_error('There was an error.', 'Dismiss');
-      }
+  check_cname (domain: Domain, key: DomainKey) {
+    this.domainService.check_cname(domain.name, key).subscribe(
+      res => this.show_snackbar(res ? 'CNAME is correct' : 'CNAME not found', 'Dismiss')
     );
   }
 
-  show_error (message, action) {
+  show_snackbar (message, action) {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
   }
 
-  constructor(
-    private dialog: MatDialog,
-    private http: HttpClient,
-    private snackBar: MatSnackBar,
-  ) {
-    const domain = window.location.href.match(/domain=([^&]+)/);
-    if (domain && domain[1]) {
-      this.domain = domain[1];
-      this.load_dkim_domains();
-      if ( this.domain ) {
-        this.load_keys();
-      }
-    }
-  }
 
 
 }
