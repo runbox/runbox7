@@ -77,7 +77,7 @@ export class AccountUpgradesComponent implements OnInit {
         if (e instanceof NavigationEnd) {
           const tree = router.parseUrl(router.url);
           if (tree.fragment) {
-            const element = document.querySelector("#" + tree.fragment);
+            const element = document.querySelector('#' + tree.fragment);
             if (element) { element.scrollIntoView(true); }
           }
         }
@@ -180,7 +180,7 @@ export class AccountUpgradesComponent implements OnInit {
     check_over_quota(plans, usage) {
         if (plans && usage) {
             for(const p of plans) {
-                let oq = [];
+                const oq = [];
                 Object.keys(p.quotas).map((key) => {
                     if (usage[key] && p.quotas[key].type === 'fixed' && p.quotas[key].quota < usage[key].usage) {
                         oq.push({'quota': usage[key].name, 'allowed': p.quotas[key].quota, 'current': usage[key].usage, 'type': usage[key].type });

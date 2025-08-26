@@ -22,13 +22,13 @@ import { Component, Input } from '@angular/core';
 @Component({
     selector: 'app-runbox-loading',
     template: `
-<div *ngIf="size == 'tiny'"
+<div *ngIf="size === 'tiny'"
     style="display: flex; flex-direction: row; align-items: center;"
 >
     <mat-spinner diameter="16"></mat-spinner>
     <div style="margin: 5px;"> {{ text }} </div>
 </div>
-<div *ngIf="size == 'default'"
+<div *ngIf="size === 'default'"
     style="display: flex; flex-direction: column; align-items: center;"
 >
     <div style="margin: 10px;"> {{ text }} </div>

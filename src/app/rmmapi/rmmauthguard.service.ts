@@ -19,13 +19,13 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router, CanActivateChild } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { RunboxWebmailAPI } from './rbwebmail';
 
 @Injectable()
-export class RMMAuthGuardService implements CanActivate, CanActivateChild {
+export class RMMAuthGuardService  {
 
     urlBeforeLogin = '';
     wasLoggedIn = false;

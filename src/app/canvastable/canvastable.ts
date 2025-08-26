@@ -80,7 +80,6 @@ export namespace CanvasTable {
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastable',
-  moduleId: 'angular2/app/canvastable/',
   templateUrl: 'canvastable.component.html'
 })
 export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
@@ -195,7 +194,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     }
   }
 
-  private dragSelectionDirectionIsDown: Boolean = null;
+  private dragSelectionDirectionIsDown: boolean = null;
 
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
@@ -610,7 +609,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         }
       });
 
-    const dragImageCanvas = document.createElement("canvas");
+    const dragImageCanvas = document.createElement('canvas');
     dragImageCanvas.width = this.canv.width - 20;
     dragImageCanvas.height = dragImageYCoords.length * this.rowheight * devicePixelRatio;
 
@@ -629,7 +628,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
     document.body.append(dragImageCanvas);
     dragImageCanvas.setAttribute('id', 'thedragcanvas');
-    dragImageCanvas.style.position = "absolute"; dragImageCanvas.style.top = "0px"; dragImageCanvas.style.left = "-"+ dragImageCanvas.width + "px";
+    dragImageCanvas.style.position = 'absolute'; dragImageCanvas.style.top = '0px'; dragImageCanvas.style.left = '-'+ dragImageCanvas.width + 'px';
     dragImageCanvas.style.width = Math.floor(((this.canv.width - 20) / devicePixelRatio)) + 'px';
 
     return dragImageCanvas;
@@ -1368,7 +1367,6 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastablecontainer',
   templateUrl: 'canvastablecontainer.component.html',
-  moduleId: 'angular2/app/canvastable/',
   styleUrls: ['canvastablecontainer.component.scss']
 })
 export class CanvasTableContainerComponent implements OnInit {

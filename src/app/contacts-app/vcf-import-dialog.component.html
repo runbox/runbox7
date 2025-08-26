@@ -42,7 +42,7 @@
             <p>
                 <mat-radio-button value="existing"> Import contacts into an existing category </mat-radio-button>
             </p>
-            <p *ngIf="categoryChoice == 'existing'">
+            <p *ngIf="categoryChoice === 'existing'">
                 <mat-select placeholder="Category" [(ngModel)]="target_existing">
                     <mat-option *ngFor="let category of categories" [value]="category">
                         {{ category }}
@@ -52,7 +52,7 @@
             <p>
                 <mat-radio-button value="new"> Import contacts into a new category </mat-radio-button>
             </p>
-            <p *ngIf="categoryChoice == 'new'">
+            <p *ngIf="categoryChoice === 'new'">
                 <input matInputtype="text" [(ngModel)]="target_new">
             </p>
             <p>

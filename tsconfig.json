@@ -7,22 +7,14 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "target": "ES2022",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2018.promise",
-      "es2017",
-      "ES2021.String",
-      "dom"
-    ],
+    "lib": ["es2022", "dom"],
     "module": "ES2020",
     "baseUrl": "./",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "incremental": true,
+    "skipLibCheck": true
   },
-  "include": [
-     "./src/"
-  ],
+  "include": ["./src/"]
 }

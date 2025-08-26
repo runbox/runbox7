@@ -28,7 +28,7 @@ import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 
-let testcounter = 1;
+const testcounter = 1;
 
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();

@@ -143,7 +143,7 @@ Subject: Test subject <br />
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
-        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe('\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde');
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -173,7 +173,7 @@ Subject: Test subject <br />
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
-        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe('\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde');
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -210,7 +210,7 @@ Subject: Test subject <br />
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
-        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe('\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde');
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -253,7 +253,7 @@ Subject: Test subject <br />
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
         expect(draft.to[1].nameAndAddress).toBe('"To-Extra" <to-extra@runbox.com>');
         expect(draft.cc[0].nameAndAddress).toBe('"CC" <cc@runbox.com>');
-        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe('\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde');
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -282,7 +282,7 @@ Subject: Test subject <br />
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
-        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe('\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde');
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -310,7 +310,7 @@ Subject: Test subject <br />
         expect(draft.subject).toBe('Re: Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
-        expect(draft.msg_body).toBe(`\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.msg_body).toBe('\nOn 2017-07-01 00:00 +00:00 GMT, "From" <from@runbox.com> wrote:\n> blabla\n> abcde');
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
@@ -357,9 +357,9 @@ Subject: Test subject <br />
         expect(replydraft.subject).toBe('Re: Test subject');
         expect(replydraft.from).toBe('from@runbox.com');
         expect(replydraft.to[0].nameAndAddress).toBe('to@runbox.com');
-        expect(replydraft.msg_body).toBe(`\nOn 2017-07-02 00:00 +00:00 GMT, to@runbox.com wrote:\n` +
+        expect(replydraft.msg_body).toBe('\nOn 2017-07-02 00:00 +00:00 GMT, to@runbox.com wrote:\n' +
                                          '> \n' +
-          `> On 2017-07-01 00:00 +00:00 GMT, from@runbox.com wrote:\n` +
+          '> On 2017-07-01 00:00 +00:00 GMT, from@runbox.com wrote:\n' +
                                          '>> blabla\n>> abcde');
         expect(replydraft.isUnsaved()).toBe(true);
         done();

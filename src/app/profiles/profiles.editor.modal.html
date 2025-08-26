@@ -113,7 +113,7 @@
         </form>
     </mat-card-content>
 
-    <div class="warning-container" *ngIf="identity.reference_type == 'preference' && identity.reference.status === 1">
+    <div class="warning-container" *ngIf="identity.reference_type === 'preference' && identity.reference.status === 1">
         Email not validated. Check your email or
         <a href="javascript:void(0)" (click)="resend_validate_email(identity.id)">
             re-send</a>.
