@@ -18,10 +18,6 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
-import {
-  CanvasTableComponent,
-  CanvasTableContainerComponent
-} from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
@@ -168,14 +164,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
   @ViewChild('toolbarListButtonContainer') toolbarListButtonContainer: ElementRef;
 
   sideMenuOpened = true;
 
   hasChildRouterOutlet = false;
-  canvastable: CanvasTableComponent;
 
   fragment: string;
   jumpToFragment = false;
@@ -199,6 +193,15 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   renderedRange = {start: 0, end: 0}; // First ten messages.
 
   widths = {};
+  sort = {
+    sortColumn: 2,
+    sortDescending: true
+  };
+  canvastable = {
+    rows: null,
+    hasChanges: true,
+    showContentTextPreview: true,
+  };
 
   constructor(
     public searchService: SearchService,
@@ -232,11 +235,11 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       const {data: column, direction} = this.orderSelectionModel.selected
 
       if (direction === Direction.None) {
-        this.canvastablecontainer.sortColumn = 2;
-        this.canvastablecontainer.sortDescending = true;
+        this.sort.sortColumn = 2;
+        this.sort.sortDescending = true;
       } else {
-        this.canvastablecontainer.sortColumn = column;
-        this.canvastablecontainer.sortDescending = Direction.Descending === direction;
+        this.sort.sortColumn = column;
+        this.sort.sortDescending = Direction.Descending === direction;
       }
 
       this.updateSearch(true)
@@ -275,7 +278,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
           const newRowIndex = this.canvastable.rows.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.scrollUp();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
@@ -285,7 +287,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
           const newRowIndex = this.canvastable.rows.openedRowIndex + 1;
           if (newRowIndex < this.canvastable.rows.rowCount()) {
             this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.scrollDown();
             this.canvastable.hasChanges = true;
             evt.preventDefault();
           }
@@ -304,7 +305,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         this.setMessageDisplay('websocketlist', results);
         this.showingWebSocketSearchResults = true;
       }
-      this.resetColumns();
     });
 
     this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
@@ -332,7 +332,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       // message list prefs
       if (this.canvastable) {
         this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
-        this.canvastable.columnWidths = prefs.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
       }
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
@@ -399,18 +398,13 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   async ngOnInit() {
     await firstValueFrom(this.xapianLoaded);
 
-    this.canvastable = this.canvastablecontainer.canvastable;
     if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
       this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
-    }
-    if (this.preferences.has(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`)) {
-      this.canvastable.columnWidths = this.preferences.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
     }
     this.orderSelectionModel.selected = {
       data: 2,
       direction: Direction.Descending
     }
-    this.resetColumns();
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
@@ -844,7 +838,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   public deleteLocalIndex() {
     if (this.searchService.localSearchActivated || this.dataReady) {
       this.usewebsocketsearch = true;
-      this.canvastable.topindex = 0;
       this.canvastable.rows = null;
       this.viewmode = 'messages';
       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
@@ -852,8 +845,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       this.dataReady = false;
       this.showingSearchResults = false;
       this.searchText = '';
-
-      this.resetColumns();
 
       this.usage.report('local-index-deleted');
 
@@ -868,10 +859,15 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
   }
 
+  updateRowS(newList) {
+    this.canvastable.rows.setRows(newList);
+    this.canvastable.hasChanges = true;
+  }
+
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
       if (this.canvastable.rows instanceof SearchMessageDisplay) {
-        this.canvastable.updateRows(args[1]);
+        this.updateRowS(args[1]);
       } else {
         this.canvastable.rows = new SearchMessageDisplay(...args);
         // messages updated, check if we need to select a message from the fragment
@@ -880,7 +876,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
     if (displayType === 'messagelist') {
       if (this.canvastable.rows instanceof MessageList) {
-        this.canvastable.updateRows(args[0]);
+        this.updateRowS(args[0]);
       } else {
         this.canvastable.rows = new MessageList(...args);
         // messages updated, check if we need to select a message from the fragment
@@ -889,7 +885,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
     if (displayType === 'websocketlist') {
       if (this.canvastable.rows instanceof WebSocketSearchMailList) {
-        this.canvastable.updateRows(args[0]);
+        this.updateRowS(args[0]);
       } else {
         this.canvastable.rows = new WebSocketSearchMailList(...args);
         // messages updated, check if we need to select a message from the fragment
@@ -898,15 +894,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
 
     this.filterMessageDisplay();
-
-    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
-    // in canvastable, and anyway get CV to just read the columns itself
-    // "this" so we can check selectedFolder (FIXME: improve!)
-    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
-    // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
-    // would that slow things down?
-    // NB this triggers hasChanged for us and forces a redraw
-    this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
 
     this.updateRows()
   }
@@ -967,7 +954,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
       if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
-        this.resetColumns();
         this.clearSelection();
 
         // FIXME [0] is searchservice specific!
@@ -1181,7 +1167,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
-      this.resetColumns();
       this.updateSearch(true);
     }
   }
@@ -1216,16 +1201,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
     this.selectedFolder = folder;
 
-    // FIXME: fairly sure this is redundant, the messageDisplay setting
-    // in the subscribe in ngInit should do it for us
-    this.messagelistservice.messagesInViewSubject
-      .pipe(
-        skip(1),
-        take(1)
-      ).subscribe(() =>
-        // Reset columns after folder list is updated
-        this.resetColumns()
-      );
     this.messagelistservice.setCurrentFolder(folder);
 
     if (this.viewmode === 'singleconversation') {
@@ -1239,21 +1214,8 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
 
     setTimeout(() => {
-        if (doResetColumns) {
-          this.resetColumns();
-        }
         this.updateSearch(true);
-        this.canvastable.scrollTop();
       }, 0);
-  }
-
-  resetColumns() {
-    if (this.canvastable && this.canvastable.rows) {
-      this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
-    }
-    this.canvastable.rowWrapModeWrapColumn = 3;
-    this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
-    this.autoAdjustColumnWidths();
   }
 
   showSaveSearchDialog(): void {
@@ -1314,7 +1276,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
          */
         if (this.showingSearchResults) {
           this.showingSearchResults = false;
-          this.resetColumns();
         }
 
         this.setMessageDisplay('messagelist', this.messagelist);
@@ -1357,7 +1318,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         if (!this.showingSearchResults ||
           this.displayFolderColumn !== previousDisplayFolderColumn) {
           this.showingSearchResults = true;
-          this.resetColumns();
         }
 
         if (querytext.match(/date:/) && querytext.match(/\.\./)) {
@@ -1370,8 +1330,8 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
           this.ngZone.runOutsideAngular(() => {
             searchResults = this.searchService.api.sortedXapianQuery(
               querytext,
-              this.canvastablecontainer.sortColumn,
-              this.canvastablecontainer.sortDescending ? 1 : 0, 0, 50000,
+              this.sort.sortColumn,
+              this.sort.sortDescending ? 1 : 0, 0, 50000,
               this.viewmode === 'conversations' ? 1 : -1
             );
           });
@@ -1382,9 +1342,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
           this.searchResultsCount = searchResults.length;
           if (searchResults) {
             this.setMessageDisplay('search', this.searchService, searchResults);
-            if (!noscroll) {
-              this.canvastable.scrollTop();
-            }
           }
         } catch (e) {
           console.error(e)
@@ -1411,16 +1368,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
                           this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
-  }
-
-  horizScroll(evt: any) {
-    this.canvastable.horizScroll = evt.target.scrollLeft;
-  }
-
-  autoAdjustColumnWidths() {
-    setTimeout(() =>
-      this.canvastable.autoAdjustColumnWidths(40, true), 0
-    );
   }
 
   promptLocalSearch() {

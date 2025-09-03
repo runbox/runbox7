@@ -414,11 +414,6 @@
             id="canvasTableContainerArea"
             [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
 
-            <canvastablecontainer
-              [canvastableselectlistener]="this"
-              (sortToggled)="updateSearch(true)">
-            </canvastablecontainer>
-
             <app-virtual-scroll-table
               [scrollToIndex$]="scrollToIndex$"
               *ngIf="rows.length"
