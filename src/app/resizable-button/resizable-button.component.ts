@@ -35,8 +35,8 @@ export class ResizableButtonComponent implements OnChanges {
   @Output() widthChange = new EventEmitter<number>();
 
   isResizing = false;
-  private startX: number = 0;
-  private startWidth: number = 0;
+  private startX = 0;
+  private startWidth = 0;
 
   // Hold the reference to the event listeners
   private onMouseMoveListener: (event: MouseEvent) => void;
