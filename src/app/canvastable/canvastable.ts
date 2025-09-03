@@ -94,8 +94,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     }
   }
 
-  @ViewChild('thecanvas') canvRef: ElementRef;
-
   @Input() columnWidths = {};
 
   @Output() columnresize = new EventEmitter<number>();
@@ -106,8 +104,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
 
   repaintDoneSubject: Subject<any> = new Subject();
   canvasResizedSubject: Subject<boolean> = new Subject();
-
-  private canv: HTMLCanvasElement;
 
   private _rowheight = 28;
 
@@ -214,152 +210,13 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
-    this.canv = this.canvRef.nativeElement;
-
-    this.canv.onwheel = (event: WheelEvent) => {
-      event.preventDefault();
-      switch (event.deltaMode) {
-        case 0:
-          // pixels
-          this.topindex += (event.deltaY / this.rowheight);
-          break;
-        case 1:
-          // lines
-          this.topindex += event.deltaY;
-          break;
-        case 2:
-          // pages
-          this.topindex += (event.deltaY * (this.canv.scrollHeight / this.rowheight));
-          break;
-      }
-
-    };
-
     /**
      * Returns true if clientX/Y is inside the scrollbar area and if wholeScrollbar specified then not just the draggable slider
      * @param clientX
      * @param clientY
      * @param wholeScrollbar include whole scrollbar area, not just the draggable slider
      */
-    const checkIfScrollbarArea = (clientX: number, clientY: number, wholeScrollbar?: boolean): boolean => {
-      if (!this.scrollBarRect) {
-        return false;
-      }
-      const canvrect = this.canv.getBoundingClientRect();
-      const x = clientX - canvrect.left;
-      const y = clientY - canvrect.top;
-      return x > this.scrollBarRect.x && x < (this.scrollBarRect.x + this.scrollBarRect.width) &&
-        (wholeScrollbar || y > this.scrollBarRect.y && y < this.scrollBarRect.y + this.scrollBarRect.height);
-    };
 
-    const checkScrollbarDrag = (clientX: number, clientY: number) => {
-
-      if (!this.scrollBarRect) {
-        return;
-      }
-
-      const canvrect = this.canv.getBoundingClientRect();
-      if (checkIfScrollbarArea(clientX, clientY)) {
-        this.scrollbarDragInProgress = true;
-      } else if (checkIfScrollbarArea(clientX, clientY, true)) {
-        // Check if click is above or below scrollbar slider
-
-        const y = clientY - canvrect.top;
-        if (y < this.scrollBarRect.y) {
-          // above
-          this.topindex -= this.canv.scrollHeight / this.rowheight;
-        } else {
-          // below
-          this.topindex += this.canv.scrollHeight / this.rowheight;
-        }
-      }
-    };
-
-    this.canv.onmousedown = (event: MouseEvent) => {
-      event.preventDefault();
-      checkScrollbarDrag(event.clientX, event.clientY);
-
-      if (this.visibleColumnSeparatorIndex > 0) {
-        this.columnresizestart.emit({ colindex: this.visibleColumnSeparatorIndex, clientx: event.clientX });
-      }
-    };
-
-  }
-
-  private updateDragImage(selectedRowIndex: number) :HTMLCanvasElement {
-    const dragImageYCoords: number[][] = [];
-    let dragImageDestY = 0;
-
-    // FIXME move to message_display??
-    this.rows.rows
-      .forEach((row, ndx) => {
-        if (
-          ndx >= this.topindex && (ndx - this.topindex) <= (this.canv.height / this.rowheight)
-          &&
-          (this.rows.isSelectedRow(ndx) || ndx === selectedRowIndex)
-        ) {
-          const dragImageDataY = Math.floor((ndx - this.topindex) * this.rowheight * devicePixelRatio);
-          dragImageYCoords.push([dragImageDataY, dragImageDestY]);
-
-          dragImageDestY += this.rowheight * devicePixelRatio;
-        }
-      });
-
-    const dragImageCanvas = document.createElement('canvas');
-    dragImageCanvas.width = this.canv.width - 20;
-    dragImageCanvas.height = dragImageYCoords.length * this.rowheight * devicePixelRatio;
-
-    const dragContext = dragImageCanvas.getContext('2d');
-    dragContext.clearRect(0,0,dragImageCanvas.width,dragImageCanvas.height);
-    dragContext.fillStyle = 'red';
-    dragContext.fillRect(0,0,dragImageCanvas.width,dragImageCanvas.height);
-    dragImageYCoords.forEach(ycoords => {
-      dragContext.drawImage(this.canv,
-        0, ycoords[0], this.canv.width - 20, this.rowheight * devicePixelRatio,
-        0,
-        ycoords[1],
-        this.canv.width - 20, this.rowheight * devicePixelRatio
-                           );
-    });
-
-    document.body.append(dragImageCanvas);
-    dragImageCanvas.setAttribute('id', 'thedragcanvas');
-    dragImageCanvas.style.position = 'absolute'; dragImageCanvas.style.top = '0px'; dragImageCanvas.style.left = '-'+ dragImageCanvas.width + 'px';
-    dragImageCanvas.style.width = Math.floor(((this.canv.width - 20) / devicePixelRatio)) + 'px';
-
-    return dragImageCanvas;
-  }
-
-  public dragColumnOverlay(event: DragEvent) {
-    const canvrect = this.canv.getBoundingClientRect();
-    const selectedColIndex = this.getColIndexByClientX(event.clientX - canvrect.left);
-    const selectedRowIndex = this.getRowIndexByClientY(event.clientY);
-
-    if (!this.columns[selectedColIndex].checkbox) {
-      this.selectListener.rowSelected(selectedRowIndex, -1);
-      const dragCanvas = this.updateDragImage(selectedRowIndex);
-      event.dataTransfer.dropEffect = 'move';
-      event.dataTransfer.setDragImage(dragCanvas, 0, 0);
-      event.dataTransfer.setData('text/plain', 'rowIndex:' + selectedRowIndex);
-    } else {
-      event.preventDefault();
-    }
-
-    this.hasChanges = true;
-  }
-
-  public columnOverlayClicked(event: MouseEvent) {
-    this.selectRow(event.clientX, event.clientY);
-  }
-
-  public doScrollBarDrag(clientY: number) {
-    const canvrect = this.canv.getBoundingClientRect();
-    this.topindex = this.rows.rowCount() * ((clientY - canvrect.top) / this.canv.scrollHeight);
-  }
-
-  private getRowIndexByClientY(clientY: number) {
-    const canvrect = this.canv.getBoundingClientRect();
-    return Math.floor(this.topindex + (clientY - canvrect.top) / this.rowheight);
   }
 
   public getColIndexByClientX(clientX: number) {
@@ -376,32 +233,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
         x += col.width;
       }
       return selectedColIndex;
-    }
-  }
-
-  public updateVisibleColumnSeparatorIndex(clientX: number) {
-    let x = -this.horizScroll;
-    let selectedColIndex = 0;
-    for (; selectedColIndex < this.columns.length; selectedColIndex++) {
-      const col = this.columns[selectedColIndex];
-      if (clientX >= x - 5 && clientX < x + 5) {
-        break;
-      }
-      x += col.width;
-    }
-    if (selectedColIndex === this.columns.length) {
-      selectedColIndex = -1;
-    }
-
-    if (selectedColIndex !== this.visibleColumnSeparatorIndex && !this.rowWrapMode) {
-      if (selectedColIndex > 0) {
-        this.canv.style.cursor = 'col-resize';
-      } else {
-        this.canv.style.cursor = 'pointer';
-      }
-      this.visibleColumnSeparatorAlpha = 0;
-      this.visibleColumnSeparatorIndex = selectedColIndex;
-      this.hasChanges = true;
     }
   }
 
@@ -451,15 +282,7 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     this.hasChanges = true;
   }
 
-  public selectRow(clientX: number, clientY: number, multiSelect?: boolean) {
-    const selectedRowIndex = this.getRowIndexByClientY(clientY);
-    this.selectRowByIndex(clientX, selectedRowIndex, multiSelect);
-  }
-
   public selectRowByIndex(clientX: number, selectedRowIndex: number, multiSelect?: boolean) {
-    const canvrect = this.canv.getBoundingClientRect();
-    clientX -= canvrect.left;
-
     this.selectListener.rowSelected(selectedRowIndex,
       this.getColIndexByClientX(clientX),
       multiSelect);
@@ -470,10 +293,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
   public autoAdjustColumnWidths(minwidth: number, tryFitScreenWidth = false) {
     // Make innert
     return
-
-    if (!this.canv || this._columns.length === 0) {
-      return;
-    }
 
     const canvasWidth = Math.floor(window.devicePixelRatio) - this.scrollbarwidth - 2;
 
