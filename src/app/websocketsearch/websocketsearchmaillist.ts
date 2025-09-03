@@ -19,7 +19,6 @@
 
 import { MessageDisplay } from '../common/messagedisplay';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
-import { MessageTableRowTool} from '../messagetable/messagetablerow';
 
 export class WebSocketSearchMailList extends MessageDisplay {
 
