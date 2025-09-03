@@ -46,7 +46,6 @@ import { map, take, skip, mergeMap, filter, tap, debounceTime, distinctUntilChan
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { BUILD_TIMESTAMP } from './buildtimestamp';
 import { from, Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
@@ -95,7 +94,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   private rowsSubject= new BehaviorSubject(this.rows);
   debouncedRows$ = this.rowsSubject.asObservable().pipe(debounceTime(300));
 
-  lastCheckedIndex: number = -1;
+  lastCheckedIndex = -1;
   scrollToIndex$ = new BehaviorSubject<number>(0);
   rowSelectionModel = new FilterSelectionModel(
     false,
@@ -1488,9 +1487,9 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.rowsSubject.next(this.rows)
   }
 
-  rangeSelectFrom(from: number, to: number, check: boolean) {
-    const left = Math.min(from, to)
-    const right = Math.max(from, to)
+  rangeSelectFrom(fromIndex: number, to: number, check: boolean) {
+    const left = Math.min(fromIndex, to)
+    const right = Math.max(fromIndex, to)
 
     for (let i = left; i <= right; i++) {
       if (check) {
@@ -1511,12 +1510,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   rangeSelect(to: number, check: boolean) {
-    let from = this.lastCheckedIndex;
+    const fromIndex = this.lastCheckedIndex;
 
     // When nothing is selected yet.
-    if (from === -1) return this.oneSelect(to, check)
+    if (fromIndex === -1) return this.oneSelect(to, check)
 
-    return this.rangeSelectFrom(from, to, check)
+    return this.rangeSelectFrom(fromIndex, to, check)
   }
 
   oneSelect(index, check) {
@@ -1524,15 +1523,15 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   onRowClick(event, row, index, checkbox = false) {
-    const shiftKey = event.getModifierState("Shift")
+    const shiftKey = event.getModifierState('Shift')
     const check = !this.rowsSelectionModel.isSelected(this.rows[index])
 
     if (shiftKey) {
       return this.rangeSelect(index, check)
     }
 
-    const ctrlKey = event.getModifierState("Control")
-    const metaKey = event.getModifierState("Meta")
+    const ctrlKey = event.getModifierState('Control')
+    const metaKey = event.getModifierState('Meta')
 
     if (ctrlKey || metaKey) {
       return this.oneSelect(index, check)

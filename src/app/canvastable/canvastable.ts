@@ -23,7 +23,7 @@
 
 
 import {
-  NgModule, Component, AfterViewInit,
+  NgModule, Component, 
   Input, Output,
   ElementRef,
   EventEmitter, OnInit, ViewChild
@@ -82,7 +82,7 @@ export namespace CanvasTable {
   selector: 'canvastable',
   templateUrl: 'canvastable.component.html'
 })
-export class CanvasTableComponent implements AfterViewInit, OnInit {
+export class CanvasTableComponent implements OnInit {
   static incrementalId = 1;
   public elementId: string;
   private _topindex = 0.0;
