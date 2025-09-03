@@ -22,5 +22,6 @@ import * as Sentry from '@sentry/browser';
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,
-  integrations: [Sentry.captureConsoleIntegration()],
+  // TODO: Introduce again once sentry self-hosted server is upgraded.
+  // integrations: [Sentry.captureConsoleIntegration()],
 });
