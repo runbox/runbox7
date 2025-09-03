@@ -88,10 +88,10 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   rows = [];
 
   private rowsSubject= new BehaviorSubject(this.rows);
-  debouncedRows$ = this.rowsSubject.asObservable().pipe(debounceTime(300));
+  debouncedRows = this.rowsSubject.asObservable().pipe(debounceTime(300));
 
   lastCheckedIndex = -1;
-  scrollToIndex$ = new BehaviorSubject<number>(0);
+  scrollToIndex = new BehaviorSubject<number>(0);
   rowSelectionModel = new FilterSelectionModel(
     false,
     [],
@@ -928,7 +928,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.lastCheckedIndex = rowIndex
 
     if (shouldScroll) {
-      this.scrollToIndex$.next(rowIndex - 1);
+      this.scrollToIndex.next(rowIndex - 1);
     }
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
@@ -1172,7 +1172,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   onFolderSelect(folder: string) {
-    this.scrollToIndex$.next(0);
+    this.scrollToIndex.next(0);
     this.selectFolder(folder)
   }
 
