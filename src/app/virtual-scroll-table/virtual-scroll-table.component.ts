@@ -57,7 +57,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
 
   @Input() scrollToIndex$!: BehaviorSubject<number>;
 
-  firstRowHeight: number = 24;
+  firstRowHeight = 24;
   maxBufferPx: number;
 
   private renderedRangeSub!: Subscription;
@@ -116,7 +116,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
     return index;
   }
 
-  doScrollToIndex(index: number, retries: number = 5, delayMs: number = 500): void {
+  doScrollToIndex(index: number, retries = 5, delayMs = 500): void {
     if (!this.viewport || index == null) return;
     if (this.pendingScrollToIndex == null) return
 

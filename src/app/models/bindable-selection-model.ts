@@ -25,7 +25,7 @@ export class BindableSelectionModel<T> {
   constructor(
     multiple: boolean,
     initialValues: T[] = [],
-    emitChanges: boolean = true,
+    emitChanges = true,
     compareWith: (a: T, b: T) => boolean = (a, b) => a === b,
   ) {
     this.selectionModel = new SelectionModel<T>(multiple, initialValues, emitChanges, compareWith);

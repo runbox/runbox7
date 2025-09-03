@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-export default function humanBytes(value: number, decimalPlaces: number = 0): string {
+export default function humanBytes(value: number, decimalPlaces = 0): string {
   if (value === 0) {
     return '0 B';
   }
