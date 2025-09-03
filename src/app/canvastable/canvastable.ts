@@ -209,16 +209,6 @@ export class CanvasTableComponent implements AfterViewInit, OnInit {
     this.calculateColumnWidths(this.columns);
   }
 
-  ngAfterViewInit() {
-    /**
-     * Returns true if clientX/Y is inside the scrollbar area and if wholeScrollbar specified then not just the draggable slider
-     * @param clientX
-     * @param clientY
-     * @param wholeScrollbar include whole scrollbar area, not just the draggable slider
-     */
-
-  }
-
   public getColIndexByClientX(clientX: number) {
     if (this.rowWrapMode) {
       return clientX > this.columns[0].width ? this.rowWrapModeDefaultSelectedColumn : 0;
