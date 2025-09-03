@@ -20,7 +20,6 @@
 import { MessageDisplay } from '../common/messagedisplay';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
-import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
 export class WebSocketSearchMailList extends MessageDisplay {
 
@@ -51,63 +50,16 @@ export class WebSocketSearchMailList extends MessageDisplay {
     }
   }
 
-    public getCanvasTableColumns(app: any): CanvasTableColumn[] {
-        const columns: CanvasTableColumn[] = [
-            {
-                sortColumn: null,
-                name: '',
-                cacheKey: 'selectbox',
-                rowWrapModeHidden: true,
-                getValue: (rowIndex: number): any => this.isSelectedRow(rowIndex),
-                checkbox: true,
-            },
-            {
-                name: 'Date',
-                draggable: true,
-                cacheKey: 'date',
-                sortColumn: null,
-                rowWrapModeMuted: true,
-                getValue: (rowIndex: number): string => this.getRow(rowIndex).dateTime,
-            },
-            {
-                name: 'From',
-                draggable: true,
-                cacheKey: 'from',
-                sortColumn: null,
-                getValue: (rowIndex: number): string => this.getRow(rowIndex).fromName,
-            },
-            {
-                name: 'Subject',
-                cacheKey: 'subject',
-                sortColumn: null,
-                getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
-                draggable: true
-                // tooltipText: "Tip: Drag subject to a folder to move message(s)"
-            },
-            {
-                sortColumn: null,
-                draggable: true,
-                name: 'Size',
-                cacheKey: 'size',
-                rowWrapModeHidden: true,
-                getValue: (rowIndex: number): number => this.getRow(rowIndex).size,
-                getFormattedValue: MessageTableRowTool.formatBytes,
-            }
-        ];
-
-        return columns;
-    }
-
-    getRowData(rowIndex, app) {
-      return {
-        id: this.getRowMessageId(rowIndex),
-        selectbox: this.isSelectedRow(rowIndex),
-        messageDate: this.getRow(rowIndex).dateTime,
-        from: this.getRow(rowIndex).fromName,
-        subject: this.getRow(rowIndex).subject,
-        size: this.getRow(rowIndex).size,
-        seen: this.getRowSeen(rowIndex)
-      };
-    }
+  getRowData(rowIndex, app) {
+    return {
+      id: this.getRowMessageId(rowIndex),
+      selectbox: this.isSelectedRow(rowIndex),
+      messageDate: this.getRow(rowIndex).dateTime,
+      from: this.getRow(rowIndex).fromName,
+      subject: this.getRow(rowIndex).subject,
+      size: this.getRow(rowIndex).size,
+      seen: this.getRowSeen(rowIndex)
+    };
+  }
 
 }

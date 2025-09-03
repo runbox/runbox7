@@ -52,7 +52,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
-import { CanvasTableModule } from './canvastable/canvastable';
 import { VirtualScrollTableComponent } from './virtual-scroll-table/virtual-scroll-table.component'
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
@@ -158,7 +157,6 @@ const routes: Routes = [
         HttpClientModule,
         VirtualScrollTableComponent,
         HttpClientJsonpModule,
-        CanvasTableModule,
         ComposeModule,
         StartDeskModule,
         WelcomeDeskModule,
