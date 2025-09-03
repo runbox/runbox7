@@ -19,7 +19,7 @@
 
 import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
 import {
-  CanvasTableSelectListener, CanvasTableComponent,
+  CanvasTableComponent,
   CanvasTableContainerComponent
 } from './canvastable/canvastable';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
@@ -46,7 +46,6 @@ import { map, take, skip, mergeMap, filter, tap, debounceTime, distinctUntilChan
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { BUILD_TIMESTAMP } from './buildtimestamp';
 import { from, Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
@@ -86,7 +85,7 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   styleUrls: ['app.component.scss'],
   templateUrl: 'app.component.html',
 })
-export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
+export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   showSelectMarkOpMenu: boolean;
 
 
@@ -95,7 +94,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   private rowsSubject= new BehaviorSubject(this.rows);
   debouncedRows$ = this.rowsSubject.asObservable().pipe(debounceTime(300));
 
-  lastCheckedIndex: number = -1;
+  lastCheckedIndex = -1;
   scrollToIndex$ = new BehaviorSubject<number>(0);
   rowSelectionModel = new FilterSelectionModel(
     false,
@@ -379,7 +378,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   get showSelectOperations() {
-    return !this.rowsSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty()
+    return !this.rowsSelectionModel.isEmpty()
   }
 
   ngDoCheck(): void {
@@ -423,10 +422,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.setMessageDisplay('messagelist', this.messagelist);
         if (this.jumpToFragment && res.length > 0) {
             this.selectMessageFromFragment(this.fragment);
-            this.canvastable.jumpToOpenMessage();
           this.jumpToFragment = false;
         }
-        this.canvastable.hasChanges = true;
       }
     });
 
@@ -443,17 +440,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
 
-    this.canvastable.scrollLimitHit.subscribe((limit) =>
-      this.messagelistservice.requestMoreData(limit)
-    );
-
-    this.canvastable.canvasResizedSubject.pipe(
-        filter(widthChanged => widthChanged === true),
-        debounceTime(20)
-      ).subscribe(() =>
-        this.autoAdjustColumnWidths()
-    );
-
     this.route.fragment.subscribe(
       fragment => {
         if (!fragment) {
@@ -468,7 +454,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.fragment = fragment;
           this.selectMessageFromFragment(this.fragment);
           if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
-            this.canvastable.jumpToOpenMessage();
+            return
           } else {
             this.jumpToFragment = true;
           }
@@ -997,11 +983,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
-  // CanvasTableSelectListener, columnWidths changed:
-  saveColumnWidthsPreference(widths: any) {
-    this.preferenceService.set(this.preferenceService.prefGroup, 'canvasNamedColumnWidthsBySet', widths);
-  }
-
   updateTime() {
     const time = new Date();
     const hour = time.getHours();
@@ -1090,10 +1071,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   singleMailViewerClosed(): void {
     this.canvastable.rows.clearOpenedRow();
     this.updateUrlFragment();
-  }
-
-  updateMessageListHeight() {
-    this.canvastable.jumpToOpenMessage();
   }
 
   searchTextFieldFocus() {
@@ -1510,9 +1487,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.rowsSubject.next(this.rows)
   }
 
-  rangeSelectFrom(from: number, to: number, check: boolean) {
-    const left = Math.min(from, to)
-    const right = Math.max(from, to)
+  rangeSelectFrom(fromIndex: number, to: number, check: boolean) {
+    const left = Math.min(fromIndex, to)
+    const right = Math.max(fromIndex, to)
 
     for (let i = left; i <= right; i++) {
       if (check) {
@@ -1533,12 +1510,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   rangeSelect(to: number, check: boolean) {
-    let from = this.lastCheckedIndex;
+    const fromIndex = this.lastCheckedIndex;
 
     // When nothing is selected yet.
-    if (from === -1) return this.oneSelect(to, check)
+    if (fromIndex === -1) return this.oneSelect(to, check)
 
-    return this.rangeSelectFrom(from, to, check)
+    return this.rangeSelectFrom(fromIndex, to, check)
   }
 
   oneSelect(index, check) {
@@ -1546,15 +1523,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   onRowClick(event, row, index, checkbox = false) {
-    const shiftKey = event.getModifierState("Shift")
+    const shiftKey = event.getModifierState('Shift')
     const check = !this.rowsSelectionModel.isSelected(this.rows[index])
 
     if (shiftKey) {
       return this.rangeSelect(index, check)
     }
 
-    const ctrlKey = event.getModifierState("Control")
-    const metaKey = event.getModifierState("Meta")
+    const ctrlKey = event.getModifierState('Control')
+    const metaKey = event.getModifierState('Meta')
 
     if (ctrlKey || metaKey) {
       return this.oneSelect(index, check)
