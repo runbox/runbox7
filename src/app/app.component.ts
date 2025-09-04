@@ -197,7 +197,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     sortColumn: 2,
     sortDescending: true
   };
-  canvastable = {
+  messageTable = {
     rows: null,
     hasChanges: true,
     showContentTextPreview: true,
@@ -275,19 +275,19 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         if (evt.code === 'ArrowUp') {
           // slightly ugly as we need to call *this* rowSelected, not
           // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex - 1;
+          const newRowIndex = this.messageTable.rows.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.hasChanges = true;
+            this.messageTable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
           // slightly ugly as we need to call *this* rowSelected, not
           // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex + 1;
-          if (newRowIndex < this.canvastable.rows.rowCount()) {
+          const newRowIndex = this.messageTable.rows.openedRowIndex + 1;
+          if (newRowIndex < this.messageTable.rows.rowCount()) {
             this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.hasChanges = true;
+            this.messageTable.hasChanges = true;
             evt.preventDefault();
           }
         }
@@ -330,8 +330,8 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
     preferenceService.preferences.subscribe((prefs) => {
       // message list prefs
-      if (this.canvastable) {
-        this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+      if (this.messageTable) {
+        this.messageTable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
       }
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
@@ -399,7 +399,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     await firstValueFrom(this.xapianLoaded);
 
     if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
-      this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+      this.messageTable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
     }
     this.orderSelectionModel.selected = {
       data: 2,
@@ -447,7 +447,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         if (fragment !== this.fragment) {
           this.fragment = fragment;
           this.selectMessageFromFragment(this.fragment);
-          if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+          if (this.messageTable.rows && this.messageTable.rows.rowCount() > 0) {
             return
           } else {
             this.jumpToFragment = true;
@@ -653,7 +653,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     await this.draftDeskService.newBugReport(
       this.searchService.localSearchActivated,
       this.keepMessagePaneOpen,
-      this.canvastable.showContentTextPreview,
+      this.messageTable.showContentTextPreview,
       this.mailViewerOnRightSide,
       this.unreadMessagesOnlyCheckbox,
       this.mobileQuery.matches
@@ -678,7 +678,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   saveContentPreviewSetting(): void {
-    const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
+    const setting = this.messageTable.showContentTextPreview ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
 //    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
   }
@@ -696,7 +696,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         // Move to spam folder (delete from index), set spam flag
         if (params.is_spam) {
           // remove from message display
-          this.canvastable.rows.removeMessages(messageIds);
+          this.messageTable.rows.removeMessages(messageIds);
           this.searchService.deleteMessages(msgIds);
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.spamFolderName, true);
         } else {
@@ -819,7 +819,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // remove from message display
-        this.canvastable.rows.removeMessages(messageIds);
+        this.messageTable.rows.removeMessages(messageIds);
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -838,7 +838,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   public deleteLocalIndex() {
     if (this.searchService.localSearchActivated || this.dataReady) {
       this.usewebsocketsearch = true;
-      this.canvastable.rows = null;
+      this.messageTable.rows = null;
       this.viewmode = 'messages';
       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
       this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
@@ -860,34 +860,34 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   updateRowS(newList) {
-    this.canvastable.rows.setRows(newList);
-    this.canvastable.hasChanges = true;
+    this.messageTable.rows.setRows(newList);
+    this.messageTable.hasChanges = true;
   }
 
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
-      if (this.canvastable.rows instanceof SearchMessageDisplay) {
+      if (this.messageTable.rows instanceof SearchMessageDisplay) {
         this.updateRowS(args[1]);
       } else {
-        this.canvastable.rows = new SearchMessageDisplay(...args);
+        this.messageTable.rows = new SearchMessageDisplay(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'messagelist') {
-      if (this.canvastable.rows instanceof MessageList) {
+      if (this.messageTable.rows instanceof MessageList) {
         this.updateRowS(args[0]);
       } else {
-        this.canvastable.rows = new MessageList(...args);
+        this.messageTable.rows = new MessageList(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'websocketlist') {
-      if (this.canvastable.rows instanceof WebSocketSearchMailList) {
+      if (this.messageTable.rows instanceof WebSocketSearchMailList) {
         this.updateRowS(args[0]);
       } else {
-        this.canvastable.rows = new WebSocketSearchMailList(...args);
+        this.messageTable.rows = new WebSocketSearchMailList(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
@@ -899,12 +899,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   public filterMessageDisplay() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+    if (this.messageTable.rows && this.messageTable.rows.rowCount() > 0) {
       const options = new Map();
       options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
       options.set('searchText', this.searchText);
-      this.canvastable.rows.filterBy(options);
-      this.canvastable.hasChanges = true;
+      this.messageTable.rows.filterBy(options);
+      this.messageTable.hasChanges = true;
     }
   }
 
@@ -913,7 +913,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   public selectRowByMessageId(messageId: number) {
-    const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
+    const matchingRowIndex = this.messageTable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelectionModel.select({id: messageId});
       this.rowSelected(matchingRowIndex, 1, false);
@@ -933,18 +933,18 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
-        this.canvastable.rows.getRowMessageId(rowIndex)
+        this.messageTable.rows.getRowMessageId(rowIndex)
       );
       this.drafts();
 
       return;
     }
 
-    this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
+    this.messageTable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
 
-    if (this.canvastable.rows.hasChanges) {
-      this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
-      this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
+    if (this.messageTable.rows.hasChanges) {
+      this.updateUrlFragment(this.messageTable.rows.getRowMessageId(rowIndex));
+      this.singlemailviewer.messageId = this.messageTable.rows.getRowMessageId(rowIndex);
 
       if (!this.mobileQuery.matches && !this.messageSubjectDragTipShown) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
@@ -952,20 +952,20 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
       }
       // FIXME: [2] is searchservice specific!
 
-      if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
+      if (this.viewmode === 'conversations' && this.messageTable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
         this.clearSelection();
 
         // FIXME [0] is searchservice specific!
         const conversationId =
-          this.searchService.api.getStringValue(this.canvastable.rows.getCurrentRow()[0], 1)
+          this.searchService.api.getStringValue(this.messageTable.rows.getCurrentRow()[0], 1)
           .replace(/[^0-9A-Z]/g, '_');
 
         this.conversationSearchText = 'conversation:' + conversationId + '..' + conversationId;
         this.updateSearch(true);
       }
 
-      this.canvastable.hasChanges = true;
+      this.messageTable.hasChanges = true;
     }
   }
 
@@ -1055,7 +1055,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   singleMailViewerClosed(): void {
-    this.canvastable.rows.clearOpenedRow();
+    this.messageTable.rows.clearOpenedRow();
     this.updateUrlFragment();
   }
 
@@ -1105,7 +1105,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
         // moveMessagesToFolder cant see these cos not in index
         if (this.messagelistservice.unindexedFolders.includes(this.selectedFolder)) {
           // remove from current message display
-          this.canvastable.rows.removeMessages(messageIds);
+          this.messageTable.rows.removeMessages(messageIds);
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1141,7 +1141,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
             if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
               this.selectedFolder !== this.messagelistservice.trashFolderName) {
               // remove from current message display
-              this.canvastable.rows.removeMessages(messageIds);
+              this.messageTable.rows.removeMessages(messageIds);
               this.searchService.moveMessagesToFolder(msgIds, folderPath);
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1405,20 +1405,20 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   updateRows() {
-    this.rows = this.canvastable?.rows?.rows ? [...this.canvastable.rows.rows] : []
+    this.rows = this.messageTable?.rows?.rows ? [...this.messageTable.rows.rows] : []
 
     return this.enrichRows()
   }
 
   async enrichRows() {
-    if (!this.canvastable.rows) return;
+    if (!this.messageTable.rows) return;
 
     const { start, end } = this.renderedRange;
 
     for (let index = start; index < end; index++) {
       if (index >= this.rows.length) break
 
-      this.rows[index] = this.canvastable.rows.getRowData(index, this)
+      this.rows[index] = this.messageTable.rows.getRowData(index, this)
       this.rows[index].plaintext = this.searchService.messageText(this.rows[index].id)
       this.rows[index].loaded = true
     }
