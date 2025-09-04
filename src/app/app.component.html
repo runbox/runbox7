@@ -332,8 +332,7 @@
           <mat-list>
             <mat-list-item>
               <mat-checkbox
-                *ngIf="canvastable"
-                [(ngModel)]="canvastable.showContentTextPreview"
+                [(ngModel)]="messageTable.showContentTextPreview"
                 matLine
                 (change)="saveContentPreviewSetting()"
                 (click)="$event.stopPropagation()"
@@ -551,7 +550,7 @@
                       <td class="sm-hidden"></td>
                       <td class="sm-hidden"></td>
                     </tr>
-                    <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
+                    <tr class="sm-hidden" *ngIf="messageTable.showContentTextPreview">
                       <td><!--offset --></td>
                       <td colspan="3">
                         <span class="skeleton-bone"></span>
@@ -648,7 +647,7 @@
                       <td></td>
 
                     </tr>
-                    <tr class="sm-hidden" *ngIf="canvastable.showContentTextPreview">
+                    <tr class="sm-hidden" *ngIf="messageTable.showContentTextPreview">
                       <!--offset -->
                       <td (click)="onCheckboxClick($event, item, index)"></td>
                       <td colspan="3">
