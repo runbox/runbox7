@@ -859,7 +859,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
   }
 
-  updateRowS(newList) {
+  setMessageTableRows(newList) {
     this.messageTable.rows.setRows(newList);
     this.messageTable.hasChanges = true;
   }
@@ -867,7 +867,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
       if (this.messageTable.rows instanceof SearchMessageDisplay) {
-        this.updateRowS(args[1]);
+        this.setMessageTableRows(args[1]);
       } else {
         this.messageTable.rows = new SearchMessageDisplay(...args);
         // messages updated, check if we need to select a message from the fragment
@@ -876,7 +876,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
     if (displayType === 'messagelist') {
       if (this.messageTable.rows instanceof MessageList) {
-        this.updateRowS(args[0]);
+        this.setMessageTableRows(args[0]);
       } else {
         this.messageTable.rows = new MessageList(...args);
         // messages updated, check if we need to select a message from the fragment
@@ -885,7 +885,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
     if (displayType === 'websocketlist') {
       if (this.messageTable.rows instanceof WebSocketSearchMailList) {
-        this.updateRowS(args[0]);
+        this.setMessageTableRows(args[0]);
       } else {
         this.messageTable.rows = new WebSocketSearchMailList(...args);
         // messages updated, check if we need to select a message from the fragment
