@@ -1718,12 +1718,6 @@ runbox-section-header mat-slide-toggle {
     display: inline;
 }
 
-canvastable {
-    [draggable] {
-        cursor: pointer;
-    }
-}
-
 // helpers for multi-row mobile-friendly mat-tables
 tr.detailsRow {
     height: 0 !important;
