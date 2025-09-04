@@ -1132,15 +1132,14 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     color: #949494;
 }
 
-#canvasTableContainerArea {
+#messageTableContainerArea {
     position: absolute;
     top: 55px;
     left: 0px;
     right: 0px;
 }
 
-#canvasTableContainerArea {
-    
+#messageTableContainerArea {
     tbody {
         border-bottom: 1px solid $rmm-gray-light;
     }
