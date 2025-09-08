@@ -607,7 +607,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   async emptyTrash(trashFolder: FolderListEntry) {
     console.log('found trash folder with name', trashFolder.folderName);
 
-    this.messageActionsHandler.updateMessages({
+    await this.updateMessages({
       messageIds: [],
       updateLocal: (msgIds: number[]) => {
         this.messagelistservice.pretendEmptyTrash();
@@ -628,7 +628,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     ).toPromise();
 
     const messageIds = messageLists.map(idValue);
-    this.messageActionsHandler.updateMessages({
+    await this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName),
       updateRemote: (msgIds: number[]) =>
@@ -690,7 +690,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // Move to spam folder (delete from index), set spam flag
@@ -758,7 +758,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.snackBar.open('Toggling read status...');
     const messageIds = this.selectedMessageIds;
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         msgIds.forEach( (id) => {
@@ -786,7 +786,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.snackBar.open('Toggling flags...');
     const messageIds = this.selectedMessageIds;
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         msgIds.forEach( (id) => {
@@ -815,7 +815,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   public deleteMessages() {
     const messageIds = this.selectedMessageIds;
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // remove from message display
@@ -1095,7 +1095,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   dropToFolder(folderId): void {
     const messageIds = this.selectedMessageIds
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         const folders = this.messagelistservice.folderListSubject.value;
@@ -1130,7 +1130,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     // dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
-        this.messageActionsHandler.updateMessages({
+        this.updateMessages({
           messageIds: messageIds,
           updateLocal: (msgIds: number[]) => {
             const folders = this.messagelistservice.folderListSubject.value;
@@ -1527,6 +1527,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.enrichRows()
   }
 
+  async updateMessages(args) {
+    await this.messageActionsHandler.updateMessages(args);
+    setTimeout(() => {
+      this.updateSearch(true);
+    }, 1000);
+  }
 }
 
 const idValue = (x: any) => x.id
