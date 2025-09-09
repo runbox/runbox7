@@ -34,6 +34,7 @@ import { ContactsService } from './contacts-app/contacts.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
@@ -51,7 +52,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
-import { CanvasTableModule } from './canvastable/canvastable';
+import { VirtualScrollTableComponent } from './virtual-scroll-table/virtual-scroll-table.component'
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
@@ -88,7 +89,12 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
-
+import { HumanBytesPipe } from './human-bytes.pipe';
+import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
+import { DatePipe } from '@angular/common';
+import { ResizableButtonComponent } from './resizable-button/resizable-button.component';
+import { SortButtonComponent } from './sort-button/sort-button.component';
+import { ResizeObserverDirective } from './directives/resize-observer.directive';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -140,10 +146,17 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [BrowserModule, FormsModule,
+    imports: [
+        BrowserModule,
+        FormsModule,
+        ResizeObserverDirective,
+        DatePipe,
+        ResizableButtonComponent,
+        SortButtonComponent,
+        MatBadgeModule,
         HttpClientModule,
+        VirtualScrollTableComponent,
         HttpClientJsonpModule,
-        CanvasTableModule,
         ComposeModule,
         StartDeskModule,
         WelcomeDeskModule,
@@ -180,10 +193,14 @@ const routes: Routes = [
         RunboxCommonModule,
         RouterModule.forRoot(routes),
         ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-        HotkeyModule.forRoot()
+        HotkeyModule.forRoot(),
+        HumanBytesPipe,
+        FollowsMouseComponent
     ],
     exports: [],
-    declarations: [MainContainerComponent, AppComponent,
+    declarations: [
+        MainContainerComponent,
+        AppComponent,
         MoveMessageDialogComponent,
         PopularRecipientsComponent,
         SavedSearchesComponent,

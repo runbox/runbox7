@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
 export abstract class MessageDisplay {
   public openedRowIndex: number;
@@ -202,5 +201,5 @@ export abstract class MessageDisplay {
   abstract filterBy(options: Map<string, any>);
 
   // columns
-  abstract getCanvasTableColumns(app: any): CanvasTableColumn[];
+  abstract getRowData(index: number, app: any): any;
 }

@@ -68,3 +68,180 @@
     width: 150px;
 }
 
+.resizable {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+#messageTableContainerArea {
+    container-type: inline-size; // or use `container: inline-size;`
+
+    .messages-table {
+        --cell-y-spacing-top: 0.3lh;
+        --cell-y-spacing-top-first: 0.15lh;
+        --cell-y-spacing-bottom: 0.2lh;
+        --row-y-spacing: 0.3lh;
+
+        th {
+            text-align: left;
+            position: relative;
+            background-color: white;
+            z-index: 1;
+        }
+
+        td {
+            padding-top: var(--cell-y-spacing-top);
+            padding-bottom: var(--cell-y-spacing-bottom);
+
+            &.count {
+                text-align: center;
+            }
+        }
+
+        tbody tr td:first-child {
+            padding-top: var(--cell-y-spacing-top-first);
+        }
+
+        td,
+        th {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        td.count > div {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.2em 0.4em;
+            line-height: 1.2;
+        }
+
+        tbody {
+            cursor: pointer;
+        }
+
+        .checkbox-cell {
+            width: 3ch;
+            text-align: center;
+        }
+        
+
+        .time-cell {
+            width: 11%;
+        }
+
+        .from-cell {
+            width: 22%;
+        }
+
+        .subject-cell {
+            width: 33%;
+        }
+
+        .conversations-cell {
+            width: 11%;
+        }
+
+        .size-cell {
+            width: 6%;
+        }
+
+        .folder-cell {
+            width: 11%;
+        }
+
+        .attachments-cell {
+            width: 2%;
+        }
+
+        .answered-cell {
+            width: 2%;
+        }
+
+        .flagged-cell {
+            width: 2%;
+        }
+        
+        .preview {
+            display: block;
+            height: 1lh;
+        }
+
+        // Container query replaces media query
+        @container (max-width: 25rem) {
+            display: block;
+
+            thead {
+                display: none;
+            }
+
+            tbody {
+                position: relative;
+                display: block;
+                padding-top: var(--row-y-spacing);
+                padding-bottom: var(--row-y-spacing);
+            }
+
+            td, tbody tr:first-child td {
+                padding: 0;
+                display: inline-block;
+                margin-top: auto;
+                margin-bottom: auto;
+                margin-left: 2rem;
+
+                &.sm-hidden {
+                    display: none;
+                }
+
+                &.count > div {
+                    position: absolute;
+                    top: var(--row-y-spacing);
+                    right: 0;
+                    margin-right: 8px;
+                }
+
+                &.subject {
+                    width: 100%;
+                }
+
+                &.checkbox-cell {
+                    position: absolute;
+                    margin-left: 4px;
+                }
+            }
+
+            tr {
+                padding-top: unset;
+                padding-bottom: unset;
+                margin-left: 8px;
+                display: flex;
+                flex-flow: row wrap;
+            }
+        }
+    }
+}
+
+::ng-deep table {
+    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+}
+
+tbody mat-icon {
+    /* Prevent icon from increasing tbody height */
+    max-height: 1.3em;
+    margin: -0.3em;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+

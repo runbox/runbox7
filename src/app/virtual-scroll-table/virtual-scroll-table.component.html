@@ -1,0 +1,14 @@
+<table>
+    <ng-container *ngTemplateOutlet="theadTemplate"></ng-container>
+</table>
+
+<cdk-virtual-scroll-viewport
+    style="display: table-row-group"
+    [maxBufferPx]="maxBufferPx" [minBufferPx]="maxBufferPx / 2" [itemSize]="firstRowHeight" class="email-viewport">
+    <table tabindex="0" role="group" aria-label="Messages">
+        <ng-container *ngTemplateOutlet="theadTemplate"></ng-container>
+        <ng-container *cdkVirtualFor="let item of items; trackBy: trackBy; let $index = index;">
+            <ng-container *ngTemplateOutlet="tbodyTemplate; context: {$implicit: item, item: item, index: $index}"></ng-container>
+        </ng-container>
+    </table>
+</cdk-virtual-scroll-viewport>
