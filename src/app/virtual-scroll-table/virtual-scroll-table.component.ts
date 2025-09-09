@@ -94,7 +94,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
 
     const elem = this.elementRef.nativeElement;
 
-    this.mutationObserver = new MutationObserver((mutations) => {
+    this.mutationObserver = new MutationObserver(() => {
       this.inputChanges$.next();
     });
 
