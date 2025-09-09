@@ -55,7 +55,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
   @Output() renderedRangeChange = new EventEmitter<ListRange>();
   @Input() items: any[] = [];
 
-  @Input() scrollToIndex$!: BehaviorSubject<number>;
+  @Input() scrollToIndex!: BehaviorSubject<number>;
 
   firstRowHeight = 24;
   maxBufferPx: number;
@@ -71,7 +71,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit() {
-    this.scrollToIndexSub = this.scrollToIndex$.subscribe(index => {
+    this.scrollToIndexSub = this.scrollToIndex.subscribe(index => {
       this.pendingScrollToIndex = index;
       this.inputChanges$.next()
     });
