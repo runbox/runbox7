@@ -147,6 +147,18 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         node.setAttribute('target', '_blank');
         node.setAttribute('rel', 'noopener');
       }
+
+      // Bypass angular service worker for images
+      if (node.tagName === 'IMG' && node.hasAttribute('src')) {
+        const src = node.getAttribute('src');
+        const url = new URL(src, window.location.origin);
+
+        // add ?ngsw-bypass if not already there
+        if (!url.searchParams.has('ngsw-bypass')) {
+          url.searchParams.set('ngsw-bypass', '');
+          node.setAttribute('src', url.toString());
+        }
+      }
     });
     this.contactsservice.contactsSubject.subscribe(contacts => {
       console.log('MailViewer: got the contacts!');
