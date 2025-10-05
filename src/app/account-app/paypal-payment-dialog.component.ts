@@ -25,7 +25,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 @Component({
     selector: 'app-paypal-payment-dialog-component',
     template: `
-<h1 mat-dialog-title>PayPal payment</h1>
+<h1 mat-dialog-title class="paymentMethodTitle">PayPal payment</h1>
   <div mat-dialog-content>
     <div *ngIf="!redirect_url">
       <div> We're preparing your Paypal payment, please wait...</div>
