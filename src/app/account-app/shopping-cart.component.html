@@ -120,48 +120,34 @@
 
     <div class="paymentMethods">
         <app-payment-method
-            logo="/_img/pay/stripe-logo.png"
+            logo="/assets/payment/Credit_Cards_PayPal.png"
             logo_alt="Stripe logo"
-	    disable_payment="{{total <= 0}}"
+	        disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('stripe')"
           >
             <h4>
-                Pay with a payment card or digital wallet
+                Pay with a payment card or PayPal.
             </h4>
             <p>
-                We support all major payment cards and wallets.
+                All major cards and wallets are accepted.
             </p>
         </app-payment-method>
 
         <app-payment-method
-            logo="/_img/pay/bitcoin.png"
+            logo="/assets/payment/bitcoin.png"
             logo_alt="Bitcoin logo"
-	    disable_payment="{{total <= 0}}"
+	        disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('coinbase')"
-        >
+          >
             <h4>
                  Pay with cryptocurrencies using Coinbase
             </h4>
             <p>
-                Your transaction is secured by cryptography.
+                All major cryptocurrencies are accepted.
             </p>
         </app-payment-method>
 
-        <app-payment-method
-          logo="/_img/pay/paypal_bundle_s.png"
-          logo_alt="PayPal logo"
-	  disable_payment="{{total <= 0}}"
-	  (click)="initiatePayment('paypal')"
-          >
-          <h4>
-            Pay with a PayPal wallet or payment card
-          </h4>
-          <p>
-            Note that your subscription will not recur automatically with PayPal.
-          </p>
-        </app-payment-method>
-	
-        <mat-expansion-panel style="margin: 50px 10px; text-align: center;">
+        <mat-expansion-panel [expanded]="true" id="otherPaymentMethods">
           <mat-expansion-panel-header>
             <mat-panel-title style="text-align: center"> Other payment methods </mat-panel-title>
           </mat-expansion-panel-header>
