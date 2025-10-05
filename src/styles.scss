@@ -1583,7 +1583,15 @@ app-calendar-event-editor-dialog p {
     padding: 10px !important;
 }
 
+#otherPaymentMethods {
+    margin: 20px 0 50px 0;
+    max-width: 90%;
+    text-align: center;
 
+    mat-panel-title {
+        font-size: 20px;
+    }
+}
 
 /*** Runbox components ***/
 
