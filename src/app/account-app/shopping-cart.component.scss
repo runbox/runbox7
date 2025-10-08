@@ -1,0 +1,37 @@
+.paymentMethods {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.paymentMethods app-payment-method {
+    flex: 400px 0 1;
+    text-align: center;
+}
+
+.paymentMethods mat-expansion-panel {
+    flex: 100% 0 0;
+}
+
+#shoppingCartButton {
+    position: fixed;
+    top: 75px;
+    right: 50px;
+    z-index: 10;
+    width: 75px;
+    height: 75px;
+
+    mat-icon {
+        width: inherit;
+        height: inherit;
+    }
+    svg {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .mat-badge-content {
+        font-size: 20px !important;
+        line-height: 26px !important;
+    }
+}
