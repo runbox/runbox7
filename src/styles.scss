@@ -1517,28 +1517,6 @@ app-calendar-event-editor-dialog p {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
 
-#shoppingCartButton {
-    position: fixed;
-    top: 75px;
-    right: 50px;
-    z-index: 10;
-    width: 75px;
-    height: 75px;
-
-    mat-icon {
-        width: inherit;
-        height: inherit;
-    }
-    svg {
-        width: 50px !important;
-        height: 50px !important;
-    }
-    .mat-badge-content {
-        font-size: 20px !important;
-        line-height: 26px !important;
-    }
-}
-
 .productGrid mat-card.recommended {
     border: 1px solid mat.get-color-from-palette($rmm-default-primary);
 }    
@@ -1774,4 +1752,27 @@ table.detailsTable {
 table.detailsTable tr td:nth-of-type(2) {
     display: flex;
     justify-content: flex-end;
+}
+
+// Needs to be in main stylesheet to function properly
+#shoppingCartButton {
+    position: fixed;
+    top: 75px;
+    right: 50px;
+    z-index: 10;
+    width: 75px;
+    height: 75px;
+
+    mat-icon {
+        width: inherit;
+        height: inherit;
+    }
+    svg {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .mat-badge-content {
+        font-size: 20px !important;
+        line-height: 26px !important;
+    }
 }

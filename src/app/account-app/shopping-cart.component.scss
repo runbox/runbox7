@@ -1,0 +1,16 @@
+.paymentMethods {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.paymentMethods app-payment-method {
+    flex: 400px 0 1;
+    text-align: center;
+}
+
+.paymentMethods mat-expansion-panel {
+    flex: 100% 0 0;
+}
+

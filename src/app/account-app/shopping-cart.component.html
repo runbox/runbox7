@@ -99,37 +99,18 @@
 <div *ngIf="items.length > 0 && orderError === undefined">
     <h2> Payment method </h2>
 
-    <style>
-    .paymentMethods {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-around;
-        gap: 20px;
-    }
-
-    .paymentMethods app-payment-method {
-        flex: 350px 0 1;
-        text-align: center;
-    }
-    
-    .paymentMethods mat-expansion-panel {
-        flex: 100% 0 0;
-    }
-
-    </style>
-
     <div class="paymentMethods">
         <app-payment-method
-            logo="/assets/payment/Credit_Cards_PayPal.png"
+            logo="/assets/payment/Stripe.png"
             logo_alt="Credit card and PayPal logos"
 	        disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('stripe')"
           >
             <h4>
-                Pay with a payment card or PayPal
+                Pay with a card, PayPal, Apple Pay, and others.
             </h4>
             <p>
-                All major cards and wallets are accepted.
+                All major payment cards and wallets are accepted.
             </p>
         </app-payment-method>
 
