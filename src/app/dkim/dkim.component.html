@@ -1,108 +1,134 @@
 <mat-sidenav-container class="dkim">
-    <mat-sidenav mode="side" open="true"></mat-sidenav>
-    <mat-sidenav-content>
-        <section class="mat-typography">
-            <mat-card class='dkim'>
-                <mat-card-header style="display: flex; width: 100%">
-                    <mat-card-title style="flex-grow: 1">
-                        <h1 class='headline'>DKIM Signing of Domain Names</h1>
-                        <h2 class='subheading-2'>{{domain}}</h2>
-                    </mat-card-title>
-                </mat-card-header>
-                <p>
-                DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a target="_blank" href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
-                </p>
-                <p>
-                  If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below. If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
-                </p>
-                <p>
-                  The exact format required by your Domain/DNS provider's interface may vary as may what they call the "hostname" entry. If you need help please contact Runbox support or your Domain/DNS provider's support team for advice.
-                </p>
-                <p>
-                <strong>Note:</strong> selector2 will become active on our DNS servers three months after you activate DKIM signing.
-                </p>
-                <mat-divider></mat-divider>
-                <div *ngIf="domain && keys && keys.length" style='margin-top: 35px'>
+  <mat-sidenav mode="side" open="true"></mat-sidenav>
+  <mat-sidenav-content>
+    <section class="mat-typography">
+      <div class='dkim'>
+        <h1 class='headline'>DKIM Signing of Domain Names</h1>
+        <p>
+          DKIM (DomainKeys Identified Mail) is an email authentication method that places a digital signature (a piece of code) in the headers of your outgoing mail. This helps receiving email servers identify if the message was genuinely sent by you, the domain owner, and confirms that certain aspects of the message have been unchanged since the digital signature was added. <a target="_blank" href="https://help.runbox.com/dkim-signing/">More information about DKIM</a>
+        </p>
+        <p>
+          If you have your domain name hosted by Runbox, your DNS (Domain Name System) records are also managed by us. This makes it very easy to set up DKIM signing as you just need to activate it below. If your domain is not hosted/registered via Runbox then we probably don't host your DNS records and you will need to make some changes at your domain host/DNS host as shown below.
+        </p>
+        <p>
+          The exact format required by your Domain/DNS provider's interface may vary as may what they call the "hostname" entry. If you need help please contact Runbox support or your Domain/DNS provider's support team for advice.
+        </p>
+        <p>
+          <strong>Note:</strong> selector2 will become active on our DNS servers three months after you activate DKIM signing.
+        </p>
+        <mat-divider></mat-divider>
+
+        <ng-container *ngIf="domainService.userDomains | async as domains; else domainsLoading">
+          <mat-accordion>
+            <mat-expansion-panel
+              *ngFor="let domain of domains"
+              [expanded]="chosenDomain && domain.name === chosenDomain"
+              (opened)="updateFragment(domain.name)"
+              id="panel-{{domain.name}}"
+              >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <strong>{{ domain.name }}</strong>
+                </mat-panel-title>
+                <mat-panel-description>
+                  <span *ngIf="domain.is_to_delete">Keys being deleted</span>
+                  <span *ngIf="!domain.dkim && !is_creating_keys">
+                    No keys yet
+                  </span>
+                  <div *ngIf="!domain.is_to_delete && domain.dkim && domain.keys.length == 2">
+                    <span>Key 1: {{domain.keys[0].is_cname_correct ? 'Ok, ' : 'Bad, '}}</span>
+                    <span>Key 2: {{domain.keys[1].is_cname_correct ? 'Ok' : 'Bad'}}</span>
+                  </div>
+                </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <ng-container *ngIf="domain.dkim">
+                  <div *ngIf="!is_deleting_keys &&!domain.is_to_delete" style='margin-top: 35px;'>
+                    <button mat-raised-button color="warn" (click)="disable(domain.name)" style="margin-left: 20px">Disable DKIM for {{domain.name}}</button>
+                    <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
+                  </div>
+                  <div *ngIf="domain.is_to_delete">
+                    The DKIM keys are being deleted.
+                  </div>
+                  <ng-container *ngIf="!domain.is_to_delete">
                     <mat-grid-list cols="8" rowHeight="30px" style='' *ngIf="dkim_domain">
-                        <mat-grid-tile [colspan]="2"><div class="grid_align_left" style=''><strong>{{dkim_domain.type}}:</strong></div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="6">
-                            <div class="grid_align_left">
-                                <mat-form-field>
-                                  <mat-label>Domain: {{domain}}</mat-label>
-                                  <mat-select [(ngModel)]="domain" (change)="ev_get_domain()" (selectionChange)="ev_get_domain()" >
-                                    <mat-option *ngFor="let d of dkim_domains" [value]="d.domain">
-                                      {{d.domain}}
-                                    </mat-option>
-                                  </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div style='margin-left: 40px; display: inline-block;'>
-                                <button *ngIf="domain" mat-raised-button color="warn" (click)="disable()" style='margin-let: 20px;'>Disable DKIM for {{domain}}
-                                    <mat-progress-bar mode="indeterminate" *ngIf="is_deleting_keys"></mat-progress-bar>
-                                </button>
-                            </div>
-                        </mat-grid-tile>
+                      <mat-grid-tile [colspan]="2"><div class="grid_align_left" style=''><strong>{{domain.type}}:</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="6">
+                        <div style='margin-left: 40px; display: inline-block;'>
+                          <button *ngIf="domain.type" mat-raised-button color="warn" (click)="disable()" style='margin-let: 20px;'>Disable DKIM for {{domain.name}}
+                            <mat-progress-bar mode="indeterminate" *ngIf="is_deleting_keys"></mat-progress-bar>
+                          </button>
+                        </div>
+                      </mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>DNS CNAMEs required</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>DNS CNAMEs required</strong></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="8" rowHeight="30px" style=''>
-                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Hostname</strong></div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>TTL</strong></div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Record Type</strong></div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Hostname</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>TTL</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Record Type</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
                     </mat-grid-list>
-                    <mat-grid-list cols="8" rowHeight="30px" style='' *ngFor="let k of keys">
-                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">3600</div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">CNAME</div></mat-grid-tile>
-                        <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}.</div></mat-grid-tile>
+                    <mat-grid-list cols="8" rowHeight="30px" style='' *ngFor="let k of domain.keys">
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">3600</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">CNAME</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}.</div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>If you are editing your DNS zone file directly you can add the two lines below:</strong></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                        <mat-grid-tile *ngFor="let k of keys" style='border-bottom: 1px dotted #dedede'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}.</div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>If you are editing your DNS zone file directly you can add the two lines below:</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile *ngFor="let k of domain.keys" style='border-bottom: 1px dotted #dedede'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}.</div></mat-grid-tile>
                     </mat-grid-list>
 
                     <mat-grid-list cols="4" rowHeight="30px" style=''>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
 
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Selector status</strong></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>CNAME found in DNS</strong></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active for signing</strong></div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active from</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Selector status</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>CNAME found in DNS</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active for signing</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active from</strong></div></mat-grid-tile>
                     </mat-grid-list>
 
-                    <mat-grid-list cols="4" rowHeight="30px" style='' *ngFor="let k of keys">
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector}}</div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'>
-                            <div class="grid_align_left">
-                                {{k.is_cname_correct ? 'Yes' : 'No'}}<a *ngIf="!k.is_cname_correct" href="javascript:void(0)" (click)="check_cname(k)">Check</a>
-                            </div>
-                        </mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
-                        <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{
-                            k.date_expected_to_activate || k.date_active || k.date_rotation_finalized || '--'
-                        }}
-                        </div></mat-grid-tile>
+                    <mat-grid-list cols="4" rowHeight="30px" style='' *ngFor="let k of domain.keys">
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector}}</div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'>
+                        <div class="grid_align_left">
+                          {{k.is_cname_correct ? 'Yes ' : 'No '}}<button mat-flat-button color="primary" *ngIf="!k.is_cname_correct" (click)="check_cname(domain, k)">Check</button>
+                        </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{
+                          k.date_expected_to_activate || k.date_active || k.date_rotation_finalized || '--'
+                          }}
+                      </div></mat-grid-tile>
                     </mat-grid-list>
+                  </ng-container>
+                </ng-container>
+                <div *ngIf="!domain.dkim && !is_creating_keys" style='margin-top: 35px;'>
+                  No keys found for {{domain.name}}
+                  <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain.name}}</button>
+                  <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
                 </div>
-                <div *ngIf="domain && !keys.length && !is_creating_keys" style='margin-top: 35px;'>
-                    No keys found for {{domain}}
-                    <button mat-raised-button color="primary" (click)="create_keys()" style="margin-left: 20px">Create keys for {{domain}}</button>
-                    <mat-progress-bar mode="indeterminate" *ngIf="is_creating_keys"></mat-progress-bar>
-                </div>
-            </mat-card>
-        </section>
-    </mat-sidenav-content>
+              </mat-expansion-panel>
+          </mat-accordion>
+        </ng-container>
+        <ng-template #domainsLoading>
+          <app-runbox-loading text="Loading your domains...">
+          </app-runbox-loading>
+        </ng-template>
+      </div>
+    </section>
+  </mat-sidenav-content>
 </mat-sidenav-container>
