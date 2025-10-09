@@ -101,7 +101,7 @@
 
     <div class="paymentMethods">
         <app-payment-method
-            logo="/assets/payment/Stripe.png"
+            logo="assets/payment/Stripe.png"
             logo_alt="Credit card and PayPal logos"
 	        disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('stripe')"
@@ -115,7 +115,7 @@
         </app-payment-method>
 
         <app-payment-method
-            logo="/assets/payment/Cryptocurrencies.png"
+            logo="assets/payment/Cryptocurrencies.png"
             logo_alt="Cryptocurrency logos"
 	        disable_payment="{{total <= 0}}"
             (clicked)="initiatePayment('coinbase')"
