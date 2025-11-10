@@ -16,19 +16,19 @@
     </div>
 
     <div [style.display]="state === 'processing' ? 'block' : 'none'">
-        <div> Processing your payment... </div>
+        <div> Processing your payment... {{ processing_message }}</div>
         <mat-spinner style="margin:0 auto;"></mat-spinner>
     </div>
 
     <div [style.display]="state === 'failure' ? 'block' : 'none'">
-        <div> {{ stripeError }} </div>
+      <div> Error while working on: {{ processing_message }}</div>
+      <div> {{ stripeError }} </div>
     </div>
 
     <div [style.display]="state === 'finished' ? 'block' : 'none'">
         <div> Your payment was successful and your products have been activated. </div>
     </div>
 
-    <div class="description" style="text-align: center"> Payment form not working? <a href="/payment/payment?tid={{tid}}&method=stripe" target="_blank">Try our alternative payment system instead.</a> </div>
   </div>
     <div mat-dialog-actions style="justify-content: center;" *ngIf="state === 'loading'">
       <button mat-button (click)="close()"> Cancel </button>
