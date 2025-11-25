@@ -38,6 +38,11 @@ export class Product {
     currency:    string;
     quotas:      QuotaEntryMap;
     sub_product_quota: QuotaEntryMap;
+    over_quota?: any[];
+    addons_needed?: any[];
+    addon_usages?: any[];
+    allow_multiple = false;
+    price_with_addons?: number;
 
     constructor(properties: any) {
         // eslint-disable-next-line guard-for-in

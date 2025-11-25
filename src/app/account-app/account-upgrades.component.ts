@@ -141,18 +141,9 @@ export class AccountUpgradesComponent implements OnInit {
 
             // User's current usage:
             this.rmm.account_storage.getUsage().subscribe(usage => {
+                // used by account-product still
                 this.quota_usage.next(usage.result);
                 this.quota_usage.complete();
-
-                // replace three_year_plans with a set that has an over_quota
-                // value
-                this.three_year_plans = new AsyncSubject<Product[]>();
-                this.check_over_quota(three_year, usage.result);
-                this.three_year_plans.next(three_year);
-                this.three_year_plans.complete();
-                this.check_over_quota(subs_regular, usage.result);
-                this.subs_regular.next(subs_regular);
-                this.subs_regular.complete();
             });
 
             this.rmmapi.me.subscribe(me => {
@@ -160,13 +151,6 @@ export class AccountUpgradesComponent implements OnInit {
                 // User's current subscription product:
                 this.rmmapi.getProducts([this.me.subscription]).subscribe(res => {
                     this.current_sub = res[0];
-
-                    // replace subs_regular with a set that has the is_upgrade
-                    // is_downgrade values
-                    this.subs_regular = new AsyncSubject<Product[]>();
-                    this.merge_subs_with_usage(subs_regular);
-                    this.subs_regular.next(subs_regular);
-                    this.subs_regular.complete();
                 });
                 this.limitedTimeOffer = !me.newerThan(this.limited_time_offer_age);
             });
@@ -174,51 +158,39 @@ export class AccountUpgradesComponent implements OnInit {
     }
 
 
-    // OverQuota for displayed product, if any of the limits have been hit
-    // Returns list of reasons why can't buy this product:
-    // Eg You have 2 virtual domains, this product only allows 1
-    check_over_quota(plans, usage) {
-        if (plans && usage) {
-            for(const p of plans) {
-                const oq = [];
-                Object.keys(p.quotas).map((key) => {
-                    if (usage[key] && p.quotas[key].type === 'fixed' && p.quotas[key].quota < usage[key].usage) {
-                        oq.push({'quota': usage[key].name, 'allowed': p.quotas[key].quota, 'current': usage[key].usage, 'type': usage[key].type });
-                    }
-                });
-                p.over_quota = oq;
-            }
-        }
-    }
 
     runboxTimerFinished(): void {
         this.limitedTimeOffer = false;
-    }
-
-    // Set upgrade/downgrade flags on regular plans using current_sub quotas
-    merge_subs_with_usage(subs_reg) {
-        if(!this.current_sub || !subs_reg) {
-            return;
-        }
-        // subs_reg is output as a table, add is_upgrade/is_downgrade booleans
-        for (const plan of subs_reg) {
-            if (this.me.is_trial) {
-                plan.is_upgrade = true;
-                plan.is_downgrade = false;
-                continue;
-            }
-            if (plan.quotas.Disk.quota < this.current_sub.quotas.Disk.quota) {
-                plan.is_downgrade = true;
-            } else if (plan.quotas.Disk.quota > this.current_sub.quotas.Disk.quota) {
-                plan.is_upgrade = true;
-            }
-        }
     }
 
     orderMainProduct(newProduct: number, type: string, quantity: number) {
         this.cart.add(
             new ProductOrder(newProduct, type, quantity)
         );
+    }
+
+    orderWithAddons(mainProduct: Product, addons) {
+        for(const addon of addons) {
+            this.cart.add(
+                new ProductOrder(addon.addon.pid, addon.addon.type, addon.quantity)
+            );
+        }
+        this.cart.add(
+            new ProductOrder(mainProduct.pid, mainProduct.type, 1)
+        );
+    }
+
+    unorderWithAddons(mainProduct: Product, addons) {
+        for(const addon of addons) {
+            this.cart.remove(
+                new ProductOrder(addon.addon.pid, addon.addon.type, addon.quantity)
+            );
+        }
+        this.cart.remove(
+            new ProductOrder(mainProduct.pid, mainProduct.type, 1)
+        );
+        this.cart_items_subject.next(this.cart_items);
+        this.cart_items_subject.complete();
     }
 
     order(p: Product) {

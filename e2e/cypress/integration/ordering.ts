@@ -3,7 +3,7 @@
 describe('Ordering products', () => {
     it('can place an order', () => {
         localStorage.removeItem('221:shoppingCart');
-        cy.intercept('/rest/v1/account_product/available').as('availableProducts');
+        cy.intercept('/rest/v1/account_product/upgrades').as('availableProducts');
         cy.visit('/account/plans');
 
         cy.wait('@availableProducts', {'timeout':10000});
@@ -37,7 +37,13 @@ describe('Ordering products', () => {
 
         cy.get('tr.mat-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
         cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '2');
-        cy.get('tr.mat-row td button').click();
+
+        // Test increase/decrease addon amount:
+        cy.get('tr.mat-row td button[name="increaseProduct"]').should('be.visible');
+        cy.get('tr.mat-row td button[name="increaseProduct"]').click();
+        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '3');
+        // Test removing entire product
+        cy.get('tr.mat-row td button[name="removeProduct"]').click();
         cy.contains('shopping cart is currently empty');
     });
 });
