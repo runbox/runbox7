@@ -134,33 +134,46 @@ export class StripePaymentDialogComponent implements AfterViewInit {
         this.state = 'processing';
         this.processing_message = 'Validating inputs .. ';
 
-        this.elements.submit().then(result => {
-            if (result.error) {
-                this.stripeError = result.error.message;
+        try {
+            const submitted = await this.elements.submit();
+            if (submitted.error) {
+                this.stripeError = submitted.error.message;
                 this.state = 'failure';
-            } else {
-                this.processing_message = 'Sending details to Stripe .. ';
-                this.stripe.createConfirmationToken({
-                    'elements': this.elements})
-                    .then(confResult => {
-                        if (confResult.error) {
-                            this.stripeError = confResult.error.message;
-                            this.state = 'failure';
-                        } else {
-                            console.log(confResult);
-                            this.handleConfirmationToken(confResult.confirmationToken.id)
-                                .then(
-                                    handleResult => {
-                                        this.state = 'finished';
-                                    },
-                                    error => {
-                                        this.state = 'failure';
-                                        this.stripeError = error;
-                                    });
-                        }
-                    });
+                return;
             }
-        });
+        } catch (err) {
+            console.error(err);
+            this.stripeError = 'Stripe validate failed';
+            this.state = 'failure';
+            return;
+        }
+
+        this.processing_message = 'Sending details to Stripe .. ';
+        try {
+            const confirmed = await this.stripe.createConfirmationToken({
+                'elements': this.elements});
+            if (confirmed.error) {
+                this.stripeError = confirmed.error.message;
+                this.state = 'failure';
+                return;
+            }
+            console.log(confirmed);
+            this.handleConfirmationToken(confirmed.confirmationToken.id)
+                .then(
+                    handleResult => {
+                        this.state = 'finished';
+                    },
+                    error => {
+                        this.state = 'failure';
+                        this.stripeError = error;
+                    });
+        } catch (err) {
+            console.error(err);
+            this.stripeError = 'Stripe submit failed';
+            this.state = 'failure';
+            return;
+        }
+                
     }
 
     handleConfirmationToken(cId: string) {
