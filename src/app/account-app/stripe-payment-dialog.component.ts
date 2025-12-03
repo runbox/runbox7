@@ -41,6 +41,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     elements: any;
     paymentRequestsSupported = false;
     state = 'loading';
+    processing_message = '';
 
     stripe: any;
     payment: any;
@@ -63,8 +64,16 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             this.total  = data.tx.total;
             this.currency = data.tx.currency;
         } else {
-            console.log('Opening stripe form for pending intent', data.pid);
-            this.confirmPayment(data.pid);
+            console.log('Confirming pending intent', data.pid);
+            this.confirmPayment(data.pid)
+                .then(
+                    result => {
+                        this.state = 'finished';
+                    },
+                    error => {
+                        this.state = 'failure';
+                        this.stripeError = error;
+                    });
         }
         if (stripeLoader === null) {
             stripeLoader = new AsyncSubject<void>();
@@ -87,7 +96,6 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             mode: 'payment',
             amount: Math.trunc(this.total * 100),
             currency: this.currency.toLowerCase(),
-            // setup_future_usage: 'off_session',
             'paymentMethodOptions[require_cvc_recollection]': true,
             appearance: {
                 rules: {
@@ -124,28 +132,56 @@ export class StripePaymentDialogComponent implements AfterViewInit {
 
     async submitPayment() {
         this.state = 'processing';
+        this.processing_message = 'Validating inputs .. ';
 
-        await this.elements.submit();
-        
-        // const additionals = { billing_details: { address: { postal_code: this.zipCode } } };
-
-        this.stripe.createConfirmationToken({
-            'elements': this.elements}
-        ).then(result => {
-            if (result.error) {
-                this.stripeError = result.error.message;
-                this.state = 'initial';
-            } else {
-                console.log(result);
-                this.handleConfirmationToken(result.confirmationToken.id);
+        try {
+            const submitted = await this.elements.submit();
+            if (submitted.error) {
+                this.stripeError = submitted.error.message;
+                this.state = 'failure';
+                return;
             }
-        });
+        } catch (err) {
+            console.error(err);
+            this.stripeError = 'Stripe validate failed';
+            this.state = 'failure';
+            return;
+        }
+
+        this.processing_message = 'Sending details to Stripe .. ';
+        try {
+            const confirmed = await this.stripe.createConfirmationToken({
+                'elements': this.elements});
+            if (confirmed.error) {
+                this.stripeError = confirmed.error.message;
+                this.state = 'failure';
+                return;
+            }
+            console.log(confirmed);
+            this.handleConfirmationToken(confirmed.confirmationToken.id)
+                .then(
+                    handleResult => {
+                        this.state = 'finished';
+                    },
+                    error => {
+                        this.state = 'failure';
+                        this.stripeError = error;
+                    });
+        } catch (err) {
+            console.error(err);
+            this.stripeError = 'Stripe submit failed';
+            this.state = 'failure';
+            return;
+        }
+                
     }
 
     handleConfirmationToken(cId: string) {
         return new Promise<void>((resolve, reject) => {
+            this.processing_message = 'Confirming payment with Stripe .. ';
             this.paymentsservice.submitStripePayment(this.tid, cId).subscribe(res => {
                 if (res.status === 'requires_action') {
+                    this.processing_message = 'Updating payment after redirect .. ';
                     const client_secret = res.client_secret;
                     this.stripe.handleNextAction({'clientSecret':client_secret}).then(actionRes => {
                         if (actionRes.error) {
@@ -158,8 +194,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                         }
                     });
                 } else if (res.status === 'succeeded') {
-                    this.state = 'finished';
-                    resolve();
+                    this.confirmPayment(res.id).then(resolve, reject);
                 } else if (res.error.message) {
                     this.fail(res.error.message);
                 } else {
@@ -174,10 +209,13 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     }
 
     confirmPayment(paymentIntentId: any): Promise<void> {
+        this.processing_message = 'Saving and updating Runbox products .. ';
         return new Promise((resolve, reject) => {
             this.paymentsservice.confirmStripePayment(paymentIntentId).subscribe(
                 pi => {
-                    if (pi.status === 'succeeded') {
+                    if (pi.status === 'succeeded' && pi.metadata.tid) {
+                        // if this is post pending_intent, set tid
+                        this.tid = pi.metadata.tid;
                         this.state = 'finished';
                         resolve();
                     } else if (pi.error) {
