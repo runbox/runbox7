@@ -6,7 +6,7 @@
             </span>
             <div style="display: flex; flex-direction: column;">
                 <div class="add-new-event">
-                    <button mat-icon-button color="primary" (click)="addEvent(day.date); $event.stopPropagation()"> <mat-icon style="transform: scale(1.5);" svgIcon="plus-circle"> </mat-icon> </button>
+                    <button mat-icon-button color="primary" (click)="addEvent($event, day.date)"> <mat-icon style="transform: scale(1.5);" svgIcon="plus-circle"> </mat-icon> </button>
                 </div>
                 <button mat-button class="calendarMonthDayEvent"
                     *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
@@ -115,7 +115,7 @@
                 <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
             </div>
 
-            <mat-list-item id="addEventButton" mat-button (click)="addEvent()" class="calendarMenuButton">
+            <mat-list-item id="addEventButton" mat-button (click)="addEvent($event, null)" class="calendarMenuButton">
                 <mat-icon mat-list-icon svgIcon="plus"></mat-icon>
                 <p mat-line>Add Event</p>
             </mat-list-item>
@@ -247,7 +247,7 @@
           </app-calendar-overview>
           <mwl-calendar-month-view
             *ngSwitchCase="RunboxCalendarView.Month"
-            [cellTemplate]="mobileQuery.matches ? undefined : dayViewTemplate"
+            [cellTemplate]="dayViewTemplate"
             [viewDate]="viewDate"
             [events]="shown_events"
             [refresh]="refresh"
