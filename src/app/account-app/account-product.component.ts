@@ -21,7 +21,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CartService } from './cart.service';
 import { Product } from './product';
-import { DataUsageInterface } from '../rmm/account-storage';
 import { ProductOrder } from './product-order';
 
 @Component({
@@ -33,18 +32,12 @@ export class ProductComponent implements OnInit {
     @Input() p: Product;
     @Input() currency: string;
     @Input() active_sub: boolean;
-    @Input() usage: DataUsageInterface;
     @Input() current_sub: Product;
     @Input() me: RunboxMe;
 
-    allow_multiple = false;
-    quantity = 1;
+    buy_quantity = 1;
     purchased = false;
 
-    over_quota = [];
-    addon_usages = [];
-    is_upgrade = false;
-    is_downgrade = false;
     is_current_subscription = false;
 
     constructor(
@@ -57,78 +50,28 @@ export class ProductComponent implements OnInit {
         this.cart.items.subscribe(items => {
             this.purchased = !!items.find(i => i.pid === this.p.pid);
         });
-        this.allow_multiple = this.p.type === 'addon';
-        this.over_quota = this.check_over_quota();
-        this.addon_usages = this.get_addon_usages();
         this.is_current_subscription = this.me && this.p.pid === this.me.subscription;
-        this.check_up_down_grade();
-    }
-
-    // More or less disk space than the existing subscription?
-    check_up_down_grade() {
-        if (this.p && this.p.quotas && this.p.quotas.Disk
-            && this.current_sub && this.current_sub.quotas
-            && this.current_sub.quotas.Disk) {
-            // Don't set either if quota the same !
-            if (this.p.quotas.Disk.quota > this.current_sub.quotas.Disk.quota) {
-                this.is_upgrade = true;
-            }
-            if (this.p.quotas.Disk.quota < this.current_sub.quotas.Disk.quota) {
-                this.is_downgrade = true;
-            }
-        }
-    }
-
-    // OverQuota for displayed product, if any of the limits have been hit
-    // Returns list of reasons why can't buy this product:
-    // Eg You have 2 virtual domains, this product only allows 1
-    check_over_quota() {
-        const oq = [];
-        if (this.p && this.usage) {
-            Object.keys(this.p.quotas).map((key) => {
-                // Subscriptions / main accounts
-                if (this.usage[key] && this.p.quotas[key].type === 'fixed' && this.p.quotas[key].quota < this.usage[key].usage) {
-                    oq.push({'quota': this.usage[key].name, 'allowed': this.p.quotas[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
-                }
-            });
-        }
-        return oq;
-    }
-
-    // Displays amount used up of currently owned quota
-    get_addon_usages() {
-        const pu = [];
-        if (this.p && this.usage && this.p.type === 'addon') {
-            Object.keys(this.p.quotas).map((key) => {
-                // addon items
-                if (this.p.quotas[key] && this.usage[key]) {
-                    pu.push({'quota': this.usage[key].quota, 'current': this.usage[key].usage, 'type': this.usage[key].type });
-                }
-            });
-        }
-        return pu;
-        
     }
 
     less() {
-        if (this.quantity > 1) {
-            this.quantity--;
+        if (this.buy_quantity > 1) {
+            this.buy_quantity--;
         }
     }
 
     more() {
-        this.quantity++;
+        this.buy_quantity++;
     }
 
     order() {
         this.cart.add(
-            new ProductOrder(this.p.pid, this.p.type, this.quantity)
+            new ProductOrder(this.p.pid, this.p.type, this.buy_quantity)
         );
     }
 
     unorder() {
         this.cart.remove(
-            new ProductOrder(this.p.pid, this.p.type, this.quantity)
+            new ProductOrder(this.p.pid, this.p.type, this.buy_quantity)
         );
     }
 }

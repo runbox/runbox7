@@ -143,8 +143,8 @@
               <span *ngIf="me.is_trial">Subscribe for</span>
               <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
               <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
-              <span *ngIf="!me.is_trial && current_sub && plan.quotas.Disk.quota > current_sub.quotas.Disk.quota">Upgrade to</span>
-              <span *ngIf="!me.is_trial && current_sub && plan.quotas.Disk.quota < current_sub.quotas.Disk.quota">Downgrade to</span>
+              <span *ngIf="!me.is_trial && current_sub && plan.is_upgrade">Upgrade to</span>
+              <span *ngIf="!me.is_trial && current_sub && plan.is_downgrade">Downgrade to</span>
               {{ plan.currency }} {{ plan.price | number:'1.2-2' }}
             </button>
             <ng-template #unpurchase>
@@ -222,22 +222,41 @@
         <tr>
           <td class="planComponent priceForOneYear">Price for 1 year</td>
           <td  *ngFor="let plan of subs_regular" class="oneYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
-            <div>
-              {{ plan.currency }} {{ plan.price }}<br />
-            </div>
-            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+            <ng-container *ngIf="plan.addons_needed.length === 0; else withaddons">
+              <div>
+                {{ plan.currency }} {{ plan.price }}<br />
+              </div>
+              <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
 		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
 		            (click)="orderMainProduct(plan.pid,plan.type,1)"
                     [disabled]="plan.over_quota.length > 0"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
 		              >
                 {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-            </button><br />
+              </button><br />
+            </ng-container>
+            <ng-template #withaddons>
+              <div>
+                Price including addons<br/>
+                {{ plan.currency }} {{ plan.price_with_addons | number:'1.2-2'}}<br />
+                <ul>
+                  <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
+                </ul>
+              </div>
+              <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderWithAddons(plan, plan.addons_needed)"
+                    [disabled]="plan.over_quota.length > 0"
+		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		              >
+                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+              </button><br />
+            </ng-template>
             <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
             <ng-template #unpurchase>
               <button mat-raised-button
 		              color="primary"
-                      (click)="unorder(plan)"
+                      (click)="unorderWithAddons(plan, plan.addons_needed)"
 		              class="removeButton"
 		              >
                 Remove from cart
@@ -249,16 +268,36 @@
         <tr>
           <td class="planComponent priceForThreeYears">Price for 3 years</td>
           <td *ngFor="let plan of subs_regular; index as i" class="threeYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
-            <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
-            <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
-            <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
-		            [color]="is_downgrade ? 'accent' : 'primary'"
-		            (click)="orderMainProduct(subs_three[i].pid,subs_three[i].type,1)"
-                    [disabled]="plan.over_quota.length > 0"
+            <ng-container *ngIf="subs_three[i].addons_needed.length === 0; else withaddons">
+              <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price * 3 | number: '1.2-2' }}&nbsp;</div>
+              <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
+              <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
+		              [color]="is_downgrade ? 'accent' : 'primary'"
+		              (click)="orderMainProduct(subs_three[i].pid,subs_three[i].type,1)"
+                      [disabled]="plan.over_quota.length > 0 || plan.addons_needed.length > 0"
+		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		              >
+                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+              </button>
+            </ng-container>
+            <ng-template #withaddons>
+              <div>
+                Price including addons<br/>
+                {{ subs_three[i].currency }} {{ subs_three[i].price_with_addons | number:'1.2-2'}}<br />
+                <ul>
+                  <li *ngFor="let n_addon of subs_three[i].addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
+                </ul>
+              </div>
+              <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
+		            [color]="subs_three[i].is_downgrade ? 'accent' : 'primary'"
+		            (click)="orderWithAddons(subs_three[i], subs_three[i].addons_needed)"
+                    [disabled]="subs_three[i].over_quota.length > 0"
 		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
-		            >
-              {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-            </button>
+		              >
+                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+              </button><br />
+
+            </ng-template>
             <ng-template #unpurchase>
               <button mat-raised-button
 		              color="primary"
@@ -281,7 +320,7 @@
 
 <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
       <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
-        [currency]="me.currency" [usage]="q_usage">
+        [currency]="me.currency">
         <ul>
           <li *ngFor="let detail of p.details"> {{ detail }}
         </ul>
@@ -313,7 +352,6 @@
       <app-account-product *ngFor="let p of emailaddons" class="productCard"
                            [p]="p"
                            [currency]="me.currency"
-                           [usage]="q_usage"
                            >
       </app-account-product>
     </div>
@@ -335,7 +373,7 @@
     </p>
 
     <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
-      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency" [usage]="q_usage">
+      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
       </app-account-product>
     </div>
     

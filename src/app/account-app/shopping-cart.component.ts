@@ -228,6 +228,14 @@ export class ShoppingCartComponent implements OnInit {
         this.cart.remove(p);
     }
 
+    less(p: ProductOrder) {
+        this.cart.remove(new ProductOrder(p.pid, p.type, 1));
+    }
+
+    add(p: ProductOrder) {
+      this.cart.add(new ProductOrder(p.pid, p.type, 1));
+    }
+
     async initiatePayment(method: string) {
         const items = this.items.map(i => {
             return { pid: i.pid, apid: i.apid, quantity: i.quantity };

@@ -923,6 +923,13 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getUpgrades(): Observable<Product[]> {
+        return this.http.get('/rest/v1/account_product/upgrades').pipe(
+            map((res: HttpResponse<any>) => res['result']['products']),
+            map((products: any[]) => products.map((c) => new Product(c))),
+        );
+    }
+
     public getReceipt(tid: number): Observable<any> {
         return this.http.get('/rest/v1/account_product/receipt/' + tid).pipe(
             map((res: HttpResponse<any>) => res['result'])
