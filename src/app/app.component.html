@@ -406,6 +406,7 @@
 
 	<div [hidden]="hasChildRouterOutlet">
 
+      <div *ngIf="debouncedRows | async as row_items; else rowsLoading"> 
           <div
             appResizeObserver
             (horizontalResize)="onTableResize()"
@@ -414,11 +415,11 @@
 
             <app-virtual-scroll-table
               [scrollToIndex]="scrollToIndex"
-              *ngIf="rows.length"
+              *ngIf="row_items.length"
               class="messages-table"
 
               (renderedRangeChange)="onRenderedRangeChange($event)"
-              [items]="rows">
+              [items]="row_items">
 
                 <ng-template #thead>
                   <thead>
@@ -663,6 +664,11 @@
                 </ng-template>
             </app-virtual-scroll-table>
           </div>
+      </div>
+      <ng-template #rowsLoading>
+        <app-runbox-loading text="Loading messages...">
+        </app-runbox-loading>
+      </ng-template>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
           [adjustableHeight]="true"

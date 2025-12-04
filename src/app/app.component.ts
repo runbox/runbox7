@@ -1529,9 +1529,9 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
   async updateMessages(args) {
     await this.messageActionsHandler.updateMessages(args);
-    setTimeout(() => {
-      this.updateSearch(true);
-    }, 1000);
+    // setTimeout(() => {
+    //   this.updateSearch(true);
+    // }, 1000);
   }
 }
 
