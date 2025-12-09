@@ -61,7 +61,6 @@ import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { UpdateAlertService } from './updatealert/updatealert.service';
 import { UpdateAlertComponent } from './updatealert/updatealert.component';
-import { FilterSelectionModel } from './models/filter-selection-model';
 import { BindableSelectionModel } from './models/bindable-selection-model';
 import { Direction } from './sort-button/sort-button.component';
 
@@ -92,20 +91,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
   lastCheckedIndex = -1;
   scrollToIndex = new BehaviorSubject<number>(0);
-  rowSelectionModel = new FilterSelectionModel(
-    false,
-    [],
-    false,
-    messagesEqual,
-    hasId
-  );
-  rowsSelectionModel = new FilterSelectionModel(
-    true,
-    [],
-    false,
-    messagesEqual,
-    hasId
-  );
   orderSelectionModel = new BindableSelectionModel(
     false,
     [],
@@ -377,7 +362,8 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   get showSelectOperations() {
-    return !this.rowsSelectionModel.isEmpty()
+    return this.messageTable.rows && this.messageTable.rows.anySelected();
+    // return !this.rowsSelectionModel.isEmpty()
   }
 
   ngDoCheck(): void {
@@ -909,13 +895,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   public clearSelection() {
-    this.rowsSelectionModel.clear()
+    this.messageTable.rows.clearSelection();
   }
 
   public selectRowByMessageId(messageId: number) {
     const matchingRowIndex = this.messageTable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
-      this.rowSelectionModel.select({id: messageId});
       this.rowSelected(matchingRowIndex, 1, false);
     } 
   }
@@ -924,7 +909,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     const isSelect = (columnIndex === 0) || multiSelect
     const shouldScroll = !this.singlemailviewer.messageId
 
-    this.rowSelectionModel.select(this.rows[rowIndex])
     this.lastCheckedIndex = rowIndex
 
     if (shouldScroll) {
@@ -1079,11 +1063,11 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
   }
 
-  onMessagesDragStart(event: DragEvent, row) {
+  onMessagesDragStart(event: DragEvent, index) {
 
     // If no messages are selected we'll select the current message
-    if (this.rowsSelectionModel.isEmpty()) {
-      this.rowsSelectionModel.select(row)
+    if (this.messageTable.rows.rowCount() == 0) {
+      this.messageTable.rows.selectRow(index);
     }
 
     // Remove the default image
@@ -1399,9 +1383,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   get selectedMessageIds() {
-    return this.rowsSelectionModel.isEmpty()
-      ? this.rowSelectionModel.selected.map(idValue)
-      : this.rowsSelectionModel.selected.map(idValue)
+    return this.messageTable.rows.selectedMessageIds();
   }
 
   updateRows() {
@@ -1428,16 +1410,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.rowsSubject.next(this.rows)
   }
 
-  rangeSelectFrom(fromIndex: number, to: number, check: boolean) {
-    const left = Math.min(fromIndex, to)
-    const right = Math.max(fromIndex, to)
+  rangeSelectFrom(fromIndex: number, to: number) {
+    const left = Math.min(fromIndex, to);
+    const right = Math.max(fromIndex, to);
 
     for (let i = left; i <= right; i++) {
-      if (check) {
-        this.rowsSelectionModel.select(this.rows[i])
-      } else {
-        this.rowsSelectionModel.deselect(this.rows[i])
-      }
+      this.messageTable.rows.flipSelectedRow(i);
     }
 
     this.lastCheckedIndex = to
@@ -1450,46 +1428,43 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     event.preventDefault()
   }
 
-  rangeSelect(to: number, check: boolean) {
+  rangeSelect(to: number) {
     const fromIndex = this.lastCheckedIndex;
 
     // When nothing is selected yet.
-    if (fromIndex === -1) return this.oneSelect(to, check)
+    if (fromIndex === -1) return this.oneSelect(to)
 
-    return this.rangeSelectFrom(fromIndex, to, check)
+    return this.rangeSelectFrom(fromIndex, to);
   }
 
-  oneSelect(index, check) {
-    this.rangeSelectFrom(index, index, check)
+  oneSelect(index) {
+    this.rangeSelectFrom(index, index);
   }
 
   onRowClick(event, row, index, checkbox = false) {
-    const shiftKey = event.getModifierState('Shift')
-    const check = !this.rowsSelectionModel.isSelected(this.rows[index])
+    const shiftKey = event.getModifierState('Shift');
 
     if (shiftKey) {
-      return this.rangeSelect(index, check)
+      return this.rangeSelect(index);
     }
 
     const ctrlKey = event.getModifierState('Control')
     const metaKey = event.getModifierState('Meta')
 
     if (ctrlKey || metaKey) {
-      return this.oneSelect(index, check)
+      return this.oneSelect(index);
     }
 
     if (!checkbox) {
       // Deselect an email when clicking on a selected email.
-      if (this.rowSelectionModel.isSelected(this.rows[index])) {
-        this.singlemailviewer.messageId = null;
-        this.rowSelectionModel.clear()
-        return this.singleMailViewerClosed()
+      if (this.messageTable.rows.isOpenedRow(index)) {
+        return this.singlemailviewer?.close();
       }
 
       return this.rowSelected(index, 3, false);
     }
 
-    this.oneSelect(index, check)
+    this.oneSelect(index);
   }
 
   onRowKeydown(event, row, index) {
@@ -1500,15 +1475,15 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   onAllCheckboxChange() {
-    if (this.rowsSelectionModel.isEmpty()) {
-      this.rowsSelectionModel.select(...this.rows);
+    if (!this.messageTable.rows.anySelected()) {
+      this.messageTable.rows.selectAllRows();
     } else {
-      this.rowsSelectionModel.deselect(...this.rows);
+      this.messageTable.rows.clearSelection();
     }
   }
 
   get allItemsSelected() {
-    return this.rowsSelectionModel.selected.length === this.rows.length
+    return this.messageTable.rows.allSelected();
   }
 
   @HostListener('document:dragend', ['$event'])
@@ -1536,5 +1511,3 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 }
 
 const idValue = (x: any) => x.id
-const messagesEqual = (a: any, b: any) => a?.id === b?.id
-const hasId = (x: any) => Boolean(x?.id)

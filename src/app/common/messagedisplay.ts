@@ -72,6 +72,13 @@ export abstract class MessageDisplay {
     this.msgIdsSelected[msgId] = !this.msgIdsSelected[msgId];
   }
 
+  // select all known rows:
+  public selectAllRows() {
+    this.rows.forEach((value, index) => {
+      this.msgIdsSelected[this.getRowMessageId(index)] = true;
+    });
+  }
+
   // ensure this message is selected
   public selectRow(rowIndex: number) {
     const msgId = this.getRowMessageId(rowIndex);
@@ -152,9 +159,6 @@ export abstract class MessageDisplay {
 
     // If we clicked right of the checkbox, we wanted to open the email:
     if (columnIndex > 0) {
-      // selectedRow will change when we click on other checkboxes, this one
-      // stays attached to the opened email
-//      this.openedRowId = this.selectedRowId;
       this.openedRowIndex = rowIndex;
 
       this.hasChanges = true;
