@@ -43,7 +43,7 @@ export class DraftDeskComponent implements OnInit {
         public draftDeskservice: DraftDeskService) {
 
         this.draftDeskservice.draftModels.subscribe(
-            drafts => this.updateDraftsInView(),
+            _drafts => this.updateDraftsInView(),
             err => console.log(err)
         );
     }

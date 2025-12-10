@@ -73,7 +73,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
   ngOnInit() {
     this.scrollToIndexSub = this.scrollToIndex.subscribe(index => {
       this.pendingScrollToIndex = index;
-      this.inputChanges$.next()
+      this.inputChanges$.next();
     });
   }
 
@@ -118,7 +118,7 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
 
   doScrollToIndex(index: number, retries = 5, delayMs = 500): void {
     if (!this.viewport || index == null) return;
-    if (this.pendingScrollToIndex == null) return
+    if (this.pendingScrollToIndex == null) return;
 
     const scrollPosBefore = this.viewport.measureScrollOffset();
 

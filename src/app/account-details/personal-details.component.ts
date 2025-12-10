@@ -173,7 +173,7 @@ export class PersonalDetailsComponent {
 
     public validate_alt_email() {
       this.http.post('/rest/v1/account/alt_email_validation', {})
-            .subscribe((res) => {
+            .subscribe((_res) => {
                 this.rmm.show_error('Validation email resent', 'Dismiss');
             });
     }

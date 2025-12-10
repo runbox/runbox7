@@ -56,7 +56,7 @@ export class ManageServicesComponent implements OnInit {
     }
 
     list_services() {
-        this.rmm.account_security.service.list().subscribe((results) => {});
+        this.rmm.account_security.service.list().subscribe((_results) => {});
     }
 
     service_toggle(result) {

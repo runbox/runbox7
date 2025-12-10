@@ -18,12 +18,12 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Pipe, PipeTransform } from '@angular/core';
-import humanBytes from './common/human-bytes'
+import humanBytes from './common/human-bytes';
 
 @Pipe({
   name: 'humanBytes',
   standalone: true
 })
 export class HumanBytesPipe implements PipeTransform {
-  public transform = humanBytes
+  public transform = humanBytes;
 }

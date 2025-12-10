@@ -21,7 +21,7 @@ import { Component, ElementRef, EventEmitter, Output, Input, HostListener, OnCha
 import { Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-const userResize = new Subject()
+const userResize = new Subject();
 
 @Component({
   selector: 'app-resizable-button',
@@ -61,15 +61,15 @@ export class ResizableButtonComponent implements OnChanges {
 
   setAbsoluteWidth() {
     setTimeout(() => {
-      if (!this.parentElement) return
+      if (!this.parentElement) return;
 
       this.changeWidth(this.parentElement.offsetWidth);
-    }, 0)
+    }, 0);
   }
 
   resetWidth() {
     this.parentElement.style.removeProperty('width');
-    this.setAbsoluteWidth()
+    this.setAbsoluteWidth();
   }
 
   onMouseDown(event: MouseEvent): void {
@@ -128,8 +128,8 @@ export class ResizableButtonComponent implements OnChanges {
   }
 
   changeWidth(pixels: number) {
-    this.widthChange.emit(pixels)
-    userResize.next(pixels)
+    this.widthChange.emit(pixels);
+    userResize.next(pixels);
   }
 
   @HostListener('window:blur')

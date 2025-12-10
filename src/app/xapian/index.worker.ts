@@ -147,7 +147,7 @@ class SearchIndexService {
           db.close();
         };
       } catch (e) {
-        console.error(e)
+        console.error(e);
         console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
         // console.log('Worker: Req failed');
@@ -237,7 +237,7 @@ class SearchIndexService {
         }
       });
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -273,7 +273,7 @@ class SearchIndexService {
       try {
         FS.unlink('xapianglass');
       } catch (e) {
-        console.error(e)
+        console.error(e);
       }
 
 
@@ -535,8 +535,8 @@ not matching with rest api counts for current folder`);
                     (result) => console.log(result.result.result.msg)
                   ).catch(
                     (err) => {
-                      console.error(err)
-                      console.log('Error updating folder counts: ' + err.errors.join(','))
+                      console.error(err);
+                      console.log('Error updating folder counts: ' + err.errors.join(','));
                     }
                   );
                 }
@@ -556,7 +556,7 @@ not matching with rest api counts for current folder`);
                 try {
                   this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
                 } catch (e) {
-                  console.error(e)
+                  console.error(e);
                   console.error('Worker: Unable to delete message from index', msgid);
                 }
               })

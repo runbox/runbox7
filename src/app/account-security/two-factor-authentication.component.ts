@@ -193,7 +193,7 @@ export class TwoFactorAuthenticationComponent implements OnInit {
         modal
             .afterClosed()
             .pipe(timeout(60000), share())
-            .subscribe((result) => {});
+            .subscribe((_result) => {});
     }
 
     totp_check_code() {

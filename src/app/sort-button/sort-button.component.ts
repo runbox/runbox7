@@ -98,7 +98,7 @@ export class SortButtonComponent {
     [Direction.Ascending, 'ascending'],
     [Direction.Descending, 'descending'],
     [Direction.None, 'no particular'],
-  ])
+  ]);
 
   private readonly directionIconMap = new Map<Direction, string>([
     [Direction.Ascending, 'arrow_downward'],
@@ -108,7 +108,7 @@ export class SortButtonComponent {
 
   // Optional helper getter if you want cleaner template usage
   get isDisabled(): boolean {
-      return this.disabled !== undefined && this.disabled !== false;
+    return this.disabled !== undefined && this.disabled !== false;
   }
 
   get directionIcon() {
@@ -118,14 +118,14 @@ export class SortButtonComponent {
   }
 
   get hrDirection() {
-      return this.hrDirectionTr.get(this.order?.direction)
+    return this.hrDirectionTr.get(this.order?.direction);
   }
 
   onClick(): void {
     // Set direction to Ascending when switching columns.
     const direction = (this.order?.data !== this.data)
-     ? Direction.Descending
-     : this.directionCycle.get(this.order?.direction) ?? Direction.Ascending
+      ? Direction.Descending
+      : this.directionCycle.get(this.order?.direction) ?? Direction.Ascending;
 
     this.orderChange.emit({
       data: this.data,

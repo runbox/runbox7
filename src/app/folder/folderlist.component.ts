@@ -117,7 +117,7 @@ export class FolderListComponent implements OnChanges {
             }
         } catch (e) {
             /* we don't care why it failed, it just means that we'll show all folders as collapsed */
-            console.error(e)
+          console.error(e);
         }
 
         this.treeControl = new FlatTreeControl<FolderListEntry>(this._getLevel, this._isExpandable);
@@ -255,8 +255,8 @@ export class FolderListComponent implements OnChanges {
     }
 
     onFolderClick($event, folder) {
-        $event.preventDefault()
-        this.selectFolder(folder)
+        $event.preventDefault();
+        this.selectFolder(folder);
     }
 
     selectFolder(folder: string): void {

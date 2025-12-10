@@ -86,7 +86,7 @@ export class SearchMessageDisplay extends MessageDisplay {
         rowObj[2] = `${results[0][1] + 1}`;
         rowData.count = rowObj[2];
       } else {
-        rowData.count = 1
+        rowData.count = 1;
       }
     }
 

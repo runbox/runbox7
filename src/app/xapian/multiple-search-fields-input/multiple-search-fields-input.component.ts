@@ -53,8 +53,8 @@ export class MultipleSearchFieldsInputComponent implements OnChanges {
     this.formGroup.valueChanges
       .pipe(distinctUntilChanged())
       .subscribe(() => {
-      this.enableDisableUnread();
-      this.buildSearchExpression()
+        this.enableDisableUnread();
+        this.buildSearchExpression();
     });
   }
 

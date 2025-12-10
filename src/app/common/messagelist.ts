@@ -70,7 +70,7 @@ export class MessageList extends MessageDisplay {
   }
 
   getRowData(rowIndex, app) {
-    const row = this.rows[rowIndex]
+    const row = this.rows[rowIndex];
 
     return {
       id: row.id,

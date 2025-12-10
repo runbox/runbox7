@@ -20,15 +20,13 @@
 import { TestBed } from '@angular/core/testing';
 import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
-import { SearchService, XAPIAN_GLASS_WR } from '../xapian/searchservice';
+import { SearchService } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
 import { AsyncSubject, of, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-
-const testcounter = 1;
 
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();

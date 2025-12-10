@@ -104,7 +104,7 @@ END:VCALENDAR
             { id: 'test2', displayname: 'Test2', syncToken: 'ogon' }
         ]),
         getCalendarEvents: () => of(Object.values(dav_events)),
-        getVTimezone:      (tzname: string) => of(timezone),
+        getVTimezone:      (_tzname: string) => of(timezone),
         modifyCalendarEvent: (e: RunboxCalendarEvent) => {
             calls.modifyCalendarEvent++;
             dav_events[e.id] = {'calendar': e._calendar, 'id': e.id, 'ical': e.toIcal()};

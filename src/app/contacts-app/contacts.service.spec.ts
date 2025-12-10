@@ -17,8 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { PreferencesResult, PreferencesService } from '../common/preferences.service';
-import { AppSettings } from '../app-settings';
+import { PreferencesService } from '../common/preferences.service';
 import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
@@ -57,7 +56,7 @@ class MockRMMAPI {
 }
 
 describe('ContactsService', () => {
-  const mq = <unknown> {
+  const _mq = <unknown> {
     screenSize: ScreenSize.Desktop,
     screenSizeChanged: of(ScreenSize.Desktop)
   } as MobileQueryService;

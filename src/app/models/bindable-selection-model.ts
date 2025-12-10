@@ -39,6 +39,6 @@ export class BindableSelectionModel<T> {
   // Setter for `selected`
   set selected(items: T | T[]) {
     const selection = (this.selectionModel.isMultipleSelection() ? items : [items]) as T[];
-    this.selectionModel.setSelection(...selection)
+    this.selectionModel.setSelection(...selection);
   }
 }
