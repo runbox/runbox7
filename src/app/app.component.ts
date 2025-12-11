@@ -1441,10 +1441,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   get showNotificationButton() {
-    return (
-      navigator.serviceWorker &&
-      Notification.permission !== 'granted'
-    )
+    let showButton = false;
+    try {
+      showButton = Notification.permission !== 'granted';
+    } catch (e) {
+      // No notification API on Safari iOS!
+      showButton = false;
+    }
+    return navigator.serviceWorker && showButton;
   }
 
   async enableNotification() {
