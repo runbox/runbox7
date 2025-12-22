@@ -163,8 +163,10 @@ export class MessageFlagChange {
 @Injectable()
 export class RunboxWebmailAPI {
     public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 10000;
+    public static readonly DOWNLOAD_MESSAGES_CHUNK_SIZE: number = 50;
 
     public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
+    public messageContentsInvalidated: Subject<number> = new Subject();
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
     public rblocale: any;
 
@@ -211,6 +213,7 @@ export class RunboxWebmailAPI {
     public deleteCachedMessageContents(messageId: number) {
         this.messageCache.subscribe(cache => cache.delete(messageId));
         this.messageContentsRequestCache.delete(messageId);
+        this.messageContentsInvalidated.next(messageId);
     }
 
     public getCachedMessageContents(messageId: number): Promise<MessageContents> {
@@ -260,7 +263,7 @@ export class RunboxWebmailAPI {
                             // for the user, don't display a generic error yet
                             console.log('Error loading message ' + messageId);
                             console.log(response);
-                            delete this.messageContentsRequestCache[messageId];
+                            this.messageContentsRequestCache.delete(messageId);
                             reject(response);
                         }
                     }, err => {
@@ -276,64 +279,91 @@ export class RunboxWebmailAPI {
 
     // returns the ids for which we have updated the cache
     public async downloadMessages(messageIds: number[]): Promise<MessageContents[]> {
-        const cachedIds = await this.checkCachedMessageContents([...messageIds]);
+        const uniqueIds = Array.from(new Set(messageIds.filter((id) => Number.isInteger(id))));
+        if (uniqueIds.length === 0) {
+            return [];
+        }
+
+        const cachedIds = (await this.checkCachedMessageContents([...uniqueIds])) || [];
 
         // Filter out items we already have
         // or are busy fetching
-        const missingMessages = messageIds.filter(
+        const missingMessages = uniqueIds.filter(
             (msgId) => !cachedIds.includes(msgId)
                 && !this.downloadingMessages.includes(msgId)
         );
- 
+
         if (missingMessages.length === 0) {
             return [];
         }
-        this.downloadingMessages = this.downloadingMessages.concat(missingMessages);
-        return new Promise((resolve, reject) => {
-                    this.http.get(`/rest/v1/email/download/${missingMessages.join(',')}`).pipe(
-                        catchError((err: HttpErrorResponse) => throwError(err.message)),
-                        concatMap((res: any) => {
-                            if (res.status === 'success') {
-                                return of(res.result);
-                            } else {
-                                return throwError(res.errors[0]);
-                            }
-                        }),
-                    ).subscribe(
-                        async (result: any) => {
-                            const messageCache = await firstValueFrom(this.messageCache);
-                            const updatedMsgs = [];
-                            for (const resultKey of Object.keys(result)) {
-                                const msgid = parseInt(resultKey, 10);
-                                const contents = result[msgid]?.json;
-                                if (contents) {
-                                    contents.status = 'success';
-                                    messageCache.set(msgid, Object.assign( new MessageContents(), contents));
-                                    updatedMsgs.push(contents);
-                                } else {
-                                    this.deleteCachedMessageContents(msgid);
-                                }
-                                const msgIndex = this.downloadingMessages
-                                    .findIndex((id) => msgid === id);
-                                if (msgIndex > -1) {
-                                    this.downloadingMessages.splice(msgIndex, 1);
-                                }
-                            }
-                            resolve(updatedMsgs);
-                        },
-                        (err: Error) => {
-                            for (const msgid of missingMessages) {
-                                this.deleteCachedMessageContents(msgid);
-                                const msgIndex = this.downloadingMessages
-                                    .findIndex((id) => msgid === id);
-                                if (msgIndex > -1) {
-                                    this.downloadingMessages.splice(msgIndex, 1);
-                                }
-                            }
-                            reject(err);
+
+        const removeFromDownloading = (ids: number[]) => {
+            if (ids.length === 0) {
+                return;
+            }
+            const idSet = new Set(ids);
+            this.downloadingMessages = this.downloadingMessages.filter((id) => !idSet.has(id));
+        };
+
+        const downloadChunk = (chunkIds: number[]): Promise<MessageContents[]> => {
+            this.downloadingMessages = this.downloadingMessages.concat(chunkIds);
+            const chunkIdSet = new Set(chunkIds);
+            return new Promise((resolve, reject) => {
+                this.http.get(`/rest/v1/email/download/${chunkIds.join(',')}`).pipe(
+                    catchError((err: HttpErrorResponse) => throwError(err.message)),
+                    concatMap((res: any) => {
+                        if (res.status === 'success') {
+                            return of(res.result);
+                        } else {
+                            return throwError(res.errors[0]);
                         }
-                    );
-        });
+                    }),
+                ).subscribe(
+                    async (result: any) => {
+                        const messageCache = await firstValueFrom(this.messageCache);
+                        const updatedMsgs: MessageContents[] = [];
+                        const processedIds = new Set<number>();
+                        for (const resultKey of Object.keys(result)) {
+                            const msgid = parseInt(resultKey, 10);
+                            if (!chunkIdSet.has(msgid)) {
+                                continue;
+                            }
+                            processedIds.add(msgid);
+                            const contents = result[msgid]?.json;
+                            if (contents) {
+                                contents.status = 'success';
+                                messageCache.set(msgid, Object.assign(new MessageContents(), contents));
+                                updatedMsgs.push(contents);
+                            } else {
+                                this.deleteCachedMessageContents(msgid);
+                            }
+                        }
+                        for (const msgid of chunkIds) {
+                            if (!processedIds.has(msgid)) {
+                                this.deleteCachedMessageContents(msgid);
+                            }
+                        }
+                        removeFromDownloading(chunkIds);
+                        resolve(updatedMsgs);
+                    },
+                    (err: Error) => {
+                        for (const msgid of chunkIds) {
+                            this.deleteCachedMessageContents(msgid);
+                        }
+                        removeFromDownloading(chunkIds);
+                        reject(err);
+                    }
+                );
+            });
+        };
+
+        const updatedMessages: MessageContents[] = [];
+        for (let index = 0; index < missingMessages.length; index += RunboxWebmailAPI.DOWNLOAD_MESSAGES_CHUNK_SIZE) {
+            const chunk = missingMessages.slice(index, index + RunboxWebmailAPI.DOWNLOAD_MESSAGES_CHUNK_SIZE);
+            updatedMessages.push(...await downloadChunk(chunk));
+        }
+
+        return updatedMessages;
     }
 
 
