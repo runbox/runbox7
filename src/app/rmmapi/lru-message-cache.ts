@@ -73,8 +73,13 @@ export class LRUMessageCache<T> {
     private evictOldest(): void {
         const entries = Array.from(this.messages.entries(), e => [e[0], e[1].accessTime]);
         entries.sort((a, b) => b[1] - a[1]);
-        for (const e of entries.slice(entries.length - this.maxSize)) {
+        const overflow = entries.length - this.maxSize;
+        if (overflow <= 0) {
+            return;
+        }
+        for (const e of entries.slice(entries.length - overflow)) {
             this.delete(e[0]);
         }
+        this.eviction = null;
     }
 }

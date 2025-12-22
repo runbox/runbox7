@@ -55,4 +55,17 @@ describe('LRU message cache', () => {
         expect(cache.get(4)).toBe(true);
         expect(cache.get(6)).toBe(true);
     });
+
+    it('should not over-evict when exceeding max size', async () => {
+        const cache = new LRUMessageCache<boolean>(3, 10);
+        cache.add(1, true);
+        cache.add(2, true);
+        cache.add(3, true);
+        cache.add(4, true);
+
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const remaining = [1, 2, 3, 4].filter((id) => cache.get(id)).length;
+        expect(remaining).toBe(3);
+    });
 });
