@@ -34,6 +34,8 @@ export class TinyMCEPlugin {
                 cache_suffix: '?v=6.8.3',
                 selector: options.selector, // '#' + this.editorRef.nativeElement.id,
                 browser_spellcheck: true,
+                skin: (options.skin || 'oxide'),
+                content_css: (options.content_css || 'default'),
                 plugins: (options.plugins ||
                     'preview searchreplace autolink directionality ' +
                     'visualblocks visualchars fullscreen image link template codesample ' +

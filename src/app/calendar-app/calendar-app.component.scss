@@ -20,7 +20,7 @@
 
 .updateInfo {
     &:hover {
-        background-color: #fff;
+        background-color: var(--rmm-bg-primary);
         cursor: default;
     }
 }

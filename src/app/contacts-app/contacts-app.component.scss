@@ -6,7 +6,7 @@
     .contactList {
         min-width: 300px;
         max-width: 350px;
-        border-right: 1px solid #e0e0e0;
+        border-right: 1px solid var(--rmm-border-color);
     }
     
     .contactDetails {
@@ -62,14 +62,14 @@ mat-list-item.contactListButton {
 .contactListControls {
     height: 24px !important;
     padding-top: 00px !important;
-    
+
     &:hover {
-        background-color: #fff;
+        background-color: var(--rmm-bg-primary);
         cursor: default;
     }
 
     &:active {
-        background-color: #fff;
+        background-color: var(--rmm-bg-primary);
     }
 }
 
@@ -131,5 +131,5 @@ mat-list-item.contactListButton {
 }
 
 .contactFiltering {
-    background: #fafafa;
+    background: var(--rmm-bg-secondary);
 }

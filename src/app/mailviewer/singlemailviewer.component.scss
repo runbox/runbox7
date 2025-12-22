@@ -1,9 +1,9 @@
 .adjustableHeight {
     position: absolute;
     bottom: 0px; left: 0px;
-    right: 0px; z-index: 1000; background-color: white;    
+    right: 0px; z-index: 1000; background-color: var(--rmm-bg-primary);
     transition: all 0.2s;
-    border-top: 1px solid darkgrey !important;
+    border-top: 1px solid var(--rmm-border-color) !important;
 }							       
 
 #messageHeader {

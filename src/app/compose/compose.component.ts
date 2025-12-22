@@ -41,6 +41,7 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 import { objectEqualWithKeys } from '../common/util';
+import { ThemeService } from '../common/theme.service';
 
 declare const MailParser;
 
@@ -111,6 +112,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         recipientservice: RecipientsService,
         public preferenceService: PreferencesService,
         private _ngZone: NgZone,
+        private themeService: ThemeService,
     ) {
         this.tinymce_plugin = new TinyMCEPlugin();
         this.editorId = 'tinymceinstance_' + (ComposeComponent.tinymceinstancecount++);
@@ -551,9 +553,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public htmlToggled() {
         if (this.formGroup.value.useHTML) {
             this.selector = `html-editor-${Math.floor(Math.random() * 10000000000)}`;
+            const isDarkTheme = this.themeService.getActiveTheme() === 'dark';
             const options = {
                 base_url: this.location.prepareExternalUrl('/tinymce/'), // Base for assets such as skins, themes and plugins
                 selector: '#' + this.selector,
+                skin: isDarkTheme ? 'oxide-dark' : 'oxide',
+                content_css: isDarkTheme ? 'dark' : 'default',
                 setup: editor => {
                     this.editor = editor;
                     editor.on('Change', () => {

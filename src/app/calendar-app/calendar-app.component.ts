@@ -243,7 +243,7 @@ export class CalendarAppComponent implements OnDestroy {
             (ea, eb) => ea.start.getTime() < eb.start.getTime() ? -1 : 1);
 
         // else nothing actually visually changes until the next sync!
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
         this.refresh.next(undefined);
     }
 

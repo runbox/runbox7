@@ -26,7 +26,7 @@ import {
   NgModule, Component, AfterViewInit,
   Input, Output, Renderer2,
   ElementRef,
-  DoCheck, NgZone, EventEmitter, OnInit, ViewChild
+  DoCheck, NgZone, EventEmitter, OnInit, ViewChild, OnDestroy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
@@ -35,10 +35,11 @@ import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatLegacyTooltipModule as MatTooltipModule, MatLegacyTooltip as MatTooltip } from '@angular/material/legacy-tooltip';
-import { BehaviorSubject ,  Subject } from 'rxjs';
+import { BehaviorSubject ,  Subject, Subscription } from 'rxjs';
 import { MessageDisplay } from '../common/messagedisplay';
 import { CanvasTableColumn } from './canvastablecolumn';
 import { PreferencesService } from '../common/preferences.service';
+import { ThemeService } from '../common/theme.service';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -82,7 +83,7 @@ export namespace CanvasTable {
   selector: 'canvastable',
   templateUrl: 'canvastable.component.html'
 })
-export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
+export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit, OnDestroy {
   static incrementalId = 1;
   public elementId: string;
   private _topindex = 0.0;
@@ -178,7 +179,56 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   openedRowColor: string = getCSSClassProperty('themePaletteLighterGray', 'color');
   hoverRowColor: string = getCSSClassProperty('themePaletteLightGray', 'color');
   textColor: string = getCSSClassProperty('themePaletteBlack', 'color');
+  backgroundColor: string = null; // Will be set dynamically from CSS variables
+  borderColor: string = null; // Will be set dynamically from CSS variables
 
+  // Helper to convert hex color to rgba
+  private hexToRgba(hex: string, alpha: number): string {
+    // Remove # if present
+    hex = hex.replace('#', '');
+    // Parse hex values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  // Helper to add alpha to any color format
+  private colorWithAlpha(color: string, alpha: number): string {
+    if (color.startsWith('#')) {
+      return this.hexToRgba(color, alpha);
+    } else if (color.startsWith('rgb(')) {
+      return color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+    } else if (color.startsWith('rgba(')) {
+      // Already has alpha, replace it
+      return color.replace(/,\s*[\d.]+\)$/, `, ${alpha})`);
+    }
+    return color;
+  }
+
+  // Method to refresh colors from CSS variables (theme-aware)
+  private refreshThemeColors(): void {
+    const computedStyle = getComputedStyle(document.documentElement);
+    this.backgroundColor = computedStyle.getPropertyValue('--rmm-bg-primary').trim() || '#ffffff';
+    this.borderColor = computedStyle.getPropertyValue('--rmm-border-color').trim() || '#e0e0e0';
+
+    console.log('[CanvasTable] Refreshing theme colors:');
+    console.log('  - Has dark-theme class on html:', document.documentElement.classList.contains('dark-theme'));
+    console.log('  - Has dark-theme class on body:', document.body.classList.contains('dark-theme'));
+    console.log('  - backgroundColor:', this.backgroundColor);
+    console.log('  - borderColor:', this.borderColor);
+
+    // Refresh all color properties that depend on CSS classes
+    this.textColorLink = getCSSClassProperty('themePalettePrimary', 'color');
+    this.selectedRowColor = getCSSClassProperty('themePaletteAccentLighter', 'color');
+    this.openedRowColor = getCSSClassProperty('themePaletteLighterGray', 'color');
+    this.hoverRowColor = getCSSClassProperty('themePaletteLightGray', 'color');
+    this.textColor = getCSSClassProperty('themePaletteBlack', 'color');
+
+    console.log('  - textColor:', this.textColor);
+
+    this.hasChanges = true;
+  }
 
   public colpaddingleft = 10;
   public colpaddingright = 10;
@@ -221,7 +271,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   // Are we selecting all rows, or just the visible ones?
   public selectWhichRows = CanvasTable.RowSelect.Visible;
 
-  constructor(elementRef: ElementRef, private renderer: Renderer2, private _ngZone: NgZone) {
+  private themeSubscription: Subscription;
+
+  constructor(elementRef: ElementRef, private renderer: Renderer2, private _ngZone: NgZone, private themeService: ThemeService) {
   }
 
   ngDoCheck() {
@@ -254,6 +306,19 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   ngAfterViewInit() {
     this.canv = this.canvRef.nativeElement;
     this.ctx = this.canv.getContext('2d');
+
+    // Subscribe to theme changes to update colors dynamically
+    this.themeSubscription = this.themeService.activeTheme$.subscribe(() => {
+      // Use setTimeout to ensure DOM has been updated with theme class
+      setTimeout(() => {
+        this.refreshThemeColors();
+      }, 100);
+    });
+
+    // Initial color refresh with delay to ensure theme is applied
+    setTimeout(() => {
+      this.refreshThemeColors();
+    }, 200);
 
     this.canv.onwheel = (event: WheelEvent) => {
       event.preventDefault();
@@ -588,6 +653,12 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this._ngZone.runOutsideAngular(() =>
       window.requestAnimationFrame(() => paintLoop())
     );
+  }
+
+  ngOnDestroy() {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
   }
 
   private updateDragImage(selectedRowIndex: number) :HTMLCanvasElement {
@@ -1011,7 +1082,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     for (let colindex = 0; colindex < this.columns.length; colindex++) {
       const col: CanvasTableColumn = this.columns[colindex];
       if (colx + col.width > 0 && colx < canvwidth) {
-        this.ctx.fillStyle = col.backgroundColor ? col.backgroundColor : '#fff';
+        this.ctx.fillStyle = col.backgroundColor ? col.backgroundColor : this.backgroundColor;
         this.ctx.fillRect(colx,
           0,
           colindex === this.columns.length - 1 ?
@@ -1044,7 +1115,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         // Alternating row colors:
         // let rowBgColor : string = (rowIndex%2===0 ? "#e8e8e8" : "rgba(255,255,255,0.7)");
         // Single row color:
-        let rowBgColor = '#fff';
+        let rowBgColor = this.backgroundColor;
 
         const isBoldRow = this.rows.isBoldRow(rowIndex);
         const isSelectedRow = this.rows.isSelectedRow(rowIndex);
@@ -1062,8 +1133,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         this.ctx.fillStyle = rowBgColor;
         this.ctx.fillRect(0, rowy, canvwidth, this.rowheight);
 
-        // Row borders separating each row 
-        this.ctx.strokeStyle = '#eee';
+        // Row borders separating each row
+        this.ctx.strokeStyle = this.borderColor;
         this.ctx.beginPath();
         this.ctx.moveTo(0, rowy);
         this.ctx.lineTo(canvwidth, rowy);
@@ -1103,7 +1174,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
               15, 10, false);
             this.ctx.font = '10px ' + this.fontFamily;
 
-            this.ctx.strokeStyle = '#000';
+            this.ctx.strokeStyle = this.textColor;
             if (isSelectedRow) {
               this.ctx.fillStyle = this.textColor;
             } else {
@@ -1295,8 +1366,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
     if (!this.rowWrapMode) {
       // No column separators in row wrap mode
-      this.ctx.fillStyle = `rgba(166,166,166,${this.visibleColumnSeparatorAlpha})`;
-      this.ctx.strokeStyle = `rgba(176,176,176,${this.visibleColumnSeparatorAlpha})`;
+      // Use border color with alpha for theme-aware separators
+      const separatorColor = this.borderColor || '#e0e0e0';
+      this.ctx.fillStyle = this.colorWithAlpha(separatorColor, this.visibleColumnSeparatorAlpha);
+      this.ctx.strokeStyle = this.colorWithAlpha(separatorColor, this.visibleColumnSeparatorAlpha);
 
       if (this.visibleColumnSeparatorAlpha < 1) {
         this.visibleColumnSeparatorAlpha += 0.01;
@@ -1330,9 +1403,9 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       const scrollbarverticalpadding = 4;
 
       const scrollbarx = canvwidth - this.scrollbarwidth;
-      this.ctx.fillStyle = '#aaa';
+      this.ctx.fillStyle = this.borderColor || '#aaa';
       this.ctx.fillRect(scrollbarx, 0, this.scrollbarwidth, canvheight);
-      this.ctx.fillStyle = '#fff';
+      this.ctx.fillStyle = this.backgroundColor;
       this.scrollBarRect = {
         x: scrollbarx + 1,
         y: scrollbarpos + scrollbarverticalpadding / 2,
@@ -1341,20 +1414,22 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       };
 
       if (this.scrollbarDragInProgress) {
-        this.ctx.fillStyle = 'rgba(200,200,255,0.5)';
+        // Use hover row color with transparency for drag highlight
+        const dragHighlight = this.hoverRowColor || '#42a5f5';
+        this.ctx.fillStyle = this.colorWithAlpha(dragHighlight, 0.5);
         this.roundRect(this.ctx,
           this.scrollBarRect.x - 4,
           this.scrollBarRect.y - 4,
           this.scrollBarRect.width + 8,
           this.scrollBarRect.height + 8, 5, true);
 
-        this.ctx.fillStyle = '#fff';
+        this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(this.scrollBarRect.x,
           this.scrollBarRect.y,
           this.scrollBarRect.width,
           this.scrollBarRect.height);
       } else {
-        this.ctx.fillStyle = '#fff';
+        this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(this.scrollBarRect.x, this.scrollBarRect.y, this.scrollBarRect.width, this.scrollBarRect.height);
       }
 

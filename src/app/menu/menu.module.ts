@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
+import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
 import { RouterModule } from '@angular/router';
@@ -38,6 +39,7 @@ import { SidenavMenuComponent } from './sidenav-menu.component';
       MatTooltipModule,
       RouterModule.forChild([]),
       MatMenuModule,
+      MatSlideToggleModule,
       RouterModule
   ],
   declarations: [

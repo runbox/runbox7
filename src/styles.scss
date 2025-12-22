@@ -42,6 +42,28 @@ $rmm-default-black: #444444;
 
 @include mat.all-legacy-component-themes($rmm-default-theme);
 
+// Dark theme palettes
+$rmm-dark-primary:    mat.define-palette(mat.$blue-palette, 400, 200, 600);
+$rmm-dark-accent:     mat.define-palette(mat.$light-blue-palette, 300, 200, 400);
+$rmm-dark-warn:       mat.define-palette(mat.$orange-palette, 400, 300, 500);
+$rmm-dark-caution:    mat.define-palette(mat.$deep-orange-palette, 400, 300, 500);
+$rmm-dark-error:      mat.define-palette(mat.$red-palette, 400, 300, 500);
+$rmm-dark-foreground: mat.define-palette(mat.$blue-palette, 200, 100, 300);
+$rmm-dark-highlight:  mat.define-palette(mat.$blue-palette, 800, 700, 900);
+$rmm-dark-background-palette: mat.define-palette(mat.$blue-grey-palette, 900, 800, A700);
+
+$rmm-dark-lighter-gray: #2a2a2a;
+$rmm-dark-light-gray: #212121;
+$rmm-dark-dark-gray: #b0b0b0;
+$rmm-dark-black: #e0e0e0;
+
+$rmm-dark-theme: mat.define-dark-theme($rmm-dark-primary, $rmm-dark-accent, $rmm-dark-warn);
+
+// Apply dark theme when .dark-theme class is present
+.dark-theme {
+    @include mat.all-legacy-component-themes($rmm-dark-theme);
+}
+
 // GTA 13.06.2018: Load custom fonts
 
 @font-face {
@@ -77,6 +99,55 @@ $custom-typography: mat.define-legacy-typography-config(
 @include mat.all-legacy-component-typographies($custom-typography);
 @include mat.legacy-core();
 
+// CSS Custom Properties for runtime theme switching
+:root {
+    --rmm-primary-color: #{mat.get-color-from-palette($rmm-default-primary)};
+    --rmm-accent-color: #{mat.get-color-from-palette($rmm-default-accent)};
+    --rmm-warn-color: #{mat.get-color-from-palette($rmm-default-warn)};
+    --rmm-foreground-color: #{mat.get-color-from-palette($rmm-default-foreground)};
+    --rmm-background-color: #{mat.get-color-from-palette($rmm-default-background)};
+    --rmm-highlight-color: #{mat.get-color-from-palette($rmm-default-highlight)};
+
+    --rmm-lighter-gray: #{$rmm-default-lighter-gray};
+    --rmm-light-gray: #{$rmm-default-light-gray};
+    --rmm-dark-gray: #{$rmm-default-dark-gray};
+    --rmm-black: #{$rmm-default-black};
+
+    --rmm-bg-primary: #ffffff;
+    --rmm-bg-secondary: #fafafa;
+    --rmm-bg-tertiary: #f5f5f5;
+    --rmm-text-primary: #000000;
+    --rmm-text-secondary: #444444;
+    --rmm-text-tertiary: #666666;
+    --rmm-border-color: #e0e0e0;
+    --rmm-divider-color: #dddddd;
+}
+
+.dark-theme {
+    --rmm-primary-color: #{mat.get-color-from-palette($rmm-dark-primary)};
+    --rmm-accent-color: #{mat.get-color-from-palette($rmm-dark-accent)};
+    --rmm-warn-color: #{mat.get-color-from-palette($rmm-dark-warn)};
+    --rmm-foreground-color: #{mat.get-color-from-palette($rmm-dark-foreground)};
+    --rmm-background-color: #{mat.get-color-from-palette($rmm-dark-background-palette)};
+    --rmm-highlight-color: #{mat.get-color-from-palette($rmm-dark-highlight)};
+
+    --rmm-lighter-gray: #{$rmm-dark-lighter-gray};
+    --rmm-light-gray: #{$rmm-dark-light-gray};
+    --rmm-dark-gray: #{$rmm-dark-dark-gray};
+    --rmm-black: #{$rmm-dark-black};
+
+    --rmm-bg-primary: #121212;
+    --rmm-bg-secondary: #1e1e1e;
+    --rmm-bg-tertiary: #2a2a2a;
+    --rmm-text-primary: #ffffff;
+    --rmm-text-secondary: #e0e0e0;
+    --rmm-text-tertiary: #b0b0b0;
+    --rmm-border-color: #333333;
+    --rmm-divider-color: #2a2a2a;
+
+    color-scheme: dark;
+}
+
 
 /*** Generic styles ***/
 
@@ -89,6 +160,8 @@ body {
     height: 100%;
     font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
     overscroll-behavior: contain;
+    background-color: var(--rmm-bg-primary);
+    color: var(--rmm-text-primary);
 }
 
 h1, .mat-typography h1 {
@@ -234,7 +307,7 @@ mat-grid-tile {
 }
 
 mat-chip.mat-chip.mat-standard-chip {
-    background-color: #f5f5f5;
+    background-color: var(--rmm-bg-tertiary);
 }
 
 .mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
@@ -275,13 +348,13 @@ mat-grid-tile.tableTitle {
 
 .contentButton {
     margin: 0 5px !important;
-    background: #eeeeee;
+    background: var(--rmm-bg-tertiary);
     padding: 5px 0px 3px 3px !important;
     line-height: 1.5em !important;
     text-decoration: none !important;
     white-space: nowrap;
     font-size: 13px;
-    color: #000;
+    color: var(--rmm-text-primary);
 
     mat-icon {
 	width: 22px;
@@ -292,8 +365,12 @@ mat-grid-tile.tableTitle {
 
 .primaryContentButton {
     @extend .contentButton;
-    background-color: mat.get-color-from-palette($rmm-default-primary);
-    color: white;
+    background-color: var(--rmm-primary-color);
+    color: var(--rmm-text-primary);
+}
+
+.dark-theme .primaryContentButton {
+    color: #ffffff;
 }
 
 .mainTextContent {
@@ -356,35 +433,35 @@ mat-grid-tile.tableTitle {
 /* Palette colors */
 
 .themePalettePrimary {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: var(--rmm-primary-color) !important;
 }
 .themePaletteAccent {
-    color: mat.get-color-from-palette($rmm-default-accent);
+    color: var(--rmm-accent-color) !important;
 }
 .themePaletteAccentLighter {
-    color: mat.get-color-from-palette($rmm-default-accent, lighter);
+    color: var(--rmm-accent-color) !important;
 }
 .themePaletteWarn {
-    color: mat.get-color-from-palette($rmm-default-warn);
+    color: var(--rmm-warn-color) !important;
 }
 .themePaletteForeground {
-    color: mat.get-color-from-palette($rmm-default-foreground);
+    color: var(--rmm-foreground-color) !important;
 }
 .themePaletteBackground {
-    color: mat.get-color-from-palette($rmm-default-background);
+    color: var(--rmm-background-color) !important;
 }
 
 .themePaletteLighterGray {
-    color: #eeeeee !important;
+    color: var(--rmm-lighter-gray) !important;
 }
 .themePaletteLightGray {
-    color: #f4f4f4 !important;
+    color: var(--rmm-light-gray) !important;
 }
 .themePaletteDarkGray {
-    color: #949494 !important;
+    color: var(--rmm-dark-gray) !important;
 }
 .themePaletteBlack {
-    color: #444444 !important;
+    color: var(--rmm-black) !important;
 }
 
 /*** App-specific styles ***/
@@ -1774,5 +1851,357 @@ table.detailsTable tr td:nth-of-type(2) {
     .mat-badge-content {
         font-size: 20px !important;
         line-height: 26px !important;
+    }
+}
+
+// Dark Theme Specific Overrides
+.dark-theme {
+    // Table cells with hardcoded backgrounds
+    td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
+        @media only screen and (max-width: 1024px) {
+            background-color: var(--rmm-bg-tertiary);
+        }
+    }
+
+    // Card backgrounds
+    mat-card {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Dialog backgrounds
+    .mat-dialog-container {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Snackbar
+    .mat-snack-bar-container {
+        background-color: var(--rmm-bg-tertiary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Toolbar
+    .mat-toolbar {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Menu panels
+    .mat-menu-panel {
+        background-color: var(--rmm-bg-secondary);
+    }
+
+    // Sidenav
+    mat-sidenav {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Tables
+    table {
+        background-color: var(--rmm-bg-primary);
+        color: var(--rmm-text-primary);
+    }
+
+    .mat-table {
+        background-color: var(--rmm-bg-primary);
+    }
+
+    // Form fields
+    .mat-form-field {
+        color: var(--rmm-text-primary);
+    }
+
+    // Input fields
+    input, textarea {
+        background-color: var(--rmm-bg-tertiary);
+        color: var(--rmm-text-primary);
+        border-color: var(--rmm-border-color);
+    }
+
+    // Expansion panels
+    .mat-expansion-panel {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Lists
+    .mat-list-base {
+        background-color: var(--rmm-bg-primary);
+    }
+
+    .mat-list-item {
+        color: var(--rmm-text-primary);
+    }
+
+    // Dividers
+    mat-divider, .mat-divider {
+        border-top-color: var(--rmm-divider-color);
+    }
+
+    // Links
+    a {
+        color: var(--rmm-accent-color);
+    }
+
+    // Page containers and sections
+    .mainTextContent, .content-area, .page-content {
+        background-color: var(--rmm-bg-primary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Headers and titles
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--rmm-text-primary);
+    }
+
+    // Buttons that might have hardcoded backgrounds
+    button:not([class*="mat-"]):not([class*="primary"]) {
+        background-color: var(--rmm-bg-tertiary);
+        color: var(--rmm-text-primary);
+        border-color: var(--rmm-border-color);
+    }
+
+    // Select and option elements
+    select, option {
+        background-color: var(--rmm-bg-tertiary);
+        color: var(--rmm-text-primary);
+        border-color: var(--rmm-border-color);
+    }
+
+    // Panels and containers
+    .panel, .container, .section {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Borders that might be hardcoded
+    .border, [class*="border"] {
+        border-color: var(--rmm-border-color) !important;
+    }
+
+    // Grid and flex containers
+    .grid, .flex-container {
+        background-color: var(--rmm-bg-primary);
+    }
+
+    // Header areas
+    header, .header {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Footer areas
+    footer, .footer {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Sidebar areas
+    aside, .sidebar {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+    }
+
+    // Code blocks
+    pre, code {
+        background-color: var(--rmm-bg-tertiary);
+        color: var(--rmm-text-primary);
+        border-color: var(--rmm-border-color);
+    }
+
+    // Scrollbars (webkit)
+    ::-webkit-scrollbar {
+        background-color: var(--rmm-bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--rmm-bg-tertiary);
+        border-color: var(--rmm-border-color);
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: var(--rmm-bg-primary);
+    }
+
+    // Angular Calendar dark theme overrides
+    .cal-month-view,
+    .cal-week-view,
+    .cal-day-view {
+        background-color: var(--rmm-bg-primary);
+        color: var(--rmm-text-primary);
+    }
+
+    .cal-month-view .cal-header,
+    .cal-week-view .cal-header,
+    .cal-day-view .cal-hour-segment {
+        background-color: var(--rmm-bg-secondary);
+        color: var(--rmm-text-primary);
+        border-color: var(--rmm-border-color);
+    }
+
+    .cal-month-view .cal-days,
+    .cal-month-view .cal-cell-row,
+    .cal-month-view .cal-day-cell {
+        background-color: var(--rmm-bg-primary);
+        border-color: var(--rmm-border-color);
+    }
+
+    .cal-month-view .cal-day-cell:hover,
+    .cal-month-view .cal-day-cell.cal-open {
+        background-color: var(--rmm-bg-tertiary);
+    }
+
+    .cal-month-view .cal-day-cell.cal-today {
+        background-color: var(--rmm-bg-secondary);
+    }
+
+    .cal-month-view .cal-cell-top {
+        color: var(--rmm-text-primary);
+    }
+
+    .cal-week-view .cal-header,
+    .cal-week-view .cal-time-label-column,
+    .cal-week-view .cal-hour-segment,
+    .cal-day-view .cal-hour-segment {
+        background-color: var(--rmm-bg-primary);
+        border-color: var(--rmm-border-color);
+        color: var(--rmm-text-primary);
+    }
+
+    .cal-event {
+        background-color: var(--rmm-primary-color);
+        border-color: var(--rmm-primary-color);
+        color: #ffffff;
+    }
+
+    .cal-event-title {
+        color: #ffffff;
+    }
+
+    .cal-week-view .cal-time {
+        color: var(--rmm-text-secondary);
+    }
+
+    .cal-week-view .cal-hour:odd,
+    .cal-day-view .cal-hour:odd {
+        background-color: var(--rmm-bg-secondary);
+    }
+
+    .cal-week-view .cal-hour:not(:last-child) .cal-hour-segment,
+    .cal-day-view .cal-hour:not(:last-child) .cal-hour-segment {
+        border-bottom-color: var(--rmm-border-color);
+    }
+
+    .cal-week-view .cal-day-headers,
+    .cal-week-view .cal-day-column {
+        border-left-color: var(--rmm-border-color);
+    }
+
+    // Fix weekend days (Saturday/Sunday) - distinct color but readable
+    .cal-month-view .cal-day-cell.cal-weekend .cal-day-number,
+    .cal-month-view .cal-day-cell.cal-weekend .cal-cell-top,
+    .cal-week-view .cal-day-headers .cal-header.cal-weekend,
+    .cal-day-view .cal-header.cal-weekend {
+        color: #88b3ff !important; // Light blue - distinct from weekdays but readable
+    }
+
+    // Slightly different background for weekend days
+    .cal-month-view .cal-day-cell.cal-weekend {
+        background-color: rgba(136, 179, 255, 0.05);
+    }
+
+    // Ensure weekend event text is also readable
+    .cal-month-view .cal-day-cell.cal-weekend .cal-event,
+    .cal-week-view .cal-weekend .cal-event {
+        opacity: 1;
+    }
+
+    // Contacts app dark theme fixes
+    .contactList,
+    .contactDetails,
+    .contactFiltering,
+    .twoColumns {
+        background-color: var(--rmm-bg-primary) !important;
+        color: var(--rmm-text-primary) !important;
+    }
+
+    .contactListControls,
+    .contactListButton {
+        background-color: var(--rmm-bg-primary) !important;
+        color: var(--rmm-text-primary) !important;
+    }
+
+    // Ensure contact list items have dark backgrounds
+    app-contacts-app mat-list,
+    app-contacts-app mat-list-item,
+    app-contacts-app .mat-list-base {
+        background-color: var(--rmm-bg-primary) !important;
+        color: var(--rmm-text-primary) !important;
+    }
+
+    // Contact groups and expansion panels
+    app-contacts-app .mat-expansion-panel,
+    app-contacts-app .mat-expansion-panel-header {
+        background-color: var(--rmm-bg-secondary) !important;
+        color: var(--rmm-text-primary) !important;
+    }
+
+    // Contact list hover states
+    app-contacts-app mat-list-item:hover {
+        background-color: var(--rmm-bg-tertiary) !important;
+    }
+
+    // Folder tree dark theme fixes
+    .mailFolder,
+    app-folder-list .mailFolder {
+        background-color: transparent;
+    }
+
+    .mailFolder:hover,
+    .mailFolder:focus-within,
+    .mailFolder:has(a:focus) {
+        background-color: var(--rmm-bg-tertiary) !important;
+    }
+
+    .mailFolder a {
+        color: var(--rmm-text-primary) !important;
+    }
+
+    // Selected folder styling - use accent color for better visibility
+    mat-list-item.selectedFolder,
+    .selectedFolder.mat-list-item,
+    .mat-list-item.selectedFolder,
+    app-folder-list mat-list-item.selectedFolder,
+    mat-nav-list mat-list-item.selectedFolder {
+        background-color: #2d5a8c !important; // Darker blue for selected folder
+    }
+
+    .selectedFolder a,
+    mat-list-item.selectedFolder a,
+    .mat-list-item.selectedFolder a,
+    .selectedFolder .mat-list-item-content,
+    mat-list-item.selectedFolder .mat-list-item-content {
+        color: #87ceeb !important; // Sky blue for selected folder text
+        font-weight: 500 !important;
+    }
+
+    // Override any Material list item colors
+    .mat-nav-list .mat-list-item.selectedFolder,
+    .mat-list-base .mat-list-item.selectedFolder {
+        background-color: #2d5a8c !important;
+        color: #87ceeb !important;
+    }
+
+    // Folder count badges
+    .folderCount,
+    .newMessagesCount {
+        color: var(--rmm-text-secondary) !important;
+    }
+
+    // Non-local folders
+    .nonLocalFolder {
+        opacity: 0.6;
     }
 }

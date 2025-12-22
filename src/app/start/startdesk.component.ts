@@ -212,7 +212,7 @@ export class StartDeskComponent implements OnInit {
         this.regularEmailCount = otherMessages.length;
         this.mailingListEmailCount = messages.length - otherMessages.length;
 
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
     }
 
     public emailPath(email: SearchIndexDocumentData): string {

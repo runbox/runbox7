@@ -19,6 +19,7 @@
 
 import { Component, EventEmitter, Output } from '@angular/core';
 import { LogoutService } from '../login/logout.service';
+import { ThemeService } from '../common/theme.service';
 
 @Component({
     selector: 'app-sidenav-menu',
@@ -47,6 +48,13 @@ import { LogoutService } from '../login/logout.service';
             </button>
         </div>
         <br />
+        <div style="padding: 10px;">
+            <mat-slide-toggle
+                [checked]="(themeService.activeTheme$ | async) === 'dark'"
+                (change)="toggleTheme()">
+                Dark Theme
+            </mat-slide-toggle>
+        </div>
     </div>
 </div>
     `,
@@ -56,6 +64,11 @@ export class SidenavMenuComponent {
 
     constructor(
         public logoutservice: LogoutService,
+        public themeService: ThemeService,
     ) {
+    }
+
+    toggleTheme(): void {
+        this.themeService.toggleTheme();
     }
 }

@@ -64,3 +64,26 @@ mat-list-item.selectedFolder p.visibleOnHover {
 .newMessagesCount .mat-badge-content {
     width: auto;
 }
+
+// Dark theme support
+:host-context(.dark-theme) {
+    .mailFolder:hover,
+    .mailFolder:focus-within,
+    .mailFolder:has(a:focus) {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .mailFolder a {
+        color: #e0e0e0;
+    }
+
+    // Selected folder - distinct blue theme
+    .selectedFolder {
+        background-color: #2d5a8c !important;
+    }
+
+    .selectedFolder a {
+        color: #87ceeb !important;
+        font-weight: 500 !important;
+    }
+}

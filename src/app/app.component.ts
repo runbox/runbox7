@@ -61,6 +61,7 @@ import { AppSettings } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
 import { StorageService } from './storage.service';
+import { ThemeService } from './common/theme.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
@@ -192,6 +193,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
     public updateService: UpdateAlertService,
+    public themeService: ThemeService,
   ) {
     this.hotkeysService.add(
         new Hotkey(['j', 'k'],
@@ -277,7 +279,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
-      changeDetectorRef.detectChanges();
+      changeDetectorRef.markForCheck();
 
       if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
