@@ -49,23 +49,33 @@ export class MessageCache {
 
     // verify which ids we already have
     async checkIds(ids: number[]): Promise<number[]> {
-        return this.db?.table('messages')
-            .where('mid')
-            .anyOf(ids)
-            .primaryKeys()
-            .then(
-                (keys) => keys.map((key) => key as number)
-            );
-    }
-
-    async getMany(ids: number[]): Promise<MessageContents[]> {
-        return this.db?.table('messages')
+        if (!this.db) {
+            return [];
+        }
+        return this.db.table('messages')
             .where('mid')
             .anyOf(ids)
             .toArray()
             .then(
-            result => result,
-                _error => null,
+                (rows) => rows
+                    .filter((row) => Object.assign(new MessageContents(), row).version === this.message_version)
+                    .map((row) => (row as any).mid ?? (row as any).id)
+                    .filter((id) => typeof id === 'number')
+            );
+    }
+
+    async getMany(ids: number[]): Promise<MessageContents[]> {
+        if (!this.db) {
+            return [];
+        }
+        return this.db.table('messages')
+            .where('mid')
+            .anyOf(ids)
+            .toArray()
+            .then(
+                rows => rows
+                    .filter((row) => Object.assign(new MessageContents(), row).version === this.message_version),
+                _error => [],
             );
     }
 
