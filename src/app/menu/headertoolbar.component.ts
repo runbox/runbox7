@@ -23,6 +23,7 @@ import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
 import { RunboxMe } from '../rmmapi/rbwebmail';
+import { ThemeService } from '../common/theme.service';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -39,7 +40,8 @@ export class HeaderToolbarComponent {
         public rmmapi: RunboxWebmailAPI,
         public rmmoffline: RMMOfflineService,
         private router: Router,
-        public logoutservice: LogoutService
+        public logoutservice: LogoutService,
+        public themeService: ThemeService
     ) {
          rmmapi.me.subscribe((me: RunboxMe) => {
          this.isMainAccount = !me.owner;
@@ -62,5 +64,9 @@ export class HeaderToolbarComponent {
 
     public contacts() {
         this.router.navigate(['contacts']);
+    }
+
+    public toggleTheme() {
+        this.themeService.toggleTheme();
     }
 }

@@ -45,6 +45,14 @@
   <span flex style="flex-grow: 1"></span>
 
   <div class="mainMenu">
+    <a mat-button (click)="toggleTheme()" style="font-size: 24px; cursor: pointer;">
+      <span *ngIf="(themeService.activeTheme$ | async) === 'dark'">☀️</span>
+      <span *ngIf="(themeService.activeTheme$ | async) === 'light'">🌙</span>
+      <p class="mainMenuDesc">Theme</p>
+    </a>
+  </div>
+
+  <div class="mainMenu">
     <a mat-button routerLink="/help">
       <mat-icon svgIcon="help-circle"></mat-icon>
       <p class="mainMenuDesc">Help</p>
