@@ -25,6 +25,7 @@ import { AsyncSubject, ReplaySubject } from 'rxjs';
 export class StorageService {
     uid = new AsyncSubject<number>();
     keySubjects: { [key: string]: ReplaySubject<any> } = {};
+    keyVersions: { [key: string]: number } = {};
 
     constructor(
         rmmapi: RunboxWebmailAPI,
@@ -48,12 +49,19 @@ export class StorageService {
     getSubject(key: string): ReplaySubject<any> {
         if (!this.keySubjects[key]) {
             this.keySubjects[key] = new ReplaySubject<any>(1);
-            this.get(key).then(value => this.keySubjects[key].next(value));
+            const subject = this.keySubjects[key];
+            const version = this.keyVersions[key] || 0;
+            this.get(key).then(value => {
+                if ((this.keyVersions[key] || 0) === version) {
+                    subject.next(value);
+                }
+            });
         }
         return this.keySubjects[key];
     }
 
     async set(key: string, value: any): Promise<void> {
+        this.keyVersions[key] = (this.keyVersions[key] || 0) + 1;
         if (value === undefined) {
             localStorage.removeItem(await this.userKey(key));
         } else {
