@@ -195,6 +195,9 @@ export class SearchService {
       // we need to set it manually; DI won't work because of a cyclic dependency
       this.messagelistservice.searchservice.next(this);
       this.messagelistservice.searchservice.complete();
+      this.rmmapi.messageContentsInvalidated.subscribe((messageId) => {
+        this.invalidateMessageTextCache(messageId);
+      });
       // Check if we have a local index stored
       this.rmmapi.me.pipe(
         map((me) => {
@@ -907,6 +910,20 @@ export class SearchService {
         'action': PostMessageAction.setCurrentFolder,
         'folder': folder });
     }
+
+  private invalidateMessageTextCache(messageId: number): void {
+    this.messageTextCache.delete(messageId);
+    if (this.currentDocData && this.currentDocData.id === `Q${messageId}`) {
+      this.currentDocData.textcontent = null;
+      this.currentXapianDocId = null;
+    }
+    if (this.indexWorker) {
+      this.indexWorker.postMessage({
+        action: PostMessageAction.invalidateMessageTextCache,
+        messageId
+      });
+    }
+  }
 
   // fetch message contents, we actually only want the "text.text" part here
   // then we can use it for previews and search, both with/without local index

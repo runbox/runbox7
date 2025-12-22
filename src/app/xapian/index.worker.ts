@@ -1016,6 +1016,8 @@ ctx.addEventListener('message', ({ data }) => {
       // Add / update the text of a message which we can add to the search index
       const updates = data['updates'];
       updates.forEach((val, key) => searchIndexService.messageTextCache.set(key, val));
+    } else if (data['action'] === PostMessageAction.invalidateMessageTextCache) {
+      searchIndexService.messageTextCache.delete(data['messageId']);
     } else if (data['action'] === PostMessageAction.moveMessagesToFolder) {
       searchIndexService.moveMessagesToFolder(data['messageIds'], data['value']);
     } else if (data['action'] === PostMessageAction.deleteMessages) {
@@ -1070,4 +1072,3 @@ ctx.addEventListener('message', ({ data }) => {
     console.error('Failed to deal with message: ', e);
   }
 });
-

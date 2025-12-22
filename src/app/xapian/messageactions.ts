@@ -33,6 +33,7 @@ export enum PostMessageAction {
   deleteLocalIndex = 'deleteLocalIndex',
   folderListUpdate = 'folderListUpdate',
   messageCache = 'messageCache',
+  invalidateMessageTextCache = 'invalidateMessageTextCache',
   moveMessagesToFolder = 'moveMessagesToFolder',
   deleteMessages = 'deleteMessages',
   addMessageToIndex = 'addMessageToIndex',
