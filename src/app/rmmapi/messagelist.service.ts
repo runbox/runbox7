@@ -312,9 +312,9 @@ export class MessageListService {
                     this.folderMessageLists[msg.folder]
                         .splice(delFolderMessageIndex, 1);
                 }
-                this.folderCounts[this.trashFolderName].total++;
+                this.folderCounts[this.trashFolderName].total--;
                 if (!msg.seenFlag) {
-                    this.folderCounts[this.trashFolderName].unread++;
+                    this.folderCounts[this.trashFolderName].unread--;
                 }
                 delete this.messagesById[msgId];
             }
