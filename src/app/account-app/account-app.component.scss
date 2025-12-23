@@ -7,7 +7,9 @@ mat-expansion-panel-header span {
 
 mat-list-item .mdc-list-item__primary-text,
 mat-list-item .mat-mdc-list-item-title,
-mat-list-item [mat-line] {
+mat-list-item [mat-line],
+mat-list-item [matListItemTitle],
+mat-list-item [matListItemLine] {
     display: flex;
     align-items: center;
     flex-wrap: wrap;

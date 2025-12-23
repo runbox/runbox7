@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -65,6 +65,7 @@ export class ContactsAppComponent {
 
     constructor(
         public  contactsservice: ContactsService,
+        private cdr:             ChangeDetectorRef,
         private dialog:          MatDialog,
         private http:            HttpClient,
         public  mobileQuery:     MobileQueryService,
@@ -135,9 +136,9 @@ export class ContactsAppComponent {
                         }
                     });
                     // for details-only view, when we want the toolbar to be visible too
-                    document.getElementById('contactsPageTop').scrollIntoView(true);
+                    document.getElementById('contactsPageTop')?.scrollIntoView(true);
                     // for 3-column view, when the toolbar is always visible anyway
-                    document.getElementById('detailsPageTop').scrollIntoView(true);
+                    document.getElementById('detailsPageTop')?.scrollIntoView(true);
                 } else {
                     this.showingDetails = false;
                     this.shownGroup = null;
@@ -218,6 +219,7 @@ export class ContactsAppComponent {
 
             return true;
         });
+        this.cdr.detectChanges();
     }
 
     importVcfClicked(): void {

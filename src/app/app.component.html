@@ -67,22 +67,21 @@
       </div>
 
       <mat-list-item (click)="compose();" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
-        <mat-icon mat-list-icon  svgIcon="pencil" class="folderIconStandard"></mat-icon>
-        <span mat-line>Compose</span>
+        <mat-icon matListItemIcon svgIcon="pencil" class="folderIconStandard"></mat-icon>
+        <span matListItemTitle>Compose</span>
       </mat-list-item>
 
       <mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
-        <mat-icon mat-list-icon  svgIcon="email-open" class="folderIconStandard"></mat-icon>
-        <span mat-line class="folderName">Drafts</span>
-        <span style="flex-grow: 1"></span>
-        <span class="foldersidebarcount"> {{ draftDeskService.draftModels.value.length }} </span>
+        <mat-icon matListItemIcon svgIcon="email-open" class="folderIconStandard"></mat-icon>
+        <span matListItemTitle class="folderName">Drafts</span>
+        <span matListItemMeta class="foldersidebarcount"> {{ draftDeskService.draftModels.value.length }} </span>
       </mat-list-item>
 
       <mat-list-item (click)="overview()" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}"
         *ngIf="searchService.localSearchActivated"
       >
-        <mat-icon mat-list-icon svgIcon="blur" class="folderIconStandard"></mat-icon>
-        <span mat-line class="folderName">Overview</span>
+        <mat-icon matListItemIcon svgIcon="blur" class="folderIconStandard"></mat-icon>
+        <span matListItemTitle class="folderName">Overview</span>
       </mat-list-item>
 
       <mat-divider></mat-divider>
@@ -123,26 +122,26 @@
       <mat-list-item
         (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">
-          <mat-icon  svgIcon="sync-off" mat-list-icon></mat-icon>
-          <span mat-line>Stop index synchronization</span>
+          <mat-icon svgIcon="sync-off" matListItemIcon></mat-icon>
+          <span matListItemTitle>Stop index synchronization</span>
       </mat-list-item>
     </mat-nav-list>
 
     <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress === null && !offerInitialLocalIndex">
       <mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
-        <mat-icon matListIcon svgIcon="sync"></mat-icon>
-        <span mat-line>Synchronize index</span>
+        <mat-icon matListItemIcon svgIcon="sync"></mat-icon>
+        <span matListItemTitle>Synchronize index</span>
       </mat-list-item>
     </mat-nav-list>
 
     <mat-nav-list>
       <mat-list-item (click)="composeBugReport()" matTooltip="Compose an email to runbox support">
-        <mat-icon matListIcon svgIcon="spider"></mat-icon>
-        <span mat-line>Compose a bug report</span>
+        <mat-icon matListItemIcon svgIcon="spider"></mat-icon>
+        <span matListItemTitle>Compose a bug report</span>
       </mat-list-item>
       <mat-list-item *ngIf="showNotificationButton" (click)="enableNotification()">
-        <mat-icon matListIcon svgIcon="bell"></mat-icon>
-        <span mat-line>Enable Notifications</span>
+        <mat-icon matListItemIcon svgIcon="bell"></mat-icon>
+        <span matListItemTitle>Enable Notifications</span>
       </mat-list-item>
     </mat-nav-list>
 

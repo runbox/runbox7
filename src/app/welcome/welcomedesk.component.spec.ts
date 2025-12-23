@@ -22,6 +22,8 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { WelcomeDeskComponent } from './welcomedesk.component';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 
 describe('WelcomeDeskComponent', () => {
   let component: WelcomeDeskComponent;
@@ -31,6 +33,8 @@ describe('WelcomeDeskComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ WelcomeDeskComponent ],
       imports: [
+        MatIconModule,
+        MatCardModule,
       ],
       providers:
       [

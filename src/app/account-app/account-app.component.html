@@ -5,48 +5,45 @@
             <!-- MAIL -->
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="email"></mat-icon> <span>Mail</span>
-                    </p>
+                    <mat-panel-title>
+                        <mat-icon svgIcon="email"></mat-icon>
+                        <span>Mail</span>
+                    </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-list-item routerLink="/account/identities">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="account-group"></mat-icon> <span>Identities</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="account-group"></mat-icon>
+                    <span matListItemTitle>Identities</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/aliases">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="account-circle"></mat-icon> <span>Email Aliases</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="account-circle"></mat-icon>
+                    <span matListItemTitle>Email Aliases</span>
                 </mat-list-item>
             </mat-expansion-panel>
 
             <!-- MANAGER -->
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="briefcase"></mat-icon> <span>Manager</span>
-                    </p>
+                    <mat-panel-title>
+                        <mat-icon svgIcon="briefcase"></mat-icon>
+                        <span>Manager</span>
+                    </mat-panel-title>
                 </mat-expansion-panel-header>
                 <a href="/mail/fetch" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="cloud-download"></mat-icon> <span>Retrieve</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="cloud-download"></mat-icon>
+                        <span matListItemTitle>Retrieve</span>
                     </mat-list-item>
                 </a>
                 <a href="/mail/rules" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="filter-variant"></mat-icon> <span>Filter</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="filter-variant"></mat-icon>
+                        <span matListItemTitle>Filter</span>
                     </mat-list-item>
                 </a>
                 <a href="/mail/access" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="download"></mat-icon> <span>Access</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="download"></mat-icon>
+                        <span matListItemTitle>Access</span>
                     </mat-list-item>
                 </a>
             </mat-expansion-panel>
@@ -54,29 +51,27 @@
             <!-- HOSTING -->
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="cloud"></mat-icon> <span>Hosting</span>
-                    </p>
+                    <mat-panel-title>
+                        <mat-icon svgIcon="cloud"></mat-icon>
+                        <span>Hosting</span>
+                    </mat-panel-title>
                 </mat-expansion-panel-header>
                 <a href="/mail/account_domain" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="email"></mat-icon> <span>Email Hosting</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="email"></mat-icon>
+                        <span matListItemTitle>Email Hosting</span>
                     </mat-list-item>
                 </a>
                 <a href="/mail/account_domain_hosting" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="domain"></mat-icon> <span>Domain Hosting</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="domain"></mat-icon>
+                        <span matListItemTitle>Domain Hosting</span>
                     </mat-list-item>
                 </a>
                 <a href="/mail/account_webhosting" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="earth"></mat-icon> <span>Web Hosting</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="earth"></mat-icon>
+                        <span matListItemTitle>Web Hosting</span>
                     </mat-list-item>
                 </a>
             </mat-expansion-panel>
@@ -84,30 +79,27 @@
             <!-- ACCOUNT -->
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="account-cog"></mat-icon> <span>Account</span>
-                    </p>
+                    <mat-panel-title>
+                        <mat-icon svgIcon="account-cog"></mat-icon>
+                        <span>Account</span>
+                    </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-list-item routerLink="/account/details">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="face-man"></mat-icon> <span>Personal Details</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="face-man"></mat-icon>
+                    <span matListItemTitle>Personal Details</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/storage">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="view-list"></mat-icon> <span>Storage and Data</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="view-list"></mat-icon>
+                    <span matListItemTitle>Storage and Data</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/preferences">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="cog"></mat-icon> <span>Preferences</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="cog"></mat-icon>
+                    <span matListItemTitle>Preferences</span>
                 </mat-list-item>
                 <a href="/mail/account_account" target="rmm6" *ngIf="isMainAccount">
                     <mat-list-item [matTooltip]="rmm6tooltip">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="account-supervisor"></mat-icon> <span>Sub-Accounts</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="account-supervisor"></mat-icon>
+                        <span matListItemTitle>Sub-Accounts</span>
                     </mat-list-item>
                 </a>
             </mat-expansion-panel>
@@ -115,72 +107,60 @@
             <!-- SECURITY -->
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="security"></mat-icon> <span>Security</span>
-                    </p>
+                    <mat-panel-title>
+                        <mat-icon svgIcon="security"></mat-icon>
+                        <span>Security</span>
+                    </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-list-item routerLink="/account/account_password">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="form-textbox-password"></mat-icon> <span>Account
-                            Password</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="form-textbox-password"></mat-icon>
+                    <span matListItemTitle>Account Password</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/2fa">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="cellphone-lock"></mat-icon> <span>Two-Factor
-                            Authentication</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="cellphone-lock"></mat-icon>
+                    <span matListItemTitle>Two-Factor Authentication</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/app_passwords">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="lock-plus"></mat-icon> <span>App Passwords</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="lock-plus"></mat-icon>
+                    <span matListItemTitle>App Passwords</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/manage_services">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="tools"></mat-icon> <span>Manage Services</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="tools"></mat-icon>
+                    <span matListItemTitle>Manage Services</span>
                 </mat-list-item>
                 <!-- <mat-list-item routerLink="/account/last_logins">
-                        <p mat-line>
-                            <mat-icon mat-list-icon svgIcon="login-variant"></mat-icon> <span>Last Logins</span>
-                        </p>
+                        <mat-icon matListItemIcon svgIcon="login-variant"></mat-icon>
+                        <span matListItemTitle>Last Logins</span>
                     </mat-list-item> -->
                 <mat-list-item routerLink="/account/sessions">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="history"></mat-icon> <span>Sessions</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="history"></mat-icon>
+                    <span matListItemTitle>Sessions</span>
                 </mat-list-item>
             </mat-expansion-panel>
 
             <!-- SUBSCRIPTIONS -->
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="credit-card-check"></mat-icon> <span>Subscriptions</span>
-                    </p>
+                    <mat-panel-title>
+                        <mat-icon svgIcon="credit-card-check"></mat-icon>
+                        <span>Subscriptions</span>
+                    </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-list-item routerLink="/account/subscriptions">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="folder-star-multiple"></mat-icon> <span>Your
-                            Subscriptions</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="folder-star-multiple"></mat-icon>
+                    <span matListItemTitle>Your Subscriptions</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/plans">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="card-account-details"></mat-icon> <span>Plans &
-                            Upgrades</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="card-account-details"></mat-icon>
+                    <span matListItemTitle>Plans &amp; Upgrades</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/payments">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="receipt"></mat-icon> <span>Payment History</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="receipt"></mat-icon>
+                    <span matListItemTitle>Payment History</span>
                 </mat-list-item>
                 <mat-list-item routerLink="/account/payment_cards">
-                    <p mat-line>
-                        <mat-icon mat-list-icon svgIcon="credit-card"></mat-icon> <span>Payment Cards</span>
-                    </p>
+                    <mat-icon matListItemIcon svgIcon="credit-card"></mat-icon>
+                    <span matListItemTitle>Payment Cards</span>
                 </mat-list-item>
             </mat-expansion-panel>
         </mat-accordion>

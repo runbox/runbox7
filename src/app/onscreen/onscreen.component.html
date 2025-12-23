@@ -17,24 +17,24 @@
                 *ngFor="let meeting of meetingList"
                 routerLink="/onscreen/{{ meeting.code }}"
             >
-                <mat-icon mat-list-icon svgIcon="video-box"></mat-icon>
-                <p mat-line> {{ meeting.name }} </p>
+                <mat-icon matListItemIcon svgIcon="video-box"></mat-icon>
+                <p matListItemTitle> {{ meeting.name }} </p>
 
-                <span style="flex-grow: 1"></span>
-
-                <button mat-icon-button class="contactIcon" matTooltip="Forget" (click)="forgetMeeting(meeting.code)">
-                    <mat-icon color="primary" svgIcon="delete"></mat-icon>
-                </button>
+                <span matListItemMeta>
+                    <button mat-icon-button class="contactIcon" matTooltip="Forget" (click)="forgetMeeting(meeting.code)">
+                        <mat-icon color="primary" svgIcon="delete"></mat-icon>
+                    </button>
+                </span>
             </mat-list-item>
 
             <mat-divider></mat-divider>
 
             <mat-list-item *ngFor="let member of activeMeeting?.participants">
                 <span *ngIf="member.avatarUrl; else icon">
-                    <img class="avatarImg" [src]="member.avatarUrl">
+                    <img class="avatarImg" [src]="member.avatarUrl" matListItemAvatar>
                 </span>
-                <mat-icon mat-list-icon #icon> pets </mat-icon>
-                <p mat-line> {{ member.displayName }} </p>
+                <mat-icon matListItemAvatar #icon> pets </mat-icon>
+                <p matListItemTitle> {{ member.displayName }} </p>
             </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>

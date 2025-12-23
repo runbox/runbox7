@@ -21,11 +21,17 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { AliasesListerComponent } from './aliases.lister';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
 import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { MatCommonModule, MatOptionModule } from '@angular/material/core';
@@ -47,8 +53,14 @@ describe('AliasesListerComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 CommonModule,
+                FormsModule,
                 HttpClientTestingModule,
                 MatCommonModule,
+                MatCardModule,
+                MatExpansionModule,
+                MatFormFieldModule,
+                MatInputModule,
+                MatSelectModule,
                 MatSnackBarModule,
                 MatDialogModule,
                 NoopAnimationsModule,
