@@ -74,7 +74,7 @@ class SearchIndexDocumentUpdate {
   ) {}
 }
 
-class SearchIndexService {
+export class SearchIndexService {
   public api: XapianAPI;
   public indexingTools: IndexingTools;
   localdir: string;
