@@ -18,14 +18,23 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
+import { BehaviorSubject } from 'rxjs';
 import { CanvasTableModule, CanvasTableContainerComponent } from './canvastable';
 import { MessageList } from '../common/messagelist';
+import { ThemeService } from '../common/theme.service';
+import { PreferencesService } from '../common/preferences.service';
+import { StorageService } from '../storage.service';
 
 describe('canvastable', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [
                 CanvasTableModule
+            ],
+            providers: [
+                { provide: ThemeService, useValue: { activeTheme$: new BehaviorSubject<'light' | 'dark'>('dark') } },
+                { provide: PreferencesService, useValue: {} },
+                { provide: StorageService, useValue: {} }
             ]
         });
     });
