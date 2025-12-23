@@ -12,8 +12,8 @@
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
-@include mat.all-legacy-component-typographies();
-@include mat.legacy-core();
+@include mat.all-component-typographies();
+@include mat.core();
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
@@ -40,7 +40,7 @@ $rmm-default-light-gray: #f4f4f4;
 $rmm-default-dark-gray: #949494;
 $rmm-default-black: #444444;
 
-@include mat.all-legacy-component-themes($rmm-default-theme);
+@include mat.all-component-themes($rmm-default-theme);
 
 // Dark theme palettes
 $rmm-dark-primary:    mat.define-palette(mat.$blue-palette, 400, 200, 600);
@@ -61,7 +61,31 @@ $rmm-dark-theme: mat.define-dark-theme($rmm-dark-primary, $rmm-dark-accent, $rmm
 
 // Apply dark theme when .dark-theme class is present
 .dark-theme {
-    @include mat.all-legacy-component-themes($rmm-dark-theme);
+    @include mat.all-component-themes($rmm-dark-theme);
+}
+
+// Christmas theme palettes
+$rmm-christmas-primary: mat.define-palette(mat.$red-palette, 700, 500, 900);
+$rmm-christmas-accent:  mat.define-palette(mat.$green-palette, 600, 400, 800);
+$rmm-christmas-warn:    mat.define-palette(mat.$deep-orange-palette, 600, 500, 800);
+
+$rmm-christmas-theme: mat.define-light-theme($rmm-christmas-primary, $rmm-christmas-accent, $rmm-christmas-warn);
+
+// High contrast theme palettes
+$rmm-high-contrast-primary: mat.define-palette(mat.$yellow-palette, 500, 300, 700);
+$rmm-high-contrast-accent:  mat.define-palette(mat.$lime-palette, 400, 200, 600);
+$rmm-high-contrast-warn:    mat.define-palette(mat.$red-palette, 600, 400, 800);
+
+$rmm-high-contrast-theme: mat.define-dark-theme($rmm-high-contrast-primary, $rmm-high-contrast-accent, $rmm-high-contrast-warn);
+
+// Apply christmas theme when .christmas-theme class is present
+.christmas-theme {
+    @include mat.all-component-themes($rmm-christmas-theme);
+}
+
+// Apply high contrast theme when .high-contrast-theme class is present
+.high-contrast-theme {
+    @include mat.all-component-themes($rmm-high-contrast-theme);
 }
 
 // GTA 13.06.2018: Load custom fonts
@@ -84,7 +108,7 @@ $rmm-dark-theme: mat.define-dark-theme($rmm-dark-primary, $rmm-dark-accent, $rmm
 
 // GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
 
-$custom-typography: mat.define-legacy-typography-config(
+$custom-typography: mat.define-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
@@ -96,8 +120,7 @@ $custom-typography: mat.define-legacy-typography-config(
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy($custom-typography);`
-@include mat.all-legacy-component-typographies($custom-typography);
-@include mat.legacy-core();
+@include mat.all-component-typographies($custom-typography);
 
 // CSS Custom Properties for runtime theme switching
 :root {
@@ -119,6 +142,8 @@ $custom-typography: mat.define-legacy-typography-config(
     --rmm-text-primary: #000000;
     --rmm-text-secondary: #444444;
     --rmm-text-tertiary: #666666;
+    --rmm-text-on-primary: #ffffff;
+    --rmm-error-text: #f00;
     --rmm-border-color: #e0e0e0;
     --rmm-divider-color: #dddddd;
 }
@@ -142,8 +167,64 @@ $custom-typography: mat.define-legacy-typography-config(
     --rmm-text-primary: #ffffff;
     --rmm-text-secondary: #e0e0e0;
     --rmm-text-tertiary: #b0b0b0;
+    --rmm-text-on-primary: #ffffff;
+    --rmm-error-text: #ff4444;
     --rmm-border-color: #333333;
     --rmm-divider-color: #2a2a2a;
+
+    color-scheme: dark;
+}
+
+.christmas-theme {
+    --rmm-primary-color: #c41e3a;        // Christmas red
+    --rmm-accent-color: #165b33;         // Christmas green
+    --rmm-warn-color: #ff6b35;           // Warm orange
+    --rmm-foreground-color: #0f4d21;     // Deep green
+    --rmm-background-color: #c41e3a;     // Red
+    --rmm-highlight-color: #ffd700;      // Gold
+
+    --rmm-lighter-gray: #f5ebe0;         // Warm cream
+    --rmm-light-gray: #f8f3ed;           // Light cream
+    --rmm-dark-gray: #8b4513;            // Brown
+    --rmm-black: #2d1810;                // Dark brown
+
+    --rmm-bg-primary: #faf8f5;           // Warm white/cream
+    --rmm-bg-secondary: #f5ebe0;         // Light tan
+    --rmm-bg-tertiary: #ede3d5;          // Darker tan
+    --rmm-text-primary: #1a1a1a;         // Near black
+    --rmm-text-secondary: #2d1810;       // Dark brown
+    --rmm-text-tertiary: #5d4e37;        // Medium brown
+    --rmm-text-on-primary: #ffffff;      // White on colored backgrounds
+    --rmm-error-text: #c41e3a;           // Red for errors
+    --rmm-border-color: #d4c5b0;         // Light brown
+    --rmm-divider-color: #e8dcc8;        // Cream
+
+    color-scheme: light;
+}
+
+.high-contrast-theme {
+    --rmm-primary-color: #ffff00;        // Bright yellow for maximum visibility
+    --rmm-accent-color: #00ff00;         // Bright green
+    --rmm-warn-color: #ff0000;           // Pure red
+    --rmm-foreground-color: #00ffff;     // Cyan
+    --rmm-background-color: #000000;     // Pure black
+    --rmm-highlight-color: #ffff00;      // Yellow
+
+    --rmm-lighter-gray: #1a1a1a;         // Very dark gray (lighter than black)
+    --rmm-light-gray: #0a0a0a;           // Nearly black
+    --rmm-dark-gray: #e0e0e0;            // Light gray
+    --rmm-black: #ffffff;                // White (inverted)
+
+    --rmm-bg-primary: #000000;           // Pure black
+    --rmm-bg-secondary: #1a1a1a;         // Very dark gray
+    --rmm-bg-tertiary: #2a2a2a;          // Dark gray
+    --rmm-text-primary: #ffffff;         // Pure white
+    --rmm-text-secondary: #ffffff;       // Pure white
+    --rmm-text-tertiary: #e0e0e0;        // Light gray
+    --rmm-text-on-primary: #000000;      // Black on bright backgrounds
+    --rmm-error-text: #ff0000;           // Pure red
+    --rmm-border-color: #ffffff;         // White borders for clarity
+    --rmm-divider-color: #808080;        // Medium gray
 
     color-scheme: dark;
 }
@@ -226,28 +307,35 @@ mat-form-field {
     font-size: 13px !important;
 }
 
-/* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
-mat-list-item .mat-list-item-content,
-a[mat-list-item] .mat-list-item-content {
+/* MDC-based list item styling */
+.mat-mdc-list-item,
+mat-list-item {
     min-height: 24px !important;
 }
 
-.mat-list[dense] .mat-list-item .mat-list-text, 
-.mat-nav-list[dense] .mat-list-item .mat-list-text>*,
-mat-list-item .mat-list-text,
-a[mat-list-item] .mat-list-text {
-    height: 1.3em;
-    line-height: 22px;
+.mat-mdc-list-item .mdc-list-item__content {
+    min-height: 24px;
+    padding: 0 8px;
+}
+
+.mat-mdc-list-item .mdc-list-item__primary-text,
+.mdc-list-item__primary-text,
+[mat-line],
+.mat-mdc-list-item [mat-line] {
+    min-height: 1.3em;
+    line-height: 1.5;
     font-weight: 400;
 }
 
-.mat-list-base[dense] .mat-list-item.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-item.mat-list-option .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-option .mat-list-item-content .mat-list-text {
-    padding-left: 5px !important;
+/* Dense list support */
+.mat-mdc-list[dense] .mat-mdc-list-item .mdc-list-item__primary-text {
+    padding-left: 5px;
 }
 
-mat-list-item p.mat-line mat-icon {
-    padding-right: 8px !important;
-    padding-bottom: 8px !important;
+/* Icons in list items */
+.mat-mdc-list-item mat-icon {
+    padding-right: 8px;
+    flex-shrink: 0;
 }
 
 .mat-toolbar, .mat-button {
@@ -263,13 +351,14 @@ button:hover, mat-button:hover, mat-raised-button:hover {
     filter: brightness(1.1);
 }
 
-.mat-line, .mat-tree-node {
-    height: 30px !important;
-    min-height: 30px !important;
+/* Tree nodes */
+.mat-tree-node {
+    min-height: 24px;
+    line-height: 1.5;
     font-size: 13px !important;
 }
 
-.mat-list-base {
+.mat-mdc-list {
     padding-top: 0px !important;
 }
 
@@ -310,11 +399,11 @@ mat-chip.mat-chip.mat-standard-chip {
     background-color: var(--rmm-bg-tertiary);
 }
 
-.mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
+.mat-expansion-panel-header, .mat-expansion-panel-body .mdc-list-item__content {
     min-height: 24px;
     height: 36px;
 
-    .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
+    .mdc-list-item__primary-text {
 	height: 1.8em !important;
 	min-height: 1.8em !important;
     }
@@ -369,8 +458,9 @@ mat-grid-tile.tableTitle {
     color: var(--rmm-text-primary);
 }
 
-.dark-theme .primaryContentButton {
-    color: #ffffff;
+.dark-theme .primaryContentButton,
+.high-contrast-theme .primaryContentButton {
+    color: var(--rmm-text-on-primary);
 }
 
 .mainTextContent {
@@ -487,7 +577,7 @@ mat-grid-tile.tableTitle {
 
 .mat-snack-bar-container {
     a {
-        color: #fff !important;
+        color: var(--rmm-text-on-primary) !important;
     }
     .mat-button-wrapper {
         color: mat.get-color-from-palette($rmm-default-foreground) !important;
@@ -505,18 +595,18 @@ mat-grid-tile.tableTitle {
 }
 
 .loginSection a {
-    color: #fff;
+    color: var(--rmm-text-on-primary);
 }
 
 #loginHeader {
     text-align: center;
-    color: #fff;
+    color: var(--rmm-text-on-primary);
 
     h1 {
 	display: none;
 	margin: 0;
     }
-    
+
     #logo {
 	margin: 0;
 	width: 300px;
@@ -527,7 +617,7 @@ mat-grid-tile.tableTitle {
 #loginHeaderTitle {
     margin: 2vh 0 0 0;
     font-size: 6vh;
-    color: white;
+    color: var(--rmm-text-on-primary);
 }
 
 @media(max-width: 812px) {
@@ -641,7 +731,7 @@ div.loginScreen {
     }
 
     mat-button-toggle button {
-	border-right: 1px solid #949494;
+	border-right: 1px solid var(--rmm-border-color);
     }
 
     #forgotPassword, #createAccount {
@@ -678,7 +768,7 @@ div.loginScreen .login-link a {
 #loginFooter {
     margin: 1vh 0;
     text-align: center;
-    color: #fff;
+    color: var(--rmm-text-on-primary);
     font-size: 2.8vh;
 }
 
@@ -722,7 +812,7 @@ div.loginScreen .login-link a {
 }
 
 #loginFooterMenuBottom a:hover {
-    color: #fff;
+    color: var(--rmm-text-on-primary);
 }
 
 
@@ -749,10 +839,18 @@ rmm-headertoolbar {
 }
 
 #mainMenuContainer mat-icon {
-    color: #fff;
+    color: var(--rmm-text-on-primary);
 }
 
 #mainMenuContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     padding: 0 30px;
 }
 
@@ -777,23 +875,28 @@ rmm-headertoolbar {
 }
 
 .mainMenu {
-    margin-top: 30px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
     transition: margin-top 0.25s;
 }
 
 .mainMenuDesc {
-    margin: 20px 0 0 0;
-    font-size: 15px;
+    display: none;
+    margin: 4px 0 0 0;
+    font-size: 11px;
     line-height: 12px;
-    color: #fff;
+    color: var(--rmm-text-on-primary);
     transition: margin-top 0.25s;
 }
 
 .mainMenu:hover {
-    margin-top: -10px;
+    transform: translateY(-3px);
 
     .mainMenuDesc {
-	margin-top: -3px;
+	margin-top: 1px;
     }
 }
 
@@ -801,22 +904,23 @@ rmm-headertoolbar {
 /* Sidenav pane */
 
 mat-sidenav-container {
-    position: absolute !important; 
-    bottom: 0px !important; 
+    position: absolute !important;
+    bottom: 0px !important;
     left: 0px !important;
     right: 0px !important;
     width: 100% !important;
+    z-index: 1 !important;
 }
 
 @media(min-width: 1025px) {
     mat-sidenav-container {
-	    top: 50px !important;
+	    top: 64px !important;
     }
 }
 
 @media(max-width: 1024px) {
     mat-sidenav-container {
-	    top: 0px !important;
+	    top: 56px !important;
     }
 }
 
@@ -826,10 +930,10 @@ mat-sidenav-container {
     border-right: 1px solid rgba(0, 0, 0, 0.12);
 
     mat-icon {
-	    width: 22px;
-	    height: 22px;
+	    width: 24px;
+	    height: 24px;
     }
-    .mat-line span {
+    .mdc-list-item__primary-text span {
         vertical-align: middle !important;
     }
 }
@@ -859,7 +963,7 @@ mat-sidenav-container {
     .mat-mini-fab .mat-button-wrapper {
         line-height: 18px;
     }
-    
+
     a {
         width: 30%;
     }
@@ -883,7 +987,7 @@ mat-sidenav-container {
     width: 100%;
 }
 
-#webmailSettingsMenuButto {
+#webmailSettingsMenuButton {
     margin-right: 10px;
 }
 
@@ -905,9 +1009,30 @@ mat-sidenav-container {
     line-height: 1.2em;
 }
 
+.foldersidebarcount {
+    font-size: 10px;
+}
+
 #logoSidenav {
     width: 125px;
     height: auto;
+}
+
+#composeButton, #draftsButton, #overviewButton {
+    cursor: pointer;
+}
+
+#composeButton:hover, #draftsButton:hover, #overviewButton:hover {
+    background-color: var(--rmm-bg-tertiary) !important;
+}
+
+/* Sync and bug report buttons */
+mat-nav-list mat-list-item {
+    cursor: pointer;
+}
+
+mat-nav-list mat-list-item:hover {
+    background-color: var(--rmm-bg-tertiary) !important;
 }
 
 @media(min-width: 1025px) {
@@ -974,9 +1099,6 @@ rmm-folderlist {
     }
 }
 
-.mailFolder div, .mailFolder span {
-}
-
 .mailFolder mat-icon {
     vertical-align: top !important;
 }
@@ -991,12 +1113,12 @@ rmm-folderlist {
 }
 
 .folderName {
-    color: #444;
+    color: var(--rmm-text-secondary);
 }
 
 .folderNameUnread {
     font-family: "Avenir Next Pro Medium";
-    color: #444;
+    color: var(--rmm-text-secondary);
     font-weight: bold !important;
 }
 
@@ -1097,7 +1219,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 }
 
-#offerLocalIndex .mat-list-item-content {
+#offerLocalIndex .mdc-list-item__content {
     padding: 0 5px;
 }    
 
@@ -1146,7 +1268,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
       z-index: 9999;
       height: auto;
       background-color: white;
-      border: #aaa solid 1px;
+      border: 1px solid var(--rmm-border-color);
       padding: 0 10px 5px 10px;
 
       .mat-form-field-wrapper {
@@ -1192,7 +1314,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     font-family: "Avenir Next Pro Regular ", "Helvetica Neue", sans-serif;
     font-weight: 400;
     font-size: 13px;
-    color: #949494;
+    color: var(--rmm-text-tertiary);
 }
 
 #canvasTableContainerArea {
@@ -1215,7 +1337,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 .inMessageNotification {
     font-size: 12px;
     font-style: italic;
-    color: #bbb;
+    color: var(--rmm-text-tertiary);
     text-align: center;
 }
 
@@ -1258,7 +1380,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 	background-color: mat.get-color-from-palette($rmm-default-primary);
 
 	.mat-icon {
-	    color: white !important;
+	    color: var(--rmm-text-on-primary) !important;
 	}
     }
     .mat-raised-button {
@@ -1421,7 +1543,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 /*** Contacts ***/
 
 .contactListControls {
-    .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
+    .mat-mdc-nav-list[dense], .mat-mdc-list-item, .mdc-list-item__primary-text, .mat-form-field {
 	height: 48px !important;
     }
 }    
@@ -1440,7 +1562,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 	margin-top: 10px;
     }
 
-    .mat-list-item-content {
+    .mdc-list-item__content {
 	padding: 0 !important;
     }
 
@@ -1808,7 +1930,7 @@ td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
 
 td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
     @media only screen and (max-width: 1024px) {
-        background-color: #f5f5f5;
+        background-color: var(--rmm-bg-tertiary);
         padding-top: 10px;
         padding-bottom: 10px;
         font-weight: bold;
@@ -1855,7 +1977,8 @@ table.detailsTable tr td:nth-of-type(2) {
 }
 
 // Dark Theme Specific Overrides
-.dark-theme {
+.dark-theme,
+.high-contrast-theme {
     // Table cells with hardcoded backgrounds
     td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
         @media only screen and (max-width: 1024px) {
@@ -2180,16 +2303,16 @@ table.detailsTable tr td:nth-of-type(2) {
 
     .selectedFolder a,
     mat-list-item.selectedFolder a,
-    .mat-list-item.selectedFolder a,
-    .selectedFolder .mat-list-item-content,
-    mat-list-item.selectedFolder .mat-list-item-content {
+    .mat-mdc-list-item.selectedFolder a,
+    .selectedFolder .mdc-list-item__content,
+    mat-list-item.selectedFolder .mdc-list-item__content {
         color: #87ceeb !important; // Sky blue for selected folder text
         font-weight: 500 !important;
     }
 
     // Override any Material list item colors
-    .mat-nav-list .mat-list-item.selectedFolder,
-    .mat-list-base .mat-list-item.selectedFolder {
+    .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder,
+    .mat-mdc-list .mat-mdc-list-item.selectedFolder {
         background-color: #2d5a8c !important;
         color: #87ceeb !important;
     }
@@ -2203,5 +2326,74 @@ table.detailsTable tr td:nth-of-type(2) {
     // Non-local folders
     .nonLocalFolder {
         opacity: 0.6;
+    }
+}
+
+// High contrast theme overrides for stronger a11y
+.high-contrast-theme {
+    :focus-visible,
+    .mat-mdc-button-base:focus-visible,
+    .mat-mdc-menu-item:focus-visible,
+    .mat-mdc-list-item:focus-visible,
+    .mat-mdc-option:focus-visible,
+    .mat-mdc-checkbox:focus-within,
+    .mat-mdc-radio-button:focus-within,
+    .mat-mdc-slide-toggle:focus-within,
+    .mat-mdc-select:focus-within {
+        outline: 3px solid var(--rmm-primary-color);
+        outline-offset: 2px;
+    }
+
+    a:not(.mat-mdc-button):not(.mat-button) {
+        text-decoration: underline;
+    }
+
+    #mainMenuContainer {
+        background-image: none !important;
+        background-color: var(--rmm-bg-primary) !important;
+        border-bottom: 2px solid var(--rmm-border-color);
+    }
+
+    #mainMenuContainer mat-icon,
+    #mainMenuContainer .mainMenuDesc {
+        color: var(--rmm-text-primary);
+    }
+
+    #mainMenuContainer #runbox6 {
+        color: var(--rmm-accent-color) !important;
+    }
+
+    .mat-menu-panel,
+    .mat-mdc-menu-panel {
+        background-color: var(--rmm-bg-secondary);
+        border: 2px solid var(--rmm-border-color);
+    }
+
+    .mat-menu-item,
+    .mat-menu-item .mat-icon:not([color]),
+    .mat-mdc-menu-item,
+    .mat-mdc-menu-item .mat-icon:not([color]) {
+        color: var(--rmm-text-primary) !important;
+    }
+
+    // Selected folder styling - ensure maximum contrast
+    mat-list-item.selectedFolder,
+    .selectedFolder.mat-list-item,
+    .mat-list-item.selectedFolder,
+    app-folder-list mat-list-item.selectedFolder,
+    mat-nav-list mat-list-item.selectedFolder,
+    .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder,
+    .mat-mdc-list .mat-mdc-list-item.selectedFolder {
+        background-color: var(--rmm-primary-color) !important;
+        color: var(--rmm-text-on-primary) !important;
+    }
+
+    .selectedFolder a,
+    mat-list-item.selectedFolder a,
+    .mat-mdc-list-item.selectedFolder a,
+    .selectedFolder .mdc-list-item__content,
+    mat-list-item.selectedFolder .mdc-list-item__content {
+        color: var(--rmm-text-on-primary) !important;
+        font-weight: 600 !important;
     }
 }

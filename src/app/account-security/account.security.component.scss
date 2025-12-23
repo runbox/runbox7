@@ -19,7 +19,7 @@ mat-form-field {
 #totp_example {
     margin: 15px;
     padding: 10px;
-    border: 1px solid #d7d5d7;
+    border: 1px solid var(--rmm-border-color);
     justify-content: space-evenly;
 }
 
@@ -66,7 +66,7 @@ mat-form-field {
 }
 
 #totp_example .timer > #slice > .pie {
-    border: 0.1em solid #c0c0c0;
+    border: 0.1em solid var(--rmm-border-color);
     position: absolute;
     width: 0.8em; /* 1 - (2 * border width) */
     height: 0.8em; /* 1 - (2 * border width) */
@@ -89,7 +89,7 @@ mat-form-field {
 
 #totp_example .timer.fill > #slice > .pie {
     border: transparent;
-    background-color: #155d97;
+    background-color: var(--rmm-primary-color);
     width: 1em;
     height: 1em;
 }

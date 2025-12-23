@@ -1,11 +1,7 @@
-@import '../../../node_modules/@angular/material/theming';
-
-$rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
-
 #messageTextArea {
     box-sizing: border-box;
     width: 100%;
-    border: 1px solid #949494;
+    border: 1px solid var(--rmm-border-color);
     padding: 10px;
 }
 
@@ -41,7 +37,7 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 }
 
 .dropzonehighlight {
-    border: #155d97 dashed 5px;
+    border: var(--rmm-primary-color) dashed 5px;
     border-radius: 20px;
     height: 100px;
     text-align: center;
@@ -49,7 +45,7 @@ $rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
 }
 
 .overdropzone {
-    border: #5d9715 solid 5px;
+    border: var(--rmm-accent-color) solid 5px;
 }
 
 #dropZoneText {

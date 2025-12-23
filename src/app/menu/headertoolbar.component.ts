@@ -23,7 +23,7 @@ import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
 import { RunboxMe } from '../rmmapi/rbwebmail';
-import { ThemeService } from '../common/theme.service';
+import { ThemeService, Theme } from '../common/theme.service';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -66,7 +66,7 @@ export class HeaderToolbarComponent {
         this.router.navigate(['contacts']);
     }
 
-    public toggleTheme() {
-        this.themeService.toggleTheme();
+    public setTheme(theme: string) {
+        this.themeService.setTheme(theme as Theme);
     }
 }

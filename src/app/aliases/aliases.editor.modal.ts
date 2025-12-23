@@ -19,7 +19,7 @@
 import { timeout } from 'rxjs/operators';
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RMM } from '../rmm';
 
 @Component({

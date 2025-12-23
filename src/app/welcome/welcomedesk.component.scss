@@ -64,10 +64,12 @@ div.gridHighlight {
 }
 mat-card {
     display: flex;
-    width: 200px;
-    height: 130px;
+    width: 220px;
+    height: auto;
+    min-height: 130px;
     margin: 0 10px 10px 0;
-    border: 2px solid #f4f4f4;
+    padding: 10px 20px;
+    border: 2px solid var(--rmm-bg-tertiary);
 }
 mat-card mat-icon {
     margin-right: 5px;

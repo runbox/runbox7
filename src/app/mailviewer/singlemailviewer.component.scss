@@ -73,7 +73,7 @@
     cursor: pointer;     
 }
 .attachmentlink:hover {
-    background-color: #f0f0f0;
+    background-color: var(--rmm-bg-tertiary);
 }
 
 .notificationContainer {
@@ -100,7 +100,7 @@
 }  
 
 mat-grid-tile:hover {
-    background-color: #ddd;
+    background-color: var(--rmm-divider-color);
     cursor: pointer;
 }
 

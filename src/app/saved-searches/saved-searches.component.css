@@ -21,5 +21,6 @@ mat-expansion-panel-header .headerText {
 }
 
 .mat-list-base[dense] .mat-list-item {
-    height: 24px;
+    height: auto;
+    min-height: 30px;
 }

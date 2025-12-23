@@ -9,14 +9,14 @@
 .mailFolder:hover,
 .mailFolder:focus-within,
 .mailFolder:has(a:focus) {
-    background-color: #F5F5F5;
+    background-color: var(--rmm-bg-tertiary);
     cursor: pointer;
 }
 
 .mailFolder a {
     margin-left: 1ch;
     text-decoration: none;
-    color: #444;
+    color: var(--rmm-text-secondary);
 }
 
 .mailFolder a::after {
@@ -66,7 +66,8 @@ mat-list-item.selectedFolder p.visibleOnHover {
 }
 
 // Dark theme support
-:host-context(.dark-theme) {
+:host-context(.dark-theme),
+:host-context(.high-contrast-theme) {
     .mailFolder:hover,
     .mailFolder:focus-within,
     .mailFolder:has(a:focus) {
@@ -74,16 +75,16 @@ mat-list-item.selectedFolder p.visibleOnHover {
     }
 
     .mailFolder a {
-        color: #e0e0e0;
+        color: var(--rmm-border-color);
     }
 
     // Selected folder - distinct blue theme
     .selectedFolder {
-        background-color: #2d5a8c !important;
+        background-color: var(--rmm-primary-color) !important;
     }
 
     .selectedFolder a {
-        color: #87ceeb !important;
+        color: var(--rmm-accent-color) !important;
         font-weight: 500 !important;
     }
 }

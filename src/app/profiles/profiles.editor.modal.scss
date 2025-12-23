@@ -10,12 +10,12 @@
     top: -25px;
     width: calc(100% + 49px);
     padding: 25px 30px;
-    background: #013b69;
+    background: var(--rmm-primary-color);
     overflow: hidden;
 }
 .header-title,
 .header-subtitle {
-    color: #fff;
+    color: var(--rmm-text-on-primary);
 }
 .header-subtitle {
     margin-bottom: 0;

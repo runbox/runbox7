@@ -24,6 +24,8 @@ import { PreferencesService, DefaultPrefGroups } from './preferences.service';
 export enum Theme {
     Light = 'light',
     Dark = 'dark',
+    Christmas = 'christmas',
+    HighContrast = 'high-contrast',
     Auto = 'auto'
 }
 
@@ -47,10 +49,13 @@ export class ThemeService {
         this.preferencesService.preferences.subscribe(prefs => {
             const savedTheme = prefs.get(`${DefaultPrefGroups.Global}:${this.THEME_PREF_KEY}`);
             if (savedTheme && Object.values(Theme).includes(savedTheme)) {
-                this.applyTheme(savedTheme);
-            } else {
-                this.applyTheme(Theme.Dark);
+                // Only apply if different from current theme to avoid unnecessary reapplication
+                if (savedTheme !== this.currentTheme.value) {
+                    this.applyTheme(savedTheme);
+                }
             }
+            // Don't fall back to Dark if theme preference is missing from this emission
+            // This prevents theme from changing when other preferences are saved
         });
 
         this.mediaQueryList.addEventListener('change', (e) => {
@@ -82,28 +87,48 @@ export class ThemeService {
         const theme = this.currentTheme.value;
         let effectiveTheme: 'light' | 'dark' = 'dark';
 
-        if (theme === Theme.Light) {
+        if (theme === Theme.Light || theme === Theme.Christmas) {
             effectiveTheme = 'light';
+        } else if (theme === Theme.HighContrast) {
+            effectiveTheme = 'dark'; // High contrast uses dark as base
         } else if (theme === Theme.Auto) {
             effectiveTheme = this.mediaQueryList.matches ? 'dark' : 'light';
         }
 
-        if (effectiveTheme !== this.activeTheme.value) {
-            this.activeTheme.next(effectiveTheme);
-            this.applyThemeToDocument(effectiveTheme);
+        // Emit on every theme change so non-light/dark themes still refresh subscribers.
+        this.activeTheme.next(effectiveTheme);
+
+        if (theme === Theme.Christmas) {
+            this.applyThemeToDocument('christmas');
+            return;
         }
+
+        if (theme === Theme.HighContrast) {
+            this.applyThemeToDocument('high-contrast');
+            return;
+        }
+
+        this.applyThemeToDocument(effectiveTheme);
     }
 
-    private applyThemeToDocument(theme: 'light' | 'dark'): void {
+    private applyThemeToDocument(theme: 'light' | 'dark' | 'christmas' | 'high-contrast'): void {
         const htmlElement = document.documentElement;
         const bodyElement = document.body;
 
+        // Remove all theme classes
+        htmlElement.classList.remove('dark-theme', 'christmas-theme', 'high-contrast-theme');
+        bodyElement.classList.remove('dark-theme', 'christmas-theme', 'high-contrast-theme');
+
+        // Add the appropriate theme class
         if (theme === 'dark') {
             htmlElement.classList.add('dark-theme');
             bodyElement.classList.add('dark-theme');
-        } else {
-            htmlElement.classList.remove('dark-theme');
-            bodyElement.classList.remove('dark-theme');
+        } else if (theme === 'christmas') {
+            htmlElement.classList.add('christmas-theme');
+            bodyElement.classList.add('christmas-theme');
+        } else if (theme === 'high-contrast') {
+            htmlElement.classList.add('high-contrast-theme');
+            bodyElement.classList.add('high-contrast-theme');
         }
 
         htmlElement.setAttribute('data-theme', theme);

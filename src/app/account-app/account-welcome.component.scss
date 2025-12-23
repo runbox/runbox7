@@ -29,8 +29,9 @@ div.settingsRow {
 }
 mat-card.settingsItem {
     display: flex;
-    width: 180px;
-    height: 125px;
+    width: 220px;
+    height: auto;
+    min-height: 125px;
     margin: 0 10px 10px 0;
 }
 mat-card.settingsItem mat-icon {

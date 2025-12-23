@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { SearchService } from './searchservice';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SyncProgressComponent } from './syncprogress.component';
 import { CommonModule } from '@angular/common';
 

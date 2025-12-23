@@ -1,25 +1,25 @@
 <mat-form-field style="width: 100%" floatPlaceholder="auto">
-    <mat-chip-list #chipList>
-        <mat-chip *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
+    <mat-chip-grid #chipList>
+        <mat-chip-row *ngFor="let recipient of recipientsList; let ndx=index"
                 style="background-color: #e3f2fd;"
-                [removable]="true" 
-                (removed)="removeRecipient(ndx)">        
+                [removable]="true"
+                (removed)="removeRecipient(ndx)">
                 {{recipient.nameAndAddress}}
                 <mat-icon matChipRemove svgIcon="close"></mat-icon>
-        </mat-chip>
-        <input #searchTextInput [formControl]="searchTextFormControl" [placeholder]="placeholder" 
+        </mat-chip-row>
+        <input #searchTextInput [formControl]="searchTextFormControl" [placeholder]="placeholder"
                 [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"                
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                 [matChipInputAddOnBlur]="false"
                 (blur)="addRecipientFromBlur()"
-                (matChipInputTokenEnd)="addRecipientFromEnter($event)" 
-                [matAutocomplete]="auto" style="flex-grow: 1" 
+                (matChipInputTokenEnd)="addRecipientFromEnter($event)"
+                [matAutocomplete]="auto" style="flex-grow: 1"
                 type="email"
             />
         <mat-error *ngIf="invalidemail">
             Please enter a valid email address
-        </mat-error>        
-    </mat-chip-list>
+        </mat-error>
+    </mat-chip-grid>
 </mat-form-field>
 <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addRecipientFromAutoComplete($event.option.value)">
     <mat-option *ngFor="let recipient of filteredRecipients | async" [value]="recipient">

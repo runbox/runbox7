@@ -30,15 +30,15 @@ import { ThemeService } from '../common/theme.service';
             <img src="assets/runbox7.png" id="logoSidenav" alt="Runbox 7" />
         </a>
         <br />
-        <div style="padding: 20px; margin: 16px 0; background-color: #ffeb3b; border: 3px solid #f57c00; text-align: center;">
+        <div class="sidenav-theme-toggle">
             <mat-slide-toggle
                 [checked]="(themeService.activeTheme$ | async) === 'dark'"
                 (change)="toggleTheme()"
-                style="display: inline-block; font-size: 18px; font-weight: bold; color: #000;">
-                <span style="font-size: 18px; font-weight: bold; color: #000;">🌙 DARK THEME</span>
+                class="sidenav-toggle">
+                <span>🌙 Dark Theme</span>
             </mat-slide-toggle>
         </div>
-        <div style="display: flex; justify-content: space-around;">
+        <div class="sidenav-buttons">
             <button mat-mini-fab routerLink="/">
                 <mat-icon svgIcon="email"></mat-icon>
             </button>

@@ -4,7 +4,7 @@
         <mat-icon svgIcon="menu"></mat-icon>
       </button>
       <mat-list-item class="contactListControls" id="contactListControlsSearch">
-        <mat-form-field mat-line>
+        <mat-form-field>
           <mat-label> Search </mat-label>
           <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
           <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
@@ -22,7 +22,7 @@
         </mat-expansion-panel-header>
 
         <mat-list-item class="contactListControls" *ngIf="categories.length > 0">
-            <mat-form-field mat-line>
+            <mat-form-field>
                 <mat-label> Show categories </mat-label>
                 <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
                     <mat-option value="RUNBOX:ALL">
@@ -39,7 +39,7 @@
         </mat-list-item>
 
         <mat-list-item class="contactListControls">
-            <mat-form-field mat-line>
+            <mat-form-field>
                 <mat-label> Sort by </mat-label>
                 <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
                     <mat-option value="firstname+"> First name, ascending  </mat-option>
@@ -70,30 +70,28 @@
         draggable="true"
         (dragstart)="dragStarted($event, contact)"
     >
-        <mat-checkbox
-            [ngStyle]="{'display': selectingMultiple ? 'block' : 'none'}"
-            [(ngModel)]="selectedIDs[contact.id]"
-            (change)="onContactChecked()"
-        >
-            &nbsp;&nbsp;&nbsp;
-        </mat-checkbox>
+        <span class="contactListStart" matListItemIcon *ngIf="selectingMultiple || (allowDragging && showDragHelpers)">
+            <mat-checkbox
+                *ngIf="selectingMultiple"
+                [(ngModel)]="selectedIDs[contact.id]"
+                (change)="onContactChecked()"
+            >
+                &nbsp;&nbsp;&nbsp;
+            </mat-checkbox>
 
-        <mat-icon
-            *ngIf="allowDragging && showDragHelpers"
-            draggable="true"
-            (dragstart)="dragStarted($event, contact)"
-            svgIcon="drag">
-        </mat-icon>
+            <mat-icon
+                *ngIf="allowDragging && showDragHelpers"
+                draggable="true"
+                (dragstart)="dragStarted($event, contact)"
+                svgIcon="drag">
+            </mat-icon>
+        </span>
 
-        <a class="contactName" matTooltip="View details">
-            <p mat-line>
-                <app-contact-button [contact]="contact"></app-contact-button>
-            </p>
-        </a>
+        <span class="contactName" matListItemTitle matTooltip="View details">
+            <app-contact-button [contact]="contact"></app-contact-button>
+        </span>
 
-        <span style="flex-grow: 1"></span>
-
-        <a mat-icon-button class="contactIcon" matTooltip="Email {{ contact.display_name() }}"
+        <a mat-icon-button class="contactIcon" matListItemMeta matTooltip="Email {{ contact.display_name() }}"
             *ngIf="contact.primary_email()"
             routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
           <mat-icon color="primary" svgIcon="email"></mat-icon>
@@ -101,11 +99,11 @@
     </mat-list-item>
 
     <mat-list-item *ngIf="contacts.length === 0" class="contactListButton contactListHint">
-        <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
-        There are no contacts yet. Import or add contacts to show them here.
+        <mat-icon matListItemIcon svgIcon="information"> </mat-icon>
+        <span matListItemTitle>There are no contacts yet. Import or add contacts to show them here.</span>
     </mat-list-item>
 
     <mat-list-item *ngIf="shownContacts.length != contacts.length">
-        and {{ contacts.length - shownContacts.length }} filtered out
+        <span matListItemTitle>and {{ contacts.length - shownContacts.length }} filtered out</span>
     </mat-list-item>
 </ng-container>

@@ -45,11 +45,28 @@
   <span flex style="flex-grow: 1"></span>
 
   <div class="mainMenu">
-    <a mat-button (click)="toggleTheme()" style="font-size: 24px; cursor: pointer;">
-      <span *ngIf="(themeService.activeTheme$ | async) === 'dark'">☀️</span>
-      <span *ngIf="(themeService.activeTheme$ | async) === 'light'">🌙</span>
+    <a mat-button [matMenuTriggerFor]="themeMenu" style="cursor: pointer;">
+      <mat-icon svgIcon="palette"></mat-icon>
       <p class="mainMenuDesc">Theme</p>
     </a>
+    <mat-menu #themeMenu="matMenu">
+      <button mat-menu-item (click)="setTheme('light')">
+        <mat-icon svgIcon="weather-sunny"></mat-icon>
+        <span>Light</span>
+      </button>
+      <button mat-menu-item (click)="setTheme('dark')">
+        <mat-icon svgIcon="weather-night"></mat-icon>
+        <span>Dark</span>
+      </button>
+      <button mat-menu-item (click)="setTheme('christmas')">
+        <span style="font-size: 20px;">🎄</span>
+        <span>Christmas</span>
+      </button>
+      <button mat-menu-item (click)="setTheme('high-contrast')">
+        <mat-icon svgIcon="contrast-circle"></mat-icon>
+        <span>High Contrast</span>
+      </button>
+    </mat-menu>
   </div>
 
   <div class="mainMenu">

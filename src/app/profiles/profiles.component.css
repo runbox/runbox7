@@ -1,5 +1,5 @@
 .mailFolder:hover {
-    background-color: #F5F5F5;
+    background-color: var(--rmm-bg-tertiary);
     cursor: pointer;
 }  
 

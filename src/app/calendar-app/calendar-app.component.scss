@@ -10,12 +10,73 @@
 }
 
 .calendarMenuButton {
-    mat-icon {
+    height: 40px !important;
+
+    .mdc-list-item__content {
+        height: 40px;
         display: flex;
-        justify-content: center;
+        flex-direction: row;
         align-items: center;
-        font-size: 24px !important;
+        padding: 0 8px;
     }
+
+    mat-icon[matListItemIcon] {
+        font-size: 24px !important;
+        width: 24px !important;
+        height: 24px !important;
+        margin-right: 8px !important;
+        flex-shrink: 0;
+    }
+
+    .mdc-list-item__primary-text,
+    .mat-mdc-list-item-title {
+        flex: 1;
+        height: 40px;
+        line-height: 40px;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.calendarListItem {
+    height: 40px !important;
+
+    .mdc-list-item__content {
+        height: 40px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0 8px;
+    }
+
+    mat-icon[matListItemIcon] {
+        width: 24px !important;
+        height: 24px !important;
+        margin-right: 8px !important;
+        flex-shrink: 0;
+    }
+
+    .mdc-list-item__primary-text,
+    .mat-mdc-list-item-title {
+        flex: 1;
+        height: 40px;
+        line-height: 40px;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0;
+    }
+
+    button {
+        flex-shrink: 0;
+        margin-left: 4px;
+    }
+}
+
+.calendarListMeta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .updateInfo {

@@ -7,7 +7,8 @@ h4 {
 }
 
 .mat-list-base[dense] .mat-list-item, .mat-list-base[dense] .mat-list-option {
-    height: 30px;
+    height: auto;
+    min-height: 30px;
 }
 
 #forumLink {

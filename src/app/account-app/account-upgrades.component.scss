@@ -78,7 +78,8 @@
 }
 
 .productGrid mat-card.recommended {
-    height: 500px;
+    height: auto;
+    min-height: 500px;
     width: 32%;
     font-size: 1.1em;
 }
@@ -225,7 +226,7 @@ mat-icon.limitedTimeOffer {
     line-height: 12px;
 }
 
-.holidayOffer, {
+.holidayOffer {
 	margin: 2% 10%;
     padding: 20px;
 }

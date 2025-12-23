@@ -1,5 +1,6 @@
 mat-card {
-    height: 225px;
+    height: auto;
+    min-height: 225px;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -11,7 +12,8 @@ mat-card {
 
 @media (max-width: 500px) {
     mat-card {
-	    height: 200px;
+	    height: auto;
+	    min-height: 200px;
     }
 }
 

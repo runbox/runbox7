@@ -4,3 +4,19 @@ mat-expansion-panel-header mat-icon {
 mat-expansion-panel-header span {
     vertical-align: bottom;
 }
+
+mat-list-item .mdc-list-item__primary-text,
+mat-list-item .mat-mdc-list-item-title,
+mat-list-item [mat-line] {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    height: auto !important;
+    min-height: 30px !important;
+    line-height: 1.3 !important;
+
+    span {
+        white-space: normal !important;
+        word-wrap: break-word;
+    }
+}

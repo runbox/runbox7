@@ -20,7 +20,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { RMM } from '../rmm';
 import { map } from 'rxjs/operators';
