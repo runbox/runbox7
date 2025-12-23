@@ -48,6 +48,7 @@ const XAPIAN_TERM_HASATTACHMENTS = 'XFattachment';
 export const XAPIAN_GLASS_WR = 'xapianglasswr';
 
 const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
+const FOLDER_DISCREPANCY_CHECK_INTERVAL_MS = 30000;
 // stolen from rbwebmail.ts, should be in a sep file both load?
 const LIST_ALL_MESSAGES_CHUNK_SIZE = 10000;
 
@@ -93,7 +94,7 @@ export class SearchIndexService {
   public indexLastUpdateTime = 0; // Epoch time
   public indexUpdateIntervalId: any = null;
   numberOfMessagesSyncedLastTime = 0;
-  folderCountDiscrepanciesCheckedCount: {[folderName: string]: number} = {};
+  folderCountDiscrepanciesCheckedAt: {[folderName: string]: number} = {};
 
   serverIndexSize = -1;
   serverIndexSizeUncompressed = -1;
@@ -515,17 +516,30 @@ not matching with index for current folder`);
           const currentFolder = this.folderList.find(folder => folder.folderPath === this.currentFolder);
           const folderPath = currentFolder.folderPath;
 
-          // do this once per folder, and only if the folder is actually indexed
-          if (!this.folderCountDiscrepanciesCheckedCount[folderPath]) {
-            this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
+          const now = Date.now();
+          const lastCheckedAt = this.folderCountDiscrepanciesCheckedAt[folderPath] || 0;
+          if (now - lastCheckedAt >= FOLDER_DISCREPANCY_CHECK_INTERVAL_MS) {
+            this.folderCountDiscrepanciesCheckedAt[folderPath] = now;
 
-            // Compare xapian index counts with rest api folder list:
+            // Compare xapian index counts with server counts for indexed folders.
             if (this.localSearchActivated && this.api &&
               this.api.listFolders().find(f => f[0] === folderPath)
                ) {
-              const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
-              const folderMessages = await this.compareAndUpdateFolderCounts(currentFolder, numberOfMessages, numberOfUnreadMessages);
-              msginfos = msginfos.concat(folderMessages);
+              const stats = await folderStats(folderPath);
+              if (stats) {
+                const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
+                const serverFolder = {
+                  ...currentFolder,
+                  totalMessages: stats.total,
+                  newMessages: stats.total_unseen
+                } as FolderListEntry;
+                const folderMessages = await this.compareAndUpdateFolderCounts(
+                  serverFolder,
+                  numberOfMessages,
+                  numberOfUnreadMessages
+                );
+                msginfos = msginfos.concat(folderMessages);
+              }
             } else {
               // Compare rest api counts with rest api folder list:
               folderStats(folderPath).then((stats: FolderStatsEntry) => {
@@ -537,7 +551,10 @@ not matching with index for current folder`);
 (${stats.total_unseen} vs ${currentFolder.newMessages})
 not matching with rest api counts for current folder`);
                   updateFolderCounts(folderPath).then(
-                    (result) => console.log(result.result.result.msg)
+                    (result) => {
+                      console.log(result.result.result.msg);
+                      // Folder list will be refreshed by updateMessageListService below
+                    }
                   ).catch(
                     (err) => {
                       console.error(err)
@@ -740,18 +757,19 @@ not matching with rest api counts for current folder`);
       console.log(`Updating messageListService with # mesgs: ${msginfos.length}, new sync: ${this.numberOfMessagesSyncedLastTime}`);
       if ((msginfos && msginfos.length > 0)
         || (deletedMessages && deletedMessages.length > 0)) {
-        if (this.numberOfMessagesSyncedLastTime) {
-          // notify messagelist that changes were made, regardless of
-          // whether we updated the index or notauthenticated
-          // if index is on this only affects trash/spam
-          // otherwise its the update for all folders
-          const folders = new Set;
-          msginfos.forEach((msg) => folders.add(msg.folder));
-          // only got ids for deleted messages
-          // deletedMessages.forEach((msg) => folders.add(msg.folder));
-          ctx.postMessage({'action': PostMessageAction.updateMessageListService,
-                          'foldersUpdated': Array.from(folders) });
+        // notify messagelist that changes were made when there are new messages
+        // OR when there are deleted messages
+        // Always notify when there are any changes, since messages may have moved between folders
+        const folders = new Set;
+        msginfos.forEach((msg) => folders.add(msg.folder));
+        // For any changes (moved or deleted messages), we don't know which folders they came from
+        // So we add all folders from the folder list to ensure counts are refreshed
+        // This handles IMAP operations like "delete" which typically moves messages to Trash
+        if (this.folderList && (msginfos.length > 0 || (deletedMessages && deletedMessages.length > 0))) {
+          this.folderList.forEach((folder) => folders.add(folder.folderPath));
         }
+        ctx.postMessage({'action': PostMessageAction.updateMessageListService,
+                        'foldersUpdated': Array.from(folders) });
         // Update folder lists + counts
         // postMessage
         // this.messagelistservice.applyChanges(

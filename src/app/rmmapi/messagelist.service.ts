@@ -143,24 +143,16 @@ export class MessageListService {
     public refreshFolderCounts(): Promise<void> {
         return new Promise((resolve, _) => {
             return this.searchservice.pipe(take(1)).subscribe(searchservice => {
-                const xapianFolders = new Set(
-                    searchservice.localSearchActivated && searchservice.api
-                        ?  searchservice.api.listFolders().map(f => f[0])
-                        : []
-                );
-
                 const folders = this.folderListSubject.value;
                 const folderCounts = {};
                 let countsChanged = false;
                 for (const folder of folders) {
                     const path = folder.folderPath;
 
-                    if (xapianFolders.has(path)) {
-                        const res = searchservice.api.getFolderMessageCounts(path);
-                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
-                    } else {
-                        folderCounts[path] = FolderMessageCountEntry.of(folder);
-                    }
+                    // Always use server counts from the folder list, not Xapian counts
+                    // This ensures we show accurate counts immediately after IMAP operations
+                    // even if the local Xapian index hasn't been updated yet
+                    folderCounts[path] = FolderMessageCountEntry.of(folder);
 
                     // Ensure we don't redraw the folder list ui component
                     // when nothing has changed
@@ -425,12 +417,14 @@ export class MessageListService {
                     return observableThrowError(e);
                 }))
             .subscribe((res) => {
-                if (res && res.length > 0) {
-                    if (resetContents) {
-                      this.folderMessageLists[folder] = res;
-                    } else {
-                        this.folderMessageLists[folder] = messageList.concat(res);
+                if (resetContents) {
+                    // Always reset contents when folder is stale, even if empty
+                    this.folderMessageLists[folder] = res || [];
+                    if (res && res.length > 0) {
+                        res.forEach((m: MessageInfo) => this.messagesById[m.id] = m);
                     }
+                } else if (res && res.length > 0) {
+                    this.folderMessageLists[folder] = messageList.concat(res);
                     res.forEach((m: MessageInfo) => this.messagesById[m.id] = m);
                 }
                 this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
@@ -446,12 +440,10 @@ export class MessageListService {
     public updateStaleFolders(folders: string[]) {
         folders.forEach((f) => this.staleFolders[f] = true);
         // check if current visible folder has updates
-        // refresh if localsearch not activated (aka setCurrentFolder)
-        this.searchservice.pipe(take(1)).subscribe(searchservice => {
-          if (!searchservice.localSearchActivated &&
-            this.staleFolders[this.currentFolder]) {
+        // When folders are stale (due to external IMAP changes), always fetch from server
+        // to ensure we have accurate data, regardless of local search status
+        if (this.staleFolders[this.currentFolder]) {
             this.fetchFolderMessages();
-          }
-        });
+        }
     }
 }

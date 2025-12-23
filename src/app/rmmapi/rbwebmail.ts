@@ -315,7 +315,7 @@ export class RunboxWebmailAPI {
                         if (res.status === 'success') {
                             return of(res.result);
                         } else {
-                            return throwError(res.errors[0]);
+                            return throwError(res.errors?.[0] || res.error || 'Failed to download message');
                         }
                     }),
                 ).subscribe(

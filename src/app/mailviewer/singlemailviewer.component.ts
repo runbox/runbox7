@@ -206,6 +206,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     // We have any attachments at all AND
     // we have non-inline (image) attachments OR
     // we're not viewing in HTML
+    if (!this.mailObj) {
+      return false;
+    }
     return this.mailObj.attachments.length > 0 && (
       this.mailObj.visible_attachment_count > 0 || !(this.mailContentHTML && this.showHTML && this.SUPPORTS_IFRAME_SANDBOX)
     );

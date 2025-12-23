@@ -135,6 +135,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   buildtimestampstring = environment.BUILD_TIMESTAMP;
 
+  private _cachedCanvasTableBtmOffset = 0;
+
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
@@ -184,7 +186,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     public websocketsearchservice: WebSocketSearchService,
     public draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
-    changeDetectorRef: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
@@ -279,7 +281,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
-      changeDetectorRef.markForCheck();
+      this.changeDetectorRef.markForCheck();
 
       if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
@@ -341,12 +343,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public get canvasTableBtmOffset() {
-    return this.singlemailviewer && this.singlemailviewer.adjustableHeight
-      ? this.singlemailviewer.resizerHeight
-      : 0;
+    return this._cachedCanvasTableBtmOffset;
   }
 
   ngDoCheck(): void {
+    // Update cached canvas table offset to prevent ExpressionChangedAfterItHasBeenCheckedError
+    if (this.singlemailviewer?.adjustableHeight) {
+      this._cachedCanvasTableBtmOffset = this.singlemailviewer.resizerHeight || 0;
+    } else {
+      this._cachedCanvasTableBtmOffset = 0;
+    }
+
     if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
         this.xapianDocCount
@@ -497,6 +504,9 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.enableNotification();
     this.calculateWidthDependentElements();
+
+    // Trigger change detection after view init to prevent ExpressionChangedAfterItHasBeenCheckedError
+    requestAnimationFrame(() => this.changeDetectorRef.detectChanges());
   }
 
   reload(): void {

@@ -171,6 +171,7 @@ export class SearchService {
         } else if (data['action'] === PostMessageAction.updateMessageListService) {
           this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
           this.messagelistservice.refreshFolderList();
+          this.messagelistservice.refreshFolderCounts();
         } else if (data['action'] === PostMessageAction.indexDeleted) {
           this.stopIndexDownloadingInProgress = false;
           console.log('Closing progress dialog');
@@ -271,7 +272,8 @@ export class SearchService {
             });
           } else {
             // We have no local index - but still need the polling loop here
-            this.indexLastUpdateTime = new Date().getTime(); // Set the last update time to now since we don't have a local index
+            // Set to 7 days ago to catch recent deletions via IMAP
+            this.indexLastUpdateTime = new Date().getTime() - (7 * 24 * 60 * 60 * 1000);
             this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges});
             this.noLocalIndexFoundSubject.next(true);
             this.noLocalIndexFoundSubject.complete();
@@ -504,8 +506,8 @@ export class SearchService {
         this.indexLastUpdateTime = latestSearchIndexDate.getTime();
       } catch (e) {
         console.log('Corrupt Xapian index', e);
-        // this.indexLastUpdateTime = 0;
-        this.indexLastUpdateTime = new Date().getTime();
+        // Set to 7 days ago to catch recent deletions via IMAP
+        this.indexLastUpdateTime = new Date().getTime() - (7 * 24 * 60 * 60 * 1000);
         return false;
       }
     } else {
