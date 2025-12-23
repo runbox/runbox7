@@ -123,6 +123,26 @@ export class SearchService {
   currentDocData: SearchIndexDocumentData;
 
   public indexWorker: Worker;
+  // Single-writer lock across tabs to avoid concurrent Xapian index updates.
+  private readonly indexWriterId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  private indexWriterLockKey: string;
+  private indexWriterHeartbeatId: any = null;
+  private indexWriterRetryId: any = null;
+  private readonly indexWriterLockTtlMs = 20000;
+  private readonly indexWriterHeartbeatMs = 5000;
+  private readonly indexWriterRetryMs = 7000;
+  private isIndexWriter = false;
+  private lockStorageAvailable = true;
+  private lockStorageErrorLogged = false;
+  private pendingWorkerOpen = false;
+  private handleStorageEvent = (event: StorageEvent) => {
+    if (!this.indexWriterLockKey || event.key !== this.indexWriterLockKey) {
+      return;
+    }
+    if (!this.isIndexWriter) {
+      this.tryAcquireIndexWriterLock();
+    }
+  };
 
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
@@ -204,6 +224,7 @@ export class SearchService {
           this.localdir = 'rmmsearchservice' + me.uid;
           this.partitionsdir = '/partitions' + this.localdir;
           this.isExpired = me.isExpired();
+          this.initIndexWriterLock(me.uid);
         }),
         mergeMap(() =>
           new Observable<any>((observer) => {
@@ -240,7 +261,7 @@ export class SearchService {
             this.initSubject.subscribe((opened) => {
               if (opened) {
                 this.indexReloadedSubject.next(undefined);
-                this.openDBOnWorker();
+                this.markIndexReadyForWorker();
               }
             });
           } else {
@@ -303,6 +324,9 @@ export class SearchService {
     // but it doesn't.
     this.rmmapi.messageFlagChangeSubject
       .subscribe((msgFlagChange) => {
+        if (!this.isIndexWriter) {
+          return;
+        }
         if (msgFlagChange.flaggedFlag !== null) {
           if (msgFlagChange.flaggedFlag === true) {
             this.indexWorker.postMessage(
@@ -418,7 +442,23 @@ export class SearchService {
     }
   }
 
-  public openDBOnWorker() {
+  private markIndexReadyForWorker(): void {
+    this.pendingWorkerOpen = true;
+    this.maybeOpenDBOnWorker();
+  }
+
+  private maybeOpenDBOnWorker(): void {
+    if (!this.pendingWorkerOpen || !this.isIndexWriter || !this.indexWorker) {
+      return;
+    }
+    this.pendingWorkerOpen = false;
+    this.openDBOnWorker();
+  }
+
+  private openDBOnWorker() {
+    if (!this.isIndexWriter || !this.indexWorker) {
+      return;
+    }
     this.persistIndex().subscribe(() =>
       this.indexWorker.postMessage({ 'localdir': this.localdir,
                                      'partitionsdir': this.partitionsdir,
@@ -578,7 +618,9 @@ export class SearchService {
             this.localSearchActivated = true;
             this.messagelistservice.refreshFolderList();
 
-            this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
+            if (this.isIndexWriter) {
+              this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
+            }
             this.updateIndexLastUpdateTime();
 
             this.downloadProgress = null;
@@ -707,7 +749,7 @@ export class SearchService {
               curr.files.reduce((p, c) => c.uncompressedsize + p, 0), 0);
             if (totalSize === 0) {
               // console.log('No extra search index partitions');
-              this.openDBOnWorker();
+              this.markIndexReadyForWorker();
               this.indexReloadedSubject.next(undefined);
             }
             return totalSize;
@@ -827,7 +869,7 @@ export class SearchService {
           tap(async () => {
             this.partitionDownloadProgress = null;
             if (!this.stopIndexDownloadingInProgress) {
-              this.openDBOnWorker();
+              this.markIndexReadyForWorker();
               this.indexReloadedSubject.next(undefined);
             }
           })
@@ -842,6 +884,10 @@ export class SearchService {
     // this cache ensures that at least the future calls will get the textcontent synchronously
     // eslint-disable-next-line @typescript-eslint/member-ordering,
     messageTextCache = new Map<number, string>();
+
+    public get canWriteIndex(): boolean {
+      return this.isIndexWriter;
+    }
 
     /**
      * Look up document data from the database. If the id is the same as from the previous request, it will use
@@ -954,5 +1000,165 @@ export class SearchService {
       return true;
     }
     return false;
+  }
+
+  private initIndexWriterLock(uid: number): void {
+    if (this.indexWriterLockKey) {
+      return;
+    }
+    this.indexWriterLockKey = `rmm7:index-writer-lock:${uid}`;
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', this.handleStorageEvent);
+      window.addEventListener('beforeunload', () => this.releaseIndexWriterLock());
+    }
+    this.tryAcquireIndexWriterLock();
+    if (!this.lockStorageAvailable) {
+      return;
+    }
+    this.indexWriterRetryId = setInterval(() => {
+      if (!this.isIndexWriter) {
+        this.tryAcquireIndexWriterLock();
+      }
+    }, this.indexWriterRetryMs);
+  }
+
+  private readIndexWriterLock(): { id: string; ts: number } | null {
+    if (!this.indexWriterLockKey || !this.lockStorageAvailable) {
+      return null;
+    }
+    let raw: string | null;
+    try {
+      raw = localStorage.getItem(this.indexWriterLockKey);
+    } catch (err) {
+      this.handleIndexWriterLockError(err);
+      return null;
+    }
+    if (!raw) {
+      return null;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      this.clearIndexWriterLock();
+      return null;
+    }
+    if (!parsed || typeof parsed.id !== 'string' || typeof parsed.ts !== 'number') {
+      this.clearIndexWriterLock();
+      return null;
+    }
+    return parsed;
+  }
+
+  private tryAcquireIndexWriterLock(): boolean {
+    if (!this.indexWriterLockKey || !this.lockStorageAvailable) {
+      return false;
+    }
+    const now = Date.now();
+    const lock = this.readIndexWriterLock();
+    if (lock && lock.id !== this.indexWriterId && now - lock.ts < this.indexWriterLockTtlMs) {
+      this.setIndexWriter(false);
+      return false;
+    }
+    try {
+      localStorage.setItem(this.indexWriterLockKey, JSON.stringify({ id: this.indexWriterId, ts: now }));
+    } catch (err) {
+      this.handleIndexWriterLockError(err);
+      return false;
+    }
+    const confirmed = this.readIndexWriterLock();
+    if (!confirmed || confirmed.id !== this.indexWriterId) {
+      this.setIndexWriter(false);
+      return false;
+    }
+    this.setIndexWriter(true);
+    return true;
+  }
+
+  private setIndexWriter(active: boolean): void {
+    if (this.isIndexWriter === active) {
+      return;
+    }
+    this.isIndexWriter = active;
+    if (active) {
+      this.startIndexWriterHeartbeat();
+      this.maybeOpenDBOnWorker();
+    } else {
+      this.stopIndexWriterHeartbeat();
+    }
+  }
+
+  private startIndexWriterHeartbeat(): void {
+    if (!this.indexWriterLockKey || !this.lockStorageAvailable || this.indexWriterHeartbeatId) {
+      return;
+    }
+    this.indexWriterHeartbeatId = setInterval(() => {
+      if (!this.isIndexWriter) {
+        return;
+      }
+      const now = Date.now();
+      const lock = this.readIndexWriterLock();
+      if (lock && lock.id !== this.indexWriterId && now - lock.ts < this.indexWriterLockTtlMs) {
+        this.setIndexWriter(false);
+        return;
+      }
+      try {
+        localStorage.setItem(this.indexWriterLockKey, JSON.stringify({ id: this.indexWriterId, ts: now }));
+      } catch (err) {
+        this.handleIndexWriterLockError(err);
+      }
+    }, this.indexWriterHeartbeatMs);
+  }
+
+  private stopIndexWriterHeartbeat(): void {
+    if (this.indexWriterHeartbeatId) {
+      clearInterval(this.indexWriterHeartbeatId);
+      this.indexWriterHeartbeatId = null;
+    }
+  }
+
+  private handleIndexWriterLockError(err: unknown): void {
+    if (!this.lockStorageAvailable) {
+      return;
+    }
+    this.lockStorageAvailable = false;
+    this.setIndexWriter(false);
+    if (this.indexWriterRetryId) {
+      clearInterval(this.indexWriterRetryId);
+      this.indexWriterRetryId = null;
+    }
+    if (!this.lockStorageErrorLogged) {
+      console.warn('Local storage unavailable; disabling local search index updates in this tab.', err);
+      this.lockStorageErrorLogged = true;
+    }
+  }
+
+  private clearIndexWriterLock(): void {
+    if (!this.indexWriterLockKey || !this.lockStorageAvailable) {
+      return;
+    }
+    try {
+      localStorage.removeItem(this.indexWriterLockKey);
+    } catch (err) {
+      this.handleIndexWriterLockError(err);
+    }
+  }
+
+  private releaseIndexWriterLock(): void {
+    if (!this.indexWriterLockKey || !this.isIndexWriter) {
+      return;
+    }
+    const lock = this.readIndexWriterLock();
+    if (lock && lock.id === this.indexWriterId) {
+      try {
+        localStorage.removeItem(this.indexWriterLockKey);
+      } catch {
+        return;
+      }
+    }
+    if (this.indexWriterRetryId) {
+      clearInterval(this.indexWriterRetryId);
+      this.indexWriterRetryId = null;
+    }
   }
 }

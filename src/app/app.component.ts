@@ -1029,6 +1029,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public downloadIndexFromServer() {
+    if (!this.searchService.canWriteIndex) {
+      this.snackBar.open(
+        'Local search updates are already running in another tab. Close other Runbox tabs to enable syncing here.',
+        'Dismiss',
+        { duration: 5000 }
+      );
+      return;
+    }
     this.enableNotification();
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
