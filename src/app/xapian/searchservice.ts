@@ -287,13 +287,11 @@ export class SearchService {
             // console.log(FS.stat(`${this.partitionsdir}/${f}`));
           // });
         this.api.reloadXapianDatabase();
+        this.messagelistservice.refreshFolderCounts();
         this.indexReloadedSubject.next(undefined);
       });
     });
     this.indexReloadedSubject.subscribe(() => {
-      // console.log('searchservice updating folderCounts');
-      // we're sending both "indexUpdated", and "updateMessageListService"
-      // this.messagelistservice.refreshFolderCounts();
       this.messagelistservice.refreshFolderList();
     });
 
@@ -617,6 +615,7 @@ export class SearchService {
             console.log(this.api.getXapianDocCount() + ' docs in Xapian database');
             this.localSearchActivated = true;
             this.messagelistservice.refreshFolderList();
+            this.messagelistservice.refreshFolderCounts();
 
             if (this.isIndexWriter) {
               this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
