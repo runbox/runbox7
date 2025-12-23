@@ -235,6 +235,11 @@ export class SearchService {
         mergeMap((db: IDBDatabase) =>
           new Observable<any>((observer) => {
             try {
+              if (!db.objectStoreNames.contains('FILE_DATA')) {
+                db.close();
+                observer.next(false);
+                return;
+              }
               const req: IDBRequest = db.transaction('FILE_DATA', 'readonly')
                 .objectStore('FILE_DATA')
                 .get('/' + this.localdir + '/xapianglasswr/iamglass');

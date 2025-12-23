@@ -263,42 +263,47 @@ class SearchIndexService {
         this.api.closeXapianDatabase();
       }
 
-      FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
-        if ( f !== '.' && f !== '..') {
-          console.log(f);
-          FS.unlink('xapianglasswr/' + f);
+      const mainDir = FS.analyzePath(XAPIAN_GLASS_WR);
+      if (mainDir.exists && mainDir.object && FS.isDir(mainDir.object.mode)) {
+        FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
+          if ( f !== '.' && f !== '..') {
+            console.log(f);
+            FS.unlink('xapianglasswr/' + f);
+          }
+        });
+        try {
+          FS.rmdir(XAPIAN_GLASS_WR);
+        } catch {
+          // Ignore if already removed.
         }
-      });
-      FS.rmdir(XAPIAN_GLASS_WR);
+      }
       try {
         FS.unlink('xapianglass');
       } catch (e) {
-        console.error(e)
+        // Ignore if already removed.
       }
 
 
 
       // clearTimeout(this.indexUpdateIntervalId);
 
-      let hasPartitionsDir = true;
-      try {
-        FS.stat(this.partitionsdir);
-      } catch (e) {
-        console.error(e);
-        hasPartitionsDir = false;
-      }
-      if (hasPartitionsDir) {
+      const partitionsDir = FS.analyzePath(this.partitionsdir);
+      if (partitionsDir.exists && partitionsDir.object && FS.isDir(partitionsDir.object.mode)) {
         FS.readdir(this.partitionsdir).forEach((f) => {
           if ( f !== '.' && f !== '..') {
-
-            if (FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-              FS.readdir(`${this.partitionsdir}/${f}`)
+            const entryPath = `${this.partitionsdir}/${f}`;
+            const entry = FS.analyzePath(entryPath);
+            if (!entry.exists || !entry.object) {
+              return;
+            }
+            if (FS.isDir(entry.object.mode)) {
+              FS.readdir(entryPath)
                 .filter((ent: string) => ent.charAt(0) !== '.').forEach(partitionFile =>
-                FS.unlink(`${this.partitionsdir}/${f}/${partitionFile}`)
+                FS.unlink(`${entryPath}/${partitionFile}`)
               );
-              FS.rmdir(`${this.partitionsdir}/${f}`);
+              FS.rmdir(entryPath);
             } else {
-              FS.unlink(`${this.partitionsdir}/${f}`);
+              FS.unlink(entryPath);
             }
           }
         });
