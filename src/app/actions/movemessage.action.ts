@@ -40,7 +40,8 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
                 </mat-list-item>
             </mat-nav-list>
         </mat-dialog-content>
-    `
+    `,
+    standalone: false
 })
 export class MoveMessageDialogComponent implements OnInit {
     moving = false;

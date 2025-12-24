@@ -39,7 +39,8 @@ export class InfoParams {
         <mat-dialog-actions style="display: flex">
             <p style="flex-grow: 1"></p>
             <button mat-icon-button mat-dialog-close><mat-icon svgIcon="check"></mat-icon></button>
-        </mat-dialog-actions>`
+        </mat-dialog-actions>`,
+    standalone: false
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class InfoDialog {

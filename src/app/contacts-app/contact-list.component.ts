@@ -26,7 +26,8 @@ type SelectionEvent = Set<string>;
 @Component({
     selector: 'app-contact-list',
     styleUrls: ['contacts-app.component.scss'],
-    templateUrl: './contact-list.component.html'
+    templateUrl: './contact-list.component.html',
+    standalone: false
 })
 export class ContactListComponent implements OnChanges {
     @Input() contacts: Contact[];

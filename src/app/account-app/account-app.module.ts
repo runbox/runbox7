@@ -82,7 +82,7 @@ import { ProfilesModule } from '../profiles/profiles.module';
 import { AliasesListerComponent} from '../aliases/aliases.lister';
 import { AliasesModule } from '../aliases/aliases.module';
 import { CryptoPaymentDescriptionComponent } from './crypto-payment-description.component';
-import { QRCodeModule } from 'angularx-qrcode';
+import { QRCodeComponent } from 'angularx-qrcode';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { NoProductsForSubaccountsGuard } from './no-products-for-subaccounts.guard';
 import { NoProductsForSubaccountsComponent } from './no-products-for-subaccounts.component';
@@ -161,7 +161,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
         ProfilesModule,
         AliasesModule,
         DomainRegisterModule,
-        QRCodeModule,
+        QRCodeComponent,
         RouterModule.forChild([
             {
                 path: 'account',

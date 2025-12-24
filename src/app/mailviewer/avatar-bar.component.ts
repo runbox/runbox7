@@ -52,6 +52,7 @@ import { PreferencesService } from '../common/preferences.service';
            >
         </div>
     `,
+    standalone: false
 })
 export class AvatarBarComponent implements OnInit, OnChanges {
     @Input() email: {

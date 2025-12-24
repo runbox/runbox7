@@ -46,7 +46,8 @@ import { Component } from '@angular/core';
         The contacts on the left with an <mat-icon svgIcon="email"> </mat-icon> icon next to them can be clicked to write an email to the given contact.
     </p>
 </div>
-    `
+    `,
+    standalone: false
 })
 export class ContactsWelcomeComponent {
 }

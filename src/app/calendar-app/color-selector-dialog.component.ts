@@ -23,6 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/mater
 @Component({
     selector: 'app-calendar-colour-selector-dialog-component',
     templateUrl: 'color-selector-dialog.component.html',
+    standalone: false
 })
 export class ColorSelectorDialogComponent {
     colors = [

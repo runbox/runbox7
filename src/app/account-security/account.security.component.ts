@@ -42,6 +42,7 @@ import { RMM } from '../rmm';
             </div>
         </div>
     `,
+    standalone: false
 })
 export class ModalUnlockcodeComponent {
     is_creating_unlockcode = false;
@@ -91,6 +92,7 @@ export class ModalUnlockcodeComponent {
             <p> For security reasons your account password is required to save Account Security settings. </p>
         </div>
     `,
+    standalone: false
 })
 export class ModalPasswordComponent {
     is_password_correct = true;

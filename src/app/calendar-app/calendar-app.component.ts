@@ -72,7 +72,8 @@ import '../sentry';
     providers: [
         { provide: CalendarEventTitleFormatter, useClass: EventTitleFormatter }
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class CalendarAppComponent implements OnDestroy {
     mwlView = CalendarView.Month;

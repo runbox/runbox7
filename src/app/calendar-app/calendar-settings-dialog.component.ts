@@ -50,6 +50,7 @@ import { CalendarService } from './calendar.service';
     </button>
 </div>
     `,
+    standalone: false
 })
 export class CalendarSettingsDialogComponent {
     settings: CalendarSettings;

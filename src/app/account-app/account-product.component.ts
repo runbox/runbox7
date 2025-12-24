@@ -28,6 +28,7 @@ import { ProductOrder } from './product-order';
     selector: 'app-account-product',
     templateUrl: './account-product.component.html',
     styleUrls: ['./account-product.component.scss'],
+    standalone: false
 })
 export class ProductComponent implements OnInit {
     @Input() p: Product;

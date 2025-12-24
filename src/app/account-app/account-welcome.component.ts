@@ -24,7 +24,8 @@ import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.servic
 @Component({
     selector: 'app-account-welcome-component',
     templateUrl: './account-welcome.component.html',
-    styleUrls: ['./account-welcome.component.scss']
+    styleUrls: ['./account-welcome.component.scss'],
+    standalone: false
 })
 export class AccountWelcomeComponent {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';

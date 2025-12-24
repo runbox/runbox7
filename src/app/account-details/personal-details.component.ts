@@ -38,6 +38,7 @@ interface CountryAndTimezone {
     selector: 'app-personal-details-component',
     templateUrl: './personal-details.component.html',
     styleUrls: ['account-details.component.scss'],
+    standalone: false
 })
 export class PersonalDetailsComponent implements OnInit {
     hide = true;

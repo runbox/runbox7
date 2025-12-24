@@ -53,6 +53,7 @@ import { Contact } from './contact';
     </button>
 </div>
 `,
+    standalone: false
 })
 export class ContactPickerDialogComponent {
     title: string;

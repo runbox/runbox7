@@ -79,10 +79,11 @@ const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'app',
-  styleUrls: ['app.component.scss'],
-  templateUrl: 'app.component.html'
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'app',
+    styleUrls: ['app.component.scss'],
+    templateUrl: 'app.component.html',
+    standalone: false
 })
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;

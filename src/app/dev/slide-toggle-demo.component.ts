@@ -20,7 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
+    template: `
 <div>
     <app-runbox-slide-toggle>
         example #1
@@ -32,6 +32,7 @@ import { Component } from '@angular/core';
         ex#3
     </app-runbox-slide-toggle>
 </div>
-  `
+  `,
+    standalone: false
 })
 export class SlideToggleDemoComponent { }

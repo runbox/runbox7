@@ -79,9 +79,10 @@ export namespace CanvasTable {
 }
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'canvastable',
-  templateUrl: 'canvastable.component.html'
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'canvastable',
+    templateUrl: 'canvastable.component.html',
+    standalone: false
 })
 export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit, OnDestroy {
   static incrementalId = 1;
@@ -1439,10 +1440,11 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit, OnD
 }
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'canvastablecontainer',
-  templateUrl: 'canvastablecontainer.component.html',
-  styleUrls: ['canvastablecontainer.component.scss']
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'canvastablecontainer',
+    templateUrl: 'canvastablecontainer.component.html',
+    styleUrls: ['canvastablecontainer.component.scss'],
+    standalone: false
 })
 export class CanvasTableContainerComponent implements OnInit {
   colResizeInitialClientX: number;

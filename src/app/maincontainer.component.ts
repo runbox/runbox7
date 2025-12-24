@@ -22,6 +22,7 @@ import { Component } from '@angular/core';
 @Component({
     templateUrl: 'maincontainer.component.html',
     selector: 'app-rmm',
+    standalone: false
 })
 export class MainContainerComponent {
 

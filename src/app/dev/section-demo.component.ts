@@ -20,7 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
+    template: `
 <app-runbox-section>
     <div runbox-section-header>
         THIS IS THE TITLE IN BLUE BACKGROUND proably needs the div with id
@@ -31,6 +31,7 @@ import { Component } from '@angular/core';
         <p><strong>Unlock code:</strong> We recommended that you create an unlock code. This special code can be used to disable 2FA if you have problems logging in with your 2FA codes.</p>
     </div>
 </app-runbox-section>
-  `
+  `,
+    standalone: false
 })
 export class SectionDemoComponent { }

@@ -61,7 +61,8 @@ class CreditCard {
 @Component({
     selector: 'app-credit-cards',
     templateUrl: './credit-cards.component.html',
-    styleUrls: ['./credit-cards.component.scss']
+    styleUrls: ['./credit-cards.component.scss'],
+    standalone: false
 })
 export class CreditCardsComponent implements OnInit {
     creditCards = new ReplaySubject<any>(1);

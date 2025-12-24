@@ -127,7 +127,8 @@ import { RMM } from '../rmm';
             </div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxDynamicBuilderComponent {

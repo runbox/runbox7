@@ -37,6 +37,7 @@ import { MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/mater
     </button>
 </div>
 `,
+    standalone: false
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ErrorDialog {

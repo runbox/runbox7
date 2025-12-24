@@ -27,6 +27,7 @@ import { MobileQueryService, ScreenSize } from '../mobile-query.service';
     selector: 'app-profiles-lister',
     styleUrls: ['profiles.lister.scss'],
     templateUrl: 'profiles.lister.html',
+    standalone: false
 })
 export class ProfilesListerComponent {
     @Input() profiles: any[];

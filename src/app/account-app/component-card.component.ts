@@ -21,7 +21,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
     selector: 'app-account-component-card',
-        template: `
+    template: `
 <mat-card style="min-height: 20vh; padding: 20px">
     <a [routerLink]="routerLink" style="text-decoration: none">
         <mat-card-header>
@@ -36,7 +36,8 @@ import { Component, Input } from '@angular/core';
         </mat-card-content>
     </a>
 </mat-card>
-`
+`,
+    standalone: false
 })
 export class ComponentCardComponent {
     @Input() title:      string;

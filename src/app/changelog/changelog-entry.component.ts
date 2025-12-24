@@ -26,7 +26,8 @@ import { ChangelogEntry } from './changes';
 {{ entry.component }}: {{ entry.description }} <br>
 ({{ entry.datetime.format('D MMM YYYY') }}, change
 <a [id]="entry.hash" [href]="entry.url"><code>{{ entry.hash }}</code></a>)
-    `
+    `,
+    standalone: false
 })
 export class ChangelogEntryComponent {
     @Input() entry: ChangelogEntry;

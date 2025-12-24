@@ -20,12 +20,13 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
+    template: `
 <app-runbox-container
     sidebar_opened=false
 >
    New components goes here ie. &lt;runbox-component/&gt;
 </app-runbox-container>
-  `
+  `,
+    standalone: false
 })
 export class ContainerDemoComponent { }

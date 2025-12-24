@@ -31,6 +31,7 @@ export interface VcfImportDialogResult {
 @Component({
     selector: 'app-contacts-import-dialog-component',
     templateUrl: 'vcf-import-dialog.component.html',
+    standalone: false
 })
 export class VcfImportDialogComponent {
     contacts: Contact[];

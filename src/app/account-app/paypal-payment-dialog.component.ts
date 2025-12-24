@@ -45,7 +45,8 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
     <button mat-button (click)="close()"> Cancel </button>
     <a *ngIf="redirect_url" mat-flat-button color="primary" [href]="redirect_url"> Continue to PayPal </a>
   </div>
-`
+`,
+    standalone: false
 })
 export class PaypalPaymentDialogComponent {
     tid:    number;

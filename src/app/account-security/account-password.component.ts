@@ -25,6 +25,7 @@ import { share, timeout } from 'rxjs/operators';
     selector: 'app-account-password',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'account-password.component.html',
+    standalone: false
 })
 export class AccountPasswordComponent {
     old_password: string;

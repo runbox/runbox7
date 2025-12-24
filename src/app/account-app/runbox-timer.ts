@@ -42,7 +42,8 @@ import moment from 'moment';
             <span class="timeunit minutes"> {{runningDuration.minutes()}} minutes, and </span>
             <span class="timeunit seconds"> {{runningDuration.seconds()}} seconds</span>
         </ng-container>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxTimerComponent implements OnInit {

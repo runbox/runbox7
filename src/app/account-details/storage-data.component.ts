@@ -33,6 +33,7 @@ export interface DataUsage {
     selector: 'app-storage-data-component',
     templateUrl: './storage-data.component.html',
     styleUrls: ['account-details.component.scss'],
+    standalone: false
 })
 export class StorageDataComponent implements OnInit {
     dataUsage = new AsyncSubject<DataUsage[]>();

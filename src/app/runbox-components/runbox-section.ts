@@ -37,7 +37,8 @@ import { RMM } from '../rmm';
             <ng-content select="[runbox-section-content]"></ng-content>
 	</div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxSectionComponent {

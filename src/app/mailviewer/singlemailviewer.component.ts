@@ -65,10 +65,11 @@ const TOOLBAR_BUTTON_WIDTH = 30;
 type Mail = any;
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'single-mail-viewer',
-  templateUrl: 'singlemailviewer.component.html',
-  styleUrls: ['singlemailviewer.component.scss']
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'single-mail-viewer',
+    templateUrl: 'singlemailviewer.component.html',
+    styleUrls: ['singlemailviewer.component.scss'],
+    standalone: false
 })
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
 

@@ -37,6 +37,7 @@ import { PreferencesService } from '../common/preferences.service';
             </a>
         </span>
     `,
+    standalone: false
 })
 export class ContactCardComponent implements OnChanges {
     @Input() contact: any;

@@ -58,6 +58,7 @@ import { ThemeService } from '../common/theme.service';
     </div>
 </div>
     `,
+    standalone: false
 })
 export class SidenavMenuComponent {
     @Output() closeMenu = new EventEmitter<void>();

@@ -35,6 +35,7 @@ import { Component, Input } from '@angular/core';
     <mat-spinner></mat-spinner>
 </div>
     `,
+    standalone: false
 })
 export class RunboxLoadingComponent {
     @Input() text: string;

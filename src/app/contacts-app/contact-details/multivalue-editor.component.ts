@@ -52,6 +52,7 @@ import { UntypedFormControl } from '@angular/forms';
     </mat-form-field>
 </div>
     `,
+    standalone: false
 })
 export class MultiValueEditorComponent implements OnInit {
     @ViewChild('newValueInput') newValueElement: ElementRef;

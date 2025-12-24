@@ -25,6 +25,7 @@ import moment from 'moment';
 @Component({
     selector: 'app-calendar-overview',
     templateUrl: './calendar-overview.component.html',
+    standalone: false
 })
 export class CalendarOverviewComponent implements OnChanges, OnInit {
     @Input() events: RunboxCalendarEvent[];

@@ -53,7 +53,8 @@ const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename='
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
     templateUrl: 'compose.component.html',
-    styleUrls: ['compose.component.scss']
+    styleUrls: ['compose.component.scss'],
+    standalone: false
 })
 export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     static tinymceinstancecount = 1;

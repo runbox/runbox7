@@ -35,6 +35,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     </mat-card-actions>
 </mat-card>
     `,
+    standalone: false
 })
 export class PaymentMethodComponent {
     @Input() logo:            string;

@@ -22,9 +22,10 @@ import { ActivatedRoute } from '@angular/router';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
-  selector: 'app-welcome',
-  templateUrl: './welcomedesk.component.html',
-  styleUrls: ['./welcomedesk.component.scss']
+    selector: 'app-welcome',
+    templateUrl: './welcomedesk.component.html',
+    styleUrls: ['./welcomedesk.component.scss'],
+    standalone: false
 })
 
 export class WelcomeDeskComponent implements OnInit {

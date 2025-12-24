@@ -40,7 +40,8 @@ import { RMM } from '../rmm';
         >
         </app-runbox-dynamic-builder-component>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxDynamicComponent {

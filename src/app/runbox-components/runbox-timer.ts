@@ -46,7 +46,8 @@ import { RMM } from '../rmm';
             </div>
         </ng-container>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxTimerComponent implements OnInit {

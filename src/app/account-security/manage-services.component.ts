@@ -28,6 +28,7 @@ import { ModalPasswordComponent } from './account.security.component';
     selector: 'app-manage-services',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'manage-services.component.html',
+    standalone: false
 })
 export class ManageServicesComponent implements OnInit {
     panelOpenState = false;

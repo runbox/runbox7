@@ -43,6 +43,7 @@ import { Contact } from './contact';
     </button>
 </div>
 `,
+    standalone: false
 })
 export class GroupPickerDialogComponent {
     groups: Contact[];

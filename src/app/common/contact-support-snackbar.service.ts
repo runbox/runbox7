@@ -39,6 +39,7 @@ export class RunboxContactSupportSnackBar {
     {{ error }}
 </app-runbox-contact-support>
     `,
+    standalone: false
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class RunboxContactSupportSnackBarContent {

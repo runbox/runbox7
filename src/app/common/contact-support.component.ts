@@ -27,6 +27,7 @@ import { Component, Input } from '@angular/core';
     <div> {{ suggestion }}, or contact Runbox Support at support&#64;runbox.com. </div>
 </div>
     `,
+    standalone: false
 })
 export class RunboxContactSupportComponent {
     @Input() error: string;

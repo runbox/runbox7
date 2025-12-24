@@ -35,6 +35,7 @@ import { ProductOrder } from './product-order';
     selector: 'app-account-upgrades-component',
     templateUrl: './account-upgrades.component.html',
     styleUrls: ['./account-upgrades.component.scss'],
+    standalone: false
 })
 export class AccountUpgradesComponent implements OnInit {
     @Input() currency: string;

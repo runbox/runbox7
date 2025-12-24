@@ -33,9 +33,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomainService, Domain, DomainKey } from './domain.service';
 
 @Component({
-  selector: 'app-dkim',
-  templateUrl: 'dkim.component.html',
-  styles: [`
+    selector: 'app-dkim',
+    templateUrl: 'dkim.component.html',
+    styles: [`
     .grid_align_left {
         margin-right: 10px; margin-left: 10px;
         text-align: left;
@@ -55,6 +55,7 @@ import { DomainService, Domain, DomainKey } from './domain.service';
         padding: 25px 10px 10px 10px;
     }
   `],
+    standalone: false
 })
 
 export class DkimComponent implements OnInit {

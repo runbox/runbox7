@@ -28,6 +28,7 @@ import { ModalPasswordComponent } from './account.security.component';
     selector: 'app-last-logins',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'last-logins.component.html',
+    standalone: false
 })
 export class LastLoginsComponent implements OnInit  {
     panelOpenState = false;

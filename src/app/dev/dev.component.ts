@@ -19,8 +19,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-dev',
-  templateUrl: 'dev.component.html'
+    selector: 'app-dev',
+    templateUrl: 'dev.component.html',
+    standalone: false
 })
 export class DevComponent {
     routes = [

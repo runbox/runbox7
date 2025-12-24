@@ -23,6 +23,7 @@ import { UntypedFormArray, UntypedFormGroup } from '@angular/forms';
 @Component({
     selector: 'app-contact-details-fa-viewer',
     templateUrl: './formarray-editor.component.html',
+    standalone: false
 })
 export class FormArrayEditorComponent implements OnInit {
     @Input() inputFG: UntypedFormGroup;

@@ -21,6 +21,8 @@ import { Directive, ElementRef, OnInit, Input, Renderer2, Output, EventEmitter }
 
 @Directive({
     selector: '[appHorizResizable]' // Attribute selector
+    ,
+    standalone: false
 })
 export class HorizResizerDirective implements OnInit {
     @Input() resizableGrabHeight = 8;

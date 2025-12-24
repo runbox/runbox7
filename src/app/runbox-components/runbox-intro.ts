@@ -44,7 +44,8 @@ import { RMM } from '../rmm';
             </p>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxIntroComponent {

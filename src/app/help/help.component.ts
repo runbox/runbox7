@@ -20,9 +20,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-help',
-  templateUrl: './help.component.html',
-  styleUrls: ['./help.component.scss']
+    selector: 'app-help',
+    templateUrl: './help.component.html',
+    styleUrls: ['./help.component.scss'],
+    standalone: false
 })
 export class HelpComponent {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';

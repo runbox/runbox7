@@ -62,7 +62,8 @@ import { RMM } from '../rmm';
             ></ng-template>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxListComponent {

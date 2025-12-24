@@ -41,7 +41,8 @@ import { PreferencesService } from '../../common/preferences.service';
     selector: 'app-contact-details',
     styleUrls: ['../contacts-app.component.scss'],
     templateUrl: './contact-details.component.html',
-    providers: [Location, {provide: LocationStrategy, useClass: PathLocationStrategy}],
+    providers: [Location, { provide: LocationStrategy, useClass: PathLocationStrategy }],
+    standalone: false
 })
 export class ContactDetailsComponent {
     contact: Contact;

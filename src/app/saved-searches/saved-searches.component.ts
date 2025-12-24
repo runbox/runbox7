@@ -23,7 +23,8 @@ import { SavedSearch, SavedSearchesService } from './saved-searches.service';
 @Component({
     selector: 'app-saved-searches',
     templateUrl: './saved-searches.component.html',
-    styleUrls: ['./saved-searches.component.css']
+    styleUrls: ['./saved-searches.component.css'],
+    standalone: false
 })
 export class SavedSearchesComponent implements OnInit {
     @Input() expanded = false;

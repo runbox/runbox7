@@ -20,7 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
+    template: `
 <style>
 .frame {
     border-style: dotted;
@@ -36,6 +36,7 @@ import { Component } from '@angular/core';
 <div class="frame">
     <app-runbox-loading text="Loading text" size="tiny"></app-runbox-loading>
 </div>
-  `
+  `,
+    standalone: false
 })
 export class LoadingDemoComponent { }

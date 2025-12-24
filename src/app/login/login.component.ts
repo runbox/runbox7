@@ -31,6 +31,7 @@ import { NgForm } from '@angular/forms';
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'login',
     templateUrl: 'login.component.html',
+    standalone: false
 })
 
 export class LoginComponent implements OnInit {

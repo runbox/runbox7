@@ -37,7 +37,8 @@ import { MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/mater
   <button mat-button mat-dialog-close>No</button>
   <button mat-button [mat-dialog-close]="true">Yes</button>
 </mat-dialog-actions>
-   `
+   `,
+    standalone: false
 })
 export class DeleteConfirmationDialogComponent {
     constructor(

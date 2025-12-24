@@ -20,8 +20,8 @@ import { Component, Input } from '@angular/core';
 import { Contact } from './contact';
 
 @Component({
-        selector: 'app-contact-button',
-        template: `
+    selector: 'app-contact-button',
+    template: `
 <span>
     <mat-icon *ngIf="contact.show_as_company(); else show_kind"> business </mat-icon>
     <ng-template #show_kind>
@@ -30,6 +30,7 @@ import { Contact } from './contact';
     {{ contact.display_name() || "Unnamed contact"  }}
 </span>
 `,
+    standalone: false
 })
 export class ContactButtonComponent {
     @Input() contact: Contact;

@@ -25,7 +25,8 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component } from '@angular/core';
 
 @Component({
-    template: 'test'
+    template: 'test',
+    standalone: false
 }) export class TestAppComponent {}
 
 describe('ProgressService', () => {

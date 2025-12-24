@@ -29,6 +29,7 @@ import { CalendarService } from './calendar.service';
 @Component({
     selector: 'app-import-dialog-component',
     templateUrl: 'import-dialog.component.html',
+    standalone: false
 })
 export class ImportDialogComponent {
     ical:      string;

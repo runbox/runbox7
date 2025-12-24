@@ -22,7 +22,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
     selector: 'app-domain-register-redirect',
-    template: ''
+    template: '',
+    standalone: false
 })
 export class DomainRegisterRedirectComponent {
     constructor(

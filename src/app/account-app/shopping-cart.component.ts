@@ -46,6 +46,7 @@ class CartItem extends ProductOrder {
     selector: 'app-shopping-cart',
     templateUrl: './shopping-cart.component.html',
     styleUrls: ['./shopping-cart.component.scss'],
+    standalone: false
 })
 export class ShoppingCartComponent implements OnInit {
     defaultColumns = ['name', 'quantity', 'price', 'total-price', 'remove'];

@@ -20,9 +20,10 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-search-expression-builder',
-  templateUrl: './search-expression-builder.component.html',
-  styleUrls: ['./search-expression-builder.component.scss']
+    selector: 'app-search-expression-builder',
+    templateUrl: './search-expression-builder.component.html',
+    styleUrls: ['./search-expression-builder.component.scss'],
+    standalone: false
 })
 export class SearchExpressionBuilderComponent implements OnInit {
 

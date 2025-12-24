@@ -32,7 +32,8 @@ import { Component, Input } from '@angular/core';
         <ng-content></ng-content>
         </mat-slide-toggle>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class RunboxSlideToggleComponent {

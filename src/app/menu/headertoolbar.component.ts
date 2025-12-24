@@ -28,7 +28,8 @@ import { ThemeService, Theme } from '../common/theme.service';
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm-headertoolbar',
-    templateUrl: 'headertoolbar.component.html'
+    templateUrl: 'headertoolbar.component.html',
+    standalone: false
 })
 export class HeaderToolbarComponent implements OnInit {
 

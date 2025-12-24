@@ -69,7 +69,8 @@ interface FolderSelectorEntry {
     selector: 'app-start',
     templateUrl: './startdesk.component.html',
     styleUrls: ['./startdesk.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class StartDeskComponent implements OnInit {
     ownAddresses: ReplaySubject<Set<string>> = new ReplaySubject(1);

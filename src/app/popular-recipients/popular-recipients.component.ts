@@ -28,8 +28,9 @@ class PopularRecipient {
 @Component({
     selector: 'app-popular-recipients',
     templateUrl: './popular-recipients.component.html',
-    providers: [ RecipientsService ],
-    styleUrls: ['./popular-recipients.component.css']
+    providers: [RecipientsService],
+    styleUrls: ['./popular-recipients.component.css'],
+    standalone: false
 })
 export class PopularRecipientsComponent implements OnInit {
     recipients: PopularRecipient[] = [];

@@ -39,7 +39,8 @@ import { take } from 'rxjs/operators';
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'contacts-app-root',
     styleUrls: ['contacts-app.component.scss'],
-    templateUrl: './contacts-app.component.html'
+    templateUrl: './contacts-app.component.html',
+    standalone: false
 })
 export class ContactsAppComponent {
     title = 'Contacts';

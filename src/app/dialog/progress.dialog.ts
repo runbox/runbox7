@@ -26,7 +26,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     template: `<mat-spinner *ngIf="!value"></mat-spinner>
-                <mat-progress-spinner *ngIf="value" [value]="value"></mat-progress-spinner>`
+                <mat-progress-spinner *ngIf="value" [value]="value"></mat-progress-spinner>`,
+    standalone: false
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ProgressDialog {

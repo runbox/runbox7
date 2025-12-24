@@ -27,6 +27,7 @@ import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.
 @Component({
     selector: 'app-calendar-editor-dialog-component',
     templateUrl: 'calendar-editor-dialog.component.html',
+    standalone: false
 })
 export class CalendarEditorDialogComponent {
     calendar: RunboxCalendar = new RunboxCalendar({ id: '' });

@@ -29,7 +29,8 @@ const MAX_DRAFTS_IN_VIEW = 10;
 @Component({
     templateUrl: 'draftdesk.component.html',
     providers: [RecipientsService],
-    styleUrls: ['draftdesk.component.scss']
+    styleUrls: ['draftdesk.component.scss'],
+    standalone: false
 })
 export class DraftDeskComponent implements OnInit {
     public draftModelsInView: DraftFormModel[] = [];

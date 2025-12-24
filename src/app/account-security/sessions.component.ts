@@ -27,6 +27,7 @@ import { RMM } from '../rmm';
     selector: 'app-sessions',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'sessions.component.html',
+    standalone: false
 })
 export class SessionsComponent implements OnInit {
     panelOpenState = false;

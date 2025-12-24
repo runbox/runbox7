@@ -31,6 +31,7 @@ import { ActivityProgress } from './background-activity.service';
     ></app-runbox-loading>
 </div>
     `,
+    standalone: false
 })
 export class BackgroundActivityIndicatorComponent implements OnChanges {
     @Input() activities: Observable<Map<any, ActivityProgress>>;

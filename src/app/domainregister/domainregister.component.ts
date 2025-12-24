@@ -62,9 +62,10 @@ export interface ElementTld {
 }
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'domain-register',
-  templateUrl: 'domainregister.component.html'
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'domain-register',
+    templateUrl: 'domainregister.component.html',
+    standalone: false
 })
 
 

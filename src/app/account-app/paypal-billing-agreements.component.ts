@@ -27,6 +27,7 @@ import moment from 'moment';
 @Component({
     selector: 'app-account-paypal-billing-agreements-component',
     templateUrl: './paypal-billing-agreements.component.html',
+    standalone: false
 })
 export class PaypalBillingAgreementsComponent implements OnInit {
     billing_agreements = new AsyncSubject<any[]>();

@@ -21,7 +21,7 @@ import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  template: `
+    template: `
       <h3 mat-dialog-title>Really show HTML version?</h3>
       <mat-dialog-content>
           <p>Showing HTML formatted messages may send tracking information to the sender,
@@ -32,7 +32,8 @@ import { MatDialogRef } from '@angular/material/dialog';
           <p><button mat-raised-button (click)="dialogRef.close('alwaysshowhtml')">Always show HTML if available</button></p>
 
       </mat-dialog-content>
-  `
+  `,
+    standalone: false
 })
 export class ShowHTMLDialogComponent {
   constructor(public dialogRef: MatDialogRef<ShowHTMLDialogComponent>) {

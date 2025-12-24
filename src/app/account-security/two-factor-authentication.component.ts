@@ -29,6 +29,7 @@ import { ModalUnlockcodeComponent, ModalPasswordComponent } from './account.secu
     selector: 'app-two-factor-authentication',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'two-factor-authentication.component.html',
+    standalone: false
 })
 export class TwoFactorAuthenticationComponent implements OnInit {
     panelOpenState = false;

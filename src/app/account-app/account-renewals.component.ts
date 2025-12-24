@@ -42,6 +42,7 @@ type ActiveProduct = any;
 @Component({
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
+    standalone: false
 })
 export class AccountRenewalsComponent {
     active_products: ActiveProduct[] = [];
@@ -202,6 +203,7 @@ export class AccountRenewalsComponent {
     N/A
 </ng-template>
     `,
+    standalone: false
 })
 export class AccountRenewalsAutorenewToggleComponent {
     @Input() p: ActiveProduct;
@@ -231,6 +233,7 @@ Warning: You are close to your quotas for this product
     N/A
 </ng-template>
     `,
+    standalone: false
 })
 export class AccountRenewalsRenewNowButtonComponent implements OnInit {
     @Input() p: ActiveProduct;

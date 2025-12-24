@@ -20,7 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
+    template: `
 <app-runbox-list [values]='values_runbox_list'>
     <ng-template #runbox_list_row_small let-item>
         <h1 style="color:red;">{{ item.firstname }}</h1>
@@ -36,7 +36,8 @@ import { Component } from '@angular/core';
         <button (click)="edit(item)">EDIT ITEM</button>
     </ng-template>
 </app-runbox-list>
-  `
+  `,
+    standalone: false
 })
 export class ListDemoComponent {
     values_runbox_list = [

@@ -28,6 +28,7 @@ import { Subject } from 'rxjs';
 @Component({
     selector: 'app-contacts-settings',
     templateUrl: './contacts-settings.component.html',
+    standalone: false
 })
 export class ContactsSettingsComponent {
     syncSettings = new Subject<any>();

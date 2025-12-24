@@ -26,6 +26,7 @@ import { RunboxSidenavService } from './runbox-sidenav.service';
     selector: 'app-runbox-container',
     templateUrl: './runbox-container.html',
     providers: [RunboxSidenavService],
+    standalone: false
 })
 
 export class RunboxContainerComponent {

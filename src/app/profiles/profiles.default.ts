@@ -23,9 +23,10 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-profiles-default',
-  styleUrls: ['profiles.default.scss'],
-  templateUrl: 'profiles.default.html',
+    selector: 'app-profiles-default',
+    styleUrls: ['profiles.default.scss'],
+    templateUrl: 'profiles.default.html',
+    standalone: false
 })
 export class DefaultProfileComponent {
     field_errors: any;

@@ -26,7 +26,7 @@ enum Activity {
 }
 
 @Component({
-  template: `
+    template: `
 <style>
 .frame {
     border-style: dotted;
@@ -55,7 +55,8 @@ enum Activity {
 <div class="frame">
     <app-activity-indicator [activities]="activities.observable"></app-activity-indicator>
 </div>
-  `
+  `,
+    standalone: false
 })
 export class ActivityIndicatorDemoComponent {
     activities = new BackgroundActivityService<Activity>();

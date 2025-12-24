@@ -49,7 +49,8 @@ export class SimpleInputDialogParams {
             <button mat-icon-button mat-dialog-close id="cancelButton"><mat-icon svgIcon="cancel"></mat-icon></button>
             <button mat-icon-button mat-dialog-close id="doneButton" (click)="yes()"
                 [disabled]="!data.isValidInput(inputText)"><mat-icon svgIcon="check"></mat-icon></button>
-        </mat-dialog-actions>`
+        </mat-dialog-actions>`,
+    standalone: false
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SimpleInputDialog {

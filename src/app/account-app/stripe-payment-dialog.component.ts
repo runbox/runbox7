@@ -31,6 +31,7 @@ declare let Stripe: any;
 @Component({
     selector: 'app-stripe-payments-payment-dialog-component',
     templateUrl: 'stripe-payment-dialog.component.html',
+    standalone: false
 })
 export class StripePaymentDialogComponent implements AfterViewInit {
     method: string;

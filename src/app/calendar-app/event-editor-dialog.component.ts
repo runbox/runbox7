@@ -32,6 +32,7 @@ import ICAL from 'ical.js';
 @Component({
     selector: 'app-calendar-event-editor-dialog',
     templateUrl: 'event-editor-dialog.component.html',
+    standalone: false
 })
 export class EventEditorDialogComponent {
     event: RunboxCalendarEvent;

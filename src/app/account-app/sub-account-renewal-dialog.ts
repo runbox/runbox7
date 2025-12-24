@@ -39,6 +39,7 @@ import { MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/mater
     </button>
 </div>
     `,
+    standalone: false
 })
 export class SubAccountRenewalDialogComponent {
     product: any;

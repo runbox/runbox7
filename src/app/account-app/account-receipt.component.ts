@@ -27,6 +27,7 @@ import { take } from 'rxjs/operators';
     selector: 'app-account-receipt-component',
     templateUrl: './account-receipt.component.html',
     styleUrls: ['./account-receipt.component.scss'],
+    standalone: false
 })
 export class AccountReceiptComponent implements OnInit {
     receipt: any;

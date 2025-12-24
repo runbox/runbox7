@@ -29,6 +29,7 @@ declare let Stripe: any;
 @Component({
     selector: 'app-stripe-add-card-dialog',
     templateUrl: 'stripe-add-card-dialog.component.html',
+    standalone: false
 })
 export class StripeAddCardDialogComponent implements AfterViewInit {
     state = 'loading';

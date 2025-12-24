@@ -28,8 +28,9 @@ import { environment } from '../../environments/environment';
 
 @Component({
     selector: 'app-changelog',
-      styleUrls: ['changelog.component.scss'],
+    styleUrls: ['changelog.component.scss'],
     templateUrl: './changelog.component.html',
+    standalone: false
 })
 export class ChangelogComponent implements AfterViewInit, OnInit {
     since: string;

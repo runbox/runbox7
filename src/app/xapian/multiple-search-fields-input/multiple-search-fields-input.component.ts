@@ -22,9 +22,10 @@ import { FormBuilder } from '@angular/forms';
 import { distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-multiple-search-fields-input',
-  templateUrl: './multiple-search-fields-input.component.html',
-  styleUrls: ['./multiple-search-fields-input.component.scss']
+    selector: 'app-multiple-search-fields-input',
+    templateUrl: './multiple-search-fields-input.component.html',
+    styleUrls: ['./multiple-search-fields-input.component.scss'],
+    standalone: false
 })
 export class MultipleSearchFieldsInputComponent implements OnChanges {
 

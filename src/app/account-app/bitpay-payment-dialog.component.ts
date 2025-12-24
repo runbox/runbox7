@@ -44,6 +44,7 @@ class CartItem extends ProductOrder {
     selector: 'app-bitpay-payment-dialog-component',
     templateUrl: './bitpay-payment-dialog.component.html',
     styleUrls: ['./bitpay-payment-dialog.component.scss'],
+    standalone: false
 })
 export class BitpayPaymentDialogComponent {
     tid:    number;

@@ -29,7 +29,8 @@ import { CartService } from './cart.service';
     <h4 style="text-align: center;"> Your payment is being finalized... </h4>
     <mat-spinner style="margin:0 auto;"></mat-spinner>
 </div>
-`
+`,
+    standalone: false
 })
 export class PaypalHandlerComponent {
     constructor(

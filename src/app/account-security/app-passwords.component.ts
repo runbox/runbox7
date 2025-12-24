@@ -28,6 +28,7 @@ import { ModalPasswordComponent } from './account.security.component';
     selector: 'app-app-passwords',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'app-passwords.component.html',
+    standalone: false
 })
 export class AppPasswordsComponent implements OnInit {
     panelOpenState = false;

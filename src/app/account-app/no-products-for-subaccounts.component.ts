@@ -35,7 +35,8 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
         </p>
     </h4>
 </div>
-`
+`,
+    standalone: false
 })
 export class NoProductsForSubaccountsComponent {
     owner: string;

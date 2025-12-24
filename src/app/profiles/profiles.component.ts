@@ -24,8 +24,9 @@ import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { ProfileService } from './profile.service';
 
 @Component({
-  selector: 'app-profiles',
-  templateUrl: 'profiles.component.html'
+    selector: 'app-profiles',
+    templateUrl: 'profiles.component.html',
+    standalone: false
 })
 
 export class ProfilesComponent {

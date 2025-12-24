@@ -21,8 +21,9 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MobileQueryService } from '../mobile-query.service';
 
 @Component({
-  selector: 'app-overview',
-  templateUrl: './overview.component.html',
+    selector: 'app-overview',
+    templateUrl: './overview.component.html',
+    standalone: false
 })
 export class OverviewComponent {
     @ViewChild(MatSidenav) sideMenu: MatSidenav;

@@ -20,7 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
+    template: `
 <div>
     <div class='synopsis'>
         <h1>Runbox Timer</h1>
@@ -62,7 +62,8 @@ import { Component } from '@angular/core';
         </app-runbox-timer>
     </div>
 </div>
-  `
+  `,
+    standalone: false
 })
 export class TimerDemoComponent {
   child_timer: any = {};

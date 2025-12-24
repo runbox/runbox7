@@ -33,6 +33,7 @@ declare let JitsiMeetExternalAPI: any;
     selector: 'app-onscreen-component',
     templateUrl: './onscreen.component.html',
     styleUrls: ['./onscreen.component.scss'],
+    standalone: false
 })
 export class OnscreenComponent implements OnDestroy {
     sideMenuOpened: boolean;

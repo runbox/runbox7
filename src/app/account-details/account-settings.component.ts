@@ -27,6 +27,7 @@ import { AccountSettingsInterface } from '../rmm/account-settings';
     selector: 'app-account-settings-component',
     templateUrl: './account-settings.component.html',
     styleUrls: ['account-details.component.scss'],
+    standalone: false
 })
 export class AccountSettingsComponent implements OnInit {
     displayedColumns: string[] = ['description', 'status'];

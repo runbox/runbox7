@@ -23,6 +23,7 @@ import { EventOverview } from './event-overview';
 @Component({
     selector: 'app-calendar-event-card',
     templateUrl: './calendar-event-card.component.html',
+    standalone: false
 })
 export class CalendarEventCardComponent {
     @Input() event: EventOverview;

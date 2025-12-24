@@ -48,7 +48,8 @@ import { ContactHilights } from './startdesk.component';
   </div>
 </mat-card>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SenderHilightsComponent implements OnChanges {
     @Input() sender: ContactHilights;

@@ -26,6 +26,7 @@ import { RMM } from '../rmm';
     selector: 'app-aliases-edit',
     styleUrls: ['aliases.lister.scss'],
     templateUrl: 'aliases.editor.modal.html',
+    standalone: false
 })
 
 export class AliasesEditorModalComponent {

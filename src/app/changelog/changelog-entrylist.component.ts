@@ -32,7 +32,8 @@ import { ChangelogEntry } from './changes';
         <app-changelog-entry [entry]="entry"></app-changelog-entry>
     </li>
 </ul>
-    `
+    `,
+    standalone: false
 })
 export class ChangelogEntrylistComponent {
     @Input() name: string;

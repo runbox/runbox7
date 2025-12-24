@@ -35,7 +35,8 @@ const COMMA = 188;
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mailrecipient-input',
-    templateUrl: 'mailrecipientinput.component.html'
+    templateUrl: 'mailrecipientinput.component.html',
+    standalone: false
 })
 export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);

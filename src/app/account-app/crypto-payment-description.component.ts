@@ -22,7 +22,7 @@ import { PaymentOption } from './bitpay-payment-dialog.component';
 
 @Component({
     selector: 'app-crypto-payment-description',
-        template: `
+    template: `
 <p>
     Send <strong>{{ payment.amount }} {{ payment.id }}</strong>
     <button mat-icon-button [cdkCopyToClipboard]="payment.amount">
@@ -36,7 +36,8 @@ import { PaymentOption } from './bitpay-payment-dialog.component';
     <br>
     <small> 1 {{ payment.id }} = {{ payment.exchangeRate }} USD </small>
 </p>
-`
+`,
+    standalone: false
 })
 export class CryptoPaymentDescriptionComponent {
     @Input() payment: PaymentOption;

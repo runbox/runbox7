@@ -30,6 +30,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
     selector: 'app-profiles-edit',
     styleUrls: ['profiles.editor.modal.scss'],
     templateUrl: 'profiles.editor.modal.html',
+    standalone: false
 })
 
 export class ProfilesEditorModalComponent implements OnDestroy {
