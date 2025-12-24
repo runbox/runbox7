@@ -6,7 +6,7 @@ describe('Display contact details', () => {
         cy.contains('Runbox 7 Contacts');
         cy.contains('Patrick Postcode').click();
         cy.url().should('include', 'id-mr-postcode');
-        cy.get('input[data-placeholder="Company"').should('have.value', 'Post Office #42');
+        cy.get('input[placeholder="Company"').should('have.value', 'Post Office #42');
     });
 
     it('Should provide a sensible UI in mobile view', () => {
@@ -18,7 +18,7 @@ describe('Display contact details', () => {
         cy.get('div.contactList app-contact-button').should('have.length', 2);
 
         // we should be able to summon the sidebar menu and choose a group
-        cy.get('mat-toolbar button mat-icon[svgIcon="menu"]').click();
+        cy.get('mat-toolbar button:has(mat-icon[svgIcon="menu"])').click();
         cy.get('mat-sidenav mat-list-item:contains(Group #1)').click();
         cy.get('mat-toolbar').should('contain', 'Showing group');
         cy.url().should('match', /id-group1$/);
@@ -29,7 +29,7 @@ describe('Display contact details', () => {
         cy.url().should('match', /id-group1-member1$/);
 
         // closing the member should take us back to the group
-        cy.get('mat-toolbar button mat-icon[svgIcon="close"]').click();
+        cy.get('mat-toolbar button:has(mat-icon[svgIcon="close"])').click();
         cy.url().should('match', /id-group1$/);
 
         // we should be able to view group details with the toolbar button, and go back
@@ -37,12 +37,12 @@ describe('Display contact details', () => {
         cy.url().should('match', /id-group1$/);
         cy.get('div.contactDetails').should('be.visible');
         cy.get('app-contact-details').should('contain', 'Group #1 member #1');
-        cy.get('mat-toolbar button mat-icon[svgIcon="close"]').click();
+        cy.get('mat-toolbar button:has(mat-icon[svgIcon="close"])').click();
         cy.get('div.contactDetails').should('not.be.visible');
         cy.get('div.contactList').should('be.visible');
 
         // we should be able to go back to all contacts
-        cy.get('mat-toolbar button mat-icon[svgIcon="menu"]').click();
+        cy.get('mat-toolbar button:has(mat-icon[svgIcon="menu"])').click();
         cy.get('mat-sidenav mat-list-item:contains("All Contacts")').click();
         cy.url().should('match', /contacts\/?$/);
         cy.get('mat-toolbar').should('contain', 'Showing all contacts');

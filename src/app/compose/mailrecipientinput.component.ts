@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { MatAutocomplete } from '@angular/material/autocomplete';
@@ -59,7 +59,8 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
 
     constructor(
         private snackBar: MatSnackBar,
-        recipientservice: RecipientsService
+        recipientservice: RecipientsService,
+        private changeDetectorRef: ChangeDetectorRef
     ) {
         recipientservice.recipients.subscribe((recipients) => {
 
@@ -91,6 +92,9 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
         if (this.initialfocus) {
             this.searchTextInput.nativeElement.focus();
         }
+        // Trigger change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
+        // with MatAutocomplete color property
+        this.changeDetectorRef.detectChanges();
     }
 
     notifyChangeListener() {

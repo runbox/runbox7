@@ -472,9 +472,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.composeSelected = this.router.url === '/compose?new=true';
-      this.draftsSelected = this.router.url === '/compose';
-      this.overviewSelected = this.router.url === '/overview';
+      // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.composeSelected = this.router.url === '/compose?new=true';
+        this.draftsSelected = this.router.url === '/compose';
+        this.overviewSelected = this.router.url === '/overview';
+      });
     });
 
     // Download visible messages in the background
@@ -1034,7 +1037,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.hasChildRouterOutlet = yes;
     if (yes) {
       // Don't highlight a folder if we're not viewing one
-      this.selectedFolder = null;
+      // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.selectedFolder = null;
+      });
     }
   }
 

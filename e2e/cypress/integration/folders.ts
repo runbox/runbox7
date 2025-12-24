@@ -9,7 +9,8 @@ describe('Folder management', () => {
         cy.visit('/');
 
         cy.get('#createFolderButton').click();
-        cy.get('.mat-dialog-title').should('contain', 'Add new folder');
+        cy.get('mat-dialog-container').should('exist');
+        cy.get('.mat-mdc-dialog-title').should('contain', 'Add new folder');
         cy.get('mat-dialog-container mat-dialog-content').should('contain', 'root level');
 
         cy.get('mat-dialog-container input').type('Test');
@@ -21,7 +22,7 @@ describe('Folder management', () => {
         cy.visit('/');
 
         cy.contains('mat-tree-node', 'Trash')
-            .find('button.mat-icon-button[mattooltip="Folder actions"]')
+            .find('button.mat-mdc-icon-button[mattooltip="Folder actions"]')
             .click();
 
         cy.intercept({

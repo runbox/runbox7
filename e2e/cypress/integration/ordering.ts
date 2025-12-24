@@ -28,16 +28,16 @@ describe('Ordering products', () => {
 
         cy.get('.productGrid .purchaseButton').contains('Add').click();
         cy.get('#shoppingCartButton').should('be.visible');
-        cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
+        cy.get('#shoppingCartButton .mat-mdc-badge-content').should('contain', '1');
 
         cy.get('.productGrid .purchaseButton').contains('Add').click();
-        cy.get('#shoppingCartButton .mat-badge-content').should('contain', '1');
+        cy.get('#shoppingCartButton .mat-mdc-badge-content').should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
 
-        cy.get('tr.mat-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
-        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '2');
-        cy.get('tr.mat-row td button').click();
+        cy.get('tr.mat-mdc-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
+        cy.get('tr.mat-mdc-row td:nth-of-type(2)').should('contain', '2');
+        cy.get('tr.mat-mdc-row td button').click();
         cy.contains('shopping cart is currently empty');
     });
 });
