@@ -1,10 +1,13 @@
 /// <reference types="cypress" />
 
 describe('Ordering products', () => {
+    const clearShoppingCart = (win: Window) => {
+        win.localStorage.removeItem('221:shoppingCart');
+    };
+
     it('can place an order', () => {
-        localStorage.removeItem('221:shoppingCart');
         cy.intercept('/rest/v1/account_product/available').as('availableProducts');
-        cy.visit('/account/plans');
+        cy.visit('/account/plans', { onBeforeLoad: clearShoppingCart });
 
         cy.wait('@availableProducts', {'timeout':10000});
         cy.get('#pricePlans .purchaseButton').contains('Select').click();
@@ -22,16 +25,16 @@ describe('Ordering products', () => {
     });
 
     it('can order product twice to increase quantity', () => {
-        cy.visit('/account/plans');
+        cy.visit('/account/plans', { onBeforeLoad: clearShoppingCart });
 
         cy.get('#shoppingCartButton').should('not.exist');
 
         cy.get('.productGrid .purchaseButton').contains('Add').click();
         cy.get('#shoppingCartButton').should('be.visible');
-        cy.get('#shoppingCartButton .mat-mdc-badge-content', {timeout: 10000}).should('contain', '1');
+        cy.get('#shoppingCartButton .mat-badge-content', {timeout: 10000}).should('contain', '1');
 
         cy.get('.productGrid .purchaseButton').contains('Add').click();
-        cy.get('#shoppingCartButton .mat-mdc-badge-content', {timeout: 10000}).should('contain', '1');
+        cy.get('#shoppingCartButton .mat-badge-content', {timeout: 10000}).should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
 
