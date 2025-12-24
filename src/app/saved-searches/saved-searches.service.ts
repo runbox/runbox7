@@ -52,7 +52,9 @@ export class SavedSearchesService {
             this.version = searchdata.version;
         });
         this.rmmapi.getSavedSearches().subscribe(searchdata => {
-            this.applySyncedData(searchdata);
+            if (searchdata) {
+                this.applySyncedData(searchdata);
+            }
         });
     }
 
@@ -86,7 +88,11 @@ export class SavedSearchesService {
             entries: await this.searches.pipe(take(1)).toPromise(),
         };
         this.rmmapi.setSavedSearches(data).subscribe(
-            newData => this.applySyncedData(newData)
+            newData => {
+                if (newData) {
+                    this.applySyncedData(newData);
+                }
+            }
         );
     }
 

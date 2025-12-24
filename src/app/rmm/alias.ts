@@ -32,10 +32,12 @@ export class Alias {
     load(): Observable<any> {
         this.app.ua.http.get('/rest/v1/aliases/limits').subscribe(
             res => {
-                this.aliases_counter = {
-                    total: res['result'].total,
-                    current: res['result'].current,
-                };
+                if (res && res['result']) {
+                    this.aliases_counter = {
+                        total: res['result'].total,
+                        current: res['result'].current,
+                    };
+                }
             },
             error => {
                 return this.app.show_error('Could not load alias limits', 'Dismiss');

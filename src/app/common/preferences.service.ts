@@ -115,7 +115,9 @@ export class PreferencesService {
             // console.log(prefsdata);
 
             // console.log('merge');
-            this.mergeDeviceGlobal(this.prefGroup, prefsdata);
+            if (prefsdata) {
+                this.mergeDeviceGlobal(this.prefGroup, prefsdata);
+            }
         });
 
     }
@@ -198,7 +200,11 @@ export class PreferencesService {
             }
         };
         this.rmmapi.setPreferences(level, data).subscribe(
-            newData => this.mergeDeviceGlobal(level, newData)
+            newData => {
+                if (newData) {
+                    this.mergeDeviceGlobal(level, newData);
+                }
+            }
         );
     }
 

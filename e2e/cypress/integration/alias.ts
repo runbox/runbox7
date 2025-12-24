@@ -44,7 +44,7 @@ describe('Aliases settings page', () => {
         cy.wait('@getAllowedDomains');
 
         // open dialog, fill in fields, submit
-        cy.get('app-aliases-edit').should('be.visible');
+        cy.get('mat-dialog-container app-aliases-edit').should('exist');
         cy.get('mat-select[name="domain"]').click();
         cy.get('mat-option').first().click();
         cy.get('input[name="localpart"]').type('mctestface');
@@ -94,7 +94,7 @@ describe('Aliases settings page', () => {
         cy.wait('@getAllowedDomains');
 
         // open dialog, fill in fields, submit
-        cy.get('app-aliases-edit').should('be.visible');
+        cy.get('mat-dialog-container app-aliases-edit').should('exist');
         cy.get('mat-select[name="domain"]').click();
         cy.get('mat-option').first().click();
         // can't change localpart after its been set
