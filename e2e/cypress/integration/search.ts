@@ -9,7 +9,7 @@ describe('Search', () => {
         cy.visit('/');
         cy.get('mat-toolbar #searchField', {timeout: 10000}).should('exist');
         cy.get('mat-toolbar #searchField button').click();
-        cy.get('input[placeholder=Subject]').type('testsubject');
+        cy.get('input[placeholder=Subject]', {timeout: 10000}).should('be.visible').type('testsubject');
         cy.get('mat-toolbar input[placeholder="Start typing to search messages"]')
             .should('have.value', 'subject:"testsubject"');
     });
