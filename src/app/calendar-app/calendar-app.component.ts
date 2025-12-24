@@ -289,14 +289,19 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     openSettings(): void {
+        // Create a copy to detect changes
+        const originalSettings = JSON.stringify(this.settings);
         const dialogRef = this.dialog.open(CalendarSettingsDialogComponent, { data: this.settings });
         dialogRef.afterClosed().subscribe(result => {
-            this.preferenceService.set(this.prefGroup, 'calendarSettings', this.settings);
-            // we need to do this weird dance to make the calendar pick up
-            // potential changes to settings.weekStartsOnSunday
-            const desiredView = this.view;
-            this.view = null;
-            setTimeout(() => this.view = desiredView);
+            // Only save if settings actually changed
+            if (JSON.stringify(this.settings) !== originalSettings) {
+                this.preferenceService.set(this.prefGroup, 'calendarSettings', this.settings);
+                // we need to do this weird dance to make the calendar pick up
+                // potential changes to settings.weekStartsOnSunday
+                const desiredView = this.view;
+                this.view = null;
+                setTimeout(() => this.view = desiredView);
+            }
             this.cdr.markForCheck();
         });
     }

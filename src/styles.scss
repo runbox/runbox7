@@ -1139,6 +1139,7 @@ a:hover {
 #folderListHeader {
     height: 30px;
     font-size: 13px;
+    margin-bottom: 4px;
 }
 
 #createFolderButton {
@@ -1228,8 +1229,9 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 #mailMenu {
-    height: 55px;
+    min-height: 64px;
     padding: 0 8px;
+    align-items: center;
     @media(max-width: 340px) {
 
     }
@@ -1290,17 +1292,17 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 #searchField .mat-mdc-form-field-subscript-wrapper {
-    padding-bottom: 0.5em;
+    padding-bottom: 0;
 }
 
 #searchField .mat-mdc-form-field-infix {
-    line-height: 1.25em;
-    padding: 0.2em 0;
+    line-height: 1.35em;
+    padding: 0.45em 0 0.1em;
     width: 100%;
 }
 
 #searchField .mdc-line-ripple {
-    bottom: 0.75em;
+    bottom: 0;
 }
 
 #searchField mat-icon {
@@ -1374,7 +1376,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 
 #canvasTableContainerArea {
     position: absolute;
-    top: 55px;
+    top: 64px;
     left: 0px;
     right: 0px;
 }
@@ -1613,7 +1615,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
     .mdc-list-item__primary-text,
     .mat-form-field,
     .mat-mdc-form-field {
-	height: 48px !important;
+	height: 56px !important;
     }
 }    
 
@@ -1622,6 +1624,13 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 }
 
 #contactListControlsSearch {
+    .mat-mdc-form-field-infix {
+        padding: 0.2em 0 0.1em;
+    }
+
+    .mdc-line-ripple {
+        bottom: 0;
+    }
 
     .mat-form-field-label-wrapper {
         top: -1em;

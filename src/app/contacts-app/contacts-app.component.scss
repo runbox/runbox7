@@ -113,8 +113,12 @@ mat-list-item.contactListButton:hover {
 }
 
 .contactListControls {
-    height: 40px !important;
+    height: 56px !important;
     padding-top: 00px !important;
+
+    .mdc-list-item__content {
+        align-items: center;
+    }
 
     &:hover {
         background-color: var(--rmm-bg-primary);
