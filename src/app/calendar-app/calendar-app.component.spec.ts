@@ -36,7 +36,6 @@ import { of, Observable, ReplaySubject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
 import ICAL from 'ical.js';
@@ -203,7 +202,6 @@ END:VCALENDAR
                         report: (_: string) => { }
                     } },
                 ],
-                declarations: [MatIcon],
             }).compileComponents();
     }));
 

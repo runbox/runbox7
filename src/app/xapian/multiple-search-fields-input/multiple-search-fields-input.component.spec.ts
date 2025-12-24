@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MultipleSearchFieldsInputComponent } from './multiple-search-fields-input.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
@@ -44,7 +44,7 @@ describe('MultipleSearchFieldsInputComponent', () => {
         MatButtonModule,
         MatInputModule,
         MatCheckboxModule ],
-        declarations: [ MultipleSearchFieldsInputComponent, MatIcon ]
+        declarations: [ MultipleSearchFieldsInputComponent ]
     })
     .compileComponents();
   }));

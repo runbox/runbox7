@@ -21,7 +21,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 import { PopularRecipientsComponent } from './popular-recipients.component';
@@ -43,7 +43,7 @@ describe('PopularRecipientsComponent', () => {
             ])
         }});
         TestBed.configureTestingModule({
-            declarations: [ PopularRecipientsComponent, MatIcon ],
+            declarations: [ PopularRecipientsComponent ],
             imports: [
                 MatExpansionModule,
                 MatIconModule,
