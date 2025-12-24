@@ -22,6 +22,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { RecipientsService } from './recipients.service';
+import { filter, take } from 'rxjs/operators';
 
 const MAX_DRAFTS_IN_VIEW = 10;
 
@@ -51,18 +52,37 @@ export class DraftDeskComponent implements OnInit {
     ngOnInit() {
         this.route.queryParams
             .subscribe(params => {
+                const waitForFroms = (handler) => {
+                    const froms = this.draftDeskservice.fromsSubject.value;
+                    if (froms.length > 0) {
+                        handler(froms);
+                        return;
+                    }
+                    this.draftDeskservice.fromsSubject
+                        .pipe(
+                            filter((froms) => froms.length > 0),
+                            take(1)
+                        )
+                        .subscribe(handler);
+                };
+
                 if (params['to']) {
-                    this.draftDeskservice.newDraft(
-                        DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
-                    ).then(() => this.updateDraftsInView());
-                } else if (params['new']) {
-                    // Can't create a new draft until froms has been loaded
-                    // FIXME: This needs to only happen once (after froms loaded)
-                    this.draftDeskservice.fromsSubject.subscribe((froms) => {
-                        if (froms.length > 0 && !this.hasInitialized) {
-                            this.newDraft();
-                            this.hasInitialized = true;
+                    waitForFroms((froms) => {
+                        if (this.hasInitialized) {
+                            return;
                         }
+                        this.draftDeskservice.newDraft(
+                            DraftFormModel.create(-1, froms[0], params['to'], '')
+                        ).then(() => this.updateDraftsInView());
+                        this.hasInitialized = true;
+                    });
+                } else if (params['new']) {
+                    waitForFroms(() => {
+                        if (this.hasInitialized) {
+                            return;
+                        }
+                        this.newDraft();
+                        this.hasInitialized = true;
                     });
                 }
             });
