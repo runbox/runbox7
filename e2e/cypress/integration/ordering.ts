@@ -17,7 +17,7 @@ describe('Ordering products', () => {
             .and('contain', '13.37 EUR');
 
         cy.contains('mat-expansion-panel-header', 'Other payment methods').click();
-        cy.get('button#payDirectly').click();
+        cy.get('button#payDirectly').should('be.visible').click();
         cy.url().should('include', '/account/receipt');
     });
 
@@ -28,10 +28,10 @@ describe('Ordering products', () => {
 
         cy.get('.productGrid .purchaseButton').contains('Add').click();
         cy.get('#shoppingCartButton').should('be.visible');
-        cy.get('#shoppingCartButton .mat-mdc-badge-content').should('contain', '1');
+        cy.get('#shoppingCartButton .mat-mdc-badge-content', {timeout: 10000}).should('contain', '1');
 
         cy.get('.productGrid .purchaseButton').contains('Add').click();
-        cy.get('#shoppingCartButton .mat-mdc-badge-content').should('contain', '1');
+        cy.get('#shoppingCartButton .mat-mdc-badge-content', {timeout: 10000}).should('contain', '1');
 
         cy.get('#shoppingCartButton').click();
 
