@@ -1,9 +1,14 @@
 #multipleSearchFieldsContainer mat-form-field {
-    height: 20px;
     margin-right: 10px;
+    width: 190px;
+    padding-right: 5px;
 }
 
-mat-form-field, mat-checkbox {
+#multipleSearchFieldsContainer .mat-mdc-text-field-wrapper {
+    min-height: 48px;
+}
+
+#multipleSearchFieldsContainer mat-checkbox {
     width: 190px;
     padding-right: 5px;
 }
@@ -25,5 +30,4 @@ mat-form-field, mat-checkbox {
     width: 30px;
     float: right;
 }
-
 

@@ -11,8 +11,8 @@ describe('Search', () => {
         cy.get('mat-toolbar #searchField button').click();
         cy.get('#multipleSearchFieldsContainer', {timeout: 10000}).should('exist');
         cy.get('input[placeholder=Subject]', {timeout: 10000})
-            .should('exist')
-            .type('testsubject', { force: true });
+            .should('be.visible')
+            .type('testsubject');
         cy.get('mat-toolbar input[placeholder="Start typing to search messages"]')
             .should('have.value', 'subject:"testsubject"');
     });
