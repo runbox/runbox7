@@ -12,7 +12,7 @@ describe('Ordering products', () => {
 
         cy.get('#shoppingCartButton').click();
         cy.url().should('include', '/account/cart');
-        cy.get('.mat-table tbody tr')
+        cy.get('.mat-mdc-table tbody tr')
             .and('contain', 'Runbox Test')
             .and('contain', '13.37 EUR');
 

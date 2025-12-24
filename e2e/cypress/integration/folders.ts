@@ -28,7 +28,7 @@ describe('Folder management', () => {
         cy.intercept({
             method: 'PUT',
             path: '/rest/v1/email_folder/empty'}).as('emptyTrashReq');
-        cy.contains('div.mat-menu-content button', 'Empty trash').click();
+        cy.contains('div.mat-mdc-menu-content button', 'Empty trash').click();
         cy.wait('@emptyTrashReq');
     });
 

@@ -236,6 +236,9 @@ END:VCALENDAR
             if (requesturl.indexOf('/rest/v1/list/deleted_messages') === 0) {
                 requesturl = '/rest/v1/list/deleted_messages';
             }
+            if (requesturl.indexOf('/rest/v1/account_product/available') === 0) {
+                requesturl = '/rest/v1/account_product/available';
+            }
             if (requesturl.indexOf('/mail/download_xapian_index') === 0) {
                 if (requesturl.indexOf('folder=Trash') > -1) {
                     requesturl = '/mail/download_xapian_index?trash';
@@ -342,6 +345,9 @@ END:VCALENDAR
                 case '/rest/v1/account_product/payment_methods':
                     response.end(JSON.stringify(this.payment_methods()));
                 break;
+                case '/rest/v1/account_product/stripe/pubkey':
+                    response.end(JSON.stringify(this.stripePubkey()));
+                    break;
                 case '/rest/v1/account/usage':
                     response.end(JSON.stringify(this.usageDetails()));
                     break;
@@ -782,6 +788,15 @@ END:VCALENDAR
                         },
                     }
                 ],
+            }
+        };
+    }
+
+    stripePubkey() {
+        return {
+            'status': 'success',
+            'result': {
+                'key': 'pk_test_e2e_mock_key_123456789'
             }
         };
     }
