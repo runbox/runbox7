@@ -21,7 +21,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { RMM } from '../rmm';
 import { map } from 'rxjs/operators';
 import { AccountDetailsInterface } from '../rmm/account-details';
@@ -109,11 +109,13 @@ export class PersonalDetailsComponent {
     }
 
     loadTimezones() {
-        this.http
+        const timezonesRequest = this.http
             .get('/rest/v1/timezones')
-            .pipe(map((res: HttpResponse<any>) => res['result']))
-            .toPromise()
-            .then((data) => this.timezones = data.timezones);
+            .pipe(map((res: HttpResponse<any>) => res['result']));
+
+        firstValueFrom(timezonesRequest).then((data) => {
+            this.timezones = data.timezones;
+        });
     }
 
     private loadDetails() {
@@ -126,14 +128,14 @@ export class PersonalDetailsComponent {
     }
 
     private loadSelectFields() {
-        this.http
+        const detailsRequest = this.http
             .get('/rest/v1/account/details')
-            .pipe(map((res: HttpResponse<any>) => res['result']))
-            .toPromise()
-            .then((data) => {
-                this.selectedCountry = data.country;
-                this.selectedTimezone = data.timezone;
-            });
+            .pipe(map((res: HttpResponse<any>) => res['result']));
+
+        firstValueFrom(detailsRequest).then((data) => {
+            this.selectedCountry = data.country;
+            this.selectedTimezone = data.timezone;
+        });
     }
 
     public update() {

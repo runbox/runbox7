@@ -47,7 +47,7 @@ import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, dis
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { from, Observable } from 'rxjs';
+import { firstValueFrom, from, Observable } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -631,11 +631,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   async emptySpam(spamFolderName) {
     console.log('found spam folder with name', spamFolderName);
-    const messageLists = await this.rmmapi.listAllMessages(
+    const messageLists = await firstValueFrom(this.rmmapi.listAllMessages(
       0, 0, 0,
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
-    ).toPromise();
+    ));
 
     const messageIds = messageLists.map(msg => msg.id);
     this.messageActionsHandler.updateMessages({

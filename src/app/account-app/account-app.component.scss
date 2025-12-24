@@ -22,3 +22,15 @@ mat-list-item [matListItemLine] {
         word-wrap: break-word;
     }
 }
+
+.account-cart-toolbar {
+    width: 100%;
+    display: flex;
+    justify-content: right;
+}
+
+.account-content {
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 10px;
+}

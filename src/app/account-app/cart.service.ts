@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { ProductOrder } from './product-order';
@@ -42,7 +42,7 @@ export class CartService {
     }
 
     async add(p: ProductOrder): Promise<void> {
-        const items = await this.items.pipe(take(1)).toPromise();
+        const items = await firstValueFrom(this.items.pipe(take(1)));
 
         for (const i of items) {
             // Cannot order multiples of subscription products
@@ -66,7 +66,7 @@ export class CartService {
     }
 
     async contains(pid: number, apid?: number): Promise<boolean> {
-        const items = await this.items.pipe(take(1)).toPromise();
+        const items = await firstValueFrom(this.items.pipe(take(1)));
         for (const p of items) {
             if (p.pid === pid && p.apid === apid) {
                 return true;
@@ -76,7 +76,7 @@ export class CartService {
     }
 
     async remove(order: ProductOrder): Promise<void> {
-        const items = await this.items.pipe(take(1)).toPromise();
+        const items = await firstValueFrom(this.items.pipe(take(1)));
         // check if it's enough to just reduce the quantity on existing product
         for (const i of items) {
             if (i.isSameProduct(order)) {

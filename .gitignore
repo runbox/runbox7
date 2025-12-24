@@ -48,6 +48,7 @@ mockserver.log
 
 # CI artifacts
 cypress/videos
+cypress/screenshots
 
 # environment
 src/environments/env.ts

@@ -21,7 +21,7 @@
 
 import '../sentry';
 
-import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
+import { AsyncSubject, Observer, Observable, of, from, firstValueFrom } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
@@ -703,13 +703,13 @@ not matching with rest api counts for current folder`);
           this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
 
           if (searchIndexDocumentUpdates.length > 0) {
-            await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
+            await firstValueFrom(this.postMessagesToXapianWorker(searchIndexDocumentUpdates));
           }
 
           // Look up messages with missing body text term and add the missing text to the index
           const messagesMissingBodyText = this.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1);
           if (messagesMissingBodyText.length > 0) {
-            await this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
+            await firstValueFrom(this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
               const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
 
               return new SearchIndexDocumentUpdate(messageId, async () => {
@@ -735,7 +735,7 @@ not matching with rest api counts for current folder`);
                   console.error('Worker: Failed to add text to document', messageId, e);
                 }
               });
-            })).toPromise();
+            })));
           }
       } else {
         // localsearchactivated is off
@@ -884,7 +884,7 @@ not matching with rest api counts for current folder`);
 
           if (this.persistIndexInProgressSubject) {
             // Wait for persistence of index to finish before doing more work on the index
-            await this.persistIndexInProgressSubject.toPromise();
+            await firstValueFrom(this.persistIndexInProgressSubject);
           }
           setTimeout(() => processMessage(), 1);
 
@@ -895,7 +895,7 @@ not matching with rest api counts for current folder`);
             this.indexNotPersisted = true;
           }
           this.api.commitXapianUpdates();
-          await this.persistIndex().toPromise();
+          await firstValueFrom(this.persistIndex());
 
           if (hasProgressSnackBar) {
             ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});

@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { StorageService } from '../storage.service';
@@ -153,7 +153,7 @@ export class PreferencesService {
             };
         }
 
-        const allPrefs = await this.preferences.pipe(take(1)).toPromise();
+        const allPrefs = await firstValueFrom(this.preferences.pipe(take(1)));
         Object.keys(prefsdata[DefaultPrefGroups.Global]['entries']).forEach((key) => {
             allPrefs.set(`${DefaultPrefGroups.Global}:${key}`, prefsdata[DefaultPrefGroups.Global]['entries'][key]);
         });
@@ -181,7 +181,7 @@ export class PreferencesService {
     }
 
     private async uploadPreferenceData(level: string) {
-        const prefs = await this.preferences.pipe(take(1)).toPromise();
+        const prefs = await firstValueFrom(this.preferences.pipe(take(1)));
         const entriesObj = {};
         prefs.forEach((value, key) => {
             // for (const [key, value] of prefs) {
@@ -225,7 +225,7 @@ export class PreferencesService {
         if (this.loadedOldStyle) {
             return;
         }
-        let prefs = await this.preferences.pipe(take(1)).toPromise();
+        let prefs = await firstValueFrom(this.preferences.pipe(take(1)));
         if (!prefs) {
             // Already set / imported
             prefs = new Map<string, any>();
@@ -241,7 +241,7 @@ export class PreferencesService {
         const showImagesDecisionKey = 'rmm7showimagesdecision';
         const resizerPercentageKey = 'rmm7resizerpercentage';
 
-        const uid = await this.storage.uid.toPromise();
+        const uid = await firstValueFrom(this.storage.uid);
         if (level === DefaultPrefGroups.Global) {
 
             if (localStorage.getItem('rmm7experimentalFeatureEnabled') !== null) {

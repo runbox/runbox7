@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, OnInit } from '@angular/core';
-import { ReplaySubject} from 'rxjs';
+import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { ProfileService } from '../profiles/profile.service';
 import { ContactsService } from '../contacts-app/contacts.service';
@@ -82,7 +82,7 @@ export class AvatarBarComponent implements OnInit {
     async ngOnChanges() {
         this.emails = []; // so that we don't display the old, wrong ones while we're loading new ones
 
-        const own = await this.ownAddresses.pipe(take(1)).toPromise();
+        const own = await firstValueFrom(this.ownAddresses.pipe(take(1)));
 
         const emails: string[] = [].concat.apply(
             [], [this.email.from, this.email.to, this.email.cc, this.email.bcc]

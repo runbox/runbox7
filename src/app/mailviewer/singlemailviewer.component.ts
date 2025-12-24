@@ -40,7 +40,7 @@ import { MobileQueryService } from '../mobile-query.service';
 
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { MessageContents, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
@@ -695,7 +695,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
               window.removeEventListener('message', pgpapplistener);
               pgpapp.close();
 
-              const parseMail = await loadLocalMailParser().toPromise();
+              const parseMail = await firstValueFrom(loadLocalMailParser());
               const parsed = await parseMail(msg.data.decryptedContent);
               this.mailObj.text = parsed.text;
               this.mailObj.subject = parsed.subject;
