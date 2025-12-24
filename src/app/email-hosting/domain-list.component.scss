@@ -1,0 +1,57 @@
+mat-card {
+    margin: 1rem;
+}
+
+.description {
+    color: var(--rmm-text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.domains-table {
+    width: 100%;
+}
+
+.status-active {
+    color: var(--rmm-success-color, #4caf50);
+    font-weight: 500;
+}
+
+.status-inactive {
+    color: var(--rmm-warn-color);
+}
+
+.status-unknown {
+    color: var(--rmm-text-tertiary);
+}
+
+.catch-all-enabled {
+    color: var(--rmm-success-color, #4caf50);
+}
+
+.catch-all-disabled {
+    color: var(--rmm-text-tertiary);
+}
+
+.no-domains {
+    color: var(--rmm-text-tertiary);
+    font-style: italic;
+    padding: 2rem;
+    text-align: center;
+}
+
+mat-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.quota-warning {
+    color: var(--rmm-warn-color);
+    font-size: 0.9rem;
+    padding: 0 1rem 1rem;
+
+    a {
+        color: var(--rmm-primary-color);
+    }
+}

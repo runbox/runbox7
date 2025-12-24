@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+
+<mat-dialog-content>
+    <!-- Create Mode -->
+    <div *ngIf="isCreate" class="form-content">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Domain Name</mat-label>
+            <input matInput [(ngModel)]="domainName" placeholder="example.com" [disabled]="isLoading">
+            <mat-hint>Enter your domain name without www (e.g., example.com)</mat-hint>
+        </mat-form-field>
+
+        <mat-checkbox [(ngModel)]="catchAll" [disabled]="isLoading">
+            Enable Catch-All
+        </mat-checkbox>
+        <p class="hint">
+            When catch-all is enabled, emails sent to any address at this domain will be delivered to your inbox.
+        </p>
+
+        <div class="dns-info">
+            <h4>DNS Configuration Required</h4>
+            <p>After adding the domain, you will need to configure your DNS records to point to Runbox servers:</p>
+            <ul>
+                <li>MX record: <code>mail.runbox.com</code> (priority 10)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <div *ngIf="isEdit" class="form-content">
+        <p class="domain-name">
+            <strong>Domain:</strong> {{ data.domain?.name }}
+        </p>
+
+        <mat-checkbox [(ngModel)]="catchAll" [disabled]="isLoading">
+            Enable Catch-All
+        </mat-checkbox>
+        <p class="hint">
+            When catch-all is enabled, emails sent to any address at this domain will be delivered to your inbox.
+        </p>
+    </div>
+
+    <!-- Delete Mode -->
+    <div *ngIf="isDelete" class="form-content">
+        <p class="delete-warning">
+            Are you sure you want to delete the domain <strong>{{ data.domain?.name }}</strong>?
+        </p>
+        <p class="delete-info">
+            This action cannot be undone. All email addresses associated with this domain will stop working.
+        </p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()" [disabled]="isLoading">Cancel</button>
+
+    <button *ngIf="isCreate" mat-raised-button color="primary" (click)="save()" [disabled]="isLoading || !domainName.trim()">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        <span *ngIf="!isLoading">Add Domain</span>
+    </button>
+
+    <button *ngIf="isEdit" mat-raised-button color="primary" (click)="save()" [disabled]="isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        <span *ngIf="!isLoading">Save Changes</span>
+    </button>
+
+    <button *ngIf="isDelete" mat-raised-button color="warn" (click)="deleteDomain()" [disabled]="isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        <span *ngIf="!isLoading">Delete Domain</span>
+    </button>
+</mat-dialog-actions>

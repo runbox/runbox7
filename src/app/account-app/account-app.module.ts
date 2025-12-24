@@ -97,6 +97,8 @@ import { SessionsComponent } from '../account-security/sessions.component';
 import { AccountPasswordComponent } from '../account-security/account-password.component';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { DomainRegisterComponent } from '../domainregister/domainregister.component';
+import { EmailHostingModule } from '../email-hosting/email-hosting.module';
+import { DomainListComponent } from '../email-hosting/domain-list.component';
 
 @NgModule({
     declarations: [
@@ -161,6 +163,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
         ProfilesModule,
         AliasesModule,
         DomainRegisterModule,
+        EmailHostingModule,
         QRCodeComponent,
         RouterModule.forChild([
             {
@@ -235,6 +238,10 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
                             {
                                 path: 'aliases',
                                 component: AliasesListerComponent,
+                            },
+                            {
+                                path: 'domains',
+                                component: DomainListComponent,
                             },
                             {
                                 path: 'security',

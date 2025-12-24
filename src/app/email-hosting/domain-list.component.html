@@ -1,0 +1,74 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>Email Hosting</mat-card-title>
+        <mat-card-subtitle *ngIf="quota">
+            Using {{ quota.domain_quota_used }} of {{ quota.domain_quota_allowed }} domains
+        </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <p class="description">
+            Set up your Runbox account to accept email for domain names you own or administer.
+        </p>
+
+        <table mat-table [dataSource]="domains" class="domains-table" *ngIf="domains.length > 0">
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Domain</th>
+                <td mat-cell *matCellDef="let domain">{{ domain.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let domain">
+                    <span [class]="getStatusClass(domain.status)">
+                        {{ getStatusText(domain.status) }}
+                    </span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="created">
+                <th mat-header-cell *matHeaderCellDef>Created</th>
+                <td mat-cell *matCellDef="let domain">{{ domain.created | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="catchAll">
+                <th mat-header-cell *matHeaderCellDef>Catch-All</th>
+                <td mat-cell *matCellDef="let domain">
+                    <mat-icon *ngIf="domain.catch_all === 'y'" class="catch-all-enabled">check_circle</mat-icon>
+                    <mat-icon *ngIf="domain.catch_all !== 'y'" class="catch-all-disabled">cancel</mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let domain">
+                    <button mat-icon-button (click)="editDomain(domain)" matTooltip="Edit domain">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="deleteDomain(domain)" matTooltip="Delete domain" color="warn">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <p *ngIf="domains.length === 0" class="no-domains">
+            You have not added any email domains yet.
+        </p>
+    </mat-card-content>
+
+    <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="addDomain()" [disabled]="!canAddDomain()">
+            <mat-icon>add</mat-icon>
+            Add Domain
+        </button>
+    </mat-card-actions>
+
+    <div *ngIf="!canAddDomain() && quota" class="quota-warning">
+        You have reached your domain quota limit.
+        <a routerLink="/account/plans">Upgrade your plan</a> to add more domains.
+    </div>
+</mat-card>

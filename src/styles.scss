@@ -159,6 +159,9 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-text-tertiary: #666666;
     --rmm-text-on-primary: #ffffff;
     --rmm-error-text: #f00;
+    --rmm-error-bg: rgba(255, 0, 0, 0.1);
+    --rmm-success-color: #4caf50;
+    --rmm-chip-bg: #e3f2fd;
     --rmm-border-color: #e0e0e0;
     --rmm-divider-color: #dddddd;
 
@@ -198,6 +201,9 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-text-tertiary: #b0b0b0;
     --rmm-text-on-primary: #ffffff;
     --rmm-error-text: #ff4444;
+    --rmm-error-bg: rgba(255, 68, 68, 0.15);
+    --rmm-success-color: #66bb6a;
+    --rmm-chip-bg: #1e3a5f;
     --rmm-border-color: #333333;
     --rmm-divider-color: #2a2a2a;
 
@@ -239,6 +245,9 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-text-tertiary: #5d4e37;        // Medium brown
     --rmm-text-on-primary: #ffffff;      // White on colored backgrounds
     --rmm-error-text: #c41e3a;           // Red for errors
+    --rmm-error-bg: rgba(196, 30, 58, 0.1);
+    --rmm-success-color: #2e7d32;        // Forest green
+    --rmm-chip-bg: #e8dcc8;              // Cream
     --rmm-border-color: #d4c5b0;         // Light brown
     --rmm-divider-color: #e8dcc8;        // Cream
 
@@ -280,6 +289,9 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-text-tertiary: #e0e0e0;        // Light gray
     --rmm-text-on-primary: #000000;      // Black on bright backgrounds
     --rmm-error-text: #ff0000;           // Pure red
+    --rmm-error-bg: rgba(255, 0, 0, 0.2);
+    --rmm-success-color: #00ff00;        // Pure green
+    --rmm-chip-bg: #333333;              // Dark gray for contrast
     --rmm-border-color: #ffffff;         // White borders for clarity
     --rmm-divider-color: #808080;        // Medium gray
 

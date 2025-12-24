@@ -62,54 +62,54 @@
                       </mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>DNS CNAMEs required</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>DNS CNAMEs required</strong></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="8" rowHeight="30px" style=''>
-                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Hostname</strong></div></mat-grid-tile>
-                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>TTL</strong></div></mat-grid-tile>
-                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Record Type</strong></div></mat-grid-tile>
-                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"><strong>Hostname</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>TTL</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>Record Type</strong></div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="8" rowHeight="30px" style='' *ngFor="let k of domain.keys">
-                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
-                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">3600</div></mat-grid-tile>
-                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">CNAME</div></mat-grid-tile>
-                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}.</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left">3600</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left">CNAME</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left">{{k.public_recordset_name}}.</div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="1" rowHeight="30px" style=''>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede'><div class="grid_align_left"><strong>If you are editing your DNS zone file directly you can add the two lines below:</strong></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                      <mat-grid-tile *ngFor="let k of domain.keys" style='border-bottom: 1px dotted #dedede'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}.</div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>If you are editing your DNS zone file directly you can add the two lines below:</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile *ngFor="let k of domain.keys" style='border-bottom: 1px dotted var(--rmm-border-color)'><div class="grid_align_left">{{k.selector_recordset_name}} 3600 IN CNAME {{k.public_recordset_name}}.</div></mat-grid-tile>
                     </mat-grid-list>
 
                     <mat-grid-list cols="4" rowHeight="30px" style=''>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"></div></mat-grid-tile>
 
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left"><strong>Selector status</strong></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>CNAME found in DNS</strong></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active for signing</strong></div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Active from</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left"><strong>Selector status</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>CNAME found in DNS</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>Active for signing</strong></div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left"><strong>Active from</strong></div></mat-grid-tile>
                     </mat-grid-list>
 
                     <mat-grid-list cols="4" rowHeight="30px" style='' *ngFor="let k of domain.keys">
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector}}</div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color);'><div class="grid_align_left">{{k.selector}}</div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'>
                         <div class="grid_align_left">
                           {{k.is_cname_correct ? 'Yes ' : 'No '}}<button mat-flat-button color="primary" *ngIf="!k.is_cname_correct" (click)="check_cname(domain, k)">Check</button>
                         </div>
                       </mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
-                      <mat-grid-tile style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left">{{k.is_active ? 'Yes' : 'No'}}</div></mat-grid-tile>
+                      <mat-grid-tile style='border-bottom: 1px dotted var(--rmm-border-color); border-left: 1px dotted var(--rmm-border-color)'><div class="grid_align_left">{{
                           k.date_expected_to_activate || k.date_active || k.date_rotation_finalized || '--'
                           }}
                       </div></mat-grid-tile>

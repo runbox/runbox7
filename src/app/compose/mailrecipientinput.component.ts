@@ -36,6 +36,7 @@ const COMMA = 188;
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mailrecipient-input',
     templateUrl: 'mailrecipientinput.component.html',
+    styles: ['.recipient-chip { background-color: var(--rmm-chip-bg, #e3f2fd) !important; }'],
     standalone: false
 })
 export class MailRecipientInputComponent implements OnChanges, AfterViewInit {

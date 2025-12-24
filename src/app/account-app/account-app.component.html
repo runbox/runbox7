@@ -56,12 +56,10 @@
                         <span>Hosting</span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <a href="/mail/account_domain" target="rmm6">
-                    <mat-list-item [matTooltip]="rmm6tooltip">
-                        <mat-icon matListItemIcon svgIcon="email"></mat-icon>
-                        <span matListItemTitle>Email Hosting</span>
-                    </mat-list-item>
-                </a>
+                <mat-list-item routerLink="/account/domains">
+                    <mat-icon matListItemIcon svgIcon="email"></mat-icon>
+                    <span matListItemTitle>Email Hosting</span>
+                </mat-list-item>
                 <a href="/mail/account_domain_hosting" target="rmm6">
                     <mat-list-item [matTooltip]="rmm6tooltip">
                         <mat-icon matListItemIcon svgIcon="domain"></mat-icon>
