@@ -60,7 +60,7 @@ export class DraftDeskComponent implements OnInit {
                     }
                     this.draftDeskservice.fromsSubject
                         .pipe(
-                            filter((froms) => froms.length > 0),
+                            filter((f) => f.length > 0),
                             take(1)
                         )
                         .subscribe(handler);
