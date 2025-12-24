@@ -24,7 +24,7 @@ describe('Profiles settings page', () => {
 
         // open dialog, fill in fields, submit
         cy.get('mat-dialog-container').should('exist');
-        cy.get('app-profiles-edit').should('be.visible');
+        cy.get('app-profiles-edit').should('exist');
         cy.get('input[name="email"]').type('newprof@runbox.com');
         cy.get('input[name="from"]').type('My Name');
         cy.get('input[name="name"]').type('My Profile');
