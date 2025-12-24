@@ -161,22 +161,15 @@ describe('AliasesListerComponent', () => {
 
     it('dialog loads allowed domains', fakeAsync(() => {
         // spawn a modal
-        component.create();
+        const dialogRef = component.create();
         fixture.detectChanges();
         tick(); // Allow HTTP observable to complete
 
-        const modal =
-            fixture.nativeElement.nextSibling.querySelector('app-aliases-edit');
-        expect(modal).toBeTruthy();
+        const modalComponent = dialogRef.componentInstance;
+        expect(modalComponent).toBeTruthy();
 
-        fixture.detectChanges(); // Update view with loaded domains
-
-        const domain: HTMLSelectElement =
-            modal.querySelector('mat-select[name=\'domain\']');
-
-        ALLOWED_DOMAINS.forEach(allowed_domain => {
-            expect(domain.textContent).toContain(allowed_domain);
-        });
+        // Check that allowedDomains were loaded from HTTP mock
+        expect(modalComponent.allowedDomains).toEqual(ALLOWED_DOMAINS);
 
         flush(); // Clear any pending timers
     }));

@@ -58,7 +58,8 @@ export class AliasesListerComponent {
         if (result !== undefined) {
             this.aliases.push(result);
         }
-    })
+    });
+    return dialogRef;
   }
 
   edit (item: object) {
