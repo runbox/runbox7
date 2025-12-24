@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, firstValueFrom } from 'rxjs';
@@ -39,7 +39,7 @@ interface CountryAndTimezone {
     templateUrl: './personal-details.component.html',
     styleUrls: ['account-details.component.scss'],
 })
-export class PersonalDetailsComponent {
+export class PersonalDetailsComponent implements OnInit {
     hide = true;
     myControl = new UntypedFormControl();
     countriesAndTimezones: CountryAndTimezone[] = [];
