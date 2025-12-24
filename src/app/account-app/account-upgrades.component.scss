@@ -120,33 +120,33 @@ ul.overQuota {
 }
 
 .Micro {
-    background-color: #549bd6  !important;
-    color: white;
+    background-color: var(--rmm-tier-micro) !important;
+    color: var(--rmm-text-on-primary);
 }
 
-.Mini,.mini3 {
-    background-color: #3678ad !important;
-    color: white;
+.Mini, .mini3 {
+    background-color: var(--rmm-tier-mini) !important;
+    color: var(--rmm-text-on-primary);
 }
 
-.Medium,.medium3 {
-    background-color: #236091 !important;
-    color: white;
+.Medium, .medium3 {
+    background-color: var(--rmm-tier-medium) !important;
+    color: var(--rmm-text-on-primary);
 }
 
-.Max,.max3 {
-    background-color: #12446b !important;
-    color: white;
+.Max, .max3 {
+    background-color: var(--rmm-tier-max) !important;
+    color: var(--rmm-text-on-primary);
 }
 
 .Max100 {
-    background-color: #082d4a !important;
-    color: white;
+    background-color: var(--rmm-tier-max100) !important;
+    color: var(--rmm-text-on-primary);
 }
 
 .Max250 {
-    background-color: #021829 !important;
-    color: white;
+    background-color: var(--rmm-tier-max250) !important;
+    color: var(--rmm-text-on-primary);
 }
 
 .oneYear {

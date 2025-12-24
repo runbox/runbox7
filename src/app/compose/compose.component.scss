@@ -146,9 +146,9 @@ mat-form-field {
 }
 
 #attachments {
-    display: flex; 
-    flex-wrap: wrap; 
+    display: flex;
+    flex-wrap: wrap;
     margin-top: 10px;
     font-size: 12.5px;
-    color: rgba(0, 0, 0, 0.54);
+    color: var(--rmm-text-tertiary);
 }

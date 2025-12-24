@@ -161,6 +161,20 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-error-text: #f00;
     --rmm-border-color: #e0e0e0;
     --rmm-divider-color: #dddddd;
+
+    --rmm-header-gradient: linear-gradient(177deg, #0068b7, #003156);
+
+    // Plan tier colors (light to dark blue progression)
+    --rmm-tier-micro: #549bd6;
+    --rmm-tier-mini: #3678ad;
+    --rmm-tier-medium: #236091;
+    --rmm-tier-max: #12446b;
+    --rmm-tier-max100: #082d4a;
+    --rmm-tier-max250: #021829;
+
+    // Drag-drop highlight colors
+    --rmm-drop-highlight: rgba(0, 180, 0, 0.4);
+    --rmm-drop-highlight-edge: rgba(0, 120, 0, 1.0);
 }
 
 .dark-theme {
@@ -186,6 +200,20 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-error-text: #ff4444;
     --rmm-border-color: #333333;
     --rmm-divider-color: #2a2a2a;
+
+    --rmm-header-gradient: linear-gradient(177deg, #1a4a6e, #0a1929);
+
+    // Plan tier colors (brighter for dark backgrounds)
+    --rmm-tier-micro: #6bb3e8;
+    --rmm-tier-mini: #4a92c7;
+    --rmm-tier-medium: #3a7aab;
+    --rmm-tier-max: #2a6285;
+    --rmm-tier-max100: #1a4a65;
+    --rmm-tier-max250: #0a3245;
+
+    // Drag-drop highlight colors (brighter for dark bg)
+    --rmm-drop-highlight: rgba(80, 220, 80, 0.4);
+    --rmm-drop-highlight-edge: rgba(80, 180, 80, 1.0);
 
     color-scheme: dark;
 }
@@ -214,6 +242,20 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-border-color: #d4c5b0;         // Light brown
     --rmm-divider-color: #e8dcc8;        // Cream
 
+    --rmm-header-gradient: linear-gradient(177deg, #c41e3a, #165b33);
+
+    // Plan tier colors (festive red/green progression)
+    --rmm-tier-micro: #e85a5a;
+    --rmm-tier-mini: #c41e3a;
+    --rmm-tier-medium: #8b1a2b;
+    --rmm-tier-max: #2d7a4a;
+    --rmm-tier-max100: #165b33;
+    --rmm-tier-max250: #0a3d22;
+
+    // Drag-drop highlight colors (gold for Christmas)
+    --rmm-drop-highlight: rgba(255, 215, 0, 0.4);
+    --rmm-drop-highlight-edge: rgba(218, 165, 32, 1.0);
+
     color-scheme: light;
 }
 
@@ -240,6 +282,20 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-error-text: #ff0000;           // Pure red
     --rmm-border-color: #ffffff;         // White borders for clarity
     --rmm-divider-color: #808080;        // Medium gray
+
+    --rmm-header-gradient: #000000;      // Solid black for maximum contrast
+
+    // Plan tier colors (high visibility)
+    --rmm-tier-micro: #00ffff;
+    --rmm-tier-mini: #00cccc;
+    --rmm-tier-medium: #00aaaa;
+    --rmm-tier-max: #ffff00;
+    --rmm-tier-max100: #cccc00;
+    --rmm-tier-max250: #aaaa00;
+
+    // Drag-drop highlight colors (bright cyan for visibility)
+    --rmm-drop-highlight: rgba(0, 255, 255, 0.5);
+    --rmm-drop-highlight-edge: rgba(0, 255, 255, 1.0);
 
     color-scheme: dark;
 }

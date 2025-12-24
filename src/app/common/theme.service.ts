@@ -32,19 +32,18 @@ export enum Theme {
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
     private readonly THEME_PREF_KEY = 'themePreference';
-    private currentTheme: BehaviorSubject<Theme> = new BehaviorSubject<Theme>(Theme.Dark);
-    private activeTheme: BehaviorSubject<'light' | 'dark'> = new BehaviorSubject<'light' | 'dark'>('dark');
+    private mediaQueryList: MediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
+    private currentTheme: BehaviorSubject<Theme> = new BehaviorSubject<Theme>(Theme.Auto);
+    private activeTheme: BehaviorSubject<'light' | 'dark'> = new BehaviorSubject<'light' | 'dark'>(
+        this.mediaQueryList.matches ? 'dark' : 'light'
+    );
 
     public theme$: Observable<Theme> = this.currentTheme.asObservable();
     public activeTheme$: Observable<'light' | 'dark'> = this.activeTheme.asObservable();
 
-    private mediaQueryList: MediaQueryList;
-
     constructor(private preferencesService: PreferencesService) {
-        this.mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
-
-        // Apply default theme immediately to avoid white flash
-        this.applyThemeToDocument('dark');
+        // Apply OS-preferred theme immediately to avoid flash
+        this.applyThemeToDocument(this.mediaQueryList.matches ? 'dark' : 'light');
 
         this.preferencesService.preferences.subscribe(prefs => {
             const savedTheme = prefs.get(`${DefaultPrefGroups.Global}:${this.THEME_PREF_KEY}`);

@@ -21,7 +21,7 @@ mat-card.addon {
 }
 
 mat-card.bestPlan {
-    border: 1px solid blue;
+    border: 1px solid var(--rmm-primary-color);
 }
 
 mat-card-title {
@@ -33,7 +33,7 @@ mat-card-subtitle {
     flex-grow: 1;
     margin: 0;
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--rmm-text-primary);
 }
 
 mat-card-content {

@@ -1,9 +1,9 @@
 #sideMenu {
-    border-right: 1px solid darkgrey !important;
+    border-right: 1px solid var(--rmm-border-color) !important;
 }
 
 #rightPane {
-    border-left: 1px solid darkgrey !important;
+    border-left: 1px solid var(--rmm-border-color) !important;
 }
 
 .tableViewOptionsMenuElement {
