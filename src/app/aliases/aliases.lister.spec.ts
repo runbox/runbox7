@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
 import { AliasesListerComponent } from './aliases.lister';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -145,32 +145,39 @@ describe('AliasesListerComponent', () => {
         component.create();
         fixture.detectChanges();
 
-        const modal = 
+        const modal =
             fixture.nativeElement.nextSibling.querySelector('app-aliases-edit');
         expect(modal).toBeTruthy();
 
         fixture.detectChanges();
-        const forwardTo: HTMLInputElement = 
+        const forwardTo: HTMLInputElement =
             modal.querySelector('input[name=\'forward_to\']');
         // FIXME: doesn't work, value isn't set, probably because of ngModel
         // expect(forwardTo.value)
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
+
+        flush(); // Clear any pending timers
     }));
 
-    it('dialog loads allowed domains', () => {
+    it('dialog loads allowed domains', fakeAsync(() => {
         // spawn a modal
         component.create();
         fixture.detectChanges();
+        tick(); // Allow HTTP observable to complete
 
-        const modal = 
+        const modal =
             fixture.nativeElement.nextSibling.querySelector('app-aliases-edit');
         expect(modal).toBeTruthy();
 
-        const domain: HTMLSelectElement = 
+        fixture.detectChanges(); // Update view with loaded domains
+
+        const domain: HTMLSelectElement =
             modal.querySelector('mat-select[name=\'domain\']');
 
         ALLOWED_DOMAINS.forEach(allowed_domain => {
             expect(domain.textContent).toContain(allowed_domain);
         });
-    });
+
+        flush(); // Clear any pending timers
+    }));
 });
