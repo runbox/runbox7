@@ -36,14 +36,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { DomainRegisterRedirectComponent } from './domreg-redirect.component';
 
-@NgModule({
-    imports: [
-        CommonModule,
+@NgModule({ exports: [DomainRegisterComponent],
+    declarations: [DomainRegisterComponent, DomainRegisterRedirectComponent],
+    bootstrap: [], imports: [CommonModule,
         FormsModule,
-        HttpClientModule,
         MatSnackBarModule,
         MatSidenavModule,
         MatTableModule,
@@ -58,11 +56,6 @@ import { DomainRegisterRedirectComponent } from './domreg-redirect.component';
         MatInputModule,
         MatChipsModule,
         MatSelectModule,
-        MatButtonModule,
-    ],
-    exports: [ DomainRegisterComponent ],
-    declarations: [ DomainRegisterComponent, DomainRegisterRedirectComponent ],
-    bootstrap: [ ]
-})
+        MatButtonModule] })
 export class DomainRegisterModule {
 }

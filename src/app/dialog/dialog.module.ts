@@ -28,7 +28,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
-import { HttpClientModule } from '@angular/common/http';
 import { ErrorDialog } from './error-dialog.component';
 import { InfoDialog } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
@@ -42,28 +41,21 @@ export { InfoDialog, InfoParams } from './info.dialog';
 export { ErrorDialog } from './error-dialog.component';
 export { ProgressDialog } from './progress.dialog';
 
-@NgModule({
-    imports: [
-        CommonModule,
+@NgModule({ exports: [],
+    declarations: [
+        ErrorDialog, InfoDialog, ProgressDialog, ConfirmDialog,
+        SimpleInputDialog, ProgressSnackbarComponent
+    ], imports: [CommonModule,
         FormsModule,
-        HttpClientModule,
         MatInputModule,
         MatDialogModule,
         MatSnackBarModule,
         MatButtonModule,
         MatTooltipModule,
         MatIconModule,
-        MatProgressSpinnerModule
-    ],
-    exports: [],
-    declarations: [
-        ErrorDialog, InfoDialog, ProgressDialog, ConfirmDialog,
-        SimpleInputDialog, ProgressSnackbarComponent
-    ],
-    providers: [
+        MatProgressSpinnerModule], providers: [
         DialogService
-    ]
-})
+    ] })
 export class DialogModule {
 
 }

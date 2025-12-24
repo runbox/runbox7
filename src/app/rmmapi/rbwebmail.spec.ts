@@ -22,29 +22,29 @@ import { RunboxWebmailAPI } from './rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MessageCache } from './messagecache';
 import { firstValueFrom } from 'rxjs';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('RBWebMail', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [
-                MatSnackBarModule,
-                MatDialogModule,
-                HttpClientTestingModule,
-            ],
-            providers: [
-                RunboxWebmailAPI,
-                { provide: MessageCache, useValue: {
-                    get: (_) => Promise.resolve(null),
-                    set: (_, __) => {},
-                    delete: (_) => {},
-                    checkIds: (_) => Promise.resolve([]),
-                    getMany: (_) => Promise.resolve([]),
-                } },
-            ]
-        });
+    imports: [MatSnackBarModule,
+        MatDialogModule],
+    providers: [
+        RunboxWebmailAPI,
+        { provide: MessageCache, useValue: {
+                get: (_) => Promise.resolve(null),
+                set: (_, __) => { },
+                delete: (_) => { },
+                checkIds: (_) => Promise.resolve([]),
+                getMany: (_) => Promise.resolve([]),
+            } },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
     });
 
     it('should cache message contents', async () => {

@@ -18,12 +18,12 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RMMHttpInterceptorService } from '../rmmapi/rmmhttpinterceptor.service';
 import { ProgressService } from './progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -38,21 +38,20 @@ describe('ProgressService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-        imports: [
-                HttpClientTestingModule,
-                MatSnackBarModule,
-                MatDialogModule,
-                NoopAnimationsModule,
-                RouterTestingModule,
-            ],
-        providers: [
-            RMMOfflineService,
-            RunboxWebmailAPI,
-            RMMAuthGuardService,
-            ProgressService,
-            { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true}
-        ]
-        });
+    imports: [MatSnackBarModule,
+        MatDialogModule,
+        NoopAnimationsModule,
+        RouterTestingModule],
+    providers: [
+        RMMOfflineService,
+        RunboxWebmailAPI,
+        RMMAuthGuardService,
+        ProgressService,
+        { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()
+    ]
+});
         rmmapiservice = TestBed.inject(RunboxWebmailAPI);
         progressService = TestBed.inject(ProgressService);
         httpMock = TestBed.inject(HttpTestingController);

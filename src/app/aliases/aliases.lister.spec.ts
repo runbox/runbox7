@@ -26,7 +26,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
 import { of } from 'rxjs';
@@ -51,59 +50,57 @@ describe('AliasesListerComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [
-                CommonModule,
-                FormsModule,
-                HttpClientTestingModule,
-                MatCommonModule,
-                MatCardModule,
-                MatExpansionModule,
-                MatFormFieldModule,
-                MatInputModule,
-                MatSelectModule,
-                MatSnackBarModule,
-                MatDialogModule,
-                NoopAnimationsModule,
-            ],
-            providers: [
-                AliasesListerComponent,
-                { provide: RunboxWebmailAPI, useValue: {
-                  me: of({user_address: DEFAULT_EMAIL}),
-                  getRunboxDomains() { return of([{'name':'runbox.com'}, {'name':'runbox.xyz'}]); },
-                } },
-                { provide: HttpClient, useValue: {
-                    get(url: string) {
-                        if (/alias\/allowed_domains$/.test(url)) {
-                            return of({
-                                status: 'success',
-                                result: {allowed_domains: ALLOWED_DOMAINS}
-                            });
-                        } else {
-                            return of({
-                                status: 'error',
-                                result: 'unimplemented'
-                            })
-                        }
-                    }
-                } },
-                { provide: RMM, useValue: {
-                    alias: { 
-                        load: () => of({
-                            status: 'success', 
-                            result: {aliases: ALIASES}
-                        }),
-                        create: (alias) => of({
+    declarations: [
+        AliasesListerComponent,
+        AliasesEditorModalComponent,
+    ],
+    imports: [CommonModule,
+        FormsModule,
+        MatCommonModule,
+        MatCardModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSnackBarModule,
+        MatDialogModule,
+        NoopAnimationsModule],
+    providers: [
+        AliasesListerComponent,
+        { provide: RunboxWebmailAPI, useValue: {
+                me: of({ user_address: DEFAULT_EMAIL }),
+                getRunboxDomains() { return of([{ 'name': 'runbox.com' }, { 'name': 'runbox.xyz' }]); },
+            } },
+        { provide: HttpClient, useValue: {
+                get(url: string) {
+                    if (/alias\/allowed_domains$/.test(url)) {
+                        return of({
                             status: 'success',
-                            result: {alias: alias}
-                        }),
+                            result: { allowed_domains: ALLOWED_DOMAINS }
+                        });
                     }
-                } },
-            ],
-            declarations: [
-                AliasesListerComponent,
-                AliasesEditorModalComponent,
-            ],
-        });
+                    else {
+                        return of({
+                            status: 'error',
+                            result: 'unimplemented'
+                        });
+                    }
+                }
+            } },
+        { provide: RMM, useValue: {
+                alias: {
+                    load: () => of({
+                        status: 'success',
+                        result: { aliases: ALIASES }
+                    }),
+                    create: (alias) => of({
+                        status: 'success',
+                        result: { alias: alias }
+                    }),
+                }
+            } }
+    ]
+});
         fixture = TestBed.createComponent(AliasesListerComponent);
         component = fixture.componentInstance;
     })

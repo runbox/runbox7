@@ -20,7 +20,7 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SentryErrorHandler } from './sentry-error-handler';
 import { AppComponent } from './app.component';
@@ -139,10 +139,13 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent }
 ];
 
-@NgModule({
-    imports: [BrowserModule, FormsModule,
-        HttpClientModule,
-        HttpClientJsonpModule,
+@NgModule({ exports: [],
+    declarations: [MainContainerComponent, AppComponent,
+        MoveMessageDialogComponent,
+        PopularRecipientsComponent,
+        SavedSearchesComponent,
+    ],
+    bootstrap: [MainContainerComponent], imports: [BrowserModule, FormsModule,
         CanvasTableModule,
         ComposeModule,
         StartDeskModule,
@@ -180,15 +183,7 @@ const routes: Routes = [
         RunboxCommonModule,
         RouterModule.forRoot(routes),
         ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-        HotkeyModule.forRoot()
-    ],
-    exports: [],
-    declarations: [MainContainerComponent, AppComponent,
-        MoveMessageDialogComponent,
-        PopularRecipientsComponent,
-        SavedSearchesComponent,
-    ],
-    providers: [ProgressService,
+        HotkeyModule.forRoot()], providers: [ProgressService,
         MessageListService,
         MobileQueryService,
         RunboxWebmailAPI,
@@ -202,13 +197,10 @@ const routes: Routes = [
         { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
         { provide: ErrorHandler, useClass: SentryErrorHandler },
         { provide: SwRegistrationOptions,
-          useFactory: () => ({
-              enabled: environment.production,
-              registrationStrategy: 'registerWithDelay:5000'
-          }) }
-    ],
-    bootstrap: [MainContainerComponent]
-})
+            useFactory: () => ({
+                enabled: environment.production,
+                registrationStrategy: 'registerWithDelay:5000'
+            }) }, provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())] })
 export class AppModule {
   constructor (matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
     matIconRegistry.addSvgIconSet(

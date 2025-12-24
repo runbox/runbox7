@@ -24,12 +24,13 @@ import { BehaviorSubject, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { TestBed } from '@angular/core/testing';
 import { take } from 'rxjs/operators';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogModule } from '../dialog/dialog.module';
 import { HotkeysService } from 'angular2-hotkeys';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 class MatDialogMock {
     open() {
@@ -45,15 +46,12 @@ describe('FolderListComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-        imports: [
-                HttpClientTestingModule,
-                MatSnackBarModule,
-                MatDialogModule,
-                DialogModule,
-                NoopAnimationsModule
-            ],
-        providers: [RunboxWebmailAPI, { provide: MatDialog, useClass: MatDialogMock }]
-        });
+    imports: [MatSnackBarModule,
+        MatDialogModule,
+        DialogModule,
+        NoopAnimationsModule],
+    providers: [RunboxWebmailAPI, { provide: MatDialog, useClass: MatDialogMock }, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
         dialog = TestBed.inject(MatDialog);
         hotkeyMock = { add: _ => null } as HotkeysService;
     });

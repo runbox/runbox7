@@ -22,7 +22,7 @@ import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { MessageCache } from '../rmmapi/messagecache';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -30,6 +30,7 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 declare let FS;
 declare let IDBFS;
@@ -100,23 +101,23 @@ describe('SearchService', () => {
 
     beforeEach((() => {
         TestBed.configureTestingModule({
-          imports: [
-            HttpClientTestingModule,
-            MatSnackBarModule,
-            MatDialogModule
-          ],
-            providers: [
-                SearchService,
-                MessageCache,
-                MessageListService,
-                RunboxWebmailAPI
-                // { provide: Worker, useValue: {
-                //     onmessage({ data }) { console.log(data); },
-                //     postMessage({ data }) { console.log(data); }
-                // }
-                // }
-          ]
-        });
+    imports: [MatSnackBarModule,
+        MatDialogModule],
+    providers: [
+        SearchService,
+        MessageCache,
+        MessageListService,
+        RunboxWebmailAPI
+        // { provide: Worker, useValue: {
+        //     onmessage({ data }) { console.log(data); },
+        //     postMessage({ data }) { console.log(data); }
+        // }
+        // }
+        ,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()
+    ]
+});
 
         httpMock = TestBed.inject(HttpTestingController as Type<HttpTestingController>);
     }));

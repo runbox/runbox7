@@ -39,13 +39,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 
-@NgModule({
-    imports: [
-        CommonModule,
+@NgModule({ exports: [DkimComponent],
+    declarations: [DkimComponent],
+    bootstrap: [], imports: [CommonModule,
         FormsModule,
-        HttpClientModule,
         MatSnackBarModule,
         MatExpansionModule,
         MatSidenavModule,
@@ -63,10 +61,6 @@ import { HttpClientModule } from '@angular/common/http';
         MatSelectModule,
         MatButtonModule,
         MatGridListModule,
-        RouterModule.forChild([ { path: '', component: DkimComponent } ]) ],
-    exports: [ DkimComponent ],
-    declarations: [ DkimComponent ],
-    bootstrap: [ ]
-})
+        RouterModule.forChild([{ path: '', component: DkimComponent }])] })
 export class DkimModule {
 }

@@ -23,7 +23,7 @@ import { MailViewerModule } from '../mailviewer/mailviewer.module';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ProgressService } from '../http/progress.service';
 import { DialogModule } from '../dialog/dialog.module';
 import { RMM6MessageActions } from '../mailviewer/rmm6messageactions';
@@ -47,9 +47,9 @@ import { FormsModule } from '@angular/forms';
 import { SearchExpressionBuilderComponent } from '../xapian/search-expression-builder/search-expression-builder.component';
 import { SearchExpressionBuilderModule } from '../xapian/search-expression-builder/search-expression-builder.module';
 
-@NgModule({
-    imports: [
-        BrowserModule,
+@NgModule({ declarations: [
+        RMM6SearchComponent,
+    ], imports: [BrowserModule,
         MailViewerModule,
         BrowserAnimationsModule,
         DialogModule,
@@ -59,7 +59,6 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
         MatIconModule,
         DomainRegisterModule,
         FormsModule,
-        HttpClientModule,
         MatTableModule,
         MatDialogModule,
         MatCheckboxModule,
@@ -71,13 +70,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
         MatListModule,
         MatChipsModule,
         MatSelectModule,
-        SearchExpressionBuilderModule
-    ],
-    declarations: [
-        RMM6SearchComponent,
-    ],
-    providers: [ProgressService]
-})
+        SearchExpressionBuilderModule], providers: [ProgressService, provideHttpClient(withInterceptorsFromDi())] })
 export class RMM6Module {
 
     rmmAngularGW: RMM6AngularGateway;

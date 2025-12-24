@@ -8,14 +8,14 @@
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
-$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
-$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 200, 100, 400);
-$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
-$rmm-default-caution:    mat.define-palette(mat.$deep-orange-palette, 500, A400, A700);
-$rmm-default-error:      mat.define-palette(mat.$red-palette, 500, A400, A700);
-$rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
-$rmm-default-highlight:  mat.define-palette(mat.$blue-palette, 100, 50, 200);
-$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
+$rmm-default-primary:    mat.m2-define-palette(mat.$m2-light-blue-palette, 900, A400, A700);
+$rmm-default-accent:     mat.m2-define-palette(mat.$m2-blue-palette, 200, 100, 400);
+$rmm-default-warn:       mat.m2-define-palette(mat.$m2-orange-palette, 500, A400, A700);
+$rmm-default-caution:    mat.m2-define-palette(mat.$m2-deep-orange-palette, 500, A400, A700);
+$rmm-default-error:      mat.m2-define-palette(mat.$m2-red-palette, 500, A400, A700);
+$rmm-default-foreground: mat.m2-define-palette(mat.$m2-light-blue-palette, 400, 200, 600);
+$rmm-default-highlight:  mat.m2-define-palette(mat.$m2-blue-palette, 100, 50, 200);
+$rmm-default-background: mat.m2-define-palette(mat.$m2-light-blue-palette, 900, A400, A700);
 
 $rmm-dark-background:       #011b40;
 $rmm-dark-background-03:    rgba(1,27,64,0.3);
@@ -25,11 +25,11 @@ $rmm-gray-light:            #eeeeee;
 $rmm-gray-lighter:          #f3f3f3;
 
 // GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
-$custom-typography: mat.define-typography-config(
+$custom-typography: mat.m2-define-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
-$rmm-default-theme: mat.define-light-theme((
+$rmm-default-theme: mat.m2-define-light-theme((
     color: (
         primary: $rmm-default-primary,
         accent: $rmm-default-accent,
@@ -47,21 +47,21 @@ $rmm-default-black: #444444;
 @include mat.all-component-themes($rmm-default-theme);
 
 // Dark theme palettes
-$rmm-dark-primary:    mat.define-palette(mat.$blue-palette, 400, 200, 600);
-$rmm-dark-accent:     mat.define-palette(mat.$light-blue-palette, 300, 200, 400);
-$rmm-dark-warn:       mat.define-palette(mat.$orange-palette, 400, 300, 500);
-$rmm-dark-caution:    mat.define-palette(mat.$deep-orange-palette, 400, 300, 500);
-$rmm-dark-error:      mat.define-palette(mat.$red-palette, 400, 300, 500);
-$rmm-dark-foreground: mat.define-palette(mat.$blue-palette, 200, 100, 300);
-$rmm-dark-highlight:  mat.define-palette(mat.$blue-palette, 800, 700, 900);
-$rmm-dark-background-palette: mat.define-palette(mat.$blue-grey-palette, 900, 800, A700);
+$rmm-dark-primary:    mat.m2-define-palette(mat.$m2-blue-palette, 400, 200, 600);
+$rmm-dark-accent:     mat.m2-define-palette(mat.$m2-light-blue-palette, 300, 200, 400);
+$rmm-dark-warn:       mat.m2-define-palette(mat.$m2-orange-palette, 400, 300, 500);
+$rmm-dark-caution:    mat.m2-define-palette(mat.$m2-deep-orange-palette, 400, 300, 500);
+$rmm-dark-error:      mat.m2-define-palette(mat.$m2-red-palette, 400, 300, 500);
+$rmm-dark-foreground: mat.m2-define-palette(mat.$m2-blue-palette, 200, 100, 300);
+$rmm-dark-highlight:  mat.m2-define-palette(mat.$m2-blue-palette, 800, 700, 900);
+$rmm-dark-background-palette: mat.m2-define-palette(mat.$m2-blue-grey-palette, 900, 800, A700);
 
 $rmm-dark-lighter-gray: #2a2a2a;
 $rmm-dark-light-gray: #212121;
 $rmm-dark-dark-gray: #b0b0b0;
 $rmm-dark-black: #e0e0e0;
 
-$rmm-dark-theme: mat.define-dark-theme((
+$rmm-dark-theme: mat.m2-define-dark-theme((
     color: (
         primary: $rmm-dark-primary,
         accent: $rmm-dark-accent,
@@ -77,11 +77,11 @@ $rmm-dark-theme: mat.define-dark-theme((
 }
 
 // Christmas theme palettes
-$rmm-christmas-primary: mat.define-palette(mat.$red-palette, 700, 500, 900);
-$rmm-christmas-accent:  mat.define-palette(mat.$green-palette, 600, 400, 800);
-$rmm-christmas-warn:    mat.define-palette(mat.$deep-orange-palette, 600, 500, 800);
+$rmm-christmas-primary: mat.m2-define-palette(mat.$m2-red-palette, 700, 500, 900);
+$rmm-christmas-accent:  mat.m2-define-palette(mat.$m2-green-palette, 600, 400, 800);
+$rmm-christmas-warn:    mat.m2-define-palette(mat.$m2-deep-orange-palette, 600, 500, 800);
 
-$rmm-christmas-theme: mat.define-light-theme((
+$rmm-christmas-theme: mat.m2-define-light-theme((
     color: (
         primary: $rmm-christmas-primary,
         accent: $rmm-christmas-accent,
@@ -92,11 +92,11 @@ $rmm-christmas-theme: mat.define-light-theme((
 ));
 
 // High contrast theme palettes
-$rmm-high-contrast-primary: mat.define-palette(mat.$yellow-palette, 500, 300, 700);
-$rmm-high-contrast-accent:  mat.define-palette(mat.$lime-palette, 400, 200, 600);
-$rmm-high-contrast-warn:    mat.define-palette(mat.$red-palette, 600, 400, 800);
+$rmm-high-contrast-primary: mat.m2-define-palette(mat.$m2-yellow-palette, 500, 300, 700);
+$rmm-high-contrast-accent:  mat.m2-define-palette(mat.$m2-lime-palette, 400, 200, 600);
+$rmm-high-contrast-warn:    mat.m2-define-palette(mat.$m2-red-palette, 600, 400, 800);
 
-$rmm-high-contrast-theme: mat.define-dark-theme((
+$rmm-high-contrast-theme: mat.m2-define-dark-theme((
     color: (
         primary: $rmm-high-contrast-primary,
         accent: $rmm-high-contrast-accent,
@@ -139,12 +139,12 @@ $rmm-high-contrast-theme: mat.define-dark-theme((
 
 // CSS Custom Properties for runtime theme switching
 :root {
-    --rmm-primary-color: #{mat.get-color-from-palette($rmm-default-primary)};
-    --rmm-accent-color: #{mat.get-color-from-palette($rmm-default-accent)};
-    --rmm-warn-color: #{mat.get-color-from-palette($rmm-default-warn)};
-    --rmm-foreground-color: #{mat.get-color-from-palette($rmm-default-foreground)};
-    --rmm-background-color: #{mat.get-color-from-palette($rmm-default-background)};
-    --rmm-highlight-color: #{mat.get-color-from-palette($rmm-default-highlight)};
+    --rmm-primary-color: #{mat.m2-get-color-from-palette($rmm-default-primary)};
+    --rmm-accent-color: #{mat.m2-get-color-from-palette($rmm-default-accent)};
+    --rmm-warn-color: #{mat.m2-get-color-from-palette($rmm-default-warn)};
+    --rmm-foreground-color: #{mat.m2-get-color-from-palette($rmm-default-foreground)};
+    --rmm-background-color: #{mat.m2-get-color-from-palette($rmm-default-background)};
+    --rmm-highlight-color: #{mat.m2-get-color-from-palette($rmm-default-highlight)};
 
     --rmm-lighter-gray: #{$rmm-default-lighter-gray};
     --rmm-light-gray: #{$rmm-default-light-gray};
@@ -164,12 +164,12 @@ $rmm-high-contrast-theme: mat.define-dark-theme((
 }
 
 .dark-theme {
-    --rmm-primary-color: #{mat.get-color-from-palette($rmm-dark-primary)};
-    --rmm-accent-color: #{mat.get-color-from-palette($rmm-dark-accent)};
-    --rmm-warn-color: #{mat.get-color-from-palette($rmm-dark-warn)};
-    --rmm-foreground-color: #{mat.get-color-from-palette($rmm-dark-foreground)};
-    --rmm-background-color: #{mat.get-color-from-palette($rmm-dark-background-palette)};
-    --rmm-highlight-color: #{mat.get-color-from-palette($rmm-dark-highlight)};
+    --rmm-primary-color: #{mat.m2-get-color-from-palette($rmm-dark-primary)};
+    --rmm-accent-color: #{mat.m2-get-color-from-palette($rmm-dark-accent)};
+    --rmm-warn-color: #{mat.m2-get-color-from-palette($rmm-dark-warn)};
+    --rmm-foreground-color: #{mat.m2-get-color-from-palette($rmm-dark-foreground)};
+    --rmm-background-color: #{mat.m2-get-color-from-palette($rmm-dark-background-palette)};
+    --rmm-highlight-color: #{mat.m2-get-color-from-palette($rmm-dark-highlight)};
 
     --rmm-lighter-gray: #{$rmm-dark-lighter-gray};
     --rmm-light-gray: #{$rmm-dark-light-gray};
@@ -426,7 +426,7 @@ a[mat-icon-button]:hover {
 }
 
 .gridHighlight mat-card:hover {
-    background-color: mat.get-color-from-palette($rmm-default-highlight);
+    background-color: mat.m2-get-color-from-palette($rmm-default-highlight);
 }
 
 mat-grid-tile {
@@ -471,7 +471,7 @@ mat-icon {
 }
 
 mat-grid-tile.tableTitle {
-    background-color: mat.get-color-from-palette($rmm-default-foreground);
+    background-color: mat.m2-get-color-from-palette($rmm-default-foreground);
 }
 
 .contentButton {
@@ -507,7 +507,7 @@ mat-grid-tile.tableTitle {
 }
 
 .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-    background-color: mat.get-color-from-palette($rmm-default-primary);
+    background-color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 .mat-slide-toggle-content {
@@ -544,17 +544,17 @@ mat-grid-tile.tableTitle {
 }
 
 .warning {
-    color: mat.get-color-from-palette($rmm-default-warn);
+    color: mat.m2-get-color-from-palette($rmm-default-warn);
     font-weight: bold;
 }
 
 .caution {
-    color: mat.get-color-from-palette($rmm-default-caution);
+    color: mat.m2-get-color-from-palette($rmm-default-caution);
     font-weight: bold;
 }
 
 .error {
-    color: mat.get-color-from-palette($rmm-default-error);
+    color: mat.m2-get-color-from-palette($rmm-default-error);
     font-weight: bold;
 }
 
@@ -620,10 +620,10 @@ mat-grid-tile.tableTitle {
         color: var(--rmm-text-on-primary) !important;
     }
     .mat-button-wrapper {
-        color: mat.get-color-from-palette($rmm-default-foreground) !important;
+        color: mat.m2-get-color-from-palette($rmm-default-foreground) !important;
     }
     .mdc-button__label {
-        color: mat.get-color-from-palette($rmm-default-foreground) !important;
+        color: mat.m2-get-color-from-palette($rmm-default-foreground) !important;
     }
 }
 
@@ -673,7 +673,7 @@ mat-grid-tile.tableTitle {
     margin: 0;
     font-size: 2vh;
     font-weight: 100;
-    color: mat.get-color-from-palette($rmm-default-foreground);
+    color: mat.m2-get-color-from-palette($rmm-default-foreground);
     text-transform: uppercase;
     letter-spacing: 0.5em;
 }
@@ -712,11 +712,11 @@ div.loginScreen {
     background-color: #fff;
 
     a {
-	color: mat.get-color-from-palette($rmm-default-primary);
+	color: mat.m2-get-color-from-palette($rmm-default-primary);
     }
 
     #loginArea {
-	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+	border: 1px solid mat.m2-get-color-from-palette($rmm-default-primary);
 	min-width: 300px;
 	min-height: 350px;
 	display: flex;
@@ -771,7 +771,7 @@ div.loginScreen {
     }
 
     .loginScreen #tfaArea {
-	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+	border: 1px solid mat.m2-get-color-from-palette($rmm-default-primary);
     }
 
     mat-button-toggle button {
@@ -792,7 +792,7 @@ div.loginScreen {
 }
 
 div.loginScreen .login-link a {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 /* Smaller 2FA buttons on small screens */
@@ -851,7 +851,7 @@ div.loginScreen .login-link a {
 }
 
 #loginFooterMenuBottom a {
-    color: mat.get-color-from-palette($rmm-default-foreground);
+    color: mat.m2-get-color-from-palette($rmm-default-foreground);
     text-decoration: none;
 }
 
@@ -899,7 +899,7 @@ rmm-headertoolbar {
 }
 
 #mainMenuContainer #runbox6 {
-    color: mat.get-color-from-palette($rmm-default-accent) !important;
+    color: mat.m2-get-color-from-palette($rmm-default-accent) !important;
 }
 
 .mat-menu-item,
@@ -908,7 +908,7 @@ rmm-headertoolbar {
 .mat-mdc-menu-item .mat-icon:not([color]) {
     height: 36px !important;
     line-height: 36px !important;
-    color: mat.get-color-from-palette($rmm-default-primary) !important;
+    color: mat.m2-get-color-from-palette($rmm-default-primary) !important;
 }
 
 #mainMenuContainer button {
@@ -1026,7 +1026,7 @@ mat-sidenav-container {
 }
 
 #sidenavLogoContainer {
-    background-color: mat.get-color-from-palette($rmm-default-primary) !important;
+    background-color: mat.m2-get-color-from-palette($rmm-default-primary) !important;
     margin-top: -4px;
 
     .mat-button .mat-ripple-element,
@@ -1107,7 +1107,7 @@ h3.sideNavHeader {
 }
 
 a {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 a:hover {
@@ -1116,7 +1116,7 @@ a:hover {
 
 .mat-nav-list a.textLink,
 .mat-mdc-nav-list a.textLink {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
@@ -1128,7 +1128,7 @@ a:hover {
 /*** Welcome Desk ***/
 
 .welcomedesk a {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
@@ -1161,11 +1161,11 @@ rmm-folderlist {
 
 
 .folderIconStandard {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 .folderIconUser {
-    color: mat.get-color-from-palette($rmm-default-foreground) !important;
+    color: mat.m2-get-color-from-palette($rmm-default-foreground) !important;
 }
 
 .folderName {
@@ -1199,7 +1199,7 @@ rmm-folderlist {
 }
 
 .selectedFolder {
-    background-color: mat.get-color-from-palette($rmm-default-accent, 50) !important;
+    background-color: mat.m2-get-color-from-palette($rmm-default-accent, 50) !important;
 }
 
 app-popular-recipients, app-saved-searches {
@@ -1349,7 +1349,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 .mat-icon, .mat-icon-button {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
     
 @media (max-width: 540px) {
@@ -1380,7 +1380,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 .mat-fab.mat-accent {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 #moveMessagesToFolderList {
@@ -1434,7 +1434,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 
     .mat-flat-button,
     .mat-mdc-unelevated-button {
-	background-color: mat.get-color-from-palette($rmm-default-primary);
+	background-color: mat.m2-get-color-from-palette($rmm-default-primary);
 
 	.mat-icon {
 	    color: var(--rmm-text-on-primary) !important;
@@ -1445,7 +1445,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 	background-color: white;
 
 	.mat-icon {
-	    color: mat.get-color-from-palette($rmm-default-primary);
+	    color: mat.m2-get-color-from-palette($rmm-default-primary);
 	}
     }
 
@@ -1738,26 +1738,26 @@ app-calendar-event-editor-dialog p {
 
 /** Put here instead of component CSS due to use of palette variables **/
 .limitedTimeOffer, .holidayOffer {
-    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+    border: 1px solid mat.m2-get-color-from-palette($rmm-default-primary);
     padding: 1%;
     text-align: center;
 }
 
 .limitedTimeOffer h1, .holidayOffer h1 {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 .limitedTimeOffer h2, .holidayOffer h2 {
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 .productCardSpecial .mat-card, .productCardSpecial mat-card {
-    background: mat.get-color-from-palette($rmm-default-accent);
+    background: mat.m2-get-color-from-palette($rmm-default-accent);
 }
 
 #specialOffer {
     width: 98%;
-    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+    border: 1px solid mat.m2-get-color-from-palette($rmm-default-primary);
     padding: 10px;
     text-align: center;
 }
@@ -1767,26 +1767,26 @@ app-calendar-event-editor-dialog p {
     font-size: 40px;
     text-transform: uppercase !important;
     line-height: 1.5em;
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 #specialOffer h2 {
     margin: 10px 0 10px -100px;
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 #specialOffer h3 {
     margin: 0 0 0 -100px;
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 #specialOffer p.description {
     font-size: 13px;
-    color: mat.get-color-from-palette($rmm-default-primary);
+    color: mat.m2-get-color-from-palette($rmm-default-primary);
 }
 
 .productGrid mat-card.recommended {
-    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+    border: 1px solid mat.m2-get-color-from-palette($rmm-default-primary);
 }    
 
 #pricePlans td {

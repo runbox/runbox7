@@ -19,9 +19,10 @@
 
 import { Identity, ProfileService } from './profile.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('Identity', () => {
     it('Should create an identity with just email', () => {
@@ -138,23 +139,23 @@ describe('ProfileService', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            imports: [
-                HttpClientTestingModule,
-            ],
-            providers: [
-                { provide: RunboxWebmailAPI, useValue: {
-                    me: of({first_name: 'Test', last_name: 'User'}),
-                    getProfiles: () => of(PROFILES),
-                    createProfile: (newprofile) => {
-                        newprofile['reference_type'] = 'aliases';
-                        PROFILES.unshift(newprofile);
-                        return of(PROFILES.length);
-                    },
-                    getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
-                } },
-                ProfileService
-            ],
-        }).compileComponents();
+    imports: [],
+    providers: [
+        { provide: RunboxWebmailAPI, useValue: {
+                me: of({ first_name: 'Test', last_name: 'User' }),
+                getProfiles: () => of(PROFILES),
+                createProfile: (newprofile) => {
+                    newprofile['reference_type'] = 'aliases';
+                    PROFILES.unshift(newprofile);
+                    return of(PROFILES.length);
+                },
+                getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com' }]),
+            } },
+        ProfileService,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()
+    ]
+}).compileComponents();
     }));
     
     beforeEach(() => { service = service = TestBed.inject(ProfileService) });
