@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, OnDestroy, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
 import {
   CanvasTableSelectListener, CanvasTableComponent,
   CanvasTableContainerComponent
@@ -44,11 +44,11 @@ import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { firstValueFrom, from, Observable } from 'rxjs';
+import { firstValueFrom, from, Observable, Subject } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -86,7 +86,9 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
     templateUrl: 'app.component.html',
     standalone: false
 })
-export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTableSelectListener, DoCheck {
+  private destroy$ = new Subject<void>();
+
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
 
@@ -266,7 +268,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
 
 
-    this.websocketsearchservice.searchresults.subscribe((results) => {
+    this.websocketsearchservice.searchresults.pipe(takeUntil(this.destroy$)).subscribe((results) => {
       if (results === null) {
         if (this.showingWebSocketSearchResults) {
           this.setMessageDisplay('messagelist', this.messagelist);
@@ -281,7 +283,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
 
-    mobileQuery.screenSizeChanged.subscribe(size => {
+    mobileQuery.screenSizeChanged.pipe(takeUntil(this.destroy$)).subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
       this.changeDetectorRef.markForCheck();
 
@@ -301,7 +303,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     });
 
 
-    preferenceService.preferences.subscribe((prefs) => {
+    preferenceService.preferences.pipe(takeUntil(this.destroy$)).subscribe((prefs) => {
       // message list prefs
       if (this.canvastable) {
         this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
@@ -370,6 +372,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.calculateWidthDependentElements();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
     this.canvastable = this.canvastablecontainer.canvastable;
     if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
@@ -382,7 +389,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastablecontainer.sortDescending = true;
     this.resetColumns();
 
-    this.messagelistservice.messagesInViewSubject.subscribe(res => {
+    this.messagelistservice.messagesInViewSubject.pipe(takeUntil(this.destroy$)).subscribe(res => {
       this.messagelist = res;
       if (
         (
@@ -412,18 +419,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
 
-    this.canvastable.scrollLimitHit.subscribe((limit) =>
+    this.canvastable.scrollLimitHit.pipe(takeUntil(this.destroy$)).subscribe((limit) =>
       this.messagelistservice.requestMoreData(limit)
     );
 
     this.canvastable.canvasResizedSubject.pipe(
+        takeUntil(this.destroy$),
         filter(widthChanged => widthChanged === true),
         debounceTime(20)
       ).subscribe(() =>
         this.autoAdjustColumnWidths()
     );
 
-    this.route.fragment.subscribe(
+    this.route.fragment.pipe(takeUntil(this.destroy$)).subscribe(
       fragment => {
         if (!fragment) {
           // This also runs when we load '/compose' .. but doesnt need to
@@ -447,7 +455,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     );
 
-    this.updateService.updateIsReady.subscribe(res => {
+    this.updateService.updateIsReady.pipe(takeUntil(this.destroy$)).subscribe(res => {
       if(res) {
         this.updateService.updateIsReady.next(false);
         // Update is available, ask user if they want to restart:
@@ -460,18 +468,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngAfterViewInit() {
-    this.searchService.indexReloadedSubject.subscribe(() => {
+    this.searchService.indexReloadedSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
       console.log('Redrawing after search results update');
       // this.searchService.api.reloadXapianDatabase();
       this.afterUpdateIndex();
     });
 
-    this.searchService.noLocalIndexFoundSubject.subscribe(() => {
+    this.searchService.noLocalIndexFoundSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
       this.promptLocalSearch();
     });
 
     this.router.events.pipe(
+      takeUntil(this.destroy$),
       filter(e => e instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -484,6 +493,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     // Download visible messages in the background
     this.canvastable.repaintDoneSubject.pipe(
+        takeUntil(this.destroy$),
         filter(() => !this.canvastable.isScrollInProgress()),
         throttleTime(1000)
     ).subscribe(() => {

@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { ConfirmDialog } from '../dialog/dialog.module';
@@ -26,8 +26,8 @@ import { FolderMessageCountMap } from '../rmmapi/messagelist.service';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 import { INBOX_FOLDER } from '../common/folder.constants';
 
-import { Observable, firstValueFrom } from 'rxjs';
-import { first, map, filter, take } from 'rxjs/operators';
+import { Observable, Subscription, firstValueFrom, Subject } from 'rxjs';
+import { first, map, filter, take, takeUntil } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import {ExtendedKeyboardEvent, Hotkey, HotkeysService} from 'angular2-hotkeys';
 
@@ -67,7 +67,10 @@ export class RenameFolderEvent {
     styleUrls: ['folderlist.component.scss'],
     standalone: false
 })
-export class FolderListComponent implements OnChanges {
+export class FolderListComponent implements OnChanges, OnDestroy {
+    private destroy$ = new Subject<void>();
+    private foldersSub: Subscription;
+
     dropFolderId: number;
     dropPosition = DropPosition;
     dropAboveOrBelowOrInside: DropPosition = DropPosition.NONE;
@@ -133,7 +136,7 @@ export class FolderListComponent implements OnChanges {
         );
         this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-        this.treeControl.expansionModel.changed.subscribe(state => {
+        this.treeControl.expansionModel.changed.pipe(takeUntil(this.destroy$)).subscribe(state => {
             state.added.forEach(added => {
                 if (this.storedexpandedFolderIds.findIndex(fid => fid === added.folderId) === -1) {
                     this.storedexpandedFolderIds.push(added.folderId);
@@ -148,8 +151,15 @@ export class FolderListComponent implements OnChanges {
         });
     }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     ngOnChanges(): void {
-      this.folders.subscribe(folders => {
+      // Avoid stacking subscriptions on repeated input changes.
+      this.foldersSub?.unsubscribe();
+      this.foldersSub = this.folders.pipe(takeUntil(this.destroy$)).subscribe(folders => {
         if (folders.length > 0) {
           this.updateFolderTree(folders);
         }

@@ -297,7 +297,7 @@ export class PreferencesService {
             }
             const resizerPercentage = localStorage.getItem(resizerPercentageKey);
             if (resizerPercentage) {
-                prefs.set(`${level}:${resizerPercentageKey}`, htmlDecision);
+                prefs.set(`${level}:${resizerPercentageKey}`, resizerPercentage);
             }
 
             const searchPrompt = localStorage.getItem(`localSearchPromptDisplayed${uid}`);

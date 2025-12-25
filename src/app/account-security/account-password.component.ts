@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RMM } from '../rmm';
 import { share, timeout } from 'rxjs/operators';
@@ -27,7 +27,7 @@ import { share, timeout } from 'rxjs/operators';
     templateUrl: 'account-password.component.html',
     standalone: false
 })
-export class AccountPasswordComponent {
+export class AccountPasswordComponent implements OnDestroy {
     old_password: string;
     new_password: string;
     confirm_password: string;
@@ -37,6 +37,10 @@ export class AccountPasswordComponent {
 
     constructor(public snackBar: MatSnackBar, public rmm: RMM) {
         this.rmm.me.load();
+    }
+
+    ngOnDestroy() {
+        clearTimeout(this.time_out);
     }
 
     check_password(old_password = this.old_password, new_password = this.new_password, confirm_password = this.confirm_password) {
