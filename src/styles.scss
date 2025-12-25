@@ -1242,7 +1242,7 @@ rmm-folderlist {
 }
 
 .folderNameUnread {
-    font-family: "Avenir Next Pro Medium";
+    font-family: "Avenir Next Pro Medium", "Helvetica Neue", sans-serif;
     color: var(--rmm-text-secondary);
     font-weight: bold !important;
 }
@@ -1436,7 +1436,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     margin-top: 20px;
     flex-grow: 1;
     text-align: center;
-    font-family: "Avenir Next Pro Regular ", "Helvetica Neue", sans-serif;
+    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
     font-weight: 400;
     font-size: 13px;
     color: var(--rmm-text-tertiary);
