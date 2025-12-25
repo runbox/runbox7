@@ -24,6 +24,7 @@ import { ConfirmDialog } from '../dialog/dialog.module';
 import { FolderListEntry } from '../common/folderlistentry';
 import { FolderMessageCountMap } from '../rmmapi/messagelist.service';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
+import { INBOX_FOLDER } from '../common/folder.constants';
 
 import { Observable, firstValueFrom } from 'rxjs';
 import { first, map, filter, take } from 'rxjs/operators';
@@ -99,7 +100,7 @@ export class FolderListComponent implements OnChanges {
             new Hotkey(['g+i', 'g+t'],
             (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
                 if (combo === 'g+i') {
-                    this.selectFolder('Inbox');
+                    this.selectFolder(INBOX_FOLDER);
                     combo = null;
                 }
                 if (combo === 'g+t') {

@@ -37,34 +37,13 @@ import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
+import { INBOX_FOLDER } from '../common/folder.constants';
+import { folderQuery, SearchIndexDocumentData, XAPIAN_GLASS_WR, XAPIAN_TERM_ANSWERED, XAPIAN_TERM_DELETED, XAPIAN_TERM_FLAGGED, XAPIAN_TERM_FOLDER, XAPIAN_TERM_HASATTACHMENTS, XAPIAN_TERM_SEEN } from './xapian-shared';
+export { XAPIAN_GLASS_WR, SearchIndexDocumentData } from './xapian-shared';
 
 declare let FS;
 declare let IDBFS;
 declare let Module;
-
-const XAPIAN_TERM_FOLDER = 'XFOLDER:';
-const XAPIAN_TERM_FLAGGED = 'XFflagged';
-const XAPIAN_TERM_SEEN = 'XFseen';
-const XAPIAN_TERM_ANSWERED = 'XFanswered';
-const XAPIAN_TERM_DELETED = 'XFdeleted';
-const XAPIAN_TERM_HASATTACHMENTS = 'XFattachment';
-
-export const XAPIAN_GLASS_WR = 'xapianglasswr';
-
-// FIXME: Also in index.worker.ts
-export class SearchIndexDocumentData {
-  id: string;
-  from: string;
-  subject: string;
-  recipients: string[];
-  textcontent: string;
-  folder?: string;
-  flagged?: boolean;
-  seen?: boolean;
-  answered?: boolean;
-  deleted?: boolean;
-  attachment?: boolean;
-}
 
 @Injectable({
     providedIn: 'root'
@@ -700,11 +679,9 @@ export class SearchService {
 
   // Also in index.worker.ts
   getFolderQuery(querytext: string, folderPath: string, unreadOnly: boolean): string {
-    const folderQuery = (folderName) => 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
-
-    if (folderPath === 'Inbox') {
+    if (folderPath === INBOX_FOLDER) {
       // Workaround for IMAP setting folder to "INBOX" when moving messages  there
-      querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
+      querytext += `(${folderQuery(INBOX_FOLDER)} OR ${folderQuery('INBOX')})`;
     } else {
       querytext += folderQuery(folderPath);
     }

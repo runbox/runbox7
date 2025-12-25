@@ -18,10 +18,10 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { MessageInfo } from '../common/messageinfo';
-import { MailAddressInfo } from '../common/mailaddressinfo';
 import { FolderStatsEntry } from '../common/folderstatsentry';
+import { buildListAllMessagesUrl, LIST_ALL_MESSAGES_CHUNK_SIZE, parseListAllMessagesText } from './list-all-messages.util';
+import { formatRestDatetime } from './rest-datetime';
 
-const LIST_ALL_MESSAGES_CHUNK_SIZE = 10000;
 export function listAllMessages(
   page: number,
   sinceid = 0,
@@ -30,15 +30,14 @@ export function listAllMessages(
   skipContent = false,
   folder?: string)
 : Promise<MessageInfo[]> {
-  // TODO: Need a JSON based REST api endpoint for this
-  const url = '/mail/download_xapian_index?ngsw-bypass=1' +
-    '&listallmessages=1' +
-    '&page=' + page +
-    '&sinceid=' + sinceid +
-    '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
-    '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-    (folder ? '&folder=' + folder : '') +
-    '&avoidcacheuniqueparam=' + new Date().getTime();
+  const url = buildListAllMessagesUrl({
+    page,
+    sinceid,
+    sincechangeddate,
+    pagesize,
+    skipContent,
+    folder
+  });
 
   return fetch(url, {
     method: 'GET',
@@ -51,46 +50,7 @@ export function listAllMessages(
     }
     return response.text();
   })
-    .then((txt) => txt.length > 0 ? txt.split('\n') : [])
-    .then((lines) => {
-      const msgs = lines.map((line) => {
-        const parts = line.split('\t');
-        const from_ = parts[7];
-        const to = parts[8];
-        const fromInfo: MailAddressInfo[] = MailAddressInfo.parse(from_);
-        const toInfo: MailAddressInfo[] = MailAddressInfo.parse(to);
-        const size: number = parseInt(parts[10], 10);
-        const attachment: boolean = parts[11] === 'y';
-        const seenFlag: boolean = parseInt(parts[4], 10) === 1;
-        const answeredFlag: boolean = parseInt(parts[5], 10) === 1;
-        const flaggedFlag: boolean = parseInt(parts[6], 10) === 1;
-
-
-        const ret = new MessageInfo(
-          parseInt(parts[0], 10), // id
-          new Date(parseInt(parts[1], 10) * 1000), // changed date
-          new Date(parseInt(parts[2], 10) * 1000), // message date
-          parts[3],                                // folder
-          seenFlag,                                // seen flag
-          answeredFlag,                            // answered flag
-          flaggedFlag,                             // flagged flag
-          fromInfo,                                // from
-          toInfo,                                  // to
-          [],                                      // cc
-          [],                                      // bcc
-          parts[9],                                // subject
-          parts[12],                               // plaintext body
-          size,                                    // size
-          attachment                               // attachment
-        );
-        if (size === -1) {
-          // Size = -1 means deleted flag is set - ref hack in Webmail.pm
-          ret.deletedFlag = true;
-        }
-        return ret;
-      });
-      return msgs;
-    })
+    .then(parseListAllMessagesText)
     .catch((error) => {
       console.error(error);
       return [];
@@ -99,7 +59,7 @@ export function listAllMessages(
 }
 
 export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number[]> {
-        const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
+        const datestring = formatRestDatetime(sincechangeddate);
         const url = `/rest/v1/list/deleted_messages/${datestring}`;
 
   return fetch(

@@ -21,7 +21,6 @@ import { Injectable, NgZone } from '@angular/core';
 import { Observable, from, of, Subject, AsyncSubject, firstValueFrom, throwError } from 'rxjs';
 import { catchError, concatMap, share, filter, map, mergeMap } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
-import { MailAddressInfo } from '../common/mailaddressinfo';
 import { FolderListEntry } from '../common/folderlistentry';
 
 import { Contact } from '../contacts-app/contact';
@@ -40,6 +39,8 @@ import moment from 'moment';
 import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 import { PreferencesResult } from '../common/preferences.service';
 import { Domain } from '../dkim/domain.service';
+import { buildListAllMessagesUrl, LIST_ALL_MESSAGES_CHUNK_SIZE, parseListAllMessagesText } from './list-all-messages.util';
+import { formatRestDatetime } from './rest-datetime';
 
 export class MessageFields {
     id: number;
@@ -162,7 +163,7 @@ export class MessageFlagChange {
 
 @Injectable()
 export class RunboxWebmailAPI {
-    public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = 10000;
+    public static readonly LIST_ALL_MESSAGES_CHUNK_SIZE: number = LIST_ALL_MESSAGES_CHUNK_SIZE;
     public static readonly DOWNLOAD_MESSAGES_CHUNK_SIZE: number = 50;
 
     public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
@@ -372,7 +373,7 @@ export class RunboxWebmailAPI {
     }
 
     public listDeletedMessagesSince(sincechangeddate: Date): Observable<number[]> {
-        const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
+        const datestring = formatRestDatetime(sincechangeddate);
         const url = `/rest/v1/list/deleted_messages/${datestring}`;
 
         return this.http.get(url).pipe(
@@ -380,8 +381,6 @@ export class RunboxWebmailAPI {
         );
     }
 
-  // FIXME: duplicated in restapi_standalone (no gui) for web worker
-  // make there be no duplicates!
     public listAllMessages(page: number,
         sinceid = 0,
         sincechangeddate = 0,
@@ -389,63 +388,24 @@ export class RunboxWebmailAPI {
         skipContent = false,
         folder?: string)
         : Observable<MessageInfo[]> {
-        // TODO: Need a JSON based REST api endpoint for this
-        const url = '/mail/download_xapian_index?ngsw-bypass=1' +
-                    '&listallmessages=1' +
-                    '&page=' + page +
-                    '&sinceid=' + sinceid +
-                    '&sincechangeddate=' + Math.floor(sincechangeddate / 1000) +
-                    '&pagesize=' + pagesize + (skipContent ? '&skipcontent=1' : '') +
-                    (folder ? '&folder=' + folder : '') +
-                    '&avoidcacheuniqueparam=' + new Date().getTime();
+        const url = buildListAllMessagesUrl({
+            page,
+            sinceid,
+            sincechangeddate,
+            pagesize,
+            skipContent,
+            folder
+        });
 
-            return this.me.pipe(
-                filter(me => !me.isExpired()),
-                mergeMap((me) => {
-                    return this.http.get(url, { responseType: 'text' }).pipe(
-                        map((txt: string) => txt.length > 0 ? txt.split('\n') : []),
-                        map((lines: string[]) =>
-                            lines.map((line) => {
-                                const parts = line.split('\t');
-                                const from_ = parts[7];
-                                const to = parts[8];
-                                const fromInfo: MailAddressInfo[] = MailAddressInfo.parse(from_);
-                                const toInfo: MailAddressInfo[] = MailAddressInfo.parse(to);
-                                const size: number = parseInt(parts[10], 10);
-                                const attachment: boolean = parts[11] === 'y';
-                                const seenFlag: boolean = parseInt(parts[4], 10) === 1;
-                                const answeredFlag: boolean = parseInt(parts[5], 10) === 1;
-                                const flaggedFlag: boolean = parseInt(parts[6], 10) === 1;
-
-
-                                const ret = new MessageInfo(
-                                    parseInt(parts[0], 10), // id
-                                    new Date(parseInt(parts[1], 10) * 1000), // changed date
-                                    new Date(parseInt(parts[2], 10) * 1000), // message date
-                                    parts[3],                                // folder
-                                    seenFlag,                                // seen flag
-                                    answeredFlag,                            // answered flag
-                                    flaggedFlag,                             // flagged flag
-                                    fromInfo,                                // from
-                                    toInfo,                                  // to
-                                    [],                                      // cc
-                                    [],                                      // bcc
-                                    parts[9],                                // subject
-                                    parts[12],                               // plaintext body
-                                    size,                                    // size
-                                    attachment                               // attachment
-                                );
-                                if (size === -1) {
-                                    // Size = -1 means deleted flag is set - ref hack in Webmail.pm
-                                    ret.deletedFlag = true;
-                                }
-                                return ret;
-                            })
-                           )
-                    );
-                })
-            );
-        }
+        return this.me.pipe(
+            filter(me => !me.isExpired()),
+            mergeMap((me) => {
+                return this.http.get(url, { responseType: 'text' }).pipe(
+                    map(parseListAllMessagesText)
+                );
+            })
+        );
+    }
 
     subscribeShowBackendErrors(req: any) {
         req.subscribe((res: any) => {

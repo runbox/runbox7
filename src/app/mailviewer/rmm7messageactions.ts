@@ -29,6 +29,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessageActions } from './messageactions';
 import { RunboxWebmailAPI, MessageFlagChange } from '../rmmapi/rbwebmail';
 import { ProgressDialog } from '../dialog/dialog.module';
+import { INBOX_FOLDER } from '../common/folder.constants';
 
 export class RMM7MessageActions implements MessageActions {
     mailViewerComponent: SingleMailViewerComponent;
@@ -166,7 +167,7 @@ export class RMM7MessageActions implements MessageActions {
                 } else {
                     // move back to inbox - do messagelist first, so
                     // the folder changes. FIXME: constant for "inbox"?
-                    this.messageListService.moveMessages(msgIds, 'Inbox', true);
+                    this.messageListService.moveMessages(msgIds, INBOX_FOLDER, true);
 
                     if (this.searchService.localSearchActivated) {
                       this.searchService.indexWorker.postMessage(

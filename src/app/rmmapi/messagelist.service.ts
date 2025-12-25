@@ -24,6 +24,7 @@ import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operat
 
 import { MessageInfo } from '../common/messageinfo';
 import { FolderListEntry } from '../common/folderlistentry';
+import { INBOX_FOLDER, SPAM_FOLDER, TRASH_FOLDER, TEMPLATES_FOLDER, UNINDEXED_FOLDERS } from '../common/folder.constants';
 
 import { RunboxWebmailAPI } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
@@ -53,17 +54,17 @@ export class MessageListService {
     folderListSubject: BehaviorSubject<FolderListEntry[]> = new BehaviorSubject([]);
     folderMessageCountSubject: ReplaySubject<FolderMessageCountMap> = new ReplaySubject(1);
 
-    currentFolder = 'Inbox';
+    currentFolder = INBOX_FOLDER;
 
     folderMessageLists: { [folder: string]: MessageInfo[] } = {};
     messagesById: { [id: number]: MessageInfo } = {};
     folderCounts: FolderMessageCountMap;
     staleFolders: { [name: string]: boolean } = {};
 
-    trashFolderName = 'Trash';
-    spamFolderName = 'Spam';
-    unindexedFolders = ['Trash', 'Spam', 'Templates'];
-    templateFolderName = 'Templates';
+    trashFolderName = TRASH_FOLDER;
+    spamFolderName = SPAM_FOLDER;
+    unindexedFolders = [...UNINDEXED_FOLDERS];
+    templateFolderName = TEMPLATES_FOLDER;
 
     ignoreUnreadInFolders = [ 'Sent' ];
 
@@ -251,16 +252,7 @@ export class MessageListService {
         // messages permanently deleted (removed from trash
         delMsgInfos
             .forEach((msgId) => {
-                const msg = this.messagesById[msgId];
-                if (msg && this.folderMessageLists[msg.folder]) {
-                    const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
-
-                    if (delFolderMessageIndex > -1) {
-                        this.folderMessageLists[msg.folder]
-                            .splice(delFolderMessageIndex, 1);
-                    }
-                    delete this.messagesById[msgId];
-                }
+                this.removeMessageLocally(msgId);
             });
 
         Object.keys(filterFolders)
@@ -277,6 +269,27 @@ export class MessageListService {
         // made from outside of runbox7 (eg via IMAP)
         this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
         this.refreshFolderList();
+    }
+
+    private removeMessageLocally(msgId: number, adjustTrashCounts = false) {
+        const msg = this.messagesById[msgId];
+        if (!msg || !this.folderMessageLists[msg.folder]) {
+            return;
+        }
+        const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
+
+        if (delFolderMessageIndex > -1) {
+            this.folderMessageLists[msg.folder]
+                .splice(delFolderMessageIndex, 1);
+        }
+
+        if (adjustTrashCounts && msg.folder === this.trashFolderName) {
+            this.folderCounts[this.trashFolderName].total--;
+            if (!msg.seenFlag) {
+                this.folderCounts[this.trashFolderName].unread--;
+            }
+        }
+        delete this.messagesById[msgId];
     }
 
     // When emptying the trash we delete from here first
@@ -296,20 +309,7 @@ export class MessageListService {
     // Permanent delete
     public deleteTrashMessages(messageIds: number[]) {
         messageIds.forEach((msgId) => {
-            const msg = this.messagesById[msgId];
-            if (msg && this.folderMessageLists[msg.folder]) {
-                const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
-
-                if (delFolderMessageIndex > -1) {
-                    this.folderMessageLists[msg.folder]
-                        .splice(delFolderMessageIndex, 1);
-                }
-                this.folderCounts[this.trashFolderName].total--;
-                if (!msg.seenFlag) {
-                    this.folderCounts[this.trashFolderName].unread--;
-                }
-                delete this.messagesById[msgId];
-            }
+            this.removeMessageLocally(msgId, true);
         });
         // Message counts update
         this.folderMessageCountSubject.next(this.folderCounts);

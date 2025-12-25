@@ -38,6 +38,7 @@ import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './common/messageinfo';
 import { MessageList } from './common/messagelist';
 import { FolderListEntry } from './common/folderlistentry';
+import { INBOX_FOLDER } from './common/folder.constants';
 import { RunboxWebmailAPI, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
@@ -426,7 +427,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       fragment => {
         if (!fragment) {
           // This also runs when we load '/compose' .. but doesnt need to
-          this.switchToFolder('Inbox');
+          this.switchToFolder(INBOX_FOLDER);
           if (this.singlemailviewer) {
             this.singlemailviewer.close();
           }
@@ -719,7 +720,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
                 });
           }
           // FIXME: constant for "inbox"?
-          this.messagelistservice.moveMessages(msgIds, 'Inbox', true);
+          this.messagelistservice.moveMessages(msgIds, INBOX_FOLDER, true);
         }
         this.clearSelection();
         if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {

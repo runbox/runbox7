@@ -32,41 +32,20 @@ import { FolderStatsEntry } from '../common/folderstatsentry';
 import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
+import { INBOX_FOLDER, UNINDEXED_FOLDERS } from '../common/folder.constants';
+import { folderQuery, SearchIndexDocumentData, XAPIAN_GLASS_WR, XAPIAN_TERM_ANSWERED, XAPIAN_TERM_DELETED, XAPIAN_TERM_FLAGGED, XAPIAN_TERM_FOLDER, XAPIAN_TERM_HASATTACHMENTS, XAPIAN_TERM_SEEN } from './xapian-shared';
+import { LIST_ALL_MESSAGES_CHUNK_SIZE } from '../rmmapi/list-all-messages.util';
 
 declare let FS;
 declare let IDBFS;
 declare let Module;
 
-const XAPIAN_TERM_FOLDER = 'XFOLDER:';
-const XAPIAN_TERM_FLAGGED = 'XFflagged';
-const XAPIAN_TERM_SEEN = 'XFseen';
-const XAPIAN_TERM_ANSWERED = 'XFanswered';
-const XAPIAN_TERM_DELETED = 'XFdeleted';
 const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
-const XAPIAN_TERM_HASATTACHMENTS = 'XFattachment';
-
-export const XAPIAN_GLASS_WR = 'xapianglasswr';
 
 const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
 const FOLDER_DISCREPANCY_CHECK_INTERVAL_MS = 30000;
-// stolen from rbwebmail.ts, should be in a sep file both load?
-const LIST_ALL_MESSAGES_CHUNK_SIZE = 10000;
 
 const ctx: Worker = self as any;
-
-class SearchIndexDocumentData {
-  id: string;
-  from: string;
-  subject: string;
-  recipients: string[];
-  textcontent: string;
-  folder?: string;
-  flagged?: boolean;
-  seen?: boolean;
-  answered?: boolean;
-  deleted?: boolean;
-  attachment?: boolean;
-}
 
 class SearchIndexDocumentUpdate {
   constructor(
@@ -86,8 +65,8 @@ export class SearchIndexService {
 
   // postMessage ?
   // messagelistservice stuff!
-  currentFolder   = 'Inbox';
-  unindexedFolders = ['Trash', 'Spam', 'Templates'];
+  currentFolder   = INBOX_FOLDER;
+  unindexedFolders = [...UNINDEXED_FOLDERS];
   folderList: FolderListEntry[];
   messageTextCache = new Map<number, string>();
 
@@ -746,7 +725,7 @@ not matching with rest api counts for current folder`);
         // Notify on new messages
         const newmessages = msginfos.filter(m =>
           !m.seenFlag &&
-          m.folder === 'Inbox' &&
+          m.folder === INBOX_FOLDER &&
           m.messageDate.getTime() > this.indexLastUpdateTime);
         if (newmessages.length > 0) {
           postMessage({'action': PostMessageAction.newMessagesNotification,
@@ -927,11 +906,9 @@ not matching with rest api counts for current folder`);
 
 
   getFolderQuery(querytext: string, folderPath: string, unreadOnly: boolean): string {
-    const folderQuery = (folderName) => 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
-
-    if (folderPath === 'Inbox') {
+    if (folderPath === INBOX_FOLDER) {
       // Workaround for IMAP setting folder to "INBOX" when moving messages  there
-      querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
+      querytext += `(${folderQuery(INBOX_FOLDER)} OR ${folderQuery('INBOX')})`;
     } else {
       querytext += folderQuery(folderPath);
     }
