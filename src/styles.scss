@@ -391,6 +391,22 @@ mat-form-field,
     font-size: 13px !important;
 }
 
+/* Global form field alignment fix */
+.mat-mdc-form-field-flex {
+    align-items: center;
+}
+
+.mat-mdc-form-field-infix {
+    display: flex;
+    align-items: center;
+}
+
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-suffix {
+    display: flex;
+    align-items: center;
+}
+
 /* MDC-based list item styling */
 .mat-mdc-list-item,
 mat-list-item {
@@ -1038,7 +1054,7 @@ mat-sidenav-container {
 
 @media(max-width: 1024px) {
     mat-sidenav-container {
-	    top: 56px !important;
+	    top: 0 !important;
     }
 }
 
@@ -1069,11 +1085,11 @@ mat-sidenav-container {
 }
 
 @media (max-width: 1024px) {
-    #mainMenu {
+    #mainMenuContainer {
 	    display: none;
     }
     .sidenavMainMenu {
-	    display: inline;
+	    display: block;
     }
 }
 
@@ -1096,6 +1112,8 @@ mat-sidenav-container {
 #sidenavLogoContainer {
     background-color: mat.m2-get-color-from-palette($rmm-default-primary) !important;
     margin-top: -4px;
+    padding-bottom: 10px;
+    text-align: center;
 
     .mat-button .mat-ripple-element,
     .mat-mdc-button-base .mat-ripple-element {
@@ -1105,6 +1123,31 @@ mat-sidenav-container {
 
 #sidenavLogoButton {
     width: 100%;
+}
+
+.sidenav-theme-toggle {
+    padding: 8px 16px;
+    color: white;
+
+    .mat-mdc-slide-toggle,
+    .mat-slide-toggle {
+        width: 100%;
+    }
+
+    span {
+        color: white;
+        font-size: 13px;
+    }
+}
+
+.sidenav-buttons {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 10px 8px;
+
+    button {
+        margin: 0 4px;
+    }
 }
 
 #webmailSettingsMenuButton {
@@ -1136,6 +1179,26 @@ mat-sidenav-container {
 #logoSidenav {
     width: 125px;
     height: auto;
+}
+
+/* Sidebar menu button styling - shared between mailbox, calendar, contacts */
+.sidebarMenuButton {
+    height: 40px !important;
+    cursor: pointer;
+    overflow: visible !important;
+
+    * {
+        overflow: visible !important;
+    }
+
+    mat-icon {
+        padding-right: 0 !important;
+        margin-right: 8px !important;
+    }
+}
+
+.sidebarMenuButton:hover {
+    background-color: var(--rmm-bg-tertiary) !important;
 }
 
 #composeButton, #draftsButton, #overviewButton {
@@ -1297,12 +1360,10 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 #mailMenu {
+    display: flex;
     min-height: 64px;
     padding: 0 8px;
     align-items: center;
-    @media(max-width: 340px) {
-
-    }
 }
 .messageListActionButtonsRight {
     flex-grow: 1;
@@ -1320,6 +1381,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 #offerLocalIndex {
     display: flex;
     flex-flow: row;
+    align-items: center;
     white-space: normal;
     line-height: 1em;
 
@@ -1363,10 +1425,33 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     padding-bottom: 0;
 }
 
+#searchField .mat-mdc-text-field-wrapper {
+    padding: 0 8px;
+    height: 40px;
+}
+
+#searchField .mat-mdc-form-field-flex {
+    height: 100%;
+    align-items: center;
+}
+
 #searchField .mat-mdc-form-field-infix {
-    line-height: 1.35em;
-    padding: 0.45em 0 0.1em;
+    padding: 0;
+    min-height: 0;
     width: 100%;
+    border: 0;
+    display: flex;
+    align-items: center;
+}
+
+#searchField .mat-mdc-form-field-icon-suffix {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#searchField input {
+    font-size: 16px;
 }
 
 #searchField .mdc-line-ripple {
@@ -1376,10 +1461,6 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 #searchField mat-icon {
     font-size: 20px !important;
     line-height: 20px !important;
-}
-
-#searchField input {
-    font-size: 16px;
 }
 
 #searchField label {
