@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -66,7 +66,6 @@ export class ContactsAppComponent {
 
     constructor(
         public  contactsservice: ContactsService,
-        private cdr:             ChangeDetectorRef,
         private dialog:          MatDialog,
         private http:            HttpClient,
         public  mobileQuery:     MobileQueryService,

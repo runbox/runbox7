@@ -26,6 +26,7 @@ export enum Theme {
     Dark = 'dark',
     Christmas = 'christmas',
     HighContrast = 'high-contrast',
+    Terminal = 'terminal',
     Auto = 'auto'
 }
 
@@ -88,8 +89,8 @@ export class ThemeService {
 
         if (theme === Theme.Light || theme === Theme.Christmas) {
             effectiveTheme = 'light';
-        } else if (theme === Theme.HighContrast) {
-            effectiveTheme = 'dark'; // High contrast uses dark as base
+        } else if (theme === Theme.HighContrast || theme === Theme.Terminal) {
+            effectiveTheme = 'dark'; // High contrast and terminal use dark as base
         } else if (theme === Theme.Auto) {
             effectiveTheme = this.mediaQueryList.matches ? 'dark' : 'light';
         }
@@ -107,16 +108,21 @@ export class ThemeService {
             return;
         }
 
+        if (theme === Theme.Terminal) {
+            this.applyThemeToDocument('terminal');
+            return;
+        }
+
         this.applyThemeToDocument(effectiveTheme);
     }
 
-    private applyThemeToDocument(theme: 'light' | 'dark' | 'christmas' | 'high-contrast'): void {
+    private applyThemeToDocument(theme: 'light' | 'dark' | 'christmas' | 'high-contrast' | 'terminal'): void {
         const htmlElement = document.documentElement;
         const bodyElement = document.body;
 
         // Remove all theme classes
-        htmlElement.classList.remove('dark-theme', 'christmas-theme', 'high-contrast-theme');
-        bodyElement.classList.remove('dark-theme', 'christmas-theme', 'high-contrast-theme');
+        htmlElement.classList.remove('dark-theme', 'christmas-theme', 'high-contrast-theme', 'terminal-theme');
+        bodyElement.classList.remove('dark-theme', 'christmas-theme', 'high-contrast-theme', 'terminal-theme');
 
         // Add the appropriate theme class
         if (theme === 'dark') {
@@ -128,6 +134,9 @@ export class ThemeService {
         } else if (theme === 'high-contrast') {
             htmlElement.classList.add('high-contrast-theme');
             bodyElement.classList.add('high-contrast-theme');
+        } else if (theme === 'terminal') {
+            htmlElement.classList.add('terminal-theme');
+            bodyElement.classList.add('terminal-theme');
         }
 
         htmlElement.setAttribute('data-theme', theme);

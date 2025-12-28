@@ -116,6 +116,26 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     @include mat.all-component-themes($rmm-high-contrast-theme);
 }
 
+// Terminal theme palettes - VT100 inspired phosphor green
+$rmm-terminal-primary: mat.m2-define-palette(mat.$m2-green-palette, A400, A200, A700);
+$rmm-terminal-accent:  mat.m2-define-palette(mat.$m2-cyan-palette, A400, A200, A700);
+$rmm-terminal-warn:    mat.m2-define-palette(mat.$m2-orange-palette, 500, 300, 700);
+
+$rmm-terminal-theme: mat.m2-define-dark-theme((
+    color: (
+        primary: $rmm-terminal-primary,
+        accent: $rmm-terminal-accent,
+        warn: $rmm-terminal-warn,
+    ),
+    typography: $custom-typography,
+    density: 0,
+));
+
+// Apply terminal theme when .terminal-theme class is present
+.terminal-theme {
+    @include mat.all-component-themes($rmm-terminal-theme);
+}
+
 // GTA 13.06.2018: Load custom fonts
 
 @font-face {
@@ -310,6 +330,143 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
     --rmm-drop-highlight-edge: rgba(0, 255, 255, 1.0);
 
     color-scheme: dark;
+}
+
+// Terminal theme - VT100 phosphor green CRT aesthetic
+.terminal-theme {
+    --rmm-primary-color: #00ff41;        // Classic phosphor green
+    --rmm-accent-color: #00d4aa;         // Cyan-green accent
+    --rmm-warn-color: #ff9500;           // Amber warning
+    --rmm-foreground-color: #33ff66;     // Bright green
+    --rmm-background-color: #0a0a0a;     // Near black
+    --rmm-highlight-color: #00ff41;      // Green highlight
+
+    --rmm-lighter-gray: #1a2a1a;         // Dark with green tint
+    --rmm-light-gray: #0d1a0d;           // Very dark green-black
+    --rmm-dark-gray: #66ff66;            // Light green (inverted gray)
+    --rmm-black: #00ff41;                // Green (inverted black)
+
+    --rmm-bg-primary: #0a0a0a;           // CRT black
+    --rmm-bg-secondary: #0d1a0d;         // Slight green tint
+    --rmm-bg-tertiary: #102010;          // Darker green
+    --rmm-text-primary: #00ff41;         // Phosphor green
+    --rmm-text-secondary: #00cc33;       // Dimmer green
+    --rmm-text-tertiary: #00aa2a;        // Even dimmer
+    --rmm-text-on-primary: #0a0a0a;      // Black on green
+    --rmm-error-text: #ff4444;           // Red errors
+    --rmm-error-bg: rgba(255, 68, 68, 0.15);
+    --rmm-success-color: #00ff41;        // Green success
+    --rmm-chip-bg: #1a3a1a;              // Dark green chip
+    --rmm-border-color: #00aa2a;         // Green border
+    --rmm-divider-color: #0d3d0d;        // Dark green divider
+
+    --rmm-header-gradient: linear-gradient(177deg, #0d2d0d, #050a05);
+
+    // Plan tier colors (green progression)
+    --rmm-tier-micro: #66ff88;
+    --rmm-tier-mini: #44dd66;
+    --rmm-tier-medium: #22bb44;
+    --rmm-tier-max: #00ff41;
+    --rmm-tier-max100: #00cc33;
+    --rmm-tier-max250: #00aa2a;
+
+    // Drag-drop highlight colors (bright green)
+    --rmm-drop-highlight: rgba(0, 255, 65, 0.4);
+    --rmm-drop-highlight-edge: rgba(0, 204, 51, 1.0);
+
+    color-scheme: dark;
+
+    // CRT scanline effect overlay
+    &::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15) 0px,
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+        opacity: 0.3;
+    }
+
+    // Phosphor glow on text
+    * {
+        text-shadow: 0 0 2px rgba(0, 255, 65, 0.3);
+    }
+
+    // Stronger glow on headings
+    h1, h2, h3, h4, h5, h6 {
+        text-shadow: 0 0 4px rgba(0, 255, 65, 0.5);
+    }
+
+    // Green glow on buttons
+    .mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-icon-button {
+        text-shadow: 0 0 3px rgba(0, 255, 65, 0.4);
+    }
+
+    // Selected/focused items with glow
+    .mat-mdc-list-item:hover,
+    .mat-mdc-menu-item:hover,
+    tr:hover {
+        background-color: rgba(0, 255, 65, 0.08) !important;
+        box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.1);
+    }
+
+    // Input fields with terminal styling
+    .mat-mdc-form-field {
+        .mdc-text-field {
+            background-color: #050a05 !important;
+            border: 1px solid #00aa2a !important;
+        }
+    }
+
+    // Scrollbar styling
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #0d1a0d;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #00aa2a;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #00cc33;
+    }
+
+    // Main menu container overrides for terminal theme
+    #mainMenuContainer {
+        background-image: none !important;
+        background-color: var(--rmm-bg-primary) !important;
+        border-bottom: 1px solid var(--rmm-border-color);
+    }
+
+    #mainMenuContainer mat-icon,
+    #mainMenuContainer .mainMenuDesc {
+        color: var(--rmm-text-primary) !important;
+    }
+
+    .mat-menu-panel,
+    .mat-mdc-menu-panel {
+        background-color: var(--rmm-bg-secondary);
+        border: 1px solid var(--rmm-border-color);
+    }
+
+    .mat-menu-item,
+    .mat-menu-item .mat-icon:not([color]),
+    .mat-mdc-menu-item,
+    .mat-mdc-menu-item .mat-icon:not([color]) {
+        color: var(--rmm-text-primary) !important;
+    }
 }
 
 
@@ -1773,32 +1930,47 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 }
 
 #contactListControlsSearch {
+    flex-grow: 1;
+    margin: 0 10px;
+
+    .mat-mdc-text-field-wrapper {
+        padding: 0 8px;
+        height: 40px;
+    }
+
+    .mat-mdc-form-field-flex {
+        height: 100%;
+        align-items: center;
+    }
+
     .mat-mdc-form-field-infix {
-        padding: 0.2em 0 0.1em;
+        padding: 0;
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .mat-mdc-form-field-icon-suffix {
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+        padding-bottom: 0;
     }
 
     .mdc-line-ripple {
         bottom: 0;
     }
 
-    .mat-form-field-label-wrapper {
-        top: -1em;
+    input {
+        font-size: 16px;
     }
 
-    .mat-form-field-label-wrapper label {
-	margin-top: 10px;
-    }
-
-    .mdc-list-item__content {
-	padding: 0 !important;
-    }
-
-    .mat-form-field-appearance-legacy .mat-form-field-infix {
-	padding-top: 0 !important;
-    }
-    
-    .mat-form-field-appearance-legacy .mat-form-field-label {
-        top: 0.75em;
+    label {
+        font-size: 14px;
     }
 }
 
