@@ -1468,6 +1468,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     const right = Math.max(fromIndex, to);
 
     for (let i = left; i <= right; i++) {
+      // Skip the starting row when doing a range select (from !== to)
+      // because it was already toggled by the initial click
+      if (i === fromIndex && fromIndex !== to) continue;
       this.messageTable.rows.flipSelectedRow(i);
     }
 

@@ -467,6 +467,25 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     .mat-mdc-menu-item .mat-icon:not([color]) {
         color: var(--rmm-text-primary) !important;
     }
+
+    // Selected folder styling - use blue for visibility against green
+    .selectedFolder,
+    mat-list-item.selectedFolder,
+    .mat-list-item.selectedFolder,
+    .mat-mdc-list-item.selectedFolder,
+    .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder {
+        background-color: #1a4a3a !important; // Dark teal-green
+    }
+
+    .selectedFolder a,
+    mat-list-item.selectedFolder a,
+    .mat-mdc-list-item.selectedFolder a,
+    .selectedFolder .mdc-list-item__content,
+    mat-list-item.selectedFolder .mdc-list-item__content,
+    .mat-mdc-list-item.selectedFolder .mdc-list-item__content {
+        color: #66ffaa !important; // Bright cyan-green
+        font-weight: 500 !important;
+    }
 }
 
 
@@ -2381,7 +2400,8 @@ table.detailsTable tr td:nth-of-type(2) {
 
 // Dark Theme Specific Overrides
 .dark-theme,
-.high-contrast-theme {
+.high-contrast-theme,
+.terminal-theme {
     // Table cells with hardcoded backgrounds
     td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name,
     td.mat-mdc-cell.cdk-column-renewal_name.mat-column-renewal_name {

@@ -33,5 +33,5 @@ export function checkMessage(n) {
 }
 
 export function checkedMessages() {
-    return cy.get('tbody .mat-checkbox-checked')
+    return cy.get('tbody .mat-mdc-checkbox-checked')
 }
