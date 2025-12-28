@@ -21,6 +21,7 @@ export * from './mail-backend.interface';
 export * from './contacts-backend.interface';
 export * from './calendar-backend.interface';
 export * from './index-service.interface';
+export * from './noop-index.service';
 
 // Runbox implementations
 export * from './runbox';
