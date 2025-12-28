@@ -91,6 +91,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   debouncedRows = this.rowsSubject.asObservable().pipe(debounceTime(300));
 
   lastCheckedIndex = -1;
+  private shiftKeyHeld = false;
   scrollToIndex = new BehaviorSubject<number>(0);
   orderSelectionModel = new BindableSelectionModel(
     false,
@@ -1486,6 +1487,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
   onCheckboxChange(event: any, index: number) {
     event?.stopPropagation?.();
+    if (this.shiftKeyHeld) {
+      return this.rangeSelect(index);
+    }
     this.oneSelect(index);
   }
 
@@ -1550,6 +1554,20 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   @HostListener('document:dragend', ['$event'])
   onDragEnded() {
     delete this.dragEvent;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.shiftKeyHeld = true;
+    }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.shiftKeyHeld = false;
+    }
   }
 
   onTableResize() {
