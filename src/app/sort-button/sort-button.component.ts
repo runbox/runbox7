@@ -77,6 +77,7 @@ export interface OrderEvent {
         cursor: not-allowed;
         text-decoration: none;
       }
+
     `,
   ],
 })

@@ -415,7 +415,7 @@
             appResizeObserver
             (horizontalResize)="onTableResize()"
             id="messageTableContainerArea"
-            [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
+            [ngStyle]="{'bottom.px': canvasTableOffset}">
 
             <app-virtual-scroll-table
               [scrollToIndex]="scrollToIndex"
@@ -537,18 +537,18 @@
                           tabindex="-1">
                         </mat-checkbox>
                       </td>
-                      <td>
+                      <td [ngStyle]="{ width: widths.date + 'px' }">
                         <span class="skeleton-bone"></span>
                       </td>
 
-                      <td>
+                      <td [ngStyle]="{ width: widths.from + 'px' }">
                         <span class="skeleton-bone"></span>
                       </td>
 
-                      <td class="subject text-primary">
+                      <td class="subject text-primary" [ngStyle]="{ width: widths.subject + 'px' }">
                         <span class="skeleton-bone"></span>
                       </td>
-                      <td class="sm-hidden">
+                      <td class="sm-hidden" [ngStyle]="{ width: widths.size + 'px' }">
                         <span class="skeleton-bone"></span>
                       </td>
                       <td class="sm-hidden"></td>
@@ -571,24 +571,25 @@
                     (dragstart)="onMessagesDragStart($event, index)"
                     draggable="true"
                     [ngClass]="{
-                      focussed: lastCheckedIndex === item,
+                      focussed: lastCheckedIndex === index,
                       selected: messageTable.rows.isOpenedRow(index),
                       checked: messageTable.rows.isSelectedRow(index)
                     }"
                   >
                     <tr>
-                      <td (click)="onCheckboxClick($event, item, index)" class="checkbox-cell">
+                      <td class="checkbox-cell" (click)="$event.stopPropagation()">
                         <mat-checkbox
-                          (click)="onCheckboxClick($event, item, index)"
+                          (change)="onCheckboxChange($event, index)"
                           [checked]="messageTable.rows.isSelectedRow(index)"
                           tabindex="-1">
                         </mat-checkbox>
                       </td>
-                      <td>
+                      <td [ngStyle]="{ width: widths.date + 'px' }">
                         {{item.messageDate}}
                       </td>
 
                       <td
+                        [ngStyle]="{ width: widths.from + 'px' }"
                         [ngClass]="{
                           'bold': !item.seen
                           }"
@@ -598,6 +599,7 @@
                       </td>
 
                       <td class="subject text-primary"
+                          [ngStyle]="{ width: widths.subject + 'px' }"
                           [ngClass]="{
                            bold: !item.seen
                            }">
@@ -613,11 +615,12 @@
                           {{item.count}}
                         </div>
                       </td>
-                      <td class="sm-hidden">
+                      <td class="sm-hidden" [ngStyle]="{ width: widths.size + 'px' }">
                         {{item.size | humanBytes}}
                       </td>
                       <td
                         *ngIf="displayFolderColumn"
+                        [ngStyle]="{ width: widths.folder + 'px' }"
                       >
                         {{item.folder}}
                       </td>
@@ -746,5 +749,3 @@
     >
   <mat-spinner diameter="20" ></mat-spinner>
 </div>
-
-

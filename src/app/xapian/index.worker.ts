@@ -616,11 +616,13 @@ not matching with rest api counts for current folder`);
                   term.substr(XAPIAN_TERM_FOLDER.length) !== msginfo.folder) {
                     // Folder changed
                     const destinationFolder = folders.find(folder => folder.folderPath === msginfo.folder);
-                    if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash') || destinationFolder.folderType === 'templates') {
+                    if (destinationFolder && (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash' || destinationFolder.folderType === 'templates')) {
                       addSearchIndexDocumentUpdate(() => this.api.deleteDocumentByUniqueTerm(uniqueIdTerm));
                       msgIsTrashed = true;
-                    } else {
+                    } else if (destinationFolder) {
                       addSearchIndexDocumentUpdate(() => this.api.changeDocumentsFolder(uniqueIdTerm, msginfo.folder));
+                    } else {
+                      console.warn('Worker: destination folder missing for msg', msginfo.id, msginfo.folder);
                     }
                 } else if (term === XAPIAN_TERM_FLAGGED) {
                   messageStatusInIndex.flagged = true;
@@ -735,24 +737,22 @@ not matching with rest api counts for current folder`);
       console.log(`Updating messageListService with # mesgs: ${msginfos.length}, new sync: ${this.numberOfMessagesSyncedLastTime}`);
       if ((msginfos && msginfos.length > 0)
         || (deletedMessages && deletedMessages.length > 0)) {
-        if (this.numberOfMessagesSyncedLastTime) {
-          // notify messagelist that changes were made, regardless of
-          // whether we updated the index or notauthenticated
-          // if index is on this only affects trash/spam
-          // otherwise its the update for all folders
-          const folders = new Set;
-          msginfos.forEach((msg) => folders.add(msg.folder));
-          // only got ids for deleted messages
-          // deletedMessages.forEach((msg) => folders.add(msg.folder));
-          ctx.postMessage({'action': PostMessageAction.updateMessageListService,
-                          'foldersUpdated': Array.from(folders) });
+        // notify messagelist that changes were made, regardless of
+        // whether we updated the index or not. For deletions we only
+        // have message ids; the main thread can resolve folders.
+        const folders = new Set;
+        msginfos.forEach((msg) => folders.add(msg.folder));
+        // Include all known folders as well, since we may not know
+        // the source folder for moved/deleted messages.
+        if (this.folderList && this.folderList.length > 0) {
+          this.folderList.forEach((folder) => folders.add(folder.folderPath));
         }
-        // Update folder lists + counts
-        // postMessage
-        // this.messagelistservice.applyChanges(
-        //   msginfos ? msginfos : [],
-        //   deletedMessages ? deletedMessages : []
-        // );
+        ctx.postMessage({
+          'action': PostMessageAction.updateMessageListService,
+          'foldersUpdated': Array.from(folders),
+          'msginfos': msginfos,
+          'deletedMessages': deletedMessages
+        });
 
         // Find latest date in result set and use as since parameter for getting new changes from server
 
@@ -933,6 +933,10 @@ not matching with rest api counts for current folder`);
       .pipe(take(1))
       .subscribe((folders) => {
         const destinationFolder = folders.find(folder => folder.folderPath === destinationfolderPath);
+        if (!destinationFolder) {
+          console.warn('Worker: destination folder missing for move', destinationfolderPath);
+          return;
+        }
 
         if (destinationFolder.folderType === 'spam' || destinationFolder.folderType === 'trash') {
           this.postMessagesToXapianWorker(messageIds.map(mid =>
@@ -1070,4 +1074,3 @@ ctx.addEventListener('message', ({ data }) => {
     console.error('Failed to deal with message: ', e);
   }
 });
-

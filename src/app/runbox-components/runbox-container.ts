@@ -30,7 +30,7 @@ import { RunboxSidenavService } from './runbox-sidenav.service';
 })
 
 export class RunboxContainerComponent {
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild(MatSidenav, { static: true }) sideMenu: MatSidenav;
     sideMenuOpened = true;
 
     constructor(

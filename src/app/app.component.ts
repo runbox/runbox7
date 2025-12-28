@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener, AfterViewChecked } from '@angular/core';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
 
@@ -81,7 +81,7 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
   templateUrl: 'app.component.html',
   standalone: false
 })
-export class AppComponent implements OnInit, AfterViewInit, DoCheck {
+export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, DoCheck {
   showSelectMarkOpMenu: boolean;
 
 
@@ -150,7 +150,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(MatSidenav) sidemenu: MatSidenav;
+  @ViewChild(MatSidenav, { static: true }) sidemenu: MatSidenav;
   @ViewChild('toolbarListButtonContainer') toolbarListButtonContainer: ElementRef;
 
   sideMenuOpened = true;
@@ -178,7 +178,18 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   morelistbuttonindex = 7;
   renderedRange = {start: 0, end: 0}; // First ten messages.
 
-  widths = {};
+  private static readonly DEFAULT_COLUMN_WIDTHS = {
+    date: 120,
+    from: 220,
+    subject: 340,
+    count: 90,
+    size: 70,
+    folder: 180,
+  };
+
+  widths = {...AppComponent.DEFAULT_COLUMN_WIDTHS};
+  canvasTableOffset = 0;
+  private pendingCanvasOffsetUpdate = false;
   sort = {
     sortColumn: 2,
     sortDescending: true
@@ -207,7 +218,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     public websocketsearchservice: WebSocketSearchService,
     public draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
-    changeDetectorRef: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
@@ -298,7 +309,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
 
     mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
-      changeDetectorRef.detectChanges();
+      this.cdr.detectChanges();
 
       if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
@@ -357,10 +368,19 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.updateTime();
   }
 
-  public get canvasTableBtmOffset() {
-    return this.singlemailviewer && this.singlemailviewer.adjustableHeight
-      ? this.singlemailviewer.resizerHeight
-      : 0;
+  private scheduleCanvasOffsetUpdate() {
+    if (this.pendingCanvasOffsetUpdate) return;
+    this.pendingCanvasOffsetUpdate = true;
+    setTimeout(() => {
+      const nextOffset = this.singlemailviewer && this.singlemailviewer.adjustableHeight
+        ? this.singlemailviewer.resizerHeight
+        : 0;
+
+      if (this.canvasTableOffset !== nextOffset) {
+        this.canvasTableOffset = nextOffset;
+      }
+      this.pendingCanvasOffsetUpdate = false;
+    });
   }
 
   get showSelectOperations() {
@@ -380,7 +400,6 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     } else {
       this.dynamicSearchFieldPlaceHolder = null;
     }
-    this.calculateWidthDependentElements();
   }
 
   async ngOnInit() {
@@ -489,7 +508,17 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     }
 
     this.subscribeToNotifications();
-    this.calculateWidthDependentElements();
+    // Defer initial toolbar sizing to avoid CD errors during init.
+    setTimeout(() => this.calculateWidthDependentElements());
+
+    // Recalculate on window resize to keep action buttons in sync with available space.
+    this.renderer.listen(window, 'resize', () => this.calculateWidthDependentElements());
+
+    this.scheduleCanvasOffsetUpdate();
+  }
+
+  ngAfterViewChecked(): void {
+    this.scheduleCanvasOffsetUpdate();
   }
 
   reload(): void {
@@ -725,12 +754,16 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   calculateWidthDependentElements() {
-    if (this.toolbarListButtonContainer) {
-      const toolbarlistwidth = (this.toolbarListButtonContainer.nativeElement as HTMLDivElement).clientWidth;
-      this.morelistbuttonindex = Math.floor(
-        toolbarlistwidth / TOOLBAR_LIST_BUTTON_WIDTH
-      ) - 1;
+    if (!this.toolbarListButtonContainer) {
+      return;
     }
+
+    const toolbarlistwidth = (this.toolbarListButtonContainer.nativeElement as HTMLDivElement).clientWidth;
+    const calculated = Math.max(0, Math.floor(
+      toolbarlistwidth / TOOLBAR_LIST_BUTTON_WIDTH
+    ) - 1);
+
+    this.morelistbuttonindex = calculated;
   }
 
 
@@ -1002,11 +1035,18 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
     this.hasChildRouterOutlet = yes;
     if (yes) {
       // Don't highlight a folder if we're not viewing one
-      this.selectedFolder = null;
+      Promise.resolve().then(() => {
+        this.selectedFolder = null;
+        this.cdr.detectChanges();
+      });
     }
   }
 
   public downloadIndexFromServer() {
+    if (!this.searchService.canWriteIndex) {
+      this.snackBar.open('Another tab owns the search index. Please close other Runbox tabs and try again.', 'OK', { duration: 5000 });
+      return;
+    }
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
     this.searchService.downloadIndexFromServer().subscribe((res) => {
@@ -1403,7 +1443,12 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   async enrichRows() {
     if (!this.messageTable.rows) return;
 
-    const { start, end } = this.renderedRange;
+    let { start, end } = this.renderedRange;
+    // When no range has been rendered yet, bootstrap an initial slice
+    if (end === 0 && this.rows.length > 0) {
+      start = 0;
+      end = Math.min(this.rows.length, 50);
+    }
 
     for (let index = start; index < end; index++) {
       if (index >= this.rows.length) break;
@@ -1431,9 +1476,14 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   onCheckboxClick(event, row, index) {
-    this.onRowClick(event, row, index, true);
     event.stopPropagation();
     event.preventDefault();
+    this.oneSelect(index);
+  }
+
+  onCheckboxChange(event: any, index: number) {
+    event?.stopPropagation?.();
+    this.oneSelect(index);
   }
 
   rangeSelect(to: number) {
@@ -1500,7 +1550,7 @@ export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   onTableResize() {
-    this.widths = {};
+    this.widths = {...AppComponent.DEFAULT_COLUMN_WIDTHS};
   }
 
   // TODO: The this.rows can change after a onRenderedRangeChange is called.

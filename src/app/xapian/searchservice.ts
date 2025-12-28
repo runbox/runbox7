@@ -148,6 +148,14 @@ export class SearchService {
         } else if (data['action'] === PostMessageAction.closeProgressSnackBar) {
           this.progressSnackBar.dismiss();
         } else if (data['action'] === PostMessageAction.updateMessageListService) {
+          const msginfos = data['msginfos'] ?? [];
+          const deletedMessages = data['deletedMessages'] ?? [];
+
+          if ((msginfos.length > 0) || (deletedMessages.length > 0)) {
+            // Keep folder views in sync with external changes (eg IMAP moves).
+            this.messagelistservice.applyChanges(msginfos, deletedMessages);
+          }
+
           this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
           this.messagelistservice.refreshFolderList();
           this.messagelistservice.refreshFolderCounts();
@@ -266,12 +274,6 @@ export class SearchService {
 
     this.indexUpdatedSubject.subscribe(() => {
       FS.syncfs(true, () => {
-          // console.log('Main: Syncd files:');
-          // console.log(FS.stat(XAPIAN_GLASS_WR));
-          FS.readdir(this.partitionsdir).forEach((f) => {
-            // console.log(`${f}`);
-            // console.log(FS.stat(`${this.partitionsdir}/${f}`));
-          });
         this.api.reloadXapianDatabase();
         this.messagelistservice.refreshFolderCounts();
         this.indexReloadedSubject.next(undefined);
@@ -348,7 +350,7 @@ export class SearchService {
     // open for reading (for canvastable comms)
     xapianLoadedSubject.subscribe(() => {
       const initXapianFileSys = () => {
-        this.api =  new XapianAPI();
+        this.api = new XapianAPI();
 
         FS.mkdir(this.localdir);
         FS.mount(IDBFS, {}, '/' + this.localdir);
@@ -362,6 +364,17 @@ export class SearchService {
           FS.mount(IDBFS, {}, this.partitionsdir);
 
           try {
+            const hasDocData = typeof FS?.analyzePath === 'function'
+              ? FS.analyzePath('xapianglasswr/docdata.glass').exists
+              : false;
+
+            if (!hasDocData) {
+              console.log('No xapian db');
+              this.initSubject.next(false);
+              this.initSubject.complete();
+              return;
+            }
+
             // just fyi, we don't need this for reading
             console.log('Last index timestamp ', FS.stat('xapianglasswr/docdata.glass').mtime);
 
@@ -394,11 +407,8 @@ export class SearchService {
               // console.log('Loading partitions');
               this.openStoredPartitions();
             });
-
-
           } catch (e) {
-            console.error(e);
-            console.log('No xapian db');
+            console.warn('No xapian db available yet', e);
             this.initSubject.next(false);
           }
 

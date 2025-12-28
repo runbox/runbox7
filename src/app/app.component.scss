@@ -88,7 +88,7 @@
         th {
             text-align: left;
             position: relative;
-            background-color: white;
+            background-color: var(--rmm-bg-primary, inherit);
             z-index: 1;
         }
 
@@ -124,8 +124,10 @@
         }
 
         .checkbox-cell {
-            width: 3ch;
+            width: 3.5ch;
             text-align: center;
+            padding-right: 4px;
+            padding-left: 4px;
         }
         
 
@@ -235,6 +237,18 @@ tbody mat-icon {
     margin: -0.3em;
 }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 @keyframes skeleton-loading {
     0% {
         background-position: 200% 0;
@@ -244,4 +258,3 @@ tbody mat-icon {
         background-position: -200% 0;
     }
 }
-

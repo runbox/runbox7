@@ -56,9 +56,9 @@ export class VirtualScrollTableComponent implements OnInit, OnDestroy, AfterView
   @Input() items: any[] = [];
 
   @Input() scrollToIndex!: BehaviorSubject<number>;
+  @Input() maxBufferPx = 800;
 
   firstRowHeight = 24;
-  maxBufferPx: number;
 
   private renderedRangeSub!: Subscription;
   private inputChangesSub!: Subscription;

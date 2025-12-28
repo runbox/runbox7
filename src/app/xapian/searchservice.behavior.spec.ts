@@ -123,7 +123,8 @@ describe('SearchService index update hooks', () => {
 
         originalFS = (window as any).FS;
         (window as any).FS = {
-            syncfs: (_flag: boolean, callback: () => void) => callback()
+            syncfs: (_flag: boolean, callback: () => void) => callback(),
+            readdir: () => []
         };
 
         originalInitIndexWriterLock = (SearchService.prototype as any).initIndexWriterLock;

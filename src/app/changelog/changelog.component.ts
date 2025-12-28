@@ -49,7 +49,7 @@ export class ChangelogComponent implements AfterViewInit, OnInit {
 
     buildtimestampstring = environment.BUILD_TIMESTAMP;
 
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild(MatSidenav, { static: true }) sideMenu: MatSidenav;
 
     @ViewChild('featuresElement') featuresElement: ElementRef;
     @ViewChild('bugfixesElement') bugfixesElement: ElementRef;

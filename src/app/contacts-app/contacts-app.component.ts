@@ -61,7 +61,7 @@ export class ContactsAppComponent {
     sideMenuOpened = true;
 
     @ViewChild(ContactListComponent) contactList: ContactListComponent;
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild(MatSidenav, { static: true }) sideMenu: MatSidenav;
     @ViewChild('vcfUploadInput') vcfUploadInput: any;
 
     constructor(
@@ -220,7 +220,6 @@ export class ContactsAppComponent {
 
             return true;
         });
-        this.cdr.detectChanges();
     }
 
     importVcfClicked(): void {

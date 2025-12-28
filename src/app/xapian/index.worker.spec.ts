@@ -38,8 +38,9 @@ describe('SearchIndexService deleteLocalIndex', () => {
             analyzePath: jasmine.createSpy('analyzePath').and.returnValue({ exists: false }),
             unlink: jasmine.createSpy('unlink'),
             rmdir: jasmine.createSpy('rmdir'),
-            readdir: jasmine.createSpy('readdir'),
-            isDir: jasmine.createSpy('isDir')
+            readdir: jasmine.createSpy('readdir').and.returnValue([]),
+            isDir: jasmine.createSpy('isDir'),
+            stat: jasmine.createSpy('stat').and.throwError('not found')
         };
         (window as any).IDBFS = { dbs: {} };
 

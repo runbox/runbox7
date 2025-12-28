@@ -31,15 +31,24 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowSeen(index: number): boolean {
+    if (!this.rows || index < 0 || index >= this.rows.length) {
+      return true;
+    }
     return this.searchService.getDocData(this.rows[index][0]).seen ? false : true;
   }
 
   getRowId(index: number): number {
+    if (!this.rows || index < 0 || index >= this.rows.length) {
+      return 0;
+    }
     return this.rows[index][0];
   }
 
   getRowMessageId(index: number): number {
     let msgId = 0;
+    if (!this.rows || index < 0 || index >= this.rows.length) {
+      return msgId;
+    }
     try {
       msgId = this.searchService.getMessageIdFromDocId(this.getRowId(index));
     } catch (e) {
@@ -54,6 +63,9 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   public getRowData(index: number, app: any) {
+    if (!this.rowExists(index)) {
+      return { loaded: false, id: 0 };
+    }
     const rowData: any = {
       id: this.getRowMessageId(index),
       messageDate: MessageTableRowTool.formatTimestampFromStringWithoutSeparators(this.searchService.api.getStringValue(this.getRowId(index), 2)),

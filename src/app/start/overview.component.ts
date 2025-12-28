@@ -26,7 +26,7 @@ import { MobileQueryService } from '../mobile-query.service';
     standalone: false
 })
 export class OverviewComponent {
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild(MatSidenav, { static: true }) sideMenu: MatSidenav;
     sideMenuOpened: boolean;
 
     constructor(

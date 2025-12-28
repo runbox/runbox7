@@ -29,16 +29,19 @@ export class MessageList extends MessageDisplay {
   }
 
   getRowSeen(index: number): boolean {
+    if (!this.rowExists(index)) return true;
     const msg: MessageInfo = this.rows[index];
     return !msg.seenFlag;
   }
 
   getRowId(index: number): number {
+    if (!this.rowExists(index)) return 0;
     const msg: MessageInfo = this.rows[index];
     return msg.id;
   }
 
   getRowMessageId(index: number): number {
+    if (!this.rowExists(index)) return 0;
     const msg: MessageInfo = this.rows[index];
     return msg.id;
   }
@@ -70,6 +73,9 @@ export class MessageList extends MessageDisplay {
   }
 
   getRowData(rowIndex, app) {
+    if (!this.rowExists(rowIndex)) {
+      return { loaded: false, id: 0 };
+    }
     const row = this.rows[rowIndex];
 
     return {

@@ -68,6 +68,7 @@ export abstract class MessageDisplay {
 
   // invert message selection
   public flipSelectedRow(rowIndex: number) {
+    if (!this.rowExists(rowIndex)) return;
     const msgId = this.getRowMessageId(rowIndex);
     this.msgIdsSelected[msgId] = !this.msgIdsSelected[msgId];
   }
@@ -75,18 +76,21 @@ export abstract class MessageDisplay {
   // select all known rows:
   public selectAllRows() {
     this.rows.forEach((value, index) => {
+      if (!this.rowExists(index)) return;
       this.msgIdsSelected[this.getRowMessageId(index)] = true;
     });
   }
 
   // ensure this message is selected
   public selectRow(rowIndex: number) {
+    if (!this.rowExists(rowIndex)) return;
     const msgId = this.getRowMessageId(rowIndex);
     this.msgIdsSelected[msgId] = true;
   }
 
   // remove item from selection list altogether
   public delSelectedRow(rowIndex: number) {
+    if (!this.rowExists(rowIndex)) return;
     const msgId = this.getRowMessageId(rowIndex);
     delete this.msgIdsSelected[msgId];
   }
@@ -97,7 +101,7 @@ export abstract class MessageDisplay {
 
   public findRowByMessageId(messageId: number) {
     return this.rows.findIndex((element, index) => {
-      return this.getRowMessageId(index) === messageId;
+      return this.rowExists(index) && this.getRowMessageId(index) === messageId;
     });
   }
 
@@ -175,19 +179,22 @@ export abstract class MessageDisplay {
   }
 
   rowExists(index: number): boolean {
-    return this.rows[index] && this.getRowMessageId(index) > 0 ? true : false;
+    return Array.isArray(this.rows) && index > -1 && index < this.rows.length && !!this.rows[index];
   }
 
   isBoldRow(index: number): boolean {
+    if (!this.rowExists(index)) return false;
     return this.getRowSeen(index);
   }
 
   isSelectedRow(index: number): boolean {
+    if (!this.rowExists(index)) return false;
     const msgId = this.getRowMessageId(index);
     return this.msgIdsSelected[msgId] === true;
   }
 
   isOpenedRow(index: number): boolean {
+    if (!this.rowExists(index)) return false;
     return index === this.openedRowIndex;
   }
 

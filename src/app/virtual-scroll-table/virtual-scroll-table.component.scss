@@ -1,3 +1,15 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.virtual-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 300px;
+}
+
 table {
   border-collapse: collapse; /* Removes space between table cells */
   border-spacing: 0; /* Ensures no extra spacing between cells */
@@ -8,12 +20,18 @@ table {
   box-shadow: unset;
 }
 
+.header-table {
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
 cdk-virtual-scroll-viewport {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 200px;
 
     ::ng-deep & table thead {
         visibility: hidden;
