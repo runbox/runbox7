@@ -22,7 +22,7 @@ import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/c
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 
-import { Observable, AsyncSubject, Subject, of, from } from 'rxjs';
+import { Observable, AsyncSubject, Subject, of, from, firstValueFrom } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount, distinctUntilChanged } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
@@ -232,7 +232,7 @@ export class SearchService {
                   db.close();
                 };
               } catch (e) {
-                console.error(e)
+                console.error(e);
                 console.log('Unable to open local xapian index', (e ? e.message : ''));
                 db.close();
                 observer.next(false);
@@ -268,10 +268,10 @@ export class SearchService {
       FS.syncfs(true, () => {
           // console.log('Main: Syncd files:');
           // console.log(FS.stat(XAPIAN_GLASS_WR));
-          // FS.readdir(this.partitionsdir).forEach((f) => {
+          FS.readdir(this.partitionsdir).forEach((f) => {
             // console.log(`${f}`);
             // console.log(FS.stat(`${this.partitionsdir}/${f}`));
-          // });
+          });
         this.api.reloadXapianDatabase();
         this.messagelistservice.refreshFolderCounts();
         this.indexReloadedSubject.next(undefined);
@@ -377,7 +377,7 @@ export class SearchService {
                 this.indexLastUpdateTime = new Date().getTime();
               }
             } catch (e) {
-              console.error(e)
+              console.error(e);
               if (!this.updateIndexLastUpdateTime()) {
                 // Corrupt xapian index - delete it and subscribe to changes (fallback to websocket search)
                 // Deal with this on the non-worker side, then tell it to
@@ -397,7 +397,7 @@ export class SearchService {
 
 
           } catch (e) {
-            console.error(e)
+            console.error(e);
             console.log('No xapian db');
             this.initSubject.next(false);
           }
@@ -422,7 +422,7 @@ export class SearchService {
         }
       });
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -587,7 +587,7 @@ export class SearchService {
         try {
           FS.stat(XAPIAN_GLASS_WR);
         } catch (e) {
-          console.error(e)
+          console.error(e);
           FS.mkdir(XAPIAN_GLASS_WR);
         }
 
@@ -815,7 +815,7 @@ export class SearchService {
                         try {
                           FS.stat(`${this.partitionsdir}/${dirname}`);
                         } catch (e) {
-                          console.error(e)
+                          console.error(e);
                           FS.mkdir(`${this.partitionsdir}/${dirname}`);
                         }
 
@@ -894,7 +894,6 @@ export class SearchService {
           if (this.messageTextCache.has(rmmMessageId)) {
               this.currentDocData.textcontent = this.messageTextCache.get(rmmMessageId);
           }
-          this.updateMessageText(rmmMessageId);
 
           try {
             this.api.documentXTermList(docid);
@@ -957,32 +956,29 @@ export class SearchService {
   // fetch message contents, we actually only want the "text.text" part here
   // then we can use it for previews and search, both with/without local index
   // skip haschanges/updates if we already saw this one ..
-  public updateMessageText(messageId: number): boolean {
-    if (!this.messageTextCache.has(messageId)) {
-      this.rmmapi.getMessageContents(messageId).subscribe((content) => {
-        if (content['status'] === 'success') {
-          this.messageTextCache.set(messageId, content.text.text);
-          if (this.messagelistservice.messagesById[messageId]) {
-            this.messagelistservice.messagesById[messageId].plaintext = content.text.text;
-          }
-        } else {
-          if (content.hasOwnProperty('errors')) {
-            // this is an error restapi generated
-            console.error(`DataError in updateMessageText ${messageId}`, content['errors']);
-          }
-          // even if we dont know where it came from, still dont retry
-          // it this session
-          this.messageTextCache.set(messageId, '');
-        }
-      },
-     (err) => {
-       console.error(`HTTPError in updateMessageText ${messageId}`, err);
-       // stop repeatedly looking up broken ones
-       this.messageTextCache.set(messageId, '');
-     });
-      return true;
+  async messageText(messageId: number): Promise<string> {
+    const cached = this.messageTextCache.get(messageId);
+    if (cached !== undefined) return cached;
+
+    let text = '';
+
+    try {
+      const content = await firstValueFrom(this.rmmapi.getMessageContents(messageId));
+      if (content['status'] === 'success') {
+        text = content.text.text;
+      } else if ('errors' in content) {
+        console.error(`DataError in messageText ${messageId}`, content.errors);
+      }
+    } catch (err) {
+      console.error(`HTTPError in messageText ${messageId}`, err);
     }
-    return false;
+
+    this.messageTextCache.set(messageId, text);
+
+    const message = this.messagelistservice.messagesById[messageId];
+    if (message) message.plaintext = text;
+
+    return text;
   }
 
   private initIndexWriterLock(uid: number): void {

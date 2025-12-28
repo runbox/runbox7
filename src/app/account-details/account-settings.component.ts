@@ -68,7 +68,7 @@ export class AccountSettingsComponent implements OnInit {
     }
 
     change_values(row_obj, setting_value) {
-        this.settingsArray.filter((value, key) => {
+        this.settingsArray.filter((value, _key) => {
             if (value.key === row_obj.key) {
                 Object.assign(this.values, { [value.key]: setting_value });
             }

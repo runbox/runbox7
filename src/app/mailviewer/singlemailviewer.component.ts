@@ -71,7 +71,7 @@ type Mail = any;
     styleUrls: ['singlemailviewer.component.scss'],
     standalone: false
 })
-export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
+export class SingleMailViewerComponent implements OnInit, AfterViewInit, DoCheck {
 
   _messageId = null; // Message id or filename
 
@@ -178,6 +178,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   public close(actionstring?: string) {
+    // Dont loop if already closing..
+    if (this.messageId == null) {
+      return;
+    }
     const doClose = () => {
       if (this.resizer) {
         this.resizer.resizePercentage(0);

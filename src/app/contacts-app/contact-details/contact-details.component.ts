@@ -386,7 +386,7 @@ export class ContactDetailsComponent {
         }
 
         const fr = new FileReader();
-        fr.onload = (ev: any) => {
+        fr.onload = (_ev: any) => {
             if ((<string>fr.result).length > (256 * 1024)) {
                 // TODO: Or we could resize+compress it ourselves with a canvas:
                 // https://github.com/eyalc4/ts-image-resizer

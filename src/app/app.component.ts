@@ -17,14 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { AfterViewInit, Component, DoCheck, NgZone, OnInit, OnDestroy, ViewChild, Renderer2, ChangeDetectorRef, ElementRef } from '@angular/core';
-import {
-  CanvasTableSelectListener, CanvasTableComponent,
-  CanvasTableContainerComponent
-} from './canvastable/canvastable';
+import { AfterViewInit, Component, DoCheck, NgZone, OnInit, ViewChild, Renderer2, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
 import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.component';
 import { SearchService } from './xapian/searchservice';
-import { PostMessageAction } from './xapian/messageactions';
 
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -38,17 +33,16 @@ import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './common/messageinfo';
 import { MessageList } from './common/messagelist';
 import { FolderListEntry } from './common/folderlistentry';
-import { INBOX_FOLDER } from './common/folder.constants';
 import { RunboxWebmailAPI, MessageFlagChange } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
 import { SimpleInputDialog, SimpleInputDialogParams } from './dialog/dialog.module';
-import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { map, mergeMap, filter, tap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { firstValueFrom, from, Observable, Subject } from 'rxjs';
+import { from, Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -62,12 +56,13 @@ import { AppSettings } from './app-settings';
 import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
 import { StorageService } from './storage.service';
-import { ThemeService } from './common/theme.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
 import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { UpdateAlertService } from './updatealert/updatealert.service';
 import { UpdateAlertComponent } from './updatealert/updatealert.component';
+import { BindableSelectionModel } from './models/bindable-selection-model';
+import { Direction } from './sort-button/sort-button.component';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -80,17 +75,28 @@ const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 
 @Component({
-    // eslint-disable-next-line @angular-eslint/component-selector
-    selector: 'app',
-    styleUrls: ['app.component.scss'],
-    templateUrl: 'app.component.html',
-    standalone: false
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: 'app',
+  styleUrls: ['app.component.scss'],
+  templateUrl: 'app.component.html',
+  standalone: false
 })
-export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTableSelectListener, DoCheck {
-  private destroy$ = new Subject<void>();
-
-  showSelectOperations: boolean;
+export class AppComponent implements OnInit, AfterViewInit, DoCheck {
   showSelectMarkOpMenu: boolean;
+
+
+  rows = [];
+
+  private rowsSubject= new BehaviorSubject(this.rows);
+  debouncedRows = this.rowsSubject.asObservable().pipe(debounceTime(300));
+
+  lastCheckedIndex = -1;
+  scrollToIndex = new BehaviorSubject<number>(0);
+  orderSelectionModel = new BindableSelectionModel(
+    false,
+    [],
+    true,
+  );
 
   lastSearchText = '';
   searchText = '';
@@ -107,6 +113,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
+
+  dragEvent: DragEvent | null = null;
 
   indexDocCount = 0;
 
@@ -139,19 +147,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
 
   buildtimestampstring = environment.BUILD_TIMESTAMP;
 
-  private _cachedCanvasTableBtmOffset = 0;
-
   @ViewChild(SingleMailViewerComponent) singlemailviewer: SingleMailViewerComponent;
 
   @ViewChild(FolderListComponent) folderListComponent: FolderListComponent;
-  @ViewChild(CanvasTableContainerComponent, { static: true }) canvastablecontainer: CanvasTableContainerComponent;
   @ViewChild(MatSidenav) sidemenu: MatSidenav;
   @ViewChild('toolbarListButtonContainer') toolbarListButtonContainer: ElementRef;
 
   sideMenuOpened = true;
 
   hasChildRouterOutlet = false;
-  canvastable: CanvasTableComponent;
 
   fragment: string;
   jumpToFragment = false;
@@ -159,6 +163,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   messagelist: Array<MessageInfo> = [];
 
   messageActionsHandler: RMM7MessageActions = new RMM7MessageActions();
+
 
   dynamicSearchFieldPlaceHolder: string;
   numHistoryChunksProcessed = 0;
@@ -171,6 +176,18 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   xapianLoaded = xapianLoadedSubject;
 
   morelistbuttonindex = 7;
+  renderedRange = {start: 0, end: 0}; // First ten messages.
+
+  widths = {};
+  sort = {
+    sortColumn: 2,
+    sortDescending: true
+  };
+  messageTable = {
+    rows: null,
+    hasChanges: true,
+    showContentTextPreview: true,
+  };
 
   constructor(
     public searchService: SearchService,
@@ -190,7 +207,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     public websocketsearchservice: WebSocketSearchService,
     public draftDeskService: DraftDeskService,
     public messagelistservice: MessageListService,
-    private changeDetectorRef: ChangeDetectorRef,
+    changeDetectorRef: ChangeDetectorRef,
     public mobileQuery: MobileQueryService,
     private swPush: SwPush,
     private hotkeysService: HotkeysService,
@@ -199,23 +216,21 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     private savedSearchService: SavedSearchesService,
     private usage: UsageReportsService,
     public updateService: UpdateAlertService,
-    public themeService: ThemeService,
   ) {
-    this.hotkeysService.add(
-        new Hotkey(['j', 'k'],
-        (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-            if (combo === 'k') {
-                this.canvastable.scrollUp();
-                combo = null;
-            }
-            if (combo === 'j') {
-                this.canvastable.scrollDown();
-            }
-            const e: ExtendedKeyboardEvent = event;
-            e.returnValue = false;
-            return e;
-        })
-    );
+    this.orderSelectionModel.selectionModel.changed.subscribe(() => {
+      const {data: column, direction} = this.orderSelectionModel.selected;
+
+      if (direction === Direction.None) {
+        this.sort.sortColumn = 2;
+        this.sort.sortDescending = true;
+      } else {
+        this.sort.sortColumn = column;
+        this.sort.sortDescending = Direction.Descending === direction;
+      }
+
+      this.updateSearch(true);
+    });
+
     this.hotkeysService.add(
         new Hotkey(
             'up up down down left right left right b a',
@@ -246,21 +261,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         if (evt.code === 'ArrowUp') {
           // slightly ugly as we need to call *this* rowSelected, not
           // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex - 1;
+          const newRowIndex = this.messageTable.rows.openedRowIndex - 1;
           if (newRowIndex >= 0) {
             this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.scrollUp();
-            this.canvastable.hasChanges = true;
+            this.messageTable.hasChanges = true;
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
           // slightly ugly as we need to call *this* rowSelected, not
           // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex + 1;
-          if (newRowIndex < this.canvastable.rows.rowCount()) {
+          const newRowIndex = this.messageTable.rows.openedRowIndex + 1;
+          if (newRowIndex < this.messageTable.rows.rowCount()) {
             this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.scrollDown();
-            this.canvastable.hasChanges = true;
+            this.messageTable.hasChanges = true;
             evt.preventDefault();
           }
         }
@@ -268,24 +281,24 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     });
 
 
-    this.websocketsearchservice.searchresults.pipe(takeUntil(this.destroy$)).subscribe((results) => {
+    this.websocketsearchservice.searchresults.subscribe((results) => {
       if (results === null) {
         if (this.showingWebSocketSearchResults) {
           this.setMessageDisplay('messagelist', this.messagelist);
           this.showingWebSocketSearchResults = false;
         }
       } else {
+        this.scrollToIndex.next(0);
         this.setMessageDisplay('websocketlist', results);
         this.showingWebSocketSearchResults = true;
       }
-      this.resetColumns();
     });
 
     this.sideMenuOpened = (mobileQuery.screenSize === ScreenSize.Desktop ? true : false);
 
-    mobileQuery.screenSizeChanged.pipe(takeUntil(this.destroy$)).subscribe(size => {
+    mobileQuery.screenSizeChanged.subscribe(size => {
       this.sideMenuOpened = (size === ScreenSize.Desktop ? true : false);
-      this.changeDetectorRef.markForCheck();
+      changeDetectorRef.detectChanges();
 
       if (this.sideMenuOpened) {
         const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
@@ -299,15 +312,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         this.mailViewerRightSideWidth = '100%';
         this.mailViewerOnRightSide = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`);
       }
-      console.log(this.mailViewerOnRightSide);
     });
 
 
-    preferenceService.preferences.pipe(takeUntil(this.destroy$)).subscribe((prefs) => {
+    preferenceService.preferences.subscribe((prefs) => {
       // message list prefs
-      if (this.canvastable) {
-        this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
-        this.canvastable.columnWidths = prefs.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
+      if (this.messageTable) {
+        this.messageTable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
       }
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
@@ -347,17 +358,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   }
 
   public get canvasTableBtmOffset() {
-    return this._cachedCanvasTableBtmOffset;
+    return this.singlemailviewer && this.singlemailviewer.adjustableHeight
+      ? this.singlemailviewer.resizerHeight
+      : 0;
+  }
+
+  get showSelectOperations() {
+    return this.messageTable.rows && this.messageTable.rows.anySelected();
+    // return !this.rowsSelectionModel.isEmpty()
   }
 
   ngDoCheck(): void {
-    // Update cached canvas table offset to prevent ExpressionChangedAfterItHasBeenCheckedError
-    if (this.singlemailviewer?.adjustableHeight) {
-      this._cachedCanvasTableBtmOffset = this.singlemailviewer.resizerHeight || 0;
-    } else {
-      this._cachedCanvasTableBtmOffset = 0;
-    }
-
     if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
         this.xapianDocCount
@@ -372,24 +383,18 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     this.calculateWidthDependentElements();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  async ngOnInit() {
+    await firstValueFrom(this.xapianLoaded);
 
-  ngOnInit(): void {
-    this.canvastable = this.canvastablecontainer.canvastable;
     if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
-      this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+      this.messageTable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
     }
-    if (this.preferences.has(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`)) {
-      this.canvastable.columnWidths = this.preferences.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
-    }
-    this.canvastablecontainer.sortColumn = 2;
-    this.canvastablecontainer.sortDescending = true;
-    this.resetColumns();
+    this.orderSelectionModel.selected = {
+      data: 2,
+      direction: Direction.Descending
+    };
 
-    this.messagelistservice.messagesInViewSubject.pipe(takeUntil(this.destroy$)).subscribe(res => {
+    this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
       if (
         (
@@ -399,10 +404,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         this.setMessageDisplay('messagelist', this.messagelist);
         if (this.jumpToFragment && res.length > 0) {
             this.selectMessageFromFragment(this.fragment);
-            this.canvastable.jumpToOpenMessage();
           this.jumpToFragment = false;
         }
-        this.canvastable.hasChanges = true;
       }
     });
 
@@ -414,28 +417,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
             && prev.every((f, index) =>
               objectEqualWithKeys(f, curr[index], [
                 'folderId', 'totalMessages', 'newMessages', 'folderName'
-              ]))
+              ]));
         }))
         .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
 
-    this.canvastable.scrollLimitHit.pipe(takeUntil(this.destroy$)).subscribe((limit) =>
-      this.messagelistservice.requestMoreData(limit)
-    );
-
-    this.canvastable.canvasResizedSubject.pipe(
-        takeUntil(this.destroy$),
-        filter(widthChanged => widthChanged === true),
-        debounceTime(20)
-      ).subscribe(() =>
-        this.autoAdjustColumnWidths()
-    );
-
-    this.route.fragment.pipe(takeUntil(this.destroy$)).subscribe(
+    this.route.fragment.subscribe(
       fragment => {
         if (!fragment) {
-          // This also runs when we load '/compose' .. but doesnt need to
-          this.switchToFolder(INBOX_FOLDER);
           if (this.singlemailviewer) {
             this.singlemailviewer.close();
           }
@@ -446,8 +435,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         if (fragment !== this.fragment) {
           this.fragment = fragment;
           this.selectMessageFromFragment(this.fragment);
-          if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
-            this.canvastable.jumpToOpenMessage();
+          if (this.messageTable.rows && this.messageTable.rows.rowCount() > 0) {
+            return;
           } else {
             this.jumpToFragment = true;
           }
@@ -455,7 +444,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
       }
     );
 
-    this.updateService.updateIsReady.pipe(takeUntil(this.destroy$)).subscribe(res => {
+    this.updateService.updateIsReady.subscribe(res => {
       if(res) {
         this.updateService.updateIsReady.next(false);
         // Update is available, ask user if they want to restart:
@@ -465,63 +454,42 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         });
       }
     });
+
+    if (!this.selectedFolder && this.router.url === '/') {
+      this.switchToFolder('Inbox');
+    }
   }
 
   ngAfterViewInit() {
-    this.searchService.indexReloadedSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.searchService.indexReloadedSubject.subscribe(() => {
       console.log('Redrawing after search results update');
       // this.searchService.api.reloadXapianDatabase();
       this.afterUpdateIndex();
     });
 
-    this.searchService.noLocalIndexFoundSubject.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.searchService.noLocalIndexFoundSubject.subscribe(() => {
       this.messagelistservice.fetchFolderMessages();
       this.promptLocalSearch();
     });
 
     this.router.events.pipe(
-      takeUntil(this.destroy$),
       filter(e => e instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
-      setTimeout(() => {
-        this.composeSelected = this.router.url === '/compose?new=true';
-        this.draftsSelected = this.router.url === '/compose';
-        this.overviewSelected = this.router.url === '/overview';
-      });
+    ).subscribe((_event: NavigationEnd) => {
+      this.composeSelected = this.router.url === '/compose?new=true';
+      this.draftsSelected = this.router.url === '/compose';
+      this.overviewSelected = this.router.url === '/overview';
     });
 
-    // Download visible messages in the background
-    this.canvastable.repaintDoneSubject.pipe(
-        takeUntil(this.destroy$),
-        filter(() => !this.canvastable.isScrollInProgress()),
-        throttleTime(1000)
-    ).subscribe(() => {
-      const rowIndexes = this.canvastable.getVisibleRowIndexes();
-      const messageIds = rowIndexes.filter(
-        idx => idx < this.canvastable.rows.rowCount()
-      ).map(idx => this.canvastable.rows.getRowMessageId(idx));
-      // FIXME: promise errors?
-      this.rmmapi.downloadMessages(messageIds).then(
-        (messages) => {
-          const updateWorker = new Map();
-          for (const msg of messages) {
-            this.searchService.updateMessageText(msg['mid']);
-            updateWorker.set(msg['mid'], msg.text.text);
-          }
-          // Send to the messageCache in the worker, so we can add the text to the index:
-          if(updateWorker.size > 0) {
-            this.searchService.indexWorker.postMessage({'action': PostMessageAction.messageCache, 'updates': updateWorker });
-            this.canvastable.hasChanges = true;
-          }
-        });
-    });
+    if ('serviceWorker' in navigator) {
+      try  {
+        Notification.requestPermission();
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
-    this.enableNotification();
+    this.subscribeToNotifications();
     this.calculateWidthDependentElements();
-
-    // Trigger change detection after view init to prevent ExpressionChangedAfterItHasBeenCheckedError
-    requestAnimationFrame(() => this.changeDetectorRef.detectChanges());
   }
 
   reload(): void {
@@ -534,9 +502,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
       const [folder, msgId] = fragmentTarget;
       this.switchToFolder(folder);
       if (msgId === null) {
-        if (this.singlemailviewer) {
-          this.singlemailviewer.close();
-        }
+        this.singlemailviewer?.close();
       }
       if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
         this.selectRowByMessageId(msgId);
@@ -629,12 +595,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   async emptyTrash(trashFolder: FolderListEntry) {
     console.log('found trash folder with name', trashFolder.folderName);
 
-    this.messageActionsHandler.updateMessages({
+    await this.updateMessages({
       messageIds: [],
-      updateLocal: (msgIds: number[]) => {
+      updateLocal: (_msgIds: number[]) => {
         this.messagelistservice.pretendEmptyTrash();
       },
-      updateRemote: (msgIds: number[]): Observable<any> =>
+      updateRemote: (_msgIds: number[]): Observable<any> =>
         this.rmmapi.emptyFolder(trashFolder.folderId)
     });
 
@@ -643,14 +609,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
 
   async emptySpam(spamFolderName) {
     console.log('found spam folder with name', spamFolderName);
-    const messageLists = await firstValueFrom(this.rmmapi.listAllMessages(
+    const messageLists = await this.rmmapi.listAllMessages(
       0, 0, 0,
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
-    ));
+    ).toPromise();
 
-    const messageIds = messageLists.map(msg => msg.id);
-    this.messageActionsHandler.updateMessages({
+    const messageIds = messageLists.map(idValue);
+    await this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName),
       updateRemote: (msgIds: number[]) =>
@@ -675,7 +641,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     await this.draftDeskService.newBugReport(
       this.searchService.localSearchActivated,
       this.keepMessagePaneOpen,
-      this.canvastable.showContentTextPreview,
+      this.messageTable.showContentTextPreview,
       this.mailViewerOnRightSide,
       this.unreadMessagesOnlyCheckbox,
       this.mobileQuery.matches
@@ -700,7 +666,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   }
 
   saveContentPreviewSetting(): void {
-    const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
+    const setting = this.messageTable.showContentTextPreview ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
 //    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
   }
@@ -708,17 +674,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   public trainSpam(params) {
     const msg = params.is_spam ? 'Reporting spam' : 'Reporting not spam';
     this.snackBar.open( msg, 'Dismiss' );
-    const unfilteredMessageIds = this.canvastable.rows.selectedMessageIds();
+    const unfilteredMessageIds = this.selectedMessageIds;
     // ensure valid IDs
     const messageIds = unfilteredMessageIds.filter(id => Number.isInteger(id));
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // Move to spam folder (delete from index), set spam flag
         if (params.is_spam) {
           // remove from message display
-          this.canvastable.rows.removeMessages(messageIds);
+          this.messageTable.rows.removeMessages(messageIds);
           this.searchService.deleteMessages(msgIds);
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.spamFolderName, true);
         } else {
@@ -730,14 +696,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
                 });
           }
           // FIXME: constant for "inbox"?
-          this.messagelistservice.moveMessages(msgIds, INBOX_FOLDER, true);
+          this.messagelistservice.moveMessages(msgIds, 'Inbox', true);
         }
         this.clearSelection();
         if (messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.close();
         }
       },
-      updateRemote: (msgIds: number[]) => {
+      updateRemote: (_msgIds: number[]) => {
         const userFolders = this.messagelistservice.folderListSubject.value;
         const currentFolderId = userFolders.find(fld => fld.folderPath === this.messagelistservice.currentFolder).folderId;
         const res = this.rmmapi.trainSpam({is_spam: params.is_spam, from_folder_id: currentFolderId, messages: messageIds});
@@ -778,9 +744,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
 
   public setReadStatus(status: boolean) {
     this.snackBar.open('Toggling read status...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         msgIds.forEach( (id) => {
@@ -789,7 +755,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
             new MessageFlagChange(id, status, null)
           );
         });
-        this.clearSelection();
         if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.mailObj.seen_flag = status ? 1 : 0;
         }
@@ -807,9 +772,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
 
   public setFlaggedStatus(status: boolean) {
     this.snackBar.open('Toggling flags...');
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         msgIds.forEach( (id) => {
@@ -818,7 +783,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
             new MessageFlagChange(id, null, status)
           );
         });
-        this.clearSelection();
         if (this.singlemailviewer && messageIds.find((id) => id === this.singlemailviewer.messageId)) {
           this.singlemailviewer.mailObj.flagged_flag = status ? 1 : 0;
         }
@@ -837,13 +801,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   // Delete selected messages in current canvastable view
   // If looking at Trash, this will be "delete permanently"
   public deleteMessages() {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
-    this.messageActionsHandler.updateMessages({
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // remove from message display
-        this.canvastable.rows.removeMessages(messageIds);
+        this.messageTable.rows.removeMessages(messageIds);
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -862,16 +826,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   public deleteLocalIndex() {
     if (this.searchService.localSearchActivated || this.dataReady) {
       this.usewebsocketsearch = true;
-      this.canvastable.topindex = 0;
-      this.canvastable.rows = null;
+      this.messageTable.rows = null;
       this.viewmode = 'messages';
       this.conversationGroupingCheckbox = this.viewmode === 'conversations';
       this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
       this.dataReady = false;
       this.showingSearchResults = false;
       this.searchText = '';
-
-      this.resetColumns();
 
       this.usage.report('local-index-deleted');
 
@@ -886,120 +847,112 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     }
   }
 
+  setMessageTableRows(newList) {
+    this.messageTable.rows.setRows(newList);
+    this.messageTable.hasChanges = true;
+  }
+
   public setMessageDisplay(displayType: string, ...args) {
     if (displayType === 'search') {
-      if (this.canvastable.rows instanceof SearchMessageDisplay) {
-        this.canvastable.updateRows(args[1]);
+      if (this.messageTable.rows instanceof SearchMessageDisplay) {
+        this.setMessageTableRows(args[1]);
       } else {
-        this.canvastable.rows = new SearchMessageDisplay(...args);
+        this.messageTable.rows = new SearchMessageDisplay(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'messagelist') {
-      if (this.canvastable.rows instanceof MessageList) {
-        this.canvastable.updateRows(args[0]);
+      if (this.messageTable.rows instanceof MessageList) {
+        this.setMessageTableRows(args[0]);
       } else {
-        this.canvastable.rows = new MessageList(...args);
+        this.messageTable.rows = new MessageList(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
     if (displayType === 'websocketlist') {
-      if (this.canvastable.rows instanceof WebSocketSearchMailList) {
-        this.canvastable.updateRows(args[0]);
+      if (this.messageTable.rows instanceof WebSocketSearchMailList) {
+        this.setMessageTableRows(args[0]);
       } else {
-        this.canvastable.rows = new WebSocketSearchMailList(...args);
+        this.messageTable.rows = new WebSocketSearchMailList(...args);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
     }
+
     this.filterMessageDisplay();
 
-    // FIXME: looks weird, should probably rename "rows" to "messagedisplay"
-    // in canvastable, and anyway get CV to just read the columns itself
-    // "this" so we can check selectedFolder (FIXME: improve!)
-    // parts like app.selectedFolder.indexOf('Sent') === 0 etc are
-    // why we have resetColumns scattered everywhere, if canvas just called getCTC whenever it did a paint, we wouldnt need to?
-    // would that slow things down?
-    // NB this triggers hasChanged for us and forces a redraw
-    this.canvastable.columns =  this.canvastable.rows.getCanvasTableColumns(this);
-
+    this.updateRows();
   }
 
   public filterMessageDisplay() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+    if (this.messageTable.rows && this.messageTable.rows.rowCount() > 0) {
       const options = new Map();
       options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
       options.set('searchText', this.searchText);
-      this.canvastable.rows.filterBy(options);
-      this.canvastable.hasChanges = true;
+      this.messageTable.rows.filterBy(options);
+      this.messageTable.hasChanges = true;
     }
   }
 
   public clearSelection() {
-    if (this.canvastable.rows) {
-      this.canvastable.rows.clearSelection();
-    }
-    this.canvastable.hasChanges = true;
-    this.showSelectOperations = false;
-    this.showSelectMarkOpMenu = false;
+    this.messageTable.rows.clearSelection();
   }
 
   public selectRowByMessageId(messageId: number) {
-    const matchingRowIndex = this.canvastable.rows.findRowByMessageId(messageId);
+    const matchingRowIndex = this.messageTable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
-    } else {
-      this.singlemailviewer.close();
-    }
+    } 
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
-    const isSelect = (columnIndex === 0) || multiSelect
+    const isSelect = (columnIndex === 0) || multiSelect;
+    const shouldScroll = !this.singlemailviewer.messageId;
+
+    this.lastCheckedIndex = rowIndex;
+
+    if (shouldScroll) {
+      this.scrollToIndex.next(rowIndex - 1);
+    }
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
-        this.canvastable.rows.getRowMessageId(rowIndex)
+        this.messageTable.rows.getRowMessageId(rowIndex)
       );
       this.drafts();
 
       return;
     }
 
-    this.canvastable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
-    this.showSelectOperations = this.canvastable.rows.anySelected();
+    this.messageTable.rows.rowSelected(rowIndex, columnIndex, multiSelect);
 
-    if (this.canvastable.rows.hasChanges) {
-      this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
-      this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
+    if (this.messageTable.rows.hasChanges) {
+      this.updateUrlFragment(this.messageTable.rows.getRowMessageId(rowIndex));
+      this.singlemailviewer.messageId = this.messageTable.rows.getRowMessageId(rowIndex);
 
       if (!this.mobileQuery.matches && !this.messageSubjectDragTipShown) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
         this.preferenceService.set(DefaultPrefGroups.Global, 'messageSubjectDragTipShown', 'true');
       }
       // FIXME: [2] is searchservice specific!
-      if (this.viewmode === 'conversations' && this.canvastable.rows.getCurrentRow()[2] !== '1') {
+
+      if (this.viewmode === 'conversations' && this.messageTable.rows.getCurrentRow()[2] !== '1') {
         this.viewmode = 'singleconversation';
-        this.resetColumns();
         this.clearSelection();
 
         // FIXME [0] is searchservice specific!
         const conversationId =
-          this.searchService.api.getStringValue(this.canvastable.rows.getCurrentRow()[0], 1)
+          this.searchService.api.getStringValue(this.messageTable.rows.getCurrentRow()[0], 1)
           .replace(/[^0-9A-Z]/g, '_');
 
         this.conversationSearchText = 'conversation:' + conversationId + '..' + conversationId;
         this.updateSearch(true);
       }
 
-      this.canvastable.hasChanges = true;
+      this.messageTable.hasChanges = true;
     }
-  }
-
-  // CanvasTableSelectListener, columnWidths changed:
-  saveColumnWidthsPreference(widths: any) {
-    this.preferenceService.set(this.preferenceService.prefGroup, 'canvasNamedColumnWidthsBySet', widths);
   }
 
   updateTime() {
@@ -1049,23 +1002,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     this.hasChildRouterOutlet = yes;
     if (yes) {
       // Don't highlight a folder if we're not viewing one
-      // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
-      setTimeout(() => {
-        this.selectedFolder = null;
-      });
+      this.selectedFolder = null;
     }
   }
 
   public downloadIndexFromServer() {
-    if (!this.searchService.canWriteIndex) {
-      this.snackBar.open(
-        'Local search updates are already running in another tab. Close other Runbox tabs to enable syncing here.',
-        'Dismiss',
-        { duration: 5000 }
-      );
-      return;
-    }
-    this.enableNotification();
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
     this.searchService.downloadIndexFromServer().subscribe((res) => {
@@ -1090,7 +1031,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   }
 
   public cancelOrRefuseLocalIndex() {
-    this.enableNotification();
     // Downloading is in progress, pause it:
     if (this.searchService.indexDownloadingInProgress) {
       this.searchService.stopIndexDownloadingInProgress = true;
@@ -1100,13 +1040,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     this.offerInitialLocalIndex = false;
   }
 
-  singleMailViewerClosed(action: string): void {
-    this.canvastable.rows.clearOpenedRow();
+  singleMailViewerClosed(): void {
+    this.messageTable.rows.clearOpenedRow();
     this.updateUrlFragment();
-  }
-
-  updateMessageListHeight() {
-    this.canvastable.jumpToOpenMessage();
   }
 
   searchTextFieldFocus() {
@@ -1129,10 +1065,23 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     }
   }
 
-  dropToFolder(folderId): void {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+  onMessagesDragStart(event: DragEvent, index) {
 
-    this.messageActionsHandler.updateMessages({
+    // If no messages are selected we'll select the current message
+    if (this.messageTable.rows.rowCount() == 0) {
+      this.messageTable.rows.selectRow(index);
+    }
+
+    // Remove the default image
+    event.dataTransfer?.setDragImage(new Image(), 0, 0); // Set an empty image
+
+    this.dragEvent = event;
+  }
+
+  dropToFolder(folderId): void {
+    const messageIds = this.selectedMessageIds;
+
+    this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         const folders = this.messagelistservice.folderListSubject.value;
@@ -1142,7 +1091,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         // moveMessagesToFolder cant see these cos not in index
         if (this.messagelistservice.unindexedFolders.includes(this.selectedFolder)) {
           // remove from current message display
-          this.canvastable.rows.removeMessages(messageIds);
+          this.messageTable.rows.removeMessages(messageIds);
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1151,7 +1100,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
           this.singlemailviewer.close();
         }
       },
-      updateRemote: (msgIds: number[]) => {
+      updateRemote: (_msgIds: number[]) => {
         const userFolders = this.messagelistservice.folderListSubject.value;
         const currentFolderId = userFolders.find(fld => fld.folderPath === this.messagelistservice.currentFolder).folderId;
         return this.rmmapi.moveToFolder(messageIds, folderId, currentFolderId);
@@ -1162,13 +1111,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   public moveToFolder() {
     const dialogRef: MatDialogRef<MoveMessageDialogComponent> = this.dialog.open(MoveMessageDialogComponent);
 //    dialogRef.componentInstance.messageActionsHandler = this.messageActionsHandler;
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+    const messageIds = this.selectedMessageIds;
 
-    console.log('selected messages', messageIds);
     // dialogRef.componentInstance.selectedMessageIds = messageIds;
     dialogRef.afterClosed().subscribe(folder => {
       if (folder) {
-        this.messageActionsHandler.updateMessages({
+        this.updateMessages({
           messageIds: messageIds,
           updateLocal: (msgIds: number[]) => {
             const folders = this.messagelistservice.folderListSubject.value;
@@ -1179,7 +1127,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
             if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
               this.selectedFolder !== this.messagelistservice.trashFolderName) {
               // remove from current message display
-              this.canvastable.rows.removeMessages(messageIds);
+              this.messageTable.rows.removeMessages(messageIds);
               this.searchService.moveMessagesToFolder(msgIds, folderPath);
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1205,9 +1153,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
-      this.resetColumns();
       this.updateSearch(true);
     }
+  }
+
+  onFolderSelect(folder: string) {
+    this.scrollToIndex.next(0);
+    this.selectFolder(folder);
   }
 
   selectFolder(folder: string): void {
@@ -1228,29 +1180,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     console.log('Change selectedFolder');
     this.clearSelection();
 
-    let doResetColumns = false;
-    if (folder.startsWith('Sent') || this.selectedFolder?.startsWith('Sent')) {
-      doResetColumns = true;
-    }
-
     this.selectedFolder = folder;
 
-    // FIXME: fairly sure this is redundant, the messageDisplay setting
-    // in the subscribe in ngInit should do it for us
-    this.messagelistservice.messagesInViewSubject
-      .pipe(
-        skip(1),
-        take(1)
-      ).subscribe(() =>
-        // Reset columns after folder list is updated
-        this.resetColumns()
-      );
     this.messagelistservice.setCurrentFolder(folder);
 
     if (this.viewmode === 'singleconversation') {
       this.viewmode = 'conversations';
       this.conversationSearchText = undefined;
-      doResetColumns = true;
     }
 
     if (this.hasChildRouterOutlet) {
@@ -1258,21 +1194,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
     }
 
     setTimeout(() => {
-        if (doResetColumns) {
-          this.resetColumns();
-        }
         this.updateSearch(true);
-        this.canvastable.scrollTop();
       }, 0);
-  }
-
-  resetColumns() {
-    if (this.canvastable && this.canvastable.rows) {
-      this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
-    }
-    this.canvastable.rowWrapModeWrapColumn = 3;
-    this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
-    this.autoAdjustColumnWidths();
   }
 
   showSaveSearchDialog(): void {
@@ -1333,9 +1256,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
          */
         if (this.showingSearchResults) {
           this.showingSearchResults = false;
-          this.resetColumns();
         }
 
+        if(!noscroll) {
+          this.scrollToIndex.next(0);
+        }
         this.setMessageDisplay('messagelist', this.messagelist);
 
         return;
@@ -1376,7 +1301,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
         if (!this.showingSearchResults ||
           this.displayFolderColumn !== previousDisplayFolderColumn) {
           this.showingSearchResults = true;
-          this.resetColumns();
         }
 
         if (querytext.match(/date:/) && querytext.match(/\.\./)) {
@@ -1389,8 +1313,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
           this.ngZone.runOutsideAngular(() => {
             searchResults = this.searchService.api.sortedXapianQuery(
               querytext,
-              this.canvastablecontainer.sortColumn,
-              this.canvastablecontainer.sortDescending ? 1 : 0, 0, 50000,
+              this.sort.sortColumn,
+              this.sort.sortDescending ? 1 : 0, 0, 50000,
               this.viewmode === 'conversations' ? 1 : -1
             );
           });
@@ -1400,12 +1324,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
           this.xapianDocCount = this.searchService.api.getXapianDocCount();
           this.searchResultsCount = searchResults.length;
           if (searchResults) {
-            this.setMessageDisplay('search', this.searchService, searchResults);
-            if (!noscroll) {
-              this.canvastable.scrollTop();
+            if(!noscroll) {
+              this.scrollToIndex.next(0);
             }
+            this.setMessageDisplay('search', this.searchService, searchResults);
           }
-        } catch (e) { }
+        } catch (e) {
+          console.error(e);
+        }
 
       }
     }
@@ -1428,16 +1354,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
                           this.mailViewerOnRightSide ? 'true' : 'false');
     // Reopen message on orientation change
     setTimeout(() => this.singlemailviewer.messageId = currentMessageId, 0);
-  }
-
-  horizScroll(evt: any) {
-    this.canvastable.horizScroll = evt.target.scrollLeft;
-  }
-
-  autoAdjustColumnWidths() {
-    setTimeout(() =>
-      this.canvastable.autoAdjustColumnWidths(40, true), 0
-    );
   }
 
   promptLocalSearch() {
@@ -1471,11 +1387,134 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
       fragment += `:${messageId}`;
     }
 
-    // navigating to the same page does not fire off our fragment.subscribe
-    if (fragment !== this.fragment) {
-      this.fragment = fragment;
-      this.router.navigate(['/'], { fragment });
+    this.router.navigate(['/'], { fragment });
+  }
+
+  get selectedMessageIds() {
+    return this.messageTable.rows.selectedMessageIds();
+  }
+
+  updateRows() {
+    this.rows = this.messageTable?.rows?.rows ? [...this.messageTable.rows.rows] : [];
+
+    return this.enrichRows();
+  }
+
+  async enrichRows() {
+    if (!this.messageTable.rows) return;
+
+    const { start, end } = this.renderedRange;
+
+    for (let index = start; index < end; index++) {
+      if (index >= this.rows.length) break;
+
+      this.rows[index] = this.messageTable.rows.getRowData(index, this);
+      this.rows[index].plaintext = this.searchService.messageText(this.rows[index].id);
+      this.rows[index].loaded = true;
     }
+
+    this.rows = Object.create(this.rows);
+
+    this.rowsSubject.next(this.rows);
+  }
+
+  rangeSelectFrom(fromIndex: number, to: number) {
+    const left = Math.min(fromIndex, to);
+    const right = Math.max(fromIndex, to);
+
+    for (let i = left; i <= right; i++) {
+      this.messageTable.rows.flipSelectedRow(i);
+    }
+
+    this.lastCheckedIndex = to;
+
+  }
+
+  onCheckboxClick(event, row, index) {
+    this.onRowClick(event, row, index, true);
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  rangeSelect(to: number) {
+    const fromIndex = this.lastCheckedIndex;
+
+    // When nothing is selected yet.
+    if (fromIndex === -1) return this.oneSelect(to);
+
+    return this.rangeSelectFrom(fromIndex, to);
+  }
+
+  oneSelect(index) {
+    this.rangeSelectFrom(index, index);
+  }
+
+  onRowClick(event, row, index, checkbox = false) {
+    const shiftKey = event.getModifierState('Shift');
+
+    if (shiftKey) {
+      return this.rangeSelect(index);
+    }
+
+    const ctrlKey = event.getModifierState('Control');
+    const metaKey = event.getModifierState('Meta');
+
+    if (ctrlKey || metaKey) {
+      return this.oneSelect(index);
+    }
+
+    if (!checkbox) {
+      // Deselect an email when clicking on a selected email.
+      if (this.messageTable.rows.isOpenedRow(index)) {
+        return this.singlemailviewer?.close();
+      }
+
+      return this.rowSelected(index, 3, false);
+    }
+
+    this.oneSelect(index);
+  }
+
+  onRowKeydown(event, row, index) {
+    // Only work on Enter and space.
+    if (event.key !== 'Enter') return;
+
+    return this.onRowClick(event, row, index);
+  }
+
+  onAllCheckboxChange() {
+    if (!this.messageTable.rows.anySelected()) {
+      this.messageTable.rows.selectAllRows();
+    } else {
+      this.messageTable.rows.clearSelection();
+    }
+  }
+
+  get allItemsSelected() {
+    return this.messageTable.rows.allSelected();
+  }
+
+  @HostListener('document:dragend', ['$event'])
+  onDragEnded() {
+    delete this.dragEvent;
+  }
+
+  onTableResize() {
+    this.widths = {};
+  }
+
+  // TODO: The this.rows can change after a onRenderedRangeChange is called.
+  // This will drop the resolved values.
+  onRenderedRangeChange(event) {
+    this.renderedRange = event;
+    this.enrichRows();
+  }
+
+  async updateMessages(args) {
+    await this.messageActionsHandler.updateMessages(args);
+    // setTimeout(() => {
+    //   this.updateSearch(true);
+    // }, 1000);
   }
 
   get showNotificationButton() {
@@ -1490,14 +1529,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy, CanvasTab
   }
 
   async enableNotification() {
-    console.log('request notification permission')
+    console.log('request notification permission');
 
     try {
-      const result = await Notification.requestPermission()
-      console.log('Notification.permission', Notification.permission)
+      const result = await Notification.requestPermission();
+      console.log('Notification.permission', Notification.permission);
       if (result === 'granted') this.subscribeToNotifications();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
   }
 }
+
+const idValue = (x: any) => x.id;

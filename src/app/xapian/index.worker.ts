@@ -21,7 +21,7 @@
 
 import '../sentry';
 
-import { AsyncSubject, Observer, Observable, of, from, firstValueFrom } from 'rxjs';
+import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
@@ -32,20 +32,40 @@ import { FolderStatsEntry } from '../common/folderstatsentry';
 import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
-import { INBOX_FOLDER, UNINDEXED_FOLDERS } from '../common/folder.constants';
-import { folderQuery, SearchIndexDocumentData, XAPIAN_GLASS_WR, XAPIAN_TERM_ANSWERED, XAPIAN_TERM_DELETED, XAPIAN_TERM_FLAGGED, XAPIAN_TERM_FOLDER, XAPIAN_TERM_HASATTACHMENTS, XAPIAN_TERM_SEEN } from './xapian-shared';
-import { LIST_ALL_MESSAGES_CHUNK_SIZE } from '../rmmapi/list-all-messages.util';
 
 declare let FS;
 declare let IDBFS;
 declare let Module;
 
+const XAPIAN_TERM_FOLDER = 'XFOLDER:';
+const XAPIAN_TERM_FLAGGED = 'XFflagged';
+const XAPIAN_TERM_SEEN = 'XFseen';
+const XAPIAN_TERM_ANSWERED = 'XFanswered';
+const XAPIAN_TERM_DELETED = 'XFdeleted';
 const XAPIAN_TERM_MISSING_BODY_TEXT = 'XFmissingbodytext';
+const XAPIAN_TERM_HASATTACHMENTS = 'XFattachment';
+
+export const XAPIAN_GLASS_WR = 'xapianglasswr';
 
 const MAX_DISCREPANCY_CHECK_LIMIT = 50000; // Unable to check discrepancies for folders with more than 50K messages
-const FOLDER_DISCREPANCY_CHECK_INTERVAL_MS = 30000;
+// stolen from rbwebmail.ts, should be in a sep file both load?
+const LIST_ALL_MESSAGES_CHUNK_SIZE = 10000;
 
 const ctx: Worker = self as any;
+
+class SearchIndexDocumentData {
+  id: string;
+  from: string;
+  subject: string;
+  recipients: string[];
+  textcontent: string;
+  folder?: string;
+  flagged?: boolean;
+  seen?: boolean;
+  answered?: boolean;
+  deleted?: boolean;
+  attachment?: boolean;
+}
 
 class SearchIndexDocumentUpdate {
   constructor(
@@ -65,15 +85,15 @@ export class SearchIndexService {
 
   // postMessage ?
   // messagelistservice stuff!
-  currentFolder   = INBOX_FOLDER;
-  unindexedFolders = [...UNINDEXED_FOLDERS];
+  currentFolder   = 'Inbox';
+  unindexedFolders = ['Trash', 'Spam', 'Templates'];
   folderList: FolderListEntry[];
   messageTextCache = new Map<number, string>();
 
   public indexLastUpdateTime = 0; // Epoch time
   public indexUpdateIntervalId: any = null;
   numberOfMessagesSyncedLastTime = 0;
-  folderCountDiscrepanciesCheckedAt: {[folderName: string]: number} = {};
+  folderCountDiscrepanciesCheckedCount: {[folderName: string]: number} = {};
 
   serverIndexSize = -1;
   serverIndexSizeUncompressed = -1;
@@ -127,7 +147,7 @@ export class SearchIndexService {
           db.close();
         };
       } catch (e) {
-        console.error(e)
+        console.error(e);
         console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
         // console.log('Worker: Req failed');
@@ -217,7 +237,7 @@ export class SearchIndexService {
         }
       });
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -243,47 +263,42 @@ export class SearchIndexService {
         this.api.closeXapianDatabase();
       }
 
-      const mainDir = FS.analyzePath(XAPIAN_GLASS_WR);
-      if (mainDir.exists && mainDir.object && FS.isDir(mainDir.object.mode)) {
-        FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
-          if ( f !== '.' && f !== '..') {
-            console.log(f);
-            FS.unlink('xapianglasswr/' + f);
-          }
-        });
-        try {
-          FS.rmdir(XAPIAN_GLASS_WR);
-        } catch {
-          // Ignore if already removed.
+      FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
+        if ( f !== '.' && f !== '..') {
+          console.log(f);
+          FS.unlink('xapianglasswr/' + f);
         }
-      }
+      });
+      FS.rmdir(XAPIAN_GLASS_WR);
       try {
         FS.unlink('xapianglass');
       } catch (e) {
-        // Ignore if already removed.
+        console.error(e);
       }
 
 
 
       // clearTimeout(this.indexUpdateIntervalId);
 
-      const partitionsDir = FS.analyzePath(this.partitionsdir);
-      if (partitionsDir.exists && partitionsDir.object && FS.isDir(partitionsDir.object.mode)) {
+      let hasPartitionsDir = true;
+      try {
+        FS.stat(this.partitionsdir);
+      } catch (e) {
+        console.error(e);
+        hasPartitionsDir = false;
+      }
+      if (hasPartitionsDir) {
         FS.readdir(this.partitionsdir).forEach((f) => {
           if ( f !== '.' && f !== '..') {
-            const entryPath = `${this.partitionsdir}/${f}`;
-            const entry = FS.analyzePath(entryPath);
-            if (!entry.exists || !entry.object) {
-              return;
-            }
-            if (FS.isDir(entry.object.mode)) {
-              FS.readdir(entryPath)
+
+            if (FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
+              FS.readdir(`${this.partitionsdir}/${f}`)
                 .filter((ent: string) => ent.charAt(0) !== '.').forEach(partitionFile =>
-                FS.unlink(`${entryPath}/${partitionFile}`)
+                FS.unlink(`${this.partitionsdir}/${f}/${partitionFile}`)
               );
-              FS.rmdir(entryPath);
+              FS.rmdir(`${this.partitionsdir}/${f}`);
             } else {
-              FS.unlink(entryPath);
+              FS.unlink(`${this.partitionsdir}/${f}`);
             }
           }
         });
@@ -495,30 +510,17 @@ not matching with index for current folder`);
           const currentFolder = this.folderList.find(folder => folder.folderPath === this.currentFolder);
           const folderPath = currentFolder.folderPath;
 
-          const now = Date.now();
-          const lastCheckedAt = this.folderCountDiscrepanciesCheckedAt[folderPath] || 0;
-          if (now - lastCheckedAt >= FOLDER_DISCREPANCY_CHECK_INTERVAL_MS) {
-            this.folderCountDiscrepanciesCheckedAt[folderPath] = now;
+          // do this once per folder, and only if the folder is actually indexed
+          if (!this.folderCountDiscrepanciesCheckedCount[folderPath]) {
+            this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
 
-            // Compare xapian index counts with server counts for indexed folders.
+            // Compare xapian index counts with rest api folder list:
             if (this.localSearchActivated && this.api &&
               this.api.listFolders().find(f => f[0] === folderPath)
                ) {
-              const stats = await folderStats(folderPath);
-              if (stats) {
-                const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
-                const serverFolder = {
-                  ...currentFolder,
-                  totalMessages: stats.total,
-                  newMessages: stats.total_unseen
-                } as FolderListEntry;
-                const folderMessages = await this.compareAndUpdateFolderCounts(
-                  serverFolder,
-                  numberOfMessages,
-                  numberOfUnreadMessages
-                );
-                msginfos = msginfos.concat(folderMessages);
-              }
+              const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
+              const folderMessages = await this.compareAndUpdateFolderCounts(currentFolder, numberOfMessages, numberOfUnreadMessages);
+              msginfos = msginfos.concat(folderMessages);
             } else {
               // Compare rest api counts with rest api folder list:
               folderStats(folderPath).then((stats: FolderStatsEntry) => {
@@ -530,14 +532,11 @@ not matching with index for current folder`);
 (${stats.total_unseen} vs ${currentFolder.newMessages})
 not matching with rest api counts for current folder`);
                   updateFolderCounts(folderPath).then(
-                    (result) => {
-                      console.log(result.result.result.msg);
-                      // Folder list will be refreshed by updateMessageListService below
-                    }
+                    (result) => console.log(result.result.result.msg)
                   ).catch(
                     (err) => {
-                      console.error(err)
-                      console.log('Error updating folder counts: ' + err.errors.join(','))
+                      console.error(err);
+                      console.log('Error updating folder counts: ' + err.errors.join(','));
                     }
                   );
                 }
@@ -557,7 +556,7 @@ not matching with rest api counts for current folder`);
                 try {
                   this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
                 } catch (e) {
-                  console.error(e)
+                  console.error(e);
                   console.error('Worker: Unable to delete message from index', msgid);
                 }
               })
@@ -682,13 +681,13 @@ not matching with rest api counts for current folder`);
           this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
 
           if (searchIndexDocumentUpdates.length > 0) {
-            await firstValueFrom(this.postMessagesToXapianWorker(searchIndexDocumentUpdates));
+            await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
           }
 
           // Look up messages with missing body text term and add the missing text to the index
           const messagesMissingBodyText = this.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1);
           if (messagesMissingBodyText.length > 0) {
-            await firstValueFrom(this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
+            await this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
               const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
 
               return new SearchIndexDocumentUpdate(messageId, async () => {
@@ -714,7 +713,7 @@ not matching with rest api counts for current folder`);
                   console.error('Worker: Failed to add text to document', messageId, e);
                 }
               });
-            })));
+            })).toPromise();
           }
       } else {
         // localsearchactivated is off
@@ -725,7 +724,7 @@ not matching with rest api counts for current folder`);
         // Notify on new messages
         const newmessages = msginfos.filter(m =>
           !m.seenFlag &&
-          m.folder === INBOX_FOLDER &&
+          m.folder === 'Inbox' &&
           m.messageDate.getTime() > this.indexLastUpdateTime);
         if (newmessages.length > 0) {
           postMessage({'action': PostMessageAction.newMessagesNotification,
@@ -736,19 +735,18 @@ not matching with rest api counts for current folder`);
       console.log(`Updating messageListService with # mesgs: ${msginfos.length}, new sync: ${this.numberOfMessagesSyncedLastTime}`);
       if ((msginfos && msginfos.length > 0)
         || (deletedMessages && deletedMessages.length > 0)) {
-        // notify messagelist that changes were made when there are new messages
-        // OR when there are deleted messages
-        // Always notify when there are any changes, since messages may have moved between folders
-        const folders = new Set;
-        msginfos.forEach((msg) => folders.add(msg.folder));
-        // For any changes (moved or deleted messages), we don't know which folders they came from
-        // So we add all folders from the folder list to ensure counts are refreshed
-        // This handles IMAP operations like "delete" which typically moves messages to Trash
-        if (this.folderList && (msginfos.length > 0 || (deletedMessages && deletedMessages.length > 0))) {
-          this.folderList.forEach((folder) => folders.add(folder.folderPath));
+        if (this.numberOfMessagesSyncedLastTime) {
+          // notify messagelist that changes were made, regardless of
+          // whether we updated the index or notauthenticated
+          // if index is on this only affects trash/spam
+          // otherwise its the update for all folders
+          const folders = new Set;
+          msginfos.forEach((msg) => folders.add(msg.folder));
+          // only got ids for deleted messages
+          // deletedMessages.forEach((msg) => folders.add(msg.folder));
+          ctx.postMessage({'action': PostMessageAction.updateMessageListService,
+                          'foldersUpdated': Array.from(folders) });
         }
-        ctx.postMessage({'action': PostMessageAction.updateMessageListService,
-                        'foldersUpdated': Array.from(folders) });
         // Update folder lists + counts
         // postMessage
         // this.messagelistservice.applyChanges(
@@ -863,7 +861,7 @@ not matching with rest api counts for current folder`);
 
           if (this.persistIndexInProgressSubject) {
             // Wait for persistence of index to finish before doing more work on the index
-            await firstValueFrom(this.persistIndexInProgressSubject);
+            await this.persistIndexInProgressSubject.toPromise();
           }
           setTimeout(() => processMessage(), 1);
 
@@ -874,7 +872,7 @@ not matching with rest api counts for current folder`);
             this.indexNotPersisted = true;
           }
           this.api.commitXapianUpdates();
-          await firstValueFrom(this.persistIndex());
+          await this.persistIndex().toPromise();
 
           if (hasProgressSnackBar) {
             ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
@@ -906,9 +904,11 @@ not matching with rest api counts for current folder`);
 
 
   getFolderQuery(querytext: string, folderPath: string, unreadOnly: boolean): string {
-    if (folderPath === INBOX_FOLDER) {
+    const folderQuery = (folderName) => 'folder:"' + folderName.replace(/\//g, '\.') + '" ';
+
+    if (folderPath === 'Inbox') {
       // Workaround for IMAP setting folder to "INBOX" when moving messages  there
-      querytext += `(${folderQuery(INBOX_FOLDER)} OR ${folderQuery('INBOX')})`;
+      querytext += `(${folderQuery('Inbox')} OR ${folderQuery('INBOX')})`;
     } else {
       querytext += folderQuery(folderPath);
     }
@@ -1016,8 +1016,6 @@ ctx.addEventListener('message', ({ data }) => {
       // Add / update the text of a message which we can add to the search index
       const updates = data['updates'];
       updates.forEach((val, key) => searchIndexService.messageTextCache.set(key, val));
-    } else if (data['action'] === PostMessageAction.invalidateMessageTextCache) {
-      searchIndexService.messageTextCache.delete(data['messageId']);
     } else if (data['action'] === PostMessageAction.moveMessagesToFolder) {
       searchIndexService.moveMessagesToFolder(data['messageIds'], data['value']);
     } else if (data['action'] === PostMessageAction.deleteMessages) {
@@ -1072,3 +1070,4 @@ ctx.addEventListener('message', ({ data }) => {
     console.error('Failed to deal with message: ', e);
   }
 });
+

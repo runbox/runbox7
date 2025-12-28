@@ -50,64 +50,65 @@ describe('AliasesListerComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-    declarations: [
-        AliasesListerComponent,
-        AliasesEditorModalComponent,
-    ],
-    imports: [CommonModule,
-        FormsModule,
-        MatCommonModule,
-        MatCardModule,
-        MatExpansionModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatSnackBarModule,
-        MatDialogModule,
-        NoopAnimationsModule],
-    providers: [
-        AliasesListerComponent,
-        { provide: RunboxWebmailAPI, useValue: {
-                me: of({ user_address: DEFAULT_EMAIL }),
-                getRunboxDomains() { return of([{ 'name': 'runbox.com' }, { 'name': 'runbox.xyz' }]); },
-            } },
-        { provide: HttpClient, useValue: {
-                get(url: string) {
-                    if (/alias\/allowed_domains$/.test(url)) {
-                        return of({
+            declarations: [
+                AliasesListerComponent,
+                AliasesEditorModalComponent,
+            ],
+            imports: [
+                CommonModule,
+                FormsModule,
+                MatCommonModule,
+                MatCardModule,
+                MatExpansionModule,
+                MatFormFieldModule,
+                MatInputModule,
+                MatSelectModule,
+                MatSnackBarModule,
+                MatDialogModule,
+                NoopAnimationsModule
+            ],
+            providers: [
+                AliasesListerComponent,
+                { provide: RunboxWebmailAPI, useValue: {
+                    me: of({ user_address: DEFAULT_EMAIL }),
+                    getRunboxDomains() { return of([{ 'name': 'runbox.com' }, { 'name': 'runbox.xyz' }]); },
+                } },
+                { provide: HttpClient, useValue: {
+                    get(url: string) {
+                        if (/alias\/allowed_domains$/.test(url)) {
+                            return of({
+                                status: 'success',
+                                result: { allowed_domains: ALLOWED_DOMAINS }
+                            });
+                        } else {
+                            return of({
+                                status: 'error',
+                                result: 'unimplemented'
+                            });
+                        }
+                    }
+                } },
+                { provide: RMM, useValue: {
+                    alias: {
+                        load: () => of({
                             status: 'success',
-                            result: { allowed_domains: ALLOWED_DOMAINS }
-                        });
+                            result: { aliases: ALIASES }
+                        }),
+                        create: (alias) => of({
+                            status: 'success',
+                            result: { alias: alias }
+                        }),
                     }
-                    else {
-                        return of({
-                            status: 'error',
-                            result: 'unimplemented'
-                        });
-                    }
-                }
-            } },
-        { provide: RMM, useValue: {
-                alias: {
-                    load: () => of({
-                        status: 'success',
-                        result: { aliases: ALIASES }
-                    }),
-                    create: (alias) => of({
-                        status: 'success',
-                        result: { alias: alias }
-                    }),
-                }
-            } }
-    ]
-});
+                } }
+            ]
+        });
         fixture = TestBed.createComponent(AliasesListerComponent);
         component = fixture.componentInstance;
-    })
+    });
 
     it('loads aliases through RMM', () => {
         expect(component.aliases).toEqual(ALIASES);
-    })
+    });
 
     it('sets the default email to current user email', () => {
         expect(component.defaultEmail).toBe(DEFAULT_EMAIL);

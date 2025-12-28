@@ -78,6 +78,13 @@ const changes = [
         "Check Notifcation API exists when showing button"
     ],
     [
+        "ad665a71",
+        "1764772951",
+        "fix",
+        "plans",
+        "Enable downgrade to Micro including Email Hosting"
+    ],
+    [
         "840522fb",
         "1764245620",
         "style",

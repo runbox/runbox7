@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -24,7 +24,6 @@ import { catchError, distinctUntilChanged, map, filter, take } from 'rxjs/operat
 
 import { MessageInfo } from '../common/messageinfo';
 import { FolderListEntry } from '../common/folderlistentry';
-import { INBOX_FOLDER, SPAM_FOLDER, TRASH_FOLDER, TEMPLATES_FOLDER, UNINDEXED_FOLDERS } from '../common/folder.constants';
 
 import { RunboxWebmailAPI } from './rbwebmail';
 import { SearchService } from '../xapian/searchservice';
@@ -54,17 +53,18 @@ export class MessageListService {
     folderListSubject: BehaviorSubject<FolderListEntry[]> = new BehaviorSubject([]);
     folderMessageCountSubject: ReplaySubject<FolderMessageCountMap> = new ReplaySubject(1);
 
-    currentFolder = INBOX_FOLDER;
+    currentFolder = 'Inbox';
 
     folderMessageLists: { [folder: string]: MessageInfo[] } = {};
     messagesById: { [id: number]: MessageInfo } = {};
     folderCounts: FolderMessageCountMap;
     staleFolders: { [name: string]: boolean } = {};
 
-    trashFolderName = TRASH_FOLDER;
-    spamFolderName = SPAM_FOLDER;
-    unindexedFolders = [...UNINDEXED_FOLDERS];
-    templateFolderName = TEMPLATES_FOLDER;
+    trashFolderName = 'Trash';
+    sentFolderName = 'Sent';
+    spamFolderName = 'Spam';
+    unindexedFolders = ['Trash', 'Spam', 'Templates'];
+    templateFolderName = 'Templates';
 
     ignoreUnreadInFolders = [ 'Sent' ];
 
@@ -144,16 +144,24 @@ export class MessageListService {
     public refreshFolderCounts(): Promise<void> {
         return new Promise((resolve, _) => {
             return this.searchservice.pipe(take(1)).subscribe(searchservice => {
+                const xapianFolders = new Set(
+                    searchservice.localSearchActivated && searchservice.api
+                        ?  searchservice.api.listFolders().map(f => f[0])
+                        : []
+                );
+
                 const folders = this.folderListSubject.value;
                 const folderCounts = {};
                 let countsChanged = false;
                 for (const folder of folders) {
                     const path = folder.folderPath;
 
-                    // Always use server counts from the folder list, not Xapian counts
-                    // This ensures we show accurate counts immediately after IMAP operations
-                    // even if the local Xapian index hasn't been updated yet
-                    folderCounts[path] = FolderMessageCountEntry.of(folder);
+                    if (xapianFolders.has(path)) {
+                        const res = searchservice.api.getFolderMessageCounts(path);
+                        folderCounts[path] = new FolderMessageCountEntry(res[1], res[0]);
+                    } else {
+                        folderCounts[path] = FolderMessageCountEntry.of(folder);
+                    }
 
                     // Ensure we don't redraw the folder list ui component
                     // when nothing has changed
@@ -252,7 +260,16 @@ export class MessageListService {
         // messages permanently deleted (removed from trash
         delMsgInfos
             .forEach((msgId) => {
-                this.removeMessageLocally(msgId);
+                const msg = this.messagesById[msgId];
+                if (msg && this.folderMessageLists[msg.folder]) {
+                    const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
+
+                    if (delFolderMessageIndex > -1) {
+                        this.folderMessageLists[msg.folder]
+                            .splice(delFolderMessageIndex, 1);
+                    }
+                    delete this.messagesById[msgId];
+                }
             });
 
         Object.keys(filterFolders)
@@ -269,27 +286,6 @@ export class MessageListService {
         // made from outside of runbox7 (eg via IMAP)
         this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
         this.refreshFolderList();
-    }
-
-    private removeMessageLocally(msgId: number, adjustTrashCounts = false) {
-        const msg = this.messagesById[msgId];
-        if (!msg || !this.folderMessageLists[msg.folder]) {
-            return;
-        }
-        const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
-
-        if (delFolderMessageIndex > -1) {
-            this.folderMessageLists[msg.folder]
-                .splice(delFolderMessageIndex, 1);
-        }
-
-        if (adjustTrashCounts && msg.folder === this.trashFolderName) {
-            this.folderCounts[this.trashFolderName].total--;
-            if (!msg.seenFlag) {
-                this.folderCounts[this.trashFolderName].unread--;
-            }
-        }
-        delete this.messagesById[msgId];
     }
 
     // When emptying the trash we delete from here first
@@ -309,7 +305,20 @@ export class MessageListService {
     // Permanent delete
     public deleteTrashMessages(messageIds: number[]) {
         messageIds.forEach((msgId) => {
-            this.removeMessageLocally(msgId, true);
+            const msg = this.messagesById[msgId];
+            if (msg && this.folderMessageLists[msg.folder]) {
+                const delFolderMessageIndex = this.folderMessageLists[msg.folder].findIndex((m) => msgId === m.id);
+
+                if (delFolderMessageIndex > -1) {
+                    this.folderMessageLists[msg.folder]
+                        .splice(delFolderMessageIndex, 1);
+                }
+                this.folderCounts[this.trashFolderName].total++;
+                if (!msg.seenFlag) {
+                    this.folderCounts[this.trashFolderName].unread++;
+                }
+                delete this.messagesById[msgId];
+            }
         });
         // Message counts update
         this.folderMessageCountSubject.next(this.folderCounts);
@@ -417,14 +426,12 @@ export class MessageListService {
                     return observableThrowError(e);
                 }))
             .subscribe((res) => {
-                if (resetContents) {
-                    // Always reset contents when folder is stale, even if empty
-                    this.folderMessageLists[folder] = res || [];
-                    if (res && res.length > 0) {
-                        res.forEach((m: MessageInfo) => this.messagesById[m.id] = m);
+                if (res && res.length > 0) {
+                    if (resetContents) {
+                      this.folderMessageLists[folder] = res;
+                    } else {
+                        this.folderMessageLists[folder] = messageList.concat(res);
                     }
-                } else if (res && res.length > 0) {
-                    this.folderMessageLists[folder] = messageList.concat(res);
                     res.forEach((m: MessageInfo) => this.messagesById[m.id] = m);
                 }
                 this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
@@ -440,10 +447,12 @@ export class MessageListService {
     public updateStaleFolders(folders: string[]) {
         folders.forEach((f) => this.staleFolders[f] = true);
         // check if current visible folder has updates
-        // When folders are stale (due to external IMAP changes), always fetch from server
-        // to ensure we have accurate data, regardless of local search status
-        if (this.staleFolders[this.currentFolder]) {
+        // refresh if localsearch not activated (aka setCurrentFolder)
+        this.searchservice.pipe(take(1)).subscribe(searchservice => {
+          if (!searchservice.localSearchActivated &&
+            this.staleFolders[this.currentFolder]) {
             this.fetchFolderMessages();
-        }
+          }
+        });
     }
 }

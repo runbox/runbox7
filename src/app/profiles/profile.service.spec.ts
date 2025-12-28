@@ -158,36 +158,36 @@ describe('ProfileService', () => {
 }).compileComponents();
     }));
     
-    beforeEach(() => { service = service = TestBed.inject(ProfileService) });
+  beforeEach(() => { service = service = TestBed.inject(ProfileService); });
 
     it('loads valid profile subsets', (done) => {
         service.validProfiles.subscribe(profiles => {
             expect(profiles.length).toBe(4);
             done();
         });
-    })
+    });
     it('loads all profiles', (done) => {
         service.profiles.subscribe(profiles => {
             expect(profiles.length).toBe(PROFILES.length);
             done();
         });
-    })
+    });
     it('loads alias profile subsets', (done) => {
         service.aliases.subscribe(profiles => {
             expect(profiles.length).toBe(PROFILES.filter(p => p.reference_type === 'aliases').length);
             done();
         });
-    })
+    });
     it('loads non alias profile subsets', (done) => {
         service.otherProfiles.subscribe(profiles => {
             expect(profiles.length).toBe(2);
             done();
         });
-    })
+    });
     it('loads a compose profile', () => {
         expect(service.composeProfile).toBeDefined();
         expect(service.composeProfile.email).toEqual('a2@example.com');
-    })
+    });
 
     it('adds a new profile on create', (done) => {
         service.create({ name: 'New Profile Name',

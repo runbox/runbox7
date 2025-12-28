@@ -34,6 +34,7 @@ import { ContactsService } from './contacts-app/contacts.service';
 import { StorageService } from './storage.service';
 import { RouterModule, Routes } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -51,7 +52,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CanvasTableModule } from './canvastable/canvastable';
+import { VirtualScrollTableComponent } from './virtual-scroll-table/virtual-scroll-table.component';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { RMMOfflineService } from './rmmapi/rmmoffline.service';
@@ -88,7 +89,12 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
-
+import { HumanBytesPipe } from './human-bytes.pipe';
+import { FollowsMouseComponent } from './follows-mouse/follows-mouse.component';
+import { DatePipe } from '@angular/common';
+import { ResizableButtonComponent } from './resizable-button/resizable-button.component';
+import { SortButtonComponent } from './sort-button/sort-button.component';
+import { ResizeObserverDirective } from './directives/resize-observer.directive';
 
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
@@ -139,14 +145,16 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent }
 ];
 
-@NgModule({ exports: [],
-    declarations: [MainContainerComponent, AppComponent,
-        MoveMessageDialogComponent,
-        PopularRecipientsComponent,
-        SavedSearchesComponent,
-    ],
-    bootstrap: [MainContainerComponent], imports: [BrowserModule, FormsModule,
-        CanvasTableModule,
+@NgModule({
+    imports: [
+        BrowserModule,
+        FormsModule,
+        ResizeObserverDirective,
+        DatePipe,
+        ResizableButtonComponent,
+        SortButtonComponent,
+        MatBadgeModule,
+        VirtualScrollTableComponent,
         ComposeModule,
         StartDeskModule,
         WelcomeDeskModule,
@@ -183,7 +191,19 @@ const routes: Routes = [
         RunboxCommonModule,
         RouterModule.forRoot(routes),
         ServiceWorkerModule.register('/app/ngsw-worker.js', { enabled: environment.production }),
-        HotkeyModule.forRoot()], providers: [ProgressService,
+        HotkeyModule.forRoot(),
+        HumanBytesPipe,
+        FollowsMouseComponent
+    ],
+    exports: [],
+    declarations: [
+        MainContainerComponent,
+        AppComponent,
+        MoveMessageDialogComponent,
+        PopularRecipientsComponent,
+        SavedSearchesComponent,
+    ],
+    providers: [ProgressService,
         MessageListService,
         MobileQueryService,
         RunboxWebmailAPI,
@@ -197,10 +217,14 @@ const routes: Routes = [
         { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
         { provide: ErrorHandler, useClass: SentryErrorHandler },
         { provide: SwRegistrationOptions,
-            useFactory: () => ({
-                enabled: environment.production,
-                registrationStrategy: 'registerWithDelay:5000'
-            }) }, provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())] })
+          useFactory: () => ({
+            enabled: environment.production,
+            registrationStrategy: 'registerWithDelay:5000'
+          }) },
+        provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())
+    ],
+    bootstrap: [MainContainerComponent]
+})
 export class AppModule {
   constructor (matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
     matIconRegistry.addSvgIconSet(
@@ -208,3 +232,4 @@ export class AppModule {
     );
   }
 }
+
