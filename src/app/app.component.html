@@ -372,6 +372,17 @@
             </mat-list-item>
 
             <mat-list-item *ngIf="!mobileQuery.matches">
+              <mat-checkbox [(ngModel)]="mailViewerOnRightSide"
+                            matLine
+                            (change)="mailViewerOrientationChangeRequest(mailViewerOnRightSide ? 'vertical' : 'horizontal')"
+                            (click)="$event.stopPropagation()"
+                            >
+                <mat-icon svgIcon="view-split-vertical" class="tableViewOptionsMenuElement" matTooltip="Preview on right side"></mat-icon>
+                Preview on right side
+              </mat-checkbox>
+            </mat-list-item>
+
+            <mat-list-item *ngIf="!mobileQuery.matches && mailViewerOnRightSide">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
                             matLine
                             (change)="saveMessagePaneSetting()"
@@ -410,7 +421,7 @@
 
 	<div [hidden]="hasChildRouterOutlet">
 
-      <div *ngIf="debouncedRows | async as row_items; else rowsLoading"> 
+      <div *ngIf="debouncedRows | async as row_items; else rowsLoading" class="messageListContainer">
           <div
             appResizeObserver
             (horizontalResize)="onTableResize()"

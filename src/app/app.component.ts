@@ -1570,6 +1570,12 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     }
   }
 
+  @HostListener('window:blur')
+  onWindowBlur() {
+    // Reset shift state when window loses focus to prevent stuck state
+    this.shiftKeyHeld = false;
+  }
+
   onTableResize() {
     this.widths = {...AppComponent.DEFAULT_COLUMN_WIDTHS};
   }

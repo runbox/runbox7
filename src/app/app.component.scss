@@ -76,8 +76,22 @@
 }
 
 
+.messageListContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
 #messageTableContainerArea {
     container-type: inline-size; // or use `container: inline-size;`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; // default, overridden by [ngStyle] when horizontal mail viewer is open
+    overflow: auto;
 
     .messages-table {
         --cell-y-spacing-top: 0.3lh;
@@ -237,17 +251,7 @@ tbody mat-icon {
     margin: -0.3em;
 }
 
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
+// .sr-only moved to global styles.scss
 
 @keyframes skeleton-loading {
     0% {

@@ -376,8 +376,8 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
 
     color-scheme: dark;
 
-    // CRT scanline effect overlay
-    &::before {
+    // CRT scanline effect overlay (only on body to avoid rendering twice)
+    @at-root body#{&}::before {
         content: "";
         position: fixed;
         top: 0;
@@ -2839,4 +2839,18 @@ table.detailsTable tr td:nth-of-type(2) {
         color: var(--rmm-text-on-primary) !important;
         font-weight: 600 !important;
     }
+}
+
+// Screen reader only - visually hidden but accessible
+// Used for accessibility text that should not be visible
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
