@@ -36,7 +36,7 @@ export class PaymentsService {
     constructor(
         private rmmapi: RunboxWebmailAPI,
     ) {
-        this.rmmapi.getAvailableProducts().subscribe(products => {
+        this.rmmapi.getUpgrades().subscribe(products => {
             this.products.next(products);
             this.products.complete();
         });
