@@ -22,7 +22,7 @@ import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { SearchService } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
-import { AsyncSubject, of, Subject } from 'rxjs';
+import { AsyncSubject, of, Subject, firstValueFrom, lastValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -107,7 +107,7 @@ describe('RecipientsService', () => {
         const recipientsService = TestBed.inject(RecipientsService);
 
         // Take 2 as searchindex+contacts service are separate updates
-        const recipients = await recipientsService.recipients.pipe(take(2)).toPromise();
+        const recipients = await lastValueFrom(recipientsService.recipients.pipe(take(2)));
         console.log(recipients);
 
         expect(window['termlistresult'].length).toBe(5);
@@ -134,7 +134,7 @@ describe('RecipientsService', () => {
         };
 
         const recipientsService: RecipientsService = TestBed.inject(RecipientsService);
-        const suggested = await recipientsService.recentlyUsed.pipe(take(1)).toPromise();
+        const suggested = await firstValueFrom(recipientsService.recentlyUsed);
 
         expect(suggested.length).toBe(2);
     });

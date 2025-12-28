@@ -31,6 +31,7 @@ import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 declare let FS;
 declare let IDBFS;
@@ -124,12 +125,12 @@ describe('SearchService', () => {
 
     xit('should load searchservice, but no local index', async () => {
         const searchService = TestBed.inject(SearchService);
-        await xapianLoadedSubject.toPromise();
+        await firstValueFrom(xapianLoadedSubject);
 
         const req = httpMock.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 
-        expect(await searchService.initSubject.toPromise()).toBeFalsy();
+        expect(await firstValueFrom(searchService.initSubject)).toBeFalsy();
         expect(searchService.localSearchActivated).toBeFalsy();
         httpMock.verify();
 
@@ -194,7 +195,7 @@ describe('SearchService', () => {
         const testuserid = 444;
         const localdir =  'rmmsearchservice' + testuserid;
 
-        await xapianLoadedSubject.toPromise();
+        await firstValueFrom(xapianLoadedSubject);
 
         FS.mkdir(localdir);
         FS.mount(IDBFS, {}, '/' + localdir);
@@ -247,7 +248,7 @@ describe('SearchService', () => {
         req.flush(listEmailFoldersResponse);
 
 
-        expect(await searchService.initSubject.toPromise()).toBeTruthy();
+        expect(await firstValueFrom(searchService.initSubject)).toBeTruthy();
         console.log('search service initialised');
         expect(searchService.localSearchActivated).toBeTruthy();
         expect(localdir).toEqual(searchService.localdir);

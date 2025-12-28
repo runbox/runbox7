@@ -28,6 +28,7 @@ import { RMMHttpInterceptorService } from '../rmmapi/rmmhttpinterceptor.service'
 import { ProgressService } from './progress.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { filter, take } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 
@@ -71,14 +72,12 @@ describe('ProgressService', () => {
         const last_on_req = httpMock.expectOne('/rest/v1/last_on');
         last_on_req.flush(200);
 
-        const me = await rmmapiservice.me.toPromise();
+        const me = await firstValueFrom(rmmapiservice.me);
         expect(me.last_name).toBe('testuser');
 
         expect(httpProgressSeen).toBeTruthy();
 
-        const hasCurrentHttpActivity = await progressService.httpRequestInProgress.pipe(
-            take(1)
-        ).toPromise();
+        const hasCurrentHttpActivity = await firstValueFrom(progressService.httpRequestInProgress);
 
         expect(hasCurrentHttpActivity).toBeFalsy();
         expect(rmmapiservice.last_on_interval).toBeTruthy();

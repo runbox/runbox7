@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { HttpResponse } from '@angular/common/http';
-import { AsyncSubject, BehaviorSubject, Subject, of } from 'rxjs';
+import { AsyncSubject, BehaviorSubject, Subject, of, firstValueFrom } from 'rxjs';
 
 import { SearchService } from './searchservice';
 import { PostMessageAction } from './messageactions';
@@ -171,7 +171,7 @@ describe('SearchService index update hooks', () => {
         );
 
         openRequest.onsuccess();
-        const initValue = await service.initSubject.toPromise();
+        const initValue = await firstValueFrom(service.initSubject);
 
         expect(initValue).toBeFalse();
         expect(fakeDb.transaction).not.toHaveBeenCalled();

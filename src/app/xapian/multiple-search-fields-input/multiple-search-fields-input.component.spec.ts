@@ -28,7 +28,7 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { take } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 describe('MultipleSearchFieldsInputComponent', () => {
   let component: MultipleSearchFieldsInputComponent;
@@ -63,7 +63,7 @@ describe('MultipleSearchFieldsInputComponent', () => {
     component.currentFolder = 'Testfolder';
     component.formGroup.get('currentfolderonly').setValue(true);
 
-    const searchExpressionPromise = component.searchexpression.pipe(take(1)).toPromise();
+    const searchExpressionPromise = firstValueFrom(component.searchexpression);
     component.formGroup.get('subject').setValue('testsubject');
 
     const searchExpression = await searchExpressionPromise;
