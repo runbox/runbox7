@@ -1533,6 +1533,8 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     right: 0px;
     bottom: 0px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #mailMenu {

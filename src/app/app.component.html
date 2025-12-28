@@ -419,7 +419,7 @@
           (searchexpression)="searchFor($event)">
         </app-multiple-search-fields-input>
 
-	<div [hidden]="hasChildRouterOutlet">
+	<div [hidden]="hasChildRouterOutlet" class="messageListOuterContainer">
 
       <div *ngIf="debouncedRows | async as row_items; else rowsLoading" class="messageListContainer">
           <div
