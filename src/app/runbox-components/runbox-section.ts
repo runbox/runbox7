@@ -28,7 +28,7 @@ import { RMM } from '../rmm';
     `],
     template: `
     <div class="app-runbox-section">
-        <div style="background: #e1eeff; padding: 15px 0;"
+        <div style="background: var(--rmm-section-bg, #e1eeff); padding: 15px 0;"
             [ngStyle]="{'background': heading_sizes[size].background}"
             *ngIf="is_header_open"
             ><ng-content select="[runbox-section-header]"></ng-content>

@@ -25,7 +25,7 @@ import { Component, Input } from '@angular/core';
 <mat-card style="min-height: 20vh; padding: 20px">
     <a [routerLink]="routerLink" style="text-decoration: none">
         <mat-card-header>
-            <mat-card-title style="color: #000"> {{ title }} </mat-card-title>
+            <mat-card-title style="color: var(--rmm-card-title-color, #000)"> {{ title }} </mat-card-title>
             <mat-card-subtitle style="min-height: 3vh; font-size: 16px;"> {{ subtitle }} </mat-card-subtitle>
         </mat-card-header>
 

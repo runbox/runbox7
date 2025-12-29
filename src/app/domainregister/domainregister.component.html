@@ -16,7 +16,7 @@
         width: 300px;
     }
         .domain_table {
-            border-top: 3px solid #01579b;
+            border-top: 3px solid var(--rmm-primary-color, #01579b);
         }
         .full-width {
             width: 100%;
@@ -49,7 +49,7 @@
             align-self: center;
         }
         .description_msg {
-            background-color: #efefef;
+            background-color: var(--rmm-surface-muted, #efefef);
             padding: 5px 20px 10px 20px;
         }
         .default_margintop {
@@ -60,7 +60,7 @@
         }
         .agreement_content {
             border-top: 0px;
-            background: #EEE;
+            background: var(--rmm-surface-muted, #EEE);
         }
 
     </style>
@@ -507,11 +507,11 @@
             <br />
             <p>Here you can purchase and register new domain names.</p>
 
-                    <div style='background: #C7DFFF; padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length && domain_quota_used >= domain_quota_allowed">
+                    <div style='background: var(--rmm-info-bg, #C7DFFF); padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length && domain_quota_used >= domain_quota_allowed">
                         <h2 class="mat-h2">Email Domain quota limit</h2>
                         <p>You have reached your Email Domain quota limit. Your account is using {{domain_quota_used}} of its {{domain_quota_allowed}} total <a href='/mail/account_domain'>Email Domains</a>. Please <a href="/app/account/components">purchase more Email Hosting products</a> first.</p>
                     </div>
-                    <div style='background: #C7DFFF; padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length && domain_quota_used < domain_quota_allowed">
+                    <div style='background: var(--rmm-info-bg, #C7DFFF); padding: 15px;' class='default_margintop' *ngIf="tld_list && tld_list.length && domain_quota_used < domain_quota_allowed">
                       <mat-card-header style="display: flex; width: 100%">
                           <mat-card-title style="flex-grow: 1">
                               <h2 class="mat-h2">Register a new domain name</h2>
@@ -547,13 +547,13 @@
                               <td colspan="3">
                                   <div 
                                       *ngIf="!is_checking_avaliability && is_available === false "
-                                      style="background: #e4545e; text-align: center; padding: 10px 10px;"
+                                      style="background: var(--rmm-danger-bg, #e4545e); text-align: center; padding: 10px 10px;"
                                   >
                                       {{is_available_msg}}
                                   </div>
                                   <div 
                                       *ngIf="!is_checking_avaliability && is_available === true"
-                                      style="background: #54e476; text-align: center; padding: 10px 10px;"
+                                      style="background: var(--rmm-success-bg, #54e476); text-align: center; padding: 10px 10px;"
                                   >
                                       {{is_available_msg}}
                                   </div>
@@ -648,7 +648,7 @@
                               overflow-y:scroll;
                               padding: 20px;
                           "></div>
-                            <div class="default_paddingtop" style='padding: 20px; background: #c7c7c7;'>
+                            <div class="default_paddingtop" style='padding: 20px; background: var(--rmm-surface-muted-strong, #c7c7c7);'>
                               <mat-checkbox 
                                   required 
                                   class='default_paddingtop' 
@@ -679,7 +679,7 @@
                               overflow-y:scroll;
                               padding: 20px;
                           "></div>
-                            <div class="default_paddingtop" style='padding: 20px; background: #c7c7c7;'>
+                            <div class="default_paddingtop" style='padding: 20px; background: var(--rmm-surface-muted-strong, #c7c7c7);'>
                               <mat-checkbox 
                                   required 
                                   class='default_paddingtop' 
@@ -739,7 +739,7 @@
 
 
                     <div *ngIf="is_available === true && products_available && products_available.length && !domreg_hash" class='default_margintop'
-                        style='background: #C7DFFF; padding: 15px;'
+                        style='background: var(--rmm-info-bg, #C7DFFF); padding: 15px;'
                     >
 
                       <mat-card-header style="display: flex; width: 100%" >
@@ -814,7 +814,7 @@
                     </div>
 
                     <div *ngIf="domreg_hash" class='default_margintop'
-                        style='background: #C7DFFF; padding: 15px;'
+                        style='background: var(--rmm-info-bg, #C7DFFF); padding: 15px;'
                     >
                         <button mat-raised-button color="primary"
                           (click)="update()"

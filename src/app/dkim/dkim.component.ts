@@ -44,14 +44,14 @@ import { DomainService, Domain, DomainKey } from './domain.service';
     .grid_align_right {
         margin-right: 10px; margin-left: 10px;
         text-align: right;
-        border-right: 1px solid #ededed;
-        border-bottom: 1px solid #ededed;
+        border-right: 1px solid var(--rmm-border-color, #ededed);
+        border-bottom: 1px solid var(--rmm-border-color, #ededed);
         padding-right: 10px;
         width: 100%;
     }
     .terminal {
-        background: #000;
-        color: #FFF;
+        background: var(--rmm-terminal-bg, #000);
+        color: var(--rmm-terminal-text, #FFF);
         padding: 25px 10px 10px 10px;
     }
   `],

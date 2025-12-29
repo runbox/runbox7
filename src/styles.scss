@@ -184,6 +184,20 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     --rmm-chip-bg: #e3f2fd;
     --rmm-border-color: #e0e0e0;
     --rmm-divider-color: #dddddd;
+    --rmm-selected-bg: #{mat.m2-get-color-from-palette($rmm-default-accent, 50)};
+    --rmm-selected-text: var(--rmm-text-primary);
+    --rmm-info-bg: #c7dfff;
+    --rmm-info-text: var(--rmm-text-primary);
+    --rmm-success-bg: #54e476;
+    --rmm-danger-bg: #e4545e;
+    --rmm-surface-muted: #efefef;
+    --rmm-surface-muted-strong: #c7c7c7;
+    --rmm-terminal-bg: #000000;
+    --rmm-terminal-text: #ffffff;
+    --rmm-calendar-weekend-text: #88b3ff;
+    --rmm-calendar-weekend-bg: rgba(136, 179, 255, 0.05);
+    --rmm-section-bg: #e1eeff;
+    --rmm-card-title-color: var(--rmm-text-primary);
 
     --rmm-header-gradient: linear-gradient(177deg, #0068b7, #003156);
 
@@ -226,6 +240,20 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     --rmm-chip-bg: #1e3a5f;
     --rmm-border-color: #333333;
     --rmm-divider-color: #2a2a2a;
+    --rmm-selected-bg: #2d5a8c;
+    --rmm-selected-text: #87ceeb;
+    --rmm-calendar-weekend-text: #9ec5ff;
+    --rmm-calendar-weekend-bg: rgba(158, 197, 255, 0.08);
+    --rmm-info-bg: #1e3a5f;
+    --rmm-info-text: #87ceeb;
+    --rmm-success-bg: #1a4a2e;
+    --rmm-danger-bg: #5a2a2e;
+    --rmm-surface-muted: #2a2a2a;
+    --rmm-surface-muted-strong: #3a3a3a;
+    --rmm-terminal-bg: #0a0a0a;
+    --rmm-terminal-text: #e0e0e0;
+    --rmm-section-bg: #1e3a5f;
+    --rmm-card-title-color: var(--rmm-text-primary);
 
     --rmm-header-gradient: linear-gradient(177deg, #1a4a6e, #0a1929);
 
@@ -314,6 +342,20 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     --rmm-chip-bg: #333333;              // Dark gray for contrast
     --rmm-border-color: #ffffff;         // White borders for clarity
     --rmm-divider-color: #808080;        // Medium gray
+    --rmm-selected-bg: var(--rmm-primary-color);
+    --rmm-selected-text: var(--rmm-text-on-primary);
+    --rmm-calendar-weekend-text: #00ffff;
+    --rmm-calendar-weekend-bg: rgba(0, 255, 255, 0.12);
+    --rmm-info-bg: #000080;              // Navy blue for info
+    --rmm-info-text: #ffffff;
+    --rmm-success-bg: #006400;           // Dark green for success
+    --rmm-danger-bg: #8b0000;            // Dark red for danger
+    --rmm-surface-muted: #1a1a1a;
+    --rmm-surface-muted-strong: #333333;
+    --rmm-terminal-bg: #000000;
+    --rmm-terminal-text: #00ff00;
+    --rmm-section-bg: #1a1a1a;
+    --rmm-card-title-color: var(--rmm-text-primary);
 
     --rmm-header-gradient: #000000;      // Solid black for maximum contrast
 
@@ -359,6 +401,20 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     --rmm-chip-bg: #1a3a1a;              // Dark green chip
     --rmm-border-color: #00aa2a;         // Green border
     --rmm-divider-color: #0d3d0d;        // Dark green divider
+    --rmm-selected-bg: #1a4a3a;
+    --rmm-selected-text: #66ffaa;
+    --rmm-terminal-bg: var(--rmm-bg-primary);
+    --rmm-terminal-text: var(--rmm-text-primary);
+    --rmm-calendar-weekend-text: #7fffc4;
+    --rmm-calendar-weekend-bg: rgba(0, 255, 65, 0.08);
+    --rmm-info-bg: #0d2d0d;              // Dark green info
+    --rmm-info-text: #66ffaa;
+    --rmm-success-bg: #1a4a1a;           // Brighter green success
+    --rmm-danger-bg: #4a1a1a;            // Dark red-brown danger
+    --rmm-surface-muted: #0d1a0d;
+    --rmm-surface-muted-strong: #1a2a1a;
+    --rmm-section-bg: #0d2d0d;
+    --rmm-card-title-color: var(--rmm-text-primary);
 
     --rmm-header-gradient: linear-gradient(177deg, #0d2d0d, #050a05);
 
@@ -474,7 +530,7 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     .mat-list-item.selectedFolder,
     .mat-mdc-list-item.selectedFolder,
     .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder {
-        background-color: #1a4a3a !important; // Dark teal-green
+        background-color: var(--rmm-selected-bg) !important;
     }
 
     .selectedFolder a,
@@ -483,7 +539,7 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     .selectedFolder .mdc-list-item__content,
     mat-list-item.selectedFolder .mdc-list-item__content,
     .mat-mdc-list-item.selectedFolder .mdc-list-item__content {
-        color: #66ffaa !important; // Bright cyan-green
+        color: var(--rmm-selected-text) !important;
         font-weight: 500 !important;
     }
 }
@@ -1507,7 +1563,7 @@ rmm-folderlist {
 }
 
 .selectedFolder {
-    background-color: mat.m2-get-color-from-palette($rmm-default-accent, 50) !important;
+    background-color: var(--rmm-selected-bg) !important;
 }
 
 app-popular-recipients, app-saved-searches {
@@ -2631,11 +2687,11 @@ table.detailsTable tr td:nth-of-type(2) {
     .cal-event {
         background-color: var(--rmm-primary-color);
         border-color: var(--rmm-primary-color);
-        color: #ffffff;
+        color: var(--rmm-text-on-primary);
     }
 
     .cal-event-title {
-        color: #ffffff;
+        color: var(--rmm-text-on-primary);
     }
 
     .cal-week-view .cal-time {
@@ -2661,13 +2717,14 @@ table.detailsTable tr td:nth-of-type(2) {
     .cal-month-view .cal-day-cell.cal-weekend .cal-day-number,
     .cal-month-view .cal-day-cell.cal-weekend .cal-cell-top,
     .cal-week-view .cal-day-headers .cal-header.cal-weekend,
+    .cal-week-view .cal-header.cal-weekend span,
     .cal-day-view .cal-header.cal-weekend {
-        color: #88b3ff !important; // Light blue - distinct from weekdays but readable
+        color: var(--rmm-calendar-weekend-text) !important;
     }
 
     // Slightly different background for weekend days
     .cal-month-view .cal-day-cell.cal-weekend {
-        background-color: rgba(136, 179, 255, 0.05);
+        background-color: var(--rmm-calendar-weekend-bg);
     }
 
     // Ensure weekend event text is also readable
@@ -2740,7 +2797,7 @@ table.detailsTable tr td:nth-of-type(2) {
     app-folder-list .mat-mdc-list-item.selectedFolder,
     mat-nav-list mat-list-item.selectedFolder,
     mat-nav-list .mat-mdc-list-item.selectedFolder {
-        background-color: #2d5a8c !important; // Darker blue for selected folder
+        background-color: var(--rmm-selected-bg) !important;
     }
 
     .selectedFolder a,
@@ -2748,15 +2805,15 @@ table.detailsTable tr td:nth-of-type(2) {
     .mat-mdc-list-item.selectedFolder a,
     .selectedFolder .mdc-list-item__content,
     mat-list-item.selectedFolder .mdc-list-item__content {
-        color: #87ceeb !important; // Sky blue for selected folder text
+        color: var(--rmm-selected-text) !important;
         font-weight: 500 !important;
     }
 
     // Override any Material list item colors
     .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder,
     .mat-mdc-list .mat-mdc-list-item.selectedFolder {
-        background-color: #2d5a8c !important;
-        color: #87ceeb !important;
+        background-color: var(--rmm-selected-bg) !important;
+        color: var(--rmm-selected-text) !important;
     }
 
     // Folder count badges
@@ -2829,8 +2886,8 @@ table.detailsTable tr td:nth-of-type(2) {
     mat-nav-list .mat-mdc-list-item.selectedFolder,
     .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder,
     .mat-mdc-list .mat-mdc-list-item.selectedFolder {
-        background-color: var(--rmm-primary-color) !important;
-        color: var(--rmm-text-on-primary) !important;
+        background-color: var(--rmm-selected-bg) !important;
+        color: var(--rmm-selected-text) !important;
     }
 
     .selectedFolder a,
@@ -2838,7 +2895,7 @@ table.detailsTable tr td:nth-of-type(2) {
     .mat-mdc-list-item.selectedFolder a,
     .selectedFolder .mdc-list-item__content,
     mat-list-item.selectedFolder .mdc-list-item__content {
-        color: var(--rmm-text-on-primary) !important;
+        color: var(--rmm-selected-text) !important;
         font-weight: 600 !important;
     }
 }

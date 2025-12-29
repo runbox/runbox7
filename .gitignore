@@ -4,6 +4,7 @@
 /dist
 /tmp
 /e2e/mockserver/out
+/out-tsc
 
 # dependencies
 /node_modules
@@ -52,4 +53,3 @@ cypress/screenshots
 
 # environment
 src/environments/env.ts
-
