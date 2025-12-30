@@ -614,6 +614,7 @@
                           [ngClass]="{
                            bold: !item.seen
                            }">
+                          <mat-icon *ngIf="item.flagged" class="sm-only flag-inline" svgIcon="flag" aria-label="Flagged"></mat-icon>
                           {{item.subject}}
                       </td>
                       <td

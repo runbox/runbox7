@@ -185,7 +185,11 @@
         .flagged-cell {
             width: 2%;
         }
-        
+
+        .sm-only {
+            display: none;
+        }
+
         .preview {
             display: block;
             height: 1lh;
@@ -240,6 +244,19 @@
                 margin-left: 8px;
                 display: flex;
                 flex-flow: row wrap;
+            }
+
+            .sm-only {
+                display: inline-block;
+            }
+
+            .flag-inline {
+                font-size: 1em;
+                width: 1em;
+                height: 1em;
+                vertical-align: text-bottom;
+                margin-right: 0.25em;
+                color: var(--rmm-warn-color);
             }
         }
     }
