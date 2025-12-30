@@ -122,21 +122,22 @@
       <mat-list-item
         class="sidebarMenuButton"
         (click)="deleteLocalIndex()"
-        matTooltip="Stop synchronization and remove index stored on your device">
+        matTooltip="Stop synchronization and remove index stored on your device"
+        matTooltipPosition="right">
           <mat-icon svgIcon="sync-off" matListItemIcon></mat-icon>
           <span matListItemTitle>Stop index synchronization</span>
       </mat-list-item>
     </mat-nav-list>
 
     <mat-nav-list dense *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress === null && !offerInitialLocalIndex">
-      <mat-list-item class="sidebarMenuButton" (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
+      <mat-list-item class="sidebarMenuButton" (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device" matTooltipPosition="right">
         <mat-icon matListItemIcon svgIcon="sync"></mat-icon>
         <span matListItemTitle>Synchronize index</span>
       </mat-list-item>
     </mat-nav-list>
 
     <mat-nav-list dense>
-      <mat-list-item class="sidebarMenuButton" (click)="composeBugReport()" matTooltip="Compose an email to runbox support">
+      <mat-list-item class="sidebarMenuButton" (click)="composeBugReport()" matTooltip="Compose an email to runbox support" matTooltipPosition="right">
         <mat-icon matListItemIcon svgIcon="spider"></mat-icon>
         <span matListItemTitle>Compose a bug report</span>
       </mat-list-item>
