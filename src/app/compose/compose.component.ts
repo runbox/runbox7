@@ -74,6 +74,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public editing = false;
     public isUnsaved = false;
     public savingInProgress = false;
+    public sendingInProgress = false;
+    public sendQueuedWhileSaving = false;
     // public uploadprogress: number = null;
     public uploadingFiles: File[] = [];
     public uploadRequest: Subscription = null;
@@ -696,12 +698,19 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const isTemplate = Boolean(this.isTemplate ?? this.model.tid);
 
         if (this.savingInProgress) {
+            // Only queue a send if we're doing a draft save, not already sending
+            if (send && !this.sendingInProgress) {
+                // Queue the send request to execute after save completes
+                this.sendQueuedWhileSaving = true;
+            }
             return;
         }
 
         this.savingInProgress = true;
+        this.sendQueuedWhileSaving = false;
 
         if (send) {
+            this.sendingInProgress = true;
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
             if (!validemails) {
@@ -720,6 +729,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }
             }
             if (!validemails) {
+                this.savingInProgress = false;
+                this.sendingInProgress = false;
                 this.snackBar.open(
                     `Error sending: ${this.saveErrorMessage}`,
                     'Dismiss'
@@ -761,6 +772,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     .replace(new RegExp('"[^"]*' + escapedUrl + 'RBWUL-([a-z0-9]+)_[^"]+"', 'g'), '"cid:$1"');
             }
             if (!from) {
+                this.savingInProgress = false;
+                this.sendingInProgress = false;
                 this.snackBar.open('You must set from address', 'OK', {duration: 1000});
                 return;
             }
@@ -772,6 +785,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             ), send)
                 .subscribe((res) => {
                     if (res[0] === '0') {
+                        this.savingInProgress = false;
+                        this.sendingInProgress = false;
                         this.snackBar.open(res[1], 'Dismiss');
                         this.dialogService.closeProgressDialog();
                         return;
@@ -785,6 +800,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.draftDeleted.emit(this.model.mid);
 
                     this.savingInProgress = false;
+                    this.sendingInProgress = false;
                     this.dialogService.closeProgressDialog();
                     this.exitToTable();
                 }, (err) => {
@@ -799,6 +815,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         'Dismiss'
                     );
                     this.savingInProgress = false;
+                    this.sendingInProgress = false;
                     this.dialogService.closeProgressDialog();
                 });
         } else {
@@ -861,6 +878,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
                     }
+
+                    // Execute queued send if one was requested while saving
+                    if (this.sendQueuedWhileSaving) {
+                        this.sendQueuedWhileSaving = false;
+                        this.submit(true);
+                    }
                 }, (err) => {
                     let msg = err.statusText;
                     if (err.field_errors) {
@@ -870,6 +893,12 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     }
                     this.savingInProgress = false;
                     this.saveErrorMessage = `Error saving draft: ${msg}`;
+
+                    // Execute queued send even if save failed (will try to save+send in one operation)
+                    if (this.sendQueuedWhileSaving) {
+                        this.sendQueuedWhileSaving = false;
+                        this.submit(true);
+                    }
                 });
         }
     }
