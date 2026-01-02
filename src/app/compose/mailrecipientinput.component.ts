@@ -135,27 +135,13 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
         this.searchTextInput.nativeElement.value = '';
     }
 
-    addRecipientFromBlur() {
-        const input = this.searchTextInput.nativeElement;
-        const value = (input.value || '').trim();
-
-        if (this.auto.isOpen || this.addedFromAutoComplete) {
-            this.addedFromAutoComplete = false;
-            return;
-        }
-        if (value) {
-            this.addRecipient(input);
-            this.addedFromAutoComplete = false;
-            return;
-        }
-        this.invalidemail = false;
-    }
-
     addRecipientFromEnter(event: MatChipInputEvent) {
         const input = event.input;
         const value = (input.value || '').trim();
 
-        if (this.addedFromAutoComplete) {
+        // Don't add chip if autocomplete dropdown is open or if just selected from autocomplete
+        if (this.auto.isOpen || this.addedFromAutoComplete) {
+            this.addedFromAutoComplete = false;
             return;
         }
         if (value) {

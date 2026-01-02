@@ -710,6 +710,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.sendQueuedWhileSaving = false;
 
         if (send) {
+            // Ensure any focused recipient input loses focus to trigger chip conversion
+            if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+            }
+
             this.sendingInProgress = true;
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
