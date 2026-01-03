@@ -71,6 +71,8 @@ type Mail = any;
   styleUrls: ['singlemailviewer.component.scss']
 })
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
+  private lastMailtoInterceptorNode: HTMLElement | null = null;
+
 
   _messageId = null; // Message id or filename
 
@@ -164,6 +166,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       console.log('MailViewer: got the contacts!');
       this.contacts = contacts;
     });
+
+    // Intercept mailto: links clicks in rendered HTML after view init
+    setTimeout(() => this.initMailtoInterceptor(), 0);
+
     this.preferenceService.preferences.subscribe((prefs) => {
       this.showImagesDecision = prefs.get(`${this.preferenceService.prefGroup}:${showImagesDecisionKey}`);
       this.showHTMLDecision = prefs.get(`${this.preferenceService.prefGroup}:${showHtmlDecisionKey}`);
@@ -174,6 +180,52 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         ? 0
         : storedHeightPercentage;
     });
+  }
+
+  /**
+   * Intercepts clicks on mailto: links in the message content area,
+   * opens compose view instead of default browser email client.
+   */
+  private initMailtoInterceptor() {
+    // Remove old listener if any
+    if (this.lastMailtoInterceptorNode && this.lastMailtoInterceptorNode.removeEventListener) {
+      this.lastMailtoInterceptorNode.removeEventListener('click', this._mailtoInterceptorListener, true);
+    }
+    const messageContents = this.messageContents?.nativeElement;
+    if (!messageContents) return;
+
+    // Use a bound handler to guarantee removal works
+    this._mailtoInterceptorListener = (event: MouseEvent) => {
+      let target = event.target as HTMLElement;
+      while (target && target.tagName !== 'A' && target !== messageContents) {
+        target = target.parentElement;
+      }
+      if (
+        target &&
+        target.tagName === 'A' &&
+        target.getAttribute('href')?.toLowerCase().startsWith('mailto:')
+      ) {
+        event.preventDefault();
+        const href = target.getAttribute('href');
+        if (href) {
+          const matches = /^mailto:([^?]+)/i.exec(href);
+          const emailTo = matches ? matches[1] : '';
+          this.goToDraftDeskWithTo(emailTo);
+        }
+      }
+    };
+    messageContents.addEventListener('click', this._mailtoInterceptorListener, true);
+    this.lastMailtoInterceptorNode = messageContents;
+  }
+  private _mailtoInterceptorListener: any;
+
+
+  /**
+   * Programmatically navigates to the compose view with 'to' pre-filled.
+   */
+  private goToDraftDeskWithTo(to: string) {
+    // You can adapt '/compose' and query params as needed for Draft Desk
+    this.router.navigate(['/compose'], { queryParams: { to } });
   }
 
   public close(actionstring?: string) {
@@ -266,6 +318,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   ngDoCheck() {
     this.calculateWidthDependentElements();
+    // Rebind mailto interceptor if the underlying message or HTML view changes
+    this.initMailtoInterceptor();
   }
 
   calculateWidthDependentElements() {
