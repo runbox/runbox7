@@ -5,7 +5,7 @@
         <div id="hilightsSettings">
           <mat-form-field>
             <mat-label> Time span </mat-label>
-            <mat-select [(ngModel)]="timeSpan" (selectionChange)="updateCommsOverview()">
+            <mat-select [(ngModel)]="timeSpan" (selectionChange)="onTimeSpanChanged()">
               <mat-option [value]="TimeSpan.TODAY"> Today </mat-option>
               <mat-option [value]="TimeSpan.YESTERDAY"> Yesterday </mat-option>
               <mat-option [value]="TimeSpan.LASTWEEK"> Last week </mat-option>
@@ -16,7 +16,7 @@
           </mat-form-field>
           <mat-form-field>
             <mat-label> Folder </mat-label>
-            <mat-select [(ngModel)]="folder" (selectionChange)="updateCommsOverview()">
+            <mat-select [(ngModel)]="folder" (selectionChange)="onFolderChanged()">
               <mat-option [value]="FolderSelection.INBOX">  Inbox only </mat-option>
               <mat-option [value]="FolderSelection.ALL">    All folders </mat-option>
               <mat-option [value]="FolderSelection.CUSTOM"> Custom selection </mat-option>
@@ -24,7 +24,7 @@
           </mat-form-field>
           <mat-form-field>
             <mat-label> Sort by </mat-label>
-            <mat-select [(ngModel)]="sortOrder" (selectionChange)="updateCommsOverview()">
+            <mat-select [(ngModel)]="sortOrder" (selectionChange)="onSortOrderChanged()">
               <mat-option [value]="SortOrder.COUNT"> Count </mat-option>
               <!--
               <mat-option> Date </mat-option>
@@ -33,7 +33,7 @@
               <mat-option [value]="SortOrder.SENDER"> Sender </mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-checkbox [(ngModel)]="unreadOnly" (change)="updateCommsOverview()"> Unread only </mat-checkbox>
+          <mat-checkbox [(ngModel)]="unreadOnly" (change)="onUnreadOnlyChanged()"> Unread only </mat-checkbox>
         </div>
       </div>
       <div id="folderSelector" *ngIf="folder === FolderSelection.CUSTOM">

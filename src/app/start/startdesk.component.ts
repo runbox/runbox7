@@ -30,6 +30,7 @@ import { filter, take } from 'rxjs/operators';
 import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { ProfileService } from '../profiles/profile.service';
 import { UsageReportsService } from '../common/usage-reports.service';
+import { PreferencesService } from '../common/preferences.service';
 
 export interface ContactHilights {
     icon: string;
@@ -58,6 +59,13 @@ enum SortOrder {
     COUNT,
     SENDER,
 }
+
+// Preference keys for overview settings
+const PREF_OVERVIEW_TIMESPAN = 'overviewTimeSpan';
+const PREF_OVERVIEW_FOLDER = 'overviewFolder';
+const PREF_OVERVIEW_SORTORDER = 'overviewSortOrder';
+const PREF_OVERVIEW_UNREADONLY = 'overviewUnreadOnly';
+const PREF_OVERVIEW_HIDDENFOLDERS = 'overviewHiddenFolders';
 
 interface FolderSelectorEntry {
     name:  string;
@@ -103,11 +111,21 @@ export class StartDeskComponent implements OnInit {
     regularEmailCount = 0;
     mailingListEmailCount = 0;
 
+    // Track last local writes to suppress echo refreshes
+    private lastWrittenValues = {
+        timeSpan: null as string | null,
+        folder: null as string | null,
+        sortOrder: null as string | null,
+        unreadOnly: null as string | null,
+        hiddenFolders: null as string | null,
+    };
+
     constructor(
         private cdr: ChangeDetectorRef,
         private searchService: SearchService,
         private profileService: ProfileService,
         private usage: UsageReportsService,
+        private preferences: PreferencesService,
     ) { }
 
     ngOnInit() {
@@ -116,8 +134,41 @@ export class StartDeskComponent implements OnInit {
             froms => this.ownAddresses.next(new Set(froms.map(f => f.email.toLowerCase()))),
             _err  => this.ownAddresses.next(new Set([])),
         );
+        this.loadSettings();
         this.searchService.initSubject.pipe(filter(enabled => enabled)).subscribe(() => this.updateCommsOverview());
         this.searchService.indexReloadedSubject.subscribe(() => this.updateCommsOverview());
+    }
+
+    public onTimeSpanChanged(): void {
+        const prefGroup = this.preferences.prefGroup;
+        const value = this.timeSpan.toString();
+        this.lastWrittenValues.timeSpan = value;
+        this.preferences.set(prefGroup, PREF_OVERVIEW_TIMESPAN, value);
+        this.updateCommsOverview();
+    }
+
+    public onFolderChanged(): void {
+        const prefGroup = this.preferences.prefGroup;
+        const value = this.folder.toString();
+        this.lastWrittenValues.folder = value;
+        this.preferences.set(prefGroup, PREF_OVERVIEW_FOLDER, value);
+        this.updateCommsOverview();
+    }
+
+    public onSortOrderChanged(): void {
+        const prefGroup = this.preferences.prefGroup;
+        const value = this.sortOrder.toString();
+        this.lastWrittenValues.sortOrder = value;
+        this.preferences.set(prefGroup, PREF_OVERVIEW_SORTORDER, value);
+        this.updateCommsOverview();
+    }
+
+    public onUnreadOnlyChanged(): void {
+        const prefGroup = this.preferences.prefGroup;
+        const value = this.unreadOnly.toString();
+        this.lastWrittenValues.unreadOnly = value;
+        this.preferences.set(prefGroup, PREF_OVERVIEW_UNREADONLY, value);
+        this.updateCommsOverview();
     }
 
     public async updateCommsOverview(): Promise<void> {
@@ -307,7 +358,10 @@ export class StartDeskComponent implements OnInit {
         } else {
             this.hiddenFolders.add(folderName);
         }
-        // TODO: persist hiddenFolders in settings or something
+        const prefGroup = this.preferences.prefGroup;
+        const value = JSON.stringify(Array.from(this.hiddenFolders));
+        this.lastWrittenValues.hiddenFolders = value;
+        this.preferences.set(prefGroup, PREF_OVERVIEW_HIDDENFOLDERS, Array.from(this.hiddenFolders));
         this.updateCommsOverview();
     }
 
@@ -337,5 +391,91 @@ export class StartDeskComponent implements OnInit {
                 shown: !this.hiddenFolders.has(folder),
             });
         }
+    }
+
+    private loadSettings(): void {
+        this.preferences.preferences.subscribe((prefs) => {
+            const prefGroup = this.preferences.prefGroup;
+            let allTrackedValuesMatch = true;
+            let hasAnyTrackedValue = false;
+
+            const timeSpan = prefs.get(`${prefGroup}:${PREF_OVERVIEW_TIMESPAN}`);
+            if (timeSpan !== undefined) {
+                this.timeSpan = parseInt(timeSpan, 10);
+                if (this.lastWrittenValues.timeSpan !== null) {
+                    hasAnyTrackedValue = true;
+                    if (this.lastWrittenValues.timeSpan !== timeSpan) {
+                        allTrackedValuesMatch = false;
+                    }
+                }
+            }
+
+            const folder = prefs.get(`${prefGroup}:${PREF_OVERVIEW_FOLDER}`);
+            if (folder !== undefined) {
+                this.folder = parseInt(folder, 10);
+                if (this.lastWrittenValues.folder !== null) {
+                    hasAnyTrackedValue = true;
+                    if (this.lastWrittenValues.folder !== folder) {
+                        allTrackedValuesMatch = false;
+                    }
+                }
+            }
+
+            const sortOrder = prefs.get(`${prefGroup}:${PREF_OVERVIEW_SORTORDER}`);
+            if (sortOrder !== undefined) {
+                this.sortOrder = parseInt(sortOrder, 10);
+                if (this.lastWrittenValues.sortOrder !== null) {
+                    hasAnyTrackedValue = true;
+                    if (this.lastWrittenValues.sortOrder !== sortOrder) {
+                        allTrackedValuesMatch = false;
+                    }
+                }
+            }
+
+            const unreadOnly = prefs.get(`${prefGroup}:${PREF_OVERVIEW_UNREADONLY}`);
+            if (unreadOnly !== undefined) {
+                this.unreadOnly = unreadOnly === 'true' || unreadOnly === true;
+                const unreadOnlyStr = unreadOnly === 'true' || unreadOnly === true ? 'true' : 'false';
+                if (this.lastWrittenValues.unreadOnly !== null) {
+                    hasAnyTrackedValue = true;
+                    if (this.lastWrittenValues.unreadOnly !== unreadOnlyStr) {
+                        allTrackedValuesMatch = false;
+                    }
+                }
+            }
+
+            const hiddenFolders = prefs.get(`${prefGroup}:${PREF_OVERVIEW_HIDDENFOLDERS}`);
+            if (hiddenFolders !== undefined) {
+                this.hiddenFolders = new Set(hiddenFolders);
+                // Normalize the same way as in the handler
+                const hiddenFoldersStr = JSON.stringify(Array.from(hiddenFolders));
+                if (this.lastWrittenValues.hiddenFolders !== null) {
+                    hasAnyTrackedValue = true;
+                    if (this.lastWrittenValues.hiddenFolders !== hiddenFoldersStr) {
+                        allTrackedValuesMatch = false;
+                    }
+                }
+            }
+
+            const isLocalEcho = hasAnyTrackedValue && allTrackedValuesMatch;
+
+            // If preferences loaded after search index is ready, update the view
+            // Skip if this is an echo of our own write (already refreshed in handler)
+            // Refresh if no tracked values (first load) or if values don't match (real update)
+            if (this.searchService.localSearchActivated && !isLocalEcho) {
+                this.updateCommsOverview();
+            }
+
+            // Clear tracked values after processing - they've served their purpose
+            if (isLocalEcho) {
+                this.lastWrittenValues = {
+                    timeSpan: null,
+                    folder: null,
+                    sortOrder: null,
+                    unreadOnly: null,
+                    hiddenFolders: null,
+                };
+            }
+        });
     }
 }
