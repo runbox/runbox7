@@ -73,7 +73,7 @@ $rmm-dark-theme: mat.m2-define-dark-theme((
 
 // Apply dark theme when .dark-theme class is present
 .dark-theme {
-    @include mat.all-component-themes($rmm-dark-theme);
+    @include mat.all-component-colors($rmm-dark-theme);
 }
 
 // Christmas theme palettes
@@ -108,12 +108,12 @@ $rmm-high-contrast-theme: mat.m2-define-dark-theme((
 
 // Apply christmas theme when .christmas-theme class is present
 .christmas-theme {
-    @include mat.all-component-themes($rmm-christmas-theme);
+    @include mat.all-component-colors($rmm-christmas-theme);
 }
 
 // Apply high contrast theme when .high-contrast-theme class is present
 .high-contrast-theme {
-    @include mat.all-component-themes($rmm-high-contrast-theme);
+    @include mat.all-component-colors($rmm-high-contrast-theme);
 }
 
 // Terminal theme palettes - VT100 inspired phosphor green
@@ -133,7 +133,7 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
 
 // Apply terminal theme when .terminal-theme class is present
 .terminal-theme {
-    @include mat.all-component-themes($rmm-terminal-theme);
+    @include mat.all-component-colors($rmm-terminal-theme);
 }
 
 // GTA 13.06.2018: Load custom fonts
