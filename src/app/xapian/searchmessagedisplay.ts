@@ -69,7 +69,7 @@ export class SearchMessageDisplay extends MessageDisplay {
     const rowData: any = {
       id: this.getRowMessageId(index),
       messageDate: MessageTableRowTool.formatTimestampFromStringWithoutSeparators(this.searchService.api.getStringValue(this.getRowId(index), 2)),
-      from: app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn
+      from: app.selectedFolder && app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn
         ? this.searchService.getDocData(this.getRowId(index)).recipients.join(', ')
         : this.searchService.getDocData(this.getRowId(index)).from,
       subject: this.searchService.getDocData(this.getRowId(index)).subject,

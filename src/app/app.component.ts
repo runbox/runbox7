@@ -416,15 +416,34 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
     this.messagelistservice.messagesInViewSubject.subscribe(res => {
       this.messagelist = res;
+
+      // Clear jumpToFragment if we get null/undefined to prevent it from sticking
+      if (this.jumpToFragment && !res) {
+        this.jumpToFragment = false;
+      }
+
+      // Allow message display update if:
+      // 1. Not showing search results, OR
+      // 2. Folder is unindexed, OR
+      // 3. We have a pending jumpToFragment (coming from Overview)
       if (
         (
           (!this.showingSearchResults && !this.showingWebSocketSearchResults)
             || this.messagelistservice.unindexedFolders.includes(this.selectedFolder)
+            || this.jumpToFragment
         ) && res) {
         this.setMessageDisplay('messagelist', this.messagelist);
-        if (this.jumpToFragment && res.length > 0) {
-            this.selectMessageFromFragment(this.fragment);
-          this.jumpToFragment = false;
+        if (this.jumpToFragment) {
+          if (res.length > 0) {
+            // Give the message display time to update before selecting
+            setTimeout(() => {
+              this.selectMessageFromFragment(this.fragment);
+              this.jumpToFragment = false;
+            }, 0);
+          } else {
+            // Clear flag even if folder is empty to prevent stale state
+            this.jumpToFragment = false;
+          }
         }
       }
     });
@@ -497,7 +516,13 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     ).subscribe((_event: NavigationEnd) => {
       this.composeSelected = this.router.url === '/compose?new=true';
       this.draftsSelected = this.router.url === '/compose';
-      this.overviewSelected = this.router.url === '/overview';
+      this.overviewSelected = this.router.url.startsWith('/overview');
+
+      // Clear fragment and jumpToFragment when navigating to Overview
+      // This handles back/forward navigation and direct URL navigation
+      if (this.router.url.startsWith('/overview')) {
+        this.clearOverviewNavigationState();
+      }
     });
 
     if ('serviceWorker' in navigator) {
@@ -530,12 +555,25 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     const fragmentTarget = this.parseFragment(fragment);
     if (fragmentTarget) {
       const [folder, msgId] = fragmentTarget;
-      this.switchToFolder(folder);
-      if (msgId === null) {
-        this.singlemailviewer?.close();
+      const folderChanged = folder !== this.selectedFolder;
+
+      if (folderChanged) {
+        // Folder needs to change - switch and wait for messages to load
+        // Clear search when coming from Overview to avoid filtering target message
+        this.switchToFolder(folder, true);
       }
-      if (msgId != null && this.singlemailviewer && this.singlemailviewer.messageId !== msgId) {
-        this.selectRowByMessageId(msgId);
+
+      // Handle message selection regardless of singlemailviewer state
+      if (msgId != null) {
+        if (folderChanged || !this.messageTable?.rows) {
+          this.jumpToFragment = true;
+        } else if (this.messageTable?.rows) {
+          // Same folder and rows exist, select immediately
+          this.selectRowByMessageId(msgId, true);
+        }
+      } else if (msgId === null && this.singlemailviewer) {
+        // Just close the viewer if no message ID
+        this.singlemailviewer.close();
       }
     }
   }
@@ -546,9 +584,13 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     }
     const parts = fragment.split(':');
     if (parts.length === 2) {
-      return [parts[0], parseInt(parts[1], 10)];
+      // Normalize folder path: convert slashes to dots for internal consistency
+      const normalizedFolder = parts[0].replace(/\//g, '.');
+      return [normalizedFolder, parseInt(parts[1], 10)];
     }
-    return [fragment, null];
+    // Normalize folder path for folder-only fragments too
+    const normalizedFolder = fragment.replace(/\//g, '.');
+    return [normalizedFolder, null];
   }
 
   subscribeToNotifications() {
@@ -602,8 +644,15 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     );
   }
 
+  private clearOverviewNavigationState(): void {
+    this.fragment = '';
+    this.jumpToFragment = false;
+  }
+
   public overview() {
-    this.router.navigate(['/overview']);
+    // Clear the fragment so clicking the same message again triggers the route change
+    this.router.navigate(['/overview'], { fragment: '' });
+    this.clearOverviewNavigationState();
     setTimeout(() => {
         if (this.mobileQuery.matches && this.sidemenu.opened) {
           this.sidemenu.close();
@@ -934,11 +983,34 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     this.messageTable.rows.clearSelection();
   }
 
-  public selectRowByMessageId(messageId: number) {
+  public selectRowByMessageId(messageId: number, clearFilters = false) {
+    // Save current filter state if we're going to clear it
+    const savedUnreadOnly = this.unreadMessagesOnlyCheckbox;
+
+    // Clear filters temporarily if needed to find the message
+    if (clearFilters && this.messageTable.rows) {
+      // Update checkbox state to match cleared filter
+      this.unreadMessagesOnlyCheckbox = false;
+      const options = new Map();
+      options.set('unreadOnly', false);
+      options.set('searchText', '');
+      this.messageTable.rows.filterBy(options);
+    }
+
     const matchingRowIndex = this.messageTable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
       this.rowSelected(matchingRowIndex, 1, false);
-    } 
+    }
+
+    // Restore filter state if we cleared it but user had a preference
+    // Do this regardless of whether message was found to avoid changing user preferences
+    if (clearFilters && savedUnreadOnly && this.messageTable.rows) {
+      this.unreadMessagesOnlyCheckbox = savedUnreadOnly;
+      const options = new Map();
+      options.set('unreadOnly', savedUnreadOnly);
+      options.set('searchText', '');
+      this.messageTable.rows.filterBy(options);
+    }
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
@@ -1207,31 +1279,43 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
-    this.singlemailviewer.close();
+    if (this.singlemailviewer) {
+      this.singlemailviewer.close();
+    }
     this.searchFor('');
     this.switchToFolder(folder);
     this.updateUrlFragment();
   }
 
-  private switchToFolder(folder: string): void {
+  private switchToFolder(folder: string, clearSearch = false): void {
     if (folder === this.selectedFolder) {
         return;
     }
 
-    console.log('Change selectedFolder');
     this.clearSelection();
 
     this.selectedFolder = folder;
 
     this.messagelistservice.setCurrentFolder(folder);
 
+    // Clear search state when switching folders to allow message selection
+    this.showingSearchResults = false;
+    this.showingWebSocketSearchResults = false;
+
+    // Only clear searchText when explicitly requested (e.g., coming from Overview)
+    // to preserve user's search state during normal folder navigation
+    if (clearSearch) {
+      this.searchText = '';
+    }
+
     if (this.viewmode === 'singleconversation') {
       this.viewmode = 'conversations';
       this.conversationSearchText = undefined;
     }
 
-    if (this.hasChildRouterOutlet) {
-      this.router.navigate(['/']);
+    if (this.hasChildRouterOutlet && this.router.url.indexOf('/overview') === -1) {
+      // Only navigate if we're not already navigating from a child route
+      this.router.navigate(['/'], { fragment: this.fragment });
     }
 
     setTimeout(() => {

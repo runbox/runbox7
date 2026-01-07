@@ -508,10 +508,13 @@ not matching with index for current folder`);
           // nothing else to do, check for folder count discrepancies
 
           const currentFolder = this.folderList.find(folder => folder.folderPath === this.currentFolder);
-          const folderPath = currentFolder.folderPath;
 
-          // do this once per folder, and only if the folder is actually indexed
-          if (!this.folderCountDiscrepanciesCheckedCount[folderPath]) {
+          // Only check for discrepancies if the current folder exists in the folder list
+          if (currentFolder) {
+            const folderPath = currentFolder.folderPath;
+
+            // do this once per folder, and only if the folder is actually indexed
+            if (!this.folderCountDiscrepanciesCheckedCount[folderPath]) {
             this.folderCountDiscrepanciesCheckedCount[folderPath] = 1;
 
             // Compare xapian index counts with rest api folder list:
@@ -542,6 +545,7 @@ not matching with rest api counts for current folder`);
                 }
               });
             }
+          }
           }
         }
       if (this.localSearchActivated) {

@@ -268,7 +268,7 @@ export class StartDeskComponent implements OnInit {
     }
 
     public emailPath(email: SearchIndexDocumentData): string {
-        const folderPath = email.folder.replace(/\./, '/');
+        const folderPath = email.folder;
         const id = email.id.slice(1);
         return `${folderPath}:${id}`;
     }

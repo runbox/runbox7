@@ -73,7 +73,7 @@ export class SenderHilightsComponent implements OnChanges {
     }
 
     public emailPath(email: SearchIndexDocumentData): string {
-        const folderPath = email.folder.replace(/\./, '/');
+        const folderPath = email.folder;
         const id = email.id.slice(1);
         return `${folderPath}:${id}`;
     }
