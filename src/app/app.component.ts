@@ -1315,7 +1315,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
     if (this.hasChildRouterOutlet && this.router.url.indexOf('/overview') === -1) {
       // Only navigate if we're not already navigating from a child route
-      this.router.navigate(['/'], { fragment: this.fragment });
+      this.router.navigate(['/'], { fragment: folder });
     }
 
     setTimeout(() => {
