@@ -215,7 +215,7 @@
                 display: inline-block;
                 margin-top: auto;
                 margin-bottom: auto;
-                margin-left: 2rem;
+                margin-left: 0;
 
                 &.sm-hidden {
                     display: none;
@@ -234,13 +234,16 @@
 
                 &.checkbox-cell {
                     position: absolute;
-                    margin-left: 4px;
+                    left: 4px;
+                    width: 2.5rem;
                 }
             }
 
             tr {
+                position: relative;
                 padding-top: unset;
                 padding-bottom: unset;
+                padding-left: 2.5rem;
                 margin-left: 8px;
                 display: flex;
                 flex-flow: row wrap;
