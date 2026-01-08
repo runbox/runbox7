@@ -29,6 +29,8 @@ $custom-typography: mat.m2-define-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
+$font-family-bold: "Avenir Next Pro Demi", "Helvetica Neue", sans-serif;
+
 $rmm-default-theme: mat.m2-define-light-theme((
     color: (
         primary: $rmm-default-primary,
@@ -150,6 +152,13 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     font-family: "Avenir Next Pro Medium";
     src: url("assets/AvenirNextLTPro-Medium.otf");
     src: url("assets/AvenirNextLTPro-Medium.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Avenir Next Pro Demi";
+    src: url("assets/Avenir-Next-LT-Pro-Demi.otf");
     font-style: normal;
     font-weight: normal;
 }
@@ -857,6 +866,11 @@ mat-grid-tile.tableTitle {
 
 .description {
     font-size: 12px;
+}
+
+.bold {
+    font-family: $font-family-bold;
+    font-weight: bold;
 }
 
 .warning {

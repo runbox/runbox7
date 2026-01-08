@@ -1313,9 +1313,18 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
       this.conversationSearchText = undefined;
     }
 
-    if (this.hasChildRouterOutlet && this.router.url.indexOf('/overview') === -1) {
-      // Only navigate if we're not already navigating from a child route
-      this.router.navigate(['/'], { fragment: folder });
+    if (this.hasChildRouterOutlet) {
+      // Navigate away from child routes (overview, compose, settings, etc.) to main message list
+      // Preserve message ID in fragment only if it belongs to the folder we're switching to
+      let targetFragment = folder;
+      if (this.fragment?.includes(':')) {
+        const fragmentTarget = this.parseFragment(this.fragment);
+        if (fragmentTarget && fragmentTarget[0] === folder) {
+          // Fragment matches the target folder, preserve the message ID
+          targetFragment = this.fragment;
+        }
+      }
+      this.router.navigate(['/'], { fragment: targetFragment });
     }
 
     setTimeout(() => {
