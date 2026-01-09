@@ -566,10 +566,17 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
       // Handle message selection regardless of singlemailviewer state
       if (msgId != null) {
         if (folderChanged || !this.messageTable?.rows) {
+          // Open message viewer immediately for better perceived performance
+          // The list will still populate and select the row when ready
+          // Guard: singlemailviewer might not be ready during initial deep-link navigation
+          if (this.singlemailviewer) {
+            this.singlemailviewer.messageId = msgId;
+          }
           this.jumpToFragment = true;
         } else if (this.messageTable?.rows) {
           // Same folder and rows exist, select immediately
-          this.selectRowByMessageId(msgId, true);
+          // Force scroll since we may have set messageId early
+          this.selectRowByMessageId(msgId, true, true);
         }
       } else if (msgId === null && this.singlemailviewer) {
         // Just close the viewer if no message ID
@@ -983,7 +990,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     this.messageTable.rows.clearSelection();
   }
 
-  public selectRowByMessageId(messageId: number, clearFilters = false) {
+  public selectRowByMessageId(messageId: number, clearFilters = false, forceScroll = false) {
     // Save current filter state if we're going to clear it
     const savedUnreadOnly = this.unreadMessagesOnlyCheckbox;
 
@@ -999,7 +1006,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
     const matchingRowIndex = this.messageTable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
-      this.rowSelected(matchingRowIndex, 1, false);
+      this.rowSelected(matchingRowIndex, 1, false, forceScroll);
     }
 
     // Restore filter state if we cleared it but user had a preference
@@ -1013,9 +1020,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     }
   }
 
-  public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
+  public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean, forceScroll = false) {
     const isSelect = (columnIndex === 0) || multiSelect;
-    const shouldScroll = !this.singlemailviewer.messageId;
+    const shouldScroll = forceScroll || !this.singlemailviewer.messageId;
 
     this.lastCheckedIndex = rowIndex;
 
