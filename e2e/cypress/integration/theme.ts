@@ -9,10 +9,20 @@ const themeClasses = [
     'high-contrast-theme'
 ];
 
-const visitInbox = () => {
+const setPreference = (win: Window, key: string, value: string) => {
+    const prefKey = `${key}`;
+    const existingKeys = JSON.parse(win.localStorage.getItem('221:preference_keys') || '[]') as string[];
+    const nextKeys = Array.from(new Set([...existingKeys, prefKey]));
+    win.localStorage.setItem('221:preference_keys', JSON.stringify(nextKeys));
+    win.localStorage.setItem(`221:${prefKey}`, JSON.stringify(value));
+};
+
+const visitInbox = (theme: 'dark' | 'terminal' | 'high-contrast' | 'christmas') => {
     cy.visit('/', {
         onBeforeLoad(win) {
             win.localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
+            setPreference(win, 'Global:themePreference', theme);
+            win.localStorage.setItem('221:preferences_version', JSON.stringify(1));
         }
     });
 
@@ -21,16 +31,11 @@ const visitInbox = () => {
     cy.get('app-virtual-scroll-table', { timeout: 20000 }).should('exist');
 };
 
-const applyThemeClass = (theme: 'dark' | 'terminal') => {
+const waitForThemeClass = (theme: 'dark' | 'terminal' | 'high-contrast' | 'christmas') => {
     const className = `${theme}-theme`;
-    cy.document().then(doc => {
-        doc.documentElement.classList.remove(...themeClasses);
-        doc.body.classList.remove(...themeClasses);
-        doc.documentElement.classList.add(className);
-        doc.body.classList.add(className);
-    });
-
-    cy.get('html').should('have.class', className);
+    cy.get('html', { timeout: 10000 }).should('have.class', className);
+    cy.get('body', { timeout: 10000 }).should('have.class', className);
+    cy.get('html').should('have.attr', 'data-theme', theme);
 };
 
 const resolveCssColor = (win: Window, varName: string, prop: CssColorProperty) => {
@@ -89,20 +94,43 @@ const expectHeaderUsesBackgroundVar = (varName: string) => {
 
 describe('Theme CSS variables', () => {
     it('applies CSS variables to key surfaces in dark theme', () => {
-        visitInbox();
-        applyThemeClass('dark');
+        visitInbox('dark');
+        waitForThemeClass('dark');
 
         expectHeaderUsesGradientVar();
         expectElementUsesVarColor('.mailFolder:not(.selectedFolder) a', 'color', '--rmm-text-primary');
+        expectElementUsesVarColor('.mailFolder.selectedFolder a', 'color', '--rmm-selected-text');
         expectElementUsesVarColor('app-virtual-scroll-table thead th', 'backgroundColor', '--rmm-bg-primary');
     });
 
     it('applies CSS variables to key surfaces in terminal theme', () => {
-        visitInbox();
-        applyThemeClass('terminal');
+        visitInbox('terminal');
+        waitForThemeClass('terminal');
 
         expectHeaderUsesBackgroundVar('--rmm-bg-primary');
         expectElementUsesVarColor('.mailFolder:not(.selectedFolder) a', 'color', '--rmm-text-primary');
+        expectElementUsesVarColor('.mailFolder.selectedFolder a', 'color', '--rmm-selected-text');
+        expectElementUsesVarColor('app-virtual-scroll-table thead th', 'backgroundColor', '--rmm-bg-primary');
+    });
+
+    it('applies CSS variables to key surfaces in high-contrast theme', () => {
+        visitInbox('high-contrast');
+        waitForThemeClass('high-contrast');
+
+        // High-contrast uses solid black (#000000), not a gradient
+        expectHeaderUsesBackgroundVar('--rmm-bg-primary');
+        expectElementUsesVarColor('.mailFolder:not(.selectedFolder) a', 'color', '--rmm-text-primary');
+        expectElementUsesVarColor('.mailFolder.selectedFolder a', 'color', '--rmm-selected-text');
+        expectElementUsesVarColor('app-virtual-scroll-table thead th', 'backgroundColor', '--rmm-bg-primary');
+    });
+
+    it('applies CSS variables to key surfaces in christmas theme', () => {
+        visitInbox('christmas');
+        waitForThemeClass('christmas');
+
+        expectHeaderUsesGradientVar();
+        expectElementUsesVarColor('.mailFolder:not(.selectedFolder) a', 'color', '--rmm-text-primary');
+        expectElementUsesVarColor('.mailFolder.selectedFolder a', 'color', '--rmm-selected-text');
         expectElementUsesVarColor('app-virtual-scroll-table thead th', 'backgroundColor', '--rmm-bg-primary');
     });
 });

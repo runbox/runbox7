@@ -69,7 +69,9 @@
 
 // Dark theme support
 :host-context(.dark-theme),
-:host-context(.high-contrast-theme) {
+:host-context(.high-contrast-theme),
+:host-context(.terminal-theme),
+:host-context(.christmas-theme) {
     .mailFolder:hover,
     .mailFolder:focus-within,
     .mailFolder:has(a:focus) {
@@ -77,7 +79,7 @@
     }
 
     .mailFolder a {
-        color: var(--rmm-border-color);
+        color: var(--rmm-text-primary) !important;
     }
 
     // Selected folder - distinct blue theme
@@ -86,7 +88,7 @@
     }
 
     .selectedFolder a {
-        color: var(--rmm-accent-color) !important;
+        color: var(--rmm-selected-text) !important;
         font-weight: 500 !important;
     }
 }

@@ -325,6 +325,30 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     color-scheme: light;
 }
 
+// Christmas theme overrides
+.christmas-theme {
+    .mailFolder a {
+        color: var(--rmm-text-primary) !important;
+    }
+
+    .selectedFolder a {
+        color: var(--rmm-selected-text) !important;
+    }
+
+    // Header gradient override to ensure Christmas colors are applied
+    #mainMenuContainer,
+    #mainMenuContainer.mat-toolbar,
+    mat-toolbar#mainMenuContainer {
+        background: var(--rmm-header-gradient) !important;
+        background-image: var(--rmm-header-gradient) !important;
+    }
+
+    #mainMenuContainer mat-icon,
+    #mainMenuContainer .mainMenuDesc {
+        color: var(--rmm-text-on-primary) !important;
+    }
+}
+
 .high-contrast-theme {
     --rmm-primary-color: #ffff00;        // Bright yellow for maximum visibility
     --rmm-accent-color: #00ff00;         // Bright green
@@ -2573,6 +2597,11 @@ table.detailsTable tr td:nth-of-type(2) {
     // Links
     a {
         color: var(--rmm-accent-color);
+    }
+
+    // Folder list links should follow theme text colors
+    .mailFolder a {
+        color: var(--rmm-text-primary) !important;
     }
 
     // Page containers and sections
