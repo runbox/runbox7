@@ -17,9 +17,11 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { defer, of, throwError, timer } from 'rxjs';
+import { finalize, map } from 'rxjs/operators';
 import { RunboxMailBackend } from './runbox-mail-backend';
+import { EmailContent } from '../mail-backend.interface';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { FolderListEntry } from '../../common/folderlistentry';
 
@@ -127,6 +129,57 @@ describe('RunboxMailBackend', () => {
                 done();
             });
         });
+
+        it('should limit concurrent fetches', fakeAsync(() => {
+            const ids = Array.from({ length: 12 }, (_value, index) => String(index + 1));
+            let active = 0;
+            let maxActive = 0;
+
+            mockApi.getMessageContents.and.callFake(() =>
+                defer(() => {
+                    active += 1;
+                    maxActive = Math.max(maxActive, active);
+
+                    return timer(10).pipe(
+                        map(() => ({
+                            text: { text: 'Hello', html: '<p>Hello</p>' }
+                        } as any)),
+                        finalize(() => {
+                            active -= 1;
+                        })
+                    );
+                })
+            );
+
+            let result: Map<string, EmailContent | null> | undefined;
+            backend.getEmailContents(ids).subscribe(res => {
+                result = res;
+            });
+
+            tick(100);
+
+            if (!result) {
+                fail('Expected getEmailContents to emit a result map');
+                return;
+            }
+
+            expect(result.size).toBe(12);
+            expect(maxActive).toBe(5);
+            expect(active).toBe(0);
+        }));
+    });
+
+    describe('getChanges', () => {
+        it('should throw a helpful error for unsupported backend', (done) => {
+            backend.getChanges('state').subscribe({
+                next: () => fail('Expected getChanges to error'),
+                error: (err) => {
+                    expect(err.message).toContain('getChanges is not supported');
+                    expect(err.message).toContain('queryEmails');
+                    done();
+                }
+            });
+        });
     });
 
     describe('createMailbox', () => {
@@ -164,6 +217,32 @@ describe('RunboxMailBackend', () => {
                 next: (mailbox) => {
                     expect(mailbox.name).toBe('NewFolder');
                     expect(mailbox.path).toBe('Parent.NewFolder');
+                    expect(mockApi.createFolder).toHaveBeenCalledWith(2, 'NewFolder', []);
+                    done();
+                },
+                error: (err) => fail(err)
+            });
+        });
+
+        it('should select created mailbox by path when names are ambiguous', (done) => {
+            const folders = [
+                new FolderListEntry(1, 0, 10, 'inbox', 'Inbox', 'Inbox', 0),
+                new FolderListEntry(2, 0, 5, 'user', 'Parent', 'Parent', 0),
+                new FolderListEntry(3, 0, 5, 'user', 'Other', 'Other', 0),
+                new FolderListEntry(10, 0, 0, 'user', 'NewFolder', 'Other.NewFolder', 1)
+            ];
+            const foldersAfterCreate = [
+                ...folders,
+                new FolderListEntry(11, 0, 0, 'user', 'NewFolder', 'Parent.NewFolder', 1)
+            ];
+
+            mockApi.getFolderList.and.returnValues(of(folders), of(foldersAfterCreate));
+            mockApi.createFolder.and.returnValue(of(true));
+
+            backend.createMailbox('NewFolder', '2').subscribe({
+                next: (mailbox) => {
+                    expect(mailbox.path).toBe('Parent.NewFolder');
+                    expect(mailbox.id).toBe('11');
                     expect(mockApi.createFolder).toHaveBeenCalledWith(2, 'NewFolder', []);
                     done();
                 },
