@@ -5,11 +5,11 @@ mat-expansion-panel-header span {
     vertical-align: bottom;
 }
 
-mat-list-item .mdc-list-item__primary-text,
-mat-list-item .mat-mdc-list-item-title,
-mat-list-item [mat-line],
-mat-list-item [matListItemTitle],
-mat-list-item [matListItemLine] {
+.mat-mdc-list-item .mdc-list-item__primary-text,
+.mat-mdc-list-item .mat-mdc-list-item-title,
+.mat-mdc-list-item [mat-line],
+.mat-mdc-list-item [matListItemTitle],
+.mat-mdc-list-item [matListItemLine] {
     display: flex;
     align-items: center;
     flex-wrap: wrap;

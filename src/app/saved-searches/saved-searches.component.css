@@ -23,8 +23,7 @@ mat-expansion-panel-header .headerText {
 }
 
 /* MDC list item styling */
-.mat-mdc-list-base[dense] .mat-mdc-list-item,
-.mat-list-base[dense] .mat-list-item {
+.mat-mdc-list-base[dense] .mat-mdc-list-item {
     height: auto;
     min-height: 30px;
 }
