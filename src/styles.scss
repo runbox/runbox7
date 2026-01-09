@@ -793,9 +793,14 @@ a[mat-icon-button]:hover {
 
 /* Tree nodes */
 .mat-tree-node {
-    min-height: 24px;
-    line-height: 1.5;
+    min-height: var(--density-folder-min-height, 24px);
+    height: auto;
+    line-height: var(--density-folder-line-height, 22px);
     font-size: 13px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-right: 0 !important;
+    /* Note: padding-left is set by matTreeNodePadding for indentation */
 }
 
 .mat-mdc-list {
@@ -1608,9 +1613,18 @@ a:hover {
 }
 
 rmm-folderlist {
-    .mat-icon-button {
-        height: 24px;
-        line-height: 24px;
+    .mat-icon-button,
+    .mat-mdc-icon-button {
+        // Minimum 24px to fit icons and maintain touch target
+        height: max(var(--density-folder-min-height, 24px), 24px) !important;
+        width: max(var(--density-folder-min-height, 24px), 24px) !important;
+        line-height: var(--density-folder-line-height, 22px);
+        padding: 0 !important;
+
+        .mat-mdc-button-touch-target {
+            height: max(var(--density-folder-min-height, 24px), 24px) !important;
+            width: max(var(--density-folder-min-height, 24px), 24px) !important;
+        }
     }
 }
 
