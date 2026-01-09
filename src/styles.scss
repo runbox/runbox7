@@ -606,6 +606,13 @@ th {
    font-size: 16px;
 }
 
+// Scoped to mail message tables to avoid affecting other tables (account, settings, etc.)
+.messages-table,
+#messageTableContainerArea table {
+    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+}
+
 ul.square-list {
     padding-left: 10px !important;
 }
@@ -624,6 +631,11 @@ p {
 
 .mat-typography {
     padding-top: 0px;
+}
+
+/* Tooltip styling */
+.multiline-tooltip {
+    width: 150px;
 }
 
 mat-form-field,
@@ -648,7 +660,20 @@ mat-form-field,
     align-items: center;
 }
 
-/* MDC-based list item styling */
+/*
+ * MDC-based list item styling
+ *
+ * NOTE: These styles target Angular Material's MDC internal classes
+ * (.mdc-list-item__content, .mdc-list-item__primary-text, etc.).
+ * These internal class names may change in future Angular Material versions.
+ * If list styling breaks after an Angular Material upgrade, check these selectors.
+ *
+ * Components using MDC internal classes:
+ * - src/app/account-app/account-app.component.scss
+ * - src/app/calendar-app/calendar-app.component.scss
+ * - src/app/contacts-app/contacts-app.component.scss
+ * - src/styles.scss (this file)
+ */
 .mat-mdc-list-item,
 mat-list-item {
     min-height: 24px !important;

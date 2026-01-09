@@ -63,10 +63,7 @@
     text-align: center;
 }
 
-// Override default tooltip CSS
-::ng-deep .multiline-tooltip {
-    width: 150px;
-}
+// Tooltip styling moved to global styles.scss
 
 .resizable {
     display: inline-block;
@@ -265,10 +262,7 @@
     }
 }
 
-::ng-deep table {
-    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
-    font-size: 14px;
-}
+// Table font styling moved to global styles.scss
 
 tbody mat-icon {
     /* Prevent icon from increasing tbody height */

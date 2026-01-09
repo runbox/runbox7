@@ -1,7 +1,6 @@
 button {
-    --fg: #333;
-    border-left: 1px solid var(--fg);
-    border-right: 1px solid var(--fg);
+    border-left: 1px solid var(--rmm-border-color);
+    border-right: 1px solid var(--rmm-border-color);
     border-top: none;
     border-bottom: none;
     position: absolute;
