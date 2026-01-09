@@ -137,6 +137,7 @@
 
         tbody {
             cursor: pointer;
+            border-bottom: 1px solid var(--rmm-divider-color, #e0e0e0);
         }
 
         .checkbox-cell {
