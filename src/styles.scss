@@ -753,13 +753,22 @@ a[mat-icon-button]:hover {
 }
 
 .mat-menu-content .mat-list-item,
-.mat-mdc-menu-content .mat-mdc-menu-item {
-    height: 32px !important;
+.mat-mdc-menu-content .mat-mdc-list-item {
+    min-height: 32px !important;
+    height: auto !important;
 }
 
 .mat-menu-panel .mat-list-item,
-.mat-mdc-menu-panel .mat-mdc-menu-item {
-    height: 40px !important;
+.mat-mdc-menu-panel .mat-mdc-list-item {
+    min-height: 40px !important;
+    height: auto !important;
+}
+
+/* Allow form fields in menu list items to display fully */
+.mat-menu-content mat-list-item:has(mat-form-field),
+.mat-mdc-menu-content .mat-mdc-list-item:has(mat-form-field) {
+    min-height: 56px !important;
+    padding-top: 8px !important;
 }
 
 .mat-header-cell,
