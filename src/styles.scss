@@ -1214,6 +1214,9 @@ rmm-headertoolbar {
 
 #mainMenuContainer mat-icon {
     color: var(--rmm-text-on-primary);
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
 }
 
 #mainMenuContainer {
@@ -1273,10 +1276,10 @@ mat-menu a,
 }
 
 .mainMenu:hover {
-    transform: translateY(-3px);
+    margin-top: -10px;
 
     .mainMenuDesc {
-	margin-top: 1px;
+	margin-top: -3px;
     }
 }
 

@@ -99,10 +99,10 @@
     overflow: auto;
 
     .messages-table {
-        --cell-y-spacing-top: 0.3lh;
-        --cell-y-spacing-top-first: 0.15lh;
-        --cell-y-spacing-bottom: 0.2lh;
-        --row-y-spacing: 0.3lh;
+        --cell-y-spacing-top: 0.15lh;
+        --cell-y-spacing-top-first: 0.1lh;
+        --cell-y-spacing-bottom: 0.15lh;
+        --row-y-spacing: 0.2lh;
 
         th {
             text-align: left;
