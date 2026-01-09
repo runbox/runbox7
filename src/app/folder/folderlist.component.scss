@@ -1,11 +1,12 @@
 .mailFolder {
     position: relative;
-    min-height: 24px;
-    line-height: 22px;
+    line-height: var(--density-folder-line-height, 22px);
+    align-items: center;
 }
 
 .mailFolder .expand-button {
     z-index: 1;
+    align-self: center;
 }
 
 .mailFolder:hover,

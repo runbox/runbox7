@@ -143,8 +143,10 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   messageSubjectDragTipShown = false;
   showPopularRecipients = true;
   avatarSource: AppSettings.AvatarSource;
+  density: AppSettings.Density = AppSettings.Density.COMFORTABLE;
 
   AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
+  Density = AppSettings.Density; // makes enum visible in template
 
   buildtimestampstring = environment.BUILD_TIMESTAMP;
 
@@ -356,6 +358,12 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
       // sidebar
       this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
       this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
+      const savedDensity = prefs.get(`${this.preferenceService.prefGroup}:density`);
+      if (savedDensity) {
+        this.density = savedDensity;
+      }
+      // Always apply density class (use saved or default)
+      this.applyDensityClass(this.density);
 
       this.preferences = prefs;
     });
@@ -743,6 +751,24 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   savePopularRecipients(): void {
     const setting = this.showPopularRecipients ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS, setting);
+  }
+
+  saveDensity(): void {
+    this.preferenceService.set(this.preferenceService.prefGroup, 'density', this.density);
+    this.applyDensityClass(this.density);
+  }
+
+  applyDensityClass(density: AppSettings.Density): void {
+    const root = document.documentElement;
+    const body = document.body;
+    const densityClasses = ['density-compact', 'density-comfortable', 'density-airy'];
+    densityClasses.forEach(cls => {
+      root.classList.remove(cls);
+      body.classList.remove(cls);
+    });
+    const densityClass = `density-${density}`;
+    root.classList.add(densityClass);
+    body.classList.add(densityClass);
   }
 
   saveMessagePaneSetting(): void {

@@ -25,6 +25,7 @@ import { filter } from 'rxjs/operators';
 export interface AppSettings {
     showPopularRecipients: boolean;
     avatars: AppSettings.AvatarSource;
+    density: AppSettings.Density;
 }
 
 export namespace AppSettings {
@@ -34,10 +35,17 @@ export namespace AppSettings {
         REMOTE = 'remote',
     }
 
+    export enum Density {
+        COMPACT     = 'compact',
+        COMFORTABLE = 'comfortable',
+        AIRY        = 'airy',
+    }
+
     export function getDefaults(): AppSettings {
         return {
             avatars: AvatarSource.LOCAL,
             showPopularRecipients: true,
+            density: Density.COMFORTABLE,
         };
     }
 

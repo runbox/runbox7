@@ -570,6 +570,51 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
 }
 
 
+/*** Density settings ***/
+
+// Default density values (comfortable - matches original baseline)
+:root {
+    --density-cell-y-top: 0.15lh;
+    --density-cell-y-top-first: 0.1lh;
+    --density-cell-y-bottom: 0.15lh;
+    --density-row-y: 0.2lh;
+    --density-folder-min-height: 24px;
+    --density-folder-line-height: 22px;
+}
+
+.density-compact {
+    --density-cell-y-top: 0;
+    --density-cell-y-top-first: 0;
+    --density-cell-y-bottom: 0;
+    --density-row-y: 0;
+    --density-folder-min-height: 20px;
+    --density-folder-line-height: 18px;
+}
+
+.density-comfortable {
+    --density-cell-y-top: 0.15lh;
+    --density-cell-y-top-first: 0.1lh;
+    --density-cell-y-bottom: 0.15lh;
+    --density-row-y: 0.2lh;
+    --density-folder-min-height: 24px;
+    --density-folder-line-height: 22px;
+}
+
+.density-airy {
+    --density-cell-y-top: 0.3lh;
+    --density-cell-y-top-first: 0.25lh;
+    --density-cell-y-bottom: 0.3lh;
+    --density-row-y: 0.4lh;
+    --density-folder-min-height: 32px;
+    --density-folder-line-height: 30px;
+}
+
+// Uniform mat-tree-node override for all densities
+mat-tree-node.mailFolder {
+    min-height: var(--density-folder-min-height, 24px) !important;
+}
+
+
 /*** Generic styles ***/
 
 html {

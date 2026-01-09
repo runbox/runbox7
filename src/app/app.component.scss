@@ -96,10 +96,10 @@
     overflow: auto;
 
     .messages-table {
-        --cell-y-spacing-top: 0.15lh;
-        --cell-y-spacing-top-first: 0.1lh;
-        --cell-y-spacing-bottom: 0.15lh;
-        --row-y-spacing: 0.2lh;
+        --cell-y-spacing-top: var(--density-cell-y-top, 0.15lh);
+        --cell-y-spacing-top-first: var(--density-cell-y-top-first, 0.1lh);
+        --cell-y-spacing-bottom: var(--density-cell-y-bottom, 0.15lh);
+        --row-y-spacing: var(--density-row-y, 0.2lh);
 
         th {
             text-align: left;
