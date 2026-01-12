@@ -251,7 +251,7 @@ export class FolderListComponent implements OnChanges, OnDestroy {
         this.dropAboveOrBelowOrInside = DropPosition.NONE;
         this.dragFolderInProgress = false;
         this.dropFolderId = 0;
-        document.getElementById('thedragcanvas').remove();
+        document.getElementById('thedragcanvas')?.remove();
     }
 
     dragFolderStart(event, folderId: NumberConstructor): void {

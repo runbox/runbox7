@@ -18,9 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {Injectable} from '@angular/core';
-import {Subject, BehaviorSubject} from 'rxjs';
+import {Subject, BehaviorSubject, Observable} from 'rxjs';
+import {delay} from 'rxjs/operators';
 
 @Injectable()
 export class ProgressService {
   httpRequestInProgress: Subject<boolean> = new BehaviorSubject(false);
+
+  // Delayed version to avoid ExpressionChangedAfterItHasBeenCheckedError in templates
+  httpRequestInProgress$: Observable<boolean> = this.httpRequestInProgress.pipe(delay(0));
 }

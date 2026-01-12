@@ -922,8 +922,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
-        // remove from message display
+        // remove from message display and repaint
         this.messageTable.rows.removeMessages(messageIds);
+        this.updateRows();
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -1214,7 +1215,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   onMessagesDragStart(event: DragEvent, index) {
 
     // If no messages are selected we'll select the current message
-    if (this.messageTable.rows.rowCount() == 0) {
+    if (!this.messageTable.rows.anySelected()) {
       this.messageTable.rows.selectRow(index);
     }
 
@@ -1233,11 +1234,12 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
         const folders = this.messagelistservice.folderListSubject.value;
         const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
 
-        // FIXME: Make a "not indexed folder list" somewhere!?
-        // moveMessagesToFolder cant see these cos not in index
-        if (this.messagelistservice.unindexedFolders.includes(this.selectedFolder)) {
-          // remove from current message display
-          this.messageTable.rows.removeMessages(messageIds);
+        // Always remove from current message display and repaint
+        this.messageTable.rows.removeMessages(messageIds);
+        this.updateRows();
+
+        // Update local index if active
+        if (this.searchService.localSearchActivated) {
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1268,12 +1270,13 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
             const folders = this.messagelistservice.folderListSubject.value;
             const folderPath = folders.find(fld => fld.folderId === folder).folderPath;
             console.log('Moving to folder', folderPath, messageIds);
-            // FIXME: Make a "not indexed folder list" somewhere!?
-            // moveMessagesToFolder cant see these cos not in index
-            if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
-              this.selectedFolder !== this.messagelistservice.trashFolderName) {
-              // remove from current message display
-              this.messageTable.rows.removeMessages(messageIds);
+
+            // Always remove from current message display and repaint
+            this.messageTable.rows.removeMessages(messageIds);
+            this.updateRows();
+
+            // Update local index if active
+            if (this.searchService.localSearchActivated) {
               this.searchService.moveMessagesToFolder(msgIds, folderPath);
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1715,9 +1718,8 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
   async updateMessages(args) {
     await this.messageActionsHandler.updateMessages(args);
-    // setTimeout(() => {
-    //   this.updateSearch(true);
-    // }, 1000);
+    // Index refresh happens via indexReloadedSubject → afterUpdateIndex() → updateSearch()
+    // when the index worker completes 'updateIndexWithNewChanges'
   }
 
   get showNotificationButton() {
