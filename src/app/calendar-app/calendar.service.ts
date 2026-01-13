@@ -134,9 +134,12 @@ export class CalendarService implements OnDestroy {
             this.lastUpdate = moment();
         });
 
-        this.syncInterval = setInterval(() => {
-            this.syncCaldav();
-        }, this.syncIntervalSeconds * 1000);
+        // Only start sync interval if not in test environment to prevent infinite loops
+        if (typeof jasmine === 'undefined') {
+            this.syncInterval = setInterval(() => {
+                this.syncCaldav();
+            }, this.syncIntervalSeconds * 1000);
+        }
     }
 
     ngOnDestroy() {
