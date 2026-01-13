@@ -1,6 +1,7 @@
 mat-expansion-panel-header {
     box-shadow: none !important;
-    height: 30px !important;
+    min-height: 36px !important;
+    height: auto !important;
     padding-left: 10px !important;
     padding-right: 24px !important;
 }
@@ -12,6 +13,7 @@ mat-expansion-panel {
 mat-expansion-panel-header mat-icon {
     padding-left: 10px;
     padding-right: 4px;
+    flex-shrink: 0;
 }
 
 mat-expansion-panel-header .headerText {
@@ -20,7 +22,8 @@ mat-expansion-panel-header .headerText {
     line-height: 20px;
 }
 
-.mat-list-base[dense] .mat-list-item {
+/* MDC list item styling */
+.mat-mdc-list-base[dense] .mat-mdc-list-item {
     height: auto;
     min-height: 30px;
 }

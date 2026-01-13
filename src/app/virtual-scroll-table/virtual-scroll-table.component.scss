@@ -33,6 +33,9 @@ cdk-virtual-scroll-viewport {
     height: 100%;
     min-height: 200px;
 
+    // NOTE: ::ng-deep is deprecated but required here to penetrate CDK viewport's
+    // encapsulation and hide the duplicate thead inside the scrollable content.
+    // The visible header is rendered separately in .header-table above.
     ::ng-deep & table thead {
         visibility: hidden;
         opacity: 0;

@@ -32,6 +32,20 @@
                   </mat-select>
                 </mat-form-field>
               </mat-list-item>
+              <mat-list-item>
+                <mat-form-field>
+                  <mat-label> Density </mat-label>
+                  <mat-select
+                    [(ngModel)]="density"
+                    (click)="$event.stopPropagation()"
+                    (selectionChange)="saveDensity()"
+                  >
+                    <mat-option [value]="Density.COMPACT"> Compact </mat-option>
+                    <mat-option [value]="Density.COMFORTABLE"> Comfortable </mat-option>
+                    <mat-option [value]="Density.AIRY"> Airy </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </mat-list-item>
           </mat-list>
       </mat-menu>
 
@@ -756,9 +770,8 @@
   </mat-card>
 </app-follows-mouse>
 
-<!-- This will cause an error in dev mode with the async pipe, should not be present however in production -->
 <div style="position: absolute; bottom: 2px; right: 2px; z-index: 10000;"
-    *ngIf="progressService.httpRequestInProgress | async"
+    *ngIf="progressService.httpRequestInProgress$ | async"
     >
   <mat-spinner diameter="20" ></mat-spinner>
 </div>

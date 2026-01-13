@@ -63,10 +63,7 @@
     text-align: center;
 }
 
-// Override default tooltip CSS
-::ng-deep .multiline-tooltip {
-    width: 150px;
-}
+// Tooltip styling moved to global styles.scss
 
 .resizable {
     display: inline-block;
@@ -99,10 +96,10 @@
     overflow: auto;
 
     .messages-table {
-        --cell-y-spacing-top: 0.3lh;
-        --cell-y-spacing-top-first: 0.15lh;
-        --cell-y-spacing-bottom: 0.2lh;
-        --row-y-spacing: 0.3lh;
+        --cell-y-spacing-top: var(--density-cell-y-top, 0.15lh);
+        --cell-y-spacing-top-first: var(--density-cell-y-top-first, 0.1lh);
+        --cell-y-spacing-bottom: var(--density-cell-y-bottom, 0.15lh);
+        --row-y-spacing: var(--density-row-y, 0.2lh);
 
         th {
             text-align: left;
@@ -140,6 +137,7 @@
 
         tbody {
             cursor: pointer;
+            border-bottom: 1px solid var(--rmm-divider-color, #e0e0e0);
         }
 
         .checkbox-cell {
@@ -215,7 +213,7 @@
                 display: inline-block;
                 margin-top: auto;
                 margin-bottom: auto;
-                margin-left: 2rem;
+                margin-left: 0;
 
                 &.sm-hidden {
                     display: none;
@@ -234,13 +232,16 @@
 
                 &.checkbox-cell {
                     position: absolute;
-                    margin-left: 4px;
+                    left: 4px;
+                    width: 2.5rem;
                 }
             }
 
             tr {
+                position: relative;
                 padding-top: unset;
                 padding-bottom: unset;
+                padding-left: 2.5rem;
                 margin-left: 8px;
                 display: flex;
                 flex-flow: row wrap;
@@ -262,10 +263,7 @@
     }
 }
 
-::ng-deep table {
-    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
-    font-size: 14px;
-}
+// Table font styling moved to global styles.scss
 
 tbody mat-icon {
     /* Prevent icon from increasing tbody height */

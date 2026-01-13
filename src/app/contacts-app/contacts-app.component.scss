@@ -14,12 +14,12 @@
     }
 }
 
-mat-list-item.contactListButton {
+.mat-mdc-list-item.contactListButton {
     height: 40px !important;
     cursor: pointer;
 }
 
-mat-list-item.contactListButton .mdc-list-item__content {
+.mat-mdc-list-item.contactListButton .mdc-list-item__content {
     height: 40px;
     padding: 0 8px;
     display: flex;
@@ -27,7 +27,7 @@ mat-list-item.contactListButton .mdc-list-item__content {
     align-items: center;
 }
 
-mat-list-item.contactListButton:hover {
+.mat-mdc-list-item.contactListButton:hover {
     background-color: var(--rmm-bg-tertiary) !important;
 }
 

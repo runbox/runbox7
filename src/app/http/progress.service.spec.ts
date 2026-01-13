@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed, waitForAsync } from '@angular/core/testing';
+import { TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -82,5 +82,19 @@ describe('ProgressService', () => {
         expect(hasCurrentHttpActivity).toBeFalsy();
         expect(rmmapiservice.last_on_interval).toBeTruthy();
         clearInterval(rmmapiservice.last_on_interval);
+    }));
+
+    it('emits httpRequestInProgress$ asynchronously', fakeAsync(() => {
+        const emissions: boolean[] = [];
+
+        progressService.httpRequestInProgress$.subscribe(value => emissions.push(value));
+
+        expect(emissions).toEqual([]);
+
+        progressService.httpRequestInProgress.next(true);
+        expect(emissions).toEqual([]);
+
+        tick(0);
+        expect(emissions).toEqual([false, true]);
     }));
 });

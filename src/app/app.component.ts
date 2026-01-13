@@ -143,8 +143,10 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   messageSubjectDragTipShown = false;
   showPopularRecipients = true;
   avatarSource: AppSettings.AvatarSource;
+  density: AppSettings.Density = AppSettings.Density.COMFORTABLE;
 
   AvatarSource = AppSettings.AvatarSource; // makes enum visible in template
+  Density = AppSettings.Density; // makes enum visible in template
 
   buildtimestampstring = environment.BUILD_TIMESTAMP;
 
@@ -356,6 +358,12 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
       // sidebar
       this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
       this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
+      const savedDensity = prefs.get(`${this.preferenceService.prefGroup}:density`);
+      if (savedDensity) {
+        this.density = savedDensity;
+      }
+      // Always apply density class (use saved or default)
+      this.applyDensityClass(this.density);
 
       this.preferences = prefs;
     });
@@ -566,10 +574,17 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
       // Handle message selection regardless of singlemailviewer state
       if (msgId != null) {
         if (folderChanged || !this.messageTable?.rows) {
+          // Open message viewer immediately for better perceived performance
+          // The list will still populate and select the row when ready
+          // Guard: singlemailviewer might not be ready during initial deep-link navigation
+          if (this.singlemailviewer) {
+            this.singlemailviewer.messageId = msgId;
+          }
           this.jumpToFragment = true;
         } else if (this.messageTable?.rows) {
           // Same folder and rows exist, select immediately
-          this.selectRowByMessageId(msgId, true);
+          // Force scroll since we may have set messageId early
+          this.selectRowByMessageId(msgId, true, true);
         }
       } else if (msgId === null && this.singlemailviewer) {
         // Just close the viewer if no message ID
@@ -738,6 +753,24 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS, setting);
   }
 
+  saveDensity(): void {
+    this.preferenceService.set(this.preferenceService.prefGroup, 'density', this.density);
+    this.applyDensityClass(this.density);
+  }
+
+  applyDensityClass(density: AppSettings.Density): void {
+    const root = document.documentElement;
+    const body = document.body;
+    const densityClasses = ['density-compact', 'density-comfortable', 'density-airy'];
+    densityClasses.forEach(cls => {
+      root.classList.remove(cls);
+      body.classList.remove(cls);
+    });
+    const densityClass = `density-${density}`;
+    root.classList.add(densityClass);
+    body.classList.add(densityClass);
+  }
+
   saveMessagePaneSetting(): void {
     const setting = this.keepMessagePaneOpen ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_KEEP_PANE, setting);
@@ -889,8 +922,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     this.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
-        // remove from message display
+        // remove from message display and repaint
         this.messageTable.rows.removeMessages(messageIds);
+        this.updateRows();
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -983,7 +1017,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     this.messageTable.rows.clearSelection();
   }
 
-  public selectRowByMessageId(messageId: number, clearFilters = false) {
+  public selectRowByMessageId(messageId: number, clearFilters = false, forceScroll = false) {
     // Save current filter state if we're going to clear it
     const savedUnreadOnly = this.unreadMessagesOnlyCheckbox;
 
@@ -999,7 +1033,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
     const matchingRowIndex = this.messageTable.rows.findRowByMessageId(messageId);
     if (matchingRowIndex > -1) {
-      this.rowSelected(matchingRowIndex, 1, false);
+      this.rowSelected(matchingRowIndex, 1, false, forceScroll);
     }
 
     // Restore filter state if we cleared it but user had a preference
@@ -1013,9 +1047,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
     }
   }
 
-  public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
+  public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean, forceScroll = false) {
     const isSelect = (columnIndex === 0) || multiSelect;
-    const shouldScroll = !this.singlemailviewer.messageId;
+    const shouldScroll = forceScroll || !this.singlemailviewer.messageId;
 
     this.lastCheckedIndex = rowIndex;
 
@@ -1181,7 +1215,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
   onMessagesDragStart(event: DragEvent, index) {
 
     // If no messages are selected we'll select the current message
-    if (this.messageTable.rows.rowCount() == 0) {
+    if (!this.messageTable.rows.anySelected()) {
       this.messageTable.rows.selectRow(index);
     }
 
@@ -1200,11 +1234,12 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
         const folders = this.messagelistservice.folderListSubject.value;
         const folderPath = folders.find(fld => fld.folderId === folderId).folderPath;
 
-        // FIXME: Make a "not indexed folder list" somewhere!?
-        // moveMessagesToFolder cant see these cos not in index
-        if (this.messagelistservice.unindexedFolders.includes(this.selectedFolder)) {
-          // remove from current message display
-          this.messageTable.rows.removeMessages(messageIds);
+        // Always remove from current message display and repaint
+        this.messageTable.rows.removeMessages(messageIds);
+        this.updateRows();
+
+        // Update local index if active
+        if (this.searchService.localSearchActivated) {
           this.searchService.moveMessagesToFolder(msgIds, folderPath);
         }
         this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1235,12 +1270,13 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
             const folders = this.messagelistservice.folderListSubject.value;
             const folderPath = folders.find(fld => fld.folderId === folder).folderPath;
             console.log('Moving to folder', folderPath, messageIds);
-            // FIXME: Make a "not indexed folder list" somewhere!?
-            // moveMessagesToFolder cant see these cos not in index
-            if (this.selectedFolder !== this.messagelistservice.spamFolderName &&
-              this.selectedFolder !== this.messagelistservice.trashFolderName) {
-              // remove from current message display
-              this.messageTable.rows.removeMessages(messageIds);
+
+            // Always remove from current message display and repaint
+            this.messageTable.rows.removeMessages(messageIds);
+            this.updateRows();
+
+            // Update local index if active
+            if (this.searchService.localSearchActivated) {
               this.searchService.moveMessagesToFolder(msgIds, folderPath);
             }
             this.messagelistservice.moveMessages(msgIds, folderPath);
@@ -1313,9 +1349,18 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
       this.conversationSearchText = undefined;
     }
 
-    if (this.hasChildRouterOutlet && this.router.url.indexOf('/overview') === -1) {
-      // Only navigate if we're not already navigating from a child route
-      this.router.navigate(['/'], { fragment: folder });
+    if (this.hasChildRouterOutlet) {
+      // Navigate away from child routes (overview, compose, settings, etc.) to main message list
+      // Preserve message ID in fragment only if it belongs to the folder we're switching to
+      let targetFragment = folder;
+      if (this.fragment?.includes(':')) {
+        const fragmentTarget = this.parseFragment(this.fragment);
+        if (fragmentTarget && fragmentTarget[0] === folder) {
+          // Fragment matches the target folder, preserve the message ID
+          targetFragment = this.fragment;
+        }
+      }
+      this.router.navigate(['/'], { fragment: targetFragment });
     }
 
     setTimeout(() => {
@@ -1673,9 +1718,8 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked, Do
 
   async updateMessages(args) {
     await this.messageActionsHandler.updateMessages(args);
-    // setTimeout(() => {
-    //   this.updateSearch(true);
-    // }, 1000);
+    // Index refresh happens via indexReloadedSubject → afterUpdateIndex() → updateSearch()
+    // when the index worker completes 'updateIndexWithNewChanges'
   }
 
   get showNotificationButton() {

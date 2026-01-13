@@ -29,6 +29,8 @@ $custom-typography: mat.m2-define-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
+$font-family-bold: "Avenir Next Pro Demi", "Helvetica Neue", sans-serif;
+
 $rmm-default-theme: mat.m2-define-light-theme((
     color: (
         primary: $rmm-default-primary,
@@ -150,6 +152,13 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     font-family: "Avenir Next Pro Medium";
     src: url("assets/AvenirNextLTPro-Medium.otf");
     src: url("assets/AvenirNextLTPro-Medium.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Avenir Next Pro Demi";
+    src: url("assets/Avenir-Next-LT-Pro-Demi.otf");
     font-style: normal;
     font-weight: normal;
 }
@@ -314,6 +323,30 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
     --rmm-drop-highlight-edge: rgba(218, 165, 32, 1.0);
 
     color-scheme: light;
+}
+
+// Christmas theme overrides
+.christmas-theme {
+    .mailFolder a {
+        color: var(--rmm-text-primary) !important;
+    }
+
+    .selectedFolder a {
+        color: var(--rmm-selected-text) !important;
+    }
+
+    // Header gradient override to ensure Christmas colors are applied
+    #mainMenuContainer,
+    #mainMenuContainer.mat-toolbar,
+    mat-toolbar#mainMenuContainer {
+        background: var(--rmm-header-gradient) !important;
+        background-image: var(--rmm-header-gradient) !important;
+    }
+
+    #mainMenuContainer mat-icon,
+    #mainMenuContainer .mainMenuDesc {
+        color: var(--rmm-text-on-primary) !important;
+    }
 }
 
 .high-contrast-theme {
@@ -511,14 +544,11 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
         color: var(--rmm-text-primary) !important;
     }
 
-    .mat-menu-panel,
     .mat-mdc-menu-panel {
         background-color: var(--rmm-bg-secondary);
         border: 1px solid var(--rmm-border-color);
     }
 
-    .mat-menu-item,
-    .mat-menu-item .mat-icon:not([color]),
     .mat-mdc-menu-item,
     .mat-mdc-menu-item .mat-icon:not([color]) {
         color: var(--rmm-text-primary) !important;
@@ -526,22 +556,62 @@ $rmm-terminal-theme: mat.m2-define-dark-theme((
 
     // Selected folder styling - use blue for visibility against green
     .selectedFolder,
-    mat-list-item.selectedFolder,
-    .mat-list-item.selectedFolder,
-    .mat-mdc-list-item.selectedFolder,
-    .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder {
+    .mat-mdc-list-item.selectedFolder {
         background-color: var(--rmm-selected-bg) !important;
     }
 
     .selectedFolder a,
-    mat-list-item.selectedFolder a,
     .mat-mdc-list-item.selectedFolder a,
     .selectedFolder .mdc-list-item__content,
-    mat-list-item.selectedFolder .mdc-list-item__content,
     .mat-mdc-list-item.selectedFolder .mdc-list-item__content {
         color: var(--rmm-selected-text) !important;
         font-weight: 500 !important;
     }
+}
+
+
+/*** Density settings ***/
+
+// Default density values (comfortable - matches original baseline)
+:root {
+    --density-cell-y-top: 0.15lh;
+    --density-cell-y-top-first: 0.1lh;
+    --density-cell-y-bottom: 0.15lh;
+    --density-row-y: 0.2lh;
+    --density-folder-min-height: 24px;
+    --density-folder-line-height: 22px;
+}
+
+.density-compact {
+    --density-cell-y-top: 0;
+    --density-cell-y-top-first: 0;
+    --density-cell-y-bottom: 0;
+    --density-row-y: 0;
+    --density-folder-min-height: 20px;
+    --density-folder-line-height: 18px;
+}
+
+.density-comfortable {
+    --density-cell-y-top: 0.15lh;
+    --density-cell-y-top-first: 0.1lh;
+    --density-cell-y-bottom: 0.15lh;
+    --density-row-y: 0.2lh;
+    --density-folder-min-height: 24px;
+    --density-folder-line-height: 22px;
+}
+
+.density-airy {
+    --density-cell-y-top: 0.3lh;
+    --density-cell-y-top-first: 0.25lh;
+    --density-cell-y-bottom: 0.3lh;
+    --density-row-y: 0.4lh;
+    --density-folder-min-height: 32px;
+    --density-folder-line-height: 30px;
+}
+
+// Uniform mat-tree-node override for all densities
+mat-tree-node.mailFolder {
+    min-height: var(--density-folder-min-height, 24px) !important;
 }
 
 
@@ -597,6 +667,13 @@ th {
    font-size: 16px;
 }
 
+// Scoped to mail message tables to avoid affecting other tables (account, settings, etc.)
+.messages-table,
+#messageTableContainerArea table {
+    font-family: "Avenir Next Pro Regular", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+}
+
 ul.square-list {
     padding-left: 10px !important;
 }
@@ -617,8 +694,12 @@ p {
     padding-top: 0px;
 }
 
-mat-form-field,
-.mat-mdc-form-field {
+/* Tooltip styling */
+.multiline-tooltip {
+    width: 150px;
+}
+
+mat-form-field {
     /* This is for iOS not to zoom in when focusing on text fields */
     font-size: 13px !important;
 }
@@ -639,9 +720,21 @@ mat-form-field,
     align-items: center;
 }
 
-/* MDC-based list item styling */
-.mat-mdc-list-item,
-mat-list-item {
+/*
+ * MDC-based list item styling
+ *
+ * NOTE: These styles target Angular Material's MDC internal classes
+ * (.mdc-list-item__content, .mdc-list-item__primary-text, etc.).
+ * These internal class names may change in future Angular Material versions.
+ * If list styling breaks after an Angular Material upgrade, check these selectors.
+ *
+ * Components using MDC internal classes:
+ * - src/app/account-app/account-app.component.scss
+ * - src/app/calendar-app/calendar-app.component.scss
+ * - src/app/contacts-app/contacts-app.component.scss
+ * - src/styles.scss (this file)
+ */
+.mat-mdc-list-item {
     min-height: 24px !important;
 }
 
@@ -674,8 +767,7 @@ mat-list-item {
     flex-shrink: 0;
 }
 
-.mat-toolbar,
-.mat-button,
+mat-toolbar,
 .mat-mdc-button-base {
     font-size: 16px;
     font-weight: 400;
@@ -701,34 +793,42 @@ a[mat-icon-button]:hover {
 
 /* Tree nodes */
 .mat-tree-node {
-    min-height: 24px;
-    line-height: 1.5;
+    min-height: var(--density-folder-min-height, 24px);
+    height: auto;
+    line-height: var(--density-folder-line-height, 22px);
     font-size: 13px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-right: 0 !important;
+    /* Note: padding-left is set by matTreeNodePadding for indentation */
 }
 
 .mat-mdc-list {
     padding-top: 0px !important;
 }
 
-.mat-list-base[dense],
-.mat-list-item.mat-list-item-with-avatar,
 .mat-mdc-list-base[dense],
 .mat-mdc-list-item.mat-mdc-list-item-with-avatar {
     height: auto !important;
     font-size: 13px !important;
 }
 
-.mat-menu-content .mat-list-item,
-.mat-mdc-menu-content .mat-mdc-menu-item {
-    height: 32px !important;
+.mat-mdc-menu-content .mat-mdc-list-item {
+    min-height: 32px !important;
+    height: auto !important;
 }
 
-.mat-menu-panel .mat-list-item,
-.mat-mdc-menu-panel .mat-mdc-menu-item {
-    height: 40px !important;
+.mat-mdc-menu-panel .mat-mdc-list-item {
+    min-height: 40px !important;
+    height: auto !important;
 }
 
-.mat-header-cell,
+/* Allow form fields in menu list items to display fully */
+.mat-mdc-menu-content .mat-mdc-list-item:has(mat-form-field) {
+    min-height: 56px !important;
+    padding-top: 8px !important;
+}
+
 .mat-mdc-header-cell {
     font-size: 16px;
 }
@@ -857,6 +957,11 @@ mat-grid-tile.tableTitle {
 
 .description {
     font-size: 12px;
+}
+
+.bold {
+    font-family: $font-family-bold;
+    font-weight: bold;
 }
 
 .warning {
@@ -1200,6 +1305,9 @@ rmm-headertoolbar {
 
 #mainMenuContainer mat-icon {
     color: var(--rmm-text-on-primary);
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
 }
 
 #mainMenuContainer {
@@ -1218,8 +1326,6 @@ rmm-headertoolbar {
     color: mat.m2-get-color-from-palette($rmm-default-accent) !important;
 }
 
-.mat-menu-item,
-.mat-menu-item .mat-icon:not([color]),
 .mat-mdc-menu-item,
 .mat-mdc-menu-item .mat-icon:not([color]) {
     height: 36px !important;
@@ -1233,8 +1339,7 @@ rmm-headertoolbar {
 
 .mainMenu a,
 mat-menu a,
-.mat-nav-list a,
-.mat-mdc-nav-list a {
+mat-nav-list a {
     padding: 0;
     text-decoration: none;
     font-weight: 400;
@@ -1259,10 +1364,10 @@ mat-menu a,
 }
 
 .mainMenu:hover {
-    transform: translateY(-3px);
+    margin-top: -10px;
 
     .mainMenuDesc {
-	margin-top: 1px;
+	margin-top: -3px;
     }
 }
 
@@ -1441,12 +1546,10 @@ mat-sidenav-container {
 }
 
 /* Sync and bug report buttons */
-mat-nav-list mat-list-item,
 .mat-mdc-nav-list .mat-mdc-list-item {
     cursor: pointer;
 }
 
-mat-nav-list mat-list-item:hover,
 .mat-mdc-nav-list .mat-mdc-list-item:hover {
     background-color: var(--rmm-bg-tertiary) !important;
 }
@@ -1476,13 +1579,11 @@ a:hover {
     text-decoration: none;
 }
 
-.mat-nav-list a.textLink,
 .mat-mdc-nav-list a.textLink {
     color: mat.m2-get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
-.mat-nav-list a.textLink:hover,
 .mat-mdc-nav-list a.textLink:hover {
     text-decoration: none;
 }
@@ -1512,9 +1613,18 @@ a:hover {
 }
 
 rmm-folderlist {
-    .mat-icon-button {
-        height: 24px;
-        line-height: 24px;
+    .mat-icon-button,
+    .mat-mdc-icon-button {
+        // Minimum 24px to fit icons and maintain touch target
+        height: max(var(--density-folder-min-height, 24px), 24px) !important;
+        width: max(var(--density-folder-min-height, 24px), 24px) !important;
+        line-height: var(--density-folder-line-height, 22px);
+        padding: 0 !important;
+
+        .mat-mdc-button-touch-target {
+            height: max(var(--density-folder-min-height, 24px), 24px) !important;
+            width: max(var(--density-folder-min-height, 24px), 24px) !important;
+        }
     }
 }
 
@@ -1572,7 +1682,6 @@ app-popular-recipients, app-saved-searches {
     }
 }
 
-app-saved-searches .mat-list-base[dense] .mat-list-item,
 app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     height: 30px;
 }
@@ -1623,7 +1732,6 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
         line-height: 12px;
     }
 
-    mat-list-item,
     .mat-mdc-list-item {
         padding: 5px 0;
     }
@@ -2474,27 +2582,24 @@ table.detailsTable tr td:nth-of-type(2) {
     }
 
     // Dialog backgrounds
-    .mat-dialog-container,
     .mat-mdc-dialog-container .mdc-dialog__surface {
         background-color: var(--rmm-bg-secondary);
         color: var(--rmm-text-primary);
     }
 
     // Snackbar
-    .mat-snack-bar-container,
     .mat-mdc-snack-bar-container {
         background-color: var(--rmm-bg-tertiary);
         color: var(--rmm-text-primary);
     }
 
     // Toolbar
-    .mat-toolbar {
+    mat-toolbar {
         background-color: var(--rmm-bg-secondary);
         color: var(--rmm-text-primary);
     }
 
     // Menu panels
-    .mat-menu-panel,
     .mat-mdc-menu-panel {
         background-color: var(--rmm-bg-secondary);
     }
@@ -2511,14 +2616,12 @@ table.detailsTable tr td:nth-of-type(2) {
         color: var(--rmm-text-primary);
     }
 
-    .mat-table,
     .mat-mdc-table {
         background-color: var(--rmm-bg-primary);
     }
 
     // Form fields
-    .mat-form-field,
-    .mat-mdc-form-field {
+    mat-form-field {
         color: var(--rmm-text-primary);
     }
 
@@ -2536,26 +2639,28 @@ table.detailsTable tr td:nth-of-type(2) {
     }
 
     // Lists
-    .mat-list-base,
-    .mat-mdc-list-base {
+    mat-list,
+    mat-nav-list {
         background-color: var(--rmm-bg-primary);
     }
 
-    .mat-list-item,
     .mat-mdc-list-item {
         color: var(--rmm-text-primary);
     }
 
     // Dividers
-    mat-divider,
-    .mat-divider,
-    .mat-mdc-divider {
+    mat-divider {
         border-top-color: var(--rmm-divider-color);
     }
 
     // Links
     a {
         color: var(--rmm-accent-color);
+    }
+
+    // Folder list links should follow theme text colors
+    .mailFolder a {
+        color: var(--rmm-text-primary) !important;
     }
 
     // Page containers and sections
@@ -2748,9 +2853,6 @@ table.detailsTable tr td:nth-of-type(2) {
     }
 
     // Ensure contact list items have dark backgrounds
-    app-contacts-app mat-list,
-    app-contacts-app mat-list-item,
-    app-contacts-app .mat-list-base,
     app-contacts-app .mat-mdc-list,
     app-contacts-app .mat-mdc-list-item,
     app-contacts-app .mat-mdc-list-base {
@@ -2759,14 +2861,13 @@ table.detailsTable tr td:nth-of-type(2) {
     }
 
     // Contact groups and expansion panels
-    app-contacts-app .mat-expansion-panel,
-    app-contacts-app .mat-expansion-panel-header {
+    app-contacts-app .mat-mdc-expansion-panel,
+    app-contacts-app .mat-mdc-expansion-panel-header {
         background-color: var(--rmm-bg-secondary) !important;
         color: var(--rmm-text-primary) !important;
     }
 
     // Contact list hover states
-    app-contacts-app mat-list-item:hover,
     app-contacts-app .mat-mdc-list-item:hover {
         background-color: var(--rmm-bg-tertiary) !important;
     }
@@ -2788,31 +2889,17 @@ table.detailsTable tr td:nth-of-type(2) {
     }
 
     // Selected folder styling - use accent color for better visibility
-    mat-list-item.selectedFolder,
-    .selectedFolder.mat-list-item,
-    .mat-list-item.selectedFolder,
     .mat-mdc-list-item.selectedFolder,
-    app-folder-list mat-list-item.selectedFolder,
-    app-folder-list .mat-mdc-list-item.selectedFolder,
-    mat-nav-list mat-list-item.selectedFolder,
-    mat-nav-list .mat-mdc-list-item.selectedFolder {
+    .selectedFolder {
         background-color: var(--rmm-selected-bg) !important;
     }
 
     .selectedFolder a,
-    mat-list-item.selectedFolder a,
     .mat-mdc-list-item.selectedFolder a,
     .selectedFolder .mdc-list-item__content,
-    mat-list-item.selectedFolder .mdc-list-item__content {
+    .mat-mdc-list-item.selectedFolder .mdc-list-item__content {
         color: var(--rmm-selected-text) !important;
         font-weight: 500 !important;
-    }
-
-    // Override any Material list item colors
-    .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder,
-    .mat-mdc-list .mat-mdc-list-item.selectedFolder {
-        background-color: var(--rmm-selected-bg) !important;
-        color: var(--rmm-selected-text) !important;
     }
 
     // Folder count badges
@@ -2861,28 +2948,18 @@ table.detailsTable tr td:nth-of-type(2) {
         color: var(--rmm-accent-color) !important;
     }
 
-    .mat-menu-panel,
     .mat-mdc-menu-panel {
         background-color: var(--rmm-bg-secondary);
         border: 2px solid var(--rmm-border-color);
     }
 
-    .mat-menu-item,
-    .mat-menu-item .mat-icon:not([color]),
     .mat-mdc-menu-item,
     .mat-mdc-menu-item .mat-icon:not([color]) {
         color: var(--rmm-text-primary) !important;
     }
 
     // Selected folder styling - ensure maximum contrast
-    mat-list-item.selectedFolder,
-    .selectedFolder.mat-list-item,
-    .mat-list-item.selectedFolder,
     .mat-mdc-list-item.selectedFolder,
-    app-folder-list mat-list-item.selectedFolder,
-    app-folder-list .mat-mdc-list-item.selectedFolder,
-    mat-nav-list mat-list-item.selectedFolder,
-    mat-nav-list .mat-mdc-list-item.selectedFolder,
     .mat-mdc-nav-list .mat-mdc-list-item.selectedFolder,
     .mat-mdc-list .mat-mdc-list-item.selectedFolder {
         background-color: var(--rmm-selected-bg) !important;
@@ -2890,10 +2967,9 @@ table.detailsTable tr td:nth-of-type(2) {
     }
 
     .selectedFolder a,
-    mat-list-item.selectedFolder a,
     .mat-mdc-list-item.selectedFolder a,
     .selectedFolder .mdc-list-item__content,
-    mat-list-item.selectedFolder .mdc-list-item__content {
+    .mat-mdc-list-item.selectedFolder .mdc-list-item__content {
         color: var(--rmm-selected-text) !important;
         font-weight: 600 !important;
     }

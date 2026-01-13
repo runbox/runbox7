@@ -2,11 +2,16 @@ mat-nav-list {
     margin-left: 2em;
 }
 
+.mat-mdc-nav-list .mat-mdc-list-item {
+    font-size: 16px;
+}
+
 h4 {
     margin: 0.75em 0;
 }
 
-.mat-mdc-list-base[dense] .mat-mdc-list-item, .mat-mdc-list-base[dense] .mat-mdc-list-option {
+.mat-mdc-list-base[dense] .mat-mdc-list-item,
+.mat-mdc-list-base[dense] .mat-mdc-list-option {
     height: auto;
     min-height: 30px;
 }
