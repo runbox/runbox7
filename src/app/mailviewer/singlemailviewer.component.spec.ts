@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync, flush } from '@angular/core/testing';
 
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
@@ -42,6 +42,7 @@ import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AvatarBarComponent } from './avatar-bar.component';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
@@ -87,6 +88,7 @@ export class ContactsServiceMock {
 describe('SingleMailViewerComponent', () => {
   let component: SingleMailViewerComponent;
   let fixture: ComponentFixture<SingleMailViewerComponent>;
+  let router: Router;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
@@ -172,6 +174,7 @@ describe('SingleMailViewerComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SingleMailViewerComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
     component.messageActionsHandler = new class implements MessageActions {
       mailViewerComponent: SingleMailViewerComponent;
       moveToFolder() {
@@ -227,4 +230,232 @@ describe('SingleMailViewerComponent', () => {
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
+
+  describe('mailto: link interceptor', () => {
+    let messageContentsElement: HTMLElement;
+    let mailtoLink: HTMLAnchorElement;
+    let navigateSpy: jasmine.Spy;
+    let globalPreventListener: (e: Event) => void;
+
+    beforeEach(() => {
+      // Spy on router.navigate before any tests run
+      navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+      
+      // Create a mock messageContents element (don't append to body to avoid navigation issues)
+      messageContentsElement = document.createElement('div');
+      messageContentsElement.id = 'messageContents';
+      
+      // Set up the component's ViewChild reference
+      component.messageContents = {
+        nativeElement: messageContentsElement
+      } as any;
+      
+      // Prevent all mailto: links from opening mail client during tests
+      globalPreventListener = (e: Event) => {
+        const target = e.target as HTMLElement;
+        if (target && target.tagName === 'A') {
+          const href = target.getAttribute('href');
+          if (href && href.toLowerCase().startsWith('mailto:')) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+          }
+        }
+      };
+      // Add at capture phase to catch before anything else
+      document.addEventListener('click', globalPreventListener, true);
+    });
+
+    afterEach(() => {
+      // Clean up - remove any links we created
+      while (messageContentsElement.firstChild) {
+        messageContentsElement.removeChild(messageContentsElement.firstChild);
+      }
+      navigateSpy.calls.reset();
+    });
+    
+    afterAll(() => {
+      // Remove global prevent listener after all tests
+      if (globalPreventListener) {
+        document.removeEventListener('click', globalPreventListener, true);
+      }
+    });
+    
+    afterAll(() => {
+      // Remove global prevent listener after all tests
+      if (globalPreventListener) {
+        document.removeEventListener('click', globalPreventListener, true);
+      }
+    });
+
+    it('should intercept clicks on mailto: links and navigate to compose', fakeAsync(() => {
+      // Create a mailto: link - store href in data attribute to prevent browser from opening mail client
+      mailtoLink = document.createElement('a');
+      const hrefValue = 'mailto:test@example.com';
+      mailtoLink.setAttribute('data-href', hrefValue); // Store in data attribute
+      mailtoLink.href = '#'; // Use non-mailto href to prevent mail client
+      mailtoLink.textContent = 'test@example.com';
+      messageContentsElement.appendChild(mailtoLink);
+
+      // Initialize the interceptor
+      component['initMailtoInterceptor']();
+      tick();
+
+      // Temporarily set the href so our interceptor can read it
+      mailtoLink.setAttribute('href', hrefValue);
+      
+      // Dispatch event on messageContentsElement (where listener is attached) with target set to link
+      // This simulates the capture phase where our listener intercepts before browser processes it
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      // Set the target to the link so the listener can find it
+      Object.defineProperty(clickEvent, 'target', { value: mailtoLink, writable: false });
+      const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
+      
+      // Immediately remove href after setting up event to prevent browser from processing it
+      // But our listener should have already read it
+      setTimeout(() => {
+        mailtoLink.href = '#';
+      }, 0);
+      
+      // Dispatch on messageContentsElement where the capture-phase listener is attached
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      // Verify preventDefault was called
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      
+      // Verify router.navigate was called with correct parameters
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ['/compose'],
+        { queryParams: { to: 'test@example.com' } }
+      );
+    }));
+
+    it('should extract email address from mailto: link correctly', fakeAsync(() => {
+      // Create a mailto: link with query parameters
+      mailtoLink = document.createElement('a');
+      mailtoLink.href = 'mailto:user@example.com?subject=Test&body=Hello';
+      mailtoLink.textContent = 'Email me';
+      messageContentsElement.appendChild(mailtoLink);
+
+      component['initMailtoInterceptor']();
+      tick();
+
+      const clickEvent = new MouseEvent('click', { 
+        bubbles: true, 
+        cancelable: true,
+        view: window
+      });
+      Object.defineProperty(clickEvent, 'target', { value: mailtoLink, writable: false });
+      // Dispatch on messageContentsElement where the capture-phase listener is attached
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      // Should extract just the email address, not the query params
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ['/compose'],
+        { queryParams: { to: 'user@example.com' } }
+      );
+    }));
+
+    it('should handle clicks on nested elements within mailto: links', fakeAsync(() => {
+      // Create a mailto: link with nested content
+      mailtoLink = document.createElement('a');
+      mailtoLink.href = 'mailto:nested@example.com';
+      const span = document.createElement('span');
+      span.textContent = 'Click me';
+      mailtoLink.appendChild(span);
+      messageContentsElement.appendChild(mailtoLink);
+
+      component['initMailtoInterceptor']();
+      tick();
+
+      // Click on the nested span element - listener should walk up to find the anchor
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      Object.defineProperty(clickEvent, 'target', { value: span, writable: false });
+      const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
+      
+      // Dispatch on messageContentsElement where the capture-phase listener is attached
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      // Should still intercept and navigate
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ['/compose'],
+        { queryParams: { to: 'nested@example.com' } }
+      );
+    }));
+
+    it('should handle empty email address gracefully', fakeAsync(() => {
+      // Create a mailto: link without email
+      mailtoLink = document.createElement('a');
+      mailtoLink.href = 'mailto:';
+      mailtoLink.textContent = 'Email';
+      messageContentsElement.appendChild(mailtoLink);
+
+      component['initMailtoInterceptor']();
+      tick();
+
+      const clickEvent = new MouseEvent('click', { 
+        bubbles: true, 
+        cancelable: true,
+        view: window
+      });
+      Object.defineProperty(clickEvent, 'target', { value: mailtoLink, writable: false });
+      const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
+      // Dispatch on messageContentsElement where the capture-phase listener is attached
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      // Verify preventDefault was called to prevent browser navigation
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      
+      // Should still navigate but with empty 'to' parameter
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ['/compose'],
+        { queryParams: { to: '' } }
+      );
+    }));
+
+    it('should remove old event listener when re-initializing', fakeAsync(() => {
+      mailtoLink = document.createElement('a');
+      mailtoLink.href = 'mailto:first@example.com';
+      messageContentsElement.appendChild(mailtoLink);
+
+      // Initialize first time
+      component['initMailtoInterceptor']();
+      tick();
+
+      // Create new element and re-initialize
+      const newMessageContents = document.createElement('div');
+      const oldMessageContents = messageContentsElement;
+      component.messageContents = {
+        nativeElement: newMessageContents
+      } as any;
+
+      const removeEventListenerSpy = spyOn(oldMessageContents, 'removeEventListener');
+      
+      component['initMailtoInterceptor']();
+      tick();
+
+      // Should have removed listener from old element
+      expect(removeEventListenerSpy).toHaveBeenCalled();
+    }));
+
+    it('should not initialize interceptor if messageContents is not available', () => {
+      component.messageContents = null;
+      
+      // Should not throw
+      expect(() => component['initMailtoInterceptor']()).not.toThrow();
+    });
+  });
 });
