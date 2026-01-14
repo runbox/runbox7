@@ -1,6 +1,9 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
+// Set timezone to UTC for consistent test results across platforms
+process.env.TZ = 'UTC';
+
 module.exports = function (config) {
   config.set({
     basePath: '',
