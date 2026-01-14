@@ -16,14 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
+import { Decimal } from 'decimal.js-light';
+
+Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
 
 export class ProductOrder {
     pid:      number;
     type:     string;
     apid?:    number;
-    quantity: number;
+    quantity: Decimal;
 
-    constructor(pid: number, type: string, quantity: number, apid?: number) {
+    constructor(pid: number, type: string, quantity: Decimal, apid?: number) {
         this.pid      = pid;
         this.type     = type;
         this.quantity = quantity;

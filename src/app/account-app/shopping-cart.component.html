@@ -47,14 +47,14 @@
 
     <ng-container matColumnDef="price">
         <th mat-header-cell *matHeaderCellDef> Price </th>
-        <td mat-cell *matCellDef="let i"> {{ i.product.price | number:'1.2-2' }} {{ currency }} </td>
+        <td mat-cell *matCellDef="let i"> {{ i.product.price.toNumber() | number:'1.2-2' }} {{ currency }} </td>
     </ng-container>
 
     <ng-container matColumnDef="total-price">
         <th mat-header-cell *matHeaderCellDef> Total </th>
-        <td mat-cell *matCellDef="let i"> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency }} </td>
+        <td mat-cell *matCellDef="let i"> {{ i.product.price.toNumber() * i.quantity | number:'1.2-2' }} {{ currency }} </td>
         <td mat-footer-cell *matFooterCellDef [ngStyle]="{ 'text-align': mobileQuery.matches ? 'end' : null }">
-            <strong> {{ total | number:'1.2-2' }} {{ currency }} </strong>
+            <strong> {{ total.toNumber() | number:'1.2-2' }} {{ currency }} </strong>
         </td>
     </ng-container>
 
@@ -72,8 +72,8 @@
         <td mat-cell *matCellDef="let i" [attr.colspan]="tableColumns.length">
             <table class="detailsTable">
                 <tr> <td> Quantity         </td> <td> {{ i.quantity }} </td> </tr>
-                <tr> <td> Price (per unit) </td> <td> {{ i.product.price | number:'1.2-2' }} {{ currency }} </td> </tr>
-                <tr> <td> Price (total)    </td> <td> {{ i.product.price * i.quantity | number:'1.2-2' }} {{ currency }} </td> </tr>
+                <tr> <td> Price (per unit) </td> <td> {{ i.product.price.toNumber() | number:'1.2-2' }} {{ currency }} </td> </tr>
+                <tr> <td> Price (total)    </td> <td> {{ i.product.price.toNumber() * i.quantity | number:'1.2-2' }} {{ currency }} </td> </tr>
             </table>
         </td>
     </ng-container>

@@ -23,6 +23,10 @@ import { CartService } from './cart.service';
 import { Product } from './product';
 import { ProductOrder } from './product-order';
 
+import { Decimal } from 'decimal.js-light';
+
+Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
+
 @Component({
     selector: 'app-account-product',
     templateUrl: './account-product.component.html',
@@ -35,7 +39,7 @@ export class ProductComponent implements OnInit {
     @Input() current_sub: Product;
     @Input() me: RunboxMe;
 
-    buy_quantity = 1;
+    buy_quantity = new Decimal(1);
     purchased = false;
 
     is_current_subscription = false;
@@ -54,13 +58,13 @@ export class ProductComponent implements OnInit {
     }
 
     less() {
-        if (this.buy_quantity > 1) {
-            this.buy_quantity--;
+        if (this.buy_quantity.gt(1)) {
+            this.buy_quantity = this.buy_quantity.minus(1);
         }
     }
 
     more() {
-        this.buy_quantity++;
+        this.buy_quantity = this.buy_quantity.plus(1);
     }
 
     order() {

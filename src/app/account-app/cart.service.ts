@@ -24,6 +24,10 @@ import { take } from 'rxjs/operators';
 import { ProductOrder } from './product-order';
 import { StorageService } from '../storage.service';
 
+import { Decimal } from 'decimal.js-light';
+
+Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
+
 @Injectable()
 export class CartService {
     items = new ReplaySubject<ProductOrder[]>(1);
@@ -32,7 +36,7 @@ export class CartService {
         private storage: StorageService,
     ) {
         this.storage.get('shoppingCart').then(cart => {
-          const items = cart ? cart.map(i => new ProductOrder(i.pid, i.type, i.quantity, i.apid)) : [];
+          const items = cart ? cart.map(i => new ProductOrder(i.pid, i.type, new Decimal(i.quantity), i.apid)) : [];
             this.items.next(items);
         });
 
@@ -51,7 +55,7 @@ export class CartService {
             }
             // if an item like this is already ordered, increase the quantity
             if (i.isSameProduct(p) ) {
-                i.quantity += p.quantity;
+                i.quantity = p.quantity.plus(i.quantity);
                 this.items.next(items);
                 return;
             }
@@ -80,8 +84,8 @@ export class CartService {
         // check if it's enough to just reduce the quantity on existing product
         for (const i of items) {
             if (i.isSameProduct(order)) {
-                i.quantity -= order.quantity;
-                const newItems = items.filter(o => o.quantity > 0);
+                i.quantity = i.quantity.minus(order.quantity);
+                const newItems = items.filter(o => o.quantity.gt(0));
                 this.items.next(newItems);
                 return;
             }
