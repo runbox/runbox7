@@ -7,6 +7,9 @@
   "version": "0.1.1",
   "repository": "https://github.com/runbox/runbox7",
   "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=16.20 <18"
+  },
   "scripts": {
     "ng": "ng",
     "appdev": "ng serve --disable-host-check --base-href=/appdev/",
