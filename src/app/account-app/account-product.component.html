@@ -25,7 +25,7 @@
         <mat-icon svgIcon="minus-circle-outline"></mat-icon>
       </button>
       <button mat-button>
-        {{ buy_quantity }}
+        {{ buy_quantity.toNumber() }}
       </button>
       <button mat-icon-button (click)="more()">
         <mat-icon svgIcon="plus-circle-outline"></mat-icon>
@@ -57,7 +57,7 @@
       <span *ngIf="!me.is_trial && p.is_downgrade">Downgrade</span>
       <!-- Catch-all for e.g. 3-year plans when current subscription is 1-year -->
       <span *ngIf="!me.is_trial && !p.is_upgrade && !p.is_downgrade && p.pid !== me.subscription">Renew</span>
-      for {{ currency || "USD" }} {{ p.price | number:'1.2-2' }}
+      for {{ currency || "USD" }} {{ p.price.toNumber() | number:'1.2-2' }}
     </button>
     <ng-template #unpurchase>
       <button mat-raised-button
@@ -77,7 +77,7 @@
 		    color="primary"
 		    class="purchaseButton"
 		    >
-      Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="buy_quantity > 1">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ currency || "USD" }} {{ buy_quantity * p.price | number:'1.2-2' }}
+      Add <span *ngIf="p.subtype === 'subaccount'">account<span *ngIf="buy_quantity.gt(1)">s</span></span><span *ngIf="p.subtype !== 'subaccount'">product</span> for {{ currency || "USD" }} {{ buy_quantity.times(p.price).toNumber() | number:'1.2-2' }}
     </button>
   </mat-card-actions>
 </mat-card>

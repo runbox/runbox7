@@ -31,6 +31,10 @@ import { AsyncSubject } from 'rxjs';
 import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 import { ProductOrder } from './product-order';
 
+import { Decimal } from 'decimal.js-light';
+
+Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
+
 @Component({
     selector: 'app-account-upgrades-component',
     templateUrl: './account-upgrades.component.html',
@@ -43,7 +47,7 @@ export class AccountUpgradesComponent implements OnInit {
     @Input() current_sub: Product;
     @Input() me: RunboxMe;
 
-    quantity = 1;
+    quantity = new Decimal(1);
 
     @ViewChild(RunboxTimerComponent) runboxtimer: RunboxTimerComponent;
 
@@ -89,6 +93,7 @@ export class AccountUpgradesComponent implements OnInit {
             products.map(p => this.cart_items.set(p.pid, false));
             this.cart_items_subject.next(this.cart_items);
             this.cart_items_subject.complete();
+
             const subs_all = products.filter(p => p.type === 'subscription');
             this.subscriptions.next(subs_all);
             this.subscriptions.complete();
@@ -163,7 +168,7 @@ export class AccountUpgradesComponent implements OnInit {
         this.limitedTimeOffer = false;
     }
 
-    orderMainProduct(newProduct: number, type: string, quantity: number) {
+    orderMainProduct(newProduct: number, type: string, quantity: Decimal) {
         this.cart.add(
             new ProductOrder(newProduct, type, quantity)
         );
@@ -176,7 +181,7 @@ export class AccountUpgradesComponent implements OnInit {
             );
         }
         this.cart.add(
-            new ProductOrder(mainProduct.pid, mainProduct.type, 1)
+            new ProductOrder(mainProduct.pid, mainProduct.type, new Decimal(1))
         );
     }
 
@@ -187,7 +192,7 @@ export class AccountUpgradesComponent implements OnInit {
             );
         }
         this.cart.remove(
-            new ProductOrder(mainProduct.pid, mainProduct.type, 1)
+            new ProductOrder(mainProduct.pid, mainProduct.type, new Decimal(1))
         );
         this.cart_items_subject.next(this.cart_items);
         this.cart_items_subject.complete();
