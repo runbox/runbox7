@@ -17,6 +17,10 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { Decimal } from 'decimal.js-light';
+
+Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
+
 export interface QuotaEntry {
     type: string;
     quota: number;
@@ -34,15 +38,24 @@ export class Product {
     name:        string;
     description: string;
     details?:    string[];
-    price:       number;
+    price:       Decimal;
     currency:    string;
     quotas:      QuotaEntryMap;
     sub_product_quota: QuotaEntryMap;
+    over_quota?: any[];
+    addons_needed?: any[];
+    addon_usages?: any[];
+    allow_multiple = false;
+    price_with_addons?: Decimal;
 
     constructor(properties: any) {
         // eslint-disable-next-line guard-for-in
         for (const key in properties) {
-            this[key] = properties[key];
+            if (key === 'price' || key === 'price_with_addons') {
+                this[key] = new Decimal(properties[key]);
+            } else {
+                this[key] = properties[key];
+            }
         }
     }
 }

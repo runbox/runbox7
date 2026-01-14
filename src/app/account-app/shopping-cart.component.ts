@@ -32,6 +32,9 @@ import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Product } from './product';
 import { MobileQueryService } from '../mobile-query.service';
+import { Decimal } from 'decimal.js-light';
+
+Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
 
 enum CartError {
     CANT_LOAD_PRODUCTS,
@@ -80,7 +83,7 @@ export class ShoppingCartComponent implements OnInit {
     // synchronously :)
     currency: string;
 
-    total: number;
+    total: Decimal;
 
     itemsSubject = new Subject<CartItem[]>();
 
@@ -157,9 +160,9 @@ export class ShoppingCartComponent implements OnInit {
     }
 
     calculateTotal(items: CartItem[]) {
-        let total = 0.0;
+        let total = new Decimal(0);
         for (const i of items) {
-            total += i.quantity * i.product.price;
+          total = total.plus(i.quantity.times(i.product.price));
         }
         this.total = total;
     }
@@ -203,6 +206,7 @@ export class ShoppingCartComponent implements OnInit {
                 this.missingProducts.push(i.pid);
             }
             i.product = product;
+            i.quantity = new Decimal(i.quantity);
         }
 
         return cartItems.filter((i: CartItem) => !!i.product);
@@ -226,6 +230,14 @@ export class ShoppingCartComponent implements OnInit {
 
     remove(p: ProductOrder) {
         this.cart.remove(p);
+    }
+
+    less(p: ProductOrder) {
+        this.cart.remove(new ProductOrder(p.pid, p.type, new Decimal(1)));
+    }
+
+    add(p: ProductOrder) {
+        this.cart.add(new ProductOrder(p.pid, p.type, new Decimal(1)));
     }
 
     async initiatePayment(method: string) {

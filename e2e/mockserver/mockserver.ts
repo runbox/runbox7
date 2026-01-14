@@ -327,6 +327,9 @@ END:VCALENDAR
                 case '/rest/v1/account_product/available':
                     response.end(JSON.stringify(this.availableProducts()));
                     break;
+                case '/rest/v1/account_product/upgrades':
+                    response.end(JSON.stringify(this.upgradeProducts()));
+                    break;
                 case '/rest/v1/account_product/active':
                     response.end(JSON.stringify(this.activeProducts()));
                     break;
@@ -339,9 +342,12 @@ END:VCALENDAR
                 case '/rest/v1/account_product/order':
                     response.end(JSON.stringify(this.order()));
                     break;
+                case '/rest/v1/account_product/stripe/pubkey':
+                    response.end(JSON.stringify({'status':'success', 'result': { 'key': 'thestripekey' } }));
+                    break;
                 case '/rest/v1/account_product/payment_methods':
                     response.end(JSON.stringify(this.payment_methods()));
-                break;
+                    break;
                 case '/rest/v1/account/usage':
                     response.end(JSON.stringify(this.usageDetails()));
                     break;
@@ -461,6 +467,7 @@ END:VCALENDAR
                 'last_name': 'Lastname',
                 'first_name': 'Firstname',
                 'username': 'test',
+                'subscription': 1006,
                 'quotas': {
                     'disk_used': 527572608, 'quota_file_size': 10, 'quota': 104857600,
                     'quota_mail_size': null
@@ -597,6 +604,124 @@ END:VCALENDAR
                         'price':       '5.55',
                         'currency':    'EUR',
                         'pid':         '9002',
+                        'description': 'More cool stuff for your account',
+                        "quotas": {
+                            "VirtualDomain": {
+                                "type": "upgrade",
+                                "quota": 1
+                            }
+                        },
+                    }
+                ]
+            }
+        };
+    }
+
+    upgradeProducts() {
+        return {
+            'status': 'success',
+            'result': {
+                'products': [
+                    {
+                        'allow_multiple': false,
+                        'over_quota':  [],
+                        'addons_needed': [],
+                        'addons_usage': [],
+                        'price_with_addons': 13.37,
+                        'name':        'Runbox Test',
+                        'type':        'subscription',
+                        'subtype':     'test',
+                        'price':       13.37,
+                        'currency':    'EUR',
+                        'pid':         1006,
+                        'description': 'Test subscription including some stuff',
+                        "quotas": {
+                            "Alias": {
+                                "quota": 100,
+                                "type": "fixed"
+                            },
+                            "File": {
+                                "type": "fixed",
+                                "quota": 2147483648
+                            },
+                            "Traffic": {
+                                "quota": 10737418240,
+                                "type": "fixed"
+                            },
+                            "VirtualDomain": {
+                                "quota": 10,
+                                "type": "fixed"
+                            },
+                            "Disk": {
+                                "type": "fixed",
+                                "quota": 26843545600
+                            },
+                            "Msg": {
+                                "quota": 5000,
+                                "type": "fixed"
+                            },
+                            "Sent": {
+                                "type": "fixed",
+                                "quota": 500
+                            }
+                        },
+                    },
+                    {
+                        'allow_multiple': false,
+                        'over_quota':  [],
+                        'addons_needed': [],
+                        'addons_usage': [],
+                        'price_with_addons': 13.37,
+                        'name':        'Runbox Test 3-year',
+                        'type':        'subscription',
+                        'subtype':     'test',
+                        'price':        13.37,
+                        'currency':    'EUR',
+                        'pid':          10006,
+                        'description': 'Test subscription including some stuff',
+                        "quotas": {
+                            "Alias": {
+                                "quota": 100,
+                                "type": "fixed"
+                            },
+                            "File": {
+                                "type": "fixed",
+                                "quota": 2147483648
+                            },
+                            "Traffic": {
+                                "quota": 10737418240,
+                                "type": "fixed"
+                            },
+                            "VirtualDomain": {
+                                "quota": 10,
+                                "type": "fixed"
+                            },
+                            "Disk": {
+                                "type": "fixed",
+                                "quota": 26843545600
+                            },
+                            "Msg": {
+                                "quota": 5000,
+                                "type": "fixed"
+                            },
+                            "Sent": {
+                                "type": "fixed",
+                                "quota": 500
+                            }
+                        },
+                    },
+                    {
+                        'allow_multiple': true,
+                        'over_quota':  [],
+                        'addons_needed': [],
+                        'addons_usage': [],
+                        'price_with_addons': 5.55,
+                        'name':        'Runbox Addon',
+                        'type':        'addon',
+                        'subtype':     'emailaddon',
+                        'price':        5.55,
+                        'currency':    'EUR',
+                        'pid':          9002,
                         'description': 'More cool stuff for your account',
                         "quotas": {
                             "VirtualDomain": {
