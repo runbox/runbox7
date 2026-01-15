@@ -52,7 +52,14 @@ export class Product {
         // eslint-disable-next-line guard-for-in
         for (const key in properties) {
             if (key === 'price' || key === 'price_with_addons') {
-                this[key] = new Decimal(properties[key]);
+              this[key] = new Decimal(properties[key]);
+            } else if (key ==='addons_needed') {
+              const addons = properties[key];
+              for (const addon of addons) {
+                addon['quantity'] = new Decimal(addon['quantity']);
+                addon['price'] = new Decimal(addon['price']);
+              }
+              this[key] = addons;
             } else {
                 this[key] = properties[key];
             }
