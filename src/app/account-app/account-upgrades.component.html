@@ -135,6 +135,7 @@
             </ul>
           </div>
           <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price.times(3).toNumber() | number: '1.2-2' }}&nbsp;</div>
+          <ng-container *ngIf="plan.addons_needed.length === 0; else withaddons">
           <mat-card-actions  *ngIf="plan.over_quota.length === 0">
             <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
 		            (click)="order(plan)"
@@ -157,12 +158,43 @@
               </button>
             </ng-template>
           </mat-card-actions>
+          </ng-container>
+          <ng-template #withaddons>
+            <div>
+              Price including addons<br/>
+              {{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2'}}<br />
+              <ul>
+                <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
+              </ul>
+            </div>
+          <mat-card-actions  *ngIf="plan.over_quota.length === 0">
+            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		            (click)="orderWithAddons(plan, plan.addons_needed)"
+		            class="purchaseButtonFeatured {{ plan.subtype }}"
+		            >
+              <span *ngIf="me.is_trial">Subscribe for</span>
+              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+              <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
+              <span *ngIf="!me.is_trial && current_sub && plan.is_upgrade">Upgrade to</span>
+              <span *ngIf="!me.is_trial && current_sub && plan.is_downgrade">Downgrade to</span>
+              {{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2' }}
+            </button>
+            <ng-template #unpurchase>
+              <button mat-raised-button
+		              color="primary"
+                      (click)="unorderWithAddons(plan, plan.addons_needed)"
+		              class="removeButton"
+		              >
+                Remove from cart
+              </button>
+            </ng-template>
+          </mat-card-actions>
+          </ng-template>
           <div>
             Price per year: {{ plan.currency }} {{ plan.price.dividedBy(3).toNumber() | number:'1.2-2' }} <br />
             Price per month: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy(12).toNumber() | number:'1.2-2' }} <br />
             Annual price per GB: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024).toNumber() | number:'1.2-2' }}
           </div>
-          
         </mat-card>        
       </div>
     </div>
