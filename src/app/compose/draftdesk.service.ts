@@ -141,13 +141,14 @@ export class DraftFormModel {
         if (!useHTML && mailObj.rawtext) {
             let replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
             replyHeaderText = replyHeaderText.replaceAll('&gt;', '>');
-            ret.msg_body = '\n' + replyHeaderText + '\n'
+            ret.msg_body = '\n' + '\n' + replyHeaderText + '\n'
           + mailObj.rawtext.split('\n').map((line) => line.indexOf('>') === 0 ? '>' + line : '> ' + line).join('\n');
         } else if (!useHTML && !mailObj.rawtext) {
             ret.msg_body = '';
         } else {
             ret.html =
-                `<br /><div style="padding-left: 10px; border-left: black solid 1px">
+                `<br />
+                <br /><div style="padding-left: 10px; border-left: black solid 1px">
                     <hr style="width: 100%" />
                     ${replyHeaderHTML}<br />
                     ${mailObj.sanitized_html}
