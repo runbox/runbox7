@@ -120,8 +120,8 @@ export class RecipientsService {
             ).then((updateGroups) => {
                 this.updateRecipients(updateGroups);
             }).catch((error) => {
-                console.error(error)
-                return this.recipients.next([])
+                console.error(error);
+                return this.recipients.next([]);
             });
         });
 
@@ -198,8 +198,8 @@ export class RecipientsService {
                             }
                         }
                     ).catch((error) => {
-                        console.error(error)
-                        return null
+                        console.error(error);
+                        return null;
                     })
                 );
             } else if (m.email) {

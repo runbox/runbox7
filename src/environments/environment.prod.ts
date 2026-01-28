@@ -17,9 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import env from './env'
+import env from './env';
 
 export const environment = {
   ...env,
   production: true
-}
+};

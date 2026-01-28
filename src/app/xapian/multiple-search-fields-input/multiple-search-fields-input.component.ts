@@ -54,7 +54,7 @@ export class MultipleSearchFieldsInputComponent implements OnChanges {
       .pipe(distinctUntilChanged())
       .subscribe(() => {
       this.enableDisableUnread();
-      this.buildSearchExpression()
+      this.buildSearchExpression();
     });
   }
 

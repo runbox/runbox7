@@ -45,7 +45,7 @@ export class RunboxLocale {
         try {
             translated = window['getLocale'](key.split('.'));
         } catch (ex) {
-            console.error(ex)
+            console.error(ex);
             console.log('locale translations not found');
         }
         return translated;

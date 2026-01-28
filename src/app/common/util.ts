@@ -73,7 +73,7 @@ export function withKeys(o: object, keys: any[]): object {
     return keys.reduce((acc, k) => {
         if (k in o) { acc[k] = o[k]; }
         return acc;
-    }, {})
+    }, {});
 }
 
 /**

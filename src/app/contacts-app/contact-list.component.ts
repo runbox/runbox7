@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Contact } from './contact';
 
@@ -28,7 +28,7 @@ type SelectionEvent = Set<string>;
     styleUrls: ['contacts-app.component.scss'],
     templateUrl: './contact-list.component.html'
 })
-export class ContactListComponent {
+export class ContactListComponent implements OnChanges {
     @Input() contacts: Contact[];
 
     @Input() categories: string[] = [];

@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { firstValueFrom, ReplaySubject} from 'rxjs';
 import { take } from 'rxjs/operators';
 import { ProfileService } from '../profiles/profile.service';
@@ -53,7 +53,7 @@ import { PreferencesService } from '../common/preferences.service';
         </div>
     `,
 })
-export class AvatarBarComponent implements OnInit {
+export class AvatarBarComponent implements OnInit, OnChanges {
     @Input() email: {
         from: string[],
         to:   string[],

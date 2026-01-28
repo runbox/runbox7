@@ -70,7 +70,7 @@ describe('AliasesListerComponent', () => {
                             return of({
                                 status: 'error',
                                 result: 'unimplemented'
-                            })
+                            });
                         }
                     }
                 } },
@@ -94,11 +94,11 @@ describe('AliasesListerComponent', () => {
         });
         fixture = TestBed.createComponent(AliasesListerComponent);
         component = fixture.componentInstance;
-    })
+    });
 
     it('loads aliases through RMM', () => {
         expect(component.aliases).toEqual(ALIASES);
-    })
+    });
 
     it('sets the default email to current user email', () => {
         expect(component.defaultEmail).toBe(DEFAULT_EMAIL);

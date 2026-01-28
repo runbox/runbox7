@@ -258,7 +258,7 @@ export class ContactsAppComponent {
         try {
             contacts = Contact.fromVcf(vcf);
         } catch (e) {
-            console.error(e)
+            console.error(e);
             if (warning) {
                 // we predicted this:
                 this.showError('Only .vcf contacts files are supported, this does not look like one');

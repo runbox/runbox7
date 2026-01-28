@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
@@ -29,7 +29,7 @@ import { RunboxMe } from '../rmmapi/rbwebmail';
     selector: 'rmm-headertoolbar',
     templateUrl: 'headertoolbar.component.html'
 })
-export class HeaderToolbarComponent {
+export class HeaderToolbarComponent implements OnInit {
 
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     user_is_trial = false;

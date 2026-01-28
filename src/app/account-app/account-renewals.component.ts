@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
@@ -232,7 +232,7 @@ Warning: You are close to your quotas for this product
 </ng-template>
     `,
 })
-export class AccountRenewalsRenewNowButtonComponent {
+export class AccountRenewalsRenewNowButtonComponent implements OnInit {
     @Input() p: ActiveProduct;
     @Input() usage: DataUsageInterface;
     @Output() clicked: EventEmitter<void> = new EventEmitter();

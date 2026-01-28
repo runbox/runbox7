@@ -223,7 +223,7 @@ export class SearchService {
                   db.close();
                 };
               } catch (e) {
-                console.error(e)
+                console.error(e);
                 console.log('Unable to open local xapian index', (e ? e.message : ''));
                 db.close();
                 observer.next(false);
@@ -366,7 +366,7 @@ export class SearchService {
                 this.indexLastUpdateTime = new Date().getTime();
               }
             } catch (e) {
-              console.error(e)
+              console.error(e);
               if (!this.updateIndexLastUpdateTime()) {
                 // Corrupt xapian index - delete it and subscribe to changes (fallback to websocket search)
                 // Deal with this on the non-worker side, then tell it to
@@ -386,7 +386,7 @@ export class SearchService {
 
 
           } catch (e) {
-            console.error(e)
+            console.error(e);
             console.log('No xapian db');
             this.initSubject.next(false);
           }
@@ -411,7 +411,7 @@ export class SearchService {
         }
       });
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -560,7 +560,7 @@ export class SearchService {
         try {
           FS.stat(XAPIAN_GLASS_WR);
         } catch (e) {
-          console.error(e)
+          console.error(e);
           FS.mkdir(XAPIAN_GLASS_WR);
         }
 
@@ -787,7 +787,7 @@ export class SearchService {
                         try {
                           FS.stat(`${this.partitionsdir}/${dirname}`);
                         } catch (e) {
-                          console.error(e)
+                          console.error(e);
                           FS.mkdir(`${this.partitionsdir}/${dirname}`);
                         }
 
