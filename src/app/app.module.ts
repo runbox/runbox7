@@ -202,7 +202,7 @@ const routes: Routes = [
         { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
         { provide: ErrorHandler, useClass: SentryErrorHandler },
         { provide: SwRegistrationOptions,
-          useFactory: () => ({ registrationStrategy: 'registerWithDelay:5000' }) }
+          useFactory: () => ({ registrationStrategy: 'registerWhenStable:30000' }) }
     ],
     bootstrap: [MainContainerComponent]
 })
