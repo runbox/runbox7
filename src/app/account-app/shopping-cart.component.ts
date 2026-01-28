@@ -20,7 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog as MatDialog, MatDialogRef as MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 
 import { CartService } from './cart.service';
 import { BitpayPaymentDialogComponent } from './bitpay-payment-dialog.component';
@@ -177,7 +177,7 @@ export class ShoppingCartComponent implements OnInit {
         // maybe there is a more elegant way to do this, but it's concise and works :)
         const cartItems = JSON.parse(JSON.stringify(items));
 
-        let products = await this.paymentsservice.products.toPromise();
+        let products = await firstValueFrom(this.paymentsservice.products);
 
         // Check if all the products in the cart had their details in the paymentservice.
         // This may not be true if they're coming from the URL for instance,
@@ -192,7 +192,7 @@ export class ShoppingCartComponent implements OnInit {
         }
         const neededPids = Array.from(neededPidsSet.values());
         if (neededPids.length > 0) {
-            const extras = await this.rmmapi.getProducts(neededPids).toPromise();
+            const extras = await firstValueFrom(this.rmmapi.getProducts(neededPids));
             if (extras.length !== neededPids.length) {
                 console.warn(`Failed to load products ${neededPids.join(',')} (got: ${JSON.stringify(extras)})`);
             }
@@ -213,7 +213,7 @@ export class ShoppingCartComponent implements OnInit {
     }
 
     async checkIfLegal(items: CartItem[]) {
-        const me = await this.rmmapi.me.toPromise();
+        const me = await firstValueFrom(this.rmmapi.me);
 
         this.orderError = undefined; // unless we find something else :)
 

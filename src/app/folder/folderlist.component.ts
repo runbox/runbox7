@@ -25,7 +25,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 import { FolderMessageCountMap } from '../rmmapi/messagelist.service';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { first, map, filter, take } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import {ExtendedKeyboardEvent, Hotkey, HotkeysService} from 'angular2-hotkeys';
@@ -366,7 +366,7 @@ export class FolderListComponent implements OnChanges {
             return;
         }
 
-        const folders = await this.folders.pipe(take(1)).toPromise();
+        const folders = await firstValueFrom(this.folders.pipe(take(1)));
         let sourceIndex = folders.findIndex(fld => fld.folderId === sourceFolderId);
         let destinationIndex = folders.findIndex(folder => folder.folderId === destinationFolderId);
 

@@ -20,7 +20,7 @@
 import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent } from './folderlist.component';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { TestBed } from '@angular/core/testing';
 import { take } from 'rxjs/operators';
@@ -76,19 +76,19 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 6 above 5');
         await comp.folderReorderingDrop(6, 5, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 6, 5, 7]);
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 1, 2, 2, 2, 0]);
 
         console.log('move folder with id 6 above 5 - should not cause any changes');
         await comp.folderReorderingDrop(6, 5, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 6, 5, 7]);
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 1, 2, 2, 2, 0]);
 
         console.log('move folder with id 6 below 5');
         comp.folderReorderingDrop(6, 5, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(moveEvent.order).toEqual([1, 2, 3, 4, 5, 6, 7]);
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 5, 6, 7]);
@@ -96,7 +96,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 5 below 7');
         comp.folderReorderingDrop(5, 7, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(moveEvent.order).toEqual([1, 2, 3, 4, 6, 7, 5]);
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 6, 7, 5]);
@@ -105,7 +105,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 5 inside 7');
         comp.folderReorderingDrop(5, 7, DropPosition.INSIDE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 2, 3, 4, 6, 7, 5]);
         expect(rearrangedFolders[6].folderPath).toBe('folder3.subsubfolder2');
@@ -113,7 +113,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 7 above 1');
         comp.folderReorderingDrop(7, 1, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([7, 5, 1, 2, 3, 4, 6]);
         expect(rearrangedFolders[0].folderPath).toBe('folder3');
@@ -122,7 +122,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 7 below 1');
         comp.folderReorderingDrop(7, 1, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 5, 2, 3, 4, 6]);
         expect(rearrangedFolders[1].folderPath).toBe('folder3');
@@ -131,7 +131,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 4 above 7');
         comp.folderReorderingDrop(4, 7, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 7, 5, 2, 3, 6]);
         expect(rearrangedFolders[1].folderPath).toBe('subsubfolder');
@@ -141,7 +141,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 5 below 7');
         comp.folderReorderingDrop(5, 7, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
         expect(rearrangedFolders[2].folderPath).toBe('folder3');
         expect(rearrangedFolders[3].folderPath).toBe('subsubfolder2');
@@ -150,7 +150,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 6 below 3');
         comp.folderReorderingDrop(6, 3, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 7, 5, 2, 3, 6]);
@@ -158,7 +158,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 6 inside 7');
         comp.folderReorderingDrop(6, 7, DropPosition.INSIDE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 7, 6, 5, 2, 3]);
@@ -166,7 +166,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 3 above 7');
         comp.folderReorderingDrop(3, 7, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 3, 7, 6, 5, 2]);
@@ -174,7 +174,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 6 above 4');
         comp.folderReorderingDrop(6, 4, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 6, 4, 3, 7, 5, 2]);
@@ -182,7 +182,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 6 inside 4');
         comp.folderReorderingDrop(6, 4, DropPosition.INSIDE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 6, 3, 7, 5, 2]);
@@ -190,7 +190,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 3 inside 5');
         comp.folderReorderingDrop(3, 5, DropPosition.INSIDE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 4, 6, 7, 5, 3, 2]);
@@ -198,7 +198,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 4 above 5');
         comp.folderReorderingDrop(4, 5, DropPosition.ABOVE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 4, 6, 5, 3, 2]);
@@ -206,7 +206,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 6 below 7');
         comp.folderReorderingDrop(6, 7, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 6, 4, 5, 3, 2]);
@@ -214,7 +214,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 2 inside 3');
         comp.folderReorderingDrop(2, 3, DropPosition.INSIDE);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 6, 4, 5, 3, 2]);
@@ -222,7 +222,7 @@ describe('FolderListComponent', () => {
 
         console.log('move folder with id 4 below 3');
         comp.folderReorderingDrop(4, 3, DropPosition.BELOW);
-        rearrangedFolders = await comp.folders.pipe(take(1)).toPromise();
+        rearrangedFolders = await firstValueFrom(comp.folders);
         console.log(rearrangedFolders.map(f => f.folderId));
 
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 6, 5, 3, 2, 4]);
@@ -244,7 +244,7 @@ describe('FolderListComponent', () => {
             foldersSubject.next([...folders, new FolderListEntry(3, 50, 40, 'user', ev.name, 'folder2', 0)])
         );
         comp.addFolder();
-        const newListOfFolders = await comp.folders.pipe(take(1)).toPromise();
+        const newListOfFolders = await firstValueFrom(comp.folders);
 
         console.log(newListOfFolders);
 

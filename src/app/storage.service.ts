@@ -19,7 +19,7 @@
 
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 import { Injectable } from '@angular/core';
-import { AsyncSubject, ReplaySubject } from 'rxjs';
+import { AsyncSubject, firstValueFrom, ReplaySubject } from 'rxjs';
 
 @Injectable()
 export class StorageService {
@@ -36,7 +36,7 @@ export class StorageService {
     }
 
     private async userKey(key: string): Promise<string> {
-        const uid = await this.uid.toPromise();
+        const uid = await firstValueFrom(this.uid);
         return `${uid}:${key}`;
     }
 

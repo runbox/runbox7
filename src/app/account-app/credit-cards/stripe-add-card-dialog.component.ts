@@ -64,8 +64,8 @@ export class StripeAddCardDialogComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        await stripeLoader.toPromise();
-        const stripePubkey = await this.paymentsservice.stripePubkey.toPromise();
+        await firstValueFrom(stripeLoader);
+        const stripePubkey = await firstValueFrom(this.paymentsservice.stripePubkey);
         const customerSession = await firstValueFrom(this.paymentsservice.customerSession());
 
         this.stripe = Stripe(stripePubkey);

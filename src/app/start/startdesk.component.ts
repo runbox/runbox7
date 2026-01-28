@@ -27,7 +27,7 @@ import { Contact } from '../contacts-app/contact';
 import { SearchService, SearchIndexDocumentData } from '../xapian/searchservice';
 import { isValidEmail } from '../compose/emailvalidator';
 import { filter, take } from 'rxjs/operators';
-import { ReplaySubject } from 'rxjs';
+import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { ProfileService } from '../profiles/profile.service';
 import { UsageReportsService } from '../common/usage-reports.service';
 
@@ -267,7 +267,7 @@ export class StartDeskComponent implements OnInit {
 
     private async extractMailingLists(messages: SearchIndexDocumentData[]): Promise<Set<string>> {
         const possibleMailingLists = new Map<string, number>();
-        const ownAddresses = await this.ownAddresses.pipe(take(1)).toPromise();
+        const ownAddresses = await firstValueFrom(this.ownAddresses.pipe(take(1)));
 
         for (const message of messages) {
             if (!message.recipients.find(r => ownAddresses.has(r.toLowerCase()))) {

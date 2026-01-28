@@ -21,7 +21,7 @@ import { CartService } from './cart.service';
 import { ProductOrder } from './product-order';
 import { StorageService } from '../storage.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Decimal } from 'decimal.js-light';
 
@@ -49,7 +49,7 @@ describe('CartService', () => {
 
         const order = new ProductOrder(401,'subscription', new Decimal(3), 402);
         await cart.add(order);
-        console.log(await cart.items.pipe(take(1)).toPromise());
+        console.log(await firstValueFrom(cart.items));
         expect(await cart.contains(401, 402)).toBe(true, 'cart contains the renewal product');
         expect(await cart.contains(401)).toBe(false, 'cart does not contain the new product');
     });
