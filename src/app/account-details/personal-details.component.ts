@@ -21,7 +21,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { RMM } from '../rmm';
 import { map } from 'rxjs/operators';
 import { AccountDetailsInterface } from '../rmm/account-details';
@@ -109,10 +109,9 @@ export class PersonalDetailsComponent {
     }
 
     loadTimezones() {
-        this.http
+        firstValueFrom(this.http
             .get('/rest/v1/timezones')
-            .pipe(map((res: HttpResponse<any>) => res['result']))
-            .toPromise()
+            .pipe(map((res: HttpResponse<any>) => res['result'])))
             .then((data) => this.timezones = data.timezones);
     }
 
@@ -126,10 +125,9 @@ export class PersonalDetailsComponent {
     }
 
     private loadSelectFields() {
-        this.http
+        firstValueFrom(this.http
             .get('/rest/v1/account/details')
-            .pipe(map((res: HttpResponse<any>) => res['result']))
-            .toPromise()
+            .pipe(map((res: HttpResponse<any>) => res['result'])))
             .then((data) => {
                 this.selectedCountry = data.country;
                 this.selectedTimezone = data.timezone;

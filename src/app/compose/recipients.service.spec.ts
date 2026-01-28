@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2020 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -22,7 +22,7 @@ import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { SearchService, XAPIAN_GLASS_WR } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
-import { AsyncSubject, of, Subject } from 'rxjs';
+import { AsyncSubject, of, Subject, firstValueFrom, lastValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -109,7 +109,7 @@ describe('RecipientsService', () => {
         const recipientsService = TestBed.inject(RecipientsService);
 
         // Take 2 as searchindex+contacts service are separate updates
-        const recipients = await recipientsService.recipients.pipe(take(2)).toPromise();
+        const recipients = await lastValueFrom(recipientsService.recipients.pipe(take(2)));
         console.log(recipients);
 
         expect(window['termlistresult'].length).toBe(5);
@@ -136,7 +136,7 @@ describe('RecipientsService', () => {
         };
 
         const recipientsService: RecipientsService = TestBed.inject(RecipientsService);
-        const suggested = await recipientsService.recentlyUsed.pipe(take(1)).toPromise();
+        const suggested = await firstValueFrom(recipientsService.recentlyUsed);
 
         expect(suggested.length).toBe(2);
     });

@@ -21,7 +21,7 @@
 
 import '../sentry';
 
-import { Observer, Observable, of, from, AsyncSubject } from 'rxjs';
+import { Observer, Observable, of, from, AsyncSubject, firstValueFrom, lastValueFrom } from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
@@ -147,7 +147,7 @@ class SearchIndexService {
           db.close();
         };
       } catch (e) {
-        console.error(e)
+        console.error(e);
         console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
         // console.log('Worker: Req failed');
@@ -237,7 +237,7 @@ class SearchIndexService {
         }
       });
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -273,7 +273,7 @@ class SearchIndexService {
       try {
         FS.unlink('xapianglass');
       } catch (e) {
-        console.error(e)
+        console.error(e);
       }
 
 
@@ -535,8 +535,8 @@ not matching with rest api counts for current folder`);
                     (result) => console.log(result.result.result.msg)
                   ).catch(
                     (err) => {
-                      console.error(err)
-                      console.log('Error updating folder counts: ' + err.errors.join(','))
+                      console.error(err);
+                      console.log('Error updating folder counts: ' + err.errors.join(','));
                     }
                   );
                 }
@@ -556,7 +556,7 @@ not matching with rest api counts for current folder`);
                 try {
                   this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
                 } catch (e) {
-                  console.error(e)
+                  console.error(e);
                   console.error('Worker: Unable to delete message from index', msgid);
                 }
               })
@@ -681,7 +681,7 @@ not matching with rest api counts for current folder`);
           this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
 
           if (searchIndexDocumentUpdates.length > 0) {
-            await this.postMessagesToXapianWorker(searchIndexDocumentUpdates).toPromise();
+            await lastValueFrom(this.postMessagesToXapianWorker(searchIndexDocumentUpdates));
           }
 
           // Look up messages with missing body text term and add the missing text to the index
@@ -713,7 +713,7 @@ not matching with rest api counts for current folder`);
                   console.error('Worker: Failed to add text to document', messageId, e);
                 }
               });
-            })).toPromise();
+            }));
           }
       } else {
         // localsearchactivated is off
@@ -861,7 +861,7 @@ not matching with rest api counts for current folder`);
 
           if (this.persistIndexInProgressSubject) {
             // Wait for persistence of index to finish before doing more work on the index
-            await this.persistIndexInProgressSubject.toPromise();
+            await firstValueFrom(this.persistIndexInProgressSubject);
           }
           setTimeout(() => processMessage(), 1);
 
@@ -872,7 +872,7 @@ not matching with rest api counts for current folder`);
             this.indexNotPersisted = true;
           }
           this.api.commitXapianUpdates();
-          await this.persistIndex().toPromise();
+          await lastValueFrom(this.persistIndex());
 
           if (hasProgressSnackBar) {
             ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});

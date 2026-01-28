@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { StorageService } from '../storage.service';
@@ -83,7 +83,7 @@ export class SavedSearchesService {
     private async uploadSeachData() {
         const data: SavedSearchStorage = {
             version: this.version,
-            entries: await this.searches.pipe(take(1)).toPromise(),
+            entries: await firstValueFrom(this.searches.pipe(take(1))),
         };
         this.rmmapi.setSavedSearches(data).subscribe(
             newData => this.applySyncedData(newData)

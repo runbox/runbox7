@@ -19,7 +19,7 @@
 
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMMAuthGuardService } from '../rmmapi/rmmauthguard.service';
 
@@ -54,7 +54,7 @@ export class NoProductsForSubaccountsGuard  {
           (success) => {
               if (typeof(success) === 'boolean' && success) {
                   if (restricted) {
-                      return this.rmmapi.me.toPromise().then(me => {
+                      return firstValueFrom(this.rmmapi.me).then(me => {
                           if (me.owner) {
                               return this.router.parseUrl('/account/not-for-subaccounts');
                           } else {

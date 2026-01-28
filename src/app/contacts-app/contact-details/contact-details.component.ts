@@ -31,6 +31,7 @@ import { MobileQueryService } from '../../mobile-query.service';
 import { ContactPickerDialogComponent } from '../contact-picker-dialog.component';
 import { AppSettings } from '../../app-settings';
 import { DraftDeskService } from '../../compose/draftdesk.service';
+import { firstValueFrom } from 'rxjs';
 import { RunboxWebmailAPI } from '../../rmmapi/rbwebmail';
 import { OnscreenComponent } from '../../onscreen/onscreen.component';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
@@ -329,7 +330,7 @@ export class ContactDetailsComponent {
     }
 
     async askForMoreMembers(): Promise<void> {
-        let contacts = await this.contactsservice.contactsSubject.pipe(take(1)).toPromise();
+        let contacts = await firstValueFrom(this.contactsservice.contactsSubject.pipe(take(1)));
         contacts = contacts.filter(c => {
             if (c.kind !== ContactKind.INVIDIDUAL) {
                 return false;
@@ -408,14 +409,14 @@ export class ContactDetailsComponent {
     }
 
     async newVideoCall(email: string) {
-        const name = await this.dialog.open(SimpleInputDialog, {
+        const name = await firstValueFrom(this.dialog.open(SimpleInputDialog, {
             data: new SimpleInputDialogParams(
                 'Meeting invitation',
                 'Pick a name for your meeting',
                 'Meeting name (optional)',
             )
-        }).afterClosed().toPromise();
-        const me = await this.rmmapi.me.toPromise();
+        }).afterClosed());
+        const me = await firstValueFrom(this.rmmapi.me);
         const meetingCode = OnscreenComponent.generateMeetingName(name, me.uid.toString());
         const meetingUrl = new URL(this.location.prepareExternalUrl(`/onscreen/${meetingCode}`), window.location.origin);
         this.draftDeskService.newVideoCallInvite(email, meetingUrl).then(() => {
