@@ -264,7 +264,7 @@ export class DraftDeskService {
                     && prev.every((f, index) =>
                         objectEqualWithKeys(f, curr[index], [
                             'folderId', 'totalMessages', 'newMessages'
-                        ]))
+                        ]));
             }))
             .subscribe((folders) => {
                 this.refreshDrafts();
@@ -317,8 +317,8 @@ export class DraftDeskService {
 
         this.rmmapi.getMessageContents(messageId).subscribe((contents) => {
             const res: any = Object.assign({}, contents);
-            const {subject} = res.headers
-            let { to } = res.headers
+            const {subject} = res.headers;
+            let { to } = res.headers;
 
             if (to) {
                 to = new MailAddressInfo(to.value.name, to.value.address).nameAndAddress;
@@ -329,14 +329,14 @@ export class DraftDeskService {
                 this.mainIdentity(),
                 to,
                 subject
-            )
+            );
 
             draftFormModel.tid = messageId;
             draftFormModel.msg_body = contents.text.text;
             draftFormModel.html = contents.text.html;
 
             return this.newDraft(draftFormModel);
-        })
+        });
     }
 
     public async newBugReport(

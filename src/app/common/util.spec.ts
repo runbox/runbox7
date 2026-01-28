@@ -104,53 +104,53 @@ describe('withKeys', () => {
     });
 
     it('can fetch nested items', () => {
-        expect(withKeys(o, ['c'])).toEqual({c: [3, 4]})
+        expect(withKeys(o, ['c'])).toEqual({c: [3, 4]});
     });
 
     it('returns an empty object if all keys dont exist', () => {
-        expect(withKeys(o, ['x', 'y', 'z'])).toEqual({})
+        expect(withKeys(o, ['x', 'y', 'z'])).toEqual({});
     });
 
     it('returns an empty object if no keys are provided', () => {
         expect(withKeys(o, [])).toEqual({});
     });
-})
+});
 
 describe('objectEqualWithKeys', () => {
     const o = {a: 1, b: 2, c: [3, 4], d: {e: 5}};
 
     // since they are both empty objects
     it('matches when no keys are specified', () => {
-        expect(objectEqualWithKeys(o, o, [])).toBeTrue()
-        expect(objectEqualWithKeys(o, {}, [])).toBeTrue()
-        expect(objectEqualWithKeys({}, {}, [])).toBeTrue()
+        expect(objectEqualWithKeys(o, o, [])).toBeTrue();
+        expect(objectEqualWithKeys(o, {}, [])).toBeTrue();
+        expect(objectEqualWithKeys({}, {}, [])).toBeTrue();
     });
 
     it('matches when provided keys that exist', () => {
-        expect(objectEqualWithKeys(o, o, ['a', 'b'])).toBeTrue()
-        expect(objectEqualWithKeys(o, o, ['a', 'b', 'c', 'd'])).toBeTrue()
+        expect(objectEqualWithKeys(o, o, ['a', 'b'])).toBeTrue();
+        expect(objectEqualWithKeys(o, o, ['a', 'b', 'c', 'd'])).toBeTrue();
     });
 
     // again, they are both empty objects
     it('matches when provided keys that dont exist', () => {
-        expect(objectEqualWithKeys(o, o, ['f', 'g', 'h'])).toBeTrue()
+        expect(objectEqualWithKeys(o, o, ['f', 'g', 'h'])).toBeTrue();
     });
 
     it('matches only by keys, ignoring other values', () => {
-        expect(objectEqualWithKeys(o, {a: 1, b: 2, c: 32}, ['a', 'b'])).toBeTrue()
+        expect(objectEqualWithKeys(o, {a: 1, b: 2, c: 32}, ['a', 'b'])).toBeTrue();
     });
 
     it('matches nested objects and arrays', () => {
-        expect(objectEqualWithKeys(o, {a: 25, c: [3, 4], d: {e: 5}}, ['c', 'd'])).toBeTrue()
+        expect(objectEqualWithKeys(o, {a: 25, c: [3, 4], d: {e: 5}}, ['c', 'd'])).toBeTrue();
     });
 
     it('fails to match if values are different', () => {
-        expect(objectEqualWithKeys(o, {a: 222, b: 123}, ['a', 'b'])).toBeFalse()
-        expect(objectEqualWithKeys(o, {c: [4, 5]}, ['c'])).toBeFalse()
-        expect(objectEqualWithKeys(o, {d: {e: 6}}, ['d'])).toBeFalse()
+        expect(objectEqualWithKeys(o, {a: 222, b: 123}, ['a', 'b'])).toBeFalse();
+        expect(objectEqualWithKeys(o, {c: [4, 5]}, ['c'])).toBeFalse();
+        expect(objectEqualWithKeys(o, {d: {e: 6}}, ['d'])).toBeFalse();
     });
 
     it('fails to match if comparison object is empty', () => {
-        expect(objectEqualWithKeys(o, {}, ['a', 'b'])).toBeFalse()
+        expect(objectEqualWithKeys(o, {}, ['a', 'b'])).toBeFalse();
     });
 });

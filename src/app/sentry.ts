@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { environment } from '../environments/environment'
+import { environment } from '../environments/environment';
 import * as Sentry from '@sentry/browser';
 
 Sentry.init({

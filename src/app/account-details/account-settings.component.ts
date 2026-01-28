@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncSubject } from 'rxjs';
 import { share, timeout } from 'rxjs/operators';
 import { RMM } from '../rmm';
@@ -28,7 +28,7 @@ import { AccountSettingsInterface } from '../rmm/account-settings';
     templateUrl: './account-settings.component.html',
     styleUrls: ['account-details.component.scss'],
 })
-export class AccountSettingsComponent {
+export class AccountSettingsComponent implements OnInit {
     displayedColumns: string[] = ['description', 'status'];
     settings = new AsyncSubject<AccountSettingsInterface[]>();
     settingsArray = [];

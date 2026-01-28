@@ -46,7 +46,7 @@ declare const MailParser;
 
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
-const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename='
+const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename=';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -216,7 +216,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 // have autosave until it was saved as a draft.
                 if (this.model.tid) return;
 
-                this.submit(false)
+                this.submit(false);
             });
 
         this.formGroup.controls.from.valueChanges
@@ -471,8 +471,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     public loadDraft(msgObj) {
         if (msgObj.errors) {
-            this.snackBar.open(msgObj.errors[0], 'Ok')
-            throw msgObj
+            this.snackBar.open(msgObj.errors[0], 'Ok');
+            throw msgObj;
         }
 
         const model = new DraftFormModel();
@@ -869,7 +869,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public saveTemplate() {
-        this.isTemplate = true
+        this.isTemplate = true;
         this.submit(false);
     }
 
