@@ -32,7 +32,7 @@ $rmm-darker-background:     #01001c;
 $rmm-gray:                  #dddddd;
 $rmm-gray-light:            #eeeeee;
 $rmm-gray-lighter:          #f3f3f3;
-    
+
 $rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
 
 $rmm-default-lighter-gray: #eeeeee;
@@ -41,24 +41,6 @@ $rmm-default-dark-gray: #949494;
 $rmm-default-black: #444444;
 
 @include mat.all-legacy-component-themes($rmm-default-theme);
-
-// GTA 13.06.2018: Load custom fonts
-
-@font-face {
-    font-family: "Avenir Next Pro Regular";
-    src: url("assets/AvenirNextLTPro-Regular.otf");
-    src: url("assets/Avenir-Next-LT-Pro.ttf");
-    font-style: normal;
-    font-weight: normal;
-}
-
-@font-face {
-    font-family: "Avenir Next Pro Medium";
-    src: url("assets/AvenirNextLTPro-Medium.otf");
-    src: url("assets/AvenirNextLTPro-Medium.ttf");
-    font-style: normal;
-    font-weight: normal;
-}
 
 // GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
 
@@ -159,7 +141,7 @@ a[mat-list-item] .mat-list-item-content {
     min-height: 24px !important;
 }
 
-.mat-list[dense] .mat-list-item .mat-list-text, 
+.mat-list[dense] .mat-list-item .mat-list-text,
 .mat-nav-list[dense] .mat-list-item .mat-list-text>*,
 mat-list-item .mat-list-text,
 a[mat-list-item] .mat-list-text {
@@ -313,21 +295,21 @@ mat-grid-tile.tableTitle {
 	height: 16px;
 	width: 42px;
     }
-    
+
     .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
 	top: -5px;
 	transform: translate3d(20px, 0, 0);
     }
-    
+
     .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
 	height: 24px;
 	width: 24px;
     }
-    
+
     .mat-slide-toggle-label {
 	font-size: 16px;
     }
-    
+
     .mat-slide-toggle-content {
 	margin-left: 2px;
     }
@@ -394,12 +376,12 @@ mat-grid-tile.tableTitle {
 /*** Main ***/
 
 #main {
-    position: fixed; 
-    top: 0px; 
-    bottom: 0px; 
-    left: 0px; 
-    right: 0px; 
-    width: 100%; 
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    width: 100%;
     height: 100%;
     min-height: 100%;
     display: flex;
@@ -439,7 +421,7 @@ mat-grid-tile.tableTitle {
 	display: none;
 	margin: 0;
     }
-    
+
     #logo {
 	margin: 0;
 	width: 300px;
@@ -518,7 +500,7 @@ div.loginScreen {
 	mat-form-field {
 	    width: 200px;
 	}
-    }	
+    }
     #loginOptions {
         display: flex;
         margin: 0.5em;
@@ -724,8 +706,8 @@ rmm-headertoolbar {
 /* Sidenav pane */
 
 mat-sidenav-container {
-    position: absolute !important; 
-    bottom: 0px !important; 
+    position: absolute !important;
+    bottom: 0px !important;
     left: 0px !important;
     right: 0px !important;
     width: 100% !important;
@@ -782,7 +764,7 @@ mat-sidenav-container {
     .mat-mini-fab .mat-button-wrapper {
         line-height: 18px;
     }
-    
+
     a {
         width: 30%;
     }
@@ -936,7 +918,7 @@ rmm-folderlist {
 }
 
 .foldersidebarcount {
-    font-size: 10px; 
+    font-size: 10px;
 }
 
 .draftsFolder {
@@ -982,7 +964,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     flex-grow: 1;
     overflow: hidden;
 }
-                             
+
 .messageListActionButtonsRight button {
     width: 30px; // Remember to also update TOOLBAR_LIST_BUTTON_WIDTH in app.component.ts in order to show the correct number of menu items
 }
@@ -1008,7 +990,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
     button {
         margin-right: 10px;
-        
+
         @media(max-width: 540px) {
             margin-right: 2px;
             height: 30px;
@@ -1022,7 +1004,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 
 #offerLocalIndex .mat-list-item-content {
     padding: 0 5px;
-}    
+}
 
 #searchField {
     flex-grow: 10;
@@ -1097,7 +1079,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 .mat-icon, .mat-icon-button {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
-    
+
 @media (max-width: 540px) {
     #threadedCheckbox {
 	display: none;
@@ -1172,7 +1154,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     .mat-radio-label-content {
 	padding: 0 !important;
     }
-    
+
     button, .mat-radio-button, .mat-checkbox {
 	margin-left: 5px;
     }
@@ -1195,7 +1177,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     .mat-icon  {
 	margin: 0 3px !important;
     }
-    
+
     mat-flat-button, .mat-flat-button, mat-raised-button, .mat-raised-button {
 	min-width: 30px !important;
 	width: 30px !important;
@@ -1307,7 +1289,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 .recipientSuggestionContainer {
     max-height: 90px;
     overflow: auto;
-    
+
     span {
         font-size: 12.5px;
     }
@@ -1347,7 +1329,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
     .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
 	height: 48px !important;
     }
-}    
+}
 
 .contactList .mat-form-field-infix {
     font-size: 16px;
@@ -1370,7 +1352,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
     .mat-form-field-appearance-legacy .mat-form-field-infix {
 	padding-top: 0 !important;
     }
-    
+
     .mat-form-field-appearance-legacy .mat-form-field-label {
         top: 0.75em;
     }
@@ -1519,7 +1501,7 @@ app-calendar-event-editor-dialog p {
 
 .productGrid mat-card.recommended {
     border: 1px solid mat.get-color-from-palette($rmm-default-primary);
-}    
+}
 
 #pricePlans td {
     /* border-right: 1px solid $rmm-dark-background !important; */
@@ -1573,7 +1555,7 @@ app-payment-method {
         cursor: pointer;
     }
 }
-    
+
 #otherPaymentMethods {
     margin: 20px 0 50px 0;
     max-width: 90%;
@@ -1594,7 +1576,7 @@ app-payment-method {
     color: #0F0;
 }
 
-.dev.runbox-components .nice_green_timer .timeunit { 
+.dev.runbox-components .nice_green_timer .timeunit {
     border: 1px solid #0F0;
     width: 40px;
     height: 40px;
@@ -1609,22 +1591,22 @@ app-payment-method {
 .dev.runbox-components .nice_green_timer .timeunit.hours {
     color: #0f0;
 }
-.dev.runbox-components .nice_green_timer .timeunit.years::after { 
+.dev.runbox-components .nice_green_timer .timeunit.years::after {
     content: "y";
 }
-.dev.runbox-components .nice_green_timer .timeunit.months::after { 
+.dev.runbox-components .nice_green_timer .timeunit.months::after {
     content: "m";
 }
-.dev.runbox-components .nice_green_timer .timeunit.days::after { 
+.dev.runbox-components .nice_green_timer .timeunit.days::after {
     content: "d";
 }
-.dev.runbox-components .nice_green_timer .timeunit.hours::after { 
+.dev.runbox-components .nice_green_timer .timeunit.hours::after {
     content: "h";
 }
-.dev.runbox-components .nice_green_timer .timeunit.minutes::after { 
+.dev.runbox-components .nice_green_timer .timeunit.minutes::after {
     content: "m";
 }
-.dev.runbox-components .nice_green_timer .timeunit.seconds::after { 
+.dev.runbox-components .nice_green_timer .timeunit.seconds::after {
     content: "s";
 }
 
@@ -1640,22 +1622,22 @@ app-payment-method {
     align-items: center;
 }
 
-.dev.runbox-components .nice_blue_timer .timeunit.years::after { 
+.dev.runbox-components .nice_blue_timer .timeunit.years::after {
     content: " years";
 }
-.dev.runbox-components .nice_blue_timer .timeunit.months::after { 
+.dev.runbox-components .nice_blue_timer .timeunit.months::after {
     content: " months";
 }
-.dev.runbox-components .nice_blue_timer .timeunit.days::after { 
+.dev.runbox-components .nice_blue_timer .timeunit.days::after {
     content: " days";
 }
-.dev.runbox-components .nice_blue_timer .timeunit.hours::after { 
+.dev.runbox-components .nice_blue_timer .timeunit.hours::after {
     content: " hours";
 }
-.dev.runbox-components .nice_blue_timer .timeunit.minutes::after { 
+.dev.runbox-components .nice_blue_timer .timeunit.minutes::after {
     content: " mins";
 }
-.dev.runbox-components .nice_blue_timer .timeunit.seconds::after { 
+.dev.runbox-components .nice_blue_timer .timeunit.seconds::after {
     content: " secs";
 }
 
@@ -1743,7 +1725,7 @@ td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
 
 table.renewalsTable td, table.paymentsTable td {
     padding: 5px 10px 0px 10px !important;
-}    
+}
 
 table.detailsTable {
     width: 100%;
