@@ -47,7 +47,7 @@ export class AccountReceiptComponent implements OnInit {
     async ngOnInit() {
         this.me = await firstValueFrom(this.rmmapi.me);
 
-        const params = await firstValueFrom(this.route.params.pipe(take(1)));
+        const params = await firstValueFrom(this.route.params);
         const receiptID = params.id;
 
         this.receipt = await firstValueFrom(this.rmmapi.getReceipt(receiptID));

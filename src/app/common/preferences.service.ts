@@ -151,7 +151,7 @@ export class PreferencesService {
             };
         }
 
-        const allPrefs = await firstValueFrom(this.preferences.pipe(take(1)));
+        const allPrefs = await firstValueFrom(this.preferences);
         Object.keys(prefsdata[DefaultPrefGroups.Global]['entries']).forEach((key) => {
             allPrefs.set(`${DefaultPrefGroups.Global}:${key}`, prefsdata[DefaultPrefGroups.Global]['entries'][key]);
         });
@@ -179,7 +179,7 @@ export class PreferencesService {
     }
 
     private async uploadPreferenceData(level: string) {
-        const prefs = await firstValueFrom(this.preferences.pipe(take(1)));
+        const prefs = await firstValueFrom(this.preferences);
         const entriesObj = {};
         prefs.forEach((value, key) => {
             // for (const [key, value] of prefs) {
@@ -219,7 +219,7 @@ export class PreferencesService {
         if (this.loadedOldStyle) {
             return;
         }
-        let prefs = await firstValueFrom(this.preferences.pipe(take(1)));
+        let prefs = await firstValueFrom(this.preferences);
         if (!prefs) {
             // Already set / imported
             prefs = new Map<string, any>();

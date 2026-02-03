@@ -330,7 +330,7 @@ export class ContactDetailsComponent {
     }
 
     async askForMoreMembers(): Promise<void> {
-        let contacts = await firstValueFrom(this.contactsservice.contactsSubject.pipe(take(1)));
+        let contacts = await firstValueFrom(this.contactsservice.contactsSubject);
         contacts = contacts.filter(c => {
             if (c.kind !== ContactKind.INVIDIDUAL) {
                 return false;

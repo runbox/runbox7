@@ -83,7 +83,7 @@ export class SavedSearchesService {
     private async uploadSeachData() {
         const data: SavedSearchStorage = {
             version: this.version,
-            entries: await firstValueFrom(this.searches.pipe(take(1))),
+            entries: await firstValueFrom(this.searches),
         };
         this.rmmapi.setSavedSearches(data).subscribe(
             newData => this.applySyncedData(newData)

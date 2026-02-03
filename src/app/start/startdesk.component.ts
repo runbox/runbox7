@@ -267,7 +267,7 @@ export class StartDeskComponent implements OnInit {
 
     private async extractMailingLists(messages: SearchIndexDocumentData[]): Promise<Set<string>> {
         const possibleMailingLists = new Map<string, number>();
-        const ownAddresses = await firstValueFrom(this.ownAddresses.pipe(take(1)));
+        const ownAddresses = await firstValueFrom(this.ownAddresses);
 
         for (const message of messages) {
             if (!message.recipients.find(r => ownAddresses.has(r.toLowerCase()))) {

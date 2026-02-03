@@ -82,7 +82,7 @@ export class AvatarBarComponent implements OnInit, OnChanges {
     async ngOnChanges() {
         this.emails = []; // so that we don't display the old, wrong ones while we're loading new ones
 
-        const own = await firstValueFrom(this.ownAddresses.pipe(take(1)));
+        const own = await firstValueFrom(this.ownAddresses);
 
         const emails: string[] = [].concat.apply(
             [], [this.email.from, this.email.to, this.email.cc, this.email.bcc]

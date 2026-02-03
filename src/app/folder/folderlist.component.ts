@@ -366,7 +366,7 @@ export class FolderListComponent implements OnChanges {
             return;
         }
 
-        const folders = await firstValueFrom(this.folders.pipe(take(1)));
+        const folders = await firstValueFrom(this.folders);
         let sourceIndex = folders.findIndex(fld => fld.folderId === sourceFolderId);
         let destinationIndex = folders.findIndex(folder => folder.folderId === destinationFolderId);
 
