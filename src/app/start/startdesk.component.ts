@@ -26,7 +26,7 @@ import moment from 'moment';
 import { Contact } from '../contacts-app/contact';
 import { SearchService, SearchIndexDocumentData } from '../xapian/searchservice';
 import { isValidEmail } from '../compose/emailvalidator';
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { ProfileService } from '../profiles/profile.service';
 import { UsageReportsService } from '../common/usage-reports.service';

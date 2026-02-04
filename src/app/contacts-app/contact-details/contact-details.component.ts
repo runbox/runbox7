@@ -24,7 +24,7 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { Router, ActivatedRoute } from '@angular/router';
 import { Contact, ContactKind, AddressDetails, Address, GroupMember } from '../contact';
 import { ErrorDialog, ConfirmDialog, SimpleInputDialog, SimpleInputDialogParams } from '../../dialog/dialog.module';
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 
 import { ContactsService } from '../contacts.service';
 import { MobileQueryService } from '../../mobile-query.service';

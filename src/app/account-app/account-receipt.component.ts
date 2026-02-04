@@ -21,7 +21,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject, firstValueFrom } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'app-account-receipt-component',

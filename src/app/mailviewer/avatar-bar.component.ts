@@ -19,7 +19,6 @@
 
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { firstValueFrom, ReplaySubject} from 'rxjs';
-import { take } from 'rxjs/operators';
 import { ProfileService } from '../profiles/profile.service';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { PreferencesService } from '../common/preferences.service';
