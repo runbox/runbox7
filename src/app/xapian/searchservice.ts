@@ -734,8 +734,8 @@ export class SearchService {
                   dialog.componentInstance.title = 'Continue synchronizing?';
                   dialog.componentInstance.question = `Already synchronized index for
                       ${doccount} of
-                      your most recent messages. To synchronize entire index
-                      (for ${totalMessages} messages),
+                      your most recent messages. To synchronize the entire index
+                      (another ${totalMessages} messages),
                       there's an additional download of ${remainingDownloadMB} MB.`;
                   dialog.afterClosed()
                     .subscribe(res => {
