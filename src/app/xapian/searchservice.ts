@@ -727,6 +727,7 @@ export class SearchService {
                         0)
                         / (1024 * 1024)
                       );
+                  // totalMessages = the number of messages in the remaining partitions yet to be synchronized 
                   const totalMessages = partitions.reduce((prev, curr, partitionNdx) => prev +
                         curr.numberOfMessages,
                         0);
