@@ -90,11 +90,10 @@ git commit -a
 
 Note: The optional commit `-a` command line option will automatically "add" and "rm" edited files.
 
-9. If you haven't done so already in step 7, generate and commit the updated changelog:
+9. Re-run the tests, as these include a check for the commit messages, for a shorter runtime you can just run the build tests:
 
 ```
-node src/build/build-changelog.js
-git commit src/app/changelog/changes.ts -em "docs(changelog): Update changelog"
+npm run ci-tests build
 ```
 
 10. Push your branch to GitHub:
