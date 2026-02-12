@@ -687,7 +687,7 @@ not matching with rest api counts for current folder`);
           // Look up messages with missing body text term and add the missing text to the index
           const messagesMissingBodyText = this.api.sortedXapianQuery('flag:missingbodytext', 0, 0, 0, 10, -1);
           if (messagesMissingBodyText.length > 0) {
-            await this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
+            await lastValueFrom(this.postMessagesToXapianWorker(messagesMissingBodyText.map(searchIndexEntry => {
               const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
 
               return new SearchIndexDocumentUpdate(messageId, async () => {
@@ -713,7 +713,7 @@ not matching with rest api counts for current folder`);
                   console.error('Worker: Failed to add text to document', messageId, e);
                 }
               });
-            }));
+            })));
           }
       } else {
         // localsearchactivated is off

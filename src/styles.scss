@@ -42,7 +42,6 @@ $rmm-default-black: #444444;
 
 @include mat.all-legacy-component-themes($rmm-default-theme);
 
-// GTA 13.06.2018: Override default fonts as per https://material.angular.io/guide/typography
 
 $custom-typography: mat.define-legacy-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
