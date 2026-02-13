@@ -42,6 +42,24 @@ $rmm-default-black: #444444;
 
 @include mat.all-legacy-component-themes($rmm-default-theme);
 
+// GTA 13.06.2018: Load custom fonts
+
+@font-face {
+    font-family: "Avenir Next Pro Regular";
+    src: url("assets/AvenirNextLTPro-Regular.otf");
+    src: url("assets/Avenir-Next-LT-Pro.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Avenir Next Pro Medium";
+    src: url("assets/AvenirNextLTPro-Medium.otf");
+    src: url("assets/AvenirNextLTPro-Medium.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
 
 $custom-typography: mat.define-legacy-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
