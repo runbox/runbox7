@@ -20,7 +20,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
 import { MobileQueryService } from '../mobile-query.service';
-import { AsyncSubject } from 'rxjs';
+import { AsyncSubject, firstValueFrom } from 'rxjs';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { ActivatedRoute } from '@angular/router';
@@ -115,7 +115,7 @@ export class OnscreenComponent implements OnDestroy {
     }
 
     async createMeeting() {
-        await jitsiLoader.toPromise();
+        await firstValueFrom(jitsiLoader);
         const name = await this.encodeMeetingName(this.form.meetingName);
 
         this.joinMeeting(name).then(() => {
@@ -132,7 +132,7 @@ export class OnscreenComponent implements OnDestroy {
     }
 
     async joinMeeting(code: string) {
-        await jitsiLoader.toPromise();
+        await firstValueFrom(jitsiLoader);
 
         this.jitsiAPI = new JitsiMeetExternalAPI('video.runbox.com', {
             roomName: code,
@@ -188,7 +188,7 @@ export class OnscreenComponent implements OnDestroy {
     }
 
     async encodeMeetingName(name: string): Promise<string> {
-        const me = await this.me.toPromise();
+        const me = await firstValueFrom(this.me);
 
         return Promise.resolve(OnscreenComponent.generateMeetingName(name, me.uid.toString()));
     }

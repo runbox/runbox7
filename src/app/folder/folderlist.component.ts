@@ -25,7 +25,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 import { FolderMessageCountMap } from '../rmmapi/messagelist.service';
 import { SimpleInputDialog, SimpleInputDialogParams } from '../dialog/simpleinput.dialog';
 
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { first, map, filter, take } from 'rxjs/operators';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import {ExtendedKeyboardEvent, Hotkey, HotkeysService} from 'angular2-hotkeys';
@@ -117,7 +117,7 @@ export class FolderListComponent implements OnChanges {
             }
         } catch (e) {
             /* we don't care why it failed, it just means that we'll show all folders as collapsed */
-            console.error(e)
+            console.error(e);
         }
 
         this.treeControl = new FlatTreeControl<FolderListEntry>(this._getLevel, this._isExpandable);
@@ -255,8 +255,8 @@ export class FolderListComponent implements OnChanges {
     }
 
     onFolderClick($event, folder) {
-        $event.preventDefault()
-        this.selectFolder(folder)
+        $event.preventDefault();
+        this.selectFolder(folder);
     }
 
     selectFolder(folder: string): void {
@@ -366,7 +366,7 @@ export class FolderListComponent implements OnChanges {
             return;
         }
 
-        const folders = await this.folders.pipe(take(1)).toPromise();
+        const folders = await firstValueFrom(this.folders);
         let sourceIndex = folders.findIndex(fld => fld.folderId === sourceFolderId);
         let destinationIndex = folders.findIndex(folder => folder.folderId === destinationFolderId);
 

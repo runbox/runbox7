@@ -22,6 +22,7 @@ import * as Sentry from '@sentry/browser';
 
 import './sentry';
 import { RMMAuthGuardService } from './rmmapi/rmmauthguard.service';
+import { firstValueFrom } from 'rxjs';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
 
 @Injectable()
@@ -40,10 +41,10 @@ export class SentryErrorHandler implements ErrorHandler {
             return;
         }
         const authguard = this.injector.get(RMMAuthGuardService);
-        const isLoggedIn = await authguard.isLoggedIn().toPromise();
+        const isLoggedIn = await firstValueFrom(authguard.isLoggedIn());
         if (isLoggedIn) {
             const rmmapi = this.injector.get(RunboxWebmailAPI);
-            const me = await rmmapi.me.toPromise();
+            const me = await firstValueFrom(rmmapi.me);
             Sentry.setUser({
                 uid:      me.uid,
                 username: me.username,

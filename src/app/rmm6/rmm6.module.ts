@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { NgModule, ApplicationRef, ComponentFactoryResolver, Injector, NgZone } from '@angular/core';
+import { NgModule, ApplicationRef, ComponentFactoryResolver, Injector, NgZone, DoBootstrap } from '@angular/core';
 import { RMM6AngularGateway } from './rmm6angulargateway';
 import { MailViewerModule } from '../mailviewer/mailviewer.module';
 import { DomainRegisterModule } from '../domainregister/domainregister.module';
@@ -78,7 +78,7 @@ import { SearchExpressionBuilderModule } from '../xapian/search-expression-build
     ],
     providers: [ProgressService]
 })
-export class RMM6Module {
+export class RMM6Module implements DoBootstrap {
 
     rmmAngularGW: RMM6AngularGateway;
 

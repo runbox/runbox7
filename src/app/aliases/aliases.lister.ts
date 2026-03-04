@@ -58,7 +58,7 @@ export class AliasesListerComponent {
         if (result !== undefined) {
             this.aliases.push(result);
         }
-    })
+    });
   }
 
   edit (item: object) {

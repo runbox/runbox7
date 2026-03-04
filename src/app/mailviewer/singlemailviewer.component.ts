@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -40,7 +40,7 @@ import { MobileQueryService } from '../mobile-query.service';
 
 import { HorizResizerDirective } from '../directives/horizresizer.directive';
 import { MessageContents, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { loadLocalMailParser } from './mailparser';
@@ -564,7 +564,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
 
     res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
-    res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;    
+    res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
     res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
 
@@ -689,7 +689,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   print() {
-    // Can't access print view inside iFrame, so we need to 
+    // Can't access print view inside iFrame, so we need to
     // temporary hide buttons while the view is rendering
     const messageContents = document.getElementById('messageContents');
     const buttons = messageContents.getElementsByTagName('button');
@@ -732,7 +732,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   /**
    * EXPERIMENTAL, decrypt attachment (encrypted.asc) by sending it to pgpapp.no
-   * @param attachmentIndex 
+   * @param attachmentIndex
    */
   public decryptAttachment(attachmentIndex: number) {
     this.http.get('/rest/v1/email/' + this.messageId + '/attachment/' + attachmentIndex,
@@ -746,7 +746,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
               window.removeEventListener('message', pgpapplistener);
               pgpapp.close();
 
-              const parseMail = await loadLocalMailParser().toPromise();
+              const parseMail = await firstValueFrom(loadLocalMailParser());
               const parsed = await parseMail(msg.data.decryptedContent);
               this.mailObj.text = parsed.text;
               this.mailObj.subject = parsed.subject;

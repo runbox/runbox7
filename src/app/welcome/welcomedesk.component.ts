@@ -37,11 +37,11 @@ export class WelcomeDeskComponent implements OnInit {
     this.rmmapi.me.subscribe(me => this.me = me);
   }
   
-  public postSignup = ''
+  public postSignup = '';
     
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(params => {
       this.postSignup = params['postSignup'];
-    })
+    });
   }
 }

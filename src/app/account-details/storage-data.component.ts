@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncSubject } from 'rxjs';
 import { RMM } from '../rmm';
 
@@ -34,7 +34,7 @@ export interface DataUsage {
     templateUrl: './storage-data.component.html',
     styleUrls: ['account-details.component.scss'],
 })
-export class StorageDataComponent {
+export class StorageDataComponent implements OnInit {
     dataUsage = new AsyncSubject<DataUsage[]>();
     displayedColumns: string[] = ['type', 'quota', 'usage', 'percentage_used'];
 

@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -28,6 +28,7 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
+import { firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 
@@ -123,12 +124,12 @@ describe('SearchService', () => {
 
     xit('should load searchservice, but no local index', async () => {
         const searchService = TestBed.inject(SearchService);
-        await xapianLoadedSubject.toPromise();
+        await firstValueFrom(xapianLoadedSubject);
 
         const req = httpMock.expectOne('/rest/v1/email_folder/list');
         req.flush(listEmailFoldersResponse);
 
-        expect(await searchService.initSubject.toPromise()).toBeFalsy();
+        expect(await firstValueFrom(searchService.initSubject)).toBeFalsy();
         expect(searchService.localSearchActivated).toBeFalsy();
         httpMock.verify();
 
@@ -193,7 +194,7 @@ describe('SearchService', () => {
         const testuserid = 444;
         const localdir =  'rmmsearchservice' + testuserid;
 
-        await xapianLoadedSubject.toPromise();
+        await firstValueFrom(xapianLoadedSubject);
 
         FS.mkdir(localdir);
         FS.mount(IDBFS, {}, '/' + localdir);
@@ -246,7 +247,7 @@ describe('SearchService', () => {
         req.flush(listEmailFoldersResponse);
 
 
-        expect(await searchService.initSubject.toPromise()).toBeTruthy();
+        expect(await firstValueFrom(searchService.initSubject)).toBeTruthy();
         console.log('search service initialised');
         expect(searchService.localSearchActivated).toBeTruthy();
         expect(localdir).toEqual(searchService.localdir);

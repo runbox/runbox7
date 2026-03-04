@@ -20,8 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { AsyncSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { AsyncSubject, firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-account-receipt-component',
@@ -45,12 +44,12 @@ export class AccountReceiptComponent implements OnInit {
     }
 
     async ngOnInit() {
-        this.me = await this.rmmapi.me.toPromise();
+        this.me = await firstValueFrom(this.rmmapi.me);
 
-        const params = await this.route.params.pipe(take(1)).toPromise();
+        const params = await firstValueFrom(this.route.params);
         const receiptID = params.id;
 
-        this.receipt = await this.rmmapi.getReceipt(receiptID).toPromise();
+        this.receipt = await firstValueFrom(this.rmmapi.getReceipt(receiptID));
 
         this.receipt.time = this.receipt.time.replace('T', ' ');
         if (this.receipt.method === 'giro') {

@@ -87,7 +87,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        await stripeLoader.toPromise();
+        await firstValueFrom(stripeLoader);
         const stripePubkey = await firstValueFrom(this.paymentsservice.stripePubkey);
         const customerSession = await firstValueFrom(this.paymentsservice.customerSession());
 
@@ -173,7 +173,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             this.state = 'failure';
             return;
         }
-                
+
     }
 
     handleConfirmationToken(cId: string) {

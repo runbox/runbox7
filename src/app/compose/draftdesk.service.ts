@@ -26,7 +26,7 @@ import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { Identity, ProfileService } from '../profiles/profile.service';
-import { from, of, BehaviorSubject } from 'rxjs';
+import { from, of, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 import moment from 'moment';
@@ -264,7 +264,7 @@ export class DraftDeskService {
                     && prev.every((f, index) =>
                         objectEqualWithKeys(f, curr[index], [
                             'folderId', 'totalMessages', 'newMessages'
-                        ]))
+                        ]));
             }))
             .subscribe((folders) => {
                 this.refreshDrafts();
@@ -317,8 +317,8 @@ export class DraftDeskService {
 
         this.rmmapi.getMessageContents(messageId).subscribe((contents) => {
             const res: any = Object.assign({}, contents);
-            const {subject} = res.headers
-            let { to } = res.headers
+            const {subject} = res.headers;
+            let { to } = res.headers;
 
             if (to) {
                 to = new MailAddressInfo(to.value.name, to.value.address).nameAndAddress;
@@ -329,14 +329,14 @@ export class DraftDeskService {
                 this.mainIdentity(),
                 to,
                 subject
-            )
+            );
 
             draftFormModel.tid = messageId;
             draftFormModel.msg_body = contents.text.text;
             draftFormModel.html = contents.text.html;
 
             return this.newDraft(draftFormModel);
-        })
+        });
     }
 
     public async newBugReport(
@@ -353,9 +353,9 @@ export class DraftDeskService {
             '"Runbox 7 Bug Reports" <bugs@runbox.com>',
             'Runbox 7 Bug Report'
         );
-        const template = await this.http.get('assets/templates/bug_report.txt',
-                                             {responseType: 'text'}).toPromise();
-        const me = await this.rmmapi.me.toPromise();
+        const template = await firstValueFrom(this.http.get('assets/templates/bug_report.txt',
+                                             {responseType: 'text'}));
+        const me = await firstValueFrom(this.rmmapi.me);
 
         let body = `${template}`
         ;
@@ -382,8 +382,8 @@ export class DraftDeskService {
     }
 
     public async newVideoCallInvite(to: string, url: URL) {
-        const template = await this.http.get('assets/templates/video_call.txt',
-                                             {responseType: 'text'}).toPromise();
+        const template = await firstValueFrom(this.http.get('assets/templates/video_call.txt',
+                                             {responseType: 'text'}));
         const draftObj = DraftFormModel.create(
             -1,
             this.mainIdentity(),

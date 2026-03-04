@@ -47,7 +47,7 @@ import { map, take, skip, mergeMap, filter, tap, throttleTime, debounceTime, dis
 import { WebSocketSearchService } from './websocketsearch/websocketsearch.service';
 import { WebSocketSearchMailList } from './websocketsearch/websocketsearchmaillist';
 
-import { from, Observable } from 'rxjs';
+import { from, Observable, lastValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapian/xapianwebloader';
 import { SwPush } from '@angular/service-worker';
 import { exportKeysFromJWK } from './webpush/vapid.tools';
@@ -396,7 +396,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             && prev.every((f, index) =>
               objectEqualWithKeys(f, curr[index], [
                 'folderId', 'totalMessages', 'newMessages', 'folderName'
-              ]))
+              ]));
         }))
         .pipe(map((folders: FolderListEntry[]) => folders.filter(f => f.folderPath.indexOf('Drafts') !== 0))
     );
@@ -616,11 +616,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   async emptySpam(spamFolderName) {
     console.log('found spam folder with name', spamFolderName);
-    const messageLists = await this.rmmapi.listAllMessages(
+    const messageLists = await lastValueFrom(this.rmmapi.listAllMessages(
       0, 0, 0,
       RunboxWebmailAPI.LIST_ALL_MESSAGES_CHUNK_SIZE,
       true, spamFolderName
-    ).toPromise();
+    ));
 
     const messageIds = messageLists.map(msg => msg.id);
     this.messageActionsHandler.updateMessages({
@@ -929,7 +929,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
-    const isSelect = (columnIndex === 0) || multiSelect
+    const isSelect = (columnIndex === 0) || multiSelect;
 
     if ((this.selectedFolder === this.messagelistservice.templateFolderName) && !isSelect) {
       this.draftDeskService.newTemplateDraft(
@@ -1452,14 +1452,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   async enableNotification() {
-    console.log('request notification permission')
+    console.log('request notification permission');
 
     try {
-      const result = await Notification.requestPermission()
-      console.log('Notification.permission', Notification.permission)
+      const result = await Notification.requestPermission();
+      console.log('Notification.permission', Notification.permission);
       if (result === 'granted') this.subscribeToNotifications();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
   }
 }

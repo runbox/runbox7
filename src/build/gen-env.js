@@ -49,6 +49,6 @@ export default ${JSON.stringify(
 
         return acc
     }, {})
-, null, 2)}`);
+, null, 2)};`);
 
 debug(`Wrote env file to ${target}.`)

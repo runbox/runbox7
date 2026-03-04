@@ -93,7 +93,7 @@ export class LoginComponent implements OnInit {
     }
 
     public onSubmit(ngForm: NgForm) {
-        const { value } = ngForm
+        const { value } = ngForm;
 
         this.login_errors_reset();
 

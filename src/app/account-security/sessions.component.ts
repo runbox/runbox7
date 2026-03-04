@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
-import { Component, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
 import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
@@ -28,7 +28,7 @@ import { RMM } from '../rmm';
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'sessions.component.html',
 })
-export class SessionsComponent {
+export class SessionsComponent implements OnInit {
     panelOpenState = false;
     @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
     @Output() Close: EventEmitter<string> = new EventEmitter();
