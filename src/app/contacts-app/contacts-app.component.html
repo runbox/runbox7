@@ -6,39 +6,39 @@
         fixedTopGap="0"
         id="sideMenu"
 		 >
-      
+
       <h3 class="sideNavHeader">Contacts Menu</h3>
 
         <mat-nav-list dense>
             <app-sidenav-menu (closeMenu)="sideMenu.close()"></app-sidenav-menu>
 
             <mat-list-item routerLink="/contacts/new" class="contactListButton">
-                <mat-icon mat-list-icon svgIcon="account-plus"></mat-icon>
-                <p mat-line>New Contact</p>
+                <mat-icon matListItemIcon svgIcon="account-plus"></mat-icon>
+                <span matListItemTitle>New Contact</span>
             </mat-list-item>
             <mat-list-item routerLink="/contacts/new_group" class="contactListButton" (click)="shownGroup = null">
-                <mat-icon mat-list-icon svgIcon="account-multiple-plus"></mat-icon>
-                <p mat-line>New Group</p>
+                <mat-icon matListItemIcon svgIcon="account-multiple-plus"></mat-icon>
+                <span matListItemTitle>New Group</span>
             </mat-list-item>
 
             <mat-list-item (click)="importVcfClicked()" class="contactListButton">
                 <input #vcfUploadInput accept="text/vcard,.vcf" type="file" [hidden]="true" multiple (change)="onVcfUploaded($event)" />
-                <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
-                <p mat-line>Import Contacts</p>
+                <mat-icon matListItemIcon svgIcon="swap-vertical"></mat-icon>
+                <span matListItemTitle>Import Contacts</span>
             </mat-list-item>
 
             <mat-list-item routerLink="/contacts/settings" class="contactListButton">
-                <mat-icon mat-list-icon svgIcon="cog"></mat-icon>
-                <p mat-line>Settings</p>
+                <mat-icon matListItemIcon svgIcon="cog"></mat-icon>
+                <span matListItemTitle>Settings</span>
             </mat-list-item>
 
             <mat-divider></mat-divider>
 
             <mat-list-item routerLink="/contacts/" class="contactListButton" [ngClass]="!shownGroup ? 'selectedFolder' : ''">
-                <mat-icon mat-list-icon svgIcon="account-multiple"></mat-icon>
-                <p mat-line>
+                <mat-icon matListItemIcon svgIcon="account-multiple"></mat-icon>
+                <span matListItemTitle>
                     All Contacts
-                </p>
+                </span>
             </mat-list-item>
 
             <mat-list-item *ngFor="let group of groups"
@@ -47,17 +47,17 @@
                 (drop)="dropContactTo(group, $event)"
                 routerLink="/contacts/{{ group.id }}"
             >
-                <mat-icon mat-list-icon svgIcon="account-multiple"></mat-icon>
-                <p mat-line>
+                <mat-icon matListItemIcon svgIcon="account-multiple"></mat-icon>
+                <span matListItemTitle>
                     {{ group.display_name() }}
-                </p>
+                </span>
             </mat-list-item>
 
             <mat-list-item *ngIf="groups.length === 0" class="contactListButton contactListHint">
-                <mat-icon mat-list-icon svgIcon="information"></mat-icon>
-                <p mat-line>
+                <mat-icon matListItemIcon svgIcon="information"></mat-icon>
+                <span matListItemTitle>
                     Groups will be shown here
-                </p>
+                </span>
             </mat-list-item>
 
             <mat-divider></mat-divider>
@@ -114,7 +114,7 @@
                     ></app-contact-list>
 
                     <mat-list-item *ngIf="contactsservice.migratingContacts > 0">
-                      <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
+                      <mat-icon matListItemIcon svgIcon="information"> </mat-icon>
                         <a routerLink="/contacts/settings"> {{ contactsservice.migratingContacts }} Runbox 6 contacts have not been migrated yet </a>
                     </mat-list-item>
                 </mat-nav-list>

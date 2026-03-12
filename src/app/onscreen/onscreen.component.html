@@ -17,8 +17,8 @@
                 *ngFor="let meeting of meetingList"
                 routerLink="/onscreen/{{ meeting.code }}"
             >
-                <mat-icon mat-list-icon svgIcon="video-box"></mat-icon>
-                <p mat-line> {{ meeting.name }} </p>
+                <mat-icon matListItemIcon svgIcon="video-box"></mat-icon>
+                <span matListItemTitle> {{ meeting.name }} </span>
 
                 <span style="flex-grow: 1"></span>
 
@@ -33,8 +33,8 @@
                 <span *ngIf="member.avatarUrl; else icon">
                     <img class="avatarImg" [src]="member.avatarUrl">
                 </span>
-                <mat-icon mat-list-icon #icon> pets </mat-icon>
-                <p mat-line> {{ member.displayName }} </p>
+                <mat-icon matListItemIcon #icon> pets </mat-icon>
+                <span matListItemTitle> {{ member.displayName }} </span>
             </mat-list-item>
         </mat-nav-list>
     </mat-sidenav>
@@ -68,7 +68,7 @@
                     <input matInput [(ngModel)]="form.yourEmail" placeholder="Visible email address">
                 </mat-form-field>
             </div>
-        
+
             <div class="new-meeting form-section">
                 <h4> Create a new meeting </h4>
                 <mat-form-field>
@@ -76,7 +76,7 @@
                 </mat-form-field>
                 <button mat-raised-button color="primary" (click)="createMeeting()"> Start a meeting </button>
             </div>
-        
+
             <div class="existing-meeting form-section">
                 <h4> Or join an existing one </h4>
                 <mat-form-field>

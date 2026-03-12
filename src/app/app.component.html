@@ -6,7 +6,7 @@
       fixedTopGap="0"
       id="sideMenu"
       appResizable>
-    <mat-nav-list dense>      
+    <mat-nav-list dense>
       <app-sidenav-menu (closeMenu)="sidemenu.close()"></app-sidenav-menu>
 
       <mat-menu #settingsMenu="matMenu" xPosition="before">
@@ -67,13 +67,13 @@
       </div>
 
       <button mat-list-item (click)="compose();" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
-        <mat-icon mat-list-icon  svgIcon="pencil" class="folderIconStandard"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="pencil" class="folderIconStandard"></mat-icon>
         Compose
       </button>
 
       <button mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
-        <mat-icon mat-list-icon  svgIcon="email-open" class="folderIconStandard"></mat-icon>
-        <p mat-line class="folderName">Drafts</p>
+        <mat-icon matListItemIcon svgIcon="email-open" class="folderIconStandard"></mat-icon>
+        <span matListItemTitle class="folderName">Drafts</span>
         <span style="flex-grow: 1"></span>
         <span class="foldersidebarcount" style="margin-right: 24px"> {{ draftDeskService.draftModels.value.length }} </span>
       </button>
@@ -81,8 +81,8 @@
       <button mat-list-item (click)="overview()" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}"
         *ngIf="searchService.localSearchActivated"
       >
-        <mat-icon mat-list-icon svgIcon="blur" class="folderIconStandard"></mat-icon>
-        <p mat-line class="folderName">Overview</p>
+        <mat-icon matListItemIcon svgIcon="blur" class="folderIconStandard"></mat-icon>
+        <span matListItemTitle class="folderName">Overview</span>
       </button>
 
       <mat-divider></mat-divider>
@@ -123,25 +123,25 @@
       <button mat-list-item
         (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">
-          <mat-icon  svgIcon="sync-off" mat-list-icon></mat-icon>
+          <mat-icon matListItemIcon svgIcon="sync-off"></mat-icon>
           Stop index synchronization
       </button>
     </mat-nav-list>
 
     <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress === null && !offerInitialLocalIndex">
       <button mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
-        <mat-icon matListIcon svgIcon="sync"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="sync"></mat-icon>
         Synchronize index
       </button>
     </mat-nav-list>
 
     <mat-nav-list>
       <button mat-list-item (click)="composeBugReport()" matTooltip="Compose an email to runbox support">
-        <mat-icon matListIcon svgIcon="spider"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="spider"></mat-icon>
         Compose a bug report
       </button>
       <button *ngIf="showNotificationButton" mat-list-item (click)="enableNotification()">
-        <mat-icon matListIcon svgIcon="bell"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="bell"></mat-icon>
         Enable Notifications
       </button>
     </mat-nav-list>
@@ -193,7 +193,7 @@
       <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
 	    <mat-icon svgIcon="menu"></mat-icon>
       </button>
-      
+
       <ng-container *ngIf="!hasChildRouterOutlet">
         <div id="offerLocalIndex" *ngIf="offerInitialLocalIndex; else searchBar">
           <p *ngIf="!mobileQuery.matches">
@@ -243,12 +243,12 @@
             </button>
           </mat-form-field>
         </ng-template>
-	    
+
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
                 matTooltip="Back to conversations list">
           <mat-icon svgIcon="arrow-left"></mat-icon>
         </button>
-        
+
 	    <!-- Message action menu for regular screens -->
 	    <div *ngIf="!mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations" class="messageListActionButtonsRight" #toolbarListButtonContainer>
 	      <button *ngIf="morelistbuttonindex>0" mat-icon-button matTooltip="Move selected message(s) to folder" (click)="moveToFolder()">
@@ -287,7 +287,7 @@
           <button *ngIf="morelistbuttonindex < 7" [matMenuTriggerFor]="moreMailListActionsMenu" mat-icon-button matTooltip="More message actions">
             <mat-icon svgIcon="dots-vertical"></mat-icon>
           </button>
-          
+
           <!-- Message action overflow items for regular screens -->
           <mat-menu #moreMailListActionsMenu="matMenu">
 	        <button *ngIf="morelistbuttonindex<1" mat-menu-item (click)="moveToFolder()">
@@ -331,14 +331,14 @@
 	        </button>
           </mat-menu>
 	    </div>
-        
+
         <mat-menu #tableViewOptionsMenu="matMenu">
           <mat-list>
             <mat-list-item>
               <mat-checkbox
                 *ngIf="canvastable"
                 [(ngModel)]="canvastable.showContentTextPreview"
-                matLine
+                matListItemTitle
                 (change)="saveContentPreviewSetting()"
                 (click)="$event.stopPropagation()"
                 class="tableViewOptionsMenuElement"
@@ -350,7 +350,7 @@
             <!-- currently only supporting threading for local index -->
             <mat-list-item>
               <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
-                            matLine
+                            matListItemTitle
                             (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
                             (click)="$event.stopPropagation()"
                             [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
@@ -362,7 +362,7 @@
             </mat-list-item>
             <mat-list-item>
               <mat-checkbox [(ngModel)]="unreadMessagesOnlyCheckbox"
-                            matLine
+                            matListItemTitle
                             (change)="updateSearch(true)"
                             (click)="$event.stopPropagation()"
                             [disabled]="viewmode==='conversations'"
@@ -372,10 +372,10 @@
                 Unread only
               </mat-checkbox>
             </mat-list-item>
-            
+
             <mat-list-item *ngIf="!mobileQuery.matches">
               <mat-checkbox [(ngModel)]="keepMessagePaneOpen"
-                            matLine
+                            matListItemTitle
                             (change)="saveMessagePaneSetting()"
                             (click)="$event.stopPropagation()"
                             >
@@ -453,7 +453,7 @@
       <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
     </button>
   </div>
-  
+
   <!-- Message action floating submenu for mobile screens -->
   <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
     <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">

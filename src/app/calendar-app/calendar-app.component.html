@@ -105,7 +105,7 @@
         fixedTopGap="0"
         id="sideMenu"
 	>
-      
+
       <h3 class="sideNavHeader">Calendar Menu</h3>
 
         <mat-nav-list dense>
@@ -116,24 +116,24 @@
             </div>
 
             <mat-list-item id="addEventButton" mat-button (click)="addEvent()" class="calendarMenuButton">
-                <mat-icon mat-list-icon svgIcon="plus"></mat-icon>
-                <p mat-line>Add Event</p>
+                <mat-icon matListItemIcon svgIcon="plus"></mat-icon>
+                <span matListItemTitle>Add Event</span>
             </mat-list-item>
 
             <mat-list-item (click)="importEventClicked()" class="calendarMenuButton">
                 <input #icsUploadInput accept="text/calendar,.ics" type="file" [hidden]="true" multiple (change)="onIcsUploaded($event)" />
-                <mat-icon mat-list-icon svgIcon="swap-vertical"></mat-icon>
-                <p mat-line>Import Event</p>
+                <mat-icon matListItemIcon svgIcon="swap-vertical"></mat-icon>
+                <span matListItemTitle>Import Event</span>
             </mat-list-item>
 
             <mat-list-item mat-button (click)="openSettings()" class="calendarMenuButton">
-                <mat-icon mat-list-icon svgIcon="cog"></mat-icon>
-                <p mat-line>Settings</p>
+                <mat-icon matListItemIcon svgIcon="cog"></mat-icon>
+                <span matListItemTitle>Settings</span>
             </mat-list-item>
 
             <a mat-list-item target="_blank" href="https://help.runbox.com/using-a-calendar-client-with-caldav/" class="calendarMenuButton">
-                <mat-icon mat-list-icon svgIcon="sync"></mat-icon>
-                <p mat-line>CalDAV Sync Guide</p>
+                <mat-icon matListItemIcon svgIcon="sync"></mat-icon>
+                <span matListItemTitle>CalDAV Sync Guide</span>
             </a>
 
             <mat-divider></mat-divider>
@@ -150,11 +150,11 @@
             </mat-list-item>
 
             <mat-list-item class="calendarListItem" *ngFor="let calendar of calendars">
-                <mat-icon mat-list-icon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }" svgIcon="label">
+                <mat-icon matListItemIcon class="calendarColorLabel" [ngStyle]="{ 'color': calendar.color || '#1e90ff' }" svgIcon="label">
                 </mat-icon>
-                <p mat-line>
+                <span matListItemTitle>
                     {{ calendar.displayname || calendar.id }}
-                </p>
+                </span>
                 <button mat-icon-button class="calendarToggleButton"
                     matTooltip="Show/hide this calendar"
                     (click)="toggleCalendar(calendar.id)"
@@ -172,8 +172,8 @@
             <mat-divider></mat-divider>
 
             <mat-list-item (click)="calendarservice.syncCaldav(true)" class="calendarMenuButton">
-                <mat-icon mat-list-icon svgIcon="refresh"></mat-icon> 
-                <p mat-line>Synchronize Calendars</p>
+                <mat-icon matListItemIcon svgIcon="refresh"></mat-icon>
+                <span matListItemTitle>Synchronize Calendars</span>
             </mat-list-item>
 
             <mat-list-item *ngIf="calendarservice.lastUpdate" class="updateInfo">

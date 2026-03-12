@@ -4,7 +4,7 @@
         <mat-icon svgIcon="menu"></mat-icon>
       </button>
       <mat-list-item class="contactListControls" id="contactListControlsSearch">
-        <mat-form-field mat-line>
+        <mat-form-field matListItemLine>
           <mat-label> Search </mat-label>
           <input matInput [(ngModel)]="searchTerm" (input)="filterContacts()">
           <button mat-button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''; filterContacts()">
@@ -13,7 +13,7 @@
         </mat-form-field>
       </mat-list-item>
     </mat-toolbar>
-    
+
     <mat-expansion-panel class="contactFiltering">
         <mat-expansion-panel-header>
             <mat-panel-title>
@@ -22,7 +22,7 @@
         </mat-expansion-panel-header>
 
         <mat-list-item class="contactListControls" *ngIf="categories.length > 0">
-            <mat-form-field mat-line>
+            <mat-form-field matListItemLine>
                 <mat-label> Show categories </mat-label>
                 <mat-select [(value)]="categoryFilter" (selectionChange)="filterContacts()">
                     <mat-option value="RUNBOX:ALL">
@@ -39,7 +39,7 @@
         </mat-list-item>
 
         <mat-list-item class="contactListControls">
-            <mat-form-field mat-line>
+            <mat-form-field matListItemLine>
                 <mat-label> Sort by </mat-label>
                 <mat-select [(value)]="sortMethod" (selectionChange)="sortContacts()">
                     <mat-option value="firstname+"> First name, ascending  </mat-option>
@@ -86,9 +86,9 @@
         </mat-icon>
 
         <a class="contactName" matTooltip="View details">
-            <p mat-line>
+            <span matListItemTitle>
                 <app-contact-button [contact]="contact"></app-contact-button>
-            </p>
+            </span>
         </a>
 
         <span style="flex-grow: 1"></span>
@@ -101,11 +101,11 @@
     </mat-list-item>
 
     <mat-list-item *ngIf="contacts.length === 0" class="contactListButton contactListHint">
-        <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
+        <mat-icon matListItemIcon svgIcon="information"> </mat-icon>
         There are no contacts yet. Import or add contacts to show them here.
     </mat-list-item>
 
-    <mat-list-item *ngIf="shownContacts.length != contacts.length">
+    <mat-list-item *ngIf="shownContacts.length !== contacts.length">
         and {{ contacts.length - shownContacts.length }} filtered out
     </mat-list-item>
 </ng-container>

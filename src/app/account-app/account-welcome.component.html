@@ -10,7 +10,7 @@
   <div class="divider"></div>
 
   <p>
-    <mat-icon mat-list-icon svgIcon="help"></mat-icon> Need to know more about Settings? See our <a href="https://help.runbox.com/runbox-7/" target="help">documentation</a> for more information.
+    <mat-icon matListItemIcon svgIcon="help"></mat-icon> Need to know more about Settings? See our <a href="https://help.runbox.com/runbox-7/" target="help">documentation</a> for more information.
   </p>
   <br />
 
@@ -24,7 +24,7 @@
       <p>Settings that control the Mail interface.</p>
     </div>
     <div class="settingsRow">
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/identities">
           <h4>
             <mat-icon svgIcon="account-group"></mat-icon> Identities
@@ -32,7 +32,7 @@
           <p>Create and manage identities associated with your email aliases and external email addresses.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/aliases">
           <h4>
             <mat-icon svgIcon="account-circle"></mat-icon> Email Aliases
@@ -51,7 +51,7 @@
       <p>With Manager you can easily import, filter, and forward your email as it "falls" through each level.</p>
     </div>
     <div class="settingsRow">
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a href="/mail/fetch" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="cloud-download"></mat-icon> Retrieve
@@ -59,7 +59,7 @@
           <p>Import email from external email addresses into your Runbox account.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a href="/mail/rules" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="filter-variant"></mat-icon> Filter
@@ -67,7 +67,7 @@
           <p>Configure spam and virus filters, set up an autoreply, and sort incoming email with manual filter rules.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a href="/mail/access" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="download"></mat-icon> Access
@@ -86,7 +86,7 @@
       <p>Settings for email, domain, and web hosting.</p>
     </div>
     <div class="settingsRow">
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a href="/mail/account_domain" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="email"></mat-icon> Email Hosting
@@ -94,7 +94,7 @@
           <p>Set up your Runbox account to accept email for domain names you own or administer.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a href="/mail/account_webhosting" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="earth"></mat-icon> Web Hosting
@@ -102,7 +102,7 @@
           <p>Manage your Runbox Web Hosting accounts (legacy service).</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a href="/mail/account_domain_hosting" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="domain"></mat-icon> Domain Hosting
@@ -121,7 +121,7 @@
       <p>Configure settings for your account and any sub-accounts.</p>
     </div>
     <div class="settingsRow">
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/details">
           <h4>
             <mat-icon svgIcon="face-man"></mat-icon> Personal Details
@@ -129,7 +129,7 @@
           <p>View and update your name, address, alternative email address, and other details.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/storage">
           <h4>
             <mat-icon svgIcon="view-list"></mat-icon> Storage and Data
@@ -137,7 +137,7 @@
           <p>Show the details for your account's email and files storage space and bandwidth usage.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/preferences">
           <h4>
             <mat-icon svgIcon="cog"></mat-icon> Preferences
@@ -145,7 +145,7 @@
           <p>View and update your account's Trash, Spam, and marketing preferences.</p>
         </a>
       </mat-card>
-      <mat-card *ngIf="isMainAccount" class="settingsItem">
+      <mat-card appearance="outlined" *ngIf="isMainAccount" class="settingsItem">
         <a href="/mail/account_account" target="rmm6" [matTooltip]="rmm6tooltip">
           <h4>
             <mat-icon svgIcon="account-supervisor"></mat-icon> Sub-Accounts
@@ -164,7 +164,7 @@
       <p>Configure your account's security settings and set up Two-Factor Authentication.</p>
     </div>
     <div class="settingsRow">
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/account_password">
           <h4>
             <mat-icon svgIcon="form-textbox-password"></mat-icon> Account Password
@@ -172,7 +172,7 @@
           <p>Change the main account password for your Runbox account.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/2fa">
           <h4>
             <mat-icon svgIcon="cellphone-lock"></mat-icon> Two-Factor Auth.
@@ -180,7 +180,7 @@
           <p>Configure various options for managing and using Two-Factor Authentication on your account.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/app_passwords">
           <h4>
             <mat-icon svgIcon="lock-plus"></mat-icon> App Passwords
@@ -188,7 +188,7 @@
           <p>Set up separate strong passwords for each of your device's email programs and apps.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/manage_services">
           <h4>
             <mat-icon svgIcon="tools"></mat-icon> Manage Services
@@ -204,7 +204,7 @@
           <p>All successful and failed attempts to log in to your account from IP addresses that you have not blocked.</p>
         </a>
       </mat-card> -->
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/sessions">
           <h4>
             <mat-icon svgIcon="history"></mat-icon> Sessions
@@ -222,7 +222,7 @@
       <p>Manage your subscriptions, transactions, and payment cards.</p>
     </div>
     <div class="settingsRow">
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/subscriptions">
           <h4>
             <mat-icon svgIcon="folder-star-multiple"></mat-icon> Your Subscriptions
@@ -230,7 +230,7 @@
           <p>Show all the active subscriptions in your account, and renew any of them at any time.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/plans">
           <h4>
             <mat-icon svgIcon="card-account-details"></mat-icon> Plans & Upgrades
@@ -238,7 +238,7 @@
           <p>Subscribe to Runbox or change your account's existing subscription plan.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/payments">
           <h4>
             <mat-icon svgIcon="receipt"></mat-icon> Payment History
@@ -246,7 +246,7 @@
           <p>List all your payment transactions and view your payment receipts.</p>
         </a>
       </mat-card>
-      <mat-card class="settingsItem">
+      <mat-card appearance="outlined" class="settingsItem">
         <a routerLink="/account/payment_cards">
           <h4>
             <mat-icon svgIcon="credit-card"></mat-icon> Payment Cards

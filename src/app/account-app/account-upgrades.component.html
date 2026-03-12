@@ -27,7 +27,7 @@
       <p>
         To view your existing subscriptions, please go to <a routerLink="/account/subscriptions">Your Subscriptions</a>.
       </p>
-      
+
       <div class="navigationButtons">
         <a routerLink="." fragment="recommended">
           <button mat-raised-button color="accent" class="plansLink">
@@ -47,9 +47,9 @@
       </div>
 
       <br />
-      
+
       <h2> Main Account </h2>
-      
+
     <!--
     <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
       <h2 style="margin: 20px 0 10px 0">
@@ -86,15 +86,15 @@
       <p>
 
       <br />
-    
+
     <div *ngIf="three_year_plans | async as three_year_plans; else productsLoading">
     <div *ngIf="orig_three_plans | async as orig_three_plans; else productsLoading">
       <div class="productGrid">
 
         <!-- Mini 3-year plan -->
-        
+
         <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
-          
+
           <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
             {{ plan.name.replace('Runbox', '') }}
           </mat-card-title>
@@ -110,7 +110,7 @@
                 <li>{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
                 <li>{{ plan.quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
                 <li>{{ plan.quotas.VirtualDomain.quota }} email domain names</li>
-                <li>{{ plan.quotas.Alias.quota }} aliases @runbox domains</li>
+                <li>{{ plan.quotas.Alias.quota }} aliases &#64;runbox domains</li>
                 <li>Unlimited aliases on your domains</li>
               </ul>
               <div class="threeYearDifferenceFeatured">
@@ -195,7 +195,7 @@
             Price per month: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy(12).toNumber() | number:'1.2-2' }} <br />
             Annual price per GB: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024).toNumber() | number:'1.2-2' }}
           </div>
-        </mat-card>        
+        </mat-card>
       </div>
     </div>
     </div>
@@ -205,9 +205,9 @@
       <p>
         <mat-icon svgIcon="lightbulb"></mat-icon> Note that upgrading or downgrading your main account will take effect right away, and the additional subscription time added to your current subscription. You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
       </p>
-      
+
       <br /><br />
-      
+
        <a id="compare"><h3>All Main Account Price Plans</h3></a>
 
       <p>
@@ -232,7 +232,7 @@
           <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.VirtualDomain.quota }}</td>
         </tr>
         <tr>
-          <td class="planComponent">Email aliases @runbox</td>
+          <td class="planComponent">Email aliases &#64;runbox</td>
           <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100</td>
         </tr>
         <tr>
@@ -368,7 +368,7 @@
     <ng-template #loading>
       <div> Loading account details... </div>
     </ng-template>
-    
+
     <br /><br />
 
     <ng-template #addonsLoading>
@@ -377,7 +377,7 @@
     </ng-template>
 
   <h3> Main Account Add-ons </h3>
-  
+
     <p> Add-ons are individual upgrades that can be added to your main account. </p>
 
     <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
@@ -387,15 +387,15 @@
                            >
       </app-account-product>
     </div>
-    
+
     <br /><br />
-    
+
     <h2> <a id="subaccounts">Sub-Accounts (additional accounts)</a> </h2>
-    
+
     <p>
       Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings.
     </p>
-    
+
     <p>
       To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
     </p>
@@ -408,11 +408,11 @@
       <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
       </app-account-product>
     </div>
-    
+
     <br /><br />
   </div>
   </div>
-  
+
   <ng-template #cartLoading>
     <app-runbox-loading text="Loading your cart...">
     </app-runbox-loading>
