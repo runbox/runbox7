@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2019 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -20,7 +20,7 @@
 import { TestBed, ComponentFixture, tick, fakeAsync, waitForAsync } from '@angular/core/testing';
 import { DialogModule } from './dialog.module';
 import { ProgressSnackbarComponent } from './progresssnackbar.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component } from '@angular/core';
 
@@ -54,7 +54,7 @@ describe('ProgressService', () => {
         fixture.detectChanges();
 
         let snackbarElement: HTMLElement;
-        document.querySelectorAll('snack-bar-container').forEach((e: HTMLElement) => {
+        document.querySelectorAll('.mat-mdc-snack-bar-container').forEach((e: HTMLElement) => {
             if (e.innerText.indexOf('Test1') > -1) {
                 snackbarElement = e;
             }
@@ -72,7 +72,7 @@ describe('ProgressService', () => {
         fixture.detectChanges();
 
         snackbarElement = null;
-        document.querySelectorAll('snack-bar-container').forEach((e: HTMLElement) => {
+        document.querySelectorAll('.mat-mdc-snack-bar-container').forEach((e: HTMLElement) => {
             if (e.innerText.indexOf('Test2') > -1) {
                 snackbarElement = e;
             }

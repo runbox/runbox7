@@ -20,11 +20,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MultipleSearchFieldsInputComponent } from './multiple-search-fields-input.component';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -44,8 +44,9 @@ describe('MultipleSearchFieldsInputComponent', () => {
         MatIconTestingModule,
         MatButtonModule,
         MatInputModule,
-        MatCheckboxModule ],
-        declarations: [ MultipleSearchFieldsInputComponent, MatIcon ]
+        MatCheckboxModule,
+        MatIcon ],
+        declarations: [ MultipleSearchFieldsInputComponent ]
     })
     .compileComponents();
   }));

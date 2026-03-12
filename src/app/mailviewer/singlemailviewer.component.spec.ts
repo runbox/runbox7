@@ -1,18 +1,18 @@
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
-// 
+//
 // This file is part of Runbox 7.
-// 
+//
 // Runbox 7 is free software: You can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // Runbox 7 is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
@@ -21,20 +21,20 @@ import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync, flush } from 
 
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -113,7 +113,7 @@ describe('SingleMailViewerComponent', () => {
         MatSnackBarModule,
         RouterTestingModule
       ],
-      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent, MatIcon],
+      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
       providers: [
         MobileQueryService,
         StorageService,
@@ -240,16 +240,16 @@ describe('SingleMailViewerComponent', () => {
     beforeEach(() => {
       // Spy on router.navigate before any tests run
       navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-      
+
       // Create a mock messageContents element (don't append to body to avoid navigation issues)
       messageContentsElement = document.createElement('div');
       messageContentsElement.id = 'messageContents';
-      
+
       // Set up the component's ViewChild reference
       component.messageContents = {
         nativeElement: messageContentsElement
       } as any;
-      
+
       // Prevent all mailto: links from opening mail client during tests
       globalPreventListener = (e: Event) => {
         const target = e.target as HTMLElement;
@@ -273,14 +273,14 @@ describe('SingleMailViewerComponent', () => {
       }
       navigateSpy.calls.reset();
     });
-    
+
     afterAll(() => {
       // Remove global prevent listener after all tests
       if (globalPreventListener) {
         document.removeEventListener('click', globalPreventListener, true);
       }
     });
-    
+
     afterAll(() => {
       // Remove global prevent listener after all tests
       if (globalPreventListener) {
@@ -303,7 +303,7 @@ describe('SingleMailViewerComponent', () => {
 
       // Temporarily set the href so our interceptor can read it
       mailtoLink.setAttribute('href', hrefValue);
-      
+
       // Dispatch event on messageContentsElement (where listener is attached) with target set to link
       // This simulates the capture phase where our listener intercepts before browser processes it
       const clickEvent = new MouseEvent('click', {
@@ -314,20 +314,20 @@ describe('SingleMailViewerComponent', () => {
       // Set the target to the link so the listener can find it
       Object.defineProperty(clickEvent, 'target', { value: mailtoLink, writable: false });
       const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
-      
+
       // Immediately remove href after setting up event to prevent browser from processing it
       // But our listener should have already read it
       setTimeout(() => {
         mailtoLink.href = '#';
       }, 0);
-      
+
       // Dispatch on messageContentsElement where the capture-phase listener is attached
       messageContentsElement.dispatchEvent(clickEvent);
       tick();
 
       // Verify preventDefault was called
       expect(preventDefaultSpy).toHaveBeenCalled();
-      
+
       // Verify router.navigate was called with correct parameters
       expect(navigateSpy).toHaveBeenCalledWith(
         ['/compose'],
@@ -345,8 +345,8 @@ describe('SingleMailViewerComponent', () => {
       component['initMailtoInterceptor']();
       tick();
 
-      const clickEvent = new MouseEvent('click', { 
-        bubbles: true, 
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
         cancelable: true,
         view: window
       });
@@ -382,7 +382,7 @@ describe('SingleMailViewerComponent', () => {
       });
       Object.defineProperty(clickEvent, 'target', { value: span, writable: false });
       const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
-      
+
       // Dispatch on messageContentsElement where the capture-phase listener is attached
       messageContentsElement.dispatchEvent(clickEvent);
       tick();
@@ -405,8 +405,8 @@ describe('SingleMailViewerComponent', () => {
       component['initMailtoInterceptor']();
       tick();
 
-      const clickEvent = new MouseEvent('click', { 
-        bubbles: true, 
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
         cancelable: true,
         view: window
       });
@@ -418,7 +418,7 @@ describe('SingleMailViewerComponent', () => {
 
       // Verify preventDefault was called to prevent browser navigation
       expect(preventDefaultSpy).toHaveBeenCalled();
-      
+
       // Should still navigate but with empty 'to' parameter
       expect(navigateSpy).toHaveBeenCalledWith(
         ['/compose'],
@@ -443,7 +443,7 @@ describe('SingleMailViewerComponent', () => {
       } as any;
 
       const removeEventListenerSpy = spyOn(oldMessageContents, 'removeEventListener');
-      
+
       component['initMailtoInterceptor']();
       tick();
 
@@ -453,7 +453,7 @@ describe('SingleMailViewerComponent', () => {
 
     it('should not initialize interceptor if messageContents is not available', () => {
       component.messageContents = null;
-      
+
       // Should not throw
       expect(() => component['initMailtoInterceptor']()).not.toThrow();
     });
