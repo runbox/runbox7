@@ -1,3 +1,4 @@
+
 mat-card {
     height: 225px;
     padding: 20px;
@@ -11,7 +12,7 @@ mat-card {
 
 @media (max-width: 500px) {
     mat-card {
-	    height: 200px;
+	height: 200px;
     }
 }
 
@@ -50,7 +51,7 @@ mat-card-content {
 mat-card-actions {
     display: flex;
     justify-content: center;
-    margin-bottom: 0px !important;
+    margin-bottom: 0px!important;
     text-align: center;
 }
 

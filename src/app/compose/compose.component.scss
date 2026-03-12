@@ -1,6 +1,6 @@
-@import '../../../node_modules/@angular/material/theming';
+@use '@angular/material' as mat;
 
-$rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
+$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 100, 50, 200);
 
 #messageTextArea {
     box-sizing: border-box;
@@ -132,11 +132,11 @@ mat-form-field {
     }
 }
 
-.attachment { 
+.attachment {
     padding-top: 5px;
     display: flex;
     width: 100%;
-    
+
     a {
         display: inline-block;
         white-space: nowrap;
@@ -150,8 +150,8 @@ mat-form-field {
 }
 
 #attachments {
-    display: flex; 
-    flex-wrap: wrap; 
+    display: flex;
+    flex-wrap: wrap;
     margin-top: 10px;
     font-size: 12.5px;
     color: rgba(0, 0, 0, 0.54);

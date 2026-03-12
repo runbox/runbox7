@@ -44,22 +44,19 @@
     margin-right: 2%;
     padding: 0;
     text-align: center;
-
     mat-card-title {
         padding: 12px 0 8px 0;
         color: white;
     }
 
-    .mat-card-subtitle {
+    .mat-mdc-card-subtitle {
         font-size: 1.1em;
     }
-    
     mat-card-content {
         height: 50%;
         padding: 0 5px;
         font-size: 1.1em !important;
     }
-
     mat-card-actions {
         margin-bottom: 5px;
     }
@@ -82,14 +79,14 @@
     width: 32%;
     font-size: 1.1em;
 }
-    
+
 ul.planComponents {
     padding-left: 25px;
     text-align: left;
     list-style-type: square;
     font-size: 0.9em;
 }
-    
+
 
 ul.overQuota {
     padding-left: 25px;
@@ -205,7 +202,7 @@ div.divider {
 }
 
 @media(max-width: 813px) {
-    
+
     .limitedTimeOffer,
     .productCardSpecial {
 	margin: 2% 0;

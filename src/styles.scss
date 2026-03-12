@@ -11,9 +11,9 @@
 //  If you specify typography styles for the components you use elsewhere, you should delete this line.
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
-@include mat.all-legacy-component-typographies();
-@include mat.legacy-core();
+//    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
+@include mat.all-component-typographies();
+@include mat.core();
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
@@ -40,7 +40,7 @@ $rmm-default-light-gray: #f4f4f4;
 $rmm-default-dark-gray: #949494;
 $rmm-default-black: #444444;
 
-@include mat.all-legacy-component-themes($rmm-default-theme);
+@include mat.all-component-themes($rmm-default-theme);
 
 // GTA 13.06.2018: Load custom fonts
 
@@ -60,7 +60,7 @@ $rmm-default-black: #444444;
     font-weight: normal;
 }
 
-$custom-typography: mat.define-legacy-typography-config(
+$custom-typography: mat.define-typography-config(
     $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
 );
 
@@ -72,8 +72,8 @@ $custom-typography: mat.define-legacy-typography-config(
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy($custom-typography);`
-@include mat.all-legacy-component-typographies($custom-typography);
-@include mat.legacy-core();
+@include mat.all-component-typographies($custom-typography);
+@include mat.core();
 
 
 /*** Generic styles ***/
@@ -152,30 +152,30 @@ mat-form-field {
 }
 
 /* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
-mat-list-item .mat-list-item-content,
-a[mat-list-item] .mat-list-item-content {
+mat-list-item .mat-mdc-list-item-content,
+a[mat-list-item] .mat-mdc-list-item-content {
     min-height: 24px !important;
 }
 
-.mat-list[dense] .mat-list-item .mat-list-text,
-.mat-nav-list[dense] .mat-list-item .mat-list-text>*,
-mat-list-item .mat-list-text,
-a[mat-list-item] .mat-list-text {
+.mat-mdc-list[dense] .mat-mdc-list-item .mdc-list-item__content,
+.mat-nav-list[dense] .mat-list-item .mdc-list-item__content>*,
+mat-list-item .mdc-list-item__content,
+a[mat-list-item] .mdc-list-item__content {
     height: 1.3em;
     line-height: 22px;
     font-weight: 400;
 }
 
-.mat-list-base[dense] .mat-list-item.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-item.mat-list-option .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-option .mat-list-item-content .mat-list-text {
+.mat-mdc-list-base[dense] .mat-mdc-list-item.mdc-list-item--with-leading-avatar .mat-mdc-list-item-content .mdc-list-item__content {
     padding-left: 5px !important;
 }
 
-mat-list-item p.mat-line mat-icon {
+mat-list-item p.mdc-list-item__secondary-text mat-icon {
     padding-right: 8px !important;
     padding-bottom: 8px !important;
 }
 
-.mat-toolbar, .mat-button {
+.mat-toolbar, .mat-mdc-button {
     font-size: 16px;
     font-weight: 400;
 }
@@ -188,34 +188,34 @@ button:hover, mat-button:hover, mat-raised-button:hover {
     filter: brightness(1.1);
 }
 
-.mat-line, .mat-tree-node {
+.mdc-list-item__secondary-text, .mat-tree-node {
     height: 30px !important;
     min-height: 30px !important;
     font-size: 13px !important;
 }
 
-.mat-list-base {
+.mat-mdc-list-base {
     padding-top: 0px !important;
 }
 
-.mat-list-base[dense], .mat-list-item.mat-list-item-with-avatar {
+.mat-mdc-list-base[dense], .mat-mdc-list-item.mdc-list-item--with-leading-avatar {
     height: auto !important;
     font-size: 13px !important;
 }
 
-.mat-menu-content .mat-list-item {
+.mat-mdc-menu-content .mat-mdc-list-item {
     height: 32px !important;
 }
 
-.mat-menu-panel .mat-list-item {
+.mat-mdc-menu-panel .mat-mdc-list-item {
     height: 40px !important;
 }
 
-.mat-header-cell {
+.mat-mdc-header-cell {
     font-size: 16px;
 }
 
-.mat-card-header-text {
+.mat-mdc-card-header-text {
     margin-left: 0px !important;
 }
 
@@ -231,15 +231,14 @@ mat-grid-tile {
     text-align: left;
 }
 
-mat-chip.mat-chip.mat-standard-chip {
+mat-chip.mat-mdc-chip.mat-mdc-standard-chip {
     background-color: #f5f5f5;
 }
 
-.mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
+.mat-expansion-panel-header, .mat-expansion-panel-body .mat-mdc-list-item-content {
     min-height: 24px;
     height: 36px;
-
-    .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
+    .mdc-list-item__content, .mdc-list-item__content>*, .mat-line {
 	height: 1.8em !important;
 	min-height: 1.8em !important;
     }
@@ -263,7 +262,7 @@ mat-icon {
     margin-top: 4px;
 }
 
-.mat-dialog-container {
+.mat-mdc-dialog-container {
     max-width: 550px;
 }
 
@@ -298,35 +297,31 @@ mat-grid-tile.tableTitle {
     padding: 3em;
 }
 
-.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+.mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
     background-color: mat.get-color-from-palette($rmm-default-primary);
 }
 
-.mat-slide-toggle-content {
+.mat-mdc-slide-toggle .mdc-switch__label {
     margin-top: 1px;
 }
 
 .section-header-with-toggle {
-    .mat-slide-toggle-bar {
+    .mdc-switch__track {
 	height: 16px;
 	width: 42px;
     }
-
-    .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
+    .mat-mdc-slide-toggle.mat-checked .mdc-switch__handle {
 	top: -5px;
 	transform: translate3d(20px, 0, 0);
     }
-
-    .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+    .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
 	height: 24px;
 	width: 24px;
     }
-
-    .mat-slide-toggle-label {
+    .mdc-switch__label {
 	font-size: 16px;
     }
-
-    .mat-slide-toggle-content {
+    .mdc-switch__label {
 	margin-left: 2px;
     }
 }
@@ -406,11 +401,11 @@ mat-grid-tile.tableTitle {
 
 /* Snackbar */
 
-.mat-snack-bar-container {
+.mat-mdc-snack-bar-container {
     a {
         color: #fff !important;
     }
-    .mat-button-wrapper {
+    .mdc-button__label {
         color: mat.get-color-from-palette($rmm-default-foreground) !important;
     }
 }
@@ -521,10 +516,9 @@ div.loginScreen {
         display: flex;
         margin: 0.5em;
         font-size: 13px;
-
-	.mat-checkbox-label {
-	    padding-top: 3px;
-	}
+ .mdc-label {
+     padding-top: 3px;
+ }
     }
     #loginButton {
         width: 100px;
@@ -533,11 +527,11 @@ div.loginScreen {
     .login-checkbox {
         padding: 0 5px;
     }
-    .mat-checkbox-layout {
+    .mat-mdc-checkbox .mdc-form-field {
         display: flex;
         align-items: center;
     }
-    .mat-checkbox-inner-container {
+    .mat-mdc-checkbox .mdc-checkbox {
         margin: 0 5px;
         height: 13px;
         width: 13px;
@@ -558,11 +552,10 @@ div.loginScreen {
     }
 
     .loginScreen #tfaArea {
-	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+ border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     }
-
-    mat-button-toggle button {
-	border-right: 1px solid #949494;
+    mat-button-toggle .mdc-button__label {
+ border-right: 1px solid #949494;
     }
 
     #forgotPassword, #createAccount {
@@ -681,7 +674,7 @@ rmm-headertoolbar {
     color: mat.get-color-from-palette($rmm-default-accent) !important;
 }
 
-.mat-menu-item, .mat-menu-item .mat-icon:not([color]) {
+.mat-mdc-menu-item, .mat-menu-item .mat-icon:not([color]) {
     height: 36px !important;
     line-height: 36px !important;
     color: mat.get-color-from-palette($rmm-default-primary) !important;
@@ -777,7 +770,7 @@ mat-sidenav-container {
 }
 
 .sidenavMainMenu {
-    .mat-mini-fab .mat-button-wrapper {
+    .mat-mdc-mini-fab .mdc-button__label {
         line-height: 18px;
     }
 
@@ -795,7 +788,7 @@ mat-sidenav-container {
     background-color: mat.get-color-from-palette($rmm-default-primary) !important;
     margin-top: -4px;
 
-    .mat-button .mat-ripple-element {
+    .mat-mdc-button .mat-ripple-element {
 	opacity: 0; // Override lower opacity in theme
     }
 }
@@ -889,7 +882,7 @@ a:hover {
 }
 
 rmm-folderlist {
-    .mat-icon-button {
+    .mat-mdc-icon-button {
         height: 24px;
         line-height: 24px;
     }
@@ -952,7 +945,7 @@ app-popular-recipients, app-saved-searches {
     }
 }
 
-app-saved-searches .mat-list-base[dense] .mat-list-item {
+app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     height: 30px;
 }
 
@@ -985,7 +978,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     width: 30px; // Remember to also update TOOLBAR_LIST_BUTTON_WIDTH in app.component.ts in order to show the correct number of menu items
 }
 
-#mailMenu .mat-icon-button {
+#mailMenu .mat-mdc-icon-button {
     height: 40px;
 }
 
@@ -999,7 +992,6 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
         font-size: 10px;
         line-height: 12px;
     }
-
     mat-list-item {
         padding: 5px 0;
     }
@@ -1018,7 +1010,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 }
 
-#offerLocalIndex .mat-list-item-content {
+#offerLocalIndex .mat-mdc-list-item-content {
     padding: 0 5px;
 }
 
@@ -1030,16 +1022,16 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 }
 
-#searchField .mat-form-field-wrapper {
+#searchField .mat-mdc-form-field-wrapper {
     padding-bottom: 0.5em;
 }
 
-#searchField .mat-form-field-infix {
+#searchField .mat-mdc-form-field-infix {
     line-height: 1.25em;
     padding: 0.2em 0;
 }
 
-#searchField .mat-form-field-underline {
+#searchField .mat-mdc-form-field-underline {
     bottom: 0.75em;
 }
 
@@ -1056,7 +1048,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     font-size: 14px;
 }
 
-#searchField .mat-form-field-infix {
+#searchField .mat-mdc-form-field-infix {
     width: 100%;
 }
 
@@ -1069,12 +1061,10 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
       background-color: white;
       border: #aaa solid 1px;
       padding: 0 10px 5px 10px;
-
-      .mat-form-field-wrapper {
+      .mat-mdc-form-field-wrapper {
 	  padding-bottom: 1em;
       }
-
-      .mat-form-field-infix {
+      .mat-mdc-form-field-infix {
 	  padding-bottom: 3px;
       }
 }
@@ -1084,15 +1074,15 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     height: 40px;
 }
 
-.mat-checkbox-label {
+.mat-mdc-checkbox .mdc-label {
     font-size: 13px;
 }
 
-#threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
+#threadedCheckbox .mdc-label, #unreadCheckbox .mdc-label {
     line-height: 0px;
 }
 
-.mat-icon, .mat-icon-button {
+.mat-icon, .mat-mdc-icon-button {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
 
@@ -1123,7 +1113,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     right: 0px;
 }
 
-.mat-fab.mat-accent {
+.mat-mdc-fab.mat-accent {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
 
@@ -1162,27 +1152,26 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     font-size: 14px;
     align-items: center;
 
-    .mat-raised-button {
-	min-width: 30px;
-	line-height: 24px;
+    .mat-mdc-raised-button {
+ min-width: 30px;
+ line-height: 24px;
+    }
+    .mdc-radio__label {
+ padding: 0 !important;
     }
 
-    .mat-radio-label-content {
-	padding: 0 !important;
-    }
-
-    button, .mat-radio-button, .mat-checkbox {
+    button, .mat-mdc-radio-button, .mat-mdc-checkbox {
 	margin-left: 5px;
     }
 
-    .mat-flat-button {
+    .mat-mdc-unelevated-button {
 	background-color: mat.get-color-from-palette($rmm-default-primary);
 
 	.mat-icon {
 	    color: white !important;
 	}
     }
-    .mat-raised-button {
+    .mat-mdc-raised-button {
 	background-color: white;
 
 	.mat-icon {
@@ -1194,7 +1183,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 	margin: 0 3px !important;
     }
 
-    mat-flat-button, .mat-flat-button, mat-raised-button, .mat-raised-button {
+    mat-flat-button, .mat-mdc-unelevated-button, mat-raised-button, .mat-mdc-raised-button {
 	min-width: 30px !important;
 	width: 30px !important;
 	padding: 0 !important;
@@ -1259,46 +1248,46 @@ compose.draftPreviewContainer {
 }
 
 @media(min-width: 1025px) {
-    compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
+    compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
     width: 45vw !important;
     }
 }
 
 @media(max-width: 1024px) and (min-width: 376px) {
-    compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-chip-input {
+    compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
     width: 66vw !important;
     }
 }
 
 /* Styles to decrease vertical spacing on Compose */
 
-compose .mat-card-actions {
+compose .mat-mdc-card-actions {
     padding: 0 !important;
     margin-bottom: 8px !important;
 }
 
-compose .mat-form-field-underline, compose input.mat-chip-input {
+compose .mat-mdc-form-field-underline, compose input.mat-mdc-chip-input {
     bottom: 10px !important;
 }
 
-compose .mat-card-title {
+compose .mat-mdc-card-title {
     margin-bottom: 0px !important;
     font-size: 13px;
 }
 
-compose .mat-card-subtitle {
+compose .mat-mdc-card-subtitle {
     margin-bottom: 0px !important;
 }
 
-compose input.mat-chip-input {
+compose input.mat-mdc-chip-input {
     margin-top: 0px !important;
 }
 
-compose .mat-standard-chip {
+compose .mat-mdc-standard-chip {
     padding: 7px 8px 5px 10px !important;
 }
 
-compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-field-wrapper, compose #fieldSubject .mat-form-field-wrapper {
+compose #fieldFrom .mat-mdc-form-field-wrapper, compose .fieldRecipient .mat-mdc-form-field-wrapper, compose #fieldSubject .mat-mdc-form-field-wrapper {
     padding-bottom: 0.5em;
 }
 
@@ -1323,7 +1312,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
         div {
             padding: 2px 0;
         }
-	.mat-chip {
+	.mat-mdc-chip {
 	    padding: 2px 5px !important;
 	    font-size: 12px !important;
 	}
@@ -1332,8 +1321,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 
 #fieldFrom, #fieldSubject {
     overflow: hidden;
-
-    .mat-form-field-infix {
+    .mat-mdc-form-field-infix {
 	padding-bottom: 4px;
     }
 }
@@ -1342,34 +1330,29 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 /*** Contacts ***/
 
 .contactListControls {
-    .mat-nav-list[dense], .mat-list-item, .mat-list-text, .mat-form-field {
+    .mat-nav-list[dense], .mat-mdc-list-item, .mdc-list-item__content, .mat-mdc-form-field {
 	height: 48px !important;
     }
 }
 
-.contactList .mat-form-field-infix {
+.contactList .mat-mdc-form-field-infix {
     font-size: 16px;
 }
 
 #contactListControlsSearch {
-
-    .mat-form-field-label-wrapper {
+    .mat-mdc-form-field-label-wrapper {
         top: -1em;
     }
-
-    .mat-form-field-label-wrapper label {
+    .mat-mdc-form-field-label-wrapper label {
 	margin-top: 10px;
     }
-
-    .mat-list-item-content {
+    .mat-mdc-list-item-content {
 	padding: 0 !important;
     }
-
-    .mat-form-field-appearance-legacy .mat-form-field-infix {
+    .mat-mdc-form-field-infix {
 	padding-top: 0 !important;
     }
-
-    .mat-form-field-appearance-legacy .mat-form-field-label {
+    .mat-mdc-form-field-label {
         top: 0.75em;
     }
 }
@@ -1452,7 +1435,7 @@ app-calendar-event-editor-dialog p {
 
 /* Dom reg */
 
-.domreg .mat-card-header-text {
+.domreg .mat-mdc-card-header-text {
     width: 100%;
 }
 
@@ -1481,7 +1464,7 @@ app-calendar-event-editor-dialog p {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
 
-.productCardSpecial .mat-card, .productCardSpecial mat-card {
+.productCardSpecial .mat-mdc-card, .productCardSpecial mat-card {
     background: mat.get-color-from-palette($rmm-default-accent);
 }
 
@@ -1702,10 +1685,10 @@ tr.regularRow td {
     border-bottom-width: 0;
 }
 
-tr.regularRow td.mat-cell:first-of-type {
+tr.regularRow td.mat-mdc-cell:first-of-type {
     padding-left: 0px;
 }
-tr.regularRow td.mat-cell:last-of-type {
+tr.regularRow td.mat-mdc-cell:last-of-type {
     padding-right: 0px;
 }
 
@@ -1718,7 +1701,7 @@ div.expandedDetails {
     }
 }
 
-td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
+td.mat-mdc-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
     @media only screen and (max-width: 1024px) {
         padding-bottom: 10px;
     }
@@ -1727,7 +1710,7 @@ td.mat-cell.cdk-column-expandedDetails.mat-column-expandedDetails {
     }
 }
 
-td.mat-cell.cdk-column-renewal_name.mat-column-renewal_name {
+td.mat-mdc-cell.cdk-column-renewal_name.mat-column-renewal_name {
     @media only screen and (max-width: 1024px) {
         background-color: #f5f5f5;
         padding-top: 10px;

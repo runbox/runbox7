@@ -7,7 +7,7 @@
     opacity: 0.5;
 }
 
-.selectedFolder.mat-button {
+.selectedFolder.mat-mdc-button {
     font-size: 14px !important;
     margin-top: 1px !important;
 }
@@ -24,6 +24,7 @@
     display: none;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
 mat-list-item.selectedFolder p.visibleOnHover {
     display: inherit;
 }
