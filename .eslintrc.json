@@ -14,7 +14,8 @@
       "parserOptions": {
         "project": [
           "tsconfig.json",
-          "e2e/tsconfig.json"
+          "e2e/cypress/tsconfig.json",
+          "e2e/mockserver/tsconfig.json"
         ],
         "createDefaultProgram": true
       },
@@ -71,7 +72,34 @@
       }
     },
     {
+      "files": ["e2e/cypress/**/*.js"],
+      "parserOptions": {
+        "ecmaVersion": 2024,
+        "sourceType": "script"
+      },
+      "extends": [
+        "eslint:recommended"
+      ],
+      "env": {
+        "node": true,
+        "es2024": true,
+        "browser": true
+      },
+      "globals": {
+        "Cypress": "readonly",
+        "cy": "readonly",
+        "it": "readonly",
+        "describe": "readonly",
+        "before": "readonly",
+        "beforeEach": "readonly",
+        "after": "readonly",
+        "afterEach": "readonly",
+        "expect": "readonly"
+      }
+    },
+    {
       "files": ["*.js"],
+      "excludedFiles": ["e2e/cypress/**/*.js"],
       "parserOptions": {
         "ecmaVersion": 2024,
         "sourceType": "script"

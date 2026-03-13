@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Switching between folders (and not-folders)', () => {
 
     function goToInbox() {
@@ -34,4 +32,4 @@ describe('Switching between folders (and not-folders)', () => {
         // and back to inbox...
         goToInbox();
     });
-})
+});

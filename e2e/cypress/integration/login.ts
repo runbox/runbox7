@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Login', () => {
     function expectLoginPage() {
         cy.visit('/');
@@ -7,8 +5,8 @@ describe('Login', () => {
     }
 
     function enterCredentials() {
-        cy.get('input[data-placeholder=Username]').type('testuser');
-        cy.get('input[data-placeholder=Password]').type('testpassword');
+        cy.get('input[placeholder="Username"]').type('testuser');
+        cy.get('input[placeholder="Password"]').type('testpassword');
     }
 
     function clickLogin() {
@@ -20,7 +18,7 @@ describe('Login', () => {
         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
         cy.get('#offerLocalIndex').should('contain', 'Runbox');
         cy.get('#offerLocalIndex mat-list-item button[data-cy="cancel-button"]').click().should(() => {
-          expect(JSON.parse(localStorage.getItem('221:localSearchPromptDisplayed'))).to.equal('true');
+          expect(JSON.parse(localStorage.getItem('221:localSearchPromptDisplayed') ?? 'null')).to.equal('true');
         });
     }
 
@@ -44,7 +42,7 @@ describe('Login', () => {
         clickLogin();
 
         cy.get('mat-button-toggle:contains(TOTP)').click();
-        cy.get('input[data-placeholder="Timed one-time password"]').type('123456');
+        cy.get('input[placeholder="Timed one-time password"]').type('123456');
         clickLogin();
 
         expectWebmail();

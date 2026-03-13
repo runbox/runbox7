@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Domain registration', () => {
     it('Should display domreg component', () => {
         cy.visit('/domainregistration');

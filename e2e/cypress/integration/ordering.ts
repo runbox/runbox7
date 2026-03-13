@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Ordering products', () => {
     it('can place an order', () => {
         localStorage.removeItem('221:shoppingCart');
@@ -12,11 +10,11 @@ describe('Ordering products', () => {
 
         cy.get('#shoppingCartButton').click();
         cy.url().should('include', '/account/cart');
-        cy.get('.mat-table tbody tr')
+        cy.get('.mat-mdc-table tbody tr')
             .and('contain', 'Runbox Test')
             .and('contain', '13.37 EUR');
 
-        cy.contains('mat-expansion-panel-header', 'Other payment methods').click();
+        // Panel is already expanded by default, no need to click
         cy.get('button#payDirectly').click();
         cy.url().should('include', '/account/receipt');
     });
@@ -35,15 +33,15 @@ describe('Ordering products', () => {
 
         cy.get('#shoppingCartButton').click();
 
-        cy.get('tr.mat-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
-        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '2');
+        cy.get('tr.mat-mdc-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
+        cy.get('tr.mat-mdc-row td:nth-of-type(2)').should('contain', '2');
 
         // Test increase/decrease addon amount:
-        cy.get('tr.mat-row td button[name="increaseProduct"]').should('be.visible');
-        cy.get('tr.mat-row td button[name="increaseProduct"]').click();
-        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '3');
+        cy.get('tr.mat-mdc-row td button[name="increaseProduct"]').should('be.visible');
+        cy.get('tr.mat-mdc-row td button[name="increaseProduct"]').click();
+        cy.get('tr.mat-mdc-row td:nth-of-type(2)').should('contain', '3');
         // Test removing entire product
-        cy.get('tr.mat-row td button[name="removeProduct"]').click();
+        cy.get('tr.mat-mdc-row td button[name="removeProduct"]').click();
         cy.contains('shopping cart is currently empty');
     });
 });

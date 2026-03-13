@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Renewing domains', () => {
     it('can renew a domain through domreg', () => {
         cy.visit('/account/subscriptions');

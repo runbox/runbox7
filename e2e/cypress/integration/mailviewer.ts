@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Interacting with mailviewer', () => {
     function canvas() {
         return cy.get('canvastable canvas:first-of-type');
@@ -13,7 +11,7 @@ describe('Interacting with mailviewer', () => {
 
         (await indexedDB.databases())
             .filter(db => db.name && /messageCache/.test(db.name))
-            .forEach(db => indexedDB.deleteDatabase(db.name!));
+            .forEach(db => indexedDB.deleteDatabase(db.name as string));
     });
 
     // it('Loading an email with loading errors displays an error', () => {
@@ -46,7 +44,7 @@ describe('Interacting with mailviewer', () => {
 
     it('can reply to an email with no "To"', () => {
         cy.intercept('/rest/v1/email/download/*').as('get11');
-        cy.visit('/#Inbox:11')
+        cy.visit('/#Inbox:11');
         cy.wait('@get11', {'timeout':10000});
         // cy.get('#messageContents');
 
@@ -55,7 +53,7 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Re: No 'To', just 'CC'");
+        cy.get('mat-card-actions div').should('contain', 'Re: No \'To\', just \'CC\'');
     });
 
     it('can forward an email with no "To"', () => {
@@ -70,7 +68,7 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Fwd: No 'To', just 'CC'");
+        cy.get('mat-card-actions div').should('contain', 'Fwd: No \'To\', just \'CC\'');
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
@@ -85,7 +83,7 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Re: ");
+        cy.get('mat-card-actions div').should('contain', 'Re: ');
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
@@ -100,7 +98,7 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Fwd: ");
+        cy.get('mat-card-actions div').should('contain', 'Fwd: ');
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {
@@ -112,7 +110,7 @@ describe('Interacting with mailviewer', () => {
         // Make sure we're in vertical mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
 
-        cy.get('button[mattooltip="Full height"]').should('exist');        
+        cy.get('button[mattooltip="Full height"]').should('exist');
     });
 
     it('Changing viewpane height is stored', () => {
@@ -126,8 +124,10 @@ describe('Interacting with mailviewer', () => {
         cy.get('button[mattooltip="Horizontal preview"]').click();
         // set full height
         cy.get('button[mattooltip="Full height"]').click().should(() => {
-            // full height 
-            const resizerPercent = parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10);
+            // full height
+            const resizerPercent = parseInt(
+                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
+            );
             expect(resizerPercent).to.eq(100);
         });
     });
@@ -142,21 +142,29 @@ describe('Interacting with mailviewer', () => {
         // Make sure we're in horizontal mode
         cy.get('button[mattooltip="Horizontal preview"]').click();
         // set full height
-        var resizerPercent = 0;
+        let resizerPercent = 0;
         cy.get('button[mattooltip="Full height"]').click().and(() => {
         // full height
-            resizerPercent = parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10);
+            resizerPercent = parseInt(
+                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
+            );
         });
-        // half height 
+        // half height
         cy.get('button[mattooltip="Half height"]').click().should(() => {
-            expect(parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10)).to.be.eq(50);
+            expect(parseInt(
+                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
+            )).to.be.eq(50);
         // collect new value
-            resizerPercent = parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10);
+            resizerPercent = parseInt(
+                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
+            );
         });
 
         // doesnt go away on pane close (persist for other emails)
         cy.get('button[mattooltip="Close"]').click().should(() => {
-            expect(parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10)).to.equal(resizerPercent);
+            expect(parseInt(
+                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
+            )).to.equal(resizerPercent);
         });
     });
 
@@ -188,4 +196,4 @@ describe('Interacting with mailviewer', () => {
         cy.go('back');
         cy.get('div#messageHeaderSubject').contains('Default from fix test');
     });
-})
+});

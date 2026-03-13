@@ -1,3 +1,15 @@
+/// <reference types="cypress" />
+
+export {};
+
+declare global {
+    namespace Cypress {
+        interface Chainable {
+            closeWelcomeDialog(): Chainable;
+        }
+    }
+}
+
 Cypress.Commands.add('closeWelcomeDialog', () => {
     cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
     cy.get('confirm-dialog .mat-dialog-actions button mat-icon[svgIcon="cancel"]').click();

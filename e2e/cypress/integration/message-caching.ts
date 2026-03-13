@@ -1,11 +1,9 @@
-/// <reference types="cypress" />
-
 describe('Message caching', () => {
     beforeEach(async () => {
         localStorage.setItem('221:localSearchPromptDisplayed', 'true');
         (await indexedDB.databases())
             .filter(db => db.name && /messageCache/.test(db.name))
-            .forEach(db => indexedDB.deleteDatabase(db.name!));
+            .forEach(db => indexedDB.deleteDatabase(db.name as string));
 
     });
 

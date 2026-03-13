@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Payment methods', () => {
     it('can list available payment methods', () => {
         cy.visit('/account/payment_cards');

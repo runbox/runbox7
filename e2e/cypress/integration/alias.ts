@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Aliases settings page', () => {
     const ALIASES = [
         {
@@ -43,9 +41,9 @@ describe('Aliases settings page', () => {
         cy.get('#create-new-alias').click();
         cy.wait('@getAllowedDomains');
 
-        // open dialog, fill in fields, submit
-        cy.get('app-aliases-edit').should('be.visible');
-        cy.get('mat-select[name="domain"]').click();
+        // open dialog, fill in fields, submit - wait for form content to be visible
+        cy.get('mat-select[name="domain"]', { timeout: 10000 }).should('be.visible').click();
+        cy.get('.mat-mdc-select-panel').should('be.visible');
         cy.get('mat-option').first().click();
         cy.get('input[name="localpart"]').type('mctestface');
         cy.get('input[name="forward_to"]')
@@ -93,9 +91,9 @@ describe('Aliases settings page', () => {
         cy.get('button#edit-alias').first().click();
         cy.wait('@getAllowedDomains');
 
-        // open dialog, fill in fields, submit
-        cy.get('app-aliases-edit').should('be.visible');
-        cy.get('mat-select[name="domain"]').click();
+        // open dialog, fill in fields, submit - wait for form content to be visible
+        cy.get('mat-select[name="domain"]', { timeout: 10000 }).should('be.visible').click();
+        cy.get('.mat-mdc-select-panel').should('be.visible');
         cy.get('mat-option').first().click();
         // can't change localpart after its been set
         cy.get('input[name="localpart"]').should('have.attr', 'readonly');

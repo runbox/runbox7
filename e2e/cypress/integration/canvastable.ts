@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Selecting rows in canvastable', () => {
     function canvas() {
         return cy.get('canvastable canvas:first-of-type');
@@ -14,12 +12,12 @@ describe('Selecting rows in canvastable', () => {
         cy.visit('/');
 
         // select
-        canvas().click({ x: 15, y: 40 });
+        canvas().click(15, 40);
         moveButton().should('be.visible');
         // unselect
-        canvas().click({ x: 21, y: 41, force: true });
+        canvas().click(21, 41);
         moveButton().should('not.exist');
-    })
+    });
 
     it('should select multiple rows', () => {
         cy.viewport('iphone-6');
@@ -34,5 +32,5 @@ describe('Selecting rows in canvastable', () => {
         // unselect by moving mouse back up
         canvas().trigger('mousemove', { x: 21, y: 12 });
         moveButton().should('not.exist');
-    })
-})
+    });
+});

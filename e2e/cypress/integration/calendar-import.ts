@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Import calendar event', () => {
     it('Should display import preview', () => {
         cy.visit('/calendar');

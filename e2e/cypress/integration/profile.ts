@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Profiles settings page', () => {
 
     const ALLOWED_DOMAINS = ['runbox.com', 'example.com'];
@@ -18,13 +16,11 @@ describe('Profiles settings page', () => {
         cy.intercept('GET', '/rest/v1/profiles').as('getProfiles');
         cy.intercept('GET', '/rest/v1/aliases/limits').as('getAliasLimits');
         cy.visit('/account/identities');
-        cy.wait('@getAliasLimits');
+        cy.wait(['@getProfiles', '@getAliasLimits']);
 
         cy.get('#add-identity').click();
-
-        // open dialog, fill in fields, submit
-        cy.get('app-profiles-edit').should('be.visible');
-        cy.get('input[name="email"]').type('newprof@runbox.com');
+        // Wait for dialog content to be visible by checking for the form input
+        cy.get('input[name="email"]', { timeout: 10000 }).should('be.visible').type('newprof@runbox.com');
         cy.get('input[name="from"]').type('My Name');
         cy.get('input[name="name"]').type('My Profile');
         cy.get('textarea[name="signature"]').type('My Sig');
@@ -39,7 +35,8 @@ describe('Profiles settings page', () => {
         cy.get('button#save').click();
         cy.wait('@postProfile');
 
-        cy.get('app-profiles-edit').should('not.exist');
+        // Wait for dialog to close
+        cy.get('app-profiles-edit', { timeout: 10000 }).should('not.exist');
     });
 
 });

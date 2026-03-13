@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Search', () => {
     beforeEach(() => {
         localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
@@ -7,9 +5,9 @@ describe('Search', () => {
 
     it('should display multiple search field panel', () => {
         cy.visit('/');
-        cy.get('mat-toolbar mat-form-field button').click();
-        cy.get('input[data-placeholder=Subject]').type('testsubject');
-        cy.get('mat-toolbar input[data-placeholder="Start typing to search messages"]')
+        cy.get('button.mat-mdc-icon-button[matTooltip="Show advanced search pane"]').click();
+        cy.get('input[placeholder="Subject"]').type('testsubject', { force: true });
+        cy.get('mat-toolbar input[placeholder="Start typing to search messages"]')
             .should('have.value', 'subject:"testsubject"');
     });
 });

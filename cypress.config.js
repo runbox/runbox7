@@ -15,9 +15,6 @@ module.exports = defineConfig({
     "retries": {
         "runMode": 2
     },
-    setupNodeEvents,
-    setupNodeEvents(on, config) {
-      require('cypress-terminal-report/src/installLogsPrinter')(on);
-    }
+    setupNodeEvents
   }
 });

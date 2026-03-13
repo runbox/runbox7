@@ -27,7 +27,7 @@ describe('Composing emails', () => {
         cy.wait('@listAllmessages', {'timeout':10000});
 
         cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
-        cy.get('input[data-placeholder="Subject"]').type('Email about Subject X');
+        cy.get('input[placeholder="Subject"]').type('Email about Subject X');
         cy.get('mat-card-actions div').should('contain', 'Subject X');
     });
 
@@ -64,7 +64,7 @@ describe('Composing emails', () => {
         cy.visit('/#Inbox:1');
         cy.wait('@message1requested', {'timeout':100000});
         cy.get('single-mail-viewer').should('exist');
-        cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"]').click();
+        cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"] input').click({force: true});
         cy.contains('Manually toggle HTML').click();
         cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"] input').should('be.checked');
         // cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
@@ -84,9 +84,10 @@ describe('Composing emails', () => {
         cy.wait('@listAllmessages', {'timeout':10000});
         cy.get('mailrecipient-input input').clear().type('postpat');
         // autocompletion should show the nickname...
-        cy.get('mat-option:contains(Postpat)').click();
+        cy.get('.mat-mdc-autocomplete-panel').should('be.visible');
+        cy.get('mat-option').contains('Postpat').click();
         // ...but the resulting contact should not
-        cy.get('mat-chip').should('not.contain', 'Postpat');
+        cy.get('mat-chip-row').should('not.contain', 'Postpat');
     });
 
     it('closing a newly composed email should return where we started', () => {
@@ -107,7 +108,7 @@ describe('Composing emails', () => {
         cy.visit('/');
         cy.wait(1000);
         cy.visit('/#Inbox:1');
-        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
+        cy.get('canvastable canvas:first-of-type').should('be.visible').click(300, 10);
         cy.get('single-mail-viewer').should('exist');
         cy.get('button[mattooltip="Reply"]').click();
         cy.get('button[mattooltip="Close draft"').click();
@@ -120,19 +121,19 @@ describe('Composing emails', () => {
     it('Send email on contacts page, composes an email', () => {
         cy.visit('/contacts');
         cy.contains('Runbox 7 Contacts');
-        cy.contains('Patrick Postcode').click();
+        cy.get('app-contact-button').contains('Patrick Postcode').click();
         cy.contains('Send an email to this address').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
             expect(loc.search).to.eq('?to=patrick@post.no');
         });
-        cy.get('mailrecipient-input mat-chip').should('contain', 'patrick@post.no');
+        cy.get('mailrecipient-input mat-chip-row').should('contain', 'patrick@post.no');
     });
 
     it('closing a new email from contacts list, should return to contacts', () => {
         cy.visit('/contacts');
         cy.contains('Runbox 7 Contacts');
-        cy.contains('Patrick Postcode').click();
+        cy.get('app-contact-button').contains('Patrick Postcode').click();
         cy.contains('Send an email to this address').click();
         // NB if we skip checking exist, we get an issue clicking the button
         // not loaded??
@@ -150,18 +151,18 @@ describe('Composing emails', () => {
         const address = 'testmail@testmail.com';
         cy.get('.messageHeaderTo rmm7-contact-card span').contains(address, { matchCase: false });
         cy.get('button[mattooltip="Reply"]').click();
-        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
+        cy.get('.mat-mdc-select-value-text span').contains(address, { matchCase: false });
     });
 
     it('should show a save template button and save on click', () => {
         cy.visit('/compose?new=true');
-        cy.get('input[data-placeholder="Subject"]').type('Template subject here');
+        cy.get('input[placeholder="Subject"]').type('Template subject here');
         cy.get('button[mattooltip="Save as template"').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
             expect(loc.search).to.eq('?new=true');
         });
 
-        cy.get('snack-bar-container').should('contain', 'Saved to templates');
-    })
+        cy.get('.mat-mdc-snack-bar-container').should('contain', 'Saved to templates');
+    });
 });

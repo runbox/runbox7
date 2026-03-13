@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Account access control', () => {
     function becomeSubaccount() {
         cy.intercept('/rest/v1/me', (req) => {
