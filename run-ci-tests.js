@@ -8,7 +8,7 @@ function run(command) {
 const phases = {
     lint:   'npm run lint',
     policy: 'npm run policy',
-    unit:   'npm run test -- --watch=false --progress=false --browsers=FirefoxHeadless',
+    unit:   'npm run test -- --watch=false --progress=false --browsers=FirefoxHeadless --code-coverage',
     e2e:    'npm run cypress-e2e',
     build:  'npm run build',
 };
