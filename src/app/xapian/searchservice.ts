@@ -150,6 +150,7 @@ export class SearchService {
           this.progressSnackBar.dismiss();
         } else if (data['action'] === PostMessageAction.updateMessageListService) {
           this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
+          this.messagelistservice.applyChanges([], data['deletedMessages']);
           this.messagelistservice.refreshFolderList();
         } else if (data['action'] === PostMessageAction.indexDeleted) {
           this.stopIndexDownloadingInProgress = false;
