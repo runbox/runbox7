@@ -166,7 +166,12 @@ export class CalendarAppComponent implements OnDestroy {
         clearInterval(this.viewRefreshInterval);
     }
 
-    addEvent(on?: Date): void {
+    addEvent(pointerEvent: PointerEvent, on?: Date): void {
+        // Prevent clicking add button on cell click
+        if (pointerEvent.pointerType === 'touch' && on !== null && !isSameDay(this.viewDate, on)) return
+
+        pointerEvent.stopPropagation()
+
         // setup new event
         const new_event = RunboxCalendarEvent.newEmpty(this.calendarservice.me.timezone);
         new_event.timezone = this.calendarservice.me.timezone;
