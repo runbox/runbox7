@@ -5,17 +5,14 @@
     <mat-card class="mat-elevation-z2 profile-card" *ngFor="let item of profiles; let i = index;">
         <mat-card-content class="profile-content">
             <mat-grid-list cols="{{mobile?6:7}}" rowHeight="15px">
-                <mat-grid-tile *ngIf="item.type === 'main'" colspan="6" rowspan="2">
-                    <h3>Username Identity</h3>
+                <mat-grid-tile  *ngIf="item.type === 'main'" colspan="6" rowspan="2">
+                    <h3 class="heading">Account Username</h3>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
-                    <span class="float-right">Email:</span>
+                    <span class="float-right heading">Email Address:</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="4" rowspan="2">
-                    <span class="float-left">{{item.email}}</span>
-                </mat-grid-tile>
-                <mat-grid-tile colspan="1" rowspan="8" *ngIf="!mobile">
-                    <button mat-raised-button (click)="edit(item)" color="primary">Edit</button>
+                    <span class="float-left heading">{{item.email}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">From Name:</span>
@@ -48,7 +45,7 @@
                 <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="1" *ngIf="mobile">
                     <mat-divider></mat-divider>
                 </mat-grid-tile>
-                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="3" *ngIf="mobile">
+                <mat-grid-tile colspan="{{mobile?6:7}}" rowspan="3">
                     <button mat-raised-button (click)="edit(item)" color="primary">Edit</button>
                 </mat-grid-tile>
             </mat-grid-list>
