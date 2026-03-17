@@ -153,25 +153,25 @@ mat-form-field {
 
 /* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
 mat-list-item .mat-mdc-list-item-content,
-a[mat-list-item] .mat-list-item-content {
+a[mat-list-item] .mat-mdc-list-item-content {
     min-height: 24px !important;
 }
 
-.mat-mdc-list[dense] .mat-mdc-list-item .mat-list-text,
-.mat-nav-list[dense] .mat-list-item .mat-list-text>*,
-mat-list-item .mat-list-text,
-a[mat-list-item] .mat-list-text {
+.mat-mdc-list[dense] .mat-mdc-list-item .mdc-list-item__content,
+.mat-mdc-nav-list[dense] .mat-mdc-list-item .mdc-list-item__content>*,
+mat-list-item .mdc-list-item__content,
+a[mat-list-item] .mdc-list-item__content {
     height: 1.3em;
     line-height: 22px;
     font-weight: 400;
 }
 
-.mat-mdc-list-base[dense] .mat-mdc-list-item.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-item.mat-list-option .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-item-with-avatar .mat-list-item-content .mat-list-text, .mat-list-base[dense] .mat-list-option.mat-list-option .mat-list-item-content .mat-list-text {
+.mat-mdc-list-base[dense] .mat-mdc-list-item.mat-mdc-list-item-with-avatar .mat-mdc-list-item-content .mdc-list-item__content, .mat-mdc-list-base[dense] .mat-mdc-list-item.mat-mdc-list-option .mat-mdc-list-item-content .mdc-list-item__content, .mat-mdc-list-base[dense] .mat-mdc-list-option.mat-mdc-list-item-with-avatar .mat-mdc-list-item-content .mdc-list-item__content, .mat-mdc-list-base[dense] .mat-mdc-list-option.mat-mdc-list-option .mat-mdc-list-item-content .mdc-list-item__content {
     padding-left: 5px !important;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-mat-list-item p.mat-line mat-icon {
+mat-list-item p.mdc-list-item__secondary-text mat-icon {
     padding-right: 8px !important;
     padding-bottom: 8px !important;
 }
@@ -189,7 +189,7 @@ button:hover, mat-button:hover, mat-raised-button:hover {
     filter: brightness(1.1);
 }
 
-.mat-line, .mat-tree-node {
+.mdc-list-item__secondary-text, .mat-tree-node {
     height: 30px !important;
     min-height: 30px !important;
     font-size: 13px !important;
@@ -200,7 +200,7 @@ button:hover, mat-button:hover, mat-raised-button:hover {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-.mat-mdc-list-base[dense], .mat-mdc-list-item.mat-list-item-with-avatar {
+.mat-mdc-list-base[dense], .mat-mdc-list-item.mat-mdc-list-item-with-avatar {
     height: auto !important;
     font-size: 13px !important;
 }
@@ -218,7 +218,7 @@ button:hover, mat-button:hover, mat-raised-button:hover {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
-.mat-card-header-text {
+.mat-mdc-card-header-text {
     margin-left: 0px !important;
 }
 
@@ -241,11 +241,11 @@ mat-chip.mat-mdc-chip.mat-mdc-standard-chip {
 
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-.mat-expansion-panel-header, .mat-expansion-panel-body .mat-list-item-content {
+.mat-expansion-panel-header, .mat-expansion-panel-body .mat-mdc-list-item-content {
     min-height: 24px;
     height: 36px;
     /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-    .mat-list-text, .mat-list-text>*, .mat-list-text, .mat-line {
+    .mdc-list-item__content, .mdc-list-item__content>*, .mdc-list-item__content, .mdc-list-item__secondary-text {
 	height: 1.8em !important;
 	min-height: 1.8em !important;
     }
@@ -305,37 +305,37 @@ mat-grid-tile.tableTitle {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-.mat-mdc-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+.mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
     background-color: mat.get-color-from-palette($rmm-default-primary);
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-.mat-slide-toggle-content {
+.mdc-switch__label {
     margin-top: 1px;
 }
 
 .section-header-with-toggle {
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-slide-toggle-bar {
+    .mdc-switch__track {
 	height: 16px;
 	width: 42px;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-mdc-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
+    .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb-container {
 	top: -5px;
 	transform: translate3d(20px, 0, 0);
     }
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-mdc-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+    .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
 	height: 24px;
 	width: 24px;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-slide-toggle-label {
+    .mdc-form-field {
 	font-size: 16px;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-slide-toggle-content {
+    .mdc-switch__label {
 	margin-left: 2px;
     }
 }
@@ -420,7 +420,7 @@ mat-grid-tile.tableTitle {
         color: #fff !important;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
-    .mat-button-wrapper {
+    .mdc-button__label {
         color: mat.get-color-from-palette($rmm-default-foreground) !important;
     }
 }
@@ -532,7 +532,7 @@ div.loginScreen {
         margin: 0.5em;
         font-size: 13px;
 	/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-	.mat-checkbox-label {
+	.mdc-label {
 	    padding-top: 3px;
 	}
     }
@@ -544,12 +544,12 @@ div.loginScreen {
         padding: 0 5px;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-    .mat-checkbox-layout {
+    .mat-mdc-checkbox .mdc-form-field {
         display: flex;
         align-items: center;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-    .mat-checkbox-inner-container {
+    .mat-mdc-checkbox .mdc-checkbox {
         margin: 0 5px;
         height: 13px;
         width: 13px;
@@ -693,7 +693,7 @@ rmm-headertoolbar {
     color: mat.get-color-from-palette($rmm-default-accent) !important;
 }
 
-.mat-mdc-menu-item, .mat-menu-item .mat-icon:not([color]) {
+.mat-mdc-menu-item, .mat-mdc-menu-item .mat-icon:not([color]) {
     height: 36px !important;
     line-height: 36px !important;
     color: mat.get-color-from-palette($rmm-default-primary) !important;
@@ -704,7 +704,7 @@ rmm-headertoolbar {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of menu that may no longer apply for the MDC version.*/
-.mainMenu a, mat-menu a, .mat-nav-list a {
+.mainMenu a, mat-menu a, .mat-mdc-nav-list a {
     padding: 0;
     text-decoration: none;
     font-weight: 400;
@@ -763,7 +763,7 @@ mat-sidenav-container {
 	    width: 22px;
 	    height: 22px;
     }
-    .mat-line span {
+    .mdc-list-item__secondary-text span {
         vertical-align: middle !important;
     }
 }
@@ -791,7 +791,7 @@ mat-sidenav-container {
 
 .sidenavMainMenu {
     /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
-    .mat-mdc-mini-fab .mat-button-wrapper {
+    .mat-mdc-mini-fab .mdc-button__label {
         line-height: 18px;
     }
 
@@ -870,12 +870,12 @@ a:hover {
     text-decoration: none;
 }
 
-.mat-nav-list a.textLink {
+.mat-mdc-nav-list a.textLink {
     color: mat.get-color-from-palette($rmm-default-primary);
     text-decoration: underline;
 }
 
-.mat-nav-list a.textLink:hover {
+.mat-mdc-nav-list a.textLink:hover {
     text-decoration: none;
 }
 
@@ -1033,7 +1033,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-#offerLocalIndex .mat-list-item-content {
+#offerLocalIndex .mat-mdc-list-item-content {
     padding: 0 5px;
 }
 
@@ -1046,18 +1046,18 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-#searchField .mat-form-field-wrapper {
+#searchField .mat-mdc-form-field-subscript-wrapper {
     padding-bottom: 0.5em;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-#searchField .mat-form-field-infix {
+#searchField .mat-mdc-form-field-infix {
     line-height: 1.25em;
     padding: 0.2em 0;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-#searchField .mat-form-field-underline {
+#searchField .mat-mdc-form-field-underline {
     bottom: 0.75em;
 }
 
@@ -1075,7 +1075,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-#searchField .mat-form-field-infix {
+#searchField .mat-mdc-form-field-infix {
     width: 100%;
 }
 
@@ -1089,11 +1089,11 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
       border: #aaa solid 1px;
       padding: 0 10px 5px 10px;
       /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-      .mat-form-field-wrapper {
+      .mat-mdc-form-field-subscript-wrapper {
 	  padding-bottom: 1em;
       }
       /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-      .mat-form-field-infix {
+      .mat-mdc-form-field-infix {
 	  padding-bottom: 3px;
       }
 }
@@ -1104,12 +1104,12 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-.mat-checkbox-label {
+.mdc-label {
     font-size: 13px;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-#threadedCheckbox .mat-checkbox-label, #unreadCheckbox .mat-checkbox-label {
+#threadedCheckbox .mdc-label, #unreadCheckbox .mdc-label {
     line-height: 0px;
 }
 
@@ -1281,14 +1281,14 @@ compose.draftPreviewContainer {
 
 @media(min-width: 1025px) {
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
+    compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
     width: 45vw !important;
     }
 }
 
 @media(max-width: 1024px) and (min-width: 376px) {
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    compose #fieldSubject, compose #fieldRecipient .mat-form-field-infix, compose mailrecipient-input .mat-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
+    compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
     width: 66vw !important;
     }
 }
@@ -1301,7 +1301,7 @@ compose .mat-mdc-card-actions {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-compose .mat-form-field-underline, compose input.mat-mdc-chip-input {
+compose .mat-mdc-form-field-underline, compose input.mat-mdc-chip-input {
     bottom: 10px !important;
 }
 
@@ -1323,7 +1323,7 @@ compose .mat-mdc-standard-chip {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-field-wrapper, compose #fieldSubject .mat-form-field-wrapper {
+compose #fieldFrom .mat-mdc-form-field-subscript-wrapper, compose .fieldRecipient .mat-mdc-form-field-subscript-wrapper, compose #fieldSubject .mat-mdc-form-field-subscript-wrapper {
     padding-bottom: 0.5em;
 }
 
@@ -1358,7 +1358,7 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 #fieldFrom, #fieldSubject {
     overflow: hidden;
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-form-field-infix {
+    .mat-mdc-form-field-infix {
 	padding-bottom: 4px;
     }
 }
@@ -1368,35 +1368,35 @@ compose #fieldFrom .mat-form-field-wrapper, compose .fieldRecipient .mat-form-fi
 
 .contactListControls {
     /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-    .mat-nav-list[dense], .mat-mdc-list-item, .mat-list-text, .mat-mdc-form-field {
+    .mat-mdc-nav-list[dense], .mat-mdc-list-item, .mdc-list-item__content, .mat-mdc-form-field {
 	height: 48px !important;
     }
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-.contactList .mat-form-field-infix {
+.contactList .mat-mdc-form-field-infix {
     font-size: 16px;
 }
 
 #contactListControlsSearch {
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-form-field-label-wrapper {
+    .mat-mdc-form-field-label-wrapper {
         top: -1em;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-form-field-label-wrapper label {
+    .mat-mdc-form-field-label-wrapper label {
 	margin-top: 10px;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-    .mat-list-item-content {
+    .mat-mdc-list-item-content {
 	padding: 0 !important;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-form-field-appearance-legacy .mat-form-field-infix {
+    .mat-mdc-form-field-appearance-legacy .mat-mdc-form-field-infix {
 	padding-top: 0 !important;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-form-field-appearance-legacy .mat-form-field-label {
+    .mat-mdc-form-field-appearance-legacy .mat-mdc-form-field-label {
         top: 0.75em;
     }
 }
@@ -1480,7 +1480,7 @@ app-calendar-event-editor-dialog p {
 /* Dom reg */
 
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
-.domreg .mat-card-header-text {
+.domreg .mat-mdc-card-header-text {
     width: 100%;
 }
 
