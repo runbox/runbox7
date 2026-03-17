@@ -38,7 +38,7 @@
                     (ngModelChange)="onchange_field('preferred_runbox_domain')" name="preferred_runbox_domain"
                     [ngModelOptions]="{standalone: true}">
                     <mat-option *ngFor="let runbox_domain of profileService.global_domains" [value]="runbox_domain.name">
-                        {{localpart}}@{{runbox_domain.name}}
+                        {{localpart}}&#64;{{runbox_domain.name}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
@@ -50,7 +50,7 @@
                         [(ngModel)]="identity.email" (ngModelChange)="onchange_field('email')" />
                     <div *ngIf="field_errors && field_errors.email">
                         <mat-hint>
-                            ie. jamesbond@runbox.com
+                            ie. jamesbond&#64;runbox.com
                         </mat-hint>
                         <mat-error *ngFor="let error of field_errors.email; let i = index;">
                             {{error}}
@@ -81,7 +81,7 @@
                 <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="identity.reply_to"
                     (ngModelChange)="onchange_field('reply_to')" />
                 <div *ngIf="field_errors && field_errors.reply_to">
-                    <mat-hint>ie. noreply@runbox.com</mat-hint>
+                    <mat-hint>ie. noreply&#64;runbox.com</mat-hint>
                     <mat-error *ngFor="let error of field_errors.reply_to; let i = index;">
                         {{error}}
                     </mat-error>
