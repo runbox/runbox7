@@ -1,4 +1,4 @@
-<mat-card [ngClass]="{'draftPreview': !editing}" class="draft-card" [formGroup]="formGroup">
+<mat-card appearance="outlined" [ngClass]="{'draftPreview': !editing}" class="draft-card" [formGroup]="formGroup">
     <mat-card-actions class="draft-actions">
         <div class="draft-title">
             {{model.subject ? model.subject : "New message"}}
@@ -73,13 +73,13 @@
             <span>Recently used</span>
             <div class="recipientSuggestionList">
                 <div *ngFor="let recipient of filteredSuggestions" class="suggestionItem">
-                    <mat-chip
+                    <mat-chip-option
                         (click)="addRecipientFromSuggestions(recipient)"
                         draggable="true"
                         (dragstart)="recipientDragged($event, recipient)"
                     >
                         {{ recipient.nameAndAddress }}
-                    </mat-chip>
+                    </mat-chip-option>
                 </div>
             </div>
         </div>
