@@ -29,7 +29,7 @@
           <button mat-raised-button (click)="addCard()" color="primary"> Add a new card </button>
         </div>
 
-        <mat-card *ngFor="let cc of creditCards" class="card">
+        <mat-card appearance="outlined" *ngFor="let cc of creditCards" class="card">
             <mat-card-header style="display: flex; align-items: center">
                 <mat-icon mat-card-avatar svgIcon="credit-card"> </mat-icon> &nbsp;
                 <mat-card-title style="margin: 0 0 0 10px">

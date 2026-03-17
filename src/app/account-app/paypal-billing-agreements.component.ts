@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatLegacyTable as MatTable } from '@angular/material/legacy-table';
+import { MatTable } from '@angular/material/table';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject } from 'rxjs';
 

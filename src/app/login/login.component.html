@@ -66,7 +66,7 @@
   <form *ngIf="twofactor" (ngSubmit)="onTwoFactorSubmit(twofactorform.value)" #twofactorform="ngForm">
     <div class="loginScreen">
       <div id="tfaArea">
-	<mat-card style="max-width: 90vw">
+	<mat-card appearance="outlined" style="max-width: 90vw">
 	  <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	  <mat-card-title><h3>Two-Factor Authentication</h3></mat-card-title>
 	  <mat-card-content>

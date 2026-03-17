@@ -8,6 +8,7 @@ mat-icon.category {
     height: auto;
     line-height: 24px;
 }
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card a {
     color: inherit;
     text-decoration: none;
@@ -62,6 +63,7 @@ div.gridHighlight {
     width: 50px;
     height: auto;
 }
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card {
     display: flex;
     width: 200px;
@@ -69,6 +71,7 @@ mat-card {
     margin: 0 10px 10px 0;
     border: 2px solid #f4f4f4;
 }
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card mat-icon {
     margin-right: 5px;
     width: 26px;

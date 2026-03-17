@@ -93,7 +93,7 @@
 
         <!-- Mini 3-year plan -->
         
-        <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
+        <mat-card appearance="outlined" *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
           
           <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
             {{ plan.name.replace('Runbox', '') }}

@@ -20,6 +20,6 @@ mat-expansion-panel-header .headerText {
     line-height: 20px;
 }
 
-.mat-list-base[dense] .mat-list-item {
+.mat-mdc-list-base[dense] .mat-mdc-list-item {
     height: 24px;
 }
