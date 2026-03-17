@@ -1,0 +1,25 @@
+From 36e8cb729f665ee07b046fdb9873777dda92be4d Mon Sep 17 00:00:00 2001
+From: Finn <toyou1995@gmail.com>
+Date: Thu, 12 Mar 2026 19:56:22 +0000
+Subject: [PATCH] fix(tests): update node on CI
+
+---
+ .github/workflows/ci.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index fb9bfe32..64b9a864 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -16,7 +16,7 @@ jobs:
+             - uses: actions/checkout@v3
+             - uses: actions/setup-node@v3
+               with:
+-                  node-version: '16.x'
++                  node-version: '18.x'
+                   cache: 'npm'
+             - run: npm ci
+             - run: npm run ci-tests -- ${{ matrix.phase }}
+-- 
+2.51.0.windows.1
+

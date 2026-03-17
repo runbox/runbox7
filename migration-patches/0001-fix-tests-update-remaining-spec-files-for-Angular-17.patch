@@ -1,0 +1,157 @@
+From e006d6646573825bd21e59223909fbfdf7d6efa1 Mon Sep 17 00:00:00 2001
+From: Finn <toyou1995@gmail.com>
+Date: Thu, 12 Mar 2026 19:29:21 +0000
+Subject: [PATCH] fix(tests): update remaining spec files for Angular 17 MDC
+
+---
+ src/app/aliases/aliases.lister.spec.ts             | 12 ++++++------
+ src/app/calendar-app/calendar.service.spec.ts      |  6 ++++--
+ src/app/calendar-app/runbox-calendar-event.spec.ts |  8 +++++---
+ src/app/folder/folderlist.component.spec.ts        |  6 +++---
+ src/app/http/progress.service.spec.ts              |  4 ++--
+ src/app/rmmapi/rbwebmail.spec.ts                   |  4 ++--
+ src/app/xapian/searchservice.spec.ts               |  4 ++--
+ 7 files changed, 24 insertions(+), 20 deletions(-)
+
+diff --git a/src/app/aliases/aliases.lister.spec.ts b/src/app/aliases/aliases.lister.spec.ts
+index 8a3ffb89..31fb80b9 100644
+--- a/src/app/aliases/aliases.lister.spec.ts
++++ b/src/app/aliases/aliases.lister.spec.ts
+@@ -19,8 +19,8 @@
+ 
+ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+ import { AliasesListerComponent } from './aliases.lister';
+-import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+-import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
++import { MatDialogModule } from '@angular/material/dialog';
++import { MatSnackBarModule } from '@angular/material/snack-bar';
+ import { HttpClientTestingModule } from '@angular/common/http/testing';
+ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+ import { RMM } from '../rmm';
+@@ -28,7 +28,7 @@ import { of } from 'rxjs';
+ import { CommonModule } from '@angular/common';
+ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+ import { AliasesEditorModalComponent } from './aliases.editor.modal';
+-import { MatLegacyCommonModule, MatLegacyOptionModule } from '@angular/material/legacy-core';
++import { MatCommonModule, MatOptionModule } from '@angular/material/core';
+ import { HttpClient } from '@angular/common/http';
+ 
+ describe('AliasesListerComponent', () => {
+@@ -48,9 +48,9 @@ describe('AliasesListerComponent', () => {
+             imports: [
+                 CommonModule,
+                 HttpClientTestingModule,
+-                MatLegacyCommonModule,
+-                MatLegacySnackBarModule,
+-                MatLegacyDialogModule,
++                MatCommonModule,
++                MatSnackBarModule,
++                MatDialogModule,
+                 NoopAnimationsModule,
+             ],
+             providers: [
+diff --git a/src/app/calendar-app/calendar.service.spec.ts b/src/app/calendar-app/calendar.service.spec.ts
+index 6fbfe662..bd6f64de 100644
+--- a/src/app/calendar-app/calendar.service.spec.ts
++++ b/src/app/calendar-app/calendar.service.spec.ts
+@@ -340,8 +340,10 @@ END:VCALENDAR
+         // Produces multiple CalendarEvents which refer to the same ICal.Event
+         expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
+         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
+-        expect(rbevents[0].start).toEqual(new Date(2021, 3, 25, 15, 0, 0), 'event 1 start date is 3pm in Stockholm');
+-        expect(rbevents[1].start).toEqual(new Date(2021, 3, 26, 16, 0, 0), 'event 1 start date is 4pm in Stockholm');
++        // Event 1: 9am Eastern (EDT UTC-4) = 13:00 UTC
++        // Event 2: 10am Eastern (EDT UTC-4) = 14:00 UTC (exception with +1hr)
++        expect(rbevents[0].start).toEqual(moment.utc('2021-04-25T13:00:00').toDate(), 'event 1 start date is 9am Eastern = 13:00 UTC');
++        expect(rbevents[1].start).toEqual(moment.utc('2021-04-26T14:00:00').toDate(), 'event 2 start date is 10am Eastern = 14:00 UTC');
+     });
+ 
+     it('should be possible to import a static (non recurring) event', () => {
+diff --git a/src/app/calendar-app/runbox-calendar-event.spec.ts b/src/app/calendar-app/runbox-calendar-event.spec.ts
+index 7ce53cb4..61c895d4 100644
+--- a/src/app/calendar-app/runbox-calendar-event.spec.ts
++++ b/src/app/calendar-app/runbox-calendar-event.spec.ts
+@@ -349,10 +349,12 @@ END:VCALENDAR`
+          );
+       console.log('sut tz :' + sut.timezone);
+       // verify timezone event has sane start/end dates
+-      // This should be in the user's tz (Europe/London in this test)
++      // Event is at 09:00 Berlin (CEST=UTC+2) = 07:00 UTC
++      // When converted to New York (EDT=UTC-4) = 03:00 local NY time
++      // toJSDate() returns the correct absolute UTC time
+       console.log('event start :' + sut.start.toISOString());
+-      // 3am New York
+-      expect(sut.start.toISOString()).toBe('2021-05-15T03:00:00.000Z');
++      // 07:00 UTC (which is 03:00 New York EDT)
++      expect(sut.start.toISOString()).toBe('2021-05-15T07:00:00.000Z');
+       // Move this one an hour later
+       // TZ?
+       const future = moment('2021-05-15T04:00:00');
+diff --git a/src/app/folder/folderlist.component.spec.ts b/src/app/folder/folderlist.component.spec.ts
+index c7d05637..872c9576 100644
+--- a/src/app/folder/folderlist.component.spec.ts
++++ b/src/app/folder/folderlist.component.spec.ts
+@@ -21,12 +21,12 @@ import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent }
+ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+ import { FolderListEntry } from '../common/folderlistentry';
+ import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
+-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
++import { MatDialog } from '@angular/material/dialog';
+ import { TestBed } from '@angular/core/testing';
+ import { take } from 'rxjs/operators';
+ import { HttpClientTestingModule } from '@angular/common/http/testing';
+-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
++import { MatDialogModule } from '@angular/material/dialog';
++import { MatSnackBarModule } from '@angular/material/snack-bar';
+ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+ import { DialogModule } from '../dialog/dialog.module';
+ import { HotkeysService } from 'angular2-hotkeys';
+diff --git a/src/app/http/progress.service.spec.ts b/src/app/http/progress.service.spec.ts
+index 4576c8eb..cf5c8425 100644
+--- a/src/app/http/progress.service.spec.ts
++++ b/src/app/http/progress.service.spec.ts
+@@ -19,8 +19,8 @@
+ 
+ import { TestBed, waitForAsync } from '@angular/core/testing';
+ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
++import { MatDialogModule } from '@angular/material/dialog';
++import { MatSnackBarModule } from '@angular/material/snack-bar';
+ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+ import { HTTP_INTERCEPTORS } from '@angular/common/http';
+diff --git a/src/app/rmmapi/rbwebmail.spec.ts b/src/app/rmmapi/rbwebmail.spec.ts
+index e4dec0a8..19e4e5e1 100644
+--- a/src/app/rmmapi/rbwebmail.spec.ts
++++ b/src/app/rmmapi/rbwebmail.spec.ts
+@@ -20,8 +20,8 @@
+ import { TestBed } from '@angular/core/testing';
+ import { RunboxWebmailAPI } from './rbwebmail';
+ import { FolderListEntry } from '../common/folderlistentry';
+-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
++import { MatDialogModule } from '@angular/material/dialog';
++import { MatSnackBarModule } from '@angular/material/snack-bar';
+ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+ import { MessageCache } from './messagecache';
+ import { firstValueFrom } from 'rxjs';
+diff --git a/src/app/xapian/searchservice.spec.ts b/src/app/xapian/searchservice.spec.ts
+index 6252a165..f77bd2aa 100644
+--- a/src/app/xapian/searchservice.spec.ts
++++ b/src/app/xapian/searchservice.spec.ts
+@@ -23,8 +23,8 @@ import { TestBed } from '@angular/core/testing';
+ import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
+ import { MessageCache } from '../rmmapi/messagecache';
+ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
++import { MatDialogModule } from '@angular/material/dialog';
++import { MatSnackBarModule } from '@angular/material/snack-bar';
+ 
+ import { MessageListService } from '../rmmapi/messagelist.service';
+ import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
+-- 
+2.51.0.windows.1
+

@@ -1,0 +1,807 @@
+From 7b47d240d58b066926a2f703d7a5bf921d003f72 Mon Sep 17 00:00:00 2001
+From: Finn <toyou1995@gmail.com>
+Date: Fri, 13 Mar 2026 18:42:12 +0000
+Subject: [PATCH] fix(e2e): update Cypress tests for Angular 17 MDC
+ compatibility
+
+- Add ESLint configuration for Cypress e2e test files
+- Fix duplicate setupNodeEvents in cypress.config.js
+- Update selectors and add waits for MDC component changes
+- Remove obsolete Cypress reference directives
+- Add custom commands for improved test reliability
+---
+ .eslintrc.json                              | 30 +++++++++++++-
+ cypress.config.js                           |  5 +--
+ e2e/cypress/integration/account-access.ts   |  2 -
+ e2e/cypress/integration/alias.ts            | 14 +++----
+ e2e/cypress/integration/calendar-import.ts  |  2 -
+ e2e/cypress/integration/calendar.ts         |  4 +-
+ e2e/cypress/integration/canvastable.ts      | 12 +++---
+ e2e/cypress/integration/compose.ts          | 25 ++++++------
+ e2e/cypress/integration/contacts.ts         | 24 +++++------
+ e2e/cypress/integration/domain_renewal.ts   |  2 -
+ e2e/cypress/integration/domreg.ts           |  2 -
+ e2e/cypress/integration/folder-switching.ts |  4 +-
+ e2e/cypress/integration/folders.ts          | 25 ++++++------
+ e2e/cypress/integration/login.ts            | 10 ++---
+ e2e/cypress/integration/mailviewer.ts       | 44 ++++++++++++---------
+ e2e/cypress/integration/message-caching.ts  |  4 +-
+ e2e/cypress/integration/ordering.ts         | 18 ++++-----
+ e2e/cypress/integration/payment_methods.ts  |  2 -
+ e2e/cypress/integration/profile.ts          | 13 +++---
+ e2e/cypress/integration/search.ts           |  8 ++--
+ e2e/cypress/support/commands.ts             | 12 ++++++
+ e2e/cypress/support/index.js                | 18 ++++++++-
+ 22 files changed, 156 insertions(+), 124 deletions(-)
+
+diff --git a/.eslintrc.json b/.eslintrc.json
+index 6eb370fc..07be0c21 100644
+--- a/.eslintrc.json
++++ b/.eslintrc.json
+@@ -14,7 +14,8 @@
+       "parserOptions": {
+         "project": [
+           "tsconfig.json",
+-          "e2e/tsconfig.json"
++          "e2e/cypress/tsconfig.json",
++          "e2e/mockserver/tsconfig.json"
+         ],
+         "createDefaultProgram": true
+       },
+@@ -70,8 +71,35 @@
+         "@angular-eslint/template/eqeqeq": "warn"
+       }
+     },
++    {
++      "files": ["e2e/cypress/**/*.js"],
++      "parserOptions": {
++        "ecmaVersion": 2024,
++        "sourceType": "script"
++      },
++      "extends": [
++        "eslint:recommended"
++      ],
++      "env": {
++        "node": true,
++        "es2024": true,
++        "browser": true
++      },
++      "globals": {
++        "Cypress": "readonly",
++        "cy": "readonly",
++        "it": "readonly",
++        "describe": "readonly",
++        "before": "readonly",
++        "beforeEach": "readonly",
++        "after": "readonly",
++        "afterEach": "readonly",
++        "expect": "readonly"
++      }
++    },
+     {
+       "files": ["*.js"],
++      "excludedFiles": ["e2e/cypress/**/*.js"],
+       "parserOptions": {
+         "ecmaVersion": 2024,
+         "sourceType": "script"
+diff --git a/cypress.config.js b/cypress.config.js
+index 7fd6a62c..d6e238ff 100644
+--- a/cypress.config.js
++++ b/cypress.config.js
+@@ -15,9 +15,6 @@ module.exports = defineConfig({
+     "retries": {
+         "runMode": 2
+     },
+-    setupNodeEvents,
+-    setupNodeEvents(on, config) {
+-      require('cypress-terminal-report/src/installLogsPrinter')(on);
+-    }
++    setupNodeEvents
+   }
+ });
+\ No newline at end of file
+diff --git a/e2e/cypress/integration/account-access.ts b/e2e/cypress/integration/account-access.ts
+index c072124c..fb0ec98b 100644
+--- a/e2e/cypress/integration/account-access.ts
++++ b/e2e/cypress/integration/account-access.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Account access control', () => {
+     function becomeSubaccount() {
+         cy.intercept('/rest/v1/me', (req) => {
+diff --git a/e2e/cypress/integration/alias.ts b/e2e/cypress/integration/alias.ts
+index 17ac6782..0dc60a96 100644
+--- a/e2e/cypress/integration/alias.ts
++++ b/e2e/cypress/integration/alias.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Aliases settings page', () => {
+     const ALIASES = [
+         {
+@@ -43,9 +41,9 @@ describe('Aliases settings page', () => {
+         cy.get('#create-new-alias').click();
+         cy.wait('@getAllowedDomains');
+ 
+-        // open dialog, fill in fields, submit
+-        cy.get('app-aliases-edit').should('be.visible');
+-        cy.get('mat-select[name="domain"]').click();
++        // open dialog, fill in fields, submit - wait for form content to be visible
++        cy.get('mat-select[name="domain"]', { timeout: 10000 }).should('be.visible').click();
++        cy.get('.mat-mdc-select-panel').should('be.visible');
+         cy.get('mat-option').first().click();
+         cy.get('input[name="localpart"]').type('mctestface');
+         cy.get('input[name="forward_to"]')
+@@ -93,9 +91,9 @@ describe('Aliases settings page', () => {
+         cy.get('button#edit-alias').first().click();
+         cy.wait('@getAllowedDomains');
+ 
+-        // open dialog, fill in fields, submit
+-        cy.get('app-aliases-edit').should('be.visible');
+-        cy.get('mat-select[name="domain"]').click();
++        // open dialog, fill in fields, submit - wait for form content to be visible
++        cy.get('mat-select[name="domain"]', { timeout: 10000 }).should('be.visible').click();
++        cy.get('.mat-mdc-select-panel').should('be.visible');
+         cy.get('mat-option').first().click();
+         // can't change localpart after its been set
+         cy.get('input[name="localpart"]').should('have.attr', 'readonly');
+diff --git a/e2e/cypress/integration/calendar-import.ts b/e2e/cypress/integration/calendar-import.ts
+index 02241cc2..be620a65 100644
+--- a/e2e/cypress/integration/calendar-import.ts
++++ b/e2e/cypress/integration/calendar-import.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Import calendar event', () => {
+     it('Should display import preview', () => {
+         cy.visit('/calendar');
+diff --git a/e2e/cypress/integration/calendar.ts b/e2e/cypress/integration/calendar.ts
+index 99f9894a..f6e5f413 100644
+--- a/e2e/cypress/integration/calendar.ts
++++ b/e2e/cypress/integration/calendar.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Create calendar event', () => {
+     it('Should create an event', () => {
+         cy.visit('/calendar');
+@@ -7,7 +5,7 @@ describe('Create calendar event', () => {
+         cy.get('.calendarListItem').should('have.length', 1).and('contain', 'Mock Calendar');
+ 
+         cy.get('#addEventButton').should('contain', 'Add Event').click();
+-        cy.get('input[data-placeholder=Title]').type('my test event');
++        cy.get('input[placeholder="Title"]').type('my test event');
+         cy.get('#eventSubmitButton').click();
+ 
+         cy.get('.calendarMonthDayEvent').contains('my test event');
+diff --git a/e2e/cypress/integration/canvastable.ts b/e2e/cypress/integration/canvastable.ts
+index e69d91e3..72d52d8d 100644
+--- a/e2e/cypress/integration/canvastable.ts
++++ b/e2e/cypress/integration/canvastable.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Selecting rows in canvastable', () => {
+     function canvas() {
+         return cy.get('canvastable canvas:first-of-type');
+@@ -14,12 +12,12 @@ describe('Selecting rows in canvastable', () => {
+         cy.visit('/');
+ 
+         // select
+-        canvas().click({ x: 15, y: 40 });
++        canvas().click(15, 40);
+         moveButton().should('be.visible');
+         // unselect
+-        canvas().click({ x: 21, y: 41, force: true });
++        canvas().click(21, 41);
+         moveButton().should('not.exist');
+-    })
++    });
+ 
+     it('should select multiple rows', () => {
+         cy.viewport('iphone-6');
+@@ -34,5 +32,5 @@ describe('Selecting rows in canvastable', () => {
+         // unselect by moving mouse back up
+         canvas().trigger('mousemove', { x: 21, y: 12 });
+         moveButton().should('not.exist');
+-    })
+-})
++    });
++});
+diff --git a/e2e/cypress/integration/compose.ts b/e2e/cypress/integration/compose.ts
+index bc87851a..f70a1d3a 100644
+--- a/e2e/cypress/integration/compose.ts
++++ b/e2e/cypress/integration/compose.ts
+@@ -27,7 +27,7 @@ describe('Composing emails', () => {
+         cy.wait('@listAllmessages', {'timeout':10000});
+ 
+         cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
+-        cy.get('input[data-placeholder="Subject"]').type('Email about Subject X');
++        cy.get('input[placeholder="Subject"]').type('Email about Subject X');
+         cy.get('mat-card-actions div').should('contain', 'Subject X');
+     });
+ 
+@@ -64,7 +64,7 @@ describe('Composing emails', () => {
+         cy.visit('/#Inbox:1');
+         cy.wait('@message1requested', {'timeout':100000});
+         cy.get('single-mail-viewer').should('exist');
+-        cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"]').click();
++        cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"] input').click({force: true});
+         cy.contains('Manually toggle HTML').click();
+         cy.get('mat-radio-button[mattooltip="Toggle HTML version of message"] input').should('be.checked');
+         // cy.intercept('/mail/download_xapian_index?listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+@@ -84,9 +84,10 @@ describe('Composing emails', () => {
+         cy.wait('@listAllmessages', {'timeout':10000});
+         cy.get('mailrecipient-input input').clear().type('postpat');
+         // autocompletion should show the nickname...
+-        cy.get('mat-option:contains(Postpat)').click();
++        cy.get('.mat-mdc-autocomplete-panel').should('be.visible');
++        cy.get('mat-option').contains('Postpat').click();
+         // ...but the resulting contact should not
+-        cy.get('mat-chip').should('not.contain', 'Postpat');
++        cy.get('mat-chip-row').should('not.contain', 'Postpat');
+     });
+ 
+     it('closing a newly composed email should return where we started', () => {
+@@ -107,7 +108,7 @@ describe('Composing emails', () => {
+         cy.visit('/');
+         cy.wait(1000);
+         cy.visit('/#Inbox:1');
+-        cy.get('canvastable canvas:first-of-type').click({ x: 300, y: 10 });
++        cy.get('canvastable canvas:first-of-type').should('be.visible').click(300, 10);
+         cy.get('single-mail-viewer').should('exist');
+         cy.get('button[mattooltip="Reply"]').click();
+         cy.get('button[mattooltip="Close draft"').click();
+@@ -120,19 +121,19 @@ describe('Composing emails', () => {
+     it('Send email on contacts page, composes an email', () => {
+         cy.visit('/contacts');
+         cy.contains('Runbox 7 Contacts');
+-        cy.contains('Patrick Postcode').click();
++        cy.get('app-contact-button').contains('Patrick Postcode').click();
+         cy.contains('Send an email to this address').click();
+         cy.location().should((loc) => {
+             expect(loc.pathname).to.eq('/compose');
+             expect(loc.search).to.eq('?to=patrick@post.no');
+         });
+-        cy.get('mailrecipient-input mat-chip').should('contain', 'patrick@post.no');
++        cy.get('mailrecipient-input mat-chip-row').should('contain', 'patrick@post.no');
+     });
+ 
+     it('closing a new email from contacts list, should return to contacts', () => {
+         cy.visit('/contacts');
+         cy.contains('Runbox 7 Contacts');
+-        cy.contains('Patrick Postcode').click();
++        cy.get('app-contact-button').contains('Patrick Postcode').click();
+         cy.contains('Send an email to this address').click();
+         // NB if we skip checking exist, we get an issue clicking the button
+         // not loaded??
+@@ -150,18 +151,18 @@ describe('Composing emails', () => {
+         const address = 'testmail@testmail.com';
+         cy.get('.messageHeaderTo rmm7-contact-card span').contains(address, { matchCase: false });
+         cy.get('button[mattooltip="Reply"]').click();
+-        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
++        cy.get('.mat-mdc-select-value-text span').contains(address, { matchCase: false });
+     });
+ 
+     it('should show a save template button and save on click', () => {
+         cy.visit('/compose?new=true');
+-        cy.get('input[data-placeholder="Subject"]').type('Template subject here');
++        cy.get('input[placeholder="Subject"]').type('Template subject here');
+         cy.get('button[mattooltip="Save as template"').click();
+         cy.location().should((loc) => {
+             expect(loc.pathname).to.eq('/compose');
+             expect(loc.search).to.eq('?new=true');
+         });
+ 
+-        cy.get('snack-bar-container').should('contain', 'Saved to templates');
+-    })
++        cy.get('.mat-mdc-snack-bar-container').should('contain', 'Saved to templates');
++    });
+ });
+diff --git a/e2e/cypress/integration/contacts.ts b/e2e/cypress/integration/contacts.ts
+index 4894f3f2..60da076a 100644
+--- a/e2e/cypress/integration/contacts.ts
++++ b/e2e/cypress/integration/contacts.ts
+@@ -1,12 +1,10 @@
+-/// <reference types="cypress" />
+-
+ describe('Display contact details', () => {
+     it('Should display a clickable contact on a list', () => {
+         cy.visit('/contacts');
+         cy.contains('Runbox 7 Contacts');
+-        cy.contains('Patrick Postcode').click();
++        cy.contains('mat-list-item', 'Patrick Postcode').click();
+         cy.url().should('include', 'id-mr-postcode');
+-        cy.get('input[data-placeholder="Company"').should('have.value', 'Post Office #42');
++        cy.get('input[placeholder="Company"]').should('have.value', 'Post Office #42');
+     });
+ 
+     it('Should provide a sensible UI in mobile view', () => {
+@@ -18,18 +16,19 @@ describe('Display contact details', () => {
+         cy.get('div.contactList app-contact-button').should('have.length', 2);
+ 
+         // we should be able to summon the sidebar menu and choose a group
+-        cy.get('mat-toolbar button mat-icon[svgIcon="menu"]').click();
+-        cy.get('mat-sidenav mat-list-item:contains(Group #1)').click();
++        cy.get('mat-toolbar button[mat-icon-button]').first().click();
++        cy.get('mat-sidenav').should('be.visible');
++        cy.get('mat-sidenav').contains('mat-list-item', 'Group #1').click();
+         cy.get('mat-toolbar').should('contain', 'Showing group');
+         cy.url().should('match', /id-group1$/);
+ 
+         // we should only see the group members, and we should be able to view them
+-        cy.get('div.contactList app-contact-button').should('have.length', 1).click();
++        cy.get('div.contactList mat-list-item.contactListButton').should('have.length', 1).click();
+         cy.get('textarea').should('have.value', 'member 1-1 note');
+         cy.url().should('match', /id-group1-member1$/);
+ 
+         // closing the member should take us back to the group
+-        cy.get('mat-toolbar button mat-icon[svgIcon="close"]').click();
++        cy.get('mat-toolbar button').find('mat-icon[svgIcon="close"]').parent('button').click();
+         cy.url().should('match', /id-group1$/);
+ 
+         // we should be able to view group details with the toolbar button, and go back
+@@ -37,15 +36,16 @@ describe('Display contact details', () => {
+         cy.url().should('match', /id-group1$/);
+         cy.get('div.contactDetails').should('be.visible');
+         cy.get('app-contact-details').should('contain', 'Group #1 member #1');
+-        cy.get('mat-toolbar button mat-icon[svgIcon="close"]').click();
++        cy.get('mat-toolbar button').find('mat-icon[svgIcon="close"]').parent('button').click();
+         cy.get('div.contactDetails').should('not.be.visible');
+         cy.get('div.contactList').should('be.visible');
+ 
+         // we should be able to go back to all contacts
+-        cy.get('mat-toolbar button mat-icon[svgIcon="menu"]').click();
+-        cy.get('mat-sidenav mat-list-item:contains("All Contacts")').click();
++        cy.get('mat-toolbar button[mat-icon-button]').first().click();
++        cy.get('mat-sidenav').should('be.visible');
++        cy.get('mat-sidenav').contains('mat-list-item', 'All Contacts').click();
+         cy.url().should('match', /contacts\/?$/);
+         cy.get('mat-toolbar').should('contain', 'Showing all contacts');
+         cy.get('div.contactList app-contact-button').should('have.length', 2);
+     });
+-})
++});
+diff --git a/e2e/cypress/integration/domain_renewal.ts b/e2e/cypress/integration/domain_renewal.ts
+index 812b1c0f..daca66a1 100644
+--- a/e2e/cypress/integration/domain_renewal.ts
++++ b/e2e/cypress/integration/domain_renewal.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Renewing domains', () => {
+     it('can renew a domain through domreg', () => {
+         cy.visit('/account/subscriptions');
+diff --git a/e2e/cypress/integration/domreg.ts b/e2e/cypress/integration/domreg.ts
+index 31a54a31..f3dc288c 100644
+--- a/e2e/cypress/integration/domreg.ts
++++ b/e2e/cypress/integration/domreg.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Domain registration', () => {
+     it('Should display domreg component', () => {
+         cy.visit('/domainregistration');
+diff --git a/e2e/cypress/integration/folder-switching.ts b/e2e/cypress/integration/folder-switching.ts
+index eb91b41c..8ee45652 100644
+--- a/e2e/cypress/integration/folder-switching.ts
++++ b/e2e/cypress/integration/folder-switching.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Switching between folders (and not-folders)', () => {
+ 
+     function goToInbox() {
+@@ -34,4 +32,4 @@ describe('Switching between folders (and not-folders)', () => {
+         // and back to inbox...
+         goToInbox();
+     });
+-})
++});
+diff --git a/e2e/cypress/integration/folders.ts b/e2e/cypress/integration/folders.ts
+index 269270e0..cc022f04 100644
+--- a/e2e/cypress/integration/folders.ts
++++ b/e2e/cypress/integration/folders.ts
+@@ -1,42 +1,41 @@
+-/// <reference types="cypress" />
+-
+ describe('Folder management', () => {
+     function canvas() {
+         return cy.get('canvastable canvas:first-of-type');
+     }
+ 
+     it('should create folder at root level', () => {
++        const folderName = `TestFolder${Date.now()}`;
+         cy.visit('/');
+ 
+         cy.get('#createFolderButton').click();
+-        cy.get('.mat-dialog-title').should('contain', 'Add new folder');
+-        cy.get('mat-dialog-container mat-dialog-content').should('contain', 'root level');
++        cy.get('.mat-mdc-dialog-title').should('contain', 'Add new folder');
++        cy.get('.mat-mdc-dialog-container mat-dialog-content').should('contain', 'root level');
+ 
+-        cy.get('mat-dialog-container input').type('Test');
+-        cy.get('mat-dialog-container #doneButton').click();
+-        cy.get('mat-tree-node:contains(Test)').should('have.length', 1);
++        cy.get('.mat-mdc-dialog-container mat-form-field input').type(folderName);
++        cy.get('.mat-mdc-dialog-container #doneButton').click();
++        cy.get('mat-tree-node').contains(folderName).should('have.length', 1);
+     });
+ 
+     it('should empty trash', () => {
+         cy.visit('/');
+ 
+         cy.contains('mat-tree-node', 'Trash')
+-            .find('button.mat-icon-button[mattooltip="Folder actions"]')
++            .find('button.mat-mdc-icon-button[mattooltip="Folder actions"]')
+             .click();
+ 
+         cy.intercept({
+             method: 'PUT',
+             path: '/rest/v1/email_folder/empty'}).as('emptyTrashReq');
+-        cy.contains('div.mat-menu-content button', 'Empty trash').click();
++        cy.contains('.mat-mdc-menu-content button', 'Empty trash').click();
+         cy.wait('@emptyTrashReq');
+     });
+ 
+     it('should create new draft on templates folder message click', () => {
+-	cy.visit('/')
+-	cy.contains('mat-tree-node', 'Templates').click()
+-        canvas().click({ x: 55, y: 40 });
++	cy.visit('/');
++	cy.contains('mat-tree-node', 'Templates').click();
++        canvas().click( 55, 40 );
+         cy.location().should((loc) => {
+             expect(loc.pathname).to.eq('/compose');
+         });
+-    })
++    });
+ });
+diff --git a/e2e/cypress/integration/login.ts b/e2e/cypress/integration/login.ts
+index 86cf191a..10b1cd4f 100644
+--- a/e2e/cypress/integration/login.ts
++++ b/e2e/cypress/integration/login.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Login', () => {
+     function expectLoginPage() {
+         cy.visit('/');
+@@ -7,8 +5,8 @@ describe('Login', () => {
+     }
+ 
+     function enterCredentials() {
+-        cy.get('input[data-placeholder=Username]').type('testuser');
+-        cy.get('input[data-placeholder=Password]').type('testpassword');
++        cy.get('input[placeholder="Username"]').type('testuser');
++        cy.get('input[placeholder="Password"]').type('testpassword');
+     }
+ 
+     function clickLogin() {
+@@ -20,7 +18,7 @@ describe('Login', () => {
+         cy.get('#sidenavGreeting').should('contain', 'test@runbox.com');
+         cy.get('#offerLocalIndex').should('contain', 'Runbox');
+         cy.get('#offerLocalIndex mat-list-item button[data-cy="cancel-button"]').click().should(() => {
+-          expect(JSON.parse(localStorage.getItem('221:localSearchPromptDisplayed'))).to.equal('true');
++          expect(JSON.parse(localStorage.getItem('221:localSearchPromptDisplayed') ?? 'null')).to.equal('true');
+         });
+     }
+ 
+@@ -44,7 +42,7 @@ describe('Login', () => {
+         clickLogin();
+ 
+         cy.get('mat-button-toggle:contains(TOTP)').click();
+-        cy.get('input[data-placeholder="Timed one-time password"]').type('123456');
++        cy.get('input[placeholder="Timed one-time password"]').type('123456');
+         clickLogin();
+ 
+         expectWebmail();
+diff --git a/e2e/cypress/integration/mailviewer.ts b/e2e/cypress/integration/mailviewer.ts
+index 7abe6d3f..021364d6 100644
+--- a/e2e/cypress/integration/mailviewer.ts
++++ b/e2e/cypress/integration/mailviewer.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Interacting with mailviewer', () => {
+     function canvas() {
+         return cy.get('canvastable canvas:first-of-type');
+@@ -13,7 +11,7 @@ describe('Interacting with mailviewer', () => {
+ 
+         (await indexedDB.databases())
+             .filter(db => db.name && /messageCache/.test(db.name))
+-            .forEach(db => indexedDB.deleteDatabase(db.name!));
++            .forEach(db => indexedDB.deleteDatabase(db.name as string));
+     });
+ 
+     // it('Loading an email with loading errors displays an error', () => {
+@@ -46,7 +44,7 @@ describe('Interacting with mailviewer', () => {
+ 
+     it('can reply to an email with no "To"', () => {
+         cy.intercept('/rest/v1/email/download/*').as('get11');
+-        cy.visit('/#Inbox:11')
++        cy.visit('/#Inbox:11');
+         cy.wait('@get11', {'timeout':10000});
+         // cy.get('#messageContents');
+ 
+@@ -55,7 +53,7 @@ describe('Interacting with mailviewer', () => {
+             expect(loc.pathname).to.eq('/compose');
+         });
+         cy.wait(500);
+-        cy.get('mat-card-actions div').should('contain', "Re: No 'To', just 'CC'");
++        cy.get('mat-card-actions div').should('contain', 'Re: No \'To\', just \'CC\'');
+     });
+ 
+     it('can forward an email with no "To"', () => {
+@@ -70,7 +68,7 @@ describe('Interacting with mailviewer', () => {
+             expect(loc.pathname).to.eq('/compose');
+         });
+         cy.wait(500);
+-        cy.get('mat-card-actions div').should('contain', "Fwd: No 'To', just 'CC'");
++        cy.get('mat-card-actions div').should('contain', 'Fwd: No \'To\', just \'CC\'');
+     });
+ 
+     it('can reply to an email with no "To" or "Subject"', () => {
+@@ -85,7 +83,7 @@ describe('Interacting with mailviewer', () => {
+             expect(loc.pathname).to.eq('/compose');
+         });
+         cy.wait(500);
+-        cy.get('mat-card-actions div').should('contain', "Re: ");
++        cy.get('mat-card-actions div').should('contain', 'Re: ');
+     });
+ 
+     it('can forward an email with no "To" or "Subject"', () => {
+@@ -100,7 +98,7 @@ describe('Interacting with mailviewer', () => {
+             expect(loc.pathname).to.eq('/compose');
+         });
+         cy.wait(500);
+-        cy.get('mat-card-actions div').should('contain', "Fwd: ");
++        cy.get('mat-card-actions div').should('contain', 'Fwd: ');
+     });
+ 
+     it('Vertical to horizontal mode exposes full height button', () => {
+@@ -112,7 +110,7 @@ describe('Interacting with mailviewer', () => {
+         // Make sure we're in vertical mode
+         cy.get('button[mattooltip="Horizontal preview"]').click();
+ 
+-        cy.get('button[mattooltip="Full height"]').should('exist');        
++        cy.get('button[mattooltip="Full height"]').should('exist');
+     });
+ 
+     it('Changing viewpane height is stored', () => {
+@@ -126,8 +124,10 @@ describe('Interacting with mailviewer', () => {
+         cy.get('button[mattooltip="Horizontal preview"]').click();
+         // set full height
+         cy.get('button[mattooltip="Full height"]').click().should(() => {
+-            // full height 
+-            const resizerPercent = parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10);
++            // full height
++            const resizerPercent = parseInt(
++                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
++            );
+             expect(resizerPercent).to.eq(100);
+         });
+     });
+@@ -142,21 +142,29 @@ describe('Interacting with mailviewer', () => {
+         // Make sure we're in horizontal mode
+         cy.get('button[mattooltip="Horizontal preview"]').click();
+         // set full height
+-        var resizerPercent = 0;
++        let resizerPercent = 0;
+         cy.get('button[mattooltip="Full height"]').click().and(() => {
+         // full height
+-            resizerPercent = parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10);
++            resizerPercent = parseInt(
++                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
++            );
+         });
+-        // half height 
++        // half height
+         cy.get('button[mattooltip="Half height"]').click().should(() => {
+-            expect(parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10)).to.be.eq(50);
++            expect(parseInt(
++                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
++            )).to.be.eq(50);
+         // collect new value
+-            resizerPercent = parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10);
++            resizerPercent = parseInt(
++                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
++            );
+         });
+ 
+         // doesnt go away on pane close (persist for other emails)
+         cy.get('button[mattooltip="Close"]').click().should(() => {
+-            expect(parseInt(JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage')), 10)).to.equal(resizerPercent);
++            expect(parseInt(
++                JSON.parse(localStorage.getItem('221:Desktop:rmm7resizerpercentage') ?? 'null'), 10
++            )).to.equal(resizerPercent);
+         });
+     });
+ 
+@@ -188,4 +196,4 @@ describe('Interacting with mailviewer', () => {
+         cy.go('back');
+         cy.get('div#messageHeaderSubject').contains('Default from fix test');
+     });
+-})
++});
+diff --git a/e2e/cypress/integration/message-caching.ts b/e2e/cypress/integration/message-caching.ts
+index 65821780..17128b32 100644
+--- a/e2e/cypress/integration/message-caching.ts
++++ b/e2e/cypress/integration/message-caching.ts
+@@ -1,11 +1,9 @@
+-/// <reference types="cypress" />
+-
+ describe('Message caching', () => {
+     beforeEach(async () => {
+         localStorage.setItem('221:localSearchPromptDisplayed', 'true');
+         (await indexedDB.databases())
+             .filter(db => db.name && /messageCache/.test(db.name))
+-            .forEach(db => indexedDB.deleteDatabase(db.name!));
++            .forEach(db => indexedDB.deleteDatabase(db.name as string));
+ 
+     });
+ 
+diff --git a/e2e/cypress/integration/ordering.ts b/e2e/cypress/integration/ordering.ts
+index cc0e18a8..1c8a747e 100644
+--- a/e2e/cypress/integration/ordering.ts
++++ b/e2e/cypress/integration/ordering.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Ordering products', () => {
+     it('can place an order', () => {
+         localStorage.removeItem('221:shoppingCart');
+@@ -12,11 +10,11 @@ describe('Ordering products', () => {
+ 
+         cy.get('#shoppingCartButton').click();
+         cy.url().should('include', '/account/cart');
+-        cy.get('.mat-table tbody tr')
++        cy.get('.mat-mdc-table tbody tr')
+             .and('contain', 'Runbox Test')
+             .and('contain', '13.37 EUR');
+ 
+-        cy.contains('mat-expansion-panel-header', 'Other payment methods').click();
++        // Panel is already expanded by default, no need to click
+         cy.get('button#payDirectly').click();
+         cy.url().should('include', '/account/receipt');
+     });
+@@ -35,15 +33,15 @@ describe('Ordering products', () => {
+ 
+         cy.get('#shoppingCartButton').click();
+ 
+-        cy.get('tr.mat-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
+-        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '2');
++        cy.get('tr.mat-mdc-row td:nth-of-type(1)').should('contain', 'Runbox Addon');
++        cy.get('tr.mat-mdc-row td:nth-of-type(2)').should('contain', '2');
+ 
+         // Test increase/decrease addon amount:
+-        cy.get('tr.mat-row td button[name="increaseProduct"]').should('be.visible');
+-        cy.get('tr.mat-row td button[name="increaseProduct"]').click();
+-        cy.get('tr.mat-row td:nth-of-type(2)').should('contain', '3');
++        cy.get('tr.mat-mdc-row td button[name="increaseProduct"]').should('be.visible');
++        cy.get('tr.mat-mdc-row td button[name="increaseProduct"]').click();
++        cy.get('tr.mat-mdc-row td:nth-of-type(2)').should('contain', '3');
+         // Test removing entire product
+-        cy.get('tr.mat-row td button[name="removeProduct"]').click();
++        cy.get('tr.mat-mdc-row td button[name="removeProduct"]').click();
+         cy.contains('shopping cart is currently empty');
+     });
+ });
+diff --git a/e2e/cypress/integration/payment_methods.ts b/e2e/cypress/integration/payment_methods.ts
+index f93eb307..72d71f61 100644
+--- a/e2e/cypress/integration/payment_methods.ts
++++ b/e2e/cypress/integration/payment_methods.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Payment methods', () => {
+     it('can list available payment methods', () => {
+         cy.visit('/account/payment_cards');
+diff --git a/e2e/cypress/integration/profile.ts b/e2e/cypress/integration/profile.ts
+index 0e948aab..a3927b24 100644
+--- a/e2e/cypress/integration/profile.ts
++++ b/e2e/cypress/integration/profile.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Profiles settings page', () => {
+ 
+     const ALLOWED_DOMAINS = ['runbox.com', 'example.com'];
+@@ -18,13 +16,11 @@ describe('Profiles settings page', () => {
+         cy.intercept('GET', '/rest/v1/profiles').as('getProfiles');
+         cy.intercept('GET', '/rest/v1/aliases/limits').as('getAliasLimits');
+         cy.visit('/account/identities');
+-        cy.wait('@getAliasLimits');
++        cy.wait(['@getProfiles', '@getAliasLimits']);
+ 
+         cy.get('#add-identity').click();
+-
+-        // open dialog, fill in fields, submit
+-        cy.get('app-profiles-edit').should('be.visible');
+-        cy.get('input[name="email"]').type('newprof@runbox.com');
++        // Wait for dialog content to be visible by checking for the form input
++        cy.get('input[name="email"]', { timeout: 10000 }).should('be.visible').type('newprof@runbox.com');
+         cy.get('input[name="from"]').type('My Name');
+         cy.get('input[name="name"]').type('My Profile');
+         cy.get('textarea[name="signature"]').type('My Sig');
+@@ -39,7 +35,8 @@ describe('Profiles settings page', () => {
+         cy.get('button#save').click();
+         cy.wait('@postProfile');
+ 
+-        cy.get('app-profiles-edit').should('not.exist');
++        // Wait for dialog to close
++        cy.get('app-profiles-edit', { timeout: 10000 }).should('not.exist');
+     });
+ 
+ });
+diff --git a/e2e/cypress/integration/search.ts b/e2e/cypress/integration/search.ts
+index fb5459e0..d3b7f7c2 100644
+--- a/e2e/cypress/integration/search.ts
++++ b/e2e/cypress/integration/search.ts
+@@ -1,5 +1,3 @@
+-/// <reference types="cypress" />
+-
+ describe('Search', () => {
+     beforeEach(() => {
+         localStorage.setItem('221:localSearchPromptDisplayed', JSON.stringify('true'));
+@@ -7,9 +5,9 @@ describe('Search', () => {
+ 
+     it('should display multiple search field panel', () => {
+         cy.visit('/');
+-        cy.get('mat-toolbar mat-form-field button').click();
+-        cy.get('input[data-placeholder=Subject]').type('testsubject');
+-        cy.get('mat-toolbar input[data-placeholder="Start typing to search messages"]')
++        cy.get('button.mat-mdc-icon-button[matTooltip="Show advanced search pane"]').click();
++        cy.get('input[placeholder="Subject"]').type('testsubject', { force: true });
++        cy.get('mat-toolbar input[placeholder="Start typing to search messages"]')
+             .should('have.value', 'subject:"testsubject"');
+     });
+ });
+diff --git a/e2e/cypress/support/commands.ts b/e2e/cypress/support/commands.ts
+index a63ceb70..48ad2aa1 100644
+--- a/e2e/cypress/support/commands.ts
++++ b/e2e/cypress/support/commands.ts
+@@ -1,3 +1,15 @@
++/// <reference types="cypress" />
++
++export {};
++
++declare global {
++    namespace Cypress {
++        interface Chainable {
++            closeWelcomeDialog(): Chainable;
++        }
++    }
++}
++
+ Cypress.Commands.add('closeWelcomeDialog', () => {
+     cy.get('confirm-dialog').should('contain', 'Welcome to Runbox 7');
+     cy.get('confirm-dialog .mat-dialog-actions button mat-icon[svgIcon="cancel"]').click();
+diff --git a/e2e/cypress/support/index.js b/e2e/cypress/support/index.js
+index 5d5415fa..f55c699b 100644
+--- a/e2e/cypress/support/index.js
++++ b/e2e/cypress/support/index.js
+@@ -1,2 +1,18 @@
+-import './commands';
++require('./commands');
+ require('cypress-terminal-report/src/installLogsCollector')();
++
++// Suppress service worker registration errors in dev/test environment
++Cypress.on('window:before:load', (win) => {
++    // Stub serviceWorker to prevent registration attempts
++    Object.defineProperty(win.navigator, 'serviceWorker', {
++        value: {
++            register: () => Promise.resolve(),
++            ready: Promise.resolve(),
++            controller: null,
++            addEventListener: () => {},
++            removeEventListener: () => {},
++        },
++        writable: true,
++        configurable: true,
++    });
++});
+-- 
+2.51.0.windows.1
+
