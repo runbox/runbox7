@@ -14,6 +14,7 @@
     }
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
 mat-list-item.contactListButton {
     height: 24px !important;
     line-height: 30px;
@@ -83,7 +84,7 @@ mat-list-item.contactListButton {
     flex-wrap: wrap;
 }
 
-.contact-details-row .mat-form-field {
+.contact-details-row .mat-mdc-form-field {
     padding: 5px;
 }
 

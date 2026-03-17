@@ -44,22 +44,22 @@
     margin-right: 2%;
     padding: 0;
     text-align: center;
-
+    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card-title {
         padding: 12px 0 8px 0;
         color: white;
     }
 
-    .mat-card-subtitle {
+    .mat-mdc-card-subtitle {
         font-size: 1.1em;
     }
-    
+    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card-content {
         height: 50%;
         padding: 0 5px;
         font-size: 1.1em !important;
     }
-
+    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card-actions {
         margin-bottom: 5px;
     }

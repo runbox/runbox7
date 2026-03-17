@@ -7,6 +7,7 @@ mat-icon.category {
     height: auto;
     line-height: 24px;
 }
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card a {
     color: inherit;
     text-decoration: none;
@@ -25,6 +26,7 @@ div.settingsRow {
     flex-direction: row;
     flex-wrap: wrap;
 }
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card.settingsItem {
     display: flex;
     margin: 0 20px 20px 0;
@@ -33,6 +35,7 @@ mat-card.settingsItem {
     border: 2px solid #f4f4f4;
     padding: 20px;
 }
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card.settingsItem mat-icon {
     margin-right: 5px;
     width: 26px;

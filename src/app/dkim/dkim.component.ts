@@ -26,9 +26,9 @@ create initial keys: POST   /rest/v1/dkim/$domain/keys/create
 import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ConfirmDialog } from '../dialog/dialog.module';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DomainService, Domain, DomainKey } from './domain.service';
 
