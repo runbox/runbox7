@@ -89,30 +89,30 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "runbox7:build"
+            "buildTarget": "runbox7:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "runbox7:build:production"
+              "buildTarget": "runbox7:build:production"
             }
           }
         },
         "serve-e2e": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "runbox7:build",
-            "proxyConfig": "backend-proxy-mock.conf.js"
+            "proxyConfig": "backend-proxy-mock.conf.js",
+            "buildTarget": "runbox7:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "runbox7:build:production"
+              "buildTarget": "runbox7:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "runbox7:build"
+            "buildTarget": "runbox7:build"
           }
         },
         "test": {
@@ -197,18 +197,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "rmm6:build"
+            "buildTarget": "rmm6:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "rmm6:build:production"
+              "buildTarget": "rmm6:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "rmm6:build"
+            "buildTarget": "rmm6:build"
           }
         }
       }
