@@ -29,7 +29,7 @@
                         </mat-error>
                     </div>
                 </mat-form-field>
-                @
+                &#64;
                 <mat-form-field style="margin: 10px; width: 40%;">
                     <mat-label>Domain</mat-label>
                     <mat-select
@@ -62,7 +62,7 @@
                         (ngModelChange)="onChangeField('forward_to')"
                     >
                     <mat-hint>
-                        ie. you@runbox.com
+                        ie. you&#64;runbox.com
                     </mat-hint>
                     <div *ngIf="fieldErrors && fieldErrors.forward_to">
                         <mat-error *ngFor="let error of fieldErrors.forward_to">
