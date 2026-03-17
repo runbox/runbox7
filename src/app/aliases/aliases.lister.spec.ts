@@ -19,8 +19,8 @@
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { AliasesListerComponent } from './aliases.lister';
-import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
@@ -28,7 +28,7 @@ import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
-import { MatLegacyCommonModule, MatLegacyOptionModule } from '@angular/material/legacy-core';
+import { MatCommonModule, MatOptionModule } from '@angular/material/core';
 import { HttpClient } from '@angular/common/http';
 
 describe('AliasesListerComponent', () => {
@@ -48,9 +48,9 @@ describe('AliasesListerComponent', () => {
             imports: [
                 CommonModule,
                 HttpClientTestingModule,
-                MatLegacyCommonModule,
-                MatLegacySnackBarModule,
-                MatLegacyDialogModule,
+                MatCommonModule,
+                MatSnackBarModule,
+                MatDialogModule,
                 NoopAnimationsModule,
             ],
             providers: [
