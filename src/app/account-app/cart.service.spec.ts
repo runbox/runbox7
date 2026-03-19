@@ -103,4 +103,62 @@ describe('CartService', () => {
         expect(await cart.contains(403)).toBe(true, 'cart contains added products');
         expect(await cart.contains(404)).toBe(false, 'cart does not contain 2nd subscription');
     });
+
+    // RxJS 7 specific tests for firstValueFrom with ReplaySubject
+    describe('RxJS 7 firstValueFrom patterns', () => {
+        it('should resolve firstValueFrom on items ReplaySubject', async () => {
+            localStorage.clear();
+            const cart = new CartService(storage);
+
+            // Wait for initial items
+            const items = await firstValueFrom(cart.items);
+            expect(items).toBeDefined();
+            expect(Array.isArray(items)).toBe(true);
+        });
+
+        it('should handle concurrent firstValueFrom calls', async () => {
+            localStorage.clear();
+            const cart = new CartService(storage);
+            cart.clear();
+
+            await cart.add(new ProductOrder(500, 'add-on', new Decimal(1)));
+
+            // Concurrent reads should all get the same value
+            const [items1, items2, items3] = await Promise.all([
+                firstValueFrom(cart.items),
+                firstValueFrom(cart.items),
+                firstValueFrom(cart.items),
+            ]);
+
+            expect(items1.length).toBe(1);
+            expect(items2.length).toBe(1);
+            expect(items3.length).toBe(1);
+        });
+
+        it('should get updated items after add operation', async () => {
+            localStorage.clear();
+            const cart = new CartService(storage);
+            cart.clear();
+
+            await cart.add(new ProductOrder(600, 'add-on', new Decimal(2)));
+
+            const items = await firstValueFrom(cart.items);
+            expect(items.length).toBe(1);
+            expect(items[0].pid).toBe(600);
+            expect(items[0].quantity.toNumber()).toBe(2);
+        });
+
+        it('should get updated items after remove operation', async () => {
+            localStorage.clear();
+            const cart = new CartService(storage);
+            cart.clear();
+
+            await cart.add(new ProductOrder(700, 'add-on', new Decimal(3)));
+            await cart.remove(new ProductOrder(700, 'add-on', new Decimal(1)));
+
+            const items = await firstValueFrom(cart.items);
+            expect(items.length).toBe(1);
+            expect(items[0].quantity.toNumber()).toBe(2);
+        });
+    });
 });
