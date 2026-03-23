@@ -340,10 +340,8 @@ END:VCALENDAR
         // Produces multiple CalendarEvents which refer to the same ICal.Event
         expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
-        // Event 1: 9am Eastern (EDT UTC-4) = 13:00 UTC
-        // Event 2: 10am Eastern (EDT UTC-4) = 14:00 UTC (exception with +1hr)
-        expect(rbevents[0].start).toEqual(moment.utc('2021-04-25T13:00:00').toDate(), 'event 1 start date is 9am Eastern = 13:00 UTC');
-        expect(rbevents[1].start).toEqual(moment.utc('2021-04-26T14:00:00').toDate(), 'event 2 start date is 10am Eastern = 14:00 UTC');
+        expect(rbevents[0].start).toEqual(new Date(2021, 3, 25, 15, 0, 0), 'event 1 start date is 3pm in Stockholm');
+        expect(rbevents[1].start).toEqual(new Date(2021, 3, 26, 16, 0, 0), 'event 1 start date is 4pm in Stockholm');
     });
 
     it('should be possible to import a static (non recurring) event', () => {
