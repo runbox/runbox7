@@ -349,10 +349,12 @@ END:VCALENDAR`
          );
       console.log('sut tz :' + sut.timezone);
       // verify timezone event has sane start/end dates
-      // This should be in the user's tz (Europe/London in this test)
+      // Event is at 09:00 Berlin (CEST=UTC+2) = 07:00 UTC
+      // When converted to New York (EDT=UTC-4) = 03:00 local NY time
+      // toJSDate() returns the correct absolute UTC time
       console.log('event start :' + sut.start.toISOString());
-      // 3am New York
-      expect(sut.start.toISOString()).toBe('2021-05-15T03:00:00.000Z');
+      // 07:00 UTC (which is 03:00 New York EDT)
+      expect(sut.start.toISOString()).toBe('2021-05-15T07:00:00.000Z');
       // Move this one an hour later
       // TZ?
       const future = moment('2021-05-15T04:00:00');

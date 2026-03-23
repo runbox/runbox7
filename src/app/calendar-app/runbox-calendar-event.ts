@@ -145,15 +145,13 @@ export class RunboxCalendarEvent implements CalendarEvent {
         let user_dtstart = this._dtstart;
         // can't convert items with no tz set, so assume default (utc)
         if (this._dtstart.zone) {
-            // console.log('start: convert from: ' + user_dtstart.zone.tzid);
-            // console.log('offset: ' + user_dtstart.zone.utcOffset(user_dtstart));
-            // console.log('start: convert to  : ' + this.timezone);
-            // console.log('have timezone? : ' + ICAL.TimezoneService.has(this.timezone));
-            // console.log('offset: ' + ICAL.TimezoneService.get(this.timezone).utcOffset(user_dtstart));
             user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 
-        return new Date(user_dtstart.toString());
+        // Use toJSDate() to properly convert ICAL.Time to JavaScript Date
+        // This correctly handles timezone conversion rather than parsing
+        // the string as local browser time (which new Date(string) does)
+        return user_dtstart.toJSDate();
     }
 
     get end(): Date {
@@ -172,7 +170,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
             shownEnd = shownEnd.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 
-        return new Date(shownEnd.toString());
+        // Use toJSDate() to properly convert ICAL.Time to JavaScript Date
+        return shownEnd.toJSDate();
     }
 
     set allDay(value) {
