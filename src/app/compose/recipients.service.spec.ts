@@ -20,15 +20,14 @@
 import { TestBed } from '@angular/core/testing';
 import { RecipientsService } from './recipients.service';
 import { ContactsService } from '../contacts-app/contacts.service';
-import { SearchService, XAPIAN_GLASS_WR } from '../xapian/searchservice';
+import { SearchService } from '../xapian/searchservice';
 import { StorageService } from '../storage.service';
 import { AsyncSubject, of, Subject, firstValueFrom, lastValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Contact } from '../contacts-app/contact';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { MailAddressInfo } from '../common/mailaddressinfo';
-
-const testcounter = 1;
+import { ProfileService } from '../profiles/profile.service';
 
 export class MockSearchService {
     initSubject = new AsyncSubject<boolean>();
@@ -92,52 +91,109 @@ export class RunboxWebMailAPIMock {
     public getRunboxDomains = () => of([{ 'id': 1, name: 'runbox.com'}]);
 }
 
+export class ProfileServiceMock {
+    public validProfiles = of([
+        { email: 'testuser@runbox.com' },
+        { email: 'alias@runbox.com' }
+    ]);
+}
+
 describe('RecipientsService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [],
-            declarations: [ ], // declare the test component
+            declarations: [ ],
             providers: [RecipientsService, StorageService,
                 {provide: SearchService,    useClass: MockSearchService    },
                 {provide: RunboxWebmailAPI, useClass: RunboxWebMailAPIMock },
                 {provide: ContactsService,  useClass: ContactsServiceMock  },
+                {provide: ProfileService,   useClass: ProfileServiceMock   },
             ]
         });
     });
 
-    it('Should get recipients from contacts', async () => {
-        const recipientsService = TestBed.inject(RecipientsService);
+    describe('Recipient aggregation', () => {
+        it('should combine recipients from contacts and search index', async () => {
+            const recipientsService = TestBed.inject(RecipientsService);
 
-        // Take 2 as searchindex+contacts service are separate updates
-        const recipients = await lastValueFrom(recipientsService.recipients.pipe(take(2)));
-        console.log(recipients);
+            // Take 2 as searchindex+contacts service are separate updates
+            const recipients = await lastValueFrom(recipientsService.recipients.pipe(take(2)));
+            console.log(recipients);
 
-        expect(window['termlistresult'].length).toBe(5);
-        expect(window['termlistresult'].find(r => r === '"TESTINGPERSON" <test@example.com>')).toBeTruthy();
+            expect(window['termlistresult'].length).toBe(5);
+            expect(window['termlistresult'].find(r => r === '"TESTINGPERSON" <test@example.com>')).toBeTruthy();
 
-        expect(recipients.length).toBe(4);
-        expect(recipients.find(r => r.toString().indexOf('test@example.com') > -1).toString())
-            .toBe('"firstname lastname" <test@example.com>');
-        expect(recipients.find(r => r.toString().indexOf('test2@example.com') > -1).toString())
-            .toBe('"firstname2 lastname2" <test2@example.com>');
-        expect(recipients.find(r => r.toString().indexOf('test5@example.com') > -1).toString())
-            .toBe('"TEST5" <test5@example.com>');
-        console.log('All expectations met');
+            expect(recipients.length).toBe(4);
+            expect(recipients.find(r => r.toString().indexOf('test@example.com') > -1).toString())
+                .toBe('"firstname lastname" <test@example.com>');
+            expect(recipients.find(r => r.toString().indexOf('test2@example.com') > -1).toString())
+                .toBe('"firstname2 lastname2" <test2@example.com>');
+            expect(recipients.find(r => r.toString().indexOf('test5@example.com') > -1).toString())
+                .toBe('"TEST5" <test5@example.com>');
+            console.log('All expectations met');
+        });
+
+        it('should return same recipients consistently', async () => {
+            const recipientsService = TestBed.inject(RecipientsService);
+
+            const recipients1 = await firstValueFrom(recipientsService.recipients);
+            const recipients2 = await firstValueFrom(recipientsService.recipients);
+
+            expect(recipients1).toBe(recipients2);
+        });
     });
 
-    it('Should suggest recent recipients', async () => {
-        const searchMock: MockSearchService = <MockSearchService><unknown>TestBed.inject(SearchService);
+    describe('Recently used recipients', () => {
+        it('should suggest recent recipients from sent messages', async () => {
+            const searchMock: MockSearchService = TestBed.inject(SearchService) as unknown as MockSearchService;
 
-        searchMock.mockedRecentMessages = [101, 102];
-        searchMock.mockedRecipients = {
-            101: { recipients: ['paul@company.com']    },
-            102: { recipients: ['susan@elsewhere.net'] },
-            103: { recipients: ['testuser@runbox.com'] }, // own address should be skipped
-        };
+            searchMock.mockedRecentMessages = [101, 102];
+            searchMock.mockedRecipients = {
+                101: { recipients: ['paul@company.com']    },
+                102: { recipients: ['susan@elsewhere.net'] },
+                103: { recipients: ['testuser@runbox.com'] }, // own address should be skipped
+            };
 
-        const recipientsService: RecipientsService = TestBed.inject(RecipientsService);
-        const suggested = await firstValueFrom(recipientsService.recentlyUsed);
+            const recipientsService: RecipientsService = TestBed.inject(RecipientsService);
+            const suggested = await firstValueFrom(recipientsService.recentlyUsed);
 
-        expect(suggested.length).toBe(2);
+            expect(suggested.length).toBe(2);
+        });
+
+        it('should exclude own addresses from recent recipients', async () => {
+            const searchMock: MockSearchService = TestBed.inject(SearchService) as unknown as MockSearchService;
+
+            searchMock.mockedRecentMessages = [101];
+            searchMock.mockedRecipients = {
+                101: { recipients: ['testuser@runbox.com'] }, // own address should be skipped
+            };
+
+            const recipientsService: RecipientsService = TestBed.inject(RecipientsService);
+            const suggested = await firstValueFrom(recipientsService.recentlyUsed);
+
+            expect(suggested.length).toBe(0);
+        });
+    });
+
+    describe('Own addresses', () => {
+        it('should return own addresses from profiles', async () => {
+            const recipientsService = TestBed.inject(RecipientsService);
+
+            const addresses = await firstValueFrom(recipientsService.ownAddresses);
+
+            expect(addresses).toBeDefined();
+            expect(addresses instanceof Set).toBe(true);
+            expect(addresses.has('testuser@runbox.com')).toBe(true);
+            expect(addresses.has('alias@runbox.com')).toBe(true);
+        });
+
+        it('should return same addresses consistently', async () => {
+            const recipientsService = TestBed.inject(RecipientsService);
+
+            const addresses1 = await firstValueFrom(recipientsService.ownAddresses);
+            const addresses2 = await firstValueFrom(recipientsService.ownAddresses);
+
+            expect(addresses1).toBe(addresses2);
+        });
     });
 });

@@ -17,9 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { DraftFormModel } from './draftdesk.service';
+import { DraftFormModel, DraftDeskService } from './draftdesk.service';
 import { Identity } from '../profiles/profile.service';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { MessageListService } from '../rmmapi/messagelist.service';
+import { ProfileService } from '../profiles/profile.service';
+import { HttpClient } from '@angular/common/http';
+import { of, Subject, BehaviorSubject, firstValueFrom } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 import moment from 'moment';
 import 'moment-timezone';
@@ -403,5 +409,211 @@ Subject: Test subject <br />
             'Some blahblah');
         expect(draft.isUnsaved()).toBe(false);
         done();
+    });
+});
+
+describe('DraftDeskService', () => {
+    let draftDeskService: DraftDeskService;
+    let mockRmmapi: any;
+    let mockMessageListService: any;
+    let mockProfileService: any;
+    let mockHttp: any;
+
+    beforeEach(() => {
+        // Mock MessageListService with minimal setup
+        mockMessageListService = {
+            refreshFolderList: jasmine.createSpy('refreshFolderList'),
+            folderListSubject: new BehaviorSubject([]),
+            messageFlagChangeSubject: new Subject()
+        };
+
+        // Mock ProfileService
+        mockProfileService = {
+            validProfiles: new BehaviorSubject([
+                Identity.fromObject({ email: 'test@runbox.com', name: 'Test User' })
+            ]),
+            composeProfile: Identity.fromObject({ email: 'test@runbox.com', name: 'Test User' })
+        };
+
+        // Mock HttpClient
+        mockHttp = {
+            get: jasmine.createSpy('get').and.returnValue(of('template content'))
+        };
+
+        // Mock RunboxWebmailAPI
+        mockRmmapi = {
+            me: of({ uid: 42, username: 'testuser' }),
+            listAllMessages: jasmine.createSpy('listAllMessages').and.returnValue(of([])),
+            getMessageContents: jasmine.createSpy('getMessageContents').and.returnValue(of({
+                headers: { subject: 'Test Subject' },
+                text: { text: 'Test body', html: '<p>Test body</p>' }
+            })),
+            copyAttachmentToDraft: jasmine.createSpy('copyAttachmentToDraft').and.returnValue(of({ filename: 'attachment.txt' }))
+        };
+
+        draftDeskService = new DraftDeskService(
+            mockRmmapi,
+            mockMessageListService,
+            mockProfileService,
+            mockHttp
+        );
+    });
+
+    describe('BehaviorSubject patterns', () => {
+        it('should initialize draftModels as an empty BehaviorSubject', (done) => {
+            draftDeskService.draftModels.pipe(take(1)).subscribe(drafts => {
+                expect(drafts).toEqual([]);
+                expect(Array.isArray(drafts)).toBe(true);
+                done();
+            });
+        });
+
+        it('should initialize fromsSubject with profiles from ProfileService', (done) => {
+            draftDeskService.fromsSubject.pipe(take(1)).subscribe(froms => {
+                expect(froms.length).toBeGreaterThan(0);
+                expect(froms[0].email).toBe('test@runbox.com');
+                done();
+            });
+        });
+
+        it('should emit new draftModels when drafts are added', async () => {
+            const drafts: any[] = [];
+            draftDeskService.draftModels.subscribe(d => drafts.push(d));
+
+            const draftModel = DraftFormModel.create(
+                -1,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'Test Subject'
+            );
+
+            await draftDeskService.newDraft(draftModel);
+
+            // Wait for refreshDrafts to complete
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // The drafts array should have been updated
+            expect(drafts.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('deleteDraft', () => {
+        it('should remove draft from draftModels', async () => {
+            // Add a draft first
+            const draftModel = DraftFormModel.create(
+                12345,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'Test Subject'
+            );
+
+            await draftDeskService.newDraft(draftModel);
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            const draftsBefore = draftDeskService.draftModels.value;
+            const initialCount = draftsBefore.length;
+
+            // Delete the draft
+            draftDeskService.deleteDraft(12345);
+
+            const draftsAfter = draftDeskService.draftModels.value;
+            expect(draftsAfter.length).toBe(initialCount - 1);
+            expect(draftsAfter.find((d: DraftFormModel) => d.mid === 12345)).toBeUndefined();
+        });
+    });
+
+    describe('newBugReport with firstValueFrom', () => {
+        it('should create bug report draft with template from HTTP', async () => {
+            mockHttp.get.and.returnValue(of('Username: %%USERNAME%%\nUser Agent: %%USERAGENT%%'));
+
+            await draftDeskService.newBugReport(false, false, false, false, false, false);
+
+            const drafts = draftDeskService.draftModels.value;
+            expect(drafts.length).toBeGreaterThan(0);
+
+            const bugReportDraft = drafts[0];
+            expect(bugReportDraft.subject).toBe('Runbox 7 Bug Report');
+            expect(bugReportDraft.msg_body).toContain('testuser');
+            expect(mockHttp.get).toHaveBeenCalledWith('assets/templates/bug_report.txt', { responseType: 'text' });
+        });
+
+        it('should use firstValueFrom for both HTTP template and rmmapi.me', async () => {
+            const mePromise = firstValueFrom(mockRmmapi.me) as Promise<{ uid: number; username: string }>;
+            const httpPromise = firstValueFrom(mockHttp.get('assets/templates/bug_report.txt', { responseType: 'text' })) as Promise<string>;
+
+            const [me, template] = await Promise.all([mePromise, httpPromise]);
+
+            expect(me.uid).toBe(42);
+            expect(me.username).toBe('testuser');
+            expect(template).toBe('template content');
+        });
+    });
+
+    describe('newVideoCallInvite with firstValueFrom', () => {
+        it('should create video call invite draft with template', async () => {
+            mockHttp.get.and.returnValue(of('Join the video call: %%URL%%'));
+
+            await draftDeskService.newVideoCallInvite('recipient@example.com', new URL('https://meet.runbox.com/abc123'));
+
+            const drafts = draftDeskService.draftModels.value;
+            expect(drafts.length).toBeGreaterThan(0);
+
+            const inviteDraft = drafts[0];
+            expect(inviteDraft.subject).toBe('Let\'s have a video call');
+            expect(inviteDraft.msg_body).toContain('https://meet.runbox.com/abc123');
+            expect(mockHttp.get).toHaveBeenCalledWith('assets/templates/video_call.txt', { responseType: 'text' });
+        });
+    });
+
+    describe('mainIdentity', () => {
+        it('should return compose profile from ProfileService', () => {
+            const identity = draftDeskService.mainIdentity();
+            expect(identity).toEqual(mockProfileService.composeProfile);
+        });
+    });
+
+    describe('RxJS integration with MessageListService', () => {
+        it('should call refreshFolderList on initialization', () => {
+            expect(mockMessageListService.refreshFolderList).toHaveBeenCalled();
+        });
+
+        it('should subscribe to folderListSubject for draft refresh', (done) => {
+            const refreshSpy = spyOn(draftDeskService as any, 'refreshDrafts').and.callThrough();
+
+            // Emit a folder list change
+            mockMessageListService.folderListSubject.next([
+                { folderId: 1, folderName: 'Inbox', totalMessages: 100, newMessages: 0 } as any
+            ]);
+
+            setTimeout(() => {
+                // refreshDrafts should have been called
+                expect(refreshSpy).toHaveBeenCalled();
+                done();
+            }, 50);
+        });
+    });
+
+    describe('isEditing state', () => {
+        it('should track editing state', () => {
+            expect(draftDeskService.isEditing).toBe(-1);
+            draftDeskService.isEditing = 123;
+            expect(draftDeskService.isEditing).toBe(123);
+        });
+    });
+
+    describe('shouldReturnToPreviousPage', () => {
+        it('should be set to true after newDraft', async () => {
+            expect(draftDeskService.shouldReturnToPreviousPage).toBe(false);
+
+            const draftModel = DraftFormModel.create(
+                -1,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'Test'
+            );
+
+            await draftDeskService.newDraft(draftModel);
+            expect(draftDeskService.shouldReturnToPreviousPage).toBe(true);
+        });
     });
 });

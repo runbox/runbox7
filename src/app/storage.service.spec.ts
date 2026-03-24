@@ -19,7 +19,7 @@
 
 import { StorageService } from './storage.service';
 import { RunboxWebmailAPI } from './rmmapi/rbwebmail';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 describe('StorageService', () => {
     const me_1 = { me: of({ uid: 1 }) } as RunboxWebmailAPI;
@@ -102,5 +102,153 @@ describe('StorageService', () => {
         expect(listener2.length).toBe(2);
         expect(listener1[2]).toBe(false);
         expect(listener2[1]).toBe(false);
+    });
+
+    describe('RxJS AsyncSubject integration', () => {
+        it('should handle get/set operations that depend on uid AsyncSubject', async () => {
+            const me$ = new Subject<{ uid: number }>();
+            const api = { me: me$.asObservable() } as any;
+
+            const store = new StorageService(api);
+
+            // Start get operation before uid is loaded
+            const getPromise = store.get('test-key');
+
+            // Now emit uid (simulating API response)
+            me$.next({ uid: 42 });
+            me$.complete();
+
+            // The get operation should resolve after uid is loaded
+            // Note: since key doesn't exist, it will be undefined
+            const result = await getPromise;
+            expect(result).toBeUndefined();
+
+            // Now set a value
+            await store.set('test-key', 'stored-value');
+
+            // Verify it was stored with user-scoped key
+            const storedValue = localStorage.getItem('42:test-key');
+            expect(storedValue).toBe('"stored-value"');
+
+            // Get should return the value
+            const retrieved = await store.get('test-key');
+            expect(retrieved).toBe('stored-value');
+        });
+
+        it('should handle concurrent get/set operations before uid is loaded', async () => {
+            const me$ = new Subject<{ uid: number }>();
+            const api = { me: me$.asObservable() } as any;
+
+            const store = new StorageService(api);
+
+            // Start multiple operations before uid is loaded
+            const promises = [
+                store.set('key1', 'value1'),
+                store.set('key2', 'value2'),
+                store.get('key1'),
+                store.get('key2'),
+            ];
+
+            // Now emit uid
+            me$.next({ uid: 123 });
+            me$.complete();
+
+            // All operations should complete successfully
+            await Promise.all(promises);
+
+            // Verify values were stored correctly
+            expect(await store.get('key1')).toBe('value1');
+            expect(await store.get('key2')).toBe('value2');
+            expect(localStorage.getItem('123:key1')).toBe('"value1"');
+            expect(localStorage.getItem('123:key2')).toBe('"value2"');
+        });
+
+        it('should correctly scope keys by user uid', async () => {
+            const me1$ = new Subject<{ uid: number }>();
+            const me2$ = new Subject<{ uid: number }>();
+            const api1 = { me: me1$.asObservable() } as any;
+            const api2 = { me: me2$.asObservable() } as any;
+
+            const store1 = new StorageService(api1);
+            const store2 = new StorageService(api2);
+
+            // Set values before uids are loaded
+            const set1 = store1.set('shared-key', 'user1-value');
+            const set2 = store2.set('shared-key', 'user2-value');
+
+            // Emit different uids
+            me1$.next({ uid: 100 });
+            me1$.complete();
+            me2$.next({ uid: 200 });
+            me2$.complete();
+
+            await Promise.all([set1, set2]);
+
+            // Each user should have their own scoped value
+            expect(await store1.get('shared-key')).toBe('user1-value');
+            expect(await store2.get('shared-key')).toBe('user2-value');
+
+            // Verify localStorage keys are properly scoped
+            expect(localStorage.getItem('100:shared-key')).toBe('"user1-value"');
+            expect(localStorage.getItem('200:shared-key')).toBe('"user2-value"');
+        });
+    });
+
+    describe('RxJS ReplaySubject integration (getSubject)', () => {
+        it('should provide ReplaySubject that caches the current value', async () => {
+            const store = new StorageService(me_1);
+
+            // Set a value
+            await store.set('cache-test', 'cached-value');
+
+            // Get the subject - it should immediately emit the cached value
+            const values: any[] = [];
+            store.getSubject('cache-test').subscribe(v => values.push(v));
+
+            // Wait for async get to complete
+            await new Promise(r => setTimeout(r, 10));
+
+            // Should have received the cached value
+            expect(values.length).toBe(1);
+            expect(values[0]).toBe('cached-value');
+        });
+
+        it('should update ReplaySubject when value changes', async () => {
+            const store = new StorageService(me_1);
+
+            const values: any[] = [];
+            store.getSubject('update-test').subscribe(v => values.push(v));
+
+            await new Promise(r => setTimeout(r, 10));
+            expect(values.length).toBe(1);
+            expect(values[0]).toBeUndefined();
+
+            // Update the value
+            await store.set('update-test', 'new-value');
+            await new Promise(r => setTimeout(r, 10));
+
+            // Should have received update
+            expect(values.length).toBe(2);
+            expect(values[1]).toBe('new-value');
+        });
+
+        it('should share same ReplaySubject for multiple subscribers', async () => {
+            const store = new StorageService(me_1);
+
+            await store.set('shared-test', 'shared-value');
+
+            const values1: any[] = [];
+            const values2: any[] = [];
+
+            const subject = store.getSubject('shared-test');
+            subject.subscribe(v => values1.push(v));
+            subject.subscribe(v => values2.push(v));
+
+            await new Promise(r => setTimeout(r, 10));
+
+            // Both subscribers should get the same cached value
+            expect(values1).toEqual(['shared-value']);
+            expect(values2).toEqual(['shared-value']);
+        });
     });
 });
