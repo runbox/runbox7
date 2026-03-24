@@ -143,9 +143,18 @@ export class RunboxCalendarEvent implements CalendarEvent {
         // This needs to be converted *from* tz the ical data is in
         // *to* the tz the user's calendar display is in (this.timezone?)
         let user_dtstart = this._dtstart;
-        // can't convert items with no tz set, so assume default (utc)
+
         if (this._dtstart.zone) {
-            user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
+            // Event has a timezone - convert to user's display timezone
+            const targetTz = ICAL.TimezoneService.get(this.timezone);
+            if (targetTz) {
+                user_dtstart = this._dtstart.convertToZone(targetTz);
+            }
+        } else if (this.timezone && ICAL.TimezoneService.has(this.timezone)) {
+            // Floating time (no TZID) - interpret in user's account timezone
+            // This fixes the issue where floating times were interpreted in browser timezone
+            const userTz = ICAL.TimezoneService.get(this.timezone);
+            user_dtstart = this._dtstart.convertToZone(userTz);
         }
 
         // Use toJSDate() to properly convert ICAL.Time to JavaScript Date
@@ -166,8 +175,17 @@ export class RunboxCalendarEvent implements CalendarEvent {
         } else {
             shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
         }
+
         if (shownEnd.zone) {
-            shownEnd = shownEnd.convertToZone(ICAL.TimezoneService.get(this.timezone));
+            // Event has a timezone - convert to user's display timezone
+            const targetTz = ICAL.TimezoneService.get(this.timezone);
+            if (targetTz) {
+                shownEnd = shownEnd.convertToZone(targetTz);
+            }
+        } else if (this.timezone && ICAL.TimezoneService.has(this.timezone)) {
+            // Floating time (no TZID) - interpret in user's account timezone
+            const userTz = ICAL.TimezoneService.get(this.timezone);
+            shownEnd = shownEnd.convertToZone(userTz);
         }
 
         // Use toJSDate() to properly convert ICAL.Time to JavaScript Date

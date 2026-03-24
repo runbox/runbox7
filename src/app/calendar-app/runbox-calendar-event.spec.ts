@@ -377,4 +377,159 @@ END:VCALENDAR`
       expect(sut.toIcal()).toContain('RECURRENCE-ID;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T\r\n 090000');
       expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000');
      });
+
+    it('should handle floating time events (no TZID) by interpreting in user timezone', () => {
+        // Setup: Register Europe/London and Europe/Berlin timezones
+        const londonTzData = `BEGIN:VTIMEZONE
+TZID:Europe/London
+X-LIC-LOCATION:Europe/London
+BEGIN:STANDARD
+TZNAME:GMT
+DTSTART:19701025T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:BST
+DTSTART:19810329T010000
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE`;
+
+        const berlinTzData = `BEGIN:VTIMEZONE
+TZID:Europe/Berlin
+X-LIC-LOCATION:Europe/Berlin
+BEGIN:STANDARD
+TZNAME:CET
+DTSTART:19701025T020000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:CEST
+DTSTART:19810329T010000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE`;
+
+        // Register timezones
+        const londonComponent = new ICAL.Component(ICAL.parse(londonTzData));
+        const londonTz = new ICAL.Timezone({
+            tzid: londonComponent.getFirstPropertyValue('tzid'),
+            component: londonComponent
+        });
+        ICAL.TimezoneService.register(londonTz.tzid, londonTz);
+
+        const berlinComponent = new ICAL.Component(ICAL.parse(berlinTzData));
+        const berlinTz = new ICAL.Timezone({
+            tzid: berlinComponent.getFirstPropertyValue('tzid'),
+            component: berlinComponent
+        });
+        ICAL.TimezoneService.register(berlinTz.tzid, berlinTz);
+
+        // Create a floating time event (no TZID) - represents 4pm local time regardless of timezone
+        // This simulates an event created without specifying a timezone
+        const floatingEvent = new RunboxCalendarEvent(
+            'testcal/floating',
+            new ICAL.Event(new ICAL.Component(['vevent', [
+                ['dtstart', {}, 'date', '2026-03-24T16:00:00'],
+                ['dtend', {}, 'date', '2026-03-24T17:00:00'],
+                ['summary', {}, 'text', 'Floating event at 4pm'],
+            ]])),
+            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00'),
+            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00'),
+            'Europe/London' // User's account timezone
+        );
+
+        // The floating time should be interpreted as 4pm in the user's timezone (London)
+        // In March, 2026, London is GMT (UTC+0), so 4pm London = 4pm UTC
+        const startResult = floatingEvent.start;
+
+        // Expected: 4pm London (user's tz) = 4pm UTC
+        // The fix ensures floating times are interpreted in user's timezone, not browser's
+        expect(startResult.getUTCHours()).toBe(16, 'Floating time 4pm London should be 4pm UTC');
+
+        // Now test with user timezone as Berlin
+        const floatingEventBerlin = new RunboxCalendarEvent(
+            'testcal/floating-berlin',
+            new ICAL.Event(new ICAL.Component(['vevent', [
+                ['dtstart', {}, 'date', '2026-03-24T16:00:00'],
+                ['dtend', {}, 'date', '2026-03-24T17:00:00'],
+                ['summary', {}, 'text', 'Floating event at 4pm (Berlin user)'],
+            ]])),
+            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00'),
+            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00'),
+            'Europe/Berlin' // User's account timezone is now Berlin
+        );
+
+        const startResultBerlin = floatingEventBerlin.start;
+
+        // Expected: 4pm Berlin (user's tz) = 3pm UTC (Berlin is CET = UTC+1)
+        // With the fix, floating times are interpreted in user's timezone
+        expect(startResultBerlin.getUTCHours()).toBe(15, 'Floating time 4pm Berlin should be 3pm UTC');
+    });
+
+    // Helper to create and register a timezone from standard offsets
+    function ensureTimezone(tzid: string, stdOffset: number, dstOffset: number) {
+        if (ICAL.TimezoneService.has(tzid)) { return; }
+        const std = String(stdOffset).padStart(2, '0');
+        const dst = String(dstOffset).padStart(2, '0');
+        const tzData = `BEGIN:VTIMEZONE
+TZID:${tzid}
+BEGIN:STANDARD
+DTSTART:19701025T020000
+TZOFFSETFROM:+${dst}00
+TZOFFSETTO:+${std}00
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19810329T010000
+TZOFFSETFROM:+${std}00
+TZOFFSETTO:+${dst}00
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE`;
+        const comp = new ICAL.Component(ICAL.parse(tzData));
+        ICAL.TimezoneService.register(tzid, new ICAL.Timezone({ tzid, component: comp }));
+    }
+
+    it('should correctly convert London TZID event to Berlin user timezone', () => {
+        // Simulates an issue: 4pm London event shown as 3pm (wrong) instead of 5pm (correct)
+        ensureTimezone('Europe/London', 0, 1);  // GMT/BST
+        ensureTimezone('Europe/Berlin', 1, 2);  // CET/CEST
+
+        // Create event with TZID=Europe/London at 4pm (March = GMT = UTC+0)
+        const vevent = new ICAL.Component(['vevent', [
+            ['dtstart', { tzid: 'Europe/London' }, 'date', '2026-03-24T16:00:00'],
+            ['dtend', { tzid: 'Europe/London' }, 'date', '2026-03-24T17:00:00'],
+            ['summary', {}, 'text', 'Meeting at 4pm London'],
+        ]]);
+        const dtstartProp = vevent.getFirstProperty('dtstart');
+
+        const londonEvent = new RunboxCalendarEvent(
+            'testcal/lon',
+            new ICAL.Event(vevent),
+            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00', dtstartProp),
+            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00', dtstartProp),
+            'Europe/London'
+        );
+        expect(londonEvent.start.getUTCHours()).toBe(16, '4pm London = 16:00 UTC');
+
+        const berlinUserEvent = new RunboxCalendarEvent(
+            'testcal/ber',
+            new ICAL.Event(vevent),
+            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00', dtstartProp),
+            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00', dtstartProp),
+            'Europe/Berlin'
+        );
+        // 4pm London (GMT+0) = 4pm UTC = 5pm Berlin (CET+1) when displayed
+        // The UTC time must remain 16:00Z - angular-calendar displays in browser's local tz
+        expect(berlinUserEvent.start.getUTCHours()).toBe(16, 'Same event = same UTC time (16:00Z)');
+    });
 });
