@@ -237,6 +237,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         } else {
                             this.formGroup.controls.msg_body.setValue(msg_body);
                         }
+                    } else if ( this.signature && !from.signature ) {
+                        // remove current signature when switching to identity with no signature
+                        const rgx = new RegExp('^' + this.signature.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                        if (this.formGroup.value.useHTML && this.editor) {
+                            this.model.html = this.model.html.replace(rgx, '');
+                            this.editor.setContent(this.model.html);
+                        } else {
+                            const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, '');
+                            this.formGroup.controls.msg_body.setValue(msg_body);
+                        }
+                        this.signature = null;
+                        this.has_pasted_signature = false;
                     } else if ( !this.signature && from.signature) {
                         this.has_pasted_signature = true;
                         const msg_body = from.signature.concat('\n\n', this.model.msg_body);
