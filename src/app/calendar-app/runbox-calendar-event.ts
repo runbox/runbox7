@@ -190,14 +190,46 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
         if (!hasTzidParam) {
             // True floating time - interpret in calendar's timezone
+            // First try ICAL.TimezoneService (for non-standard paths with VTIMEZONE data)
             const calendarTz = ICAL.TimezoneService.get(this.timezone);
+
             if (calendarTz) {
-                time = time.convertToZone(calendarTz);
-                return time.toJSDate();
+                // Create time directly in calendar's timezone, then convert to UTC via toJSDate()
+                const localTime = new ICAL.Time({
+                    year: time.year,
+                    month: time.month,
+                    day: time.day,
+                    hour: time.hour,
+                    minute: time.minute,
+                    second: time.second
+                }, calendarTz);
+                return localTime.toJSDate();
             }
+
+            // Try moment-timezone for standard IANA timezones
+            const momentZone = moment.tz.zone(this.timezone);
+            if (momentZone) {
+                const m = moment.tz([
+                    time.year,
+                    time.month - 1,
+                    time.day,
+                    time.hour,
+                    time.minute,
+                    time.second,
+                    0
+                ], this.timezone);
+                return m.toDate();
+            }
+
+            // Fallback: no calendar timezone available, preserve local time as UTC
+            return this.icalTimeToUTCDate(time);
         }
 
         // Unresolved TZID or no calendar timezone - preserve local time values
+        return this.icalTimeToUTCDate(time);
+    }
+
+    private icalTimeToUTCDate(time: ICAL.Time): Date {
         return new Date(Date.UTC(
             time.year,
             time.month - 1,

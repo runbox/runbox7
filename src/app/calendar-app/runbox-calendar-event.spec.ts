@@ -431,15 +431,16 @@ END:VTIMEZONE`;
         ICAL.TimezoneService.register(berlinTz.tzid, berlinTz);
 
         // Floating time (no TZID) - interpreted in calendar's timezone
+        const floatingIcalEvent = new ICAL.Event(new ICAL.Component(['vevent', [
+            ['dtstart', {}, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend', {}, 'date-time', '2026-03-24T17:00:00'],
+            ['summary', {}, 'text', 'Floating event at 4pm'],
+        ]]));
         const floatingEvent = new RunboxCalendarEvent(
             'testcal/floating',
-            new ICAL.Event(new ICAL.Component(['vevent', [
-                ['dtstart', {}, 'date', '2026-03-24T16:00:00'],
-                ['dtend', {}, 'date', '2026-03-24T17:00:00'],
-                ['summary', {}, 'text', 'Floating event at 4pm'],
-            ]])),
-            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00'),
-            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00'),
+            floatingIcalEvent,
+            floatingIcalEvent.startDate,
+            floatingIcalEvent.endDate,
             'Europe/London'
         );
 
@@ -447,15 +448,16 @@ END:VTIMEZONE`;
         expect(floatingEvent.start.getUTCHours()).toBe(16, 'Floating time 16:00 London should be 16:00 UTC');
 
         // Same floating time for Berlin user - interpreted as Berlin time (UTC+1) = 15:00 UTC
+        const floatingBerlinIcalEvent = new ICAL.Event(new ICAL.Component(['vevent', [
+            ['dtstart', {}, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend', {}, 'date-time', '2026-03-24T17:00:00'],
+            ['summary', {}, 'text', 'Floating event at 4pm (Berlin user)'],
+        ]]));
         const floatingEventBerlin = new RunboxCalendarEvent(
             'testcal/floating-berlin',
-            new ICAL.Event(new ICAL.Component(['vevent', [
-                ['dtstart', {}, 'date', '2026-03-24T16:00:00'],
-                ['dtend', {}, 'date', '2026-03-24T17:00:00'],
-                ['summary', {}, 'text', 'Floating event at 4pm (Berlin user)'],
-            ]])),
-            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00'),
-            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00'),
+            floatingBerlinIcalEvent,
+            floatingBerlinIcalEvent.startDate,
+            floatingBerlinIcalEvent.endDate,
             'Europe/Berlin'
         );
 
@@ -493,8 +495,8 @@ END:VTIMEZONE`;
 
         // Create event with TZID=Europe/London at 4pm (March = GMT = UTC+0)
         const vevent = new ICAL.Component(['vevent', [
-            ['dtstart', { tzid: 'Europe/London' }, 'date', '2026-03-24T16:00:00'],
-            ['dtend', { tzid: 'Europe/London' }, 'date', '2026-03-24T17:00:00'],
+            ['dtstart', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T17:00:00'],
             ['summary', {}, 'text', 'Meeting at 4pm London'],
         ]]);
         const dtstartProp = vevent.getFirstProperty('dtstart');
@@ -526,8 +528,8 @@ END:VTIMEZONE`;
         ensureTimezone('Europe/Berlin', 1, 2);
 
         const vevent = new ICAL.Component(['vevent', [
-            ['dtstart', { tzid: 'Europe/London' }, 'date', '2026-03-24T16:00:00'],
-            ['dtend', { tzid: 'Europe/London' }, 'date', '2026-03-24T17:00:00'],
+            ['dtstart', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T17:00:00'],
             ['summary', {}, 'text', 'Meeting at 4pm London'],
         ]]);
         const dtstartProp = vevent.getFirstProperty('dtstart');
@@ -551,8 +553,8 @@ END:VTIMEZONE`;
         ensureTimezone('Europe/Berlin', 1, 2);
 
         const vevent = new ICAL.Component(['vevent', [
-            ['dtstart', { tzid: 'Europe/London' }, 'date', '2026-03-24T16:00:00'],
-            ['dtend', { tzid: 'Europe/London' }, 'date', '2026-03-24T17:00:00'],
+            ['dtstart', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T17:00:00'],
             ['summary', {}, 'text', 'Meeting at 4pm London'],
         ]]);
         const dtstartProp = vevent.getFirstProperty('dtstart');
@@ -581,8 +583,8 @@ END:VTIMEZONE`;
         ensureTimezone('Europe/London', 0, 1);
 
         const vevent = new ICAL.Component(['vevent', [
-            ['dtstart', { tzid: 'Europe/London' }, 'date', '2026-03-24T16:00:00'],
-            ['dtend', { tzid: 'Europe/London' }, 'date', '2026-03-24T17:00:00'],
+            ['dtstart', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T17:00:00'],
             ['summary', {}, 'text', 'Meeting at 4pm London'],
         ]]);
         const dtstartProp = vevent.getFirstProperty('dtstart');
