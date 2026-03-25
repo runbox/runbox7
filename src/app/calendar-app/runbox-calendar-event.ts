@@ -140,20 +140,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // angular-calendar compatibility
 
     get start(): Date {
-        // This needs to be converted *from* tz the ical data is in
-        // *to* the tz the user's calendar display is in (this.timezone?)
-        let user_dtstart = this._dtstart;
-        // can't convert items with no tz set, so assume default (utc)
-        if (this._dtstart.zone) {
-            // console.log('start: convert from: ' + user_dtstart.zone.tzid);
-            // console.log('offset: ' + user_dtstart.zone.utcOffset(user_dtstart));
-            // console.log('start: convert to  : ' + this.timezone);
-            // console.log('have timezone? : ' + ICAL.TimezoneService.has(this.timezone));
-            // console.log('offset: ' + ICAL.TimezoneService.get(this.timezone).utcOffset(user_dtstart));
-            user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
-        }
-
-        return new Date(user_dtstart.toString());
+        return this.convertIcalTimeToDate(this._dtstart, 'dtstart');
     }
 
     get end(): Date {
@@ -161,18 +148,96 @@ export class RunboxCalendarEvent implements CalendarEvent {
             return undefined;
         }
 
-        let shownEnd = this._dtend.clone();
+        const shownEnd = this._dtend.clone();
         // ICAL event DTEND is exclusive, angular-calendar is inclusive
         if (this.allDay) {
             shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'days': 1}));
         } else {
             shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
         }
-        if (shownEnd.zone) {
-            shownEnd = shownEnd.convertToZone(ICAL.TimezoneService.get(this.timezone));
+
+        return this.convertIcalTimeToDate(shownEnd, 'dtend');
+    }
+
+    /**
+     * Convert an ICAL.Time to a JavaScript Date with proper timezone handling.
+     *
+     * Handles three cases:
+     * 1. Proper timezone (has VTIMEZONE data or UTC) → convert to user's display timezone
+     * 2. True floating time (no TZID in property) → interpret in calendar's timezone
+     * 3. Unresolved TZID (has TZID but not found) → preserve local time values as UTC
+     */
+    private convertIcalTimeToDate(time: ICAL.Time, propName: string): Date {
+        const zone = time.zone;
+        // Check for proper timezone with VTIMEZONE data or UTC
+        const hasProperTimezone = zone &&
+            typeof zone === 'object' &&
+            zone.tzid &&
+            zone.tzid !== 'floating' &&
+            (zone.component || zone.tzid === 'UTC');
+
+        if (hasProperTimezone) {
+            const targetTz = ICAL.TimezoneService.get(this.timezone);
+            if (targetTz) {
+                time = time.convertToZone(targetTz);
+            }
+            return time.toJSDate();
         }
 
-        return new Date(shownEnd.toString());
+        // Check if the property had a TZID parameter to differentiate floating vs unresolved
+        const prop = this.event.component.getFirstProperty(propName);
+        const hasTzidParam = prop && prop.getParameter('tzid');
+
+        if (!hasTzidParam) {
+            // True floating time - interpret in calendar's timezone
+            // First try ICAL.TimezoneService (for non-standard paths with VTIMEZONE data)
+            const calendarTz = ICAL.TimezoneService.get(this.timezone);
+
+            if (calendarTz) {
+                // Create time directly in calendar's timezone, then convert to UTC via toJSDate()
+                const localTime = new ICAL.Time({
+                    year: time.year,
+                    month: time.month,
+                    day: time.day,
+                    hour: time.hour,
+                    minute: time.minute,
+                    second: time.second
+                }, calendarTz);
+                return localTime.toJSDate();
+            }
+
+            // Try moment-timezone for standard IANA timezones
+            const momentZone = moment.tz.zone(this.timezone);
+            if (momentZone) {
+                const m = moment.tz([
+                    time.year,
+                    time.month - 1,
+                    time.day,
+                    time.hour,
+                    time.minute,
+                    time.second,
+                    0
+                ], this.timezone);
+                return m.toDate();
+            }
+
+            // Fallback: no calendar timezone available, preserve local time as UTC
+            return this.icalTimeToUTCDate(time);
+        }
+
+        // Unresolved TZID or no calendar timezone - preserve local time values
+        return this.icalTimeToUTCDate(time);
+    }
+
+    private icalTimeToUTCDate(time: ICAL.Time): Date {
+        return new Date(Date.UTC(
+            time.year,
+            time.month - 1,
+            time.day,
+            time.hour,
+            time.minute,
+            time.second
+        ));
     }
 
     set allDay(value) {
