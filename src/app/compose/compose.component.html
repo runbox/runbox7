@@ -89,7 +89,7 @@
                 [recipients]="model.cc"
                 (updateRecipient)="onUpdateRecipient('cc', $event)"
             ></mailrecipient-input>
-            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>
+            <button mat-icon-button (click)="formGroup.controls.cc.setValue(null); hasCC = false; model.cc.splice(0)"><mat-icon svgIcon="close"></mat-icon></button>
         </div>
         <div style="display: flex;" *ngIf="editing && hasBCC" class="fieldRecipient" (drop)="recipientDropped($event, 'bcc')">
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
@@ -97,7 +97,7 @@
                 [recipients]="model.bcc"
                 (updateRecipient)="onUpdateRecipient('bcc', $event)"
             ></mailrecipient-input>
-            <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>
+            <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null); hasBCC = false; model.bcc.splice(0)"><mat-icon svgIcon="close"></mat-icon></button>
         </div>
     </mat-card-subtitle>
     <mat-card-content>
