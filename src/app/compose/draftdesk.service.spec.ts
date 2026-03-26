@@ -404,4 +404,39 @@ Subject: Test subject <br />
         expect(draft.isUnsaved()).toBe(false);
         done();
     });
+
+    it('Blank draft: close compose-created draft with no user content', () => {
+        const draft = DraftFormModel.create(
+            -1,
+            Identity.fromObject({'email': 'to@runbox.com'}),
+            null,
+            ''
+        );
+
+        expect(draft.isBlankDraft()).toBe(true);
+    });
+
+    it('Blank draft: ignore default signature-only content', () => {
+        const identity = Identity.fromObject({
+            'email': 'to@runbox.com',
+            'signature': 'Kind regards,\nRunbox User'
+        });
+        const draft = DraftFormModel.create(-1, identity, null, '');
+
+        draft.msg_body = 'Kind regards,\nRunbox User\n\n';
+
+        expect(draft.isBlankDraft([identity])).toBe(true);
+    });
+
+    it('Blank draft: keep prefilled draft visible in drafts', () => {
+        const identity = Identity.fromObject({'email': 'to@runbox.com'});
+        const draft = DraftFormModel.create(
+            -1,
+            identity,
+            '"Test Runbox" <test@runbox.com>',
+            ''
+        );
+
+        expect(draft.isBlankDraft([identity])).toBe(false);
+    });
 });
