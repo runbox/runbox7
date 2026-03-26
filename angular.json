@@ -19,6 +19,11 @@
             "assets": [
               "src/assets",
               {
+                "glob": "security.txt",
+                "input": "src/.well-known",
+                "output": "/.well-known/"
+              },
+              {
                 "glob": "xapianasm*",
                 "input": "node_modules/@runboxcom/runbox-searchindex/",
                 "output": "/"
@@ -128,6 +133,11 @@
             ],
             "assets": [
               "src/assets",
+              {
+                "glob": "security.txt",
+                "input": "src/.well-known",
+                "output": "/.well-known/"
+              },
               {
                 "glob": "xapianasm*",
                 "input": "node_modules/runbox-searchindex/",

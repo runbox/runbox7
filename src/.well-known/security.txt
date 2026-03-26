@@ -1,0 +1,5 @@
+Contact: https://support.runbox.com/
+Canonical: https://runbox.com/.well-known/security.txt
+Policy: https://blog.runbox.com/2019/02/runbox-7-feature-and-bug-bounty-program/
+Preferred-Languages: en
+Expires: 2027-03-26T00:00:00.000Z
