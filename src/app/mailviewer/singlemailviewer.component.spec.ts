@@ -231,6 +231,22 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('should rewrite plain text mailto links to in-app compose links', () => {
+      const preparedHtml = component['preparePlainTextHtml'](
+        'Contact <a href="mailto:user@example.com?subject=Test" target="_blank">user@example.com</a>'
+      );
+
+      const htmlDocument = document.implementation.createHTMLDocument('');
+      htmlDocument.body.innerHTML = preparedHtml;
+      const anchor = htmlDocument.body.querySelector('a');
+
+      expect(anchor).not.toBeNull();
+      expect(anchor.getAttribute('data-href')).toBe('mailto:user@example.com?subject=Test');
+      expect(anchor.getAttribute('href')).toBe('#');
+      expect(anchor.getAttribute('target')).toBeNull();
+      expect(anchor.getAttribute('rel')).toBe('noopener');
+    });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
@@ -338,7 +354,8 @@ describe('SingleMailViewerComponent', () => {
     it('should extract email address from mailto: link correctly', fakeAsync(() => {
       // Create a mailto: link with query parameters
       mailtoLink = document.createElement('a');
-      mailtoLink.href = 'mailto:user@example.com?subject=Test&body=Hello';
+      mailtoLink.href = '#';
+      mailtoLink.setAttribute('data-href', 'mailto:user@example.com?subject=Test&body=Hello');
       mailtoLink.textContent = 'Email me';
       messageContentsElement.appendChild(mailtoLink);
 

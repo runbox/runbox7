@@ -203,10 +203,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       if (
         target &&
         target.tagName === 'A' &&
-        target.getAttribute('href')?.toLowerCase().startsWith('mailto:')
+        this.getMailtoHref(target)?.toLowerCase().startsWith('mailto:')
       ) {
         event.preventDefault();
-        const href = target.getAttribute('href');
+        const href = this.getMailtoHref(target);
         if (href) {
           const matches = /^mailto:([^?]+)/i.exec(href);
           const emailTo = matches ? matches[1] : '';
@@ -218,6 +218,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.lastMailtoInterceptorNode = messageContents;
   }
   private _mailtoInterceptorListener: any;
+
+  private getMailtoHref(target: HTMLElement): string | null {
+    return target.getAttribute('data-href') || target.getAttribute('href');
+  }
 
 
   /**
@@ -621,8 +625,23 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     text = html.join('');
 
    //  res.text = text;
-    res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
+    res.text = this.domSanitizer.bypassSecurityTrustHtml(this.preparePlainTextHtml(res.text.textAsHtml));
     return res;
+  }
+
+  private preparePlainTextHtml(textAsHtml: string): string {
+    const sanitizedText = DOMPurify.sanitize(textAsHtml || '');
+    const htmlDocument = document.implementation.createHTMLDocument('');
+    htmlDocument.body.innerHTML = sanitizedText;
+
+    htmlDocument.body.querySelectorAll('a[href^="mailto:"], a[href^="MAILTO:"]').forEach((anchor: HTMLAnchorElement) => {
+      anchor.setAttribute('data-href', anchor.getAttribute('href'));
+      anchor.setAttribute('href', '#');
+      anchor.removeAttribute('target');
+      anchor.setAttribute('rel', 'noopener');
+    });
+
+    return htmlDocument.body.innerHTML;
   }
 
   expandAttachmentData(attachments: any[], html: string): string {
