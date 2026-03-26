@@ -109,6 +109,10 @@ export class WebSocketSearchService {
             return;
         }
 
+        if (!this.websocket || this.websocket.readyState > WebSocket.OPEN) {
+            this.open();
+        }
+
         this.searchInProgress = true;
 
         this.searchReadySubject
@@ -137,7 +141,10 @@ export class WebSocketSearchService {
     }
 
     close() {
-        this.websocket.close();
+        if (this.websocket) {
+            this.websocket.close();
+            this.websocket = null;
+        }
         this.searchReadySubject = new AsyncSubject();
         this.searchInProgress = false;
     }
