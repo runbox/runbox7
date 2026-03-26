@@ -34,6 +34,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { take } from 'rxjs/operators';
 import { of, Observable, ReplaySubject } from 'rxjs';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { MatIcon } from '@angular/material/icon';
@@ -308,5 +309,42 @@ END:VCALENDAR
         expect(first_occurence.getDate()).toBe(1, 'day matches');
         expect(first_occurence.getHours()).toBe(12, 'hour matches');
         expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
+    });
+
+    it('should open a wider responsive dialog when adding events (GH-1400)', () => {
+        const dialog = TestBed.inject(MatDialog);
+        const openSpy = spyOn(dialog, 'open').and.returnValue({
+            afterClosed: () => of(undefined),
+        } as any);
+
+        component.addEvent();
+
+        expect(openSpy).toHaveBeenCalledWith(
+            jasmine.any(Function),
+            jasmine.objectContaining({
+                width: '95vw',
+                maxWidth: '720px',
+                data: jasmine.objectContaining({ is_new: true }),
+            })
+        );
+    });
+
+    it('should keep the wider responsive dialog when editing events (GH-1400)', () => {
+        const dialog = TestBed.inject(MatDialog);
+        const openSpy = spyOn(dialog, 'open').and.returnValue({
+            afterClosed: () => of(undefined),
+        } as any);
+        const event = RunboxCalendarEvent.newEmpty();
+
+        component.openEvent(event);
+
+        expect(openSpy).toHaveBeenCalledWith(
+            jasmine.any(Function),
+            jasmine.objectContaining({
+                width: '95vw',
+                maxWidth: '720px',
+                data: jasmine.objectContaining({ event, is_new: false }),
+            })
+        );
     });
 });
