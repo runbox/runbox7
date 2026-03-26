@@ -429,7 +429,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   public showHTMLForThisSender(email: string): boolean {
     if (this.showHTMLDecision
-        && this.showHTMLDecision === 'alwaysshowhtml') {
+        && this.showHTMLDecision === 'alwaysshowhtml'
+        && this.folder !== this.messagelistservice.spamFolderName) {
       this.showHTML = true;
       this.savedAlways = true;
       return;
@@ -477,6 +478,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       map((res: MessageContents) => this.processMessageContents(res))
     ).subscribe(
       (res: Mail) => {
+        this.folder = res.folder;
+
         if (res.html) {
           // default to no images
           // NB: This does not include "inline" images either
@@ -494,7 +497,6 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
         }
 
         this.mailObj = res;
-        this.folder = res.folder;
 
         // ProgressDialog.close();
         if (this.mailObj.seen_flag === 0) {
