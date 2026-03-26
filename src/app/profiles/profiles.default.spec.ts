@@ -17,57 +17,73 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { CommonModule } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { of } from 'rxjs';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { BehaviorSubject } from 'rxjs';
 
 import { DefaultProfileComponent } from './profiles.default';
 import { Identity, ProfileService } from './profile.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 
 describe('DefaultProfileComponent', () => {
     let fixture: ComponentFixture<DefaultProfileComponent>;
     let component: DefaultProfileComponent;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            imports: [FormsModule],
+    const profiles$ = new BehaviorSubject<Identity[]>([]);
+    const validProfiles$ = new BehaviorSubject<Identity[]>([]);
+
+    const mockProfileService = {
+        profiles: profiles$,
+        validProfiles: validProfiles$,
+        composeProfile: null,
+    };
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
             declarations: [DefaultProfileComponent],
+            imports: [CommonModule, FormsModule],
             providers: [
+                { provide: ProfileService, useValue: mockProfileService },
                 { provide: RunboxWebmailAPI, useValue: {} },
-                { provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } },
-                {
-                    provide: ProfileService, useValue: {
-                        profiles: of([]),
-                        composeProfile: null,
-                        validProfiles: { value: [] },
-                    }
-                },
+                { provide: MatSnackBar, useValue: { open: () => undefined } },
             ],
             schemas: [NO_ERRORS_SCHEMA],
         }).compileComponents();
-    }));
+    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(DefaultProfileComponent);
         component = fixture.componentInstance;
-    });
 
-    it('renders default identity options with their original casing', () => {
-        const mixedCaseProfile = Identity.fromObject({
-            email: 'mixed@example.com',
-            from_name: 'Jane McTest',
-        });
+        const profiles = [
+            Identity.fromObject({
+                id: 1,
+                email: 'alice@example.com',
+                from_name: 'Alice Example',
+            }),
+            Identity.fromObject({
+                id: 2,
+                email: 'bob@example.com',
+                from_name: 'Bob Example',
+            }),
+        ];
 
-        component.validProfiles = [mixedCaseProfile];
-        component.selectedProfile = mixedCaseProfile;
+        component.validProfiles = profiles;
+        component.selectedProfile = profiles[0];
+        mockProfileService.composeProfile = profiles[0];
+        profiles$.next(profiles);
+        validProfiles$.next(profiles);
 
         fixture.detectChanges();
+    });
 
-        const option = fixture.nativeElement.querySelector('mat-option') as HTMLElement;
-        expect(option.textContent.trim()).toBe('Jane McTest <mixed@example.com>');
+    it('should not apply the lowercase-only identity option class', () => {
+        const option = fixture.nativeElement.querySelector('mat-option');
+
         expect(option.classList.contains('identity-profile')).toBeFalse();
+        expect(option.textContent).toContain('Alice Example <alice@example.com>');
     });
 });
