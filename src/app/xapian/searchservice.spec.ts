@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { SearchService, XAPIAN_GLASS_WR } from './searchservice';
+import { SearchService, XAPIAN_GLASS_WR, buildAdditionalIndexDownloadQuestion } from './searchservice';
 import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
@@ -121,6 +121,14 @@ describe('SearchService', () => {
 
         httpMock = TestBed.inject(HttpTestingController as Type<HttpTestingController>);
     }));
+
+    it('should describe the full index message count in the download confirmation', () => {
+        expect(buildAdditionalIndexDownloadQuestion(12865, 70577, 31)).toBe(
+            'Already synchronized index for 12865 of your most recent messages. ' +
+            'To synchronize the entire index (of 83442 messages), ' +
+            'there\'s an additional download of 31 MB.'
+        );
+    });
 
     xit('should load searchservice, but no local index', async () => {
         const searchService = TestBed.inject(SearchService);

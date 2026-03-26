@@ -66,6 +66,17 @@ export class SearchIndexDocumentData {
   attachment?: boolean;
 }
 
+export function buildAdditionalIndexDownloadQuestion(
+  synchronizedMessages: number,
+  additionalMessages: number,
+  remainingDownloadMB: number
+): string {
+  const totalMessages = synchronizedMessages + additionalMessages;
+  return `Already synchronized index for ${synchronizedMessages} of your most recent messages. ` +
+    `To synchronize the entire index (of ${totalMessages} messages), ` +
+    `there's an additional download of ${remainingDownloadMB} MB.`;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -727,16 +738,16 @@ export class SearchService {
                         0)
                         / (1024 * 1024)
                       );
-                  const totalMessages = partitions.reduce((prev, curr, partitionNdx) => prev +
+                  const additionalMessages = partitions.reduce((prev, curr) => prev +
                         curr.numberOfMessages,
                         0);
 
                   dialog.componentInstance.title = 'Continue synchronizing?';
-                  dialog.componentInstance.question = `Already synchronized index for
-                      ${doccount} of
-                      your most recent messages. To synchronize entire index
-                      (for ${totalMessages} messages),
-                      there's an additional download of ${remainingDownloadMB} MB.`;
+                  dialog.componentInstance.question = buildAdditionalIndexDownloadQuestion(
+                    doccount,
+                    additionalMessages,
+                    remainingDownloadMB
+                  );
                   dialog.afterClosed()
                     .subscribe(res => {
                       userHasAcceptedDownloadAllPartitions = res;
