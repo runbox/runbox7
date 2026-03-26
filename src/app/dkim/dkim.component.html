@@ -77,7 +77,7 @@
                       <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left"><strong>Address</strong></div></mat-grid-tile>
                     </mat-grid-list>
                     <mat-grid-list cols="8" rowHeight="30px" style='' *ngFor="let k of domain.keys">
-                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{k.selector_recordset_name}}</div></mat-grid-tile>
+                      <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede;'><div class="grid_align_left">{{hostnameForDnsProvider(domain.name, k.selector_recordset_name)}}</div></mat-grid-tile>
                       <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">3600</div></mat-grid-tile>
                       <mat-grid-tile [colspan]="1" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">CNAME</div></mat-grid-tile>
                       <mat-grid-tile [colspan]="3" style='border-bottom: 1px dotted #dedede; border-left: 1px dotted #dedede'><div class="grid_align_left">{{k.public_recordset_name}}.</div></mat-grid-tile>
