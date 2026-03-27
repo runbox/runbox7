@@ -55,7 +55,8 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Re: No 'To', just 'CC'");
+        cy.get('mat-card-actions div').should('contain', "No 'To', just 'CC'");
+        cy.get('mat-card-actions div').should('not.contain', 'Re:');
     });
 
     it('can forward an email with no "To"', () => {
@@ -70,7 +71,8 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Fwd: No 'To', just 'CC'");
+        cy.get('mat-card-actions div').should('contain', "No 'To', just 'CC'");
+        cy.get('mat-card-actions div').should('not.contain', 'Fwd:');
     });
 
     it('can reply to an email with no "To" or "Subject"', () => {
@@ -85,7 +87,7 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Re: ");
+        cy.get('mat-card-actions div').should('not.contain', 'Re:');
     });
 
     it('can forward an email with no "To" or "Subject"', () => {
@@ -100,7 +102,7 @@ describe('Interacting with mailviewer', () => {
             expect(loc.pathname).to.eq('/compose');
         });
         cy.wait(500);
-        cy.get('mat-card-actions div').should('contain', "Fwd: ");
+        cy.get('mat-card-actions div').should('not.contain', 'Fwd:');
     });
 
     it('Vertical to horizontal mode exposes full height button', () => {

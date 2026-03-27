@@ -58,7 +58,7 @@ describe('DraftDesk', () => {
         [ Identity.fromObject({'email':'to@runbox.com'})],
         false);
 
-        expect(draft.subject).toBe('Fwd: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         // expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
         expect(draft.msg_body).toBe(
@@ -97,7 +97,7 @@ blabla\nabcde`);
         [ Identity.fromObject({'email':'to@runbox.com'})],
         true);
 
-        expect(draft.subject).toBe('Fwd: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         // expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
         expect(draft.html).toBe(
@@ -150,7 +150,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'to@runbox.com'})],
         false, false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
         expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
@@ -180,7 +180,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'to@runbox.com'})],
         false, false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
         expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
@@ -217,7 +217,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'to@runbox.com'})],
         false, false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
         expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
@@ -258,7 +258,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'to@runbox.com'})],
         true, false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"Reply-To" <reply-to@runbox.com>');
         expect(draft.to[1].nameAndAddress).toBe('"To-Extra" <to-extra@runbox.com>');
@@ -289,7 +289,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'to@runbox.com'})],
         true, false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
         expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
@@ -317,7 +317,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'to@runbox.com'}) ],
         true, false);
 
-        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.subject).toBe('Test subject');
         expect(draft.from).toBe('to@runbox.com');
         expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
         expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
@@ -365,7 +365,7 @@ Subject: Test subject <br />
         [ Identity.fromObject({'email':'from@runbox.com'}) ],
         false, false);
 
-        expect(replydraft.subject).toBe('Re: Test subject');
+        expect(replydraft.subject).toBe('Test subject');
         expect(replydraft.from).toBe('from@runbox.com');
         expect(replydraft.to[0].nameAndAddress).toBe('to@runbox.com');
         expect(replydraft.msg_body).toBe(`\n\nOn ${formatDate(replyDate)}, to@runbox.com wrote:\n` +
@@ -374,6 +374,52 @@ Subject: Test subject <br />
           `> On ${formatDate(mailDate)}, from@runbox.com wrote:\n` +
                                          '>> blabla\n>> abcde');
         expect(replydraft.isUnsaved()).toBe(true);
+        done();
+    });
+
+    it('Reply: preserve existing reply subject prefix', (done) => {
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid1093re',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ],
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: 'Re: Existing reply subject',
+            rawtext: 'blabla\nabcde'
+        },
+        [ Identity.fromObject({'email':'to@runbox.com'}) ],
+        false, false);
+
+        expect(draft.subject).toBe('Re: Existing reply subject');
+        done();
+    });
+
+    it('Forward: preserve existing forward subject prefix', (done) => {
+        const draft = DraftFormModel.forward({
+            headers: {
+                'message-id': 'themessageid1093fwd',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ],
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            attachments: [],
+            date: mailDate,
+            subject: 'Fwd: Existing forward subject',
+            rawtext: 'blabla\nabcde',
+            sanitized_html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ Identity.fromObject({'email':'to@runbox.com'}) ],
+        false);
+
+        expect(draft.subject).toBe('Fwd: Existing forward subject');
         done();
     });
 

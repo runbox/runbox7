@@ -21,7 +21,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
-import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
@@ -127,7 +126,7 @@ export class DraftFormModel {
             }
         }
         ret.setFromForResponse(mailObj, froms);
-        ret.setSubjectForResponse(mailObj, 'Re: ');
+        ret.setSubjectForResponse(mailObj);
 
         const localTZ = moment.tz.guess();
         const replyHeaderHTML = 'On '
@@ -185,7 +184,7 @@ ${fwdSubjectStr} <br />`
 <span>To: <span>` + fwdTo.join('</span><span>') + '</span></span> <br />' : '')
             + (fwdCC.length > 0 ? `
 <span>CC: <span>` + fwdCC.join('</span><span>') + '</span></span> <br />' : '');
-        ret.setSubjectForResponse(mailObj, 'Fwd: ');
+        ret.setSubjectForResponse(mailObj);
         if (!useHTML) {
             const fwdHeaderText = fwdHeaderHTML
                 .replaceAll(' <br />', '')
@@ -228,8 +227,8 @@ ${mailObj.sanitized_html}`;
         }
     }
 
-    private setSubjectForResponse(mailObj, prefix): void {
-        this.subject = prefix + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
+    private setSubjectForResponse(mailObj): void {
+        this.subject = mailObj.subject || '';
     }
 }
 
