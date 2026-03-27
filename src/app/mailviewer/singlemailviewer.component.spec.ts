@@ -142,7 +142,7 @@ describe('SingleMailViewerComponent', () => {
                   value: [{ 'address': 'test@runbox.com',
                            'name': 'Testy' }]
                 },
-                date: new Date(2016, 0, 1).toJSON(),
+                date: '2016-01-01T00:00:00.000+01:00',
                 subject: 'Test subject'
               },
               text: {
@@ -225,10 +225,30 @@ describe('SingleMailViewerComponent', () => {
       fixture.detectChanges();
 
 
-      expect(component.mailObj.attachments[0].downloadURL.indexOf('attachment/0')).toBeGreaterThan(-1);
-      expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
+      expect(component.mailObj.attachments[0].downloadURL.indexOf('attachment/0' )).toBeGreaterThan(-1);
+      expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0' )).toBeGreaterThan(-1);
 
-      expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
+      expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:' )).toBe(0);
+    }));
+
+  it('should toggle the opened-message time display between local and origin time', fakeAsync(() => {
+      fixture.detectChanges();
+      component.messageId = 22;
+      fixture.detectChanges();
+      tick(1);
+      fixture.detectChanges();
+
+      const timeValue = () => fixture.debugElement.nativeElement.querySelector('#messageTimeValue').textContent.trim();
+      const toggleButton = fixture.debugElement.nativeElement.querySelector('#messageTimeDisplayToggle');
+
+      expect(toggleButton.textContent).toContain('Local time');
+      expect(timeValue()).not.toContain('+01:00');
+
+      toggleButton.click();
+      fixture.detectChanges();
+
+      expect(toggleButton.textContent).toContain('Origin time');
+      expect(timeValue()).toContain('2016-01-01 00:00 +01:00');
     }));
 
   describe('mailto: link interceptor', () => {

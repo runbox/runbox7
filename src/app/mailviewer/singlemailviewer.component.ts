@@ -115,6 +115,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public savedForThisSender = false;
   public savedAlways = false;
   public showAllHeaders = false;
+  public showOriginTime = false;
 
   contacts: Contact[] = [];
 
@@ -228,7 +229,40 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.router.navigate(['/compose'], { queryParams: { to } });
   }
 
-  public close(actionstring?: string) {
+public toggleMessageTimeDisplay() {
+  this.showOriginTime = !this.showOriginTime;
+}
+
+public get messageTimeToggleLabel(): string {
+  return this.showOriginTime ? 'Origin time' : 'Local time';
+}
+
+public get originMessageDate(): string {
+  return this.formatOriginMessageDate(this.mailObj?.originalDate || this.mailObj?.headers?.date);
+}
+
+public formatOriginMessageDate(dateHeader: string): string {
+  if (!dateHeader) {
+    return '';
+  }
+
+  const match =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/.exec(dateHeader);
+  if (!match) {
+    return dateHeader;
+  }
+
+  const [, year, month, day, hour, minute, rawOffset] = match;
+  const offset = rawOffset === 'Z'
+    ? '+00:00'
+    : rawOffset && rawOffset.length === 5
+    ? `${rawOffset.slice(0, 3)}:${rawOffset.slice(3)}`
+    : rawOffset || '';
+
+  return `${year}-${month}-${day} ${hour}:${minute}${offset ? ' ' + offset : ''}`;
+}
+
+public close(actionstring?: string) {
     const doClose = () => {
       if (this.resizer) {
         this.resizer.resizePercentage(0);
@@ -543,6 +577,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (!res.headers.date) {
       res.headers.date = '1970-01-01T00:00:00.000Z';
     }
+    res.originalDate = res.headers.date;
     res.date = (
       (arr: string[]): Date =>
         new Date(

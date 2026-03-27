@@ -238,7 +238,18 @@
           </div>
           <div class="messageHeaderRow">
             <div class="messageHeaderDate">Time:</div>
-            <div class="messageHeaderDate">{{mailObj.date | date:'yyyy-MM-dd HH:mm ZZZZ'}}</div>
+            <div class="messageHeaderDate">
+              <span id="messageTimeValue">{{ showOriginTime ? originMessageDate : (mailObj.date | date:'yyyy-MM-dd HH:mm') }}</span>
+              <button
+                id="messageTimeDisplayToggle"
+                mat-stroked-button
+                type="button"
+                style="margin-left: 8px;"
+                (click)="toggleMessageTimeDisplay()"
+              >
+                {{ messageTimeToggleLabel }}
+              </button>
+            </div>
           </div>
           <div *ngIf="mailObj.to" class="messageHeaderRow">
             <div class="messageHeaderTo">
