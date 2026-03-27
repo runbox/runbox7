@@ -568,6 +568,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
 
+    if (res.text.html && !this.containsExternalImages(res.sanitized_html, res.attachments)) {
+      res.sanitized_html_without_images = res.sanitized_html;
+    }
+
     // Remove style tag otherwise angular sanitazion will display style tag content as text
 
     if (res.text.html) {
@@ -661,6 +665,45 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
     }
     return html;
+  }
+
+  private containsExternalImages(html: string, attachments: any[] = []): boolean {
+    if (!html) {
+      return false;
+    }
+
+    const attachmentUrls = new Set(
+      (attachments || [])
+        .filter((att) => att?.contentType && att.contentType.indexOf('image/') === 0 && att.downloadURL)
+        .map((att) => att.downloadURL)
+    );
+    const documentFragment = new DOMParser().parseFromString(html, 'text/html');
+    const images = Array.from(documentFragment.querySelectorAll('img'));
+
+    return images.some((image: HTMLImageElement) => {
+      const src = image.getAttribute('src') || '';
+      if (!src) {
+        return false;
+      }
+      if (src.startsWith('cid:') || src.startsWith('data:') || src.startsWith('blob:')) {
+        return false;
+      }
+      if (attachmentUrls.has(src)) {
+        return false;
+      }
+      if (src.startsWith('/rest/v1/email/')) {
+        return false;
+      }
+      try {
+        const url = new URL(src, window.location.origin);
+        if (url.origin === window.location.origin && url.pathname.startsWith('/rest/v1/email/')) {
+          return false;
+        }
+      } catch {
+        return true;
+      }
+      return true;
+    });
   }
 
   saveShowHTMLDecision() {
