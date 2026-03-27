@@ -330,28 +330,29 @@ export class CalendarAppComponent implements OnDestroy {
 
     setView(view: RunboxCalendarView): void {
         this.view = view;
+
+        switch (this.view) {
+            case RunboxCalendarView.Overview: {
+                this.mwlView = null;
+                break;
+            }
+            case RunboxCalendarView.Month: {
+                this.mwlView = CalendarView.Month;
+                break;
+            }
+            case RunboxCalendarView.Week: {
+                this.mwlView = CalendarView.Week;
+                break;
+            }
+            case RunboxCalendarView.Day: {
+                this.mwlView = CalendarView.Day;
+                break;
+            }
+        }
+
         if (this.settings.lastUsedView !== view) {
             this.settings.lastUsedView = this.view;
             this.preferenceService.set(this.prefGroup, 'calendarSettings', this.settings);
-
-            switch (this.view) {
-                case RunboxCalendarView.Overview: {
-                    this.mwlView = null;
-                    break;
-                }
-                case RunboxCalendarView.Month: {
-                    this.mwlView = CalendarView.Month;
-                    break;
-                }
-                case RunboxCalendarView.Week: {
-                    this.mwlView = CalendarView.Week;
-                    break;
-                }
-                case RunboxCalendarView.Day: {
-                    this.mwlView = CalendarView.Day;
-                    break;
-                }
-            }
         }
     }
 
