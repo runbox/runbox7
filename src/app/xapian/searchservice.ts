@@ -37,6 +37,7 @@ import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
+import { EMPTY_ACCOUNT_INDEX_MESSAGE } from './search-index-download.util';
 
 declare let FS;
 declare let IDBFS;
@@ -512,6 +513,7 @@ export class SearchService {
           this.localSearchActivated = false;
           this.indexLastUpdateTime = 0;
           this.indexDownloadingInProgress = false;
+          this.snackbar.open(EMPTY_ACCOUNT_INDEX_MESSAGE, 'Dismiss');
           // restart updates
           this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
           this.stopIndexDownloadingInProgress = true;
