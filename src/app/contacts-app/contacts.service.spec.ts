@@ -17,16 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { PreferencesResult, PreferencesService } from '../common/preferences.service';
+import { PreferencesService } from '../common/preferences.service';
 import { AppSettings } from '../app-settings';
 import { StorageService } from '../storage.service';
 import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RunboxWebmailAPI, RunboxMe, ContactSyncResult } from '../rmmapi/rbwebmail';
-import { ScreenSize, MobileQueryService } from '../mobile-query.service';
-import { of } from 'rxjs';
+import { of, ReplaySubject, firstValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { ReplaySubject } from 'rxjs';
 
 class MockPrefService {
   prefs = new Map<string, any>();
@@ -40,7 +39,6 @@ class MockPrefService {
 }
 
 class MockRMMAPI {
-
   defaultP = true;
   prefs =  {'Desktop': {'version': 1, 'entries': new Map<string, any>()},
                  'Global': {'version': 1, 'entries': new Map<string, any>()}};
@@ -57,74 +55,163 @@ class MockRMMAPI {
 }
 
 describe('ContactsService', () => {
-  const mq = <unknown> {
-    screenSize: ScreenSize.Desktop,
-    screenSizeChanged: of(ScreenSize.Desktop)
-  } as MobileQueryService;
-
-  let rmmapi: any;
-  let storage: any;
-  const prefService = <unknown>new MockPrefService() as PreferencesService;
-  let sut: any;
+  let rmmapi: MockRMMAPI;
+  let storage: StorageService;
+  const prefService = new MockPrefService() as unknown as PreferencesService;
+  let sut: ContactsService;
 
   beforeEach(async () => {
-    rmmapi = <unknown>new MockRMMAPI() as RunboxWebmailAPI;
-    storage = new StorageService(rmmapi);
-    sut = new ContactsService(rmmapi, prefService, storage);
+    rmmapi = new MockRMMAPI();
+    storage = new StorageService(rmmapi as unknown as RunboxWebmailAPI);
+    sut = new ContactsService(rmmapi as unknown as RunboxWebmailAPI, prefService, storage);
   });
 
-  it('should allow looking up remote avatars', (done) => {
-    prefService.set(prefService.prefGroup, 'avatarSource', 'remote' );
+  describe('Avatar lookup', () => {
+    it('should look up remote avatars (gravatar)', (done) => {
+      prefService.set(prefService.prefGroup, 'avatarSource', 'remote' );
 
-    prefService.preferences.pipe(take(1)).subscribe(async _ => {
-      // grab gravatar if there's no local picture
-      let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
-      expect(avatarUrl).toMatch(/gravatar/);
+      prefService.preferences.pipe(take(1)).subscribe(async _ => {
+        // grab gravatar if there's no local picture
+        let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
+        expect(avatarUrl).toMatch(/gravatar/);
 
-      // local avatar wins over gravatar
-      avatarUrl = await sut.lookupAvatar('test@runbox.com');
-      expect(avatarUrl).toMatch(/test.url/);
+        // local avatar wins over gravatar
+        avatarUrl = await sut.lookupAvatar('test@runbox.com');
+        expect(avatarUrl).toMatch(/test.url/);
 
-      avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
-      expect(avatarUrl).toBeFalsy();
+        avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
+        expect(avatarUrl).toBeFalsy();
 
-      done();
-    },);
-  });
+        done();
+      });
+    });
 
-  it('should allow looking up local avatars', (done) => {
-    prefService.set(prefService.prefGroup, 'avatarSource', 'local');
-    prefService.preferences.pipe(take(1)).subscribe(async _ => {
-      let avatarUrl = await sut.lookupAvatar('test@runbox.com');
-      expect(avatarUrl).toMatch(/test.url/);
+    it('should look up local avatars only', (done) => {
+      prefService.set(prefService.prefGroup, 'avatarSource', 'local');
+      prefService.preferences.pipe(take(1)).subscribe(async _ => {
+        let avatarUrl = await sut.lookupAvatar('test@runbox.com');
+        expect(avatarUrl).toMatch(/test.url/);
 
-      avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
-      expect(avatarUrl).toBeFalsy();
+        avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
+        expect(avatarUrl).toBeFalsy();
 
-      done();
+        done();
+      });
+    });
+
+    it('should return no avatar when set to none', (done) => {
+      prefService.set(prefService.prefGroup, 'avatarSource', 'none');
+      prefService.preferences.pipe(take(1)).subscribe(async _ => {
+        const avatarUrl = await sut.lookupAvatar('test@runbox.com');
+        expect(avatarUrl).toBeFalsy();
+
+        done();
+      });
     });
   });
 
-  it('should allow looking up avatars set to none', (done) => {
-    prefService.set(prefService.prefGroup, 'avatarSource', 'none');
-    prefService.preferences.pipe(take(1)).subscribe(async _ => {
-      const avatarUrl = await sut.lookupAvatar('test@runbox.com');
-      expect(avatarUrl).toBeFalsy();
+  describe('Contact retrieval', () => {
+    it('should return contacts list', async () => {
+      const contacts = await firstValueFrom(sut.contactsSubject);
 
-      done();
+      expect(Array.isArray(contacts)).toBe(true);
+      expect(contacts.length).toBeGreaterThan(0);
+    });
+
+    it('should return contacts with expected email', async () => {
+      const contacts = await firstValueFrom(sut.contactsSubject);
+
+      expect(contacts.length).toBeGreaterThan(0);
+      expect(contacts[0].primary_email()).toBe('test@runbox.com');
+    });
+
+    it('should provide contacts by email mapping', async () => {
+      const byEmail = await firstValueFrom(sut.contactsByEmail);
+
+      expect(typeof byEmail === 'object').toBe(true);
+      expect(byEmail['test@runbox.com']).toBeDefined();
+    });
+
+    it('should look up contact by email', (done) => {
+      sut.lookupContact('test@runbox.com').then(contact => {
+        expect(contact).toBeDefined();
+        expect(contact.primary_email()).toBe('test@runbox.com');
+        done();
+      });
+    });
+
+    it('should look up contact by UUID', (done) => {
+      sut.lookupByUUID('dead-cafe').then(contact => {
+        expect(contact).toBeDefined();
+        done();
+      });
+    });
+
+    it('should update contacts when processContacts is called', (done) => {
+      const newContacts = [
+        Contact.fromVcard('test-url', 'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:New Contact\r\nEMAIL:new@test.com\r\nEND:VCARD')
+      ];
+      sut.processContacts(newContacts);
+
+      setTimeout(() => {
+        firstValueFrom(sut.contactsSubject).then(contacts => {
+          expect(contacts.length).toBeGreaterThan(0);
+          done();
+        });
+      }, 20);
     });
   });
 
-  it('should allow resetting avatar source to remote', (done) => {
-    // can enable it back again
-    prefService.set(prefService.prefGroup, 'avatarSource', 'remote');
-    prefService.preferences.pipe(take(1)).subscribe(async _ => {
-      let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
-      expect(avatarUrl).toMatch(/gravatar/);
-      avatarUrl = await sut.lookupAvatar('test@runbox.com');
-      expect(avatarUrl).toMatch(/test.url/);
+  describe('Error handling', () => {
+    it('should emit errors through errorLog', (done) => {
+      const errors: any[] = [];
+      sut.errorLog.subscribe(e => errors.push(e));
 
-      done();
+      const testError = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
+      sut.apiErrorHandler(testError);
+
+      setTimeout(() => {
+        expect(errors.length).toBe(1);
+        expect(errors[0]).toBe(testError);
+        done();
+      }, 10);
+    });
+  });
+
+  describe('AvatarCache', () => {
+    it('should emit when avatarCache.add is called', (done) => {
+      const emissions: any[] = [];
+      sut.avatarCache.changed.subscribe(() => emissions.push(true));
+
+      sut.avatarCache.add('test@example.com', 'http://example.com/avatar.png');
+
+      setTimeout(() => {
+        expect(emissions.length).toBe(1);
+        done();
+      }, 10);
+    });
+
+    it('should emit when avatarCache.trash is called', (done) => {
+      const emissions: any[] = [];
+      sut.avatarCache.changed.subscribe(() => emissions.push(true));
+
+      sut.avatarCache.trash('test@example.com');
+
+      setTimeout(() => {
+        expect(emissions.length).toBe(1);
+        done();
+      }, 10);
+    });
+  });
+
+  describe('Preferences integration', () => {
+    it('should respond to preference changes', (done) => {
+      prefService.set(prefService.prefGroup, 'showDragHelpers', 'true');
+
+      setTimeout(() => {
+        expect(sut.showDragHelpers).toBe(true);
+        done();
+      }, 10);
     });
   });
 });

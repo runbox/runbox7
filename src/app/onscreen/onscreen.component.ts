@@ -85,7 +85,10 @@ export class OnscreenComponent implements OnDestroy {
             const script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = 'https://video.runbox.com/external_api.js';
-            script.onload = () => jitsiLoader.complete();
+            script.onload = () => {
+                jitsiLoader.next();
+                jitsiLoader.complete();
+            };
             document.getElementsByTagName('head')[0].appendChild(script);
         }
 

@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Account access control', () => {
     function becomeSubaccount() {
         cy.intercept('/rest/v1/me', (req) => {
@@ -25,10 +23,8 @@ describe('Account access control', () => {
     it('should not be able to renew as a subaccount', () => {
         becomeSubaccount();
 
-        cy.visit('/account/');
-        cy.get('mat-expansion-panel-header').contains('Subscriptions').click();
-        cy.get('mat-list-item').contains('Your Subscriptions').click();
-
+        // Navigate directly to subscriptions page - subaccounts should be blocked
+        cy.visit('/account/subscriptions');
         cy.url().should('not.include', '/account/subscriptions');
         cy.contains('mastermind@runbox.com');
     });
@@ -49,5 +45,12 @@ describe('Account access control', () => {
         cy.get('mat-list-item').contains('Two-Factor Authentication').click();
 
         cy.url().should('include', '/account/2fa');
+    });
+
+    it('subaccount cannot access product pages', () => {
+        becomeSubaccount();
+        // Navigate directly to plans page - subaccounts should be redirected
+        cy.visit('/account/plans');
+        cy.url().should('include', '/account/not-for-subaccounts');
     });
 });

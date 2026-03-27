@@ -108,20 +108,24 @@ describe('SearchService', () => {
           ],
             providers: [
                 SearchService,
-                MessageCache,
+                { provide: MessageCache, useValue: {
+                    get: (_) => Promise.resolve(null),
+                    set: (_, __) => {},
+                    delete: (_) => {},
+                    checkIds: (_) => Promise.resolve([]),
+                    getMany: (_) => Promise.resolve([]),
+                }},
                 MessageListService,
                 RunboxWebmailAPI
-                // { provide: Worker, useValue: {
-                //     onmessage({ data }) { console.log(data); },
-                //     postMessage({ data }) { console.log(data); }
-                // }
-                // }
           ]
         });
 
         httpMock = TestBed.inject(HttpTestingController as Type<HttpTestingController>);
     }));
 
+    // Integration test skipped: Requires full WebWorker + Xapian WASM + IndexedDB setup
+    // SearchService creates Worker directly (not via DI), making it difficult to mock
+    // TODO: Refactor SearchService to accept Worker factory for testability
     xit('should load searchservice, but no local index', async () => {
         const searchService = TestBed.inject(SearchService);
         await firstValueFrom(xapianLoadedSubject);
