@@ -275,8 +275,9 @@ END:VCALENDAR
                 }
                 return;
             }
-            const receiptendpoint = requesturl.match('/\/rest\/v1\/account_product\/receipt\/([0-9]+)');
+            const receiptendpoint = requesturl.match(/\/rest\/v1\/account_product\/receipt\/([0-9]+)/);
             if (receiptendpoint) {
+                response.setHeader('Content-Type', 'application/json');
                 response.end(JSON.stringify(this.receipt()));
                 return;
             }
@@ -316,7 +317,7 @@ END:VCALENDAR
                         }, 1000);
                     break;
                 case '/rest/v1/aliases/limits':
-                    response.end(JSON.stringify({ "total": 10, "current": 4}));
+                    response.end(JSON.stringify({ 'total': 10, 'current': 4}));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
@@ -347,6 +348,29 @@ END:VCALENDAR
                     break;
                 case '/rest/v1/account_product/payment_methods':
                     response.end(JSON.stringify(this.payment_methods()));
+                    break;
+                case '/rest/v1/account_product/payment_methods':
+                    response.end(JSON.stringify({
+                        status: 'success',
+                        result: {
+                            client_secret: 'seti_test_secret_e2e'
+                        }
+                    }));
+                    break;
+                case '/ajax/ajax_mfa_list_sessions':
+                    response.end(JSON.stringify({
+                        status: 'success',
+                        sessions: [
+                            {
+                                id: 'session1',
+                                ip_address: '192.168.1.1',
+                                user_agent: 'Chrome',
+                                created_at: '2024-01-15T10:00:00',
+                                last_seen: '2024-01-15T12:00:00',
+                                is_current: true
+                            }
+                        ]
+                    }));
                     break;
                 case '/rest/v1/account/usage':
                     response.end(JSON.stringify(this.usageDetails()));
@@ -400,6 +424,56 @@ END:VCALENDAR
                         'version': 1, 'entries': []
                     }));
                     break;
+                case '/rest/v1/account_product/stripe/setup':
+                    if (request.method === 'POST') {
+                        response.end(JSON.stringify({
+                            'status': 'success',
+                            'client_secret': 'seti_test_secret_e2e'
+                        }));
+                    }
+                    break;
+                case '/rest/v1/account_product/stripe/customer_session':
+                    if (request.method === 'POST') {
+                        response.end(JSON.stringify({
+                            'status': 'success',
+                            'customer_session_client_secret': 'css_test_secret_e2e'
+                        }));
+                    }
+                    break;
+                case '/rest/v1/account/details':
+                    if (request.method === 'GET') {
+                        response.end(JSON.stringify({
+                            'status': 'success',
+                            'result': {
+                                'first_name': 'Test',
+                                'last_name': 'User',
+                                'email_alternative': 'test@example.com',
+                                'country': 'NO',
+                                'timezone': 'Europe/Oslo',
+                                'phone_number': '',
+                                'company': '',
+                                'email_alternative_status': 0
+                            }
+                        }));
+                    }
+                    break;
+                case '/rest/v1/account/sessions':
+                    const now = Math.floor(Date.now() / 1000);
+                    response.end(JSON.stringify({
+                        'status': 'success',
+                        'result': {
+                            'sessions': [
+                                {
+                                    'id': 'e2e_session_1',
+                                    'ip': '192.168.1.1',
+                                    'user_agent': 'Cypress Test',
+                                    'last_active': now,
+                                    'created': now - 3600
+                                }
+                            ]
+                        }
+                    }));
+                    break;
                 case '/_ics/Europe/Oslo.ics':
                     response.end(this.vtimezone_oslo);
                     break;
@@ -418,7 +492,7 @@ END:VCALENDAR
         const trashlines = [];
         for (let msg_id = 1; msg_id < 100; msg_id++) {
             trashlines.push(`${msg_id}	1548071422	1547830043	Trash	1	0	0	"Test" <test@runbox.com>	` +
-                `Test2<test2@lalala.no>	Re: nonsense	709	n	 `);
+                'Test2<test2@lalala.no>	Re: nonsense	709	n	 ');
         }
         return trashlines.join('\n');
     }
@@ -427,7 +501,7 @@ END:VCALENDAR
         const lines = [];
         for (let msg_id = 1000; msg_id < 10000; msg_id++) {
             lines.push(`${msg_id}	1548071429	1547830043	Templates	1	0	0	"Template" <template@runbox.com>	` +
-                `Template2<template@example.org>	TEMPLATE	709	n	 `);
+                'Template2<template@example.org>	TEMPLATE	709	n	 ');
         }
         return lines.join('\n');
     }
@@ -436,23 +510,23 @@ END:VCALENDAR
         const inboxlines = [];
         for (let msg_id = 1; msg_id < 10; msg_id++) {
             inboxlines.push(`${msg_id}	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
-                `Test2<test2@lalala.no>	Re: hello	709	n	 `);
+                'Test2<test2@lalala.no>	Re: hello	709	n	 ');
         }
         // id=11: email with no "To"
-        inboxlines.push(`11	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	` +
-                `Test2<test2@lalala.no>	No 'To', just 'CC'	709	n	 `);
+        inboxlines.push('11	1548071422	1547830043	Inbox	1	0	0	"Test" <test@runbox.com>	' +
+                'Test2<test2@lalala.no>	No \'To\', just \'CC\'	709	n	 ');
 
         // id=12: email with capitalized "To" email
-        inboxlines.push(`12	1548071423	1547830044	Inbox	1	0	0	"Test" <test@runbox.com>	` +
-                `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
+        inboxlines.push('12	1548071423	1547830044	Inbox	1	0	0	"Test" <test@runbox.com>	' +
+                'Test2<test2@lalala.no>	Default from fix test	709	n	 ');
 
         // id=13: email with no "To" or Subject
-        inboxlines.push(`13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	` +
-                `Test2<test2@lalala.no>		709	n	 `);
+        inboxlines.push('13	1548071424	1547830045	Inbox	1	0	0	"Test" <test@runbox.com>	' +
+                'Test2<test2@lalala.no>		709	n	 ');
 
         // id=14: broken email
-        inboxlines.push(`14	1548071425	1547830046	Inbox	1	0	0	"Test" <test@runbox.com>	` +
-                `Test2<test2@lalala.no>	Default from fix test	709	n	 `);
+        inboxlines.push('14	1548071425	1547830046	Inbox	1	0	0	"Test" <test@runbox.com>	' +
+                'Test2<test2@lalala.no>	Default from fix test	709	n	 ');
 
         return inboxlines.join('\n');
     }
@@ -487,19 +561,19 @@ END:VCALENDAR
             'status': 'success',
             'result': [
                 {
-                    "apid":         1234,
-                    "subtype":      "domain",
-                    "type":         "addon",
-                    "active_from":  "2019-11-11T10:31:26",
-                    "active_until": "2029-11-11T10:31:26",
-                    "name":         "register .INC 10 year(s)",
-                    "pid":          3456,
-                    "active":       true,
-                    "quantity":     1,
-                    "quotas": {
-                        "VirtualDomain": {
-                            "type": "upgrade",
-                            "quota": 1
+                    'apid':         1234,
+                    'subtype':      'domain',
+                    'type':         'addon',
+                    'active_from':  '2019-11-11T10:31:26',
+                    'active_until': '2029-11-11T10:31:26',
+                    'name':         'register .INC 10 year(s)',
+                    'pid':          3456,
+                    'active':       true,
+                    'quantity':     1,
+                    'quotas': {
+                        'VirtualDomain': {
+                            'type': 'upgrade',
+                            'quota': 1
                         }
                     }
                 }
@@ -527,34 +601,34 @@ END:VCALENDAR
                         'currency':    'EUR',
                         'pid':         '1006',
                         'description': 'Test subscription including some stuff',
-                        "quotas": {
-                            "Alias": {
-                                "quota": 100,
-                                "type": "fixed"
+                        'quotas': {
+                            'Alias': {
+                                'quota': 100,
+                                'type': 'fixed'
                             },
-                            "File": {
-                                "type": "fixed",
-                                "quota": 2147483648
+                            'File': {
+                                'type': 'fixed',
+                                'quota': 2147483648
                             },
-                            "Traffic": {
-                                "quota": 10737418240,
-                                "type": "fixed"
+                            'Traffic': {
+                                'quota': 10737418240,
+                                'type': 'fixed'
                             },
-                            "VirtualDomain": {
-                                "quota": 10,
-                                "type": "fixed"
+                            'VirtualDomain': {
+                                'quota': 10,
+                                'type': 'fixed'
                             },
-                            "Disk": {
-                                "type": "fixed",
-                                "quota": 26843545600
+                            'Disk': {
+                                'type': 'fixed',
+                                'quota': 26843545600
                             },
-                            "Msg": {
-                                "quota": 5000,
-                                "type": "fixed"
+                            'Msg': {
+                                'quota': 5000,
+                                'type': 'fixed'
                             },
-                            "Sent": {
-                                "type": "fixed",
-                                "quota": 500
+                            'Sent': {
+                                'type': 'fixed',
+                                'quota': 500
                             }
                         },
                     },
@@ -566,34 +640,34 @@ END:VCALENDAR
                         'currency':    'EUR',
                         'pid':         '10006',
                         'description': 'Test subscription including some stuff',
-                        "quotas": {
-                            "Alias": {
-                                "quota": 100,
-                                "type": "fixed"
+                        'quotas': {
+                            'Alias': {
+                                'quota': 100,
+                                'type': 'fixed'
                             },
-                            "File": {
-                                "type": "fixed",
-                                "quota": 2147483648
+                            'File': {
+                                'type': 'fixed',
+                                'quota': 2147483648
                             },
-                            "Traffic": {
-                                "quota": 10737418240,
-                                "type": "fixed"
+                            'Traffic': {
+                                'quota': 10737418240,
+                                'type': 'fixed'
                             },
-                            "VirtualDomain": {
-                                "quota": 10,
-                                "type": "fixed"
+                            'VirtualDomain': {
+                                'quota': 10,
+                                'type': 'fixed'
                             },
-                            "Disk": {
-                                "type": "fixed",
-                                "quota": 26843545600
+                            'Disk': {
+                                'type': 'fixed',
+                                'quota': 26843545600
                             },
-                            "Msg": {
-                                "quota": 5000,
-                                "type": "fixed"
+                            'Msg': {
+                                'quota': 5000,
+                                'type': 'fixed'
                             },
-                            "Sent": {
-                                "type": "fixed",
-                                "quota": 500
+                            'Sent': {
+                                'type': 'fixed',
+                                'quota': 500
                             }
                         },
                     },
@@ -605,10 +679,10 @@ END:VCALENDAR
                         'currency':    'EUR',
                         'pid':         '9002',
                         'description': 'More cool stuff for your account',
-                        "quotas": {
-                            "VirtualDomain": {
-                                "type": "upgrade",
-                                "quota": 1
+                        'quotas': {
+                            'VirtualDomain': {
+                                'type': 'upgrade',
+                                'quota': 1
                             }
                         },
                     }
@@ -635,34 +709,34 @@ END:VCALENDAR
                         'currency':    'EUR',
                         'pid':         1006,
                         'description': 'Test subscription including some stuff',
-                        "quotas": {
-                            "Alias": {
-                                "quota": 100,
-                                "type": "fixed"
+                        'quotas': {
+                            'Alias': {
+                                'quota': 100,
+                                'type': 'fixed'
                             },
-                            "File": {
-                                "type": "fixed",
-                                "quota": 2147483648
+                            'File': {
+                                'type': 'fixed',
+                                'quota': 2147483648
                             },
-                            "Traffic": {
-                                "quota": 10737418240,
-                                "type": "fixed"
+                            'Traffic': {
+                                'quota': 10737418240,
+                                'type': 'fixed'
                             },
-                            "VirtualDomain": {
-                                "quota": 10,
-                                "type": "fixed"
+                            'VirtualDomain': {
+                                'quota': 10,
+                                'type': 'fixed'
                             },
-                            "Disk": {
-                                "type": "fixed",
-                                "quota": 26843545600
+                            'Disk': {
+                                'type': 'fixed',
+                                'quota': 26843545600
                             },
-                            "Msg": {
-                                "quota": 5000,
-                                "type": "fixed"
+                            'Msg': {
+                                'quota': 5000,
+                                'type': 'fixed'
                             },
-                            "Sent": {
-                                "type": "fixed",
-                                "quota": 500
+                            'Sent': {
+                                'type': 'fixed',
+                                'quota': 500
                             }
                         },
                     },
@@ -679,34 +753,34 @@ END:VCALENDAR
                         'currency':    'EUR',
                         'pid':          10006,
                         'description': 'Test subscription including some stuff',
-                        "quotas": {
-                            "Alias": {
-                                "quota": 100,
-                                "type": "fixed"
+                        'quotas': {
+                            'Alias': {
+                                'quota': 100,
+                                'type': 'fixed'
                             },
-                            "File": {
-                                "type": "fixed",
-                                "quota": 2147483648
+                            'File': {
+                                'type': 'fixed',
+                                'quota': 2147483648
                             },
-                            "Traffic": {
-                                "quota": 10737418240,
-                                "type": "fixed"
+                            'Traffic': {
+                                'quota': 10737418240,
+                                'type': 'fixed'
                             },
-                            "VirtualDomain": {
-                                "quota": 10,
-                                "type": "fixed"
+                            'VirtualDomain': {
+                                'quota': 10,
+                                'type': 'fixed'
                             },
-                            "Disk": {
-                                "type": "fixed",
-                                "quota": 26843545600
+                            'Disk': {
+                                'type': 'fixed',
+                                'quota': 26843545600
                             },
-                            "Msg": {
-                                "quota": 5000,
-                                "type": "fixed"
+                            'Msg': {
+                                'quota': 5000,
+                                'type': 'fixed'
                             },
-                            "Sent": {
-                                "type": "fixed",
-                                "quota": 500
+                            'Sent': {
+                                'type': 'fixed',
+                                'quota': 500
                             }
                         },
                     },
@@ -723,10 +797,10 @@ END:VCALENDAR
                         'currency':    'EUR',
                         'pid':          9002,
                         'description': 'More cool stuff for your account',
-                        "quotas": {
-                            "VirtualDomain": {
-                                "type": "upgrade",
-                                "quota": 1
+                        'quotas': {
+                            'VirtualDomain': {
+                                'type': 'upgrade',
+                                'quota': 1
                             }
                         },
                     }
@@ -738,97 +812,97 @@ END:VCALENDAR
     usageDetails() {
         return {
             'status': 'success',
-            "result": {
-                "File": {
-                    "name": "File Storage",
-                    "usage": 3020561,
-                    "percentage_used": 0.140655832365155,
-                    "quota": 2147483648,
-                    "type": "bytes"
+            'result': {
+                'File': {
+                    'name': 'File Storage',
+                    'usage': 3020561,
+                    'percentage_used': 0.140655832365155,
+                    'quota': 2147483648,
+                    'type': 'bytes'
                 },
-                "Subaccount": {
-                    "usage": 12,
-                    "name": "Medium Subaccounts",
-                    "type": "absolute",
-                    "percentage_used": 9.67741935483871,
-                    "quota": 124
+                'Subaccount': {
+                    'usage': 12,
+                    'name': 'Medium Subaccounts',
+                    'type': 'absolute',
+                    'percentage_used': 9.67741935483871,
+                    'quota': 124
                 },
-                "Disk": {
-                    "percentage_used": 3.30549178716655,
-                    "quota": 27917287424,
-                    "type": "bytes",
-                    "usage": 922803643,
-                    "name": "Mail Storage"
+                'Disk': {
+                    'percentage_used': 3.30549178716655,
+                    'quota': 27917287424,
+                    'type': 'bytes',
+                    'usage': 922803643,
+                    'name': 'Mail Storage'
                 },
-                "MicroSubaccount": {
-                    "quota": 0,
-                    "percentage_used": 0,
-                    "type": "absolute",
-                    "usage": 0,
-                    "name": "Micro Subaccounts"
+                'MicroSubaccount': {
+                    'quota': 0,
+                    'percentage_used': 0,
+                    'type': 'absolute',
+                    'usage': 0,
+                    'name': 'Micro Subaccounts'
                 },
-                "MaxSubaccount": {
-                    "type": "absolute",
-                    "quota": 0,
-                    "percentage_used": 0,
-                    "usage": 0,
-                    "name": "Max Subaccounts"
+                'MaxSubaccount': {
+                    'type': 'absolute',
+                    'quota': 0,
+                    'percentage_used': 0,
+                    'usage': 0,
+                    'name': 'Max Subaccounts'
                 },
-                "MiniSubaccount": {
-                    "percentage_used": 11.0,
-                    "quota": 100,
-                    "type": "absolute",
-                    "name": "Mini Subaccounts",
-                    "usage": 11
+                'MiniSubaccount': {
+                    'percentage_used': 11.0,
+                    'quota': 100,
+                    'type': 'absolute',
+                    'name': 'Mini Subaccounts',
+                    'usage': 11
                 },
-                "HostedDomain": {
-                    "quota": 0,
-                    "percentage_used": 0,
-                    "type": "absolute",
-                    "name": "Hosted Domains",
-                    "usage": 0
+                'HostedDomain': {
+                    'quota': 0,
+                    'percentage_used': 0,
+                    'type': 'absolute',
+                    'name': 'Hosted Domains',
+                    'usage': 0
                 },
-                "Sent": {
-                    "name": "Sent Email",
-                    "usage": 0,
-                    "quota": 500,
-                    "percentage_used": 0,
-                    "type": "absolute"
+                'Sent': {
+                    'name': 'Sent Email',
+                    'usage': 0,
+                    'quota': 500,
+                    'percentage_used': 0,
+                    'type': 'absolute'
                 },
-                "VirtualDomain": {
-                    "usage": 5,
-                    "name": "Domain Names",
-                    "type": "absolute",
-                    "percentage_used": 41.6666666666667,
-                    "quota": 12
+                'VirtualDomain': {
+                    'usage': 5,
+                    'name': 'Domain Names',
+                    'type': 'absolute',
+                    'percentage_used': 41.6666666666667,
+                    'quota': 12
                 },
-                "Max250Subaccount": {
-                    "quota": 0,
-                    "percentage_used": 0,
-                    "type": "absolute",
-                    "usage": 0,
-                    "name": "Max250 Subaccounts"
+                'Max250Subaccount': {
+                    'quota': 0,
+                    'percentage_used': 0,
+                    'type': 'absolute',
+                    'usage': 0,
+                    'name': 'Max250 Subaccounts'
                 },
-                "Max100Subaccount": {
-                    "percentage_used": 0,
-                    "quota": 0,
-                    "type": "absolute",
-                    "name": "Max100 Subaccounts",
-                    "usage": 0
+                'Max100Subaccount': {
+                    'percentage_used': 0,
+                    'quota': 0,
+                    'type': 'absolute',
+                    'name': 'Max100 Subaccounts',
+                    'usage': 0
                 },
-                "Msg": {
-                    "name": "Received Email",
-                    "usage": 3,
-                    "percentage_used": 0.06,
-                    "quota": 5000,
-                    "type": "absolute"
+                'Msg': {
+                    'name': 'Received Email',
+                    'usage': 3,
+                    'percentage_used': 0.06,
+                    'quota': 5000,
+                    'type': 'absolute'
                 },
-                "Alias": {
-                    "type": "absolute",
-                    "quota": 100,
-                    "percentage_used": 13.0,
-                    "name": "Aliases",
-                    "usage": 13
+                'Alias': {
+                    'type': 'absolute',
+                    'quota': 100,
+                    'percentage_used': 13.0,
+                    'name': 'Aliases',
+                    'usage': 13
                 }
             },
         };
@@ -864,7 +938,19 @@ END:VCALENDAR
     receipt() {
         return {
             'status': 'success',
-            'result': {}
+            'result': {
+                'tid': 31337,
+                'time': '2024-01-15T10:30:00',
+                'method': 'stripe',
+                'status': 0,
+                'total': '13.37',
+                'amount': '13.37',
+                'currency': 'EUR',
+                'products': [['Runbox Test', 1]],
+                'items': [
+                    { 'name': 'Runbox Test', 'quantity': 1, 'price': '13.37' }
+                ]
+            }
         };
     }
 
@@ -1103,17 +1189,17 @@ END:VCALENDAR
     contacts(): any[] {
         return [
             [
-                "/contacts/ID-MR-POSTCODE.vcf",
-                "BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n"
-                + "TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD"
+                '/contacts/ID-MR-POSTCODE.vcf',
+                'BEGIN:VCARD\nVERSION:3.0\nNICKNAME:Postpat\nN:Postcode;Patrick;;;\nUID:ID-MR-POSTCODE\nORG:Post Office #42\n'
+                + 'TEL;TYPE=work:333333333\nEMAIL;TYPE=work:patrick@post.no\nFN:Postpat\nEND:VCARD'
             ],
             [
-                "/contacts/ID-GROUP1.vcf",
-                "BEGIN:VCARD\nVERSION:4.0\nUID:ID-GROUP1\nKIND:GROUP\nFN:Group #1\nMEMBER:urn:uuid:ID-GROUP1-MEMBER1\nEND:VCARD",
+                '/contacts/ID-GROUP1.vcf',
+                'BEGIN:VCARD\nVERSION:4.0\nUID:ID-GROUP1\nKIND:GROUP\nFN:Group #1\nMEMBER:urn:uuid:ID-GROUP1-MEMBER1\nEND:VCARD',
             ],
             [
-                "/contacts/ID-GROUP1-MEMBER1.vcf",
-                "BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD",
+                '/contacts/ID-GROUP1-MEMBER1.vcf',
+                'BEGIN:VCARD\nVERSION:3.0\nUID:ID-GROUP1-MEMBER1\nFN:Group #1 member #1\nNOTE:member 1-1 note\nEND:VCARD',
             ],
         ];
     }
@@ -1126,14 +1212,14 @@ END:VCALENDAR
             const to = message_obj.result.headers['to'];
             delete message_obj.result.headers['to'];
             message_obj.result.headers['cc'] = to;
-            message_obj.result.headers['subject'] = "No 'To', just 'CC'";
+            message_obj.result.headers['subject'] = 'No \'To\', just \'CC\'';
             message_obj.result.mid = mailid;
         }
         if (mailid === 12) {
             message_obj = JSON.parse(JSON.stringify(mail_message_obj));
-            message_obj.result.headers['to'].value[0].address = "TESTMAIL@TESTMAIL.COM";
-            message_obj.result.headers['to'].text = "TESTMAIL@TESTMAIL.COM";
-            message_obj.result.headers['subject'] = "Default from fix test";
+            message_obj.result.headers['to'].value[0].address = 'TESTMAIL@TESTMAIL.COM';
+            message_obj.result.headers['to'].text = 'TESTMAIL@TESTMAIL.COM';
+            message_obj.result.headers['subject'] = 'Default from fix test';
             message_obj.result.mid = mailid;
         }
         if (mailid === 13) {
@@ -1141,7 +1227,7 @@ END:VCALENDAR
             const to = message_obj.result.headers['to'];
             delete message_obj.result.headers['to'];
             message_obj.result.headers['cc'] = to;
-            message_obj.result.headers['subject'] = "";
+            message_obj.result.headers['subject'] = '';
             message_obj.result.mid = mailid;
         }
         // This one warns, we couldnt find it!

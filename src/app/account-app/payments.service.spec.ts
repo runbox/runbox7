@@ -24,8 +24,8 @@ import { of, Observable, firstValueFrom } from 'rxjs';
 
 class MockRunboxWebmailAPI {
     private products: Product[] = [
-        { pid: 1, name: 'Product 1', price: 10 } as any,
-        { pid: 2, name: 'Product 2', price: 20 } as any
+        new Product({ pid: 1, name: 'Product 1', price: 10, id: 'prod1', type: 'subscription', description: 'Test product 1', currency: 'USD', quotas: {} }),
+        new Product({ pid: 2, name: 'Product 2', price: 20, id: 'prod2', type: 'subscription', description: 'Test product 2', currency: 'USD', quotas: {} })
     ];
 
     me: Observable<any> = of({ currency: 'USD' });

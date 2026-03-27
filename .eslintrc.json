@@ -14,7 +14,8 @@
       "parserOptions": {
         "project": [
           "tsconfig.json",
-          "e2e/tsconfig.json"
+          "e2e/cypress/tsconfig.json",
+          "e2e/mockserver/tsconfig.json"
         ],
         "createDefaultProgram": true
       },
