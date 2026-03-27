@@ -231,6 +231,62 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('keeps inline images visible without enabling external images', () => {
+    component.messageId = 77;
+
+    const processed = component['processMessageContents'](Object.assign(new MessageContents(), {
+      headers: {
+        from: {
+          value: [{ address: 'test@runbox.com', name: 'Testy' }]
+        },
+        date: new Date(2016, 0, 1).toJSON(),
+        subject: 'Inline image'
+      },
+      text: {
+        text: 'Inline image',
+        html: '<p><img src="cid:inline-logo"></p>',
+        textAsHtml: '<p>Inline image</p>'
+      },
+      sanitized_html: '<p><img src="cid:inline-logo"></p>',
+      sanitized_html_without_images: '<p>No images</p>',
+      attachments: [{
+        cid: 'inline-logo',
+        filename: 'inline-logo.png',
+        contentType: 'image/png'
+      }]
+    }));
+
+    expect(processed.sanitized_html_without_images).toEqual(processed.sanitized_html);
+  });
+
+  it('still hides truly external images by default', () => {
+    component.messageId = 78;
+
+    const processed = component['processMessageContents'](Object.assign(new MessageContents(), {
+      headers: {
+        from: {
+          value: [{ address: 'test@runbox.com', name: 'Testy' }]
+        },
+        date: new Date(2016, 0, 1).toJSON(),
+        subject: 'External image'
+      },
+      text: {
+        text: 'External image',
+        html: '<p><img src="cid:inline-logo"><img src="https://example.com/remote.png"></p>',
+        textAsHtml: '<p>External image</p>'
+      },
+      sanitized_html: '<p><img src="cid:inline-logo"><img src="https://example.com/remote.png"></p>',
+      sanitized_html_without_images: '<p>No images</p>',
+      attachments: [{
+        cid: 'inline-logo',
+        filename: 'inline-logo.png',
+        contentType: 'image/png'
+      }]
+    }));
+
+    expect(processed.sanitized_html_without_images).toBe('<p>No images</p>');
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
