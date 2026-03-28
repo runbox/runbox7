@@ -187,7 +187,14 @@
     </nav>
 
     <ng-container toolbar *ngIf="mobileQuery.matches && cart.items | async as items">
-        <div style="width: 100%; display: flex; justify-content: right">
+        <div class="mobileSettingsToolbar">
+            <button mat-icon-button (click)="sidenavService.toggleSidenav()" matTooltip="Toggle settings menu"
+                id="toggleFolderPaneIcon" aria-label="Toggle settings menu">
+                <mat-icon svgIcon="menu"></mat-icon>
+            </button>
+
+            <h3 class="sideNavHeader">Settings Menu</h3>
+
             <button mat-mini-fab *ngIf="items.length > 0" routerLink="/account/cart">
                 <mat-icon [matBadge]="items.length" matBadgePosition="below before" svgIcon="cart">
                 </mat-icon>
