@@ -143,12 +143,12 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             }
         } catch (err) {
             console.error(err);
-            this.stripeError = 'Stripe validate failed';
+            this.stripeError = 'Unable to validate your payment details.';
             this.state = 'failure';
             return;
         }
 
-        this.processing_message = 'Sending details to Stripe .. ';
+        this.processing_message = 'Sending your payment details...';
         try {
             const confirmed = await this.stripe.createConfirmationToken({
                 'elements': this.elements});
@@ -169,7 +169,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
                     });
         } catch (err) {
             console.error(err);
-            this.stripeError = 'Stripe submit failed';
+            this.stripeError = 'Unable to submit your payment details.';
             this.state = 'failure';
             return;
         }
@@ -178,7 +178,7 @@ export class StripePaymentDialogComponent implements AfterViewInit {
 
     handleConfirmationToken(cId: string) {
         return new Promise<void>((resolve, reject) => {
-            this.processing_message = 'Confirming payment with Stripe .. ';
+            this.processing_message = 'Submitting your payment...';
             this.paymentsservice.submitStripePayment(this.tid, cId).subscribe(res => {
                 if (res.status === 'requires_action') {
                     this.processing_message = 'Updating payment after redirect .. ';
