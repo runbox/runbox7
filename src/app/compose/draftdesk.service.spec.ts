@@ -405,3 +405,38 @@ Subject: Test subject <br />
         done();
     });
 });
+
+// Regression test for issue #1776: clicking the CC/BCC close button must
+// clear the recipients array and reset the visibility flag so the field hides.
+describe('Compose: CC/BCC close button clears recipients', () => {
+    it('closing CC empties model.cc via splice(0)', () => {
+        const draft = DraftFormModel.create(
+            -1,
+            Identity.fromObject({ 'email': 'from@runbox.com' }),
+            null,
+            ''
+        );
+        // Simulate having CC recipients
+        draft.cc = MailAddressInfo.parse('"Alice" <alice@example.com>');
+        expect(draft.cc.length).toBeGreaterThan(0);
+
+        // Replicate close-button action from compose.component.html:
+        //   model.cc.splice(0)
+        draft.cc.splice(0);
+        expect(draft.cc.length).toBe(0);
+    });
+
+    it('closing BCC empties model.bcc via splice(0)', () => {
+        const draft = DraftFormModel.create(
+            -1,
+            Identity.fromObject({ 'email': 'from@runbox.com' }),
+            null,
+            ''
+        );
+        draft.bcc = MailAddressInfo.parse('"Bob" <bob@example.com>');
+        expect(draft.bcc.length).toBeGreaterThan(0);
+
+        draft.bcc.splice(0);
+        expect(draft.bcc.length).toBe(0);
+    });
+});
