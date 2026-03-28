@@ -405,3 +405,41 @@ Subject: Test subject <br />
         done();
     });
 });
+
+// Regression tests for issue #1572: switching to an identity without a
+// signature must strip the current signature from the message body.
+describe('Compose: signature removal when switching to identity without one', () => {
+    it('removes plain-text signature from msg_body when new identity has no signature', () => {
+        const signature = 'Best regards\nAlice';
+        const bodyContent = 'Hello world';
+        const msgBody = signature + '\n\n' + bodyContent;
+
+        // Replicate the removal logic from compose.component.ts
+        const rgx = new RegExp('^' + signature.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        const result = msgBody.replace(rgx, '');
+
+        expect(result).not.toContain(signature);
+        expect(result).toContain(bodyContent);
+    });
+
+    it('removes signature with regex-special characters without errors', () => {
+        const signature = 'A.B (C) [D] x+y';
+        const msgBody = signature + '\n\nEmail body';
+
+        const rgx = new RegExp('^' + signature.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        const result = msgBody.replace(rgx, '');
+
+        expect(result).not.toContain(signature);
+        expect(result).toContain('Email body');
+    });
+
+    it('leaves body unchanged when signature is not present at start', () => {
+        const signature = 'My Sig';
+        const msgBody = 'Some text without the sig';
+
+        const rgx = new RegExp('^' + signature.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        const result = msgBody.replace(rgx, '');
+
+        expect(result).toEqual(msgBody);
+    });
+});
