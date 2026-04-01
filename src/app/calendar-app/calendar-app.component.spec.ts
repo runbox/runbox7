@@ -306,12 +306,14 @@ END:VCALENDAR
         expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
         const first_occurence = component.shown_events[0].start;
         // Event was created at 12:34 UTC using moment.utc().date(1).hour(12).minute(34).toISOString()
-        // but without a TZID in the iCal data. The calendar timezone is Europe/Stockholm (UTC+1).
-        // With the fix to use toJSDate(), the time is now properly converted:
-        // 12:34 Stockholm time = 11:34 UTC
-        // Check the date parts separately to avoid issues with seconds/milliseconds
+        // but without a TZID in the iCal data. The calendar timezone is Europe/Stockholm.
+        // The floating time 12:34 is interpreted as Stockholm local time.
+        // Stockholm offset depends on DST: CET (UTC+1) in winter, CEST (UTC+2) in summer.
+        const eventLocalHour = 12;
+        const stockholmOffset = moment.tz('Europe/Stockholm').utcOffset(); // minutes
+        const expectedUtcHour = (eventLocalHour - stockholmOffset / 60 + 24) % 24;
         expect(first_occurence.getUTCDate()).toBe(1);
-        expect(first_occurence.getUTCHours()).toBe(11);
+        expect(first_occurence.getUTCHours()).toBe(expectedUtcHour);
         expect(first_occurence.getUTCMinutes()).toBe(34);
     });
 });
