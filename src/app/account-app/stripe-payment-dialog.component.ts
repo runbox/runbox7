@@ -81,7 +81,10 @@ export class StripePaymentDialogComponent implements AfterViewInit {
             const script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = 'https://js.stripe.com/v3/';
-            script.onload = () => stripeLoader.complete();
+            script.onload = () => {
+                stripeLoader.next();
+                stripeLoader.complete();
+            };
             document.getElementsByTagName('head')[0].appendChild(script);
         }
     }
