@@ -223,6 +223,9 @@ END:VCALENDAR
                 if (command === 'disable2fa') {
                     this.challenge2fa = false;
                 }
+                if (command === 'resetCalendarEvents') {
+                    this.events = [];
+                }
                 response.end();
                 return;
             }
@@ -295,6 +298,33 @@ END:VCALENDAR
                 ));
                 return;
             }
+            // ICS calendar import: PUT /rest/v1/calendar/ics/{calendar_id}
+            const icsImportMatch = requesturl.match(/^\/rest\/v1\/calendar\/ics\/(.+)$/);
+            if (icsImportMatch && request.method === 'PUT') {
+                let body = '';
+                request.on('readable', () => {
+                    body += request.read() || '';
+                });
+                request.on('end', () => {
+                    const parsed = JSON.parse(body);
+                    const eventCount = (parsed.ical.match(/BEGIN:VEVENT/g) || []).length;
+                    const calendarId = decodeURIComponent(icsImportMatch[1]);
+                    const uidMatch = parsed.ical.match(/UID:(.*)/);
+                    this.events.push({
+                        id: calendarId + '/' + (uidMatch ? uidMatch[1].trim() : 'imported-' + this.events.length),
+                        ical: parsed.ical,
+                        calendar: calendarId,
+                    });
+                    response.end(JSON.stringify({
+                        'status': 'success',
+                        'result': {
+                            'events_imported': eventCount,
+                        }
+                    }));
+                });
+                return;
+            }
+
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
