@@ -118,7 +118,8 @@ export class CalendarAppComponent implements OnDestroy {
             const storedSettings = prefs.get(`${this.prefGroup}:calendarSettings`);
             if (storedSettings) {
                 this.settings = new CalendarSettings(storedSettings);
-                this.setView(this.settings.lastUsedView);
+                this.view = this.settings.lastUsedView;
+                this.syncMwlView();
             }
         });
         this.calendarservice.errorLog.subscribe(e => this.showError(e));
@@ -328,9 +329,7 @@ export class CalendarAppComponent implements OnDestroy {
         });
     }
 
-    setView(view: RunboxCalendarView): void {
-        this.view = view;
-
+    private syncMwlView(): void {
         switch (this.view) {
             case RunboxCalendarView.Overview: {
                 this.mwlView = null;
@@ -349,10 +348,16 @@ export class CalendarAppComponent implements OnDestroy {
                 break;
             }
         }
+    }
+
+    setView(view: RunboxCalendarView): void {
+        this.view = view;
 
         if (this.settings.lastUsedView !== view) {
             this.settings.lastUsedView = this.view;
             this.preferenceService.set(this.prefGroup, 'calendarSettings', this.settings);
+
+            this.syncMwlView();
         }
     }
 
