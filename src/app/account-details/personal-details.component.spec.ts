@@ -19,6 +19,7 @@
 
 import { of } from 'rxjs';
 import { UntypedFormBuilder } from '@angular/forms';
+import * as ct from 'countries-and-timezones';
 import { PersonalDetailsComponent } from './personal-details.component';
 
 describe('PersonalDetailsComponent', () => {
@@ -55,6 +56,12 @@ describe('PersonalDetailsComponent', () => {
     };
 
     it('loads countries in alphabetical order', () => {
+        spyOn(ct, 'getAllCountries').and.returnValue({
+            US: { name: 'United States', timezones: ['America/New_York'] },
+            NO: { name: 'Norway', timezones: ['Europe/Oslo'] },
+            DE: { name: 'Germany', timezones: ['Europe/Berlin'] },
+        } as any);
+
         const component = new PersonalDetailsComponent(
             new UntypedFormBuilder(),
             httpMock as any,
@@ -63,8 +70,7 @@ describe('PersonalDetailsComponent', () => {
         );
 
         const countryNames = component.countriesAndTimezones.map((country) => country.name);
-        const sortedCountryNames = [...countryNames].sort((left, right) => left.localeCompare(right));
 
-        expect(countryNames).toEqual(sortedCountryNames);
+        expect(countryNames).toEqual(['Germany', 'Norway', 'United States']);
     });
 });
