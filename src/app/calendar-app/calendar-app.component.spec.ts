@@ -45,20 +45,28 @@ describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
     let fixture: ComponentFixture<CalendarAppComponent>;
 
+    // moment.toISOString() includes milliseconds (e.g. "2026-04-02T14:30:00.000Z"),
+    // which causes ICAL.js's fromDateTimeString to miss the 'Z' UTC designator
+    // (it checks index 19, but milliseconds push 'Z' to index 23).
+    // This helper produces ICAL-compatible ISO strings without milliseconds.
+    function toIcalISOString(m: moment.Moment): string {
+        return m.format('YYYY-MM-DDTHH:mm:ss') + 'Z';
+    }
+
     // jCal spec: https://tools.ietf.org/html/rfc7265
     const simpleEvents = [
         {'id': 'test-calendar/event0',
          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
-             [ 'dtend',   {}, 'date-time', moment().add(1, 'hour').toISOString() ],
+             [ 'dtstart', {}, 'date-time', toIcalISOString(moment()) ],
+             [ 'dtend',   {}, 'date-time', toIcalISOString(moment().add(1, 'hour')) ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
          ]]]]).toString(),
          'calendar': 'test-calendar',
         },
         {'id': 'test-calendar/event1',
          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-             [ 'dtstart', {}, 'date-time', moment().date(15).add(1, 'month').add(1, 'day').add(2, 'hour').toISOString() ],
-             [ 'dtend', {}, 'date-time', moment().date(15).add(1, 'month').add(1, 'day').add(3, 'hour').toISOString() ],
+             [ 'dtstart', {}, 'date-time', toIcalISOString(moment().date(15).add(1, 'month').add(1, 'day').add(2, 'hour')) ],
+             [ 'dtend', {}, 'date-time', toIcalISOString(moment().date(15).add(1, 'month').add(1, 'day').add(3, 'hour')) ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
          ]]]]).toString(),
          'calendar': 'test-calendar',
@@ -68,8 +76,8 @@ describe('CalendarAppComponent', () => {
     const recurringEvents = [
         { 'id': 'test-calendar/recurring',
           'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().date(15).toISOString() ],
-              [ 'dtend', {}, 'date-time', moment().add(1, 'hour').date(15).toISOString() ],
+            [ 'dtstart', {}, 'date-time', toIcalISOString(moment().date(15)) ],
+              [ 'dtend', {}, 'date-time', toIcalISOString(moment().add(1, 'hour').date(15)) ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
             [ 'rrule',   {}, 'recur',     {'freq': 'WEEKLY'}     ],
           ]]]]).toString(),
