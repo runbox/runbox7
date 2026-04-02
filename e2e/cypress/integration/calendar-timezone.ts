@@ -35,11 +35,16 @@ function buildIcs(veventBlocks: string[], vtimezone?: string): string {
     return parts.join('\r\n');
 }
 
+function dtLine(prefix: string, value: string): string {
+    // ICS parameters use ';' separator (e.g. DTSTART;TZID=Europe/Oslo:20260416T140000)
+    return value.includes('=') ? `${prefix};${value}` : `${prefix}:${value}`;
+}
+
 function makeVevent(dtstart: string, dtend: string, summary: string, uid: string, extra: string[] = []): string {
     return [
         'BEGIN:VEVENT',
-        `DTSTART:${dtstart}`,
-        `DTEND:${dtend}`,
+        dtLine('DTSTART', dtstart),
+        dtLine('DTEND', dtend),
         `SUMMARY:${summary}`,
         `UID:${uid}`,
         'DTSTAMP:20260101T000000Z',
