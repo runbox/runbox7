@@ -7,6 +7,9 @@
   "version": "0.1.1",
   "repository": "https://github.com/runbox/runbox7",
   "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=16.20 <18"
+  },
   "scripts": {
     "ng": "ng",
     "appdev": "ng serve --disable-host-check --base-href=/appdev/",
@@ -88,6 +91,7 @@
     "jasmine-core": "~4.6.0",
     "jasmine-spec-reporter": "~7.0.0",
     "karma": "~6.4.1",
+    "karma-coverage": "^2.2.1",
     "karma-coverage-istanbul-reporter": "~3.0.3",
     "karma-firefox-launcher": "^2.1.2",
     "karma-jasmine": "~5.1.0",
