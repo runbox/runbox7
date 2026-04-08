@@ -1,31 +1,14 @@
 <div mat-dialog-content style="max-width: 500px;">
   <h1 mat-dialog-title>Cryptocurrency payment <img src="assets/payment/coinbase.svg" /></h1>
-    <div *ngIf="state === 'loading'">
-        We're preparing your cryptocurrency payment, please wait...
-        <mat-spinner style="margin:0 auto;"></mat-spinner>
-    </div>
-    <span *ngIf="state === 'created'">
-        <p>
-            You may now complete your payment via our cryptocurrency payment provider Coinbase.
-        </p>
-        <p class="button">
-            <button mat-flat-button color="primary"> <a [href]="external_url">Proceed to Coinbase</a>
-            </button>
-        </p>
-        <p>
-            Processing your payment may take a little while.
-            You will be notified with an email when the process is finished.
-        </p>
-        <p>
-          If you prefer to transfer cryptocurrency directly you may do so here:
-        </p>
-        <p class="button">
-          <button id="payDirectly" mat-raised-button (click)="directTransfer()" color="primary">
-	        Cryptocurrency Transfer
-          </button>
-        </p>
-    </span>
-    <app-runbox-contact-support *ngIf="state === 'failed'">
-        There was an error creating your payment.
-    </app-runbox-contact-support>
+  <p>
+    You may now transfer your payment to our cryptocurrency account with Coinbase.
+  </p>
+  <p>
+    Please proceed to transfer your cryptocurrency directly here:
+  </p>
+  <p class="button">
+    <button id="payDirectly" mat-raised-button (click)="directTransfer()" color="primary">
+         Cryptocurrency Transfer
+    </button>
+  </p>
 </div>
