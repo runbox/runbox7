@@ -745,7 +745,8 @@ not matching with rest api counts for current folder`);
           // only got ids for deleted messages
           // deletedMessages.forEach((msg) => folders.add(msg.folder));
           ctx.postMessage({'action': PostMessageAction.updateMessageListService,
-                          'foldersUpdated': Array.from(folders) });
+                           'foldersUpdated': Array.from(folders),
+                           'deletedMessages': deletedMessages});
         }
         // Update folder lists + counts
         // postMessage
