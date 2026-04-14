@@ -30,6 +30,10 @@ As a contributor, here are the guidelines we would like you to follow:
 
 Help us keep Runbox 7 open and inclusive. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## Use of AI
+
+If you have used AI to create a PR, we require you to follow our [Coding Rules](#coding-rules) and disclose this in your PR.
+
 ## Got a Question or Problem?
 
 Please do not open issues on Github for general support questions as we want to keep GitHub issues for bug reports and feature requests.
