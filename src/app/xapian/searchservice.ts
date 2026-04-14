@@ -38,9 +38,9 @@ import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
 
-declare let FS;
-declare let IDBFS;
-declare let Module;
+declare var FS;
+declare var IDBFS;
+declare var Module;
 
 const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
