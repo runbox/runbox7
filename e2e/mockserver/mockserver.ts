@@ -275,11 +275,14 @@ END:VCALENDAR
                 }
                 return;
             }
-            const receiptendpoint = requesturl.match(/\/rest\/v1\/account_product\/receipt\/([0-9]+)/);
-            if (receiptendpoint) {
-                response.setHeader('Content-Type', 'application/json');
-                response.end(JSON.stringify(this.receipt()));
-                return;
+            if (requesturl.startsWith('/rest/v1/account_product/receipt')) {
+                // not strictly necessary, was failing with just the regex
+                const receiptendpoint = requesturl.match(/receipt\/([0-9]+)/);
+                if (receiptendpoint) {
+                    response.setHeader('Content-Type', 'application/json');
+                    response.end(JSON.stringify(this.receipt()));
+                    return;
+                }
             }
             if (requesturl.startsWith('/rest/v1/contacts/sync')) {
                 response.end(JSON.stringify(
