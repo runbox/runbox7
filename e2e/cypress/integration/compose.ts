@@ -103,6 +103,30 @@ describe('Composing emails', () => {
         });
     });
 
+    it('clicking Drafts after Compose should close the blank draft', () => {
+        cy.intercept('/mail/download_xapian_index?ngsw-bypass=1&listallmessages=1&page=0&sinceid=0&sincechangeddate=0&pagesize=100&skipcontent=1&folder=Drafts&avoidcacheuniqueparam=*').as('listAllmessages');
+        cy.visit('/compose');
+        cy.wait('@listAllmessages', {'timeout':10000});
+        cy.get('#draftsButton .foldersidebarcount').invoke('text').then((draftCount) => {
+            const initialDraftCount = draftCount.trim();
+
+            cy.visit('/compose?new=true');
+            cy.wait('@listAllmessages', {'timeout':10000});
+
+            cy.get('button[mattooltip="Close draft"').should('exist');
+            cy.get('#draftsButton').click();
+
+            cy.location().should((loc) => {
+                expect(loc.pathname).to.eq('/compose');
+                expect(loc.search).to.eq('');
+            });
+            cy.get('button[mattooltip="Close draft"').should('not.exist');
+            cy.get('#draftsButton .foldersidebarcount').invoke('text').should((updatedDraftCount) => {
+                expect(updatedDraftCount.trim()).to.eq(initialDraftCount);
+            });
+        });
+    });
+
     it('closing a new reply should return to inbox', () => {
         cy.visit('/');
         cy.wait(1000);
