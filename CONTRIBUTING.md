@@ -32,7 +32,7 @@ Help us keep Runbox 7 open and inclusive. Please read and follow our [Code of Co
 
 ## Use of AI
 
-If you have used AI to create a PR, we require you to follow our [Coding Rules](#coding-rules) and disclose this in your PR.
+If you have used AI to help write your contribution, we require you to follow our [Coding Rules](#coding-rules) and disclose this in your PR.
 
 ## Got a Question or Problem?
 
