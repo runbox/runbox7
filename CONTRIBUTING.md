@@ -2,7 +2,7 @@
 
 We would love for you to contribute to Runbox 7 and help make it even better than it is today!
 
-Please see [The Runbox 7 Roadmap](https://community.runbox.com/t/the-runbox-7-roadmap/732/41) and [Runbox 7 Feature and Bug Bounty Program](https://community.runbox.com/t/runbox-7-feature-and-bug-bounty-program/753) to help get you started. 
+Please see [The Runbox 7 Roadmap](https://community.runbox.com/t/the-runbox-7-roadmap/732/41) and [Runbox 7 Feature and Bug Bounty Program](https://community.runbox.com/t/runbox-7-feature-and-bug-bounty-program/753) to help get you started.
 
 
 As a contributor, here are the guidelines we would like you to follow:
@@ -29,6 +29,10 @@ As a contributor, here are the guidelines we would like you to follow:
 ## Code of Conduct
 
 Help us keep Runbox 7 open and inclusive. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Use of AI
+
+If you have used AI to help write your contribution, we require you to follow our [Coding Rules](#coding-rules) and disclose this in your PR.
 
 ## Got a Question or Problem?
 
@@ -80,7 +84,10 @@ Before you submit your Pull Request (PR), consider the following guidelines:
 git checkout -b my-fix-branch master
 ```
 5. Create your patch, **including appropriate test cases**.
-6. Follow our [Coding Rules](#coding-rules).
+	1. Your tests must *fail* before we apply your fix. If there are no tests, or they do not demonstrate the issue you are fixing when run on the current checkout, we will automatically reject your PR.
+	2. Your tests must be in a commit or commits we can `git cherry-pick` *separate from your code*.
+	3. Your tests must prove that your PR fixes the issue you claim it does, and this should be clear from the code and comments in the test.
+6. Follow our [Coding Rules](#coding-rules). Please be aware this includes disclosing any use of AI in creating your PR.
 7. Run the full test suite (`npm run ci-tests`), and ensure that all tests pass.
 8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-guidelines). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
@@ -147,6 +154,7 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 * All features or bug fixes **must be tested** by one or more specs (unit-tests).
 * All public API methods **must be documented**.
 * You may use `@author name/pseudonym` (optionally email) inside comments for attribution.
+* If you have used AI as part of your development process, you **must** disclose this, and document both which agent(s) you used, and where.
 
 ## Commit Message Guidelines
 
