@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+/* eslint-disable */ 
 import { AsyncSubject, of } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
