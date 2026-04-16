@@ -140,12 +140,6 @@ export abstract class MessageDisplay {
     // as we want to open the email instead
     if (columnIndex > 0) {
       this.msgIdsSelected = {};
-
-      if (this.openedRowIndex === rowIndex) {
-        this.clearOpenedRow();
-        this.hasChanges = true;
-        return;
-      }
     }
 
     // columnIndex == -1 if drag & drop
