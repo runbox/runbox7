@@ -17,11 +17,12 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+/* eslint-disable */ 
 import { AsyncSubject, of } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
-declare let Module;
-declare let WebAssembly;
+declare var Module;
+declare var WebAssembly;
 
 let _xapianLoadedSubject: AsyncSubject<any> = null;
 
@@ -56,12 +57,12 @@ function loadXapian() {
 
 export const xapianLoadedSubject = of(true).pipe(mergeMap(() => loadXapian()));
 
-declare let IDBFS;
-declare let FS;
-declare let PATH;
-declare let assert;
-declare let MEMFS;
-declare let window;
+declare var  IDBFS;
+declare var  FS;
+declare var  PATH;
+declare var  assert;
+declare var  MEMFS;
+declare var  window;
 
 /* eslint-disable curly */
 /* eslint-disable no-var */
@@ -129,9 +130,9 @@ function patchIDBFS() {
         },
         DB_VERSION: 21,
         DB_STORE_NAME: 'FILE_DATA',
-        mount: function(mount, ...rest) {
+        mount: function(mount) {
         // reuse all of the core MEMFS functionality
-        return MEMFS.mount.call(null, mount, ...rest);
+        return MEMFS.mount.apply(null, arguments);
         },
         syncfs: function(mount, populate, callback) {
         IDBFS.getLocalSet(mount, function(err, local) {
@@ -217,7 +218,7 @@ function patchIDBFS() {
             }
 
             if (FS.isDir(stat.mode)) {
-            check.push.call(check, ...FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
+            check.push.apply(check, FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
             }
 
             entries[path] = { timestamp: stat.mtime };

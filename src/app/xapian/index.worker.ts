@@ -33,9 +33,8 @@ import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
 
-declare let FS;
-declare let IDBFS;
-declare let Module;
+// eslint-disable-next-line no-var
+declare var FS; declare var IDBFS; declare var Module;
 
 const XAPIAN_TERM_FOLDER = 'XFOLDER:';
 const XAPIAN_TERM_FLAGGED = 'XFflagged';
@@ -245,7 +244,7 @@ class SearchIndexService {
     this.api.initXapianIndex(XAPIAN_GLASS_WR);
   }
 
-  public deleteLocalIndex(): Observable<any> {
+  public deleteLocalIndex(): Observable<boolean> {
     if (!this.localSearchActivated) {
       // called mid-index load and we hadnt loaded it anyway
       // send indexDeleted so the progress dialog closes
@@ -315,19 +314,19 @@ class SearchIndexService {
         // console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
         const req = self.indexedDB.deleteDatabase('/' + this.localdir);
         req.onsuccess = () =>
-          o.next(undefined);
+          o.next(true);
       }).pipe(
         mergeMap(() =>
           new Observable(o => {
             // console.log('Worker: Deleting indexeddb database', this.partitionsdir);
             const req = self.indexedDB.deleteDatabase(this.partitionsdir);
             req.onsuccess = () =>
-              o.next(undefined);
+              o.next(true);
           })
         )
       ).subscribe(() => {
         ctx.postMessage({'action': PostMessageAction.indexDeleted});
-        observer.next(undefined);
+        observer.next(true);
       });
     });
   }
