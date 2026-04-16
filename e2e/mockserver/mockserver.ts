@@ -22,23 +22,24 @@ import { createWriteStream } from 'fs';
 import { mail_message_obj } from './emailresponse';
 
 const logger = createWriteStream('mockserver.log');
-function log(line) {
+function log(line: string) {
     logger.write(line + '\n');
 }
 
 export class MockServer {
 
-    server: Server;
+    server!: Server;
 
     loggedIn = true;
     challenge2fa = false;
     port = 15000;
 
-    calendars = [
-        { id: 'mock cal', displayname: 'Mock Calendar' },
+    calendars: { id: string; displayname: string; syncToken: string }[] = [
+        { id: 'mock cal', displayname: 'Mock Calendar', syncToken: 'e2e-sync-1' },
     ];
 
-    events = [];
+    events: { id: string; ical: any; calendar: string }[] = [];
+    accountTimezone = 'Europe/Oslo';
 
     folders = [
         {
@@ -205,10 +206,35 @@ END:VTIMEZONE
 END:VCALENDAR
 `;
 
+    vtimezone_london =
+`BEGIN:VCALENDAR
+PRODID:-//runbox//NONSGML Runbox calendar//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Europe/London
+X-LIC-LOCATION:Europe/London
+BEGIN:STANDARD
+TZNAME:GMT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0000
+DTSTART:19701025T020000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:BST
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0100
+DTSTART:19810329T010000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE
+END:VCALENDAR
+`;
+
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
-            const e2eFixture = request.url.match(/\/rest\/e2e\/(\w+)/);
+            const e2eFixture = request.url?.match(/\/rest\/e2e\/([^?]+)/);
             if (e2eFixture) {
                 log(e2eFixture[1]);
                 const command = e2eFixture[1];
@@ -223,6 +249,34 @@ END:VCALENDAR
                 if (command === 'disable2fa') {
                     this.challenge2fa = false;
                 }
+                if (command === 'resetCalendarEvents') {
+                    this.events = [];
+                    this.bumpSyncToken();
+                }
+                if (command.startsWith('setTimezone_')) {
+                    this.accountTimezone = command.replace('setTimezone_', '');
+                }
+                if (command === 'resetTimezone') {
+                    this.accountTimezone = 'Europe/Oslo';
+                }
+                if (command === 'addEvent') {
+                    // POST with JSON body: { id, ical, calendar }
+                    let body = '';
+                    request.on('readable', () => {
+                        body += request.read() || '';
+                    });
+                    request.on('end', () => {
+                        const parsed = JSON.parse(body);
+                        this.events.push({
+                            id: parsed.id || ('e2e-event-' + this.events.length),
+                            ical: parsed.ical,
+                            calendar: parsed.calendar || 'mock cal',
+                        });
+                        this.bumpSyncToken();
+                        response.end(JSON.stringify({ status: 'success' }));
+                    });
+                    return;
+                }
                 response.end();
                 return;
             }
@@ -232,7 +286,7 @@ END:VCALENDAR
                 return;
             }
             log(request.method + ' ' + request.url);
-            let requesturl = request.url;
+            let requesturl = request.url || '';
             if (requesturl.indexOf('/rest/v1/list/deleted_messages') === 0) {
                 requesturl = '/rest/v1/list/deleted_messages';
             }
@@ -251,7 +305,7 @@ END:VCALENDAR
             if (bulkemailendpiont) {
                 const ids = bulkemailendpiont[1].split(',').map(id => parseInt(id, 10));
 
-                const messages = {};
+                const messages: { [key: number]: { json: any } } = {};
                 for (const id of ids) {
                     messages[id] = { json: this.getMessage(id).result };
                 }
@@ -295,6 +349,33 @@ END:VCALENDAR
                 ));
                 return;
             }
+            // ICS calendar import: PUT /rest/v1/calendar/ics/{calendar_id}
+            const icsImportMatch = requesturl.match(/^\/rest\/v1\/calendar\/ics\/(.+)$/);
+            if (icsImportMatch && request.method === 'PUT') {
+                let body = '';
+                request.on('readable', () => {
+                    body += request.read() || '';
+                });
+                request.on('end', () => {
+                    const parsed = JSON.parse(body);
+                    const eventCount = (parsed.ical.match(/BEGIN:VEVENT/g) || []).length;
+                    const calendarId = decodeURIComponent(icsImportMatch[1]);
+                    const uidMatch = parsed.ical.match(/UID:(.*)/);
+                    this.events.push({
+                        id: calendarId + '/' + (uidMatch ? uidMatch[1].trim() : 'imported-' + this.events.length),
+                        ical: parsed.ical,
+                        calendar: calendarId,
+                    });
+                    response.end(JSON.stringify({
+                        'status': 'success',
+                        'result': {
+                            'events_imported': eventCount,
+                        }
+                    }));
+                });
+                return;
+            }
+
             switch (requesturl) {
                 case '/ajax_mfa_authenticate':
                     setTimeout(() => {
@@ -449,7 +530,7 @@ END:VCALENDAR
                                 'last_name': 'User',
                                 'email_alternative': 'test@example.com',
                                 'country': 'NO',
-                                'timezone': 'Europe/Oslo',
+                                'timezone': this.accountTimezone,
                                 'phone_number': '',
                                 'company': '',
                                 'email_alternative_status': 0
@@ -477,8 +558,11 @@ END:VCALENDAR
                 case '/_ics/Europe/Oslo.ics':
                     response.end(this.vtimezone_oslo);
                     break;
+                case '/_ics/Europe/London.ics':
+                    response.end(this.vtimezone_london);
+                    break;
                 default:
-                    if (request.url.indexOf('/rest') === 0) {
+                    if (request.url && request.url.indexOf('/rest') === 0) {
                         response.end(JSON.stringify({ status: 'success' }));
                     } else {
                         response.end('');
@@ -548,7 +632,7 @@ END:VCALENDAR
                 },
                 'company': null, 'is_overwrite_subaccount_ip_rules': 0,
                 'currency': 'EUR',
-                'user_created': null, 'timezone': 'Europe/Oslo', 'uid': 221,
+                'user_created': null, 'timezone': this.accountTimezone, 'uid': 221,
                 'sub_accounts': ['test%subaccount.com'], 'password_strength': 5,
                 'gender': null, 'has_sub_accounts': 1, 'need2pay': 'n',
                 'paid': 'n', 'country': null
@@ -908,7 +992,7 @@ END:VCALENDAR
         };
     }
 
-    createFolder(request, response) {
+    createFolder(request: any, response: any) {
         let body = '';
         request.on('readable', () => {
             body += request.read() || '';
@@ -995,6 +1079,12 @@ END:VCALENDAR
                 ],
             }
         };
+    }
+
+    bumpSyncToken() {
+        const current = this.calendars[0].syncToken || '';
+        const num = parseInt(current.split('-').pop() || '0', 10) || 0;
+        this.calendars[0].syncToken = 'e2e-sync-' + (num + 1);
     }
 
     getCalendars() {

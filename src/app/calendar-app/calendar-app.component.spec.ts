@@ -45,20 +45,28 @@ describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
     let fixture: ComponentFixture<CalendarAppComponent>;
 
+    // moment.toISOString() includes milliseconds (e.g. "2026-04-02T14:30:00.000Z"),
+    // which causes ICAL.js's fromDateTimeString to miss the 'Z' UTC designator
+    // (it checks index 19, but milliseconds push 'Z' to index 23).
+    // This helper produces ICAL-compatible ISO strings without milliseconds.
+    function toIcalISOString(m: moment.Moment): string {
+        return m.format('YYYY-MM-DDTHH:mm:ss') + 'Z';
+    }
+
     // jCal spec: https://tools.ietf.org/html/rfc7265
     const simpleEvents = [
         {'id': 'test-calendar/event0',
          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
-             [ 'dtend',   {}, 'date-time', moment().add(1, 'hour').toISOString() ],
+             [ 'dtstart', {}, 'date-time', toIcalISOString(moment()) ],
+             [ 'dtend',   {}, 'date-time', toIcalISOString(moment().add(1, 'hour')) ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
          ]]]]).toString(),
          'calendar': 'test-calendar',
         },
         {'id': 'test-calendar/event1',
          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-             [ 'dtstart', {}, 'date-time', moment().date(15).add(1, 'month').add(1, 'day').add(2, 'hour').toISOString() ],
-             [ 'dtend', {}, 'date-time', moment().date(15).add(1, 'month').add(1, 'day').add(3, 'hour').toISOString() ],
+             [ 'dtstart', {}, 'date-time', toIcalISOString(moment().date(15).add(1, 'month').add(1, 'day').add(2, 'hour')) ],
+             [ 'dtend', {}, 'date-time', toIcalISOString(moment().date(15).add(1, 'month').add(1, 'day').add(3, 'hour')) ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
          ]]]]).toString(),
          'calendar': 'test-calendar',
@@ -68,8 +76,8 @@ describe('CalendarAppComponent', () => {
     const recurringEvents = [
         { 'id': 'test-calendar/recurring',
           'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().date(15).toISOString() ],
-              [ 'dtend', {}, 'date-time', moment().add(1, 'hour').date(15).toISOString() ],
+            [ 'dtstart', {}, 'date-time', toIcalISOString(moment().date(15)) ],
+              [ 'dtend', {}, 'date-time', toIcalISOString(moment().add(1, 'hour').date(15)) ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
             [ 'rrule',   {}, 'recur',     {'freq': 'WEEKLY'}     ],
           ]]]]).toString(),
@@ -305,8 +313,15 @@ END:VCALENDAR
         events = fixture.debugElement.nativeElement.querySelectorAll('button.calendarMonthDayEvent');
         expect(component.shown_events.length).toBeGreaterThan(2, 'more events should be displayed now');
         const first_occurence = component.shown_events[0].start;
-        expect(first_occurence.getDate()).toBe(1, 'day matches');
-        expect(first_occurence.getHours()).toBe(12, 'hour matches');
-        expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
+        // Event was created at 12:34 UTC using moment.utc().date(1).hour(12).minute(34).toISOString()
+        // but without a TZID in the iCal data. The calendar timezone is Europe/Stockholm.
+        // The floating time 12:34 is interpreted as Stockholm local time.
+        // Stockholm offset depends on DST: CET (UTC+1) in winter, CEST (UTC+2) in summer.
+        const eventLocalHour = 12;
+        const stockholmOffset = moment.tz('Europe/Stockholm').utcOffset(); // minutes
+        const expectedUtcHour = (eventLocalHour - stockholmOffset / 60 + 24) % 24;
+        expect(first_occurence.getUTCDate()).toBe(1);
+        expect(first_occurence.getUTCHours()).toBe(expectedUtcHour);
+        expect(first_occurence.getUTCMinutes()).toBe(34);
     });
 });
