@@ -20,7 +20,7 @@
 
 // Reproduction tests for staging feedback on PR #1779
 
-import { futureDateStr, buildIcs, makeVevent, osloVtimezone, londonVtimezone } from '../support/ics-helpers';
+import { futureDateStr, buildIcs, makeVevent, osloVtimezone, londonVtimezone, expectedDisplayTime } from '../support/ics-helpers';
 
 /**
  * Bug 1 (staging feedback): Creating an event with account tz = UK (London),
@@ -94,11 +94,13 @@ describe('Calendar timezone bug: event time offset when account tz differs', () 
             .should('contain', 'London Noon Meeting');
 
         // The date pipe formats the Date (11:00 UTC) in browser-local time.
-        // On a BST machine: 11:00 + 1h = 12:00
+        // Compute expected display time dynamically for any browser timezone.
+        // 12:00 London BST (UTC+1) = 11:00 UTC
+        const expectedLondon = expectedDisplayTime(dateStr, 11, 0);
         cy.get('button.calendarMonthDayEvent')
             .contains('London Noon Meeting')
             .invoke('text')
-            .should('match', /12:00/);
+            .should('match', new RegExp(expectedLondon));
     });
 
     it('should display floating time event at correct hour matching account tz', () => {
@@ -131,11 +133,12 @@ describe('Calendar timezone bug: event time offset when account tz differs', () 
             .should('contain', 'Floating 2pm Meeting');
 
         // Floating 14:00 interpreted as London BST = 13:00 UTC.
-        // Date pipe on BST machine: 13:00 + 1h = 14:00
+        // Compute expected display time dynamically for any browser timezone.
+        const expectedFloating = expectedDisplayTime(dateStr, 13, 0);
         cy.get('button.calendarMonthDayEvent')
             .contains('Floating 2pm Meeting')
             .invoke('text')
-            .should('match', /14:00/);
+            .should('match', new RegExp(expectedFloating));
     });
 });
 
