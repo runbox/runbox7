@@ -145,7 +145,7 @@ export class EventEditorDialogComponent {
                 const hasDay = setDays.find((entry) => entry['day'] === day.val);
                 if (hasDay) {
                     day['recurs_on'] = true;
-                    if (hasDay['numth'] > 0) {
+                    if (parseInt(hasDay['numth'], 10) > 0) {
                         this.recur_by_monthyeardays.push(hasDay['numth']);
                     }
                     recurs_on_weekdays.push(day.val);

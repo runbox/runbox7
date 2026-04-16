@@ -332,7 +332,11 @@ export class CalendarService implements OnDestroy {
         // from its rrule at some point - check to see if we already
         // have the same uid
         if (vevents.length === 0) {
-            const ievent = new ICAL.Event(component.getFirstSubcomponent('vevent'));
+            const vevent = component.getFirstSubcomponent('vevent');
+            if (!vevent) {
+                return { id, event: null };
+            }
+            const ievent = new ICAL.Event(vevent);
             const existingEvent = this.icalevents.find(
                 (entry) => entry['id'] === ievent.uid
             );
@@ -342,7 +346,7 @@ export class CalendarService implements OnDestroy {
                 // we could save modified event, and delete this one
                 // or keep doing this and leave that for a different fix?
             }
-            return;
+            return { id, event: null };
         }
         if (keep) {
             this.icalevents.push({ 'id': id, 'event': vevents[0] });
@@ -444,7 +448,7 @@ export class CalendarService implements OnDestroy {
             // we need to copy it to a new calendar, and remove it from the old one.
             this.addEvent(event).then(id => {
                 console.log('Event recreated as', id);
-                this.deleteEvent(event._old_id);
+                this.deleteEvent(event._old_id || '');
             });
         } else {
             // simple case: just modify the event in place
@@ -477,7 +481,7 @@ export class CalendarService implements OnDestroy {
             // console.log('Found timezone data:', tzData);
             // VCALENDAR with VTIMEZONE in it
             const component = new ICAL.Component(ICAL.parse(tzData));
-            let tz;
+            let tz: ICAL.Timezone | undefined;
             if (component.getFirstSubcomponent('vtimezone')) {
                 for (const tzComponent of component.getAllSubcomponents('vtimezone')) {
                     // TZIDs in vzic are, eg: /citadel.org/20210210_1/Europe/London
@@ -492,7 +496,9 @@ export class CalendarService implements OnDestroy {
                     }
                 }
             }
-            this.userTimezoneLoaded.next(tz);
+            if (tz) {
+                this.userTimezoneLoaded.next(tz);
+            }
             this.userTimezoneLoaded.complete();
         });
     }

@@ -49,20 +49,20 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // start and end are for display pursposes only,
     // and will be different from dtstart/dtend in
     // recurring events
-    _calendar:  string;
+    _calendar!:  string;
     _old_id?:   string;
 
     ical: ICAL.Component;
     event: ICAL.Event;
 
     // *display* start/end - for reccurrences will not match the ICAL.Event
-    private _dtstart: ICAL.Time;
-    private _dtend: ICAL.Time;
+    private _dtstart!: ICAL.Time;
+    private _dtend!: ICAL.Time;
 
     // store user's selection of allDay setting while updating the event
     // required cos neither Moment nor Date have a "date only" functionality
     // ICAL.Time does tho!
-    private _allDay: boolean;
+    private _allDay!: boolean;
 
     get calendar(): string {
         return this._calendar;
@@ -114,7 +114,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     set dtstart(value: moment.Moment) {
         // check this before we update:
         if (this._dtstart.toJSDate().toString() === this.recurStart.toString()) {
-            this._dtstart = this.momentToIcalTime(value, this.event.startDate ? this.event.startDate.zone : null);
+            this._dtstart = this.momentToIcalTime(value, this.event.startDate ? this.event.startDate.zone : ICAL.Timezone.utcTimezone);
             this.event.startDate = this._dtstart;
         }
     }
@@ -132,7 +132,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // one with a time? (as a side effect that is)
     set dtend(value: moment.Moment) {
         if (value && this._dtstart.toJSDate().toString() === this.recurStart.toString()) {
-            this._dtend = this.momentToIcalTime(value, this.event.endDate ? this.event.endDate.zone : undefined);
+            this._dtend = this.momentToIcalTime(value, this.event.endDate ? this.event.endDate.zone : ICAL.Timezone.utcTimezone);
             this.event.endDate = this._dtend;
         }
     }
@@ -177,7 +177,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             (zone.component || zone.tzid === 'UTC');
 
         if (hasProperTimezone) {
-            const targetTz = ICAL.TimezoneService.get(this.timezone);
+            const targetTz = this.getAccountTimezone();
             if (targetTz) {
                 time = time.convertToZone(targetTz);
             }
@@ -191,7 +191,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (!hasTzidParam) {
             // True floating time - interpret in calendar's timezone
             // First try ICAL.TimezoneService (for non-standard paths with VTIMEZONE data)
-            const calendarTz = ICAL.TimezoneService.get(this.timezone);
+            const calendarTz = this.getAccountTimezone();
 
             if (calendarTz) {
                 // Create time directly in calendar's timezone, then convert to UTC via toJSDate()
@@ -207,7 +207,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
             }
 
             // Try moment-timezone for standard IANA timezones
-            const momentZone = moment.tz.zone(this.timezone);
+            const momentZone = this.timezone ? moment.tz.zone(this.timezone) : null;
             if (momentZone) {
                 const m = moment.tz([
                     time.year,
@@ -217,7 +217,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
                     time.minute,
                     time.second,
                     0
-                ], this.timezone);
+                ], this.timezone || 'UTC');
                 return m.toDate();
             }
 
@@ -276,15 +276,14 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     // DAILY, WEEKLY, MONTHLY etc
     get recurringFrequency(): string {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        return recur ? recur.freq : '';
+        return this.getRecur()?.freq || '';
     }
 
     // Only set if the new value is different from the old one
     // Prevents us accidentally overwriting imported RRULE details
     // -> dont display the "recurring" select box on exception events?
     set recurringFrequency(frequency: string) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
+        const recur = this.getRecur();
         if (recur) {
             recur.freq = frequency;
             this.event.component.updatePropertyWithValue('rrule', recur);
@@ -295,44 +294,49 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     // How often does this repeat (every X freqs)
     get recurInterval(): number {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        return recur ? recur.interval : 1;
+        return this.getRecur()?.interval || 1;
     }
 
     set recurInterval(interval: number) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        recur.interval = interval;
-        this.event.component.updatePropertyWithValue('rrule', recur);
+        const recur = this.getRecur();
+        if (recur) {
+            recur.interval = interval;
+            this.event.component.updatePropertyWithValue('rrule', recur);
+        }
     }
 
     // An UNTIL date, a COUNT or null = unset/repeats forever
-    get recurEnds(): Date | number {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        if (recur && recur.until) {
-            return recur.until.toJSDate();
-        }
-        if (recur && recur.count) {
-            return recur.count;
+    get recurEnds(): Date | number | null {
+        const recur = this.getRecur();
+        if (recur) {
+            if (recur.until) {
+                return recur.until.toJSDate();
+            }
+            if (recur.count) {
+                return recur.count;
+            }
         }
         return null;
     }
 
     set recurEnds(end: Date | number) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        recur.until = null;
-        recur.count = null;
-        if (typeof end === 'number' && end != null) {
-            recur.count = end;
+        const recur = this.getRecur();
+        if (recur) {
+            recur.until = null;
+            recur.count = null;
+            if (typeof end === 'number' && end != null) {
+                recur.count = end;
+            }
+            if (end instanceof Date &&  end != null) {
+                // Must be a date (cant do typeof === 'Date' !?
+                const zone = this.event.startDate.zone;
+                const icaltime = ICAL.Time.fromJSDate(end);
+                icaltime.zone = zone;
+                recur.until = icaltime;
+            }
+            // else, everything null, repeats forever.
+            this.event.component.updatePropertyWithValue('rrule', recur);
         }
-        if (end instanceof Date &&  end != null) {
-            // Must be a date (cant do typeof === 'Date' !?
-            const zone = this.event.startDate.zone;
-            const icaltime = ICAL.Time.fromJSDate(end);
-            icaltime.zone = zone;
-            recur.until = icaltime;
-        }
-        // else, everything null, repeats forever.
-        this.event.component.updatePropertyWithValue('rrule', recur);
     }
 
     // get "part"s, eg byday, bymonthday, bymonth, byyearday, byweekno
@@ -340,72 +344,80 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // One or more days of the week this rule could run on (or none)
     // SU, MO etc (or can convert to days of week using .icalDayToNumericDay
     // if a monthly BYDAY, could be "\+?1SU" or "-2TU" etc
-    get recursByDay(): string[] {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
+    get recursByDay(): { day: string; numth: string }[] {
+        const recur = this.getRecur();
         if (!recur) {
             return [];
         }
         const bydays = recur.getComponent('byday');
         const rgx = /^([+-]?\d+)?(\w{2})$/;
-        const bydays_mapped = bydays.map((day) => {
+        const bydays_mapped = bydays.map((day: string) => {
             const match = day.match(rgx);
-            const numth = match[1] ? match[1] : '0';
-            return { 'day': match[2], 'numth': numth };
+            const numth = match && match[1] ? match[1] : '0';
+            return { 'day': match && match[2] ? match[2] : '', 'numth': numth };
         });
         return bydays_mapped;
     }
 
     // replace entire list of day(s)
     set recursByDay(value: string[]) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        recur.setComponent('byday', value);
-        this.event.component.updatePropertyWithValue('rrule', recur);
+        const recur = this.getRecur();
+        if (recur) {
+            recur.setComponent('byday', value);
+            this.event.component.updatePropertyWithValue('rrule', recur);
+        }
     }
 
     get recursByMonthDay(): string[] {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
+        const recur = this.getRecur();
         if (!recur) {
             return [];
         }
         const bymonthdays = recur.getComponent('bymonthday');
-        return bymonthdays.map((day) => day.toString());
+        return bymonthdays.map((day: string) => day.toString());
     }
 
     set recursByMonthDay(value: string[]) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        recur.setComponent('bymonthday', value);
-        this.event.component.updatePropertyWithValue('rrule', recur);
+        const recur = this.getRecur();
+        if (recur) {
+            recur.setComponent('bymonthday', value);
+            this.event.component.updatePropertyWithValue('rrule', recur);
+        }
     }
 
     get recursByYearDay(): string[] {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
+        const recur = this.getRecur();
         if (!recur) {
             return [];
         }
         const byyeardays = recur.getComponent('byyearday');
-        return byyeardays.map((day) => day.toString());
+        return byyeardays.map((day: string) => day.toString());
     }
 
     set recursByYearDay(value: string[]) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        recur.setComponent('byyearday', value);
-        this.event.component.updatePropertyWithValue('rrule', recur);
+        const recur = this.getRecur();
+        if (recur) {
+            recur.setComponent('byyearday', value);
+            this.event.component.updatePropertyWithValue('rrule', recur);
+        }
     }
 
     // Jan-Dec numbered 1-12
     get recursByMonth(): string[] {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
+        const recur = this.getRecur();
         if (!recur) {
             return [];
         }
         const bymonth = recur.getComponent('bymonth');
-        return bymonth.map((month) => month.toString());
+        return bymonth.map((month: string) => month.toString());
     }
 
     set recursByMonth(value: string[]) {
-        const recur = this.event.component.getFirstPropertyValue('rrule');
-        recur.setComponent('bymonth', value);
-        this.event.component.updatePropertyWithValue('rrule', recur);
+        const recur = this.getRecur();
+        if (recur) {
+            recur.setComponent('bymonth', value);
+            this.event.component.updatePropertyWithValue('rrule', recur);
+        }
     }
 
     get isException(): boolean {
@@ -463,30 +475,34 @@ export class RunboxCalendarEvent implements CalendarEvent {
         thisandfuture: boolean,
         title: string,
         description: string,
-        location: string): boolean {
+        location: string): boolean | undefined {
         if (this.isException) {
             // This shouldnt be possible
             console.log('Refusing to create an exception of an exception');
-            return;
+            return false;
         }
         // clone existing one
         const new_exception = new ICAL.Event(ICAL.Component.fromString(this.event.toString()));
         new_exception.component.removeProperty('rrule');
         const recurrence_id = origdate;
-        const new_start = this.momentToIcalTime(startdate, this.event.startDate.zone);
-        let new_end;
+        const new_start = this.momentToIcalTime(startdate, this.event.startDate.zone || ICAL.Timezone.utcTimezone);
+        let new_end: ICAL.Time | undefined;
         if (enddate) {
-            new_end = this.momentToIcalTime(enddate, this.event.startDate.zone);
+            new_end = this.momentToIcalTime(enddate, this.event.startDate.zone || ICAL.Timezone.utcTimezone);
         }
         if (this._dtstart.isDate) {
             recurrence_id.isDate = true;
             new_start.isDate = true;
-            new_end.isDate = true;
+            if (new_end) {
+                new_end.isDate = true;
+            }
         }
         new_exception.recurrenceId = recurrence_id;
         if (thisandfuture) {
             const rId = new_exception.component.getFirstProperty('recurrence-id');
-            rId.setParameter('range', 'THISANDFUTURE');
+            if (rId) {
+                rId.setParameter('range', 'THISANDFUTURE');
+            }
         }
         new_exception.startDate = new_start;
         if (new_end) {
@@ -608,28 +624,28 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     get_overview(): EventOverview[] {
         const events = [];
-        const seen = {};
+        const seen: { [key: string]: boolean } = {};
 
-        for (let e of this.ical.getAllSubcomponents('vevent')) {
-            e = new ICAL.Event(e);
+        for (const component of this.ical.getAllSubcomponents('vevent')) {
+            const event = new ICAL.Event(component);
 
             // Skip duplicate uids (if defined),
             // to eliminate possible special cases in recurring events.
-            if (e.uid && seen[e.uid]) {
+            if (event.uid && seen[event.uid]) {
                 continue;
             } else {
-                seen[e.uid] = true;
+                seen[event.uid] = true;
             }
 
-            const rrule = e.component.getFirstPropertyValue('rrule');
+            const rrule = event.component.getFirstPropertyValue('rrule');
 
             events.push(new EventOverview(
-                e.summary,
-                this.icalTimeToMoment(e.startDate),
-                e.endDate ? this.icalTimeToMoment(e.endDate) : undefined,
-                rrule ? rrule.freq : undefined,
-                e.location,
-                e.description,
+                event.summary,
+                this.icalTimeToMoment(event.startDate),
+                event.endDate ? this.icalTimeToMoment(event.endDate) : undefined,
+                (rrule instanceof ICAL.Recur) ? rrule.freq : undefined,
+                event.location,
+                event.description,
             ));
         }
 
@@ -649,14 +665,25 @@ export class RunboxCalendarEvent implements CalendarEvent {
             return moment(time.toString());
         } else {
             // Assemble a moment with the UTC Date() and the user's timezone
-            let my_timezone = time.zone && time.zone.component ? time.zone.component.getFirstPropertyValue('x-lic-location') : null;
+            let my_timezone: string | null = time.zone && time.zone.component ? time.zone.component.getFirstPropertyValue('x-lic-location') as string : null;
             my_timezone = my_timezone || this.timezone || moment.tz.guess();
             const m = moment(time.toJSDate()).tz(my_timezone);
             return m;
         }
     }
 
-    private momentToIcalTime(input: moment.Moment, zone: ICAL.Timezone): ICAL.Time {
+    /** Safely get the RRULE as an ICAL.Recur, or null if missing/not a Recur instance. */
+    private getRecur(): ICAL.Recur | null {
+        const recur = this.event.component.getFirstPropertyValue('rrule');
+        return (recur && recur instanceof ICAL.Recur) ? recur : null;
+    }
+
+    /** Get the account timezone from ICAL.TimezoneService, or null if unset/unregistered. */
+    private getAccountTimezone(): ICAL.Timezone | null {
+        return this.timezone ? ICAL.TimezoneService.get(this.timezone) : null;
+    }
+
+    private momentToIcalTime(input: moment.Moment, zone: ICAL.Timezone | null | undefined): ICAL.Time {
         // No supplied tz = new, or original didnt have one:
         // (Is it legit to have dates with tzs and without in same ical?)
         if (!zone || zone.tzid === 'floating') {
@@ -672,18 +699,20 @@ export class RunboxCalendarEvent implements CalendarEvent {
             ical_time.isDate = this._allDay;
             return ical_time;
         }
-        // input is date in user timezone, convert to target timezone
-        const ical_tztime = ICAL.Time.fromJSDate(input.toDate());
-        if (ICAL.TimezoneService.has(this.timezone)) {
-            ical_tztime.zone = ICAL.TimezoneService.get(this.timezone);
-            ical_tztime.isDate = this._allDay;
-            return ical_tztime.convertToZone(zone);
-        } else {
-            // Hmm this (should?) only get hit if zone wasnt loaded
-            // eg in tests!?
-            ical_tztime.zone = zone;
-            ical_tztime.isDate = this._allDay;
-            return ical_tztime;
-        }
+        // input is date in browser-local time, convert to target timezone via UTC.
+        // Using UTC as intermediate avoids double-conversion when browser tz
+        // differs from account tz (the moment's UTC representation is always correct).
+        const d = input.toDate();
+        const ical_tztime = new ICAL.Time({
+            year: d.getUTCFullYear(),
+            month: d.getUTCMonth() + 1,
+            day: d.getUTCDate(),
+            hour: d.getUTCHours(),
+            minute: d.getUTCMinutes(),
+            second: d.getUTCSeconds()
+        });
+        ical_tztime.zone = ICAL.Timezone.utcTimezone;
+        ical_tztime.isDate = this._allDay;
+        return ical_tztime.convertToZone(zone);
     }
 }

@@ -1,3 +1,4 @@
+/// <reference types="jasmine" />
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 //
@@ -196,11 +197,11 @@ describe('RunboxCalendarEvent', () => {
             false,
             sut.calendar,
             RecurSaveType.THIS_ONLY,
-            'Moved weekly event', undefined, undefined,
+            'Moved weekly event', '', '',
             true,
             sut.recurringFrequency,
             sut.recurInterval,
-            undefined, undefined, undefined, // and optional params..
+            [], [], [] // and optional params..
         );
 
         expect(sut.toIcal()).toContain('SUMMARY:Moved weekly event');
@@ -352,17 +353,20 @@ END:VCALENDAR`
       console.log('event start :' + sut.start.toISOString());
       // 07:00 UTC (which is 03:00 New York EDT)
       expect(sut.start.toISOString()).toBe('2021-05-15T07:00:00.000Z');
-      // Move this one an hour later
-      // TZ?
-      const future = moment('2021-05-15T04:00:00');
-      const future_end = moment('2021-05-15T05:00:00');
+      // Move this one an hour later (09:00 -> 10:00 Berlin time)
+      // Use moment.tz to create a deterministic time in the event's timezone,
+      // simulating what the dialog would pass after user edits the time.
+      // momentToIcalTime now converts via UTC, so this produces the correct
+      // 10:00 Berlin regardless of the test machine's local timezone.
+      const future = moment.tz('2021-05-15T10:00:00', 'Europe/Berlin');
+      const future_end = moment.tz('2021-05-15T11:00:00', 'Europe/Berlin');
          sut.updateEvent(
              future,
              future_end,
              false,
              sut.calendar,
              RecurSaveType.THIS_ONLY,
-             'Moved daily event one hour', undefined, undefined,
+             'Moved daily event one hour', '', '',
              true,
              sut.recurringFrequency,
              sut.recurInterval,
@@ -484,9 +488,10 @@ TZOFFSETTO:+${dst}00
 RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
 END:DAYLIGHT
 END:VTIMEZONE`;
-        const comp = new ICAL.Component(ICAL.parse(tzData));
-        ICAL.TimezoneService.register(tzid, new ICAL.Timezone({ tzid, component: comp }));
-    }
+const comp = new ICAL.Component(ICAL.parse(tzData));
+const tz = new ICAL.Timezone({ tzid, component: comp });
+ICAL.TimezoneService.register(tz.tzid, tz);
+}
 
     it('should correctly convert London TZID event to Berlin user timezone', () => {
         // Simulates an issue: 4pm London event shown as 3pm (wrong) instead of 5pm (correct)
@@ -608,5 +613,168 @@ END:VTIMEZONE`;
             'Europe/Berlin'
         );
         expect(eventSimple.start.getUTCHours()).toBe(16, 'Simple tz name should also work');
+    });
+
+    // Reproduction tests for staging feedback (PR #1779)
+
+    it('should round-trip entered time correctly when creating event via updateEvent', () => {
+        // Bug 1 (staging feedback): User in CET browser, account tz = UK (London)
+        // User enters 12:00, event shows as 13:00 when reopening edit dialog.
+        //
+        // The model round-trip is actually correct: the ICAL data stores 12:00 London
+        // and dtstart.hour() returns 12. The bug is in EventEditorDialogComponent which
+        // uses bare Date objects (displayed in browser local time).
+        ensureTimezone('Europe/London', 0, 1);
+
+        const event = RunboxCalendarEvent.newEmpty('Europe/London');
+        const startMoment = moment('2026-04-14T12:00:00').seconds(0).milliseconds(0);
+        const endMoment = startMoment.clone().add(1, 'hour');
+
+        event.updateEvent(
+            startMoment, endMoment, false, 'test-cal',
+            RecurSaveType.ALL_OCCURENCES, 'Test Event', '', '',
+            false, '', 0, [], [], []
+        );
+
+        // dtstart (timezone-aware moment) should show 12:00 in London
+        expect(event.dtstart.hour()).toBe(12,
+            'dtstart should show 12:00 in account timezone (London)');
+        // April = BST (UTC+1), so 12:00 London = 11:00 UTC
+        expect(event.start.toISOString()).toBe('2026-04-14T11:00:00.000Z',
+            'start Date should be 11:00 UTC (12:00 BST)');
+    });
+
+    it('should store exception at user-entered time when event tz differs from account tz', () => {
+        // Bug 2 (staging feedback): Recurring event at 09:00 Berlin, account tz = London.
+        // User edits one occurrence from 09:00 to 10:00 (shown in browser local time).
+        // momentToIcalTime tags the time with account tz (London), then converts to
+        // event tz (Berlin) — this double-conversion shifts the time by the London↔Berlin offset.
+        ensureTimezone('Europe/London', 0, 1);
+        ensureTimezone('/freeassociation.sourceforge.net/Europe/Berlin', 1, 2);
+
+        const jcal = ICAL.parse(
+`BEGIN:VCALENDAR
+CALSCALE:GREGORIAN
+PRODID:-//Test//Test//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:/freeassociation.sourceforge.net/Europe/Berlin
+X-LIC-LOCATION:Europe/Berlin
+BEGIN:DAYLIGHT
+TZNAME:CEST
+DTSTART:19810328T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:CET
+DTSTART:19961031T030000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:bug2-recurring-test
+DTSTAMP:20210511T111559Z
+DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:
+ 20210514T090000
+DTEND;TZID=/freeassociation.sourceforge.net/Europe/Berlin:
+ 20210514T100000
+SUMMARY:Daily Berlin 9am
+RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5
+END:VEVENT
+END:VCALENDAR`
+        );
+        const ical = new ICAL.Component(jcal);
+        for (const tzComponent of ical.getAllSubcomponents('vtimezone')) {
+            const tz = new ICAL.Timezone({
+                tzid: tzComponent.getFirstPropertyValue('tzid'),
+                component: tzComponent,
+            });
+            if (!ICAL.TimezoneService.has(tz.tzid)) {
+                ICAL.TimezoneService.register(tz.tzid, tz);
+            }
+        }
+        const vevent = ical.getFirstSubcomponent('vevent');
+        const dtstartProp = vevent.getFirstProperty('dtstart');
+
+        // Day 2 instance (May 15 at 09:00 Berlin)
+        const sut = new RunboxCalendarEvent(
+            'testcal/bug2',
+            new ICAL.Event(vevent),
+            ICAL.Time.fromDateTimeString('2021-05-15T09:00:00', dtstartProp),
+            ICAL.Time.fromDateTimeString('2021-05-15T10:00:00', dtstartProp),
+            'Europe/London'  // account tz = London (differs from event tz = Berlin)
+        );
+
+        // Verify original: 09:00 Berlin (CEST=UTC+2) = 07:00 UTC
+        expect(sut.start.toISOString()).toBe('2021-05-15T07:00:00.000Z',
+            'Original: 09:00 Berlin CEST = 07:00 UTC');
+
+        // User edits this occurrence from 09:00 to 10:00 in dialog
+        // Use moment.tz to create a deterministic time in the event's timezone,
+        // simulating what the dialog would pass after user edits the time.
+        // momentToIcalTime now converts via UTC, so this produces the correct
+        // 10:00 Berlin regardless of the test machine's local timezone.
+        const newStart = moment.tz('2021-05-15T10:00:00', 'Europe/Berlin').seconds(0).milliseconds(0);
+        const newEnd = moment.tz('2021-05-15T11:00:00', 'Europe/Berlin').seconds(0).milliseconds(0);
+        sut.updateEvent(
+            newStart, newEnd, false, sut.calendar,
+            RecurSaveType.THIS_ONLY,
+            'Moved to 10am', undefined, undefined,
+            true, sut.recurringFrequency, sut.recurInterval,
+            undefined, undefined, undefined
+        );
+
+        // The exception should exist in the ICAL data
+        expect(sut.toIcal()).toContain('RECURRENCE-ID');
+        expect(sut.toIcal()).toContain('Moved to 10am');
+
+        // The exception DTSTART should be 10:00 Berlin (user entered 10:00)
+        // NOT 11:00 Berlin (which would result from London→Berlin double-conversion)
+        // 10:00 Berlin CEST (UTC+2) = 08:00 UTC
+        expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000',
+            'Exception should be at 10:00 Berlin (user-entered time)');
+    });
+
+    it('should reflect updated display timezone when timezone property changes', () => {
+        // Bug 3 (staging feedback): After changing account timezone, event times
+        // don't update. The timezone property on existing RunboxCalendarEvent instances
+        // is set once at construction and never refreshed.
+        ensureTimezone('Europe/London', 0, 1);
+        ensureTimezone('Europe/Berlin', 1, 2);
+
+        // Event stored as 16:00 London (March = GMT = UTC+0)
+        const vevent = new ICAL.Component(['vevent', [
+            ['dtstart', { tzid: 'Europe/London' }, 'date-time', '2026-03-24T16:00:00'],
+            ['dtend',   { tzid: 'Europe/London' }, 'date-time', '2026-03-24T17:00:00'],
+            ['summary', {}, 'text', '4pm London'],
+        ]]);
+        const dtstartProp = vevent.getFirstProperty('dtstart');
+        const event = new RunboxCalendarEvent(
+            'test/tzchange',
+            new ICAL.Event(vevent),
+            ICAL.Time.fromDateTimeString('2026-03-24T16:00:00', dtstartProp),
+            ICAL.Time.fromDateTimeString('2026-03-24T17:00:00', dtstartProp),
+            'Europe/London'
+        );
+
+        // Initially: 4pm London (GMT = UTC+0 in March) = 16:00 UTC
+        expect(event.start.getUTCHours()).toBe(16);
+        expect(event.dtstart.hour()).toBe(16, '4pm London shows as 16:00 in London');
+
+        // User changes account timezone to Berlin
+        event.timezone = 'Europe/Berlin';
+
+        // dtstart moment should now show Berlin time
+        // 16:00 UTC = 17:00 CET (UTC+1 in March)
+        expect(event.dtstart.hour()).toBe(17,
+            'After tz change to Berlin, 4pm London should display as 5pm (17:00)');
+
+        // start Date remains the same UTC time (Date is always UTC)
+        expect(event.start.getUTCHours()).toBe(16,
+            'start Date UTC time should not change (16:00 UTC)');
     });
 });

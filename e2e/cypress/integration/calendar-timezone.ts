@@ -18,62 +18,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-function futureDateStr(daysFromNow: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() + daysFromNow);
-    return d.toISOString().replace(/-/g, '').replace(/T.*/, '');
-}
-
-function buildIcs(veventBlocks: string[], vtimezone?: string): string {
-    const parts = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//Runbox//E2E Test//EN',
-    ];
-    if (vtimezone) { parts.push(vtimezone); }
-    parts.push(...veventBlocks, 'END:VCALENDAR');
-    return parts.join('\r\n');
-}
-
-function dtLine(prefix: string, value: string): string {
-    // ICS parameters use ';' separator (e.g. DTSTART;TZID=Europe/Oslo:20260416T140000)
-    return value.includes('=') ? `${prefix};${value}` : `${prefix}:${value}`;
-}
-
-function makeVevent(dtstart: string, dtend: string, summary: string, uid: string, extra: string[] = []): string {
-    return [
-        'BEGIN:VEVENT',
-        dtLine('DTSTART', dtstart),
-        dtLine('DTEND', dtend),
-        `SUMMARY:${summary}`,
-        `UID:${uid}`,
-        'DTSTAMP:20260101T000000Z',
-        ...extra,
-        'END:VEVENT',
-    ].join('\r\n');
-}
-
-const osloVtimezone = [
-    'BEGIN:VTIMEZONE',
-    'TZID:/citadel.org/20210210_1/Europe/Oslo',
-    'LAST-MODIFIED:20210210T123706Z',
-    'X-LIC-LOCATION:Europe/Oslo',
-    'BEGIN:STANDARD',
-    'TZNAME:CET',
-    'TZOFFSETFROM:+0200',
-    'TZOFFSETTO:+0100',
-    'DTSTART:19961027T030000',
-    'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
-    'END:STANDARD',
-    'BEGIN:DAYLIGHT',
-    'TZNAME:CEST',
-    'TZOFFSETFROM:+0100',
-    'TZOFFSETTO:+0200',
-    'DTSTART:19810329T020000',
-    'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
-    'END:DAYLIGHT',
-    'END:VTIMEZONE',
-].join('\r\n');
+import { futureDateStr, buildIcs, makeVevent, osloVtimezone } from '../support/ics-helpers';
 
 describe('Calendar timezone handling', () => {
     beforeEach(() => {
