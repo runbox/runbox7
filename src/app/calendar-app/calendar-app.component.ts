@@ -75,6 +75,11 @@ import '../sentry';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CalendarAppComponent implements OnDestroy {
+    private readonly eventEditorDialogSize = {
+        width: '95vw',
+        maxWidth: '720px',
+    };
+
     mwlView = CalendarView.Month;
     view: RunboxCalendarView = RunboxCalendarView.Month;
     // needed so that angular templates know what this name means
@@ -171,6 +176,7 @@ export class CalendarAppComponent implements OnDestroy {
         const new_event = RunboxCalendarEvent.newEmpty(this.calendarservice.me.timezone);
         new_event.timezone = this.calendarservice.me.timezone;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            ...this.eventEditorDialogSize,
             data: { event: new_event, calendars: this.calendars, settings: this.settings, start: on, is_new: true } }
         );
         dialogRef.afterClosed().subscribe(event => {
@@ -277,6 +283,7 @@ export class CalendarAppComponent implements OnDestroy {
     openEvent(event: CalendarEvent): void {
         const target = event as RunboxCalendarEvent;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            ...this.eventEditorDialogSize,
             data: { event: target, calendars: this.calendars, settings: this.settings, is_new: false }
         });
         dialogRef.afterClosed().subscribe(result => {
