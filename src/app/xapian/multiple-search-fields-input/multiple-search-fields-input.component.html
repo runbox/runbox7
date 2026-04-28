@@ -1,21 +1,26 @@
 <div [formGroup]="formGroup" id="multipleSearchFieldsContainer">
-  <mat-form-field id="allfieldsandcontent">
+  <mat-form-field id="allfieldsandcontent" floatLabel="auto">
+    <mat-label>All fields</mat-label>
     <input matInput formControlName="allfieldsandcontent" type="text" placeholder="All fields" matTooltip="Matches any part of the message" />
   </mat-form-field>
-  <mat-form-field>
+  <mat-form-field floatLabel="auto">
+    <mat-label>Date (YYYYMMDD)</mat-label>
     <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)" matTooltip="Matches the year (YYYY), month (YYYYMM), or date (YYYYMMDD)" />
   </mat-form-field>
   <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()" matTooltip="Close this pane">
     <mat-icon svgIcon="close"></mat-icon>
   </button>
   <br />
-  <mat-form-field>
+  <mat-form-field floatLabel="auto">
+    <mat-label>From</mat-label>
     <input matInput formControlName="from" type="text" placeholder="From" matTooltip="Matches the From name or email address" />
   </mat-form-field>
-  <mat-form-field>
+  <mat-form-field floatLabel="auto">
+    <mat-label>To</mat-label>
     <input matInput formControlName="to" type="text" placeholder="To" matTooltip="Matches the To name or email address" />
   </mat-form-field>
-  <mat-form-field>
+  <mat-form-field floatLabel="auto">
+    <mat-label>Subject</mat-label>
     <input matInput formControlName="subject" type="text" placeholder="Subject" matTooltip="Matches the Subject field" />
   </mat-form-field>
   <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#message-search">

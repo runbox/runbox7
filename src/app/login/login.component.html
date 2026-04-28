@@ -15,7 +15,7 @@
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 45vh; left: 74vw; height: 16vh; width: auto; transform: rotate(5deg); filter: opacity(100%)" />
     <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 35vh; left: 85vw; height: 20vh; width: auto; filter: opacity(100%)" />
   </div>
-  
+
   <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
     <div class="loginScreen">
       <div id="loginArea">
@@ -24,9 +24,11 @@
 	  <p>Log in below or <a href="/signup?runbox7=1" class="login-link">create a new account</a>.</p>
 	</div>
 	<mat-form-field>
+	  <mat-label>Username</mat-label>
           <input matInput autocomplete="email" placeholder="Username" name="user" type="email" inputmode="email" autofocus ngModel required />
 	</mat-form-field>
 	<mat-form-field>
+	  <mat-label>Password</mat-label>
           <input matInput autocomplete="current-password" placeholder="Password" type="password" name="password" ngModel required />
   </mat-form-field>
   <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
@@ -65,7 +67,7 @@
 	  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
 	</div>
       </div>
-    </div>   
+    </div>
   </form>
   <form *ngIf="twofactor" (ngSubmit)="onTwoFactorSubmit(twofactorform.value)" #twofactorform="ngForm">
     <div class="loginScreen">
@@ -73,7 +75,7 @@
 	<mat-card appearance="outlined" style="max-width: 90vw">
 	  <div>
 	    <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
-	  </div>            
+	  </div>
 		<div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	  <mat-card-title><h3>Two-Factor Authentication</h3></mat-card-title>
 	  <mat-card-content>
@@ -81,10 +83,11 @@
 	      <p>This account has Two-Factor Authentication enabled.</p>
               <p>Please select an option below to continue.</p>
             </ng-container>
-            <ng-container *ngIf="twofactormethodgroup.value==='totp'">                            
+            <ng-container *ngIf="twofactormethodgroup.value==='totp'">
               <p>Please enter your TOTP code.</p>
               <br />
               <mat-form-field>
+		<mat-label>Timed one-time password</mat-label>
 		<input matInput placeholder="Timed one-time password" name="totp" id="totp" inputmode="numeric" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
@@ -95,16 +98,18 @@
               <p>Please enter your OTP code.</p>
               <br />
               <mat-form-field>
+		<mat-label>One-time password</mat-label>
 		<input matInput placeholder="One-time password" name="otp" id="otp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
               <input id='trust_this_browser_otp' name='trust_this_browser_otp' type='checkbox' ngModel>Trust this browser <a href="https://help.runbox.com/login">?</a>
-            </ng-container>                    
+            </ng-container>
             <ng-container *ngIf="twofactormethodgroup.value==='unlock_code'">
               <p>Please enter your unlock code.</p>
               <br />
               <mat-form-field style="width: 100%">
+		<mat-label>Unlock code</mat-label>
 		<input matInput type="password" placeholder="Unlock code" name="unlock_code" ngModel />
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit">Unlock</button>
@@ -119,16 +124,16 @@
 		</mat-button-toggle>
 		<mat-button-toggle value="otp" title="One-time password">
 		  <img style="margin: 5px" src="/_img/icon/otp.png" /> OTP
-		</mat-button-toggle>   
+		</mat-button-toggle>
 		<mat-button-toggle value="unlock_code" title="Use unlock code">
 		  <img style="margin: 5px" src="/_img/icon/unlock_code.png"> Unlock
-		</mat-button-toggle>                         
+		</mat-button-toggle>
               </mat-button-toggle-group>
 	    </div>
 	    <br />
 	    <div>
               <button mat-raised-button title="Go back" (click)="twofactor=false">
-		<img style="margin: 5px" src="/_img/icon/return.png" /> Go back                                                
+		<img style="margin: 5px" src="/_img/icon/return.png" /> Go back
               </button>
 	    </div>
 	  </mat-card-actions>
@@ -147,7 +152,7 @@
 	<li><a href="/about/privacy-policy/">Privacy Policy</a></li>
 	<li><a href="https://community.runbox.com/">Community</a></li>
 	<!--<li><a href="https://help.runbox.com/">Help & Documentation</a></li>-->
-      </ul> 
+      </ul>
     </div>
   </div>
 </div>

@@ -135,6 +135,63 @@ mat-form-field {
     font-size: 13px !important;
 }
 
+/* Global MDC form field overrides: remove fill background, reduce padding */
+.mat-mdc-text-field-wrapper {
+    background-color: transparent !important;
+    padding: 0 0 3px !important;
+}
+
+.mat-mdc-form-field-infix {
+    padding: 4px 0 2px !important;
+    min-height: 0 !important;
+    border-top: 7px solid transparent !important;
+}
+
+.mat-mdc-form-field-focus-overlay {
+    background-color: transparent;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.mat-mdc-form-field-wrapper {
+    padding-bottom: 0;
+}
+
+.mat-mdc-form-field-wrapper .mat-mdc-form-field-subscript-wrapper:has(mat-error:not(:empty)) {
+    display: block;
+}
+
+/* Global floating label positioning for compact form fields */
+.mdc-floating-label {
+    font-size: 13px;
+    bottom: auto !important;
+    top: 13px !important;
+}
+
+.mdc-floating-label--float-above {
+    transform: translateY(-20px) scale(0.75) !important;
+    transform-origin: left top !important;
+}
+
+/* Hide placeholder text — the mat-label handles the floating label */
+mat-form-field input::placeholder {
+    color: transparent !important;
+}
+
+/* Global input/select font sizing — MDC typography overrides the form-field font-size */
+mat-form-field input,
+mat-form-field textarea,
+mat-form-field .mat-mdc-select {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+}
+
+mat-form-field .mat-mdc-select {
+    min-height: auto !important;
+}
+
 mat-list-item p.mdc-list-item__secondary-text mat-icon {
     padding-right: 8px !important;
     padding-bottom: 8px !important;
@@ -165,6 +222,13 @@ button:hover, mat-button:hover, mat-raised-button:hover {
     justify-content: flex-start !important;
     text-align: left !important;
     padding: 0 !important;
+}
+
+// Restore padding for select dropdown options (mat-option uses .mdc-list-item internally)
+.mat-mdc-select-panel .mat-mdc-option,
+.mat-mdc-select-panel .mdc-list-item {
+    padding: 0 16px !important;
+    min-height: 32px !important;
 }
 
 // Override MDC fixed heights for all line variants
@@ -1644,12 +1708,16 @@ compose .mat-mdc-form-field-infix {
 }
 
 #contactListControlsSearch {
+    flex: 1 1 auto;
     .mat-mdc-list-item-content {
         padding: 0 !important;
         overflow: visible !important;
     }
     .mdc-list-item__content {
         overflow: visible !important;
+    }
+    .mat-mdc-form-field {
+        width: 100%;
     }
     .mat-mdc-form-field-subscript-wrapper {
         display: none;

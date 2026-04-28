@@ -134,6 +134,7 @@
                               <tr>
                                   <td colspan="3">
                                     <mat-form-field style="width: 100%">
+                                        <mat-label>Domain</mat-label>
                                         <input matInput disabled placeholder="Domain" [value]="selected_domain.name">
                                     </mat-form-field>
                                   </td>
@@ -141,6 +142,7 @@
                               <tr>
                                   <td colspan="3">
                                     <mat-form-field style="width: 100%">
+                                        <mat-label>Registered date</mat-label>
                                         <input matInput disabled placeholder="Registred date" [value]='selected_domain.created'>
                                     </mat-form-field>
                                   </td>
@@ -148,6 +150,7 @@
                               <tr>
                                   <td>
                                     <mat-form-field>
+                                        <mat-label>Expiration date</mat-label>
                                         <input matInput placeholder="Expiration date" [value]='selected_domain.expires'>
                                     </mat-form-field>
                                   </td>
@@ -160,6 +163,7 @@
                               <tr>
                                   <td>
                                       <mat-form-field>
+                                        <mat-label>Domain Privacy</mat-label>
                                         <mat-select placeholder="Select Domain Privacy">
                                           <mat-option value="Yes">Yes</mat-option>
                                           <mat-option value="No">No</mat-option>
@@ -197,6 +201,7 @@
                                     <mat-header-cell *matHeaderCellDef style="flex-grow: 3"> <strong>Hostname</strong> </mat-header-cell>
                                     <mat-cell *matCellDef="let element" style="flex-grow: 3"> 
                                       <mat-form-field>
+                                          <mat-label>Hostname</mat-label>
                                           <input matInput placeholder="" [(ngModel)]='element.name'>
                                       </mat-form-field>
                                     </mat-cell>
@@ -206,6 +211,7 @@
                                     <mat-header-cell *matHeaderCellDef style="flex-grow: 3"> <strong>Record type</strong> </mat-header-cell>
                                     <mat-cell *matCellDef="let element" style="flex-grow: 3"> 
                                         <mat-form-field>
+                                          <mat-label>Record Type</mat-label>
                                           <mat-select placeholder="Select Record Type" [(ngModel)]="element.type">
                                             <mat-option value="A">A (Address)</mat-option>
                                             <mat-option value="AAAA">AAAA (IPv6 Address)</mat-option>
@@ -226,6 +232,7 @@
                                           <tr>
                                               <td>
                                                   <mat-form-field>
+                                                      <mat-label>Address</mat-label>
                                                       <input matInput placeholder="Address '{{element.type}}'" [(ngModel)]="element.address">
                                                   </mat-form-field>
                                               </td>
@@ -235,6 +242,7 @@
                                           <tr>
                                               <td>
                                                   <mat-form-field>
+                                                      <mat-label>CNAME</mat-label>
                                                       <input matInput placeholder="Cname" [(ngModel)]='element.cname'>
                                                   </mat-form-field>
                                               </td>
@@ -244,6 +252,7 @@
                                           <tr>
                                               <td>
                                                   <mat-form-field>
+                                                      <mat-label>NS Name</mat-label>
                                                       <input matInput placeholder="Nsdname" [(ngModel)]='element.nsdname'>
                                                   </mat-form-field>
                                               </td>
@@ -259,11 +268,13 @@
                                           <tr>
                                               <td>
                                                   <mat-form-field style="">
+                                                      <mat-label>Exchange</mat-label>
                                                       <input matInput placeholder="Exchange" [(ngModel)]='element.exchange'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="width: 40px">
+                                                      <mat-label>Preference</mat-label>
                                                       <input matInput placeholder="Preference" [(ngModel)]='element.preference'>
                                                   </mat-form-field>
                                               </td>
@@ -273,21 +284,25 @@
                                           <tr>
                                               <td>
                                                   <mat-form-field style="width: 40px">
+                                                      <mat-label>Priority</mat-label>
                                                       <input matInput placeholder="Priority" [(ngModel)]='element.priority'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="width: 40px">
+                                                      <mat-label>Weight</mat-label>
                                                       <input matInput placeholder="Weight" [(ngModel)]='element.weight'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="width: 40px">
+                                                      <mat-label>Port</mat-label>
                                                       <input matInput placeholder="Port" [(ngModel)]='element.port'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="">
+                                                      <mat-label>Target</mat-label>
                                                       <input matInput placeholder="Target" [(ngModel)]='element.target'>
                                                   </mat-form-field>
                                               </td>
@@ -297,6 +312,7 @@
                                           <tr>
                                               <td>
                                                   <mat-form-field>
+                                                      <mat-label>TXT</mat-label>
                                                       <input matInput placeholder="TXT" [(ngModel)]='element.txtdata'>
                                                   </mat-form-field>
                                               </td>
@@ -309,6 +325,7 @@
                                     <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>TTL</strong> </mat-header-cell>
                                     <mat-cell *matCellDef="let element" style="flex-grow: 1">
                                         <mat-form-field>
+                                            <mat-label>TTL</mat-label>
                                             <input matInput placeholder="" [(ngModel)]='element.ttl'>
                                         </mat-form-field>
                                     </mat-cell>
@@ -352,9 +369,10 @@
                     <div>
                         Whois privacy product: 
                         <mat-form-field class="wide">
+                          <mat-label>WHOIS Privacy</mat-label>
                           <mat-select placeholder="Select WHOIS Privacy" >
-                            <mat-option 
-                                *ngFor="let option of domain_info.privacy_options_active_domain" 
+                            <mat-option
+                                *ngFor="let option of domain_info.privacy_options_active_domain"
                                 [value]="option.period"
                                 (click)='update_renewal_price("whois_privacy", option)'
                                 >
@@ -411,11 +429,12 @@
                                         Please select the period you wish to renew this domain name for:
                                     </p>
                                     <div>
-                                        Renewal length: 
+                                        Renewal length:
                                         <mat-form-field class="wide">
+                                          <mat-label>Registration Period</mat-label>
                                           <mat-select placeholder="Select Period" >
-                                            <mat-option 
-                                                *ngFor="let option of domain_info.renewal_options" 
+                                            <mat-option
+                                                *ngFor="let option of domain_info.renewal_options"
                                                 [value]="option.period"
                                                 (click)='update_renewal_price("domain", option)'
                                                 >
@@ -426,9 +445,10 @@
                                         <div *ngIf="renew_whois_privacy.length && domain_info.supports_whois_privacy">
                                             Domain Privacy:
                                             <mat-form-field class="wide">
+                                              <mat-label>WHOIS Privacy</mat-label>
                                               <mat-select placeholder="Select WHOIS Privacy" >
-                                                <mat-option 
-                                                    *ngFor="let option of renew_whois_privacy" 
+                                                <mat-option
+                                                    *ngFor="let option of renew_whois_privacy"
                                                     [value]="option.value"
                                                     (click)='update_renewal_price("whois_privacy", option)'
                                                     >
@@ -464,11 +484,12 @@
                             Please select the period you wish to renew this domain name for:
                         </p>
                         <div>
-                            Renewal length: 
+                            Renewal length:
                             <mat-form-field class="wide">
+                              <mat-label>Registration Period</mat-label>
                               <mat-select placeholder="Select Period" >
-                                <mat-option 
-                                    *ngFor="let option of domain_info.renewal_options" 
+                                <mat-option
+                                    *ngFor="let option of domain_info.renewal_options"
                                     [value]="option.period"
                                     (click)='update_renewal_price("domain", option)'
                                     >
@@ -479,9 +500,10 @@
                             <div *ngIf="renew_whois_privacy.length">
                                 Domain Privacy:
                                 <mat-form-field class="wide">
+                                  <mat-label>WHOIS Privacy</mat-label>
                                   <mat-select placeholder="Select WHOIS Privacy" >
-                                    <mat-option 
-                                        *ngFor="let option of renew_whois_privacy" 
+                                    <mat-option
+                                        *ngFor="let option of renew_whois_privacy"
                                         [value]="option.value"
                                         (click)='update_renewal_price("whois_privacy", option)'
                                         >
@@ -526,7 +548,8 @@
                           <tr>
                               <td>
                                   <mat-form-field style="width: 500px; font-size: 24px">
-                                      <input matInput placeholder="Enter a domain name" 
+                                      <mat-label>Domain name</mat-label>
+                                      <input matInput placeholder="Enter a domain name"
                                           value=''
                                           [(ngModel)]="domain_wanted"
                                           (keyup.enter)="check_avail()"
@@ -599,8 +622,9 @@
                                 </h3>
                                 <mat-form-field
                                     class=" {{doc.css_class}}"
-                                    *ngIf="doc.type === 'text'" 
+                                    *ngIf="doc.type === 'text'"
                                     >
+                                    <mat-label>{{doc.label}}{{doc.sublabel ? ' ' + doc.sublabel : ''}}</mat-label>
                                     <input
                                         matInput
                                         [placeholder]="doc.label + (doc.sublabel ? ' ' + doc.sublabel + '' : '' )"
@@ -706,8 +730,9 @@
                             [style.display]="(doc.is_child == '0' || required_fields[doc.name] || doc.required === '1') ? '' : 'none'"
                             >
                             <br>
+                            <mat-label>{{doc.description}}</mat-label>
                             <div>
-                                <input 
+                                <input
                                     *ngIf="doc.type === 'text'" 
                                     matInput 
                                     placeholder="" 
@@ -751,7 +776,8 @@
                           <tr>
                               <td>
                                 <mat-form-field class="wide">
-                                    <mat-select 
+                                    <mat-label>Registration Period</mat-label>
+                                    <mat-select
                                         *ngIf="products_available && products_available.length"
                                         name='selected_product' 
                                         placeholder="Choose a registration period" 
@@ -774,6 +800,7 @@
                                       && selected_product.partner_product
                                       && selected_product.partner_product.supports_whois_privacy">
                                     <mat-form-field class="wide">
+                                      <mat-label>Domain Privacy</mat-label>
                                       <mat-select placeholder="Select Domain Privacy (¹)"
                                           value=""
                                           [(ngModel)]='selected_privacy_product'
@@ -833,6 +860,7 @@
                     <mat-progress-bar *ngIf="is_loading.tld_list" mode="indeterminate"></mat-progress-bar>
                     <div class="example-header" style="display: none">
                       <mat-form-field >
+                        <mat-label>Filter</mat-label>
                         <input matInput (keyup)="applyFilterTLD($event.target.value)" placeholder="Filter">
                       </mat-form-field>
                     </div>
@@ -858,6 +886,7 @@
                             <mat-header-cell *matHeaderCellDef style="flex-grow: 1"> <strong>Period</strong> </mat-header-cell>
                             <mat-cell *matCellDef="let element" style="flex-grow: 1"> 
                                 <mat-form-field style="width: 100px">
+                                  <mat-label>Period</mat-label>
                                   <mat-select placeholder="Select Period" [value]="element.period[0].period">
                                     <mat-option 
                                         *ngFor="let period of element.period" 
