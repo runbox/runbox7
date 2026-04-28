@@ -30,9 +30,6 @@ $custom-typography: mat.define-typography-config(
 // Include core styles (required for MDC)
 @include mat.core();
 
-// Include custom typography for all components
-@include mat.all-component-typographies($custom-typography);
-
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
 $rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
@@ -51,7 +48,15 @@ $rmm-gray:                  #dddddd;
 $rmm-gray-light:            #eeeeee;
 $rmm-gray-lighter:          #f3f3f3;
 
-$rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
+$rmm-default-theme: mat.define-light-theme((
+  color: (
+    primary: $rmm-default-primary,
+    accent: $rmm-default-accent,
+    warn: $rmm-default-warn,
+  ),
+  typography: $custom-typography,
+  density: -1,
+));
 
 $rmm-default-lighter-gray: #eeeeee;
 $rmm-default-light-gray: #f4f4f4;
@@ -274,7 +279,6 @@ button:hover, mat-button:hover, mat-raised-button:hover {
 }
 
 .mat-mdc-list-item .mdc-list-item__content {
-    min-height: 24px;
     padding: 0 8px;
 }
 
@@ -330,7 +334,6 @@ button:hover, mat-button:hover, mat-raised-button:hover {
 }
 
 .mat-mdc-list-base[dense] .mat-mdc-list-item .mat-mdc-list-item-content {
-    min-height: 32px !important;
     padding: 0 8px !important;
 }
 
