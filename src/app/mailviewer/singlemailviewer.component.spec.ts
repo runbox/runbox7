@@ -113,7 +113,7 @@ describe('SingleMailViewerComponent', () => {
         MatSnackBarModule,
         RouterTestingModule
       ],
-      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent, MatIcon],
+      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
       providers: [
         MobileQueryService,
         StorageService,

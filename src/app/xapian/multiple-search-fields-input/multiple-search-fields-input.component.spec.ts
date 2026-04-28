@@ -45,7 +45,7 @@ describe('MultipleSearchFieldsInputComponent', () => {
         MatButtonModule,
         MatInputModule,
         MatCheckboxModule ],
-        declarations: [ MultipleSearchFieldsInputComponent, MatIcon ]
+        declarations: [ MultipleSearchFieldsInputComponent ]
     })
     .compileComponents();
   }));

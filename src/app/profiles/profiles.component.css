@@ -1,29 +1,7 @@
-.mailFolder:hover {
-    background-color: #F5F5F5;
-    cursor: pointer;
-}  
-
-.nonLocalFolder {
-    opacity: 0.5;
-}
-
-.selectedFolder.mat-mdc-button {
-    font-size: 14px !important;
-    margin-top: 1px !important;
-}
-
 .dropToFolderAllowed {
     background-color: rgba(0, 0, 0, 0.04);
 }
 
 .folderCount {
     font-size: 10px;
-}
-
-.visibleOnHover {
-    display: none;
-}
-
-.mat-mdc-list-item.selectedFolder p.visibleOnHover {
-    display: inherit;
 }

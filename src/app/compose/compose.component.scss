@@ -1,7 +1,3 @@
-@use '@angular/material' as mat;
-
-$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 100, 50, 200);
-
 #messageTextArea {
     box-sizing: border-box;
     width: 100%;
