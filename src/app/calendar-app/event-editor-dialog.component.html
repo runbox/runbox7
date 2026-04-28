@@ -3,20 +3,23 @@
   <mat-tab-group>
     <mat-tab label="Details">
     <style>
-        .mat-form-field {
+        .mat-mdc-form-field {
             width: 100%;
         }
     </style>
     <p>
         <mat-form-field>
+            <mat-label>Title</mat-label>
             <input matInput type="text" placeholder="Title" [(ngModel)]="event_title">
         </mat-form-field>
     </p><p>
         <mat-form-field>
+            <mat-label>Location</mat-label>
             <input matInput type="text" placeholder="Location" [(ngModel)]="event_location">
         </mat-form-field>
     </p><p>
         <mat-form-field>
+            <mat-label>Description</mat-label>
             <textarea matInput placeholder="Description" [(ngModel)]="event_description"></textarea>
         </mat-form-field>
     </p><p>
