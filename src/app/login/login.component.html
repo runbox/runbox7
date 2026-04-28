@@ -21,7 +21,7 @@
       <div id="loginArea">
 	<div>
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
-	  <p>Log in below or <a href="/signup?runbox7=1" class="login-link">create a new account</a>.</p>
+	  <p>Log in below or <a routerLink="/signup" [queryParams]="{ runbox7: 1 }" class="login-link">create a new account</a>.</p>
 	</div>
 	<mat-form-field>
           <input matInput autocomplete="email" placeholder="Username" name="user" type="email" inputmode="email" autofocus ngModel required />

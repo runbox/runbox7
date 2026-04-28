@@ -1,0 +1,318 @@
+<div class="signup-shell">
+  <header class="signup-header">
+    <a class="brand" routerLink="/login">
+      <img src="assets/runbox7_negative_white.png" alt="Runbox 7" />
+    </a>
+    <p class="header-tagline">Free 30-day trial of Runbox</p>
+  </header>
+
+  <main class="signup-main">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <p class="eyebrow">Sustainable and Private Email Hosting</p>
+        <h1>Create a Runbox Account</h1>
+        <p class="hero-text">
+          Sustainable and secure email, your own domain options, and a 30-day free trial with no credit card required.
+        </p>
+        <p class="hero-subtext">
+          Your trial starts immediately. Before it ends, you can choose whether to upgrade and keep using the account.
+          Runbox is a paid email service, not an ad-funded one, and customer email content is private.
+        </p>
+      </div>
+
+      <div class="hero-notes">
+        <div class="note">
+          <h2>Sustainable and secure</h2>
+          <p>Runbox combines modern webmail, custom domains, standard email access, strong spam filtering, and an emphasis on responsible operations.</p>
+        </div>
+        <div class="note">
+          <h2>Privacy by business model</h2>
+          <p>Runbox is funded by subscriptions, not advertising, so your email content is not mined to sell attention.</p>
+        </div>
+        <div class="note">
+          <h2>Hosted in Norway</h2>
+          <p>Your service is operated from Norway by an independent email provider with a long-standing focus on privacy and user control.</p>
+        </div>
+        <div class="note">
+          <h2>How the trial works</h2>
+          <p>Your mailbox is created immediately. Before the trial ends, you can decide whether to upgrade and continue using the account.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <div class="form-heading">
+        <div>
+          <h2>Start your free trial</h2>
+          <p>Choose your account type, address, and security settings below.</p>
+        </div>
+      </div>
+
+      <form
+        #signupForm="ngForm"
+        #signupFormElement
+        class="signup-form"
+        [attr.action]="signupAction"
+        method="post"
+        (ngSubmit)="onSubmit(signupForm, signupFormElement)"
+      >
+        <section class="form-section">
+          <div class="section-head">
+            <h3>Account type</h3>
+            <p>Select the setup that matches how you plan to use Runbox.</p>
+          </div>
+          <div class="choice-grid">
+            <label class="choice-card" [class.active]="accountType === 'person'">
+              <input type="radio" name="type" value="person" [(ngModel)]="accountType" />
+              <span class="choice-title">Person or Family</span>
+              <span class="choice-copy">Personal email with your own secure mailbox.</span>
+            </label>
+            <label class="choice-card" [class.active]="accountType === 'business'">
+              <input type="radio" name="type" value="business" [(ngModel)]="accountType" />
+              <span class="choice-title">Business or Organization</span>
+              <span class="choice-copy">Business identity, domain support, and hosted email.</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section" *ngIf="accountType === 'business'">
+          <div class="field-grid single">
+            <label class="field">
+              <span>Company</span>
+              <input name="company" [(ngModel)]="company" maxlength="64" />
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-head">
+            <h3>Identity</h3>
+            <p>These names are also used as the default sender name recipients will see when you send email.</p>
+          </div>
+          <div class="field-grid">
+            <label class="field" [class.is-invalid]="showFieldError(firstNameModel, signupForm)">
+              <span>First name</span>
+              <input name="first_name" [(ngModel)]="firstName" maxlength="64" required #firstNameModel="ngModel" />
+              <small class="field-error" *ngIf="showFieldError(firstNameModel, signupForm)">Enter your first name.</small>
+            </label>
+            <label class="field" [class.is-invalid]="showFieldError(lastNameModel, signupForm)">
+              <span>Last name</span>
+              <input name="last_name" [(ngModel)]="lastName" maxlength="64" required #lastNameModel="ngModel" />
+              <small class="field-error" *ngIf="showFieldError(lastNameModel, signupForm)">Enter your last name.</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-head">
+            <h3>Email address</h3>
+            <p>Pick a Runbox address or use your own domain.</p>
+          </div>
+          <div class="field-grid">
+            <label class="field" [class.is-invalid]="showFieldError(userModel, signupForm)">
+              <span>Username</span>
+              <input name="user" [(ngModel)]="user" maxlength="64" required #userModel="ngModel" />
+              <small class="field-error" *ngIf="showFieldError(userModel, signupForm)">Choose a username for your mailbox.</small>
+            </label>
+            <label class="field">
+              <span>Domain type</span>
+              <select name="domainType" [(ngModel)]="domainType">
+                <option value="runbox">Use a Runbox domain</option>
+                <option value="user">Use my own domain</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-grid single" *ngIf="domainType === 'runbox'">
+            <label class="field">
+              <span>Runbox domain</span>
+              <select name="runboxDomain" [(ngModel)]="runboxDomain">
+                <option *ngFor="let domain of runboxDomains" [value]="domain">{{ domain }}</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-grid single" *ngIf="domainType === 'user'">
+            <label class="field" [class.is-invalid]="showFieldError(userDomainModel, signupForm)">
+              <span>Your domain</span>
+              <input
+                name="userdomain"
+                [(ngModel)]="userDomain"
+                maxlength="253"
+                placeholder="example.com"
+                required
+                pattern="^([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$"
+                #userDomainModel="ngModel"
+              />
+              <small class="field-error" *ngIf="showFieldError(userDomainModel, signupForm)">
+                {{ userDomainModel.errors?.['required'] ? 'Enter your domain name.' : 'Enter a valid domain such as example.com.' }}
+              </small>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-head">
+            <h3>Security</h3>
+            <p>Create a strong password for your new mailbox.</p>
+          </div>
+          <div class="field-grid single">
+            <label class="field" [class.is-invalid]="showFieldError(passwordModel, signupForm)">
+              <span>Password</span>
+              <input
+                name="password"
+                type="password"
+                [(ngModel)]="password"
+                (input)="onPasswordChange()"
+                maxlength="64"
+                required
+                #passwordModel="ngModel"
+              />
+              <small class="field-error" *ngIf="showFieldError(passwordModel, signupForm)">Enter a password for your account.</small>
+            </label>
+          </div>
+          <div class="strength-meter" aria-live="polite">
+            <span>Password strength</span>
+            <progress max="4" [value]="passwordStrength"></progress>
+            <strong>{{ passwordStrength }}/4</strong>
+          </div>
+          <input type="hidden" name="password_strength" [value]="passwordStrength" />
+        </section>
+
+        <section class="form-section">
+          <div class="section-head">
+            <h3>Recovery and contact</h3>
+            <p>These details help with signup validation and account recovery.</p>
+          </div>
+          <div class="field-grid">
+            <label class="field field-wide" [class.is-invalid]="showFieldError(emailAlternativeModel, signupForm)">
+              <span class="field-label">
+                Existing email address
+                <button type="button" class="info-chip" aria-label="Why we ask for an existing email address">
+                  i
+                  <span class="info-popover">Used for account recovery, signup validation, and important account notices.</span>
+                </button>
+              </span>
+              <input
+                name="email_alternative"
+                type="email"
+                [(ngModel)]="emailAlternative"
+                maxlength="64"
+                required
+                #emailAlternativeModel="ngModel"
+              />
+              <small class="field-error" *ngIf="showFieldError(emailAlternativeModel, signupForm)">
+                {{ emailAlternativeModel.errors?.['required'] ? 'Enter an email address for recovery and account notices.' : 'Enter a valid email address.' }}
+              </small>
+            </label>
+            <label class="field">
+              <span>Mobile phone number</span>
+              <input name="phone_number_cellular" [(ngModel)]="phoneNumberCellular" maxlength="64" />
+              <small>
+                Optional
+                <button type="button" class="info-chip" aria-label="Why we ask for a mobile phone number">
+                  i
+                  <span class="info-popover">If provided, the number may be used to create a matching email alias such as yournumber@runbox.com.</span>
+                </button>
+              </small>
+            </label>
+            <label class="field">
+              <span class="field-label">
+                How did you hear about Runbox?
+                <button type="button" class="info-chip" aria-label="Why we ask how you heard about Runbox">
+                  i
+                  <span class="info-popover">This helps us understand which channels reach people who may appreciate the service.</span>
+                </button>
+              </span>
+              <select name="referrer" [(ngModel)]="referrer">
+                <option value="">Select one</option>
+                <option *ngFor="let item of referrers" [value]="item">{{ item }}</option>
+              </select>
+              <small>Optional</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="honeypot" aria-hidden="true">
+          <label>
+            <span>Home phone number</span>
+            <input name="phone_number_home" tabindex="-1" autocomplete="off" />
+          </label>
+        </section>
+
+        <section class="form-section">
+          <div class="section-head">
+            <h3>Verification</h3>
+            <p>Complete CAPTCHA verification to continue.</p>
+          </div>
+          <div class="captcha-box">
+            <div #captchaContainer class="captcha-host" [class.is-hidden]="!hCaptchaSiteKey"></div>
+            <p class="captcha-missing" *ngIf="!hCaptchaSiteKey">
+              CAPTCHA is temporarily unavailable. Please use the legacy signup form below.
+            </p>
+            <p class="field-error captcha-error" *ngIf="showCaptchaValidationError">Complete the CAPTCHA verification to continue.</p>
+          </div>
+        </section>
+
+        <section class="form-section policy-block">
+          <div class="section-head">
+            <h3>Preferences and terms</h3>
+            <p>Choose whether to receive updates and accept the required policies.</p>
+          </div>
+
+          <div class="news-choice">
+            <span>Would you like news and offers?</span>
+            <div class="inline-options">
+              <label>
+                <input type="radio" name="send_news_offers" value="y" [(ngModel)]="sendNewsOffers" />
+                Yes
+              </label>
+              <label>
+                <input type="radio" name="send_news_offers" value="n" [(ngModel)]="sendNewsOffers" />
+                No
+              </label>
+            </div>
+          </div>
+
+          <label class="checkbox-row" [class.is-invalid]="showFieldError(tosAcceptedModel, signupForm)">
+            <input type="checkbox" name="tos_accepted" value="y" [(ngModel)]="tosAccepted" required #tosAcceptedModel="ngModel" />
+            <span>
+              I agree to the <a href="/about/terms-service/" target="_blank" rel="noopener">Terms of Service</a> and
+              <a href="https://help.runbox.com/cookies/" target="_blank" rel="noopener">Cookie Policy</a>.
+            </span>
+          </label>
+          <small class="field-error" *ngIf="showFieldError(tosAcceptedModel, signupForm)">You must accept the terms to create an account.</small>
+        </section>
+
+        <p class="form-error" *ngIf="hCaptchaError || submitError" aria-live="polite">
+          {{ submitError || hCaptchaError }}
+        </p>
+
+        <input type="hidden" name="av" value="y" />
+        <input type="hidden" name="as" value="y" />
+        <input type="hidden" name="signup" value="1" />
+        <input type="hidden" name="accountType" [value]="accountType" />
+        <input type="hidden" name="domain" [value]="userDomain" />
+        <input type="hidden" name="account_number" [value]="accountNumber" />
+        <input type="hidden" name="timezone" [value]="timezone" />
+        <input type="hidden" name="runbox7" [value]="runbox7" />
+
+        <div class="form-actions">
+          <button class="submit" type="submit" [class.is-submitting]="submitInProgress">
+            {{ submitInProgress ? 'Submitting...' : 'Set up my Runbox account' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="signup-footer">
+    <div class="footer-links">
+      <a href="/about/">About Runbox</a>
+      <a href="/about/terms-service/">Terms of Service</a>
+      <a href="/about/privacy-policy/">Privacy Policy</a>
+      <a href="https://support.runbox.com/" target="_blank" rel="noopener">Support Center</a>
+    </div>
+    <p>Copyright &copy; 1999-2026 Runbox Solutions AS</p>
+  </footer>
+</div>

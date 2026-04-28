@@ -13,6 +13,7 @@ process.env.BUILD_TIMESTAMP ??= new Date().toJSON()
 const env = [
     ['BUILD_TIMESTAMP', assertString],
     ['SENTRY_DSN', tryCatch(assertString, orNull)],
+    ['SIGNUP_HCAPTCHA_SITE_KEY', tryCatch(assertString, orEmptyString)],
 ]
 
 function assertString(input) {
@@ -35,6 +36,10 @@ function tryCatch (tryFn, catchFn) {
 
 function orNull () {
     return null
+}
+
+function orEmptyString () {
+    return ''
 }
 
 
