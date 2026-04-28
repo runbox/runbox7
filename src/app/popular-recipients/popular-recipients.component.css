@@ -1,6 +1,7 @@
 mat-expansion-panel-header {
     box-shadow: none !important;
-    height: 30px !important;
+    min-height: 36px !important;
+    height: auto !important;
     padding-left: 10px !important;
     padding-right: 24px !important;
 }
@@ -21,5 +22,5 @@ mat-expansion-panel-header .headerText {
 }
 
 .mat-mdc-list-base[dense] .mat-mdc-list-item {
-    height: 24px;
+    min-height: 24px;
 }

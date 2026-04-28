@@ -4,17 +4,34 @@
 @import "@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
 @import './styles/rmm-theme-vars';
 
-// Include non-theme styles for core.
-// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
-//  The following line adds:
-//    1. Default typography styles for all components
-//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
-//  If you specify typography styles for the components you use elsewhere, you should delete this line.
-//  If you don't need the default component typographies but still want the hierarchy styles,
-//  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
-@include mat.all-component-typographies();
+// GTA 13.06.2018: Load custom fonts (must be before typography config)
+
+@font-face {
+    font-family: "Avenir Next Pro Regular";
+    src: url("assets/AvenirNextLTPro-Regular.otf");
+    src: url("assets/Avenir-Next-LT-Pro.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Avenir Next Pro Medium";
+    src: url("assets/AvenirNextLTPro-Medium.otf");
+    src: url("assets/Avenir-Next-LT-Pro.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+// Define custom typography before core
+$custom-typography: mat.define-typography-config(
+    $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
+);
+
+// Include core styles (required for MDC)
 @include mat.core();
+
+// Include custom typography for all components
+@include mat.all-component-typographies($custom-typography);
 
 // GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
 
@@ -42,39 +59,6 @@ $rmm-default-dark-gray: #949494;
 $rmm-default-black: #444444;
 
 @include mat.all-component-themes($rmm-default-theme);
-
-// GTA 13.06.2018: Load custom fonts
-
-@font-face {
-    font-family: "Avenir Next Pro Regular";
-    src: url("assets/AvenirNextLTPro-Regular.otf");
-    src: url("assets/Avenir-Next-LT-Pro.ttf");
-    font-style: normal;
-    font-weight: normal;
-}
-
-@font-face {
-    font-family: "Avenir Next Pro Medium";
-    src: url("assets/AvenirNextLTPro-Medium.otf");
-    src: url("assets/AvenirNextLTPro-Medium.ttf");
-    font-style: normal;
-    font-weight: normal;
-}
-
-$custom-typography: mat.define-typography-config(
-    $font-family: '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif'
-);
-
-// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
-//  The following line adds:
-//    1. Default typography styles for all components
-//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
-//  If you specify typography styles for the components you use elsewhere, you should delete this line.
-//  If you don't need the default component typographies but still want the hierarchy styles,
-//  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy($custom-typography);`
-@include mat.all-component-typographies($custom-typography);
-@include mat.core();
 
 
 /*** Generic styles ***/
@@ -152,32 +136,12 @@ mat-form-field {
     font-size: 13px !important;
 }
 
-/* The anchor tag classing is required as it doesn't inherit the styles with html level a[mat-list-item] */
-mat-list-item .mat-mdc-list-item-content,
-a[mat-list-item] .mat-mdc-list-item-content {
-    min-height: 24px !important;
-}
-
-.mat-mdc-list[dense] .mat-mdc-list-item .mdc-list-item__content,
-.mat-mdc-nav-list[dense] .mat-mdc-list-item .mdc-list-item__content>*,
-mat-list-item .mdc-list-item__content,
-a[mat-list-item] .mdc-list-item__content {
-    height: 1.3em;
-    line-height: 22px;
-    font-weight: 400;
-}
-
-.mat-mdc-list-base[dense] .mat-mdc-list-item.mat-mdc-list-item-with-avatar .mat-mdc-list-item-content .mdc-list-item__content, .mat-mdc-list-base[dense] .mat-mdc-list-item.mat-mdc-list-option .mat-mdc-list-item-content .mdc-list-item__content, .mat-mdc-list-base[dense] .mat-mdc-list-option.mat-mdc-list-item-with-avatar .mat-mdc-list-item-content .mdc-list-item__content, .mat-mdc-list-base[dense] .mat-mdc-list-option.mat-mdc-list-option .mat-mdc-list-item-content .mdc-list-item__content {
-    padding-left: 5px !important;
-}
-
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
 mat-list-item p.mdc-list-item__secondary-text mat-icon {
     padding-right: 8px !important;
     padding-bottom: 8px !important;
 }
 
-.mat-toolbar, .mat-mdc-button {
+.mat-toolbar, .mat-mdc-button-base {
     font-size: 16px;
     font-weight: 400;
 }
@@ -190,35 +154,141 @@ button:hover, mat-button:hover, mat-raised-button:hover {
     filter: brightness(1.1);
 }
 
-.mdc-list-item__secondary-text, .mat-tree-node {
+/*
+ * MDC-based list item styling
+ */
+.mat-mdc-list-item,
+.mdc-list-item {
+    min-height: 24px !important;
+    height: auto !important;
+    font-size: 13px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    padding: 0 !important;
+}
+
+// Override MDC fixed heights for all line variants
+.mdc-list-item--with-one-line,
+.mdc-list-item--with-two-lines,
+.mdc-list-item--with-three-lines {
+    height: auto !important;
+}
+
+// Override MDC multi-line icon/content positioning
+.mdc-list-item--with-two-lines .mdc-list-item__start,
+.mdc-list-item--with-three-lines .mdc-list-item__start {
+    align-self: center !important;
+    margin-top: 0 !important;
+}
+
+.mdc-list-item--with-two-lines .mdc-list-item__content,
+.mdc-list-item--with-three-lines .mdc-list-item__content {
+    align-self: center !important;
+}
+
+.mdc-list-item--with-two-lines .mdc-list-item__primary-text,
+.mdc-list-item--with-three-lines .mdc-list-item__primary-text {
+    display: inline !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+}
+
+.mat-mdc-list-item .mdc-list-item__start,
+.mat-mdc-list-item .mdc-list-item__end {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0;
+    margin: 0 4px 0 0 !important;
+}
+
+.mat-mdc-list-item mat-icon.mdc-list-item__start:not(.calendarColorLabel) {
+    font-size: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    color: mat.get-color-from-palette($rmm-default-primary) !important;
+}
+
+.mat-mdc-list-item .mdc-list-item__content {
+    min-height: 24px;
+    padding: 0 8px;
+}
+
+// Sidebar items: wider padding for readability
+#sideMenu .mat-mdc-list-item .mdc-list-item__content {
+    padding: 0 16px;
+}
+
+// Sidebar items with leading icon: icon provides left spacing, remove content left padding
+#sideMenu .mdc-list-item--with-leading-icon .mdc-list-item__content {
+    padding-left: 0 !important;
+}
+
+.mat-mdc-list-item .mdc-list-item__primary-text,
+.mdc-list-item__primary-text,
+[mat-line],
+.mat-mdc-list-item [mat-line] {
+    min-height: 1.3em;
+    line-height: 1.5;
+    font-weight: 400;
+    font-size: 13px !important;
+}
+
+.mat-mdc-list[dense] .mat-mdc-list-item .mdc-list-item__primary-text {
+    padding-left: 5px;
+}
+
+.mdc-list-item__secondary-text {
     height: 30px !important;
     min-height: 30px !important;
     font-size: 13px !important;
 }
 
-.mat-mdc-list-base {
-    padding-top: 0px !important;
+.mat-tree-node {
+    min-height: 30px !important;
+    height: auto !important;
+    line-height: normal;
+    font-size: 13px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-right: 0 !important;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-.mat-mdc-list-base[dense], .mat-mdc-list-item.mat-mdc-list-item-with-avatar {
+.mat-mdc-list-base {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.mat-mdc-list-base[dense],
+.mat-mdc-list-item.mat-mdc-list-item-with-avatar {
     height: auto !important;
     font-size: 13px !important;
 }
 
+.mat-mdc-list-base[dense] .mat-mdc-list-item .mat-mdc-list-item-content {
+    min-height: 32px !important;
+    padding: 0 8px !important;
+}
+
 .mat-mdc-menu-content .mat-mdc-list-item {
-    height: 32px !important;
+    min-height: 32px !important;
+    height: auto !important;
 }
 
 .mat-mdc-menu-panel .mat-mdc-list-item {
-    height: 40px !important;
+    min-height: 40px !important;
+    height: auto !important;
+}
+
+.mat-mdc-menu-content .mat-mdc-list-item:has(mat-form-field) {
+    min-height: 56px !important;
+    padding-top: 8px !important;
 }
 
 .mat-mdc-header-cell {
     font-size: 16px;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
 .mat-mdc-card-header-text {
     margin-left: 0px !important;
 }
@@ -235,25 +305,22 @@ mat-grid-tile {
     text-align: left;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of chips that may no longer apply for the MDC version.*/
 mat-chip.mat-mdc-chip.mat-mdc-standard-chip {
     background-color: #f5f5f5;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
 .mat-expansion-panel-header, .mat-expansion-panel-body .mat-mdc-list-item-content {
-    min-height: 24px;
-    height: 36px;
-    /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-    .mdc-list-item__content, .mdc-list-item__content>*, .mdc-list-item__content, .mdc-list-item__secondary-text {
-	height: 1.8em !important;
+    min-height: 24px !important;
+    height: auto !important;
+    .mdc-list-item__content, .mdc-list-item__content>*, .mdc-list-item__secondary-text {
 	min-height: 1.8em !important;
+	height: auto !important;
     }
 }
 
 .mat-expansion-panel-header.mat-expanded {
-    height: 36px;
+    min-height: 36px !important;
+    height: auto !important;
 }
 
 mat-icon {
@@ -305,38 +372,35 @@ mat-grid-tile.tableTitle {
     padding: 3em;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
+// MDC INTERNAL SELECTORS: The following rules target MDC internal DOM classes.
+// These are valid for Angular Material v17 but should be reviewed during the
+// Angular 19 upgrade (EP-06) as MDC internals may change.
+
 .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
     background-color: mat.get-color-from-palette($rmm-default-primary);
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-.mdc-switch__label {
+.mat-mdc-slide-toggle .mdc-switch__label {
     margin-top: 1px;
 }
 
 .section-header-with-toggle {
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mdc-switch__track {
+        .mdc-switch__track {
 	height: 16px;
 	width: 42px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb-container {
+        .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb-container {
 	top: -5px;
 	transform: translate3d(20px, 0, 0);
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
+        .mat-mdc-slide-toggle.mat-checked .mdc-switch__thumb {
 	height: 24px;
 	width: 24px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mdc-form-field {
+        .mdc-form-field {
 	font-size: 16px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mdc-switch__label {
+        .mdc-switch__label {
 	margin-left: 2px;
     }
 }
@@ -442,8 +506,7 @@ body.signup-page app-rmm {
     a {
         color: #fff !important;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
-    .mdc-button__label {
+        .mdc-button__label {
         color: mat.get-color-from-palette($rmm-default-foreground) !important;
     }
 }
@@ -554,8 +617,7 @@ div.loginScreen {
         display: flex;
         margin: 0.5em;
         font-size: 13px;
-	/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-	.mdc-label {
+		.mdc-label {
 	    padding-top: 3px;
 	}
     }
@@ -566,13 +628,11 @@ div.loginScreen {
     .login-checkbox {
         padding: 0 5px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-    .mat-mdc-checkbox .mdc-form-field {
+        .mat-mdc-checkbox .mdc-form-field {
         display: flex;
         align-items: center;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-    .mat-mdc-checkbox .mdc-checkbox {
+        .mat-mdc-checkbox .mdc-checkbox {
         margin: 0 5px;
         height: 13px;
         width: 13px;
@@ -595,8 +655,7 @@ div.loginScreen {
     .loginScreen #tfaArea {
 	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
-    mat-button-toggle button {
+        mat-button-toggle button {
 	border-right: 1px solid #949494;
     }
 
@@ -726,7 +785,6 @@ rmm-headertoolbar {
     margin-left: 0em;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of menu that may no longer apply for the MDC version.*/
 .mainMenu a, mat-menu a, .mat-mdc-nav-list a {
     padding: 0;
     text-decoration: none;
@@ -736,6 +794,27 @@ rmm-headertoolbar {
 .mainMenu {
     margin-top: 30px;
     transition: margin-top 0.25s;
+}
+
+/* MDC button layout - stack icon above text vertically */
+#mainMenuContainer .mainMenu .mat-mdc-button {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: auto;
+    line-height: normal;
+}
+
+.mainMenu .mat-mdc-button mat-icon {
+    margin-bottom: 4px;
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+}
+
+.mainMenu .mat-mdc-button .mdc-button__label {
+    display: contents;
 }
 
 .mainMenuDesc {
@@ -783,8 +862,8 @@ mat-sidenav-container {
     border-right: 1px solid rgba(0, 0, 0, 0.12);
 
     mat-icon {
-	    width: 22px;
-	    height: 22px;
+	    width: 24px;
+	    height: 24px;
     }
     .mdc-list-item__secondary-text span {
         vertical-align: middle !important;
@@ -794,7 +873,6 @@ mat-sidenav-container {
 #toggleFolderPaneIcon {
     overflow: visible;
     margin-right: 10px;
-    width: 24px;
 }
 
 @media (min-width: 1025px) {
@@ -813,8 +891,7 @@ mat-sidenav-container {
 }
 
 .sidenavMainMenu {
-    /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
-    .mat-mdc-mini-fab .mdc-button__label {
+        .mat-mdc-mini-fab .mdc-button__label {
         line-height: 18px;
     }
 
@@ -880,6 +957,38 @@ mat-sidenav-container {
     }
 }
 
+// Remove default borders from MDC list-item buttons
+button.mat-mdc-list-item {
+    border: none !important;
+    text-align: left !important;
+}
+
+// Sidebar list items - match production height (32px)
+#sideMenu .mat-mdc-list-item {
+    min-height: 32px !important;
+}
+
+// Sidebar list items: left margin on leading icon (scoped to mat-list-item to avoid tree nodes)
+#sideMenu .mat-mdc-list-item .mdc-list-item__start {
+    margin: 0 4px 0 16px !important;
+}
+
+// Drafts count right-alignment: absolute position avoids flex height expansion
+#draftsButton {
+    position: relative !important;
+}
+
+#draftsButton .foldersidebarcount {
+    position: absolute !important;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#draftsButton span[style*="flex-grow"] {
+    display: none !important;
+}
+
 h3.sideNavHeader {
     margin: 20px 0 10px 0;
     padding-left: 20px;
@@ -915,7 +1024,16 @@ a:hover {
 
 #folderListHeader {
     height: 30px;
-    font-size: 13px;
+    font-size: 13px !important;
+}
+
+// MDC subheader defaults differ from legacy - match production
+#folderListHeader [mat-subheader],
+#folderListHeader .mdc-list-group__subheader {
+    font-size: 13px !important;
+    line-height: 30px !important;
+    margin: 0 !important;
+    padding: 0 16px !important;
 }
 
 #createFolderButton {
@@ -927,8 +1045,10 @@ a:hover {
 
 rmm-folderlist {
     .mat-mdc-icon-button {
-        height: 24px;
-        line-height: 24px;
+        height: 24px !important;
+        width: 40px !important;
+        line-height: 24px !important;
+        padding: 0 !important;
     }
 }
 
@@ -959,15 +1079,17 @@ rmm-folderlist {
 }
 
 .mat-badge-content {
-    width: auto;
+    width: auto !important;
+    height: auto !important;
     overflow: visible !important;
     right: auto !important;
     left: 0px;
     padding: 0px 3px;
-    background-color: $rmm-default-light-gray;
-    font-size: 10px;
-/*    line-height: 18px !important; */
-    color: black;
+    background-color: $rmm-default-light-gray !important;
+    font-size: 10px !important;
+    color: black !important;
+    border-radius: 3px !important;
+    line-height: normal !important;
 }
 
 .foldersidebarcount {
@@ -1036,8 +1158,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
         font-size: 10px;
         line-height: 12px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-    mat-list-item {
+    .mat-mdc-list-item {
         padding: 5px 0;
     }
 
@@ -1055,7 +1176,6 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     }
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
 #offerLocalIndex .mat-mdc-list-item-content {
     padding: 0 5px;
 }
@@ -1068,20 +1188,91 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     }
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
 #searchField .mat-mdc-form-field-subscript-wrapper {
-    padding-bottom: 0.5em;
+    display: none;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
+#searchField .mat-mdc-text-field-wrapper {
+    padding: 0 0 6.5px;
+    background-color: transparent;
+    border-radius: 0;
+    display: block !important;
+    height: auto;
+    overflow: visible;
+}
+
+#searchField .mat-mdc-form-field-flex {
+    align-items: center;
+}
+
+#searchField .mdc-line-ripple {
+    display: none;
+}
+
 #searchField .mat-mdc-form-field-infix {
-    line-height: 1.25em;
-    padding: 0.2em 0;
+    padding: 0;
+    min-height: 0;
+    width: 100%;
+    border-top: 10px solid transparent;
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-#searchField .mat-mdc-form-field-underline {
-    bottom: 0.75em;
+#searchField .mat-mdc-text-field-wrapper::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.42);
+    margin-top: 2px;
+}
+
+#searchField .mat-mdc-form-field-icon-suffix {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#searchField .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button {
+    width: 20px;
+    height: 40px;
+    padding: 2px 0 0;
+    font-size: 13px;
+    --mat-icon-button-state-layer-size: 20px;
+}
+
+#searchField .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button mat-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+#searchField input {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.87);
+    line-height: 16.25px;
+    letter-spacing: normal;
+}
+
+#searchField input::placeholder {
+    color: transparent !important;
+}
+
+#searchField .mat-mdc-form-field-focus-overlay {
+    background-color: transparent;
+}
+
+#searchField .mdc-floating-label {
+    font-size: 14px;
+    bottom: auto !important;
+    top: 10px !important;
+}
+
+#searchField .mdc-floating-label--float-above {
+    transform: translateY(-23px) scale(0.75) !important;
+    transform-origin: left top !important;
 }
 
 #searchField mat-icon {
@@ -1089,17 +1280,46 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     line-height: 20px !important;
 }
 
-#searchField input {
-    font-size: 16px;
+/* Multiple search fields (advanced search pane) */
+#multipleSearchFieldsContainer .mat-mdc-text-field-wrapper {
+    padding: 0 0 3px !important;
+    background-color: transparent !important;
+    border-radius: 0;
 }
 
-#searchField label {
-    font-size: 14px;
+#multipleSearchFieldsContainer .mat-mdc-form-field-subscript-wrapper {
+    display: none;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-#searchField .mat-mdc-form-field-infix {
-    width: 100%;
+#multipleSearchFieldsContainer .mat-mdc-form-field-infix {
+    padding: 5.7px 0 3px !important;
+    min-height: 0;
+    border-top: 10px solid transparent !important;
+}
+
+#multipleSearchFieldsContainer .mat-mdc-form-field-focus-overlay {
+    background-color: transparent;
+}
+
+#multipleSearchFieldsContainer input {
+    font-size: 13px;
+    height: 15px;
+    line-height: 15px;
+}
+
+#multipleSearchFieldsContainer input::placeholder {
+    color: transparent !important;
+}
+
+#multipleSearchFieldsContainer .mdc-floating-label {
+    font-size: 13px;
+    bottom: auto !important;
+    top: 16px !important;
+}
+
+#multipleSearchFieldsContainer .mdc-floating-label--float-above {
+    transform: translateY(-18px) scale(0.75) !important;
+    transform-origin: left top !important;
 }
 
 #multipleSearchFieldsContainer {
@@ -1111,14 +1331,29 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
       background-color: white;
       border: #aaa solid 1px;
       padding: 0 10px 5px 10px;
-      /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-      .mat-mdc-form-field-subscript-wrapper {
-	  padding-bottom: 1em;
-      }
-      /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-      .mat-mdc-form-field-infix {
-	  padding-bottom: 3px;
-      }
+}
+
+/* Reusable compact form field class for inline/toolbar contexts */
+.mat-mdc-form-field-compact .mat-mdc-text-field-wrapper {
+    padding: 0 0 3px !important;
+    background-color: transparent !important;
+}
+.mat-mdc-form-field-compact .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+.mat-mdc-form-field-compact .mat-mdc-form-field-infix {
+    padding: 5.7px 0 3px !important;
+    min-height: 0;
+    border-top: 10px solid transparent !important;
+}
+.mat-mdc-form-field-compact .mdc-floating-label {
+    font-size: 13px;
+    bottom: auto !important;
+    top: 16px !important;
+}
+.mat-mdc-form-field-compact .mdc-floating-label--float-above {
+    transform: translateY(-18px) scale(0.75) !important;
+    transform-origin: left top !important;
 }
 
 #threadedCheckbox, #unreadCheckbox {
@@ -1126,12 +1361,11 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
     height: 40px;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
-.mdc-label {
+.mat-mdc-checkbox .mdc-label,
+.mat-mdc-radio-button .mdc-label {
     font-size: 13px;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
 #threadedCheckbox .mdc-label, #unreadCheckbox .mdc-label {
     line-height: 0px;
 }
@@ -1210,8 +1444,7 @@ app-saved-searches .mat-mdc-list-base[dense] .mat-mdc-list-item {
 	min-width: 30px;
 	line-height: 24px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of radio that may no longer apply for the MDC version.*/
-    .mat-radio-label-content {
+    .mat-mdc-radio-button .mdc-label {
 	padding: 0 !important;
     }
 
@@ -1274,6 +1507,29 @@ mat-expansion-panel, mat-expansion-panel-header {
     padding: 0 !important;
 }
 
+// Settings menu: align sub-items with header content (header padding-left: 24px, content padding-left: 16px)
+// Also suppress MDC's expanded body vertical padding
+#sideMenu .mat-expansion-panel-body {
+    padding: 0 0 0 8px !important;
+}
+
+// Settings sidebar: remove MDC's expanded panel margin entirely
+#sideMenu .mat-expansion-panel-spacing {
+    margin: 0 !important;
+}
+
+// Settings sidebar: give headers room to contain icon + text, spacing between collapsed rows
+#sideMenu .mat-expansion-panel-header {
+    min-height: 36px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+}
+
+// Remove default <p> margins in expansion panel headers that inflate height
+.mat-expansion-panel-header p[mat-line] {
+    margin: 0;
+}
+
 /* Message header area */
 #messageHeader .mat-expansion-panel-header {
     min-height: 24px;
@@ -1302,16 +1558,18 @@ compose {
 compose.draftPreviewContainer {
 }
 
+// MDC INTERNAL SELECTORS: The following compose/contacts rules target MDC internal DOM classes.
+// These are valid for Angular Material v17 but should be reviewed during the
+// Angular 19 upgrade (EP-06) as MDC internals may change.
+
 @media(min-width: 1025px) {
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
+        compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
     width: 45vw !important;
     }
 }
 
 @media(max-width: 1024px) and (min-width: 376px) {
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
+        compose #fieldSubject, compose #fieldRecipient .mat-mdc-form-field-infix, compose mailrecipient-input .mat-mdc-form-field-underline, compose mailrecipient-input input.mat-mdc-chip-input {
     width: 66vw !important;
     }
 }
@@ -1323,7 +1581,6 @@ compose .mat-mdc-card-actions {
     margin-bottom: 8px !important;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
 compose .mat-mdc-form-field-underline, compose input.mat-mdc-chip-input {
     bottom: 10px !important;
 }
@@ -1345,7 +1602,6 @@ compose .mat-mdc-standard-chip {
     padding: 7px 8px 5px 10px !important;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
 compose #fieldFrom .mat-mdc-form-field-subscript-wrapper, compose .fieldRecipient .mat-mdc-form-field-subscript-wrapper, compose #fieldSubject .mat-mdc-form-field-subscript-wrapper {
     padding-bottom: 0.5em;
 }
@@ -1380,47 +1636,70 @@ compose #fieldFrom .mat-mdc-form-field-subscript-wrapper, compose .fieldRecipien
 
 #fieldFrom, #fieldSubject {
     overflow: hidden;
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-mdc-form-field-infix {
+        .mat-mdc-form-field-infix {
 	padding-bottom: 4px;
     }
+}
+
+// Compose form fields - compact density
+compose .mat-mdc-text-field-wrapper {
+    padding: 0 0 3px !important;
+    background-color: transparent !important;
+}
+compose .mat-mdc-form-field-subscript-wrapper:not(:has(mat-error)) {
+    display: none;
+}
+compose .mat-mdc-form-field-infix {
+    padding: 0.2em 0 !important;
 }
 
 
 /*** Contacts ***/
 
 .contactListControls {
-    /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
-    .mat-mdc-nav-list[dense], .mat-mdc-list-item, .mdc-list-item__content, .mat-mdc-form-field {
+        .mat-mdc-nav-list[dense], .mat-mdc-list-item, .mdc-list-item__content, .mat-mdc-form-field {
 	height: 48px !important;
     }
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
 .contactList .mat-mdc-form-field-infix {
     font-size: 16px;
 }
 
 #contactListControlsSearch {
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-mdc-form-field-label-wrapper {
-        top: -1em;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-mdc-form-field-label-wrapper label {
-	margin-top: 10px;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
     .mat-mdc-list-item-content {
-	padding: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-mdc-form-field-appearance-legacy .mat-mdc-form-field-infix {
-	padding-top: 0 !important;
+    .mdc-list-item__content {
+        overflow: visible !important;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
-    .mat-mdc-form-field-appearance-legacy .mat-mdc-form-field-label {
-        top: 0.75em;
+    .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+    }
+    .mat-mdc-text-field-wrapper {
+        padding-bottom: 16px !important;
+        background-color: transparent !important;
+    }
+    .mat-ripple-element {
+        display: none !important;
+    }
+    .mat-mdc-form-field-infix {
+        padding-top: 0 !important;
+        padding-bottom: 7px !important;
+        border-top: 13px solid transparent !important;
+        min-height: 0 !important;
+    }
+    .mdc-floating-label {
+        top: 12px !important;
+    }
+    .mdc-floating-label--float-above {
+        transform: translateY(-22px) scale(0.75) !important;
+        transform-origin: left top !important;
+    }
+    input {
+        height: 22px;
+        line-height: 22px;
     }
 }
 
@@ -1434,6 +1713,44 @@ compose #fieldFrom .mat-mdc-form-field-subscript-wrapper, compose .fieldRecipien
 app-calendar-app-component mat-nav-list button {
     margin: 0 !important;
     padding: 0 !important;
+}
+
+// Calendar list items: make unscoped content flex for buttons + text layout
+.calendarListItem .mat-mdc-list-item-unscoped-content {
+    display: flex !important;
+    align-items: center !important;
+    overflow: visible !important;
+    width: auto !important;
+}
+
+// Calendar toggle button: push right (high specificity to beat blanket margin: 0 !important)
+// Only toggle gets margin-left: auto; edit sits right next to it
+#sideMenu .calendarToggleButton {
+    margin-left: auto !important;
+}
+
+// Calendar sidebar menu buttons: flex content so text vertically centers with icon
+.calendarMenuButton .mdc-list-item__content {
+    display: flex !important;
+    align-items: center !important;
+}
+
+// Calendar beta text: allow text to wrap and not be clipped
+.calendarBetaText {
+    overflow: visible !important;
+    height: auto !important;
+
+    .mdc-list-item__content {
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    .mat-mdc-list-item-unscoped-content {
+        display: block !important;
+        overflow: visible !important;
+        width: auto !important;
+        white-space: normal !important;
+    }
 }
 
 @media(min-width: 1025px) {
@@ -1502,9 +1819,13 @@ app-calendar-event-editor-dialog p {
 
 /* Dom reg */
 
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
+.domreg .mat-mdc-card-header {
+    box-sizing: border-box;
+}
+
 .domreg .mat-mdc-card-header-text {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
 }
 
 .domreg .long_placeholder label {
@@ -1611,9 +1932,9 @@ app-calendar-event-editor-dialog p {
 }
 
 app-payment-method {
-    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
-    mat-card {
-        height: 300px;
+        mat-card {
+        min-height: 300px;
+        overflow: hidden;
     }
 
     img {
