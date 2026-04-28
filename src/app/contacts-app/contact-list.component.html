@@ -64,9 +64,9 @@
         </button>
     </mat-list-item>
 
-    <mat-list-item *ngFor="let contact of shownContacts"
+    <div *ngFor="let contact of shownContacts"
         routerLink="/contacts/{{ contact.id }}"
-        class="contactListButton"
+        class="contactListButton contactListRow"
         draggable="true"
         (dragstart)="dragStarted($event, contact)"
     >
@@ -86,9 +86,7 @@
         </mat-icon>
 
         <a class="contactName" matTooltip="View details">
-            <p mat-line>
-                <app-contact-button [contact]="contact"></app-contact-button>
-            </p>
+            <app-contact-button [contact]="contact"></app-contact-button>
         </a>
 
         <span style="flex-grow: 1"></span>
@@ -98,10 +96,10 @@
             routerLink="/compose" [queryParams]="{to: contact.primary_email()}">
           <mat-icon color="primary" svgIcon="email"></mat-icon>
         </a>
-    </mat-list-item>
+    </div>
 
     <mat-list-item *ngIf="contacts.length === 0" class="contactListButton contactListHint">
-        <mat-icon mat-list-icon svgIcon="information"> </mat-icon>
+        <mat-icon matListItemIcon svgIcon="information"> </mat-icon>
         There are no contacts yet. Import or add contacts to show them here.
     </mat-list-item>
 
