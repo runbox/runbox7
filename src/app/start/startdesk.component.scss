@@ -39,7 +39,6 @@ $rmm-default-highlight: mat.define-palette(mat.$light-blue-palette, 100, 50, 200
             margin-block-start: 0;
         }
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card {
         float: left;
         width: 100%;
@@ -74,17 +73,15 @@ $rmm-default-highlight: mat.define-palette(mat.$light-blue-palette, 100, 50, 200
     }
 }
 #dashdeskSections {
-    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card {
         width: 43%;
-        height: 250px;
+        min-height: 250px;
         padding: 20px;
+        overflow: hidden;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card div {
         margin: 10px 0;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
     mat-card h3 mat-icon {
         font-size: 1.4em;
         height: 1em;
@@ -123,7 +120,6 @@ $rmm-default-highlight: mat.define-palette(mat.$light-blue-palette, 100, 50, 200
 	margin-right: 20px;
 	width: 100px;
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version. */
     mat-checkbox {
         padding-left: 10px;
     }
