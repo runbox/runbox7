@@ -33,11 +33,6 @@
     opacity: 0.5;
 }
 
-.selectedFolder.mat-mdc-button {
-    font-size: 14px !important;
-    margin-top: 1px !important;
-}
-
 .dropToFolderAllowed {
     transition: background 0.2s ease;
     background: rgba(0, 255, 0, 0.4);
@@ -55,25 +50,12 @@
     font-size: 10px;
 }
 
-.visibleOnHover {
-    display: none;
-}
-
-.mat-mdc-list-item.selectedFolder p.visibleOnHover {
-    display: inherit;
-}
 .newMessagesCount .mat-badge-content {
-    width: auto !important;
-    height: auto !important;
     margin: 0 !important;
-    padding: 0px 3px !important;
     line-height: 22px !important;
     box-sizing: content-box !important;
     display: block !important;
-    overflow: visible !important;
     position: absolute !important;
     top: -11px !important;
-    left: 0px !important;
-    right: auto !important;
     border-radius: 50% !important;
 }

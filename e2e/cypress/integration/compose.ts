@@ -27,7 +27,7 @@ describe('Composing emails', () => {
         cy.wait('@listAllmessages', {'timeout':10000});
 
         cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
-        cy.get('input[data-placeholder="Subject"]').type('Email about Subject X');
+        cy.get('input[placeholder="Subject"]').type('Email about Subject X');
         cy.get('mat-card-actions div').should('contain', 'Subject X');
     });
 
@@ -86,7 +86,7 @@ describe('Composing emails', () => {
         // autocompletion should show the nickname...
         cy.get('mat-option:contains(Postpat)').click();
         // ...but the resulting contact should not
-        cy.get('mat-chip').should('not.contain', 'Postpat');
+        cy.get('mat-chip-row').should('not.contain', 'Postpat');
     });
 
     it('closing a newly composed email should return where we started', () => {
@@ -126,7 +126,7 @@ describe('Composing emails', () => {
             expect(loc.pathname).to.eq('/compose');
             expect(loc.search).to.eq('?to=patrick@post.no');
         });
-        cy.get('mailrecipient-input mat-chip').should('contain', 'patrick@post.no');
+        cy.get('mailrecipient-input mat-chip-row').should('contain', 'patrick@post.no');
     });
 
     it('closing a new email from contacts list, should return to contacts', () => {
@@ -150,18 +150,18 @@ describe('Composing emails', () => {
         const address = 'testmail@testmail.com';
         cy.get('.messageHeaderTo rmm7-contact-card span').contains(address, { matchCase: false });
         cy.get('button[mattooltip="Reply"]').click();
-        cy.get('.mat-select-value-text span').contains(address, { matchCase: false });
+        cy.get('.mat-mdc-select-value-text span').contains(address, { matchCase: false });
     });
 
     it('should show a save template button and save on click', () => {
         cy.visit('/compose?new=true');
-        cy.get('input[data-placeholder="Subject"]').type('Template subject here');
+        cy.get('input[placeholder="Subject"]').type('Template subject here');
         cy.get('button[mattooltip="Save as template"').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');
             expect(loc.search).to.eq('?new=true');
         });
 
-        cy.get('snack-bar-container').should('contain', 'Saved to templates');
+        cy.get('mat-snack-bar-container').should('contain', 'Saved to templates');
     })
 });

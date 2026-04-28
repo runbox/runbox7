@@ -43,7 +43,7 @@ describe('PopularRecipientsComponent', () => {
             ])
         }});
         TestBed.configureTestingModule({
-            declarations: [ PopularRecipientsComponent, MatIcon ],
+            declarations: [ PopularRecipientsComponent ],
             imports: [
                 MatExpansionModule,
                 MatIconModule,
