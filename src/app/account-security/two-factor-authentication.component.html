@@ -102,6 +102,7 @@
                                 (click)="totp_generate_new_key()">Generate
                                 Key</button></span>
                         <mat-form-field>
+                            <mat-label>Key</mat-label>
                             <input matInput name="new_totp_code" placeholder="Key" maxlength="16" disabled=""
                                 [value]="rmm.account_security.tfa.new_totp_code">
                         </mat-form-field>
@@ -114,6 +115,7 @@
                     <p>
                         <span><strong>Label:</strong></span>
                         <mat-form-field>
+                            <mat-label>Label</mat-label>
                             <input matInput name="totp_label" [value]="rmm.account_security.tfa.totp_label"
                                 disabled="" readonly >
                         </mat-form-field>
@@ -143,6 +145,7 @@
                     <p>
                         <span><strong>Test code:</strong></span>
                         <mat-form-field>
+                            <mat-label>Test code</mat-label>
                             <input matInput name="totp_test_code" placeholder="Enter code" maxlength="6"
                                 [(ngModel)]="totp_test_code" (ngModelChange)="totp_test_code_change()">
                         </mat-form-field>
@@ -197,6 +200,7 @@
                 <p style="margin-bottom: 0px;">
                     Browser name:
                     <mat-form-field>
+                        <mat-label>Browser name</mat-label>
                         <input matInput name="trusted_browser_name" placeholder="Enter browser/device name"
                             [(ngModel)]="trusted_browser_name" (ngModelChange)="trusted_browser_name_change()">
                     </mat-form-field>

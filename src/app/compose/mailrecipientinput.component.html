@@ -1,4 +1,5 @@
-<mat-form-field style="width: 100%" floatPlaceholder="auto">
+<mat-form-field style="width: 100%" floatLabel="auto">
+    <mat-label>{{placeholder}}</mat-label>
     <mat-chip-grid #chipList>
         <mat-chip-row *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
                 style="background-color: #e3f2fd;"

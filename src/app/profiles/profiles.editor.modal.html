@@ -20,6 +20,7 @@
     <mat-card-content class="content" style="margin-bottom: 0;">
         <form>
             <mat-form-field class="form-field form-item">
+                <mat-label>From Name</mat-label>
                 <input matInput placeholder="From Name" name="from" [(ngModel)]="identity.from_name"
                     (ngModelChange)="onchange_field('from_name')" />
                 <div *ngIf="field_errors && field_errors.from_name">
@@ -45,6 +46,7 @@
 
             <ng-template #other_content>
                 <mat-form-field class="form-field form-item">
+                    <mat-label>Email</mat-label>
                     <input matInput placeholder="Email" [ngStyle]="get_form_field_style()" name="email"
                         [readonly]="( identity && (identity.type === 'aliases' || identity.type === 'main' ))"
                         [(ngModel)]="identity.email" (ngModelChange)="onchange_field('email')" />
@@ -60,6 +62,7 @@
             </ng-template>
 
             <mat-form-field class="form-field form-item">
+                <mat-label>Description</mat-label>
                 <input matInput placeholder="Description" name="name" [(ngModel)]="identity.name"
                     (ngModelChange)="onchange_field('name')" />
                 <div *ngIf="field_errors && field_errors.name">
@@ -78,6 +81,7 @@
             </div>
 
             <mat-form-field class="form-field form-item" *ngIf="is_different_reply_to">
+                <mat-label>Reply-to</mat-label>
                 <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="identity.reply_to"
                     (ngModelChange)="onchange_field('reply_to')" />
                 <div *ngIf="field_errors && field_errors.reply_to">
@@ -89,6 +93,7 @@
             </mat-form-field>
 
             <mat-form-field class="signature form-item">
+                <mat-label>Signature</mat-label>
                 <textarea matInput placeholder="Signature" [id]="selector" name="signature"
                     [(ngModel)]="identity.signature" (ngModelChange)="onchange_field('signature')"></textarea>
                 <div *ngIf="field_errors && field_errors.signature">
