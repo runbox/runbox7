@@ -204,7 +204,7 @@ END:VCALENDAR
                         report: (_: string) => { }
                     } },
                 ],
-                declarations: [MatIcon],
+                declarations: [],
             }).compileComponents();
     }));
 

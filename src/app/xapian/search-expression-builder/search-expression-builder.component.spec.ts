@@ -43,7 +43,7 @@ describe('SearchExpressionBuilderComponent', () => {
         MatDatepickerModule,
         MatNativeDateModule
       ],
-      declarations: [ SearchExpressionBuilderComponent, MatIcon ]
+      declarations: [ SearchExpressionBuilderComponent ]
     })
     .compileComponents();
   }));
