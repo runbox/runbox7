@@ -4,14 +4,14 @@ mat-icon.category {
     height: auto;
     line-height: 24px;
 }
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card {
     padding: 10px 20px;
 }
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card a {
     color: inherit;
     text-decoration: none;
+    width: 100%;
+    display: block;
 }
 h3 {
     margin: 20px 0 0 0;
@@ -29,14 +29,13 @@ div.settingsRow {
     flex-direction: row;
     flex-wrap: wrap;
 }
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card.settingsItem {
     display: flex;
     width: 180px;
-    height: 125px;
+    min-height: 125px;
     margin: 0 10px 10px 0;
+    overflow: hidden;
 }
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card.settingsItem mat-icon {
     float: left;
     margin-right: 5px;
@@ -46,4 +45,8 @@ mat-card.settingsItem mat-icon {
 div.divider {
     clear: both;
     height: 0px;
+}
+mat-card.settingsItem p {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }

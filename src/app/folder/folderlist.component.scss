@@ -1,5 +1,6 @@
 .mailFolder {
     position: relative;
+    align-items: center;
 }
 
 .mailFolder .expand-button {
@@ -58,10 +59,21 @@
     display: none;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
-mat-list-item.selectedFolder p.visibleOnHover {
+.mat-mdc-list-item.selectedFolder p.visibleOnHover {
     display: inherit;
 }
 .newMessagesCount .mat-badge-content {
-    width: auto;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0px 3px !important;
+    line-height: 22px !important;
+    box-sizing: content-box !important;
+    display: block !important;
+    overflow: visible !important;
+    position: absolute !important;
+    top: -11px !important;
+    left: 0px !important;
+    right: auto !important;
+    border-radius: 50% !important;
 }
