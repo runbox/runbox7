@@ -355,7 +355,7 @@ END:VCALENDAR
                         }, 1000);
                     break;
                 case '/rest/v1/aliases/limits':
-                    response.end(JSON.stringify({ 'total': 10, 'current': 4}));
+                    response.end(JSON.stringify({ status: 'success', result: { 'total': 10, 'current': 4 }}));
                     break;
                 case '/rest/v1/profiles':
                     response.end(JSON.stringify(this.profiles_verified()));
