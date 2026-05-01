@@ -167,7 +167,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
      * 2. True floating time (no TZID in property) → interpret in calendar's timezone
      * 3. Unresolved TZID (has TZID but not found) → preserve local time values as UTC
      */
-    private convertIcalTimeToDate(time: ICAL.Time, propName: string): Date {
+    private convertIcalTimeToDate(time: ICAL.Time, propName: 'dtstart' | 'dtend'): Date {
         if (time.isDate) {
             // All-day dates must display on the same calendar date regardless of timezone.
             // Use noon UTC so getDate() returns the correct day in every timezone.
@@ -184,10 +184,8 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
         if (hasProperTimezone) {
             const targetTz = this.getAccountTimezone();
-            if (targetTz) {
-                time = time.convertToZone(targetTz);
-            }
-            return time.toJSDate();
+            const converted = targetTz ? time.convertToZone(targetTz) : time;
+            return converted.toJSDate();
         }
 
         // Check if the property had a TZID parameter to differentiate floating vs unresolved
@@ -330,10 +328,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (recur) {
             recur.until = null;
             recur.count = null;
-            if (typeof end === 'number' && end != null) {
+            if (typeof end === 'number') {
                 recur.count = end;
             }
-            if (end instanceof Date &&  end != null) {
+            if (end instanceof Date) {
                 // Must be a date (cant do typeof === 'Date' !?
                 const zone = this.event.startDate.zone;
                 const icaltime = ICAL.Time.fromJSDate(end);
