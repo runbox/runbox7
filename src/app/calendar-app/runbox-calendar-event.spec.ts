@@ -61,6 +61,45 @@ describe('RunboxCalendarEvent', () => {
       now.isDate = true;
       expect(newEvent.toIcal()).toContain(now.toICALString());
     });
+    // All-day event display correctness with positive UTC offsets
+    // Bug: toJSDate() shifts midnight to previous day UTC (e.g. midnight CEST = 22:00 UTC prev day)
+    it('should display all-day event on correct day with positive UTC offset', () => {
+        ensureTimezone('Europe/Oslo', 1, 2);
+
+        const event = RunboxCalendarEvent.newEmpty('Europe/Oslo');
+        const startMoment = moment('2026-04-29T00:00:00').seconds(0).milliseconds(0);
+        const endMoment = moment('2026-04-30T00:00:00').seconds(0).milliseconds(0);
+
+        event.updateEvent(
+            startMoment, endMoment, true, 'test-cal',
+            RecurSaveType.ALL_OCCURENCES, 'All-day event', '', '',
+            false, '', 0, [], [], []
+        );
+
+        expect(event.allDay).toBe(true, 'event should be all-day');
+        expect(event.start.getDate()).toBe(29,
+            'All-day event on April 29 should have start.getDate() = 29');
+        expect(event.start.getMonth()).toBe(3,
+            'All-day event on April 29 should have start.getMonth() = 3 (April)');
+    });
+    it('should display multi-day all-day event on correct start and end days', () => {
+        ensureTimezone('Europe/Oslo', 1, 2);
+
+        const event = RunboxCalendarEvent.newEmpty('Europe/Oslo');
+        const startMoment = moment('2026-04-29T00:00:00').seconds(0).milliseconds(0);
+        const endMoment = moment('2026-05-01T00:00:00').seconds(0).milliseconds(0);
+
+        event.updateEvent(
+            startMoment, endMoment, true, 'test-cal',
+            RecurSaveType.ALL_OCCURENCES, 'Multi-day event', '', '',
+            false, '', 0, [], [], []
+        );
+
+        expect(event.start.getDate()).toBe(29,
+            'Multi-day event start should be April 29');
+        expect(event.end.getDate()).toBe(30,
+            'Multi-day event end should be April 30');
+    });
     it('should be possible to add/edit/remove a WEEKLY recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
           'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
@@ -615,6 +654,90 @@ ICAL.TimezoneService.register(tz.tzid, tz);
         expect(eventSimple.start.getUTCHours()).toBe(16, 'Simple tz name should also work');
     });
 
+    it('should display all-day event on correct day with citadel-path timezone', () => {
+        // Bug: All-day events with citadel-path TZID display on previous day
+        // because toJSDate() shifts midnight CEST to 22:00 UTC previous day
+        ensureTimezone('/citadel.org/20210210_1/Europe/Oslo', 1, 2);
+
+        const icalData = `BEGIN:VCALENDAR
+BEGIN:VTIMEZONE
+TZID:/citadel.org/20210210_1/Europe/Oslo
+BEGIN:STANDARD
+DTSTART:19701025T020000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19810329T010000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:allday-citadel-test
+DTSTART;VALUE=DATE:20260429
+DTEND;VALUE=DATE:20260430
+SUMMARY:Citadel All-Day Event
+END:VEVENT
+END:VCALENDAR`;
+
+        const jcal = ICAL.parse(icalData);
+        const ical = new ICAL.Component(jcal);
+
+        for (const tzComponent of ical.getAllSubcomponents('vtimezone')) {
+            const tz = new ICAL.Timezone({
+                tzid: tzComponent.getFirstPropertyValue('tzid'),
+                component: tzComponent,
+            });
+            if (!ICAL.TimezoneService.has(tz.tzid)) {
+                ICAL.TimezoneService.register(tz.tzid, tz);
+            }
+        }
+
+        const vevent = ical.getFirstSubcomponent('vevent');
+        const event = new RunboxCalendarEvent(
+            'testcal/allday-citadel',
+            new ICAL.Event(vevent),
+            ICAL.Time.fromDateString('2026-04-29'),
+            ICAL.Time.fromDateString('2026-04-30'),
+            '/citadel.org/20210210_1/Europe/Oslo'
+        );
+
+        expect(event.allDay).toBe(true, 'event should be all-day');
+        expect(event.start.getDate()).toBe(29,
+            'All-day event on April 29 should display on day 29 even with citadel-path TZ');
+    });
+
+    it('should preserve time when event timezone is not registered', () => {
+        // Bug: When event TZID is not in TimezoneService, time shifts incorrectly
+        ensureTimezone('Europe/Berlin', 1, 2);
+        // Europe/Oslo is NOT registered
+
+        const vevent = new ICAL.Component(['vevent', [
+            ['dtstart', { tzid: 'Europe/Oslo' }, 'date-time', '2026-04-29T12:00:00'],
+            ['dtend',   { tzid: 'Europe/Oslo' }, 'date-time', '2026-04-29T13:00:00'],
+            ['summary', {}, 'text', 'Oslo Noon (unresolved TZ)'],
+        ]]);
+        const dtstartProp = vevent.getFirstProperty('dtstart');
+        const dtstart = ICAL.Time.fromDateTimeString('2026-04-29T12:00:00', dtstartProp);
+        const dtend = ICAL.Time.fromDateTimeString('2026-04-29T13:00:00', dtstartProp);
+
+        const event = new RunboxCalendarEvent(
+            'testcal/unresolved-tz',
+            new ICAL.Event(vevent),
+            dtstart,
+            dtend,
+            'Europe/Berlin'
+        );
+
+        // When TZID is unresolvable, fallback should preserve the local time as UTC
+        // 12:00 Oslo (unresolved) → 12:00 UTC (fallback, not 10:00 UTC which would be correct)
+        expect(event.start.getUTCHours()).toBe(12,
+            'Unresolved TZ should preserve local time as UTC');
+    });
+
     // Reproduction tests for staging feedback (PR #1779)
 
     it('should round-trip entered time correctly when creating event via updateEvent', () => {
@@ -642,6 +765,27 @@ ICAL.TimezoneService.register(tz.tzid, tz);
         // April = BST (UTC+1), so 12:00 London = 11:00 UTC
         expect(event.start.toISOString()).toBe('2026-04-14T11:00:00.000Z',
             'start Date should be 11:00 UTC (12:00 BST)');
+    });
+
+    it('should round-trip 12pm timed event with Oslo/citadel-path timezone', () => {
+        // Production TZID is a citadel path — moment-timezone can't resolve it
+        ensureTimezone('/citadel.org/20210210_1/Europe/Oslo', 1, 2);
+
+        const event = RunboxCalendarEvent.newEmpty('/citadel.org/20210210_1/Europe/Oslo');
+        const startMoment = moment('2026-04-29T12:00:00').seconds(0).milliseconds(0);
+        const endMoment = startMoment.clone().add(1, 'hour');
+
+        event.updateEvent(
+            startMoment, endMoment, false, 'test-cal',
+            RecurSaveType.ALL_OCCURENCES, 'Oslo Noon Event', '', '',
+            false, '', 0, [], [], []
+        );
+
+        // April 29 = CEST (UTC+2), so 12:00 CEST = 10:00 UTC
+        expect(event.dtstart.hour()).toBe(12,
+            'dtstart should show 12:00 in account timezone (Oslo)');
+        expect(event.start.toISOString()).toBe('2026-04-29T10:00:00.000Z',
+            'start Date should be 10:00 UTC (12:00 CEST)');
     });
 
     it('should store exception at user-entered time when event tz differs from account tz', () => {

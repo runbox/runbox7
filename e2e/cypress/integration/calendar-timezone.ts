@@ -18,7 +18,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { futureDateStr, buildIcs, makeVevent, osloVtimezone } from '../support/ics-helpers';
+import { futureDateStr, buildIcs, makeVevent, osloVtimezone, londonVtimezone, expectedDisplayTime } from '../support/ics-helpers';
 
 describe('Calendar timezone handling', () => {
     beforeEach(() => {
@@ -137,5 +137,198 @@ describe('Calendar timezone handling', () => {
         cy.get('app-calendar-event-card .upcomingEventCard')
             .should('contain', 'Imported UTC Event');
         doImport();
+    });
+
+    // --- Timezone bug reproduction tests ---
+
+    it('should display London TZID event at correct hour for London account', () => {
+        cy.request('/rest/e2e/setTimezone_Europe/London');
+        const dateStr = futureDateStr(3);
+
+        // Event at 12:00 London (BST = UTC+1 in summer) = 11:00 UTC
+        const ics = buildIcs([
+            makeVevent(
+                `TZID=Europe/London:${dateStr}T120000`,
+                `TZID=Europe/London:${dateStr}T130000`,
+                'London Noon Meeting', 'tz-london-001'),
+        ], londonVtimezone);
+
+        cy.request({
+            method: 'POST',
+            url: '/rest/e2e/addEvent',
+            body: { id: 'mock cal/tz-london-001', ical: ics, calendar: 'mock cal' },
+        });
+
+        cy.visit('/calendar');
+        cy.get('.calendarListItem').should('have.length', 1);
+        cy.get('button.calendarMonthDayEvent').should('contain', 'London Noon Meeting');
+
+        const expected = expectedDisplayTime(dateStr, 11, 0);
+        cy.get('button.calendarMonthDayEvent')
+            .contains('London Noon Meeting')
+            .invoke('text')
+            .should('match', new RegExp(expected));
+
+        cy.request('/rest/e2e/resetTimezone');
+    });
+
+    it('should display floating time event at correct hour matching account tz', () => {
+        cy.request('/rest/e2e/setTimezone_Europe/London');
+        const dateStr = futureDateStr(3);
+
+        // Floating time 14:00 (no TZID) — interpreted as London BST = 13:00 UTC
+        const ics = buildIcs([
+            makeVevent(`${dateStr}T140000`, `${dateStr}T150000`, 'Floating 2pm Meeting', 'tz-floating-001'),
+        ]);
+
+        cy.request({
+            method: 'POST',
+            url: '/rest/e2e/addEvent',
+            body: { id: 'mock cal/tz-floating-001', ical: ics, calendar: 'mock cal' },
+        });
+
+        cy.visit('/calendar');
+        cy.get('.calendarListItem').should('have.length', 1);
+        cy.get('button.calendarMonthDayEvent').should('contain', 'Floating 2pm Meeting');
+
+        const expected = expectedDisplayTime(dateStr, 13, 0);
+        cy.get('button.calendarMonthDayEvent')
+            .contains('Floating 2pm Meeting')
+            .invoke('text')
+            .should('match', new RegExp(expected));
+
+        cy.request('/rest/e2e/resetTimezone');
+    });
+
+    it('should show different displayed hour after timezone change', () => {
+        const dateStr = futureDateStr(3);
+
+        // Floating time 12:00. Account timezone determines interpretation:
+        // Oslo CEST = 12:00 local = 10:00 UTC, London BST = 12:00 local = 11:00 UTC.
+        // These produce different local hours in any browser timezone.
+        const ics = buildIcs([
+            makeVevent(`${dateStr}T120000`, `${dateStr}T130000`, 'Floating Noon', 'tz-changeme'),
+        ]);
+
+        cy.request({
+            method: 'POST',
+            url: '/rest/e2e/addEvent',
+            body: { id: 'mock cal/tz-changeme', ical: ics, calendar: 'mock cal' },
+        });
+
+        // View with default Oslo timezone
+        cy.visit('/calendar');
+        cy.get('.calendarListItem').should('have.length', 1);
+
+        cy.get('button.calendarMonthDayEvent')
+            .contains('Floating Noon')
+            .invoke('text')
+            .then(osloText => {
+                const osloHour = osloText.match(/(\d+):\d+/);
+
+                // Switch to London timezone
+                cy.request('/rest/e2e/setTimezone_Europe/London');
+                cy.visit('/calendar');
+                cy.get('.calendarListItem').should('have.length', 1);
+
+                cy.get('button.calendarMonthDayEvent')
+                    .contains('Floating Noon')
+                    .invoke('text')
+                    .then(londonText => {
+                        const londonHour = londonText.match(/(\d+):\d+/);
+                        expect(londonHour?.[1]).to.not.equal(osloHour?.[1],
+                            'Displayed hour should change after timezone change');
+                    });
+            });
+
+        cy.request('/rest/e2e/resetTimezone');
+    });
+
+    it('should display 12pm Oslo event at correct hour in month view', () => {
+        const dateStr = futureDateStr(3);
+
+        // Event at 12:00 Oslo (CEST = UTC+2 in summer) = 10:00 UTC
+        const ics = buildIcs([
+            makeVevent(
+                `TZID=/citadel.org/20210210_1/Europe/Oslo:${dateStr}T120000`,
+                `TZID=/citadel.org/20210210_1/Europe/Oslo:${dateStr}T130000`,
+                'Oslo Noon Event', 'tz-oslo-noon'),
+        ], osloVtimezone);
+
+        cy.request({
+            method: 'POST',
+            url: '/rest/e2e/addEvent',
+            body: { id: 'mock cal/tz-oslo-noon', ical: ics, calendar: 'mock cal' },
+        });
+
+        cy.visit('/calendar');
+        cy.get('.calendarListItem').should('have.length', 1);
+        cy.get('button.calendarMonthDayEvent').should('contain', 'Oslo Noon Event');
+
+        const expected = expectedDisplayTime(dateStr, 10, 0);
+        cy.get('button.calendarMonthDayEvent')
+            .contains('Oslo Noon Event')
+            .invoke('text')
+            .should('match', new RegExp(expected));
+    });
+
+    it('should display all-day event on correct day in month view', () => {
+        const dateStr = futureDateStr(3);
+        const nextDay = futureDateStr(4);
+
+        const ics = buildIcs([
+            makeVevent(`VALUE=DATE:${dateStr}`, `VALUE=DATE:${nextDay}`, 'All-Day Event', 'tz-allday'),
+        ]);
+
+        cy.request({
+            method: 'POST',
+            url: '/rest/e2e/addEvent',
+            body: { id: 'mock cal/tz-allday', ical: ics, calendar: 'mock cal' },
+        });
+
+        cy.visit('/calendar');
+        cy.get('.calendarListItem').should('have.length', 1);
+        cy.get('button.calendarMonthDayEvent').should('contain', 'All-Day Event');
+
+        const targetDay = parseInt(dateStr.substring(6, 8), 10);
+        // Find the event first, then verify its parent cell's day number.
+        // Avoids ambiguity when the month view shows two cells with the same day number
+        // (e.g. April 3 and May 3 overflow in the April view).
+        cy.get('button.calendarMonthDayEvent')
+            .contains('All-Day Event')
+            .parents('.cal-cell-top')
+            .find('.cal-day-number')
+            .should(dayEl => {
+                expect(parseInt(dayEl.text().trim(), 10)).to.equal(targetDay);
+            });
+    });
+
+    it('should display multi-day all-day event starting on correct day', () => {
+        const day1 = futureDateStr(3);
+        const day4 = futureDateStr(6);
+
+        const ics = buildIcs([
+            makeVevent(`VALUE=DATE:${day1}`, `VALUE=DATE:${day4}`, 'Multi-Day Event', 'tz-multiday'),
+        ]);
+
+        cy.request({
+            method: 'POST',
+            url: '/rest/e2e/addEvent',
+            body: { id: 'mock cal/tz-multiday', ical: ics, calendar: 'mock cal' },
+        });
+
+        cy.visit('/calendar');
+        cy.get('.calendarListItem').should('have.length', 1);
+        cy.get('button.calendarMonthDayEvent').should('contain', 'Multi-Day Event');
+
+        const startDay = parseInt(day1.substring(6, 8), 10);
+        // Find the event first, then verify its parent cell's day number.
+        cy.get('button.calendarMonthDayEvent')
+            .contains('Multi-Day Event')
+            .parents('.cal-cell-top')
+            .find('.cal-day-number')
+            .should(dayEl => {
+                expect(parseInt(dayEl.text().trim(), 10)).to.equal(startDay);
+            });
     });
 });

@@ -168,6 +168,12 @@ export class RunboxCalendarEvent implements CalendarEvent {
      * 3. Unresolved TZID (has TZID but not found) → preserve local time values as UTC
      */
     private convertIcalTimeToDate(time: ICAL.Time, propName: string): Date {
+        if (time.isDate) {
+            // All-day dates must display on the same calendar date regardless of timezone.
+            // Use noon UTC so getDate() returns the correct day in every timezone.
+            return new Date(Date.UTC(time.year, time.month - 1, time.day, 12, 0, 0));
+        }
+
         const zone = time.zone;
         // Check for proper timezone with VTIMEZONE data or UTC
         const hasProperTimezone = zone &&
@@ -666,10 +672,27 @@ export class RunboxCalendarEvent implements CalendarEvent {
         } else {
             // Assemble a moment with the UTC Date() and the user's timezone
             let my_timezone: string | null = time.zone && time.zone.component ? time.zone.component.getFirstPropertyValue('x-lic-location') as string : null;
-            my_timezone = my_timezone || this.timezone || moment.tz.guess();
+            my_timezone = my_timezone && moment.tz.zone(my_timezone)
+                ? my_timezone
+                : this.resolveTimezoneName();
             const m = moment(time.toJSDate()).tz(my_timezone);
             return m;
         }
+    }
+
+    /** Resolve a usable IANA timezone name for moment-timezone. */
+    private resolveTimezoneName(): string {
+        if (this.timezone && moment.tz.zone(this.timezone)) {
+            return this.timezone;
+        }
+        // Extract IANA from path-style TZIDs: /citadel.org/.../Europe/Oslo → Europe/Oslo
+        if (this.timezone && this.timezone.includes('/')) {
+            const iana = this.timezone.split('/').slice(-2).join('/');
+            if (moment.tz.zone(iana)) {
+                return iana;
+            }
+        }
+        return moment.tz.guess();
     }
 
     /** Safely get the RRULE as an ICAL.Recur, or null if missing/not a Recur instance. */
@@ -684,6 +707,22 @@ export class RunboxCalendarEvent implements CalendarEvent {
     }
 
     private momentToIcalTime(input: moment.Moment, zone: ICAL.Timezone | null | undefined): ICAL.Time {
+        if (this._allDay) {
+            // All-day events: use local date parts to preserve the calendar date
+            // regardless of the UTC offset. Midnight local May 1 must store day=1,
+            // not day=30 (which would result from extracting UTC date parts).
+            const d = input.toDate();
+            const ical_time = ICAL.Time.fromJSDate(d);
+            ical_time.isDate = true;
+            const accountTz = this.getAccountTimezone();
+            if (accountTz) {
+                ical_time.zone = accountTz;
+                if (!this.ical.getFirstSubcomponent('vtimezone')) {
+                    this.ical.addSubcomponent(accountTz.component);
+                }
+            }
+            return ical_time;
+        }
         // No supplied tz = new, or original didnt have one:
         // (Is it legit to have dates with tzs and without in same ical?)
         if (!zone || zone.tzid === 'floating') {
