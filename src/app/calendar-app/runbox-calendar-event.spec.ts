@@ -100,6 +100,29 @@ describe('RunboxCalendarEvent', () => {
         expect(event.end.getDate()).toBe(30,
             'Multi-day event end should be April 30');
     });
+    it('should display created all-day event start and end on correct day', () => {
+        ensureTimezone('Europe/Oslo', 1, 2);
+
+        const event = RunboxCalendarEvent.newEmpty('Europe/Oslo');
+        // Simulate dialog: start at noon, end at 2pm (+1 day added by dialog for exclusive DTEND)
+        const startMoment = moment('2026-05-05T12:00:00').seconds(0).milliseconds(0);
+        const endMoment   = moment('2026-05-06T14:00:00').seconds(0).milliseconds(0);
+
+        event.updateEvent(
+            startMoment, endMoment, true, 'test-cal',
+            RecurSaveType.ALL_OCCURENCES, 'All-day event', '', '',
+            false, '', 0, [], [], []
+        );
+
+        expect(event.start.getDate()).toBe(5,
+            'Created all-day event start day should be 5');
+        expect(event.end.getDate()).toBe(5,
+            'Created all-day event end day should be 5 (inclusive)');
+        expect(event.start.getMonth()).toBe(4,
+            'Created all-day event start month should be May (4)');
+        expect(event.end.getMonth()).toBe(4,
+            'Created all-day event end month should be May (4)');
+    });
     it('should be possible to add/edit/remove a WEEKLY recurrence rule', () => {
         const sut = new RunboxCalendarEvent(
           'testcal/testev', new ICAL.Event(new ICAL.Component(['vcalendar', [], [
@@ -269,11 +292,11 @@ describe('RunboxCalendarEvent', () => {
             false,
             sut.calendar,
             RecurSaveType.THIS_ONLY,
-            'Moved weekly event one hour', undefined, undefined,
+            'Moved weekly event one hour', '', '',
             true,
             sut.recurringFrequency,
             sut.recurInterval,
-            undefined, undefined, undefined, // and optional params..
+            [], [], [],
         );
 
         expect(sut.toIcal()).toContain('SUMMARY:Moved weekly event one hour');
@@ -409,7 +432,7 @@ END:VCALENDAR`
              true,
              sut.recurringFrequency,
              sut.recurInterval,
-             undefined, undefined, undefined, // and optional params..
+             [], [], [],
          );
 
       expect(sut.toIcal()).toContain('SUMMARY:Moved daily event one hour');
@@ -527,10 +550,10 @@ TZOFFSETTO:+${dst}00
 RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
 END:DAYLIGHT
 END:VTIMEZONE`;
-const comp = new ICAL.Component(ICAL.parse(tzData));
-const tz = new ICAL.Timezone({ tzid, component: comp });
-ICAL.TimezoneService.register(tz.tzid, tz);
-}
+        const comp = new ICAL.Component(ICAL.parse(tzData));
+        const tz = new ICAL.Timezone({ tzid, component: comp });
+        ICAL.TimezoneService.register(tz.tzid, tz);
+    }
 
     it('should correctly convert London TZID event to Berlin user timezone', () => {
         // Simulates an issue: 4pm London event shown as 3pm (wrong) instead of 5pm (correct)
@@ -867,9 +890,9 @@ END:VCALENDAR`
         sut.updateEvent(
             newStart, newEnd, false, sut.calendar,
             RecurSaveType.THIS_ONLY,
-            'Moved to 10am', undefined, undefined,
+            'Moved to 10am', '', '',
             true, sut.recurringFrequency, sut.recurInterval,
-            undefined, undefined, undefined
+            [], [], []
         );
 
         // The exception should exist in the ICAL data
@@ -920,5 +943,28 @@ END:VCALENDAR`
         // start Date remains the same UTC time (Date is always UTC)
         expect(event.start.getUTCHours()).toBe(16,
             'start Date UTC time should not change (16:00 UTC)');
+    });
+
+    it('should display UTC event at correct hour for negative-offset account', () => {
+        // Exercises the via-UTC path in momentToIcalTime with a negative offset (America/New_York)
+        ensureTimezone('America/New_York', -5, -4); // EST / EDT
+
+        const event = RunboxCalendarEvent.newEmpty('America/New_York');
+        // July 15 = EDT (UTC-4), so 13:00 EDT = 17:00 UTC
+        const startMoment = moment('2026-07-15T13:00:00').seconds(0).milliseconds(0);
+        const endMoment   = moment('2026-07-15T14:00:00').seconds(0).milliseconds(0);
+
+        event.updateEvent(
+            startMoment, endMoment, false, 'test-cal',
+            RecurSaveType.ALL_OCCURENCES, 'NY Afternoon Event', '', '',
+            false, '', 0, [], [], []
+        );
+
+        // 13:00 EDT (UTC-4) = 17:00 UTC
+        expect(event.start.toISOString()).toBe('2026-07-15T17:00:00.000Z',
+            '1pm New York EDT should be 17:00 UTC');
+        // dtstart moment should show 13:00 in New York
+        expect(event.dtstart.hour()).toBe(13,
+            'dtstart should show 13:00 in account timezone (New York)');
     });
 });

@@ -23,6 +23,18 @@ export function futureDateStr(daysFromNow: number): string {
     return d.toISOString().replace(/-/g, '').replace(/T.*/, '');
 }
 
+export function dateStrMonth(dateStr: string): number {
+    return parseInt(dateStr.substring(4, 6), 10);
+}
+
+export function dateStrYear(dateStr: string): number {
+    return parseInt(dateStr.substring(0, 4), 10);
+}
+
+export function dateStrDay(dateStr: string): number {
+    return parseInt(dateStr.substring(6, 8), 10);
+}
+
 export function buildIcs(veventBlocks: string[], vtimezone?: string): string {
     const parts = [
         'BEGIN:VCALENDAR',

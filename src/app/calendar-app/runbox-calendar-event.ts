@@ -147,15 +147,19 @@ export class RunboxCalendarEvent implements CalendarEvent {
         if (!this._dtend) {
             return undefined;
         }
-
-        const shownEnd = this._dtend.clone();
         // ICAL event DTEND is exclusive, angular-calendar is inclusive
         if (this.allDay) {
-            shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'days': 1}));
-        } else {
-            shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
+            // Subtract 1 day at the Date level to avoid ICAL.js clone/normalize subtleties.
+            // Uses same noon-UTC pattern as convertIcalTimeToDate — keep in sync.
+            return new Date(Date.UTC(
+                this._dtend.year,
+                this._dtend.month - 1,
+                this._dtend.day - 1,
+                12, 0, 0
+            ));
         }
-
+        const shownEnd = this._dtend.clone();
+        shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
         return this.convertIcalTimeToDate(shownEnd, 'dtend');
     }
 

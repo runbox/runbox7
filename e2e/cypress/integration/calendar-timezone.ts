@@ -18,7 +18,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { futureDateStr, buildIcs, makeVevent, osloVtimezone, londonVtimezone, expectedDisplayTime } from '../support/ics-helpers';
+import { futureDateStr, buildIcs, makeVevent, osloVtimezone, londonVtimezone, expectedDisplayTime, dateStrMonth, dateStrYear, dateStrDay } from '../support/ics-helpers';
 
 describe('Calendar timezone handling', () => {
     beforeEach(() => {
@@ -40,6 +40,27 @@ describe('Calendar timezone handling', () => {
         cy.contains('mat-option', 'Mock Calendar').click();
         cy.contains('button', 'Import events').click();
         cy.get('simple-snack-bar').should('contain', 'events imported');
+    }
+
+    // Navigate the calendar to the month containing the event so that
+    // month-view assertions work regardless of when the test runs.
+    function navigateToEventMonth(dateStr: string) {
+        const targetMonth = dateStrMonth(dateStr);
+        const targetYear = dateStrYear(dateStr);
+        cy.window().then(win => {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            const monthsAhead = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
+            const buttonId = monthsAhead >= 0 ? '#nextPeriodButton' : '#previousPeriodButton';
+            const clicks = Math.abs(monthsAhead);
+            for (let i = 0; i < clicks; i++) {
+                cy.get(buttonId).click();
+            }
+            if (clicks > 0) {
+                cy.wait(500);
+            }
+        });
     }
 
     it('should display floating time event in import preview', () => {
@@ -161,6 +182,7 @@ describe('Calendar timezone handling', () => {
 
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1);
+        navigateToEventMonth(dateStr);
         cy.get('button.calendarMonthDayEvent').should('contain', 'London Noon Meeting');
 
         const expected = expectedDisplayTime(dateStr, 11, 0);
@@ -189,6 +211,7 @@ describe('Calendar timezone handling', () => {
 
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1);
+        navigateToEventMonth(dateStr);
         cy.get('button.calendarMonthDayEvent').should('contain', 'Floating 2pm Meeting');
 
         const expected = expectedDisplayTime(dateStr, 13, 0);
@@ -219,6 +242,7 @@ describe('Calendar timezone handling', () => {
         // View with default Oslo timezone
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1);
+        navigateToEventMonth(dateStr);
 
         cy.get('button.calendarMonthDayEvent')
             .contains('Floating Noon')
@@ -230,6 +254,7 @@ describe('Calendar timezone handling', () => {
                 cy.request('/rest/e2e/setTimezone_Europe/London');
                 cy.visit('/calendar');
                 cy.get('.calendarListItem').should('have.length', 1);
+                navigateToEventMonth(dateStr);
 
                 cy.get('button.calendarMonthDayEvent')
                     .contains('Floating Noon')
@@ -263,6 +288,7 @@ describe('Calendar timezone handling', () => {
 
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1);
+        navigateToEventMonth(dateStr);
         cy.get('button.calendarMonthDayEvent').should('contain', 'Oslo Noon Event');
 
         const expected = expectedDisplayTime(dateStr, 10, 0);
@@ -288,9 +314,10 @@ describe('Calendar timezone handling', () => {
 
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1);
+        navigateToEventMonth(dateStr);
         cy.get('button.calendarMonthDayEvent').should('contain', 'All-Day Event');
 
-        const targetDay = parseInt(dateStr.substring(6, 8), 10);
+        const targetDay = dateStrDay(dateStr);
         // Find the event first, then verify its parent cell's day number.
         // Avoids ambiguity when the month view shows two cells with the same day number
         // (e.g. April 3 and May 3 overflow in the April view).
@@ -300,6 +327,45 @@ describe('Calendar timezone handling', () => {
             .find('.cal-day-number')
             .should(dayEl => {
                 expect(parseInt(dayEl.text().trim(), 10)).to.equal(targetDay);
+            });
+    });
+
+    it('should create all-day event via dialog on correct day', () => {
+        // Switch to month view and navigate to next month for a clean view
+        cy.contains('button.calendarToolbarButton', 'Month').click();
+        cy.get('#nextPeriodButton').click();
+        cy.wait(500);
+
+        // Pick the 15th of next month — find its add-event button
+        cy.get('.cal-cell-top').then(cells => {
+            const targetDay = 15;
+            let targetCell: JQuery = null;
+            cells.each((i, el) => {
+                const dayNum = parseInt(Cypress.$(el).find('.cal-day-number').text().trim(), 10);
+                // First occurrence of targetDay in the grid belongs to the displayed month
+                if (dayNum === targetDay && !targetCell) {
+                    targetCell = Cypress.$(el);
+                }
+            });
+            cy.wrap(targetCell).find('.add-new-event').invoke('css', 'visibility', 'visible');
+            cy.wrap(targetCell).find('.add-new-event button').should('be.visible').click();
+        });
+
+        cy.get('mat-dialog-container').within(() => {
+            cy.get('input[matInput]').first().clear().type('Created All-Day Event');
+            cy.get('mat-checkbox').contains('All-day event').click();
+            cy.get('#eventSubmitButton').click();
+        });
+
+        cy.get('button.calendarMonthDayEvent')
+            .should('contain', 'Created All-Day Event');
+
+        cy.get('button.calendarMonthDayEvent')
+            .contains('Created All-Day Event')
+            .parents('.cal-cell-top')
+            .find('.cal-day-number')
+            .should(dayEl => {
+                expect(parseInt(dayEl.text().trim(), 10)).to.equal(15);
             });
     });
 
@@ -319,9 +385,10 @@ describe('Calendar timezone handling', () => {
 
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1);
+        navigateToEventMonth(day1);
         cy.get('button.calendarMonthDayEvent').should('contain', 'Multi-Day Event');
 
-        const startDay = parseInt(day1.substring(6, 8), 10);
+        const startDay = dateStrDay(day1);
         // Find the event first, then verify its parent cell's day number.
         cy.get('button.calendarMonthDayEvent')
             .contains('Multi-Day Event')
