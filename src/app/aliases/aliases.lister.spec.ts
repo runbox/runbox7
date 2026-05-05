@@ -21,6 +21,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { AliasesListerComponent } from './aliases.lister';
 import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
@@ -51,6 +52,7 @@ describe('AliasesListerComponent', () => {
                 MatLegacyCommonModule,
                 MatLegacySnackBarModule,
                 MatLegacyDialogModule,
+                MatExpansionModule,
                 NoopAnimationsModule,
             ],
             providers: [
