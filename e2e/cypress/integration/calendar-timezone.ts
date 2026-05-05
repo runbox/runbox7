@@ -23,8 +23,12 @@ import { futureDateStr, buildIcs, makeVevent, osloVtimezone, londonVtimezone, ex
 describe('Calendar timezone handling', () => {
     beforeEach(() => {
         cy.request('/rest/e2e/resetCalendarEvents');
+        cy.intercept('GET', '/rest/v1/calendar/events_raw').as('eventsLoad');
         cy.visit('/calendar');
         cy.get('.calendarListItem').should('have.length', 1).and('contain', 'Mock Calendar');
+        // Wait for the initial sync's reloadEvents() to complete so that no
+        // in-flight GET can race with event creation via the dialog.
+        cy.wait('@eventsLoad');
     });
 
     function selectIcs(ics: string) {
