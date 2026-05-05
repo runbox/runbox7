@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2026 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2026 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
