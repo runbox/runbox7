@@ -47,7 +47,7 @@ describe('Calendar timezone handling', () => {
     function navigateToEventMonth(dateStr: string) {
         const targetMonth = dateStrMonth(dateStr);
         const targetYear = dateStrYear(dateStr);
-        cy.window().then(win => {
+        cy.then(() => {
             const now = new Date();
             const currentMonth = now.getMonth() + 1;
             const currentYear = now.getFullYear();
@@ -318,9 +318,7 @@ describe('Calendar timezone handling', () => {
         cy.get('button.calendarMonthDayEvent').should('contain', 'All-Day Event');
 
         const targetDay = dateStrDay(dateStr);
-        // Find the event first, then verify its parent cell's day number.
         // Avoids ambiguity when the month view shows two cells with the same day number
-        // (e.g. April 3 and May 3 overflow in the April view).
         cy.get('button.calendarMonthDayEvent')
             .contains('All-Day Event')
             .parents('.cal-cell-top')

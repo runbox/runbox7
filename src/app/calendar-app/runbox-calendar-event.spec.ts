@@ -533,20 +533,21 @@ END:VTIMEZONE`;
     // Helper to create and register a timezone from standard offsets
     function ensureTimezone(tzid: string, stdOffset: number, dstOffset: number) {
         if (ICAL.TimezoneService.has(tzid)) { return; }
-        const std = String(stdOffset).padStart(2, '0');
-        const dst = String(dstOffset).padStart(2, '0');
+        const fmt = (n: number) => (n >= 0 ? '+' : '-') + String(Math.abs(n)).padStart(2, '0');
+        const std = fmt(stdOffset);
+        const dst = fmt(dstOffset);
         const tzData = `BEGIN:VTIMEZONE
 TZID:${tzid}
 BEGIN:STANDARD
 DTSTART:19701025T020000
-TZOFFSETFROM:+${dst}00
-TZOFFSETTO:+${std}00
+TZOFFSETFROM:${dst}00
+TZOFFSETTO:${std}00
 RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 BEGIN:DAYLIGHT
 DTSTART:19810329T010000
-TZOFFSETFROM:+${std}00
-TZOFFSETTO:+${dst}00
+TZOFFSETFROM:${std}00
+TZOFFSETTO:${dst}00
 RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
 END:DAYLIGHT
 END:VTIMEZONE`;

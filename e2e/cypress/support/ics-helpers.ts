@@ -91,10 +91,7 @@ export const osloVtimezone = [
  * dateStr: 'YYYYMMDD' format date string.
  */
 export function expectedDisplayTime(dateStr: string, utcHour: number, utcMinute: number = 0): string {
-    const y = parseInt(dateStr.substring(0, 4));
-    const m = parseInt(dateStr.substring(4, 6)) - 1;
-    const d = parseInt(dateStr.substring(6, 8));
-    const date = new Date(Date.UTC(y, m, d, utcHour, utcMinute, 0));
+    const date = new Date(Date.UTC(dateStrYear(dateStr), dateStrMonth(dateStr) - 1, dateStrDay(dateStr), utcHour, utcMinute, 0));
     return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
