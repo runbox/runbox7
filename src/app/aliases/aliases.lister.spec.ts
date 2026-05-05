@@ -18,9 +18,14 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { AliasesListerComponent } from './aliases.lister';
+import { MatLegacyButtonModule } from '@angular/material/legacy-button';
+import { MatLegacyCardModule } from '@angular/material/legacy-card';
 import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacyInputModule } from '@angular/material/legacy-input';
 import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatLegacySelectModule } from '@angular/material/legacy-select';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -48,8 +53,13 @@ describe('AliasesListerComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 CommonModule,
+                FormsModule,
                 HttpClientTestingModule,
+                MatLegacyButtonModule,
+                MatLegacyCardModule,
                 MatLegacyCommonModule,
+                MatLegacyInputModule,
+                MatLegacySelectModule,
                 MatLegacySnackBarModule,
                 MatLegacyDialogModule,
                 MatExpansionModule,
