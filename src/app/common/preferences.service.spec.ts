@@ -24,7 +24,7 @@ import { take } from 'rxjs/operators';
 
 class MockStorageService {
     private store = new Map<string, any>();
-    me: Observable<any> = of({ uid: 42 });
+    uid: Observable<number> = of(42);
 
     get(key: string): Promise<any> {
         return Promise.resolve(this.store.get(key));
@@ -241,9 +241,9 @@ describe('PreferencesService', () => {
 
     describe('Integration with StorageService uid AsyncSubject', () => {
         it('should handle operations that depend on uid being loaded', async () => {
-            const uidSubject = new Subject<{ uid: number }>();
+            const uidSubject = new Subject<number>();
             const uidStorage = {
-                me: uidSubject.asObservable(),
+                uid: uidSubject.asObservable(),
                 get: (key: string) => mockStorage.get(key),
                 set: (key: string, value: any) => mockStorage.set(key, value)
             } as any;
@@ -254,7 +254,7 @@ describe('PreferencesService', () => {
             testService.set(DefaultPrefGroups.Desktop, 'uidTestKey', 'uidTestValue');
 
             // Now emit uid
-            uidSubject.next({ uid: 999 });
+            uidSubject.next(999);
             uidSubject.complete();
 
             await new Promise(resolve => setTimeout(resolve, 50));
