@@ -1104,8 +1104,9 @@ END:VCALENDAR
             });
             request.on('end', () => {
                 const event = JSON.parse(body);
-                event['id'] = 'mock-event-' + (this.events.length + 1);
+                event['id'] = (event['calendar'] || 'mock cal') + '/mock-event-' + (this.events.length + 1);
                 this.events.push(event);
+                this.bumpSyncToken();
                 response.end(JSON.stringify({
                     'status': 'success',
                     'result': {
