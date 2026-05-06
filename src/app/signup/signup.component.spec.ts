@@ -187,9 +187,13 @@ describe('SignupComponent', () => {
 
         component.domainType = 'user';
         fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
 
         const domainControl = fixture.debugElement.query(By.css('input[name="userdomain"]')).injector.get(NgModel);
         setInputValue('input[name="userdomain"]', 'invalid domain');
+        fixture.detectChanges();
+        await fixture.whenStable();
         fixture.detectChanges();
 
         expect(component.showFieldError(domainControl, getForm())).toBeTrue();
