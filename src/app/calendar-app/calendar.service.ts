@@ -584,7 +584,12 @@ export class CalendarService implements OnDestroy {
         // NB calendar-app.component.spec.ts relis on this being
         // multiple months
         if (this.icalevents.length > 0) {
-            this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents);
+            // Preserve events that were pushed locally (e.g. via addEvent) but
+            // aren't in icalevents yet, so updateEventList doesn't drop them.
+            const localEvents = this.events.filter(
+                e => !this.icalevents.some(ie => ie.id === e.id));
+            this.events = this.generateEvents(start.toDate(), next_month.toDate(), this.icalevents)
+                .concat(localEvents);
             this.eventSubject.next(this.events);
         }
 

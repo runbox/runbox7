@@ -354,7 +354,12 @@ describe('Calendar timezone handling', () => {
         });
 
         cy.get('mat-dialog-container').within(() => {
-            cy.get('input[matInput]').first().clear().type('Created All-Day Event');
+            // Use invoke + trigger instead of type() to avoid XHR-triggered
+            // change detection overwriting the value mid-typing.
+            cy.get('input[matInput]').first()
+                .invoke('val', 'Created All-Day Event')
+                .trigger('input')
+                .should('have.value', 'Created All-Day Event');
             cy.get('mat-checkbox').contains('All-day event').click();
             cy.get('#eventSubmitButton').click();
         });
