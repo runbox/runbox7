@@ -52,11 +52,11 @@ describe('Signup', () => {
     });
 
     it('should render the Angular signup page in the local mock-backed environment', () => {
-        cy.visit('/app/signup?runbox7=1');
+        cy.visit('/signup?runbox7=1');
         cy.wait('@legacySignup');
         cy.wait('@hcaptchaScript');
 
-        cy.location('pathname').should('eq', '/app/signup');
+        cy.location('pathname').should('eq', '/signup');
         cy.location('search').should('contain', 'runbox7=1');
         cy.contains('h1', 'Create a Runbox Account').should('exist');
         cy.get('form.signup-form').should('have.attr', 'action', '/mail/signup');
@@ -75,7 +75,7 @@ describe('Signup', () => {
     });
 
     it('should show the public trust and transparency content', () => {
-        cy.visit('/app/signup?runbox7=1');
+        cy.visit('/signup?runbox7=1');
         cy.wait('@legacySignup');
         cy.wait('@hcaptchaScript');
 
