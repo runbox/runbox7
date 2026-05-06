@@ -19,7 +19,7 @@
 
 import { PreferencesService, DefaultPrefGroups, PreferencesResult } from './preferences.service';
 import { ScreenSize } from '../mobile-query.service';
-import { of, Subject, firstValueFrom, Observable } from 'rxjs';
+import { of, Subject, ReplaySubject, firstValueFrom, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 class MockStorageService {
@@ -241,7 +241,7 @@ describe('PreferencesService', () => {
 
     describe('Integration with StorageService uid AsyncSubject', () => {
         it('should handle operations that depend on uid being loaded', async () => {
-            const uidSubject = new Subject<number>();
+            const uidSubject = new ReplaySubject<number>(1);
             const uidStorage = {
                 uid: uidSubject.asObservable(),
                 get: (key: string) => mockStorage.get(key),
