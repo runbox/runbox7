@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AliasesListerComponent } from './aliases.lister';
 import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
@@ -128,7 +128,7 @@ describe('AliasesListerComponent', () => {
         expect(forwards.length).toBe(component.aliases.length, 'all forwards should be shown');
     });
 
-    it('sets the default email to the current users email', fakeAsync(() => {
+    it('sets the default email to the current users email', () => {
         expect(component.defaultEmail).toBe(DEFAULT_EMAIL);
 
         // spawn a modal
@@ -145,7 +145,7 @@ describe('AliasesListerComponent', () => {
         // FIXME: doesn't work, value isn't set, probably because of ngModel
         // expect(forwardTo.value)
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
-    }));
+    });
 
     it('dialog loads allowed domains', () => {
         // spawn a modal
