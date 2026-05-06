@@ -12,8 +12,8 @@
                     *ngFor="let event of (day.events.length > 4 ? day.events.slice(0, 3) : day.events)"
                     (click)="openEvent(event); $event.stopPropagation()"
                 >
-                    <strong *ngIf="!event.allDay && event.start.getDay() == day.date.getDay()">
-                        {{ event.start.getHours() }}:{{ ('0' + event.start.getMinutes()).slice(-2) }}
+                    <strong *ngIf="!event.allDay && event.start.getDay() === day.date.getDay()">
+                        {{ event.start | date:'HH:mm' }}
                     </strong>
                     {{ event.title }}
                 </button>
