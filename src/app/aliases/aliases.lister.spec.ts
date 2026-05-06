@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { AliasesListerComponent } from './aliases.lister';
 import { MatLegacyButtonModule } from '@angular/material/legacy-button';
 import { MatLegacyCardModule } from '@angular/material/legacy-card';
-import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacyInputModule } from '@angular/material/legacy-input';
 import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
 import { MatLegacySelectModule } from '@angular/material/legacy-select';
@@ -40,6 +40,7 @@ import { HttpClient } from '@angular/common/http';
 describe('AliasesListerComponent', () => {
     let component: AliasesListerComponent;
     let fixture: ComponentFixture<AliasesListerComponent>;
+    let dialog: MatDialog;
 
     const DEFAULT_EMAIL = 'a.kalou@shadowcat.co.uk';
     const ALLOWED_DOMAINS = ['runbox.com', 'shadowcat.co.uk'];
@@ -106,6 +107,7 @@ describe('AliasesListerComponent', () => {
         });
         fixture = TestBed.createComponent(AliasesListerComponent);
         component = fixture.componentInstance;
+        dialog = TestBed.inject(MatDialog);
     });
 
     it('loads aliases through RMM', () => {
@@ -157,20 +159,19 @@ describe('AliasesListerComponent', () => {
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
     });
 
-    it('dialog loads allowed domains', () => {
+    it('dialog loads allowed domains', async () => {
         // spawn a modal
         component.create();
+        fixture.detectChanges();
+        await fixture.whenStable();
         fixture.detectChanges();
 
         const modal = 
             fixture.nativeElement.nextSibling.querySelector('app-aliases-edit');
         expect(modal).toBeTruthy();
 
-        const domain: HTMLSelectElement = 
-            modal.querySelector('mat-select[name=\'domain\']');
-
-        ALLOWED_DOMAINS.forEach(allowed_domain => {
-            expect(domain.textContent).toContain(allowed_domain);
-        });
+        const dialogRef = dialog.openDialogs[0];
+        expect(dialogRef).toBeTruthy();
+        expect(dialogRef.componentInstance.allowedDomains).toEqual(ALLOWED_DOMAINS);
     });
 });
