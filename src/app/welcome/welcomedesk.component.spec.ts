@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -35,6 +36,7 @@ describe('WelcomeDeskComponent', () => {
       declarations: [ WelcomeDeskComponent ],
       imports: [
         MatCardModule,
+        MatIconModule,
         MatIconTestingModule,
         RouterTestingModule,
       ],
