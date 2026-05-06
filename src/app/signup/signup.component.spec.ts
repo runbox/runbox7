@@ -166,7 +166,8 @@ describe('SignupComponent', () => {
         const formElement = fixture.nativeElement.querySelector('form') as HTMLFormElement;
         const focusSpy = spyOn<any>(component, 'focusFirstInvalidField');
 
-        component.onSubmit(getForm(), formElement);
+        formElement.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await fixture.whenStable();
         fixture.detectChanges();
 
         const fieldErrors = Array.from(fixture.nativeElement.querySelectorAll('.field-error'))
