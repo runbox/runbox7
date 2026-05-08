@@ -26,6 +26,37 @@ describe('RunboxCalendarEvent', () => {
        ICAL.TimezoneService.reset();
     });
 
+    // Register a minimal VTIMEZONE with ICAL.TimezoneService for test scenarios
+    function ensureTimezone(tzid: string, standardOffset: string, daylightOffset: string) {
+        if (ICAL.TimezoneService.has(tzid)) {
+            return;
+        }
+        const vtimezone = [
+            'BEGIN:VTIMEZONE',
+            'TZID:' + tzid,
+            'BEGIN:STANDARD',
+            'DTSTART:19700101T000000',
+            'TZOFFSETTO:' + standardOffset,
+            'TZOFFSETFROM:' + daylightOffset,
+            'END:STANDARD',
+            'BEGIN:DAYLIGHT',
+            'DTSTART:19700329T020000',
+            'TZOFFSETTO:' + daylightOffset,
+            'TZOFFSETFROM:' + standardOffset,
+            'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+            'END:DAYLIGHT',
+            'END:VTIMEZONE',
+        ].join('\r\n');
+        const parsed = ICAL.parse('BEGIN:VCALENDAR\r\n' + vtimezone + '\r\nEND:VCALENDAR');
+        const comp = new ICAL.Component(parsed);
+        const tzComp = comp.getFirstSubcomponent('vtimezone');
+        const tz = new ICAL.Timezone({
+            tzid: tzComp.getFirstPropertyValue('tzid'),
+            component: tzComp,
+        });
+        ICAL.TimezoneService.register(tz.tzid, tz);
+    }
+
     it('should be possible to create a new event', () => {
         const newEvent = RunboxCalendarEvent.newEmpty();
         newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
@@ -352,7 +383,10 @@ END:VCALENDAR`
       // This should be in the user's tz (Europe/London in this test)
       console.log('event start :' + sut.start.toISOString());
       // 3am New York
-      expect(sut.start.toISOString()).toBe('2021-05-15T03:00:00.000Z');
+      // 09:00 Berlin CEST → 03:00 New York EDT (account timezone)
+      // getHours() is deterministic with component construction
+      expect(sut.start.getHours()).toBe(3, 'start hour is 3 (09:00 Berlin in New York tz)');
+      expect(sut.start.getDate()).toBe(15, 'start day is 15th');
       // Move this one an hour later
       // TZ?
       const future = moment('2021-05-15T04:00:00');
@@ -373,6 +407,139 @@ END:VCALENDAR`
       expect(sut.toIcal()).toContain('SUMMARY:Moved daily event one hour');
       // Length of line causes a newline, see RFC sec 3.1
       expect(sut.toIcal()).toContain('RECURRENCE-ID;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T\r\n 090000');
-      expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000');
+       expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000');
      });
+
+    it('should return correct end time for a timed event with timezone', () => {
+        // Use UTC times + UTC timezone to avoid needing VTIMEZONE registration.
+        // The getter's timezone conversion is tested by other tests; this one
+        // verifies the 1-second subtraction (ICAL exclusive → inclusive).
+        const sut = new RunboxCalendarEvent(
+            'testcal/testev', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                    [ 'dtstart', {}, 'date',  '2021-05-15T09:00:00Z' ],
+                    [ 'dtend',   {}, 'date',  '2021-05-15T10:30:00Z' ],
+                    [ 'summary', {}, 'text',  'Timed event' ],
+                ]
+            ])),
+            ICAL.Time.fromDateTimeString('2021-05-15T09:00:00Z'),
+            ICAL.Time.fromDateTimeString('2021-05-15T10:30:00Z'),
+            'UTC'
+        );
+
+        // end subtracts 1 second (ICAL exclusive → angular-calendar inclusive)
+        // 10:30:00 - 1 second = 10:29:59
+        expect(sut.end.getHours()).toBe(10, 'end hour');
+        expect(sut.end.getMinutes()).toBe(29, 'end minutes');
+        expect(sut.end.getSeconds()).toBe(59, 'end seconds');
+    });
+
+    it('should return correct end day for an all-day event', () => {
+        const sut = new RunboxCalendarEvent(
+            'testcal/testev', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                    [ 'dtstart', {}, 'date',  '2021-05-15' ],
+                    [ 'dtend',   {}, 'date',  '2021-05-17' ],
+                    [ 'summary', {}, 'text',  'Multi-day all-day' ],
+                ]
+            ])),
+            ICAL.Time.fromDateString('2021-05-15'),
+            ICAL.Time.fromDateString('2021-05-17'),
+            'Europe/London'
+        );
+
+        // DTEND is exclusive (2021-05-17), angular-calendar expects inclusive
+        // So displayed end should be 2021-05-16
+        expect(sut.end.getDate()).toBe(16, 'end day is 16th (DTEND 17th minus 1)');
+        expect(sut.end.getMonth()).toBe(4, 'end month is May (0-indexed)');
+    });
+
+    it('should preserve correct date for all-day event round-trip', () => {
+        const sut = RunboxCalendarEvent.newEmpty();
+        // Set up an all-day event for May 1st
+        sut.updateEvent(
+            moment('2021-05-01'), // user picks May 1st
+            moment('2021-05-02'), // next day (DTEND exclusive for all-day)
+            true,                 // allDay = true
+            sut.calendar,
+            RecurSaveType.ALL_OCCURENCES,
+            'All-day May 1st',
+            '',
+            '',
+            false,
+            '',
+            0,
+            [],
+            [],
+            []
+        );
+
+        // The ICAL output should contain May 1st, not April 30th
+        const icalOutput = sut.toIcal();
+        expect(icalOutput).toContain('DTSTART;VALUE=DATE:20210501',
+            'all-day event starts on May 1st, not shifted to April 30th');
+    });
+
+    it('should interpret floating time in account timezone', () => {
+        ensureTimezone('Europe/London', '+0000', '+0100');
+        const sut = new RunboxCalendarEvent(
+            'testcal/float', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                    [ 'dtstart', {}, 'date',  '2021-06-15T14:00:00' ],
+                    [ 'dtend',   {}, 'date',  '2021-06-15T15:00:00' ],
+                    [ 'summary', {}, 'text',  'Floating time event' ],
+                ]
+            ])),
+            ICAL.Time.fromDateTimeString('2021-06-15T14:00:00'),
+            ICAL.Time.fromDateTimeString('2021-06-15T15:00:00'),
+            'Europe/London'
+        );
+
+        // Floating time (no TZID) — components are taken as-is
+        expect(sut.start.getHours()).toBe(14, 'floating start hour is 14');
+        expect(sut.start.getMinutes()).toBe(0, 'floating start minutes is 0');
+    });
+
+    it('should display UTC event at correct hour for account timezone', () => {
+        ensureTimezone('America/New_York', '-0500', '-0400');
+        // Register a citadel-path version (as production uses)
+        ensureTimezone('/citadel.org/20210210_1/America/New_York', '-0500', '-0400');
+
+        const sut = new RunboxCalendarEvent(
+            'testcal/utc', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                    [ 'dtstart', {}, 'date',  '2021-06-15T17:00:00Z' ],
+                    [ 'dtend',   {}, 'date',  '2021-06-15T18:00:00Z' ],
+                    [ 'summary', {}, 'text',  'UTC event' ],
+                ]
+            ])),
+            ICAL.Time.fromDateTimeString('2021-06-15T17:00:00Z'),
+            ICAL.Time.fromDateTimeString('2021-06-15T18:00:00Z'),
+            '/citadel.org/20210210_1/America/New_York'
+        );
+
+        // 17:00 UTC = 13:00 EDT (UTC-4 in June)
+        expect(sut.start.getHours()).toBe(13,
+            '17:00 UTC displayed as 13:00 in New York (EDT)');
+    });
+
+    it('should display all-day event on correct day', () => {
+        const sut = new RunboxCalendarEvent(
+            'testcal/allday', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                    [ 'dtstart', {}, 'date',  '2021-05-15' ],
+                    [ 'dtend',   {}, 'date',  '2021-05-16' ],
+                    [ 'summary', {}, 'text',  'All-day event' ],
+                ]
+            ])),
+            ICAL.Time.fromDateString('2021-05-15'),
+            ICAL.Time.fromDateString('2021-05-16'),
+            'Europe/London'
+        );
+
+        expect(sut.start.getDate()).toBe(15, 'all-day start day is 15th');
+        expect(sut.start.getUTCHours()).toBe(12, 'noon UTC hour');
+        // DTEND 16th exclusive → inclusive end = 15th
+        expect(sut.end.getDate()).toBe(15, 'all-day end day is 15th (DTEND exclusive → inclusive)');
+    });
 });

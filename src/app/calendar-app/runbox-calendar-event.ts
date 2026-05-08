@@ -140,20 +140,26 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // angular-calendar compatibility
 
     get start(): Date {
-        // This needs to be converted *from* tz the ical data is in
-        // *to* the tz the user's calendar display is in (this.timezone?)
+        // All-day events: noon UTC ensures getDate() returns correct day
+        // in every browser timezone
+        if (this._dtstart.isDate) {
+            return new Date(Date.UTC(
+                this._dtstart.year, this._dtstart.month - 1, this._dtstart.day, 12, 0, 0
+            ));
+        }
+
+        // Convert from the ICAL data's timezone to the user's display timezone
         let user_dtstart = this._dtstart;
-        // can't convert items with no tz set, so assume default (utc)
         if (this._dtstart.zone) {
-            // console.log('start: convert from: ' + user_dtstart.zone.tzid);
-            // console.log('offset: ' + user_dtstart.zone.utcOffset(user_dtstart));
-            // console.log('start: convert to  : ' + this.timezone);
-            // console.log('have timezone? : ' + ICAL.TimezoneService.has(this.timezone));
-            // console.log('offset: ' + ICAL.TimezoneService.get(this.timezone).utcOffset(user_dtstart));
             user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 
-        return new Date(user_dtstart.toString());
+        // Construct from individual components (not toJSDate()) so that
+        // getHours()/getDate() reflect account timezone, not browser timezone
+        return new Date(
+            user_dtstart.year, user_dtstart.month - 1, user_dtstart.day,
+            user_dtstart.hour, user_dtstart.minute, user_dtstart.second
+        );
     }
 
     get end(): Date {
@@ -161,18 +167,26 @@ export class RunboxCalendarEvent implements CalendarEvent {
             return undefined;
         }
 
-        let shownEnd = this._dtend.clone();
-        // ICAL event DTEND is exclusive, angular-calendar is inclusive
+        // All-day: subtract 1 day (DTEND exclusive → inclusive), noon UTC
         if (this.allDay) {
-            shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'days': 1}));
-        } else {
-            shownEnd.addDuration(new ICAL.Duration({'isNegative': true, 'seconds': 1}));
+            const adjustedEnd = this._dtend.clone();
+            adjustedEnd.addDuration(new ICAL.Duration({ isNegative: true, days: 1 }));
+            return new Date(Date.UTC(
+                adjustedEnd.year, adjustedEnd.month - 1, adjustedEnd.day, 12, 0, 0
+            ));
         }
+
+        // Timed: subtract 1 second (exclusive → inclusive), convert to account timezone
+        let shownEnd = this._dtend.clone();
+        shownEnd.addDuration(new ICAL.Duration({ isNegative: true, seconds: 1 }));
         if (shownEnd.zone) {
             shownEnd = shownEnd.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 
-        return new Date(shownEnd.toString());
+        return new Date(
+            shownEnd.year, shownEnd.month - 1, shownEnd.day,
+            shownEnd.hour, shownEnd.minute, shownEnd.second
+        );
     }
 
     set allDay(value) {
@@ -602,6 +616,23 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 && !this.ical.getFirstSubcomponent('vtimezone')) {
                 this.ical.addSubcomponent(zone.component);
             }
+
+            if (this._allDay) {
+                // For all-day events, construct directly from moment date parts
+                // to avoid timezone shifts from fromJSDate
+                const ical_time = new ICAL.Time({
+                    year: input.year(),
+                    month: input.month() + 1,  // moment months are 0-indexed
+                    day: input.date(),
+                    hour: 0,
+                    minute: 0,
+                    second: 0,
+                });
+                ical_time.zone = zone;
+                ical_time.isDate = true;
+                return ical_time;
+            }
+
             const ical_time = ICAL.Time.fromJSDate(input.toDate());
             ical_time.zone = zone;
             ical_time.isDate = this._allDay;
