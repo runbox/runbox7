@@ -455,15 +455,15 @@ describe('SingleMailViewerComponent', () => {
       expect(dialogOpenSpy).toHaveBeenCalled();
       expect(dialogRef.componentInstance.question).toContain('https://runbox.com/login');
       expect(dialogRef.componentInstance.question).toContain('https://phishing.example/login');
+      expect(dialogRef.componentInstance.yesOptionHref).toBe('https://phishing.example/login');
     }));
 
-    it('should open a mismatched link only after the warning is accepted', fakeAsync(() => {
+    it('should render the accepted mismatched link as a dialog action href', fakeAsync(() => {
       const dialogRef = {
         componentInstance: {},
         afterClosed: () => of(true)
       } as any;
       spyOn(component.dialog, 'open').and.returnValue(dialogRef);
-      const windowOpenSpy = spyOn(window, 'open').and.returnValue(null);
       const link = document.createElement('a');
       link.setAttribute('href', 'https://phishing.example/login');
       link.textContent = 'https://runbox.com/login';
@@ -482,7 +482,7 @@ describe('SingleMailViewerComponent', () => {
       messageContentsElement.dispatchEvent(clickEvent);
       tick();
 
-      expect(windowOpenSpy).toHaveBeenCalledWith('https://phishing.example/login', '_blank', 'noopener');
+      expect(dialogRef.componentInstance.yesOptionHref).toBe('https://phishing.example/login');
     }));
 
     it('should not warn when the visible URL matches the href', fakeAsync(() => {

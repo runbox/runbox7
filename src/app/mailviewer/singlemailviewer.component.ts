@@ -317,14 +317,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       `The link text shows ${linkMismatch.visibleUrl}, but it opens ${linkMismatch.href}. Open it anyway?`;
     confirmDialog.componentInstance.noOptionTitle = 'cancel';
     confirmDialog.componentInstance.yesOptionTitle = 'open link';
-    confirmDialog.afterClosed().subscribe(result => {
-      if (result) {
-        const openedWindow = window.open(linkMismatch.href, '_blank', 'noopener');
-        if (openedWindow) {
-          openedWindow.opener = null;
-        }
-      }
-    });
+    confirmDialog.componentInstance.yesOptionHref = linkMismatch.href;
   }
 
 

@@ -4,7 +4,12 @@
   <p style="flex-grow: 1">
 
   </p>
-  <button mat-icon-button 
+  <a *ngIf="yesOptionHref" mat-icon-button
+    [href]="yesOptionHref" target="_blank" rel="noopener"
+    [matTooltip]="yesOptionTitle" (click)="dialogRef.close(true)">
+      <mat-icon svgIcon="check"></mat-icon>
+  </a>
+  <button *ngIf="!yesOptionHref" mat-icon-button
     [matTooltip]="yesOptionTitle" (click)="dialogRef.close(true)">
       <mat-icon svgIcon="check"></mat-icon>
   </button>
