@@ -9,5 +9,21 @@ export interface EmptyMessageListNoticeContext {
 }
 
 export function getEmptyMessageListNotice(context: EmptyMessageListNoticeContext): string {
-  return null;
+  if (context.hasVisibleRows) {
+    return null;
+  }
+
+  const selectedFolder = context.selectedFolder || 'this folder';
+  const ignoresUnreadOnly = (context.ignoredUnreadFolders || []).includes(selectedFolder);
+  if (context.unreadOnly && !ignoresUnreadOnly) {
+    return `No unread messages in ${selectedFolder}.`;
+  }
+
+  const searchIsActive = (context.searchText || '').length >= 3
+    || context.showingWebSocketSearchResults;
+  if (searchIsActive) {
+    return 'No messages match this search.';
+  }
+
+  return `No messages in ${selectedFolder}.`;
 }

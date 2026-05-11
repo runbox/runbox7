@@ -63,6 +63,22 @@
     text-align: center;
 }
 
+.messageListEmptyNotice {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #777;
+    font-size: 15px;
+    pointer-events: none;
+    text-align: center;
+}
+
 // Override default tooltip CSS
 ::ng-deep .multiline-tooltip {
     width: 150px;

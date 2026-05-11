@@ -66,6 +66,7 @@ import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { UpdateAlertService } from './updatealert/updatealert.service';
 import { UpdateAlertComponent } from './updatealert/updatealert.component';
+import { getEmptyMessageListNotice } from './message-list-empty-notice';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -164,6 +165,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   xapianLoaded = xapianLoadedSubject;
 
   morelistbuttonindex = 7;
+  messageListEmptyNotice: string;
 
   constructor(
     public searchService: SearchService,
@@ -901,13 +903,26 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public filterMessageDisplay() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+    if (this.canvastable.rows) {
       const options = new Map();
       options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
       options.set('searchText', this.searchText);
       this.canvastable.rows.filterBy(options);
+      this.updateMessageListEmptyNotice();
       this.canvastable.hasChanges = true;
     }
+  }
+
+  private updateMessageListEmptyNotice() {
+    this.messageListEmptyNotice = getEmptyMessageListNotice({
+      hasVisibleRows: this.canvastable.rows.rowCount() > 0,
+      ignoredUnreadFolders: this.messagelistservice.ignoreUnreadInFolders,
+      searchText: this.searchText,
+      selectedFolder: this.selectedFolder,
+      showingSearchResults: this.showingSearchResults,
+      showingWebSocketSearchResults: this.showingWebSocketSearchResults,
+      unreadOnly: this.unreadMessagesOnlyCheckbox,
+    });
   }
 
   public clearSelection() {
