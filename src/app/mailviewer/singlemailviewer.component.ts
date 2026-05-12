@@ -25,7 +25,8 @@ import {
   ElementRef,
   AfterViewInit,
   DoCheck,
-  OnDestroy
+  OnDestroy,
+  NgZone
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import DOMPurify from 'dompurify';
@@ -149,6 +150,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     private snackBar: MatSnackBar,
     private contactsservice: ContactsService,
     private preferenceService: PreferencesService,
+    private ngZone: NgZone,
   ) {
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
       // set all elements owning target to target=_blank
@@ -342,7 +344,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (typeof ResizeObserver === 'undefined') return;
 
     this.toolbarResizeObserver = new ResizeObserver(() => {
-      this.calculateWidthDependentElements();
+      this.ngZone.run(() => {
+        this.calculateWidthDependentElements();
+      });
     });
     this.toolbarResizeObserver.observe(this.toolbarButtonContainerElement.nativeElement as HTMLDivElement);
   }
