@@ -24,7 +24,8 @@ import {
   QueryList,
   ElementRef,
   AfterViewInit,
-  DoCheck
+  DoCheck,
+  OnDestroy
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import DOMPurify from 'dompurify';
@@ -70,8 +71,10 @@ type Mail = any;
   templateUrl: 'singlemailviewer.component.html',
   styleUrls: ['singlemailviewer.component.scss']
 })
-export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
+export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit, OnDestroy {
   private lastMailtoInterceptorNode: HTMLElement | null = null;
+  private toolbarButtonContainerElement: ElementRef | null = null;
+  private toolbarResizeObserver: ResizeObserver | null = null;
 
 
   _messageId = null; // Message id or filename
@@ -96,7 +99,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChildren('forwardMessageHeader', {read: ElementRef}) messageHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild(HorizResizerDirective) resizer: HorizResizerDirective;
   @ViewChildren(HorizResizerDirective) resizerQuery: QueryList<HorizResizerDirective>;
-  @ViewChild('toolbarButtonContainer') toolbarButtonContainer: ElementRef;
+  @ViewChild('toolbarButtonContainer')
+  set toolbarButtonContainer(toolbarButtonContainer: ElementRef) {
+    this.toolbarButtonContainerElement = toolbarButtonContainer;
+    this.observeToolbarButtonContainer();
+  }
 
   public downloadProgress: number;
 
@@ -317,14 +324,32 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   ngDoCheck() {
-    this.calculateWidthDependentElements();
     // Rebind mailto interceptor if the underlying message or HTML view changes
     this.initMailtoInterceptor();
   }
 
+  ngOnDestroy() {
+    this.toolbarResizeObserver?.disconnect();
+  }
+
+  private observeToolbarButtonContainer() {
+    this.toolbarResizeObserver?.disconnect();
+
+    if (!this.toolbarButtonContainerElement) return;
+
+    this.calculateWidthDependentElements();
+
+    if (typeof ResizeObserver === 'undefined') return;
+
+    this.toolbarResizeObserver = new ResizeObserver(() => {
+      this.calculateWidthDependentElements();
+    });
+    this.toolbarResizeObserver.observe(this.toolbarButtonContainerElement.nativeElement as HTMLDivElement);
+  }
+
   calculateWidthDependentElements() {
-    if (this.toolbarButtonContainer) {
-      const toolbarwidth = (this.toolbarButtonContainer.nativeElement as HTMLDivElement).clientWidth;
+    if (this.toolbarButtonContainerElement) {
+      const toolbarwidth = (this.toolbarButtonContainerElement.nativeElement as HTMLDivElement).clientWidth;
       this.morebuttonindex = Math.floor(
         toolbarwidth / TOOLBAR_BUTTON_WIDTH
       ) - 1;
