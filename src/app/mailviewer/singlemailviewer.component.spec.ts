@@ -231,6 +231,14 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('should not recalculate toolbar width during every change detection check', () => {
+    const calculateSpy = spyOn(component, 'calculateWidthDependentElements');
+
+    component.ngDoCheck();
+
+    expect(calculateSpy).not.toHaveBeenCalled();
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
