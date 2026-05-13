@@ -17,6 +17,7 @@
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
             "assets": [
+              "src/favicon.ico",
               "src/assets",
               {
                 "glob": "xapianasm*",
@@ -127,6 +128,7 @@
               "src/styles.scss"
             ],
             "assets": [
+              "src/favicon.ico",
               "src/assets",
               {
                 "glob": "xapianasm*",
