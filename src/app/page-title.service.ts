@@ -38,6 +38,9 @@ const titleBySubApp = new Map([
     ['welcome', 'Welcome'],
 ]);
 
+/**
+ * Builds the browser document title for a Runbox route.
+ */
 export function buildRunboxPageTitle(url: string): string {
     const path = url.split(/[?#]/)[0];
     const segments = path
