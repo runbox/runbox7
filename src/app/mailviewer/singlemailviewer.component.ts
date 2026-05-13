@@ -688,6 +688,26 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  printableMessageStyles() {
+    return `
+      <style>
+        app-avatar-bar > div {
+          display: flex;
+          align-items: center;
+        }
+
+        app-avatar-bar img {
+          width: 32px;
+          height: 32px;
+          max-width: 32px;
+          max-height: 32px;
+          border-radius: 32px;
+          object-fit: cover;
+        }
+      </style>
+    `;
+  }
+
   print() {
     // Can't access print view inside iFrame, so we need to
     // temporary hide buttons while the view is rendering
@@ -713,7 +733,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       );
     }
     this.printFrame.nativeElement.onload = () => this.printFrame.nativeElement.contentWindow.print();
-    this.printFrame.nativeElement.src = URL.createObjectURL(new Blob([printablecontent],
+    this.printFrame.nativeElement.src = URL.createObjectURL(new Blob([this.printableMessageStyles(), printablecontent],
         { type: 'text/html' }
       )
     );
