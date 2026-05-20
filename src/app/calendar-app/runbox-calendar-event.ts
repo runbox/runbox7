@@ -150,7 +150,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
         // Convert from the ICAL data's timezone to the user's display timezone
         let user_dtstart = this._dtstart;
-        if (this._dtstart.zone) {
+        if (this._dtstart.zone && this.timezone && ICAL.TimezoneService.has(this.timezone)) {
             user_dtstart = this._dtstart.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 
@@ -179,7 +179,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
         // Timed: subtract 1 second (exclusive → inclusive), convert to account timezone
         let shownEnd = this._dtend.clone();
         shownEnd.addDuration(new ICAL.Duration({ isNegative: true, seconds: 1 }));
-        if (shownEnd.zone) {
+        if (shownEnd.zone && this.timezone && ICAL.TimezoneService.has(this.timezone)) {
             shownEnd = shownEnd.convertToZone(ICAL.TimezoneService.get(this.timezone));
         }
 

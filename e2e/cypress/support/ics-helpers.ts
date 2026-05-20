@@ -21,7 +21,10 @@
 export function futureDateStr(daysFromNow: number): string {
     const d = new Date();
     d.setDate(d.getDate() + daysFromNow);
-    return d.toISOString().split('T')[0].replace(/-/g, '');
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}${m}${day}`;
 }
 
 /** Format a DTSTART/DTEND line with optional parameters */

@@ -407,7 +407,7 @@ END:VCALENDAR`
       expect(sut.toIcal()).toContain('SUMMARY:Moved daily event one hour');
       // Length of line causes a newline, see RFC sec 3.1
       expect(sut.toIcal()).toContain('RECURRENCE-ID;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T\r\n 090000');
-       expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000');
+      expect(sut.toIcal()).toContain('DTSTART;TZID=/freeassociation.sourceforge.net/Europe/Berlin:20210515T100000');
      });
 
     it('should return correct end time for a timed event with timezone', () => {
