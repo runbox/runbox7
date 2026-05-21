@@ -24,7 +24,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { firstValueFrom, of } from 'rxjs';
 import { Decimal } from 'decimal.js-light';
 
-Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
+Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_EVEN });
 
 describe('CartService', () => {
     const storage = new StorageService({ me: of({ uid: 42 }) } as RunboxWebmailAPI);

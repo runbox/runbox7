@@ -19,7 +19,7 @@
 
 import { Decimal } from 'decimal.js-light';
 
-Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_EVEN });
+Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_EVEN });
 
 export interface QuotaEntry {
     type: string;
