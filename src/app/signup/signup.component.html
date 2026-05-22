@@ -106,7 +106,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
         <section class="form-section">
           <div class="section-head">
             <h3>Identity</h3>
-            <p>These names are also used as the default sender name recipients will see when you send email.</p>
+            <p>These names are also used as the default sender name recipients will see when you send email. You can easily change your name later in Settings.</p>
           </div>
           <div class="field-grid">
             <label class="field" [class.is-invalid]="showFieldError(firstNameModel, signupForm)">
@@ -125,7 +125,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
         <section class="form-section">
           <div class="section-head">
             <h3>Email address</h3>
-            <p>Pick a Runbox address or use your own domain.</p>
+            <p>Pick a Runbox address or use your own domain. Note that all Runbox domain names are synonymous.</p>
           </div>
           <div class="field-grid">
             <label class="field" [class.is-invalid]="showFieldError(userModel, signupForm)">
@@ -206,11 +206,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
           <div class="field-grid">
             <label class="field field-wide" [class.is-invalid]="showFieldError(emailAlternativeModel, signupForm)">
               <span class="field-label">
-                Existing email address
-                <button type="button" class="info-chip" aria-label="Why we ask for an existing email address">
-                  i
+                <span class="info-trigger info-trigger-start">
+                  <span class="field-label-text">Existing email address</span>
+                  <button type="button" class="info-chip" aria-label="Why we ask for an existing email address">i</button>
                   <span class="info-popover">Used for account recovery, signup validation, and important account notices.</span>
-                </button>
+                </span>
               </span>
               <input
                 name="email_alternative"
@@ -225,23 +225,25 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
               </small>
             </label>
             <label class="field">
-              <span>Mobile phone number</span>
+              <span class="field-label">
+                <span class="field-label-text">Mobile phone number</span>
+              </span>
               <input name="phone_number_cellular" [(ngModel)]="phoneNumberCellular" maxlength="64" />
-              <small>
-                Optional
-                <button type="button" class="info-chip" aria-label="Why we ask for a mobile phone number">
-                  i
+              <small class="field-help-row">
+                <span>Optional</span>
+                <span class="info-trigger info-trigger-start">
+                  <button type="button" class="info-chip" aria-label="Why we ask for a mobile phone number">i</button>
                   <span class="info-popover">If provided, the number may be used to create a matching email alias such as yournumber@runbox.com.</span>
-                </button>
+                </span>
               </small>
             </label>
             <label class="field">
               <span class="field-label">
-                How did you hear about Runbox?
-                <button type="button" class="info-chip" aria-label="Why we ask how you heard about Runbox">
-                  i
+                <span class="info-trigger info-trigger-end">
+                  <span class="field-label-text">How did you hear about Runbox?</span>
+                  <button type="button" class="info-chip" aria-label="Why we ask how you heard about Runbox">i</button>
                   <span class="info-popover">This helps us understand which channels reach people who may appreciate the service.</span>
-                </button>
+                </span>
               </span>
               <select name="referrer" [(ngModel)]="referrer">
                 <option value="">Select one</option>
