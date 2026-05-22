@@ -272,8 +272,29 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .field-label {
     display: inline-flex;
     align-items: center;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.field-label-text {
+    display: inline;
+}
+
+.field-help-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.info-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
     gap: 0.45rem;
-    flex-wrap: wrap;
+    width: fit-content;
+    max-width: 100%;
 }
 
 .field > small {
@@ -284,10 +305,6 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .field.is-invalid > span,
 .checkbox-row.is-invalid span {
     color: #a12020;
-}
-
-.field > small .info-chip {
-    margin-left: 0.3rem;
 }
 
 .info-chip {
@@ -311,10 +328,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .info-popover {
     position: absolute;
-    left: 50%;
+    left: 0;
     top: calc(100% + 0.55rem);
     z-index: 5;
-    width: min(18rem, 80vw);
+    width: 18rem;
+    max-width: min(18rem, calc(100vw - 5rem));
     padding: 0.7rem 0.8rem;
     border-radius: 8px;
     background: #0f2740;
@@ -326,26 +344,35 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     box-shadow: 0 16px 32px rgba(9, 33, 58, 0.22);
     opacity: 0;
     pointer-events: none;
-    transform: translate(-50%, 0.2rem);
+    transform: translate(0, 0.2rem);
     transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.info-trigger-end .info-popover {
+    left: auto;
+    right: 0;
 }
 
 .info-popover::before {
     content: '';
     position: absolute;
-    left: 50%;
+    left: 0.95rem;
     top: -0.35rem;
     width: 0.7rem;
     height: 0.7rem;
     background: #0f2740;
-    transform: translateX(-50%) rotate(45deg);
+    transform: rotate(45deg);
 }
 
-.info-chip:hover .info-popover,
-.info-chip:focus-visible .info-popover,
-.info-chip:active .info-popover {
+.info-trigger-end .info-popover::before {
+    left: auto;
+    right: 0.95rem;
+}
+
+.info-trigger:hover .info-popover,
+.info-trigger:focus-within .info-popover {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(0, 0);
 }
 
 .info-chip:focus-visible {
@@ -675,19 +702,17 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     }
 
     .info-popover {
-        left: 0;
-        transform: translate(0, 0.2rem);
+        width: 16rem;
+        max-width: min(16rem, calc(100vw - 3rem));
     }
 
     .info-popover::before {
-        left: 1rem;
-        transform: rotate(45deg);
+        left: 0.9rem;
     }
 
-    .info-chip:hover .info-popover,
-    .info-chip:focus-visible .info-popover,
-    .info-chip:active .info-popover {
-        transform: translate(0, 0);
+    .info-trigger-end .info-popover::before {
+        left: auto;
+        right: 0.9rem;
     }
 }
 
