@@ -25,6 +25,7 @@ import { environment } from '../../environments/environment';
 
 type AccountType = 'person' | 'business';
 type DomainType = 'runbox' | 'user';
+type SignupEnvironment = typeof environment & { SIGNUP_HCAPTCHA_SITE_KEY?: string };
 
 @Component({
     selector: 'app-signup',
@@ -66,7 +67,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         'Other',
     ];
 
-    hCaptchaSiteKey = environment.SIGNUP_HCAPTCHA_SITE_KEY || '';
+    hCaptchaSiteKey = (environment as SignupEnvironment).SIGNUP_HCAPTCHA_SITE_KEY || '';
     hCaptchaError = '';
     submitError = '';
     submitInProgress = false;
