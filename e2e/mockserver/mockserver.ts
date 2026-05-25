@@ -35,10 +35,12 @@ export class MockServer {
     port = 15000;
 
     calendars = [
-        { id: 'mock cal', displayname: 'Mock Calendar' },
+        { id: 'mock cal', displayname: 'Mock Calendar', syncToken: '' as string },
     ];
 
     events = [];
+
+    accountTimezone = 'Europe/Oslo';
 
     folders = [
         {
@@ -205,6 +207,30 @@ END:VTIMEZONE
 END:VCALENDAR
 `;
 
+    vtimezone_london =
+`BEGIN:VCALENDAR
+PRODID:-//citadel.org//NONSGML Citadel calendar//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Europe/London
+BEGIN:STANDARD
+TZNAME:GMT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0000
+DTSTART:19701025T020000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+TZNAME:BST
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0100
+DTSTART:19700329T010000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+END:VTIMEZONE
+END:VCALENDAR
+`;
+
     public start() {
         log('Starting mock server');
         this.server = createServer((request, response) => {
@@ -222,6 +248,18 @@ END:VCALENDAR
                 }
                 if (command === 'disable2fa') {
                     this.challenge2fa = false;
+                }
+                if (command === 'setTimezone_Europe_Oslo') {
+                    this.accountTimezone = 'Europe/Oslo';
+                } else if (command === 'setTimezone_Europe_London') {
+                    this.accountTimezone = 'Europe/London';
+                } else if (command === 'setTimezone_America_New_York') {
+                    this.accountTimezone = '/citadel.org/20210210_1/America/New_York';
+                } else if (command === 'resetTimezone') {
+                    this.accountTimezone = 'Europe/Oslo';
+                }
+                if (command === 'resetCalendarEvents') {
+                    this.events = [];
                 }
                 response.end();
                 return;
@@ -449,7 +487,7 @@ END:VCALENDAR
                                 'last_name': 'User',
                                 'email_alternative': 'test@example.com',
                                 'country': 'NO',
-                                'timezone': 'Europe/Oslo',
+                                'timezone': this.accountTimezone,
                                 'phone_number': '',
                                 'company': '',
                                 'email_alternative_status': 0
@@ -477,12 +515,33 @@ END:VCALENDAR
                 case '/_ics/Europe/Oslo.ics':
                     response.end(this.vtimezone_oslo);
                     break;
-                default:
-                    if (request.url.indexOf('/rest') === 0) {
+                case '/_ics/Europe/London.ics':
+                    response.end(this.vtimezone_london);
+                    break;
+                default: {
+                    // ICS import: PUT /rest/v1/calendar/ics/{calendar_id}
+                    const icsMatch = request.url.match(/\/rest\/v1\/calendar\/ics\/(.+)/);
+                    if (request.method === 'PUT' && icsMatch) {
+                        let body = '';
+                        request.on('readable', () => {
+                            body += request.read() || '';
+                        });
+                        request.on('end', () => {
+                            this.events.push({
+                                id: 'mock cal/ics-' + Date.now(),
+                                ical: body,
+                                calendar: icsMatch[1],
+                            });
+                            this.bumpSyncToken();
+                            response.end(JSON.stringify({ 'status': 'success' }));
+                        });
+                    } else if (request.url.indexOf('/rest') === 0) {
                         response.end(JSON.stringify({ status: 'success' }));
                     } else {
                         response.end('');
                     }
+                    break;
+                }
             }
         });
         this.server.listen(this.port);
@@ -548,7 +607,7 @@ END:VCALENDAR
                 },
                 'company': null, 'is_overwrite_subaccount_ip_rules': 0,
                 'currency': 'EUR',
-                'user_created': null, 'timezone': 'Europe/Oslo', 'uid': 221,
+                'user_created': null, 'timezone': this.accountTimezone, 'uid': 221,
                 'sub_accounts': ['test%subaccount.com'], 'password_strength': 5,
                 'gender': null, 'has_sub_accounts': 1, 'need2pay': 'n',
                 'paid': 'n', 'country': null
@@ -1014,7 +1073,9 @@ END:VCALENDAR
             });
             request.on('end', () => {
                 const event = JSON.parse(body);
-                event['id'] = 'mock-event-' + (this.events.length + 1);
+                if (!event['id']) {
+                    event['id'] = 'mock cal/mock-event-' + (this.events.length + 1);
+                }
                 this.events.push(event);
                 response.end(JSON.stringify({
                     'status': 'success',
@@ -1032,6 +1093,12 @@ END:VCALENDAR
                     'events': this.events,
                 },
             }));
+        }
+    }
+
+    bumpSyncToken() {
+        for (const cal of this.calendars) {
+            cal.syncToken = cal.syncToken ? cal.syncToken + '1' : 'sync1';
         }
     }
 

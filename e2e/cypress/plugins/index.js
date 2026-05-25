@@ -19,4 +19,14 @@ module.exports = (on, config) => {
     }
     on('file:preprocessor', wp(options))
     require('cypress-terminal-report/src/installLogsPrinter')(on);
+
+    // Set browser timezone to Europe/Oslo for consistent E2E results.
+    // This exposes bugs where browser tz differs from account tz.
+    on('before:browser:launch', (browser = {}, launchOptions) => {
+        launchOptions.env = {
+            ...launchOptions.env,
+            TZ: 'Europe/Oslo',
+        };
+        return launchOptions;
+    });
 }
