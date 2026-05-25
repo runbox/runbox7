@@ -27,6 +27,37 @@ describe('RunboxCalendarEvent', () => {
        ICAL.TimezoneService.reset();
     });
 
+    // Register a minimal VTIMEZONE with ICAL.TimezoneService for test scenarios
+    function ensureTimezone(tzid: string, standardOffset: string, daylightOffset: string) {
+        if (ICAL.TimezoneService.has(tzid)) {
+            return;
+        }
+        const vtimezone = [
+            'BEGIN:VTIMEZONE',
+            'TZID:' + tzid,
+            'BEGIN:STANDARD',
+            'DTSTART:19700101T000000',
+            'TZOFFSETTO:' + standardOffset,
+            'TZOFFSETFROM:' + daylightOffset,
+            'END:STANDARD',
+            'BEGIN:DAYLIGHT',
+            'DTSTART:19700329T020000',
+            'TZOFFSETTO:' + daylightOffset,
+            'TZOFFSETFROM:' + standardOffset,
+            'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+            'END:DAYLIGHT',
+            'END:VTIMEZONE',
+        ].join('\r\n');
+        const parsed = ICAL.parse('BEGIN:VCALENDAR\r\n' + vtimezone + '\r\nEND:VCALENDAR');
+        const comp = new ICAL.Component(parsed);
+        const tzComp = comp.getFirstSubcomponent('vtimezone');
+        const tz = new ICAL.Timezone({
+            tzid: tzComp.getFirstPropertyValue('tzid'),
+            component: tzComp,
+        });
+        ICAL.TimezoneService.register(tz.tzid, tz);
+    }
+
     it('should be possible to create a new event', () => {
         const newEvent = RunboxCalendarEvent.newEmpty();
         newEvent.dtstart = moment().date(1).hours(13).seconds(0).milliseconds(0);
