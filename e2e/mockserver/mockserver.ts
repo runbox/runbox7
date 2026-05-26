@@ -564,8 +564,7 @@ END:VCALENDAR
                     }
                     break;
                 }
-            }
-        });
+            });
         this.server.listen(this.port);
     }
 
