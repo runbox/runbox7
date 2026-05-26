@@ -18,8 +18,14 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { Component } from '@angular/core';
 import { HelpComponent } from './help.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+
+@Component({ selector: 'app-runbox-container', template: '<ng-content></ng-content>' })
+class MockRunboxContainerComponent {}
 
 describe('HelpComponent', () => {
   let component: HelpComponent;
@@ -27,7 +33,12 @@ describe('HelpComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ HelpComponent ]
+      imports: [
+        MatCardModule,
+        MatIconModule,
+        MatIconTestingModule,
+      ],
+      declarations: [ HelpComponent, MockRunboxContainerComponent ]
     })
     .compileComponents();
   });
