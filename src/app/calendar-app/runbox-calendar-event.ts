@@ -735,6 +735,23 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 && !this.ical.getFirstSubcomponent('vtimezone')) {
                 this.ical.addSubcomponent(zone.component);
             }
+
+            if (this._allDay) {
+                // For all-day events, construct directly from moment date parts
+                // to avoid timezone shifts from fromJSDate
+                const ical_time = new ICAL.Time({
+                    year: input.year(),
+                    month: input.month() + 1,  // moment months are 0-indexed
+                    day: input.date(),
+                    hour: 0,
+                    minute: 0,
+                    second: 0,
+                });
+                ical_time.zone = zone;
+                ical_time.isDate = true;
+                return ical_time;
+            }
+
             const ical_time = ICAL.Time.fromJSDate(input.toDate());
             ical_time.zone = zone;
             ical_time.isDate = this._allDay;
