@@ -28,22 +28,29 @@ describe('RunboxCalendarEvent', () => {
     });
 
     // Register a minimal VTIMEZONE with ICAL.TimezoneService for test scenarios
-    function ensureTimezone(tzid: string, standardOffset: string, daylightOffset: string) {
+    function ensureTimezone(tzid: string, standardOffset: string | number, daylightOffset: string | number) {
         if (ICAL.TimezoneService.has(tzid)) {
             return;
         }
+        const formatOffset = (offset: string | number): string => {
+            if (typeof offset === 'string') {
+                return offset;
+            }
+            const sign = offset >= 0 ? '+' : '-';
+            return `${sign}${String(Math.abs(offset)).padStart(2, '0')}00`;
+        };
         const vtimezone = [
             'BEGIN:VTIMEZONE',
             'TZID:' + tzid,
             'BEGIN:STANDARD',
             'DTSTART:19700101T000000',
-            'TZOFFSETTO:' + standardOffset,
-            'TZOFFSETFROM:' + daylightOffset,
+            'TZOFFSETTO:' + formatOffset(standardOffset),
+            'TZOFFSETFROM:' + formatOffset(daylightOffset),
             'END:STANDARD',
             'BEGIN:DAYLIGHT',
             'DTSTART:19700329T020000',
-            'TZOFFSETTO:' + daylightOffset,
-            'TZOFFSETFROM:' + standardOffset,
+            'TZOFFSETTO:' + formatOffset(daylightOffset),
+            'TZOFFSETFROM:' + formatOffset(standardOffset),
             'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
             'END:DAYLIGHT',
             'END:VTIMEZONE',
@@ -560,32 +567,6 @@ END:VTIMEZONE`;
 
         expect(floatingEventBerlin.start.getUTCHours()).toBe(15, 'Floating time 16:00 Berlin should be 15:00 UTC');
     });
-
-    // Helper to create and register a timezone from standard offsets
-    function ensureTimezone(tzid: string, stdOffset: number, dstOffset: number) {
-        if (ICAL.TimezoneService.has(tzid)) { return; }
-        const fmt = (n: number) => (n >= 0 ? '+' : '-') + String(Math.abs(n)).padStart(2, '0');
-        const std = fmt(stdOffset);
-        const dst = fmt(dstOffset);
-        const tzData = `BEGIN:VTIMEZONE
-TZID:${tzid}
-BEGIN:STANDARD
-DTSTART:19701025T020000
-TZOFFSETFROM:${dst}00
-TZOFFSETTO:${std}00
-RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
-END:STANDARD
-BEGIN:DAYLIGHT
-DTSTART:19810329T010000
-TZOFFSETFROM:${std}00
-TZOFFSETTO:${dst}00
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
-END:DAYLIGHT
-END:VTIMEZONE`;
-        const comp = new ICAL.Component(ICAL.parse(tzData));
-        const tz = new ICAL.Timezone({ tzid, component: comp });
-        ICAL.TimezoneService.register(tz.tzid, tz);
-    }
 
     it('should correctly convert London TZID event to Berlin user timezone', () => {
         // Simulates an issue: 4pm London event shown as 3pm (wrong) instead of 5pm (correct)
