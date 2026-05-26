@@ -60,7 +60,7 @@ export class ContactsAppComponent {
     sideMenuOpened = true;
 
     @ViewChild(ContactListComponent) contactList: ContactListComponent;
-    @ViewChild(MatSidenav) sideMenu: MatSidenav;
+    @ViewChild(MatSidenav, { static: true }) sideMenu: MatSidenav;
     @ViewChild('vcfUploadInput') vcfUploadInput: any;
 
     constructor(
