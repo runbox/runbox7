@@ -41,8 +41,6 @@ export class MockServer {
     events: { id: string; ical: any; calendar: string }[] = [];
     accountTimezone = 'Europe/Oslo';
 
-    accountTimezone = 'Europe/Oslo';
-
     folders = [
         {
             'old': 296,
@@ -1119,12 +1117,6 @@ END:VCALENDAR
                     'events': this.events,
                 },
             }));
-        }
-    }
-
-    bumpSyncToken() {
-        for (const cal of this.calendars) {
-            cal.syncToken = cal.syncToken ? cal.syncToken + '1' : 'sync1';
         }
     }
 
