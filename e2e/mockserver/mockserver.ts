@@ -430,14 +430,6 @@ END:VCALENDAR
                 case '/rest/v1/account_product/payment_methods':
                     response.end(JSON.stringify(this.payment_methods()));
                     break;
-                case '/rest/v1/account_product/payment_methods':
-                    response.end(JSON.stringify({
-                        status: 'success',
-                        result: {
-                            client_secret: 'seti_test_secret_e2e'
-                        }
-                    }));
-                    break;
                 case '/ajax/ajax_mfa_list_sessions':
                     response.end(JSON.stringify({
                         status: 'success',
@@ -538,7 +530,7 @@ END:VCALENDAR
                         }));
                     }
                     break;
-                case '/rest/v1/account/sessions':
+                case '/rest/v1/account/sessions': {
                     const now = Math.floor(Date.now() / 1000);
                     response.end(JSON.stringify({
                         'status': 'success',
@@ -555,6 +547,7 @@ END:VCALENDAR
                         }
                     }));
                     break;
+                }
                 case '/_ics/Europe/Oslo.ics':
                     response.end(this.vtimezone_oslo);
                     break;
