@@ -21,9 +21,8 @@ import { XapianAPI } from '@runboxcom/runbox-searchindex';
 import { MessageInfo, IndexingTools } from '../common/messageinfo';
 import { Subject } from 'rxjs';
 
-declare let IDBFS;
-declare let FS;
-declare let Module;
+// eslint-disable-next-line no-var
+declare var FS; declare var IDBFS; declare var Module;
 
 export class Indexer {
     static xapianScriptElm: HTMLScriptElement;
