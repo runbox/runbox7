@@ -298,6 +298,10 @@ export class MessageListService {
         // Just lie a bit, we'll fix it in a mo..
         this.folderMessageCountSubject.next(this.folderCounts);
         this.folderMessageLists[this.trashFolderName] = [];
+        // redraw if currently viewing the Trash folder:
+        if (this.currentFolder === this.trashFolderName) {
+            this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        }
     }
 
     // almost duplicate of code in applyChanges, except for hasChanges!?
