@@ -549,6 +549,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public drafts() {
+    this.draftDeskService.closeBlankComposingDraft();
     this.router.navigate(['/compose']);
     setTimeout(() => {
         if (this.mobileQuery.matches && this.sidemenu.opened) {
