@@ -178,15 +178,26 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
           <div class="field-grid single">
             <label class="field" [class.is-invalid]="showFieldError(passwordModel, signupForm)">
               <span>Password</span>
-              <input
-                name="password"
-                type="password"
-                [(ngModel)]="password"
-                (input)="onPasswordChange()"
-                maxlength="64"
-                required
-                #passwordModel="ngModel"
-              />
+              <span class="password-input-wrap">
+                <input
+                  name="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  [(ngModel)]="password"
+                  (input)="onPasswordChange()"
+                  maxlength="64"
+                  required
+                  #passwordModel="ngModel"
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                  [attr.aria-pressed]="showPassword"
+                  (click)="showPassword = !showPassword"
+                >
+                  {{ showPassword ? 'Hide' : 'Show' }}
+                </button>
+              </span>
               <small class="field-error" *ngIf="showFieldError(passwordModel, signupForm)">Enter a password for your account.</small>
             </label>
           </div>
@@ -233,7 +244,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
                 <span>Optional</span>
                 <span class="info-trigger info-trigger-start">
                   <button type="button" class="info-chip" aria-label="Why we ask for a mobile phone number">i</button>
-                  <span class="info-popover">If provided, the number may be used to create a matching email alias such as yournumber@runbox.com.</span>
+                  <span class="info-popover">If provided, the number may be used for account recovery purposes.</span>
                 </span>
               </small>
             </label>

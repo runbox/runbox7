@@ -269,6 +269,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     font-weight: 700;
 }
 
+.password-input-wrap {
+    position: relative;
+    display: block;
+}
+
 .field-label {
     display: inline-flex;
     align-items: center;
@@ -391,6 +396,36 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     font: inherit;
     color: #0f2740;
     box-sizing: border-box;
+}
+
+.password-input-wrap input {
+    padding-right: 5.5rem;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.7rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.4rem;
+    padding: 0.2rem 0.4rem;
+    border: 0;
+    background: transparent;
+    color: #01579b;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid #0068b7;
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 .field input:focus,
