@@ -52,6 +52,10 @@ export class AppPasswordsComponent implements OnInit {
         }
     }
 
+    get isAppPasswordFeatureDisabled(): boolean {
+        return this.rmm.account_security.tfa.settings.is_app_pass_enabled === false;
+    }
+
     app_pass_create() {
         if (!this.rmm.account_security.user_password) {
             this.show_modal_password();
