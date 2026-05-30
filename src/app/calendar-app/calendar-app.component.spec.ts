@@ -36,6 +36,7 @@ import { of, Observable, ReplaySubject } from 'rxjs';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { RunboxCalendarView } from './runbox-calendar-view';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
@@ -279,6 +280,27 @@ END:VCALENDAR
         fixture.debugElement.nativeElement.querySelector('button#previousPeriodButton').click();
         fixture.detectChanges();
         expect(component.shown_events.length).toBe(shownEventsCount, 'same number of events shown after cycling through months');
+    });
+
+    it('should advance by week when restoring the week calendar view from preferences (GH-1541)', () => {
+        const preferences = TestBed.inject(PreferencesService) as any;
+        const startDate = new Date('2024-02-26T12:00:00Z');
+
+        component.viewDate = new Date(startDate);
+        preferences.preferences.next(new Map([[
+            'global:calendarSettings',
+            { lastUsedView: RunboxCalendarView.Week }
+        ]]));
+        fixture.detectChanges();
+
+        expect(component.view).toBe(RunboxCalendarView.Week);
+        expect(component.mwlView).toBe(component.CalendarView.Week);
+
+        fixture.debugElement.nativeElement.querySelector('button#nextPeriodButton').click();
+        fixture.detectChanges();
+
+        const daysAdvanced = Math.round((component.viewDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
+        expect(daysAdvanced).toBe(7);
     });
 
     it('should not display yearly events as longer than they are (GH-179)', () => {
