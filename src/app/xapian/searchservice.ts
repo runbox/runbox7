@@ -726,15 +726,16 @@ export class SearchService {
                         0)
                         / (1024 * 1024)
                       );
-                  const totalMessages = partitions.reduce((prev, curr, partitionNdx) => prev +
-                        curr.numberOfMessages,
+                  const remainingMessages = partitions.reduce((prev, curr, partitionNdx) => prev +
+                        (partitionNdx < 1 ? 0 : curr.numberOfMessages),
                         0);
+                  const totalMessages = doccount + remainingMessages;
 
                   dialog.componentInstance.title = 'Continue synchronizing?';
                   dialog.componentInstance.question = `Already synchronized index for
                       ${doccount} of
-                      your most recent messages. To synchronize entire index
-                      (for ${totalMessages} messages),
+                      your most recent messages. To synchronize the entire index
+                      (${totalMessages} messages total),
                       there's an additional download of ${remainingDownloadMB} MB.`;
                   dialog.afterClosed()
                     .subscribe(res => {
