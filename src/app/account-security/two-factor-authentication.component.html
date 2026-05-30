@@ -130,7 +130,7 @@
                 <div *ngIf="rmm.account_security.tfa.qr_code_value">
                     <p>
                         <span>
-                            <qrcode [qrdata]="rmm.account_security.tfa.qr_code_value.href" [width]="250" [errorCorrectionLevel]="H">
+                            <qrcode [qrdata]="rmm.account_security.tfa.qr_code_value" [width]="250" [errorCorrectionLevel]="H">
                             </qrcode>
                         </span>
                     </p>
