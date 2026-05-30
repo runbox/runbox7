@@ -165,6 +165,7 @@ import { DomainRegisterComponent } from '../domainregister/domainregister.compon
         RouterModule.forChild([
             {
                 path: 'account',
+                title: 'Runbox Account',
                 canActivateChild: [RMMAuthGuardService, NoProductsForSubaccountsGuard],
                 children: [
                     {
