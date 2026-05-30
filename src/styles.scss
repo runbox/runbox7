@@ -188,6 +188,14 @@ button:hover, mat-button:hover, mat-raised-button:hover {
     filter: brightness(1.1);
 }
 
+.mat-tooltip-panel {
+    pointer-events: none;
+}
+
+.mat-tooltip {
+    pointer-events: none;
+}
+
 .mat-line, .mat-tree-node {
     height: 30px !important;
     min-height: 30px !important;
