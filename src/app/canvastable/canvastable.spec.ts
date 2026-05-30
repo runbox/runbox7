@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { CanvasTableModule, CanvasTableContainerComponent } from './canvastable';
 import { MessageList } from '../common/messagelist';
 
@@ -73,4 +73,54 @@ describe('canvastable', () => {
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
     });
+
+    it('should show progress while selecting all rows in batches', fakeAsync(() => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        const rows = new MessageList(Array.from({ length: 600 }, (_, index) => ({
+            id: index + 1,
+            seenFlag: false,
+            from: [],
+            to: [],
+            subject: `Subject ${index + 1}`,
+            plaintext: '',
+            size: 0,
+            attachment: false,
+            answeredFlag: false,
+            flaggedFlag: false,
+            messageDate: new Date()
+        })));
+
+        fixture.componentInstance.canvastableselectlistener = {
+            rowSelected: (rowIndex: number, colIndex: number, multiSelect?: boolean): void => {
+                rows.rowSelected(rowIndex, colIndex, multiSelect);
+            },
+            saveColumnWidthsPreference: (): void => undefined
+        };
+        fixture.componentInstance.canvastable.rows = rows;
+
+        fixture.componentInstance.canvastable.selectAllRows();
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.canvastable.bulkSelectionInProgress).toBeTrue();
+        expect(fixture.componentInstance.canvastable.bulkSelectionMessage).toContain('Selecting 0 of 600 messages');
+
+        tick();
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.canvastable.bulkSelectionInProgress).toBeTrue();
+        expect(fixture.componentInstance.canvastable.bulkSelectionMessage).toContain('Selecting 250 of 600 messages');
+
+        tick();
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.canvastable.bulkSelectionInProgress).toBeTrue();
+        expect(fixture.componentInstance.canvastable.bulkSelectionMessage).toContain('Selecting 500 of 600 messages');
+
+        tick();
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.canvastable.bulkSelectionInProgress).toBeFalse();
+        expect(fixture.componentInstance.canvastable.bulkSelectionMessage).toBe('');
+        expect(rows.selectedMessageIds().length).toBe(600);
+    }));
 });
