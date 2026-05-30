@@ -94,6 +94,7 @@ window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
 
 const routes: Routes = [
+  { path: 'signup',            loadChildren: () => import('./signup/signup.module').then(m => m.SignupModule) },
   {
     path: '',
     canActivateChild: [RMMAuthGuardService],
@@ -136,7 +137,8 @@ const routes: Routes = [
       { path: 'domainregistration', component: DomainRegisterRedirectComponent },
     ]
   },
-  { path: 'login', component: LoginComponent }
+  { path: 'login', component: LoginComponent },
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
@@ -213,4 +215,3 @@ export class AppModule {
     );
   }
 }
-

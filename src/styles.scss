@@ -404,6 +404,28 @@ mat-grid-tile.tableTitle {
     justify-content: center;
 }
 
+body.signup-page {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: auto;
+}
+
+#main.signup-page-shell {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    display: block;
+}
+
+body.signup-page app-rmm {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh;
+}
+
 /* Snackbar */
 
 .mat-snack-bar-container {

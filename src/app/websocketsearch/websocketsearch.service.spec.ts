@@ -262,6 +262,7 @@ describe('WebSocketSearchService', () => {
 
     describe('Error handling', () => {
         it('should handle WebSocket errors', (done) => {
+            const consoleLogSpy = spyOn(console, 'log');
             service.open();
             mockWebSocket.simulateOpen();
 
@@ -271,6 +272,7 @@ describe('WebSocketSearchService', () => {
             mockWebSocket.simulateError(new Error('WebSocket error'));
 
             setTimeout(() => {
+                expect(consoleLogSpy).toHaveBeenCalledWith('websocket error', jasmine.any(Error));
                 expect(service.searchInProgress).toBe(false);
                 done();
             }, 10);
