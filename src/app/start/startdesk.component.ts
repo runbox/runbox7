@@ -30,6 +30,7 @@ import { filter } from 'rxjs/operators';
 import { firstValueFrom, ReplaySubject } from 'rxjs';
 import { ProfileService } from '../profiles/profile.service';
 import { UsageReportsService } from '../common/usage-reports.service';
+import { PreferencesService } from '../common/preferences.service';
 
 export interface ContactHilights {
     icon: string;
@@ -64,6 +65,16 @@ interface FolderSelectorEntry {
     count: number;
     shown: boolean;
 }
+
+interface OverviewSettings {
+    unreadOnly?: boolean;
+    timeSpan?: TimeSpan;
+    folder?: FolderSelection;
+    sortOrder?: SortOrder;
+    hiddenFolders?: string[];
+}
+
+const OVERVIEW_SETTINGS_PREFERENCE_KEY = 'overviewSettings';
 
 @Component({
     selector: 'app-start',
@@ -107,9 +118,13 @@ export class StartDeskComponent implements OnInit {
         private searchService: SearchService,
         private profileService: ProfileService,
         private usage: UsageReportsService,
+        private preferenceService: PreferencesService,
     ) { }
 
     ngOnInit() {
+        this.preferenceService.preferences.subscribe((prefs) => {
+            this.restoreOverviewSettings(prefs.get(`${this.preferenceService.prefGroup}:${OVERVIEW_SETTINGS_PREFERENCE_KEY}`));
+        });
         this.usage.report('overview-desk');
         this.profileService.validProfiles.subscribe(
             froms => this.ownAddresses.next(new Set(froms.map(f => f.email.toLowerCase()))),
@@ -120,6 +135,7 @@ export class StartDeskComponent implements OnInit {
     }
 
     public async updateCommsOverview(): Promise<void> {
+        this.saveOverviewSettings();
         const dateRange = this.dateRange();
         const folderMessages = new Map<string, number>();
         const messages = this.searchService.getMessagesInTimeRange(
@@ -308,6 +324,40 @@ export class StartDeskComponent implements OnInit {
         }
         // TODO: persist hiddenFolders in settings or something
         this.updateCommsOverview();
+    }
+
+    private restoreOverviewSettings(storedSettings: OverviewSettings | undefined) {
+        if (!storedSettings) {
+            return;
+        }
+
+        if (typeof storedSettings.unreadOnly === 'boolean') {
+            this.unreadOnly = storedSettings.unreadOnly;
+        }
+        if (storedSettings.timeSpan in TimeSpan) {
+            this.timeSpan = storedSettings.timeSpan;
+        }
+        if (storedSettings.folder in FolderSelection) {
+            this.folder = storedSettings.folder;
+        }
+        if (storedSettings.sortOrder in SortOrder) {
+            this.sortOrder = storedSettings.sortOrder;
+        }
+        if (Array.isArray(storedSettings.hiddenFolders)) {
+            this.hiddenFolders = new Set(storedSettings.hiddenFolders);
+        }
+
+        this.updateCommsOverview();
+    }
+
+    private saveOverviewSettings() {
+        this.preferenceService.set(this.preferenceService.prefGroup, OVERVIEW_SETTINGS_PREFERENCE_KEY, {
+            unreadOnly: this.unreadOnly,
+            timeSpan: this.timeSpan,
+            folder: this.folder,
+            sortOrder: this.sortOrder,
+            hiddenFolders: Array.from(this.hiddenFolders),
+        });
     }
 
     public dateRange(): Date[] {
