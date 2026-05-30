@@ -165,6 +165,18 @@ export class DkimComponent implements OnInit {
     );
   }
 
+  hostnameForDnsProvider(domainName: string, selectorRecordsetName: string) {
+    const normalizedHostname = (selectorRecordsetName || '').replace(/\.$/, '');
+    const normalizedDomain = (domainName || '').replace(/\.$/, '');
+    const suffix = normalizedDomain ? `.${normalizedDomain}` : '';
+
+    if (!suffix || !normalizedHostname.endsWith(suffix)) {
+      return normalizedHostname;
+    }
+
+    return normalizedHostname.slice(0, -suffix.length);
+  }
+
   show_snackbar (message, action) {
     this.snackBar.open(message, action, {
       duration: 2000,
