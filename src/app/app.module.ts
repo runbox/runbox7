@@ -88,6 +88,7 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
+import { PageTitleService } from './page-title.service';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -197,6 +198,7 @@ const routes: Routes = [
         RMM,
         RMMAuthGuardService,
         ContactsService,
+        PageTitleService,
         SavedSearchesService,
         StorageService,
         { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
@@ -207,10 +209,14 @@ const routes: Routes = [
     bootstrap: [MainContainerComponent]
 })
 export class AppModule {
-  constructor (matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
+  constructor (
+    matIconRegistry: MatIconRegistry,
+    domSanitizer: DomSanitizer,
+    pageTitleService: PageTitleService,
+  ) {
+    void pageTitleService;
     matIconRegistry.addSvgIconSet(
       domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg')
     );
   }
 }
-
