@@ -45,6 +45,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     lastName = '';
     company = '';
     password = '';
+    showPassword = false;
     emailAlternative = '';
     phoneNumberCellular = '';
     referrer = '';
