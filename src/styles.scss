@@ -2,6 +2,7 @@
 @import '../iconfont/material-icons.css';
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
 @import "@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
+@import './styles/rmm-theme-vars';
 
 // Include non-theme styles for core.
 // TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
@@ -14,31 +15,6 @@
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
 @include mat.all-legacy-component-typographies();
 @include mat.legacy-core();
-
-// GTA 13.05.2017: From https://material.angular.io/guide/theming and https://www.materialui.co/colors:
-
-$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
-$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 200, 100, 400);
-$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
-$rmm-default-caution:    mat.define-palette(mat.$deep-orange-palette, 500, A400, A700);
-$rmm-default-error:      mat.define-palette(mat.$red-palette, 500, A400, A700);
-$rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
-$rmm-default-highlight:  mat.define-palette(mat.$blue-palette, 100, 50, 200);
-$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
-
-$rmm-dark-background:       #011b40;
-$rmm-dark-background-03:    rgba(1,27,64,0.3);
-$rmm-darker-background:     #01001c;
-$rmm-gray:                  #dddddd;
-$rmm-gray-light:            #eeeeee;
-$rmm-gray-lighter:          #f3f3f3;
-
-$rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
-
-$rmm-default-lighter-gray: #eeeeee;
-$rmm-default-light-gray: #f4f4f4;
-$rmm-default-dark-gray: #949494;
-$rmm-default-black: #444444;
 
 @include mat.all-legacy-component-themes($rmm-default-theme);
 

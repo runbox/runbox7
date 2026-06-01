@@ -1,3 +1,6 @@
+@use '@angular/material' as mat;
+@use '../../styles/rmm-theme-vars' as rmm;
+
 /* --------- BEGIN RUNBOX LICENSE ---------
 Copyright (C) 2016-2026 Runbox Solutions AS (runbox.com).
 
@@ -20,7 +23,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 :host {
     display: block;
     min-height: 100vh;
-    color: #0f2740;
+    color: rmm.$rmm-dark-background;
     background:
         radial-gradient(circle at top left, rgba(143, 198, 255, 0.34), transparent 34%),
         radial-gradient(circle at bottom right, rgba(0, 88, 153, 0.18), transparent 28%),
@@ -39,7 +42,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     align-items: center;
     gap: 1rem;
     padding: 1rem 1.5rem;
-    background-image: linear-gradient(145deg, #0068b7, #003156);
+    background-image: linear-gradient(
+        145deg,
+        mat.get-color-from-palette(rmm.$rmm-default-primary),
+        rmm.$rmm-dark-background
+    );
     color: #fff;
     box-shadow: 0 8px 20px rgba(0, 25, 46, 0.12);
 }
@@ -89,7 +96,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .hero-panel {
     display: grid;
-    background: linear-gradient(180deg, #0068b7 0%, #003156 100%);
+    background: linear-gradient(
+        180deg,
+        mat.get-color-from-palette(rmm.$rmm-default-primary) 0%,
+        rmm.$rmm-dark-background 100%
+    );
     color: #fff;
 }
 
@@ -160,7 +171,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     gap: 0;
     align-items: center;
     padding: 1.4rem 1.5rem;
-    border-bottom: 1px solid #d9e4ef;
+    border-bottom: 1px solid rmm.$rmm-gray;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 246, 252, 0.92));
 }
 
@@ -233,7 +244,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .choice-card.active {
-    border-color: #0068b7;
+    border-color: mat.get-color-from-palette(rmm.$rmm-default-primary);
     background: linear-gradient(180deg, #eef7ff 0%, #f8fbff 100%);
     box-shadow: inset 0 0 0 1px rgba(0, 104, 183, 0.18);
 }
@@ -330,8 +341,8 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     padding: 0;
     border: 0;
     border-radius: 999px;
-    background: #d9ebf8;
-    color: #005897;
+    background: mat.get-color-from-palette(rmm.$rmm-default-highlight);
+    color: mat.get-color-from-palette(rmm.$rmm-default-primary);
     font: inherit;
     font-size: 0.76rem;
     font-weight: 700;
@@ -348,7 +359,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     max-width: min(18rem, calc(100vw - 5rem));
     padding: 0.7rem 0.8rem;
     border-radius: 8px;
-    background: #0f2740;
+    background: rmm.$rmm-dark-background;
     color: #fff;
     font-size: 0.82rem;
     font-weight: 400;
@@ -373,7 +384,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     top: -0.35rem;
     width: 0.7rem;
     height: 0.7rem;
-    background: #0f2740;
+    background: rmm.$rmm-dark-background;
     transform: rotate(45deg);
 }
 
@@ -389,7 +400,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .info-chip:focus-visible {
-    outline: 2px solid #0068b7;
+    outline: 2px solid mat.get-color-from-palette(rmm.$rmm-default-primary);
     outline-offset: 2px;
 }
 
@@ -398,11 +409,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     width: 100%;
     min-width: 0;
     padding: 0.78rem 0.9rem;
-    border: 1px solid #9eb5ca;
+    border: 1px solid rmm.$rmm-default-dark-gray;
     border-radius: 8px;
     background: #fff;
     font: inherit;
-    color: #0f2740;
+    color: rmm.$rmm-dark-background;
     box-sizing: border-box;
 }
 
@@ -422,7 +433,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     padding: 0.2rem 0.4rem;
     border: 0;
     background: transparent;
-    color: #01579b;
+    color: mat.get-color-from-palette(rmm.$rmm-default-primary);
     font: inherit;
     font-size: 0.84rem;
     font-weight: 700;
@@ -431,7 +442,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .password-toggle:focus-visible {
-    outline: 2px solid #0068b7;
+    outline: 2px solid mat.get-color-from-palette(rmm.$rmm-default-primary);
     outline-offset: 2px;
     border-radius: 4px;
 }
@@ -439,7 +450,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .field input:focus,
 .field select:focus {
     outline: 0;
-    border-color: #0068b7;
+    border-color: mat.get-color-from-palette(rmm.$rmm-default-primary);
     box-shadow: 0 0 0 3px rgba(0, 104, 183, 0.12);
 }
 
@@ -591,7 +602,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     border-radius: 4px;
     min-width: 132px;
     min-height: 42px;
-    background: #01579b;
+    background: mat.get-color-from-palette(rmm.$rmm-default-primary);
     color: #fff;
     padding: 0 1.7rem;
     font: inherit;
@@ -607,7 +618,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .submit:hover {
-    background: #0068b7;
+    background: mat.get-color-from-palette(rmm.$rmm-default-foreground);
     box-shadow:
         0 4px 5px -2px rgba(0, 0, 0, 0.2),
         0 7px 10px 1px rgba(0, 0, 0, 0.14),
