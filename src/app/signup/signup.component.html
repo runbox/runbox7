@@ -143,8 +143,14 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
           </div>
 
           <div class="field-grid single" *ngIf="domainType === 'runbox'">
-            <label class="field">
-              <span>Runbox domain</span>
+            <label class="field domain-choice-field">
+              <span class="field-label field-label-gap">
+                <span class="info-trigger info-trigger-start">
+                  <span class="field-label-text">Runbox domain</span>
+                  <button type="button" class="info-chip" aria-label="About Runbox domains">i</button>
+                  <span class="info-popover">Your chosen Runbox domain will be used for your Main Identity, but can be changed later and is synonymous with all other Runbox domains.</span>
+                </span>
+              </span>
               <select name="runboxDomain" [(ngModel)]="runboxDomain">
                 <option *ngFor="let domain of runboxDomains" [value]="domain">{{ domain }}</option>
               </select>
@@ -152,19 +158,25 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
           </div>
 
           <div class="field-grid single" *ngIf="domainType === 'user'">
-            <label class="field" [class.is-invalid]="showFieldError(userDomainModel, signupForm)">
-              <span>Your domain</span>
+            <label class="field domain-choice-field" [class.is-invalid]="showUserDomainError(userDomainModel, signupForm)">
+              <span class="field-label field-label-gap">
+                <span class="info-trigger info-trigger-start">
+                  <span class="field-label-text">Your domain</span>
+                  <button type="button" class="info-chip" aria-label="About your domain">i</button>
+                  <span class="info-popover">Enter a domain name you own to be used for your Main Identity.</span>
+                </span>
+              </span>
               <input
                 name="userdomain"
                 [(ngModel)]="userDomain"
+                (blur)="onUserDomainBlur()"
                 maxlength="253"
                 placeholder="example.com"
                 required
-                pattern="^([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$"
                 #userDomainModel="ngModel"
               />
-              <small class="field-error" *ngIf="showFieldError(userDomainModel, signupForm)">
-                {{ userDomainModel.errors?.['required'] ? 'Enter your domain name.' : 'Enter a valid domain such as example.com.' }}
+              <small class="field-error" *ngIf="showUserDomainError(userDomainModel, signupForm)">
+                {{ userDomainErrorMessage(userDomainModel) }}
               </small>
             </label>
           </div>
@@ -176,7 +188,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
             <p>Create a strong password for your new mailbox.</p>
           </div>
           <div class="field-grid single">
-            <label class="field" [class.is-invalid]="showFieldError(passwordModel, signupForm)">
+            <label class="field" [class.is-invalid]="showPasswordError(passwordModel, signupForm)">
               <span>Password</span>
               <span class="password-input-wrap">
                 <input
@@ -198,7 +210,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
                   {{ showPassword ? 'Hide' : 'Show' }}
                 </button>
               </span>
-              <small class="field-error" *ngIf="showFieldError(passwordModel, signupForm)">Enter a password for your account.</small>
+              <small class="field-error" *ngIf="showPasswordError(passwordModel, signupForm)">{{ passwordErrorMessage(passwordModel) }}</small>
             </label>
           </div>
           <div class="strength-meter" aria-live="polite">

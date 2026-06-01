@@ -281,6 +281,10 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     max-width: 100%;
 }
 
+.field-label-gap {
+    margin-top: 0.15rem;
+}
+
 .field-label-text {
     display: inline;
 }
@@ -291,6 +295,10 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     gap: 0.35rem;
     width: fit-content;
     max-width: 100%;
+}
+
+.domain-choice-field {
+    padding-top: 0.15rem;
 }
 
 .info-trigger {

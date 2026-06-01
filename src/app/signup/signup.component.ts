@@ -78,6 +78,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     private hCaptchaReady = false;
     private nativeSubmitting = false;
     private pendingCaptchaRender = false;
+    private readonly customDomainPattern = /^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
 
     constructor(
         private route: ActivatedRoute,
@@ -140,6 +141,10 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         this.passwordStrength = score;
     }
 
+    onUserDomainBlur(): void {
+        this.userDomain = this.userDomain.trim().toLowerCase();
+    }
+
     onSubmit(form: NgForm, formElement: HTMLFormElement): void {
         this.submitError = '';
         this.showCaptchaValidationError = false;
@@ -151,6 +156,19 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!form.valid) {
             this.submitError = 'Complete the required fields before continuing.';
             this.focusFirstInvalidField(formElement);
+            return;
+        }
+
+        if (this.domainType === 'user' && !this.isUserDomainValid()) {
+            this.submitError = 'Enter a valid domain such as example.com.';
+            this.focusFirstInvalidField(formElement);
+            return;
+        }
+
+        if (this.passwordStrength < 3) {
+            this.submitError = 'Choose a stronger password before continuing.';
+            const passwordInput = formElement.querySelector<HTMLInputElement>('input[name="password"]');
+            passwordInput?.focus();
             return;
         }
 
@@ -177,6 +195,44 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         return control.invalid && (control.touched || control.dirty || Boolean(form?.submitted));
+    }
+
+    showUserDomainError(control?: NgModel | null, form?: NgForm): boolean {
+        if (!control) {
+            return false;
+        }
+
+        const shouldShow = control.touched || control.dirty || Boolean(form?.submitted);
+        return shouldShow && (!this.userDomain.trim() || !this.isUserDomainValid());
+    }
+
+    showPasswordError(control?: NgModel | null, form?: NgForm): boolean {
+        if (!control) {
+            return false;
+        }
+
+        const shouldShow = control.touched || control.dirty || Boolean(form?.submitted);
+        return shouldShow && (control.invalid || this.passwordStrength < 3);
+    }
+
+    passwordErrorMessage(control?: NgModel | null): string {
+        if (control?.errors?.['required']) {
+            return 'Enter a password for your account.';
+        }
+
+        return 'Use a stronger password with a strength of at least 3/4.';
+    }
+
+    userDomainErrorMessage(control?: NgModel | null): string {
+        if (!this.userDomain.trim() || control?.errors?.['required']) {
+            return 'Enter your domain name.';
+        }
+
+        return 'Enter a valid domain such as example.com.';
+    }
+
+    private isUserDomainValid(): boolean {
+        return this.customDomainPattern.test(this.userDomain.trim());
     }
 
     private async initializeHCaptcha(): Promise<void> {
