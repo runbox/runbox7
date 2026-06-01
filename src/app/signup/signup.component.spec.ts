@@ -197,7 +197,7 @@ describe('SignupComponent', () => {
         await fixture.whenStable();
         fixture.detectChanges();
 
-        expect(component.showFieldError(domainControl, getForm())).toBeTrue();
+        expect(component.showUserDomainError(domainControl, getForm())).toBeTrue();
         expect(fixture.nativeElement.textContent).toContain('Enter a valid domain such as example.com.');
     });
 
