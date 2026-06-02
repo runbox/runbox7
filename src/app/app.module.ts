@@ -137,7 +137,8 @@ const routes: Routes = [
       { path: 'domainregistration', component: DomainRegisterRedirectComponent },
     ]
   },
-  { path: 'login', component: LoginComponent }
+  { path: 'login', component: LoginComponent },
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
