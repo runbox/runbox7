@@ -53,7 +53,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     tosAccepted = false;
     passwordStrength = 0;
     accountNumber = '';
-    runbox7 = '1';
     timezone = 'UTC';
     signupAction = '/signup';
 
@@ -107,7 +106,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.domainType = domainType;
             }
             this.accountNumber = params.get('account_number') || params.get('accountNumber') || '';
-            this.runbox7 = params.get('runbox7') || '1';
         });
 
         void this.initializeHCaptcha();

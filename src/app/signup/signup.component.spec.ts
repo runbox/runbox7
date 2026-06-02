@@ -133,7 +133,6 @@ describe('SignupComponent', () => {
             accountType: 'business',
             domainType: 'user',
             account_number: '12345',
-            runbox7: '7',
         }));
 
         await initComponent();
@@ -141,7 +140,6 @@ describe('SignupComponent', () => {
         expect(component.accountType).toBe('business');
         expect(component.domainType).toBe('user');
         expect(component.accountNumber).toBe('12345');
-        expect(component.runbox7).toBe('7');
     });
 
     it('keeps safe defaults if legacy metadata cannot be fetched', async () => {
