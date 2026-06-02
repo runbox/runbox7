@@ -82,7 +82,7 @@ describe('Signup', () => {
         cy.get('header.signup-header .brand img').should('be.visible');
         cy.get('header.signup-header .brand').should('not.contain', 'Runbox 7');
 
-        cy.contains('.hero-panel h2', 'Privacy by business model').should('exist');
+        cy.contains('.hero-panel h2', 'Privacy by design').should('exist');
         cy.contains('.hero-panel h2', 'Hosted in Norway').should('exist');
         cy.contains('.hero-panel h2', 'Sustainable and secure').should('exist');
         cy.contains('.hero-panel h2', 'How the trial works').should('exist');
