@@ -17,15 +17,21 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AliasesListerComponent } from './aliases.lister';
-import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacyButtonModule } from '@angular/material/legacy-button';
+import { MatLegacyCardModule } from '@angular/material/legacy-card';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacyInputModule } from '@angular/material/legacy-input';
 import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatLegacySelectModule } from '@angular/material/legacy-select';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
 import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { MatLegacyCommonModule, MatLegacyOptionModule } from '@angular/material/legacy-core';
@@ -34,6 +40,7 @@ import { HttpClient } from '@angular/common/http';
 describe('AliasesListerComponent', () => {
     let component: AliasesListerComponent;
     let fixture: ComponentFixture<AliasesListerComponent>;
+    let dialog: MatDialog;
 
     const DEFAULT_EMAIL = 'a.kalou@shadowcat.co.uk';
     const ALLOWED_DOMAINS = ['runbox.com', 'shadowcat.co.uk'];
@@ -47,10 +54,16 @@ describe('AliasesListerComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 CommonModule,
+                FormsModule,
                 HttpClientTestingModule,
+                MatLegacyButtonModule,
+                MatLegacyCardModule,
                 MatLegacyCommonModule,
+                MatLegacyInputModule,
+                MatLegacySelectModule,
                 MatLegacySnackBarModule,
                 MatLegacyDialogModule,
+                MatExpansionModule,
                 NoopAnimationsModule,
             ],
             providers: [
@@ -94,6 +107,7 @@ describe('AliasesListerComponent', () => {
         });
         fixture = TestBed.createComponent(AliasesListerComponent);
         component = fixture.componentInstance;
+        dialog = TestBed.inject(MatDialog);
     });
 
     it('loads aliases through RMM', () => {
@@ -126,7 +140,7 @@ describe('AliasesListerComponent', () => {
         expect(forwards.length).toBe(component.aliases.length, 'all forwards should be shown');
     });
 
-    it('sets the default email to the current users email', fakeAsync(() => {
+    it('sets the default email to the current users email', () => {
         expect(component.defaultEmail).toBe(DEFAULT_EMAIL);
 
         // spawn a modal
@@ -143,22 +157,21 @@ describe('AliasesListerComponent', () => {
         // FIXME: doesn't work, value isn't set, probably because of ngModel
         // expect(forwardTo.value)
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
-    }));
+    });
 
-    it('dialog loads allowed domains', () => {
+    it('dialog loads allowed domains', async () => {
         // spawn a modal
         component.create();
+        fixture.detectChanges();
+        await fixture.whenStable();
         fixture.detectChanges();
 
         const modal = 
             fixture.nativeElement.nextSibling.querySelector('app-aliases-edit');
         expect(modal).toBeTruthy();
 
-        const domain: HTMLSelectElement = 
-            modal.querySelector('mat-select[name=\'domain\']');
-
-        ALLOWED_DOMAINS.forEach(allowed_domain => {
-            expect(domain.textContent).toContain(allowed_domain);
-        });
+        const dialogRef = dialog.openDialogs[0];
+        expect(dialogRef).toBeTruthy();
+        expect(dialogRef.componentInstance.allowedDomains).toEqual(ALLOWED_DOMAINS);
     });
 });

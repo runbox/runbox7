@@ -30,6 +30,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -105,6 +106,7 @@ describe('SingleMailViewerComponent', () => {
         ResizerModule,
         MatIconModule,
         MatIconTestingModule,
+        MatListModule,
         MatGridListModule,
         MatToolbarModule,
         MatTooltipModule,

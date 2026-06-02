@@ -18,9 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { WelcomeDeskComponent } from './welcomedesk.component';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
 describe('WelcomeDeskComponent', () => {
@@ -31,6 +35,10 @@ describe('WelcomeDeskComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ WelcomeDeskComponent ],
       imports: [
+        MatCardModule,
+        MatIconModule,
+        MatIconTestingModule,
+        RouterTestingModule,
       ],
       providers:
       [
