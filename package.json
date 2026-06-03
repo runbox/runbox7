@@ -18,7 +18,6 @@
     "build": "node src/build/pre-build.js && ng build --configuration production --base-href=/app/ runbox7; RES=$?; node src/build/post-build.js; exit $RES",
     "policy": "node policy-tests/run-all.js",
     "test": "ng test",
-    "test:signup:firefox": "ng test --watch=false --browsers Firefox --include src/app/signup/signup.component.spec.ts",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "start-e2e-server": "start-test mockserver 15000 start-use-mockserver",
