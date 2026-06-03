@@ -18,14 +18,13 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { NgForm, NgModel } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { firstValueFrom } from 'rxjs';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 type AccountType = 'person' | 'business';
 type DomainType = 'runbox' | 'user';
-type SignupEnvironment = typeof environment & { SIGNUP_HCAPTCHA_SITE_KEY?: string };
 
 @Component({
     selector: 'app-signup',
@@ -54,7 +53,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     passwordStrength = 0;
     accountNumber = '';
     timezone = 'UTC';
-    signupAction = '/signup';
+    signupAction = '/signup/signup';
 
     runboxDomains = ['runbox.com', 'runbox.no'];
     readonly referrers = [
@@ -67,7 +66,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         'Other',
     ];
 
-    hCaptchaSiteKey = (environment as SignupEnvironment).SIGNUP_HCAPTCHA_SITE_KEY || '';
+    hCaptchaSiteKey = '';
     hCaptchaError = '';
     submitError = '';
     submitInProgress = false;
@@ -81,7 +80,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
-        private http: HttpClient,
+        private rmmapi: RunboxWebmailAPI,
     ) {}
 
     ngOnInit(): void {
@@ -171,7 +170,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         if (!this.hCaptchaSiteKey) {
-            this.submitError = 'CAPTCHA is unavailable right now. Use the legacy signup page or try again shortly.';
+            this.submitError = 'CAPTCHA is unavailable right now. Please try again shortly.';
             return;
         }
 
@@ -234,10 +233,13 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private async initializeHCaptcha(): Promise<void> {
-        await this.loadLegacySignupMetadata();
+        await Promise.all([
+            this.loadRunboxDomains(),
+            this.loadHCaptchaMetadata(),
+        ]);
 
         if (!this.hCaptchaSiteKey) {
-            this.hCaptchaError = 'CAPTCHA is temporarily unavailable. Please use the legacy signup page below.';
+            this.hCaptchaError = 'CAPTCHA is temporarily unavailable. Please try again shortly.';
             return;
         }
 
@@ -250,34 +252,26 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         this.renderHCaptcha();
     }
 
-    private loadLegacySignupMetadata(): Promise<void> {
-        return new Promise((resolve) => {
-            this.http
-                .get('/signup?legacy=1&runbox7=1', { responseType: 'text' })
-                .subscribe({
-                    next: (html) => {
-                        const doc = new DOMParser().parseFromString(html, 'text/html');
-                        const legacyWidget = doc.querySelector('.h-captcha');
-                        const legacyForm = doc.querySelector<HTMLFormElement>('form[name="signup"], form[action*="signup"]');
-                        const legacyDomains = Array.from(
-                            doc.querySelectorAll<HTMLSelectElement>('select[name="runboxDomain"] option'),
-                        )
-                            .map((option) => option.value.trim())
-                            .filter((domain, index, domains) => Boolean(domain) && domains.indexOf(domain) === index);
+    private async loadRunboxDomains(): Promise<void> {
+        try {
+            const domains = await firstValueFrom(this.rmmapi.getRunboxDomains());
+            if (domains.length > 0) {
+                this.runboxDomains = domains;
+                if (!this.runboxDomains.includes(this.runboxDomain)) {
+                    this.runboxDomain = this.runboxDomains[0];
+                }
+            }
+        } catch {
+            // Keep safe defaults if the domain list cannot be loaded.
+        }
+    }
 
-                        this.hCaptchaSiteKey = legacyWidget?.getAttribute('data-sitekey') || this.hCaptchaSiteKey;
-                        this.signupAction = legacyForm?.getAttribute('action') || this.signupAction;
-                        if (legacyDomains.length > 0) {
-                            this.runboxDomains = legacyDomains;
-                            if (!this.runboxDomains.includes(this.runboxDomain)) {
-                                this.runboxDomain = this.runboxDomains[0];
-                            }
-                        }
-                        resolve();
-                    },
-                    error: () => resolve(),
-                });
-        });
+    private async loadHCaptchaMetadata(): Promise<void> {
+        try {
+            this.hCaptchaSiteKey = await firstValueFrom(this.rmmapi.getSignupHCaptchaSiteKey());
+        } catch {
+            this.hCaptchaSiteKey = '';
+        }
     }
 
     private loadHCaptchaScript(): Promise<boolean> {
@@ -313,7 +307,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             script.addEventListener('error', () => reject(new Error('Failed to load hCaptcha.')), { once: true });
             document.body.appendChild(script);
         }).catch((): boolean => {
-            this.hCaptchaError = 'CAPTCHA could not be loaded. Please use the legacy signup page below.';
+            this.hCaptchaError = 'CAPTCHA could not be loaded. Please try again shortly.';
             return false;
         });
     }
@@ -347,7 +341,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.hCaptchaError = 'CAPTCHA expired. Complete it again before submitting.';
             },
             'error-callback': () => {
-                this.hCaptchaError = 'CAPTCHA failed to load correctly. Try again or use the legacy signup page.';
+                this.hCaptchaError = 'CAPTCHA failed to load correctly. Please try again.';
             },
         });
     }

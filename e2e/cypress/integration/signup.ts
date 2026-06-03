@@ -21,26 +21,19 @@
 
 describe('Signup', () => {
     beforeEach(() => {
-        cy.intercept('GET', '/signup?legacy=1&runbox7=1', {
+        cy.intercept('GET', '/rest/v1/runbox_domains', {
             statusCode: 200,
-            body: `
-                <html>
-                    <body>
-                        <form name="signup" action="/mail/signup">
-                            <select name="runboxDomain">
-                                <option value="runbox.com">runbox.com</option>
-                                <option value="runbox.no">runbox.no</option>
-                                <option value="rbx.email">rbx.email</option>
-                            </select>
-                            <div class="h-captcha" data-sitekey="test-site-key"></div>
-                        </form>
-                    </body>
-                </html>
-            `,
-            headers: {
-                'content-type': 'text/html',
+            body: {
+                results: ['runbox.com', 'runbox.no', 'rbx.email'],
             },
-        }).as('legacySignup');
+        }).as('runboxDomains');
+
+        cy.intercept('GET', '/rest/v1/signup/hcaptcha/site_key', {
+            statusCode: 200,
+            body: {
+                result: 'test-site-key',
+            },
+        }).as('hcaptchaSiteKey');
 
         cy.intercept('GET', 'https://hcaptcha.com/1/api.js?render=explicit', {
             statusCode: 200,
@@ -53,13 +46,14 @@ describe('Signup', () => {
 
     it('should render the Angular signup page in the local mock-backed environment', () => {
         cy.visit('/signup?runbox7=1');
-        cy.wait('@legacySignup');
+        cy.wait('@runboxDomains');
+        cy.wait('@hcaptchaSiteKey');
         cy.wait('@hcaptchaScript');
 
         cy.location('pathname').should('eq', '/signup');
         cy.location('search').should('contain', 'runbox7=1');
         cy.contains('h1', 'Create a Runbox Account').should('exist');
-        cy.get('form.signup-form').should('have.attr', 'action', '/mail/signup');
+        cy.get('form.signup-form').should('have.attr', 'action', '/signup/signup');
         cy.get('input[name="user"]').should('exist');
         cy.get('input[name="first_name"]').should('exist');
         cy.get('input[name="last_name"]').should('exist');
@@ -76,7 +70,8 @@ describe('Signup', () => {
 
     it('should show the public trust and transparency content', () => {
         cy.visit('/signup?runbox7=1');
-        cy.wait('@legacySignup');
+        cy.wait('@runboxDomains');
+        cy.wait('@hcaptchaSiteKey');
         cy.wait('@hcaptchaScript');
 
         cy.get('header.signup-header .brand img').should('be.visible');

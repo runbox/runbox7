@@ -17,25 +17,31 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
+import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SignupComponent } from './signup.component';
 
 describe('SignupComponent', () => {
     let component: SignupComponent;
     let fixture: ComponentFixture<SignupComponent>;
-    let httpMock: HttpTestingController;
     let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+    let rmmapi: jasmine.SpyObj<RunboxWebmailAPI>;
 
     beforeEach(async () => {
         queryParamMap$ = new BehaviorSubject(convertToParamMap({ runbox7: '1' }));
+        rmmapi = jasmine.createSpyObj<RunboxWebmailAPI>('RunboxWebmailAPI', [
+            'getRunboxDomains',
+            'getSignupHCaptchaSiteKey',
+        ]);
+        rmmapi.getRunboxDomains.and.returnValue(of(['runbox.com', 'runbox.no', 'rbx.email']));
+        rmmapi.getSignupHCaptchaSiteKey.and.returnValue(of('test-site-key'));
 
         await TestBed.configureTestingModule({
-            imports: [FormsModule, HttpClientTestingModule],
+            imports: [FormsModule],
             declarations: [SignupComponent],
             providers: [
                 {
@@ -44,6 +50,10 @@ describe('SignupComponent', () => {
                         queryParamMap: queryParamMap$.asObservable(),
                     },
                 },
+                {
+                    provide: RunboxWebmailAPI,
+                    useValue: rmmapi,
+                },
             ],
         }).compileComponents();
     });
@@ -51,40 +61,15 @@ describe('SignupComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SignupComponent);
         component = fixture.componentInstance;
-        httpMock = TestBed.inject(HttpTestingController);
-    });
-
-    afterEach(() => {
-        httpMock.verify();
     });
 
     function stubCaptchaInitialization(loadResult = false): jasmine.Spy {
         return spyOn<any>(component, 'loadHCaptchaScript').and.resolveTo(loadResult);
     }
 
-    function flushLegacyMetadata(html?: string): void {
-        const request = httpMock.expectOne('/signup?legacy=1&runbox7=1');
-        expect(request.request.method).toBe('GET');
-        request.flush(html || `
-            <html>
-                <body>
-                    <form name="signup" action="/mail/signup">
-                        <select name="runboxDomain">
-                            <option value="runbox.com">runbox.com</option>
-                            <option value="runbox.no">runbox.no</option>
-                            <option value="rbx.email">rbx.email</option>
-                        </select>
-                        <div class="h-captcha" data-sitekey="test-site-key"></div>
-                    </form>
-                </body>
-            </html>
-        `);
-    }
-
-    async function initComponent(html?: string, loadResult = false): Promise<void> {
+    async function initComponent(loadResult = false): Promise<void> {
         stubCaptchaInitialization(loadResult);
         fixture.detectChanges();
-        flushLegacyMetadata(html);
         await fixture.whenStable();
         fixture.detectChanges();
     }
@@ -119,13 +104,15 @@ describe('SignupComponent', () => {
         fixture.detectChanges();
     }
 
-    it('loads signup metadata from the legacy signup page', async () => {
+    it('loads signup metadata from explicit API sources', async () => {
         await initComponent();
 
-        expect(component.signupAction).toBe('/mail/signup');
+        expect(component.signupAction).toBe('/signup/signup');
         expect(component.hCaptchaSiteKey).toBe('test-site-key');
         expect(component.runboxDomains).toEqual(['runbox.com', 'runbox.no', 'rbx.email']);
         expect(component.runboxDomain).toBe('runbox.com');
+        expect(rmmapi.getRunboxDomains).toHaveBeenCalled();
+        expect(rmmapi.getSignupHCaptchaSiteKey).toHaveBeenCalled();
     });
 
     it('applies query parameters during initialization', async () => {
@@ -143,16 +130,15 @@ describe('SignupComponent', () => {
     });
 
     it('keeps safe defaults if legacy metadata cannot be fetched', async () => {
+        rmmapi.getRunboxDomains.and.returnValue(throwError(() => new Error('backend unavailable')));
+        rmmapi.getSignupHCaptchaSiteKey.and.returnValue(throwError(() => new Error('backend unavailable')));
         stubCaptchaInitialization(false);
         fixture.detectChanges();
-
-        const request = httpMock.expectOne('/signup?legacy=1&runbox7=1');
-        request.flush('backend unavailable', { status: 500, statusText: 'Server Error' });
 
         await fixture.whenStable();
         fixture.detectChanges();
 
-        expect(component.signupAction).toBe('/signup');
+        expect(component.signupAction).toBe('/signup/signup');
         expect(component.runboxDomains).toEqual(['runbox.com', 'runbox.no']);
         expect(component.hCaptchaSiteKey).toBe('');
         expect(component.hCaptchaError).toContain('CAPTCHA is temporarily unavailable');
