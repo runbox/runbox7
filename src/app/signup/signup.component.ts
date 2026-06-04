@@ -20,7 +20,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 type AccountType = 'person' | 'business';
@@ -107,7 +106,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             this.accountNumber = params.get('account_number') || params.get('accountNumber') || '';
         });
 
-        void this.initializeHCaptcha();
+        this.initializeHCaptcha();
     }
 
     ngAfterViewInit(): void {
@@ -232,46 +231,49 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.customDomainPattern.test(this.userDomain.trim());
     }
 
-    private async initializeHCaptcha(): Promise<void> {
-        await Promise.all([
-            this.loadRunboxDomains(),
-            this.loadHCaptchaMetadata(),
-        ]);
-
-        if (!this.hCaptchaSiteKey) {
-            this.hCaptchaError = 'CAPTCHA is temporarily unavailable. Please try again shortly.';
-            return;
-        }
-
-        const captchaLoaded = await this.loadHCaptchaScript();
-        if (!captchaLoaded) {
-            return;
-        }
-
-        this.hCaptchaReady = true;
-        this.renderHCaptcha();
+    private initializeHCaptcha(): void {
+        this.loadRunboxDomains();
+        this.loadHCaptchaMetadata();
     }
 
-    private async loadRunboxDomains(): Promise<void> {
-        try {
-            const domains = await firstValueFrom(this.rmmapi.getRunboxDomains());
-            if (domains.length > 0) {
-                this.runboxDomains = domains;
-                if (!this.runboxDomains.includes(this.runboxDomain)) {
-                    this.runboxDomain = this.runboxDomains[0];
+    private loadRunboxDomains(): void {
+        this.rmmapi.getRunboxDomains().subscribe({
+            next: (domains) => {
+                if (domains.length > 0) {
+                    this.runboxDomains = domains;
+                    if (!this.runboxDomains.includes(this.runboxDomain)) {
+                        this.runboxDomain = this.runboxDomains[0];
+                    }
                 }
-            }
-        } catch {
-            // Keep safe defaults if the domain list cannot be loaded.
-        }
+            },
+            error: () => {
+                // Keep safe defaults if the domain list cannot be loaded.
+            },
+        });
     }
 
-    private async loadHCaptchaMetadata(): Promise<void> {
-        try {
-            this.hCaptchaSiteKey = await firstValueFrom(this.rmmapi.getSignupHCaptchaSiteKey());
-        } catch {
-            this.hCaptchaSiteKey = '';
-        }
+    private loadHCaptchaMetadata(): void {
+        this.rmmapi.getSignupHCaptchaSiteKey().subscribe({
+            next: async (siteKey) => {
+                this.hCaptchaSiteKey = siteKey;
+                if (!this.hCaptchaSiteKey) {
+                    this.hCaptchaError = 'CAPTCHA is temporarily unavailable. Please try again shortly.';
+                    return;
+                }
+
+                const captchaLoaded = await this.loadHCaptchaScript();
+                if (!captchaLoaded) {
+                    return;
+                }
+
+                this.hCaptchaReady = true;
+                this.renderHCaptcha();
+            },
+            error: () => {
+                this.hCaptchaSiteKey = '';
+                this.hCaptchaError = 'CAPTCHA is temporarily unavailable. Please try again shortly.';
+            },
+        });
     }
 
     private loadHCaptchaScript(): Promise<boolean> {
