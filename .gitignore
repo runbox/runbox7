@@ -52,3 +52,7 @@ cypress/videos
 # environment
 src/environments/env.ts
 
+# Claude Code personal config
+CLAUDE.local.md
+.claude/settings.local.json
+
