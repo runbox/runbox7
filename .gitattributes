@@ -1,0 +1,21 @@
+# Normalize line endings to LF in the repository
+# Git will convert to CRLF on checkout on Windows if core.autocrlf=true
+* text=auto eol=lf
+
+# Binary file types - never normalize
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.wasm binary
+*.mp4 binary
+*.webm binary
+*.ics -text
