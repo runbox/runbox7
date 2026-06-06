@@ -41,3 +41,23 @@ $rmm-default-lighter-gray: #eeeeee;
 $rmm-default-light-gray: #f4f4f4;
 $rmm-default-dark-gray: #949494;
 $rmm-default-black: #444444;
+
+// Signup form chrome — slate-blue palette used only by the marketing signup
+// surface. Intentionally distinct from the in-app Material theme tokens above;
+// kept here so future theme changes have one canonical source.
+$rmm-signup-slate-900: #486175;
+$rmm-signup-slate-800: #5a7187;
+$rmm-signup-slate-700: #587085;
+$rmm-signup-slate-600: #637b90;
+$rmm-signup-slate-300: #bfd0e1;
+$rmm-signup-slate-200: #dde7f0;
+$rmm-signup-slate-150: #d6e2ec;
+$rmm-signup-slate-100: #dce6ef;
+$rmm-signup-slate-050: #f8fbfe;
+$rmm-signup-slate-030: #f6fafd;
+$rmm-signup-slate-020: #f2f7fb;
+
+// Signup warning callout — warm tan/peach for advisory banners (e.g. CAPTCHA
+// unavailable). Kept here for the same reason as the slate palette above.
+$rmm-signup-warning-border: #d6b087;
+$rmm-signup-warning-bg: #fff3e4;

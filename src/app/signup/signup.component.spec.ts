@@ -37,7 +37,14 @@ describe('SignupComponent', () => {
             'getRunboxDomains',
             'getSignupHCaptchaSiteKey',
         ]);
-        rmmapi.getRunboxDomains.and.returnValue(of(['runbox.com', 'runbox.no', 'rbx.email']));
+        // Real backend returns {id, name}[]; service signature is currently
+        // typed as string[]. Cast so the mock exercises the runtime shape
+        // production actually delivers.
+        rmmapi.getRunboxDomains.and.returnValue(of([
+            { id: 1, name: 'runbox.com' },
+            { id: 2, name: 'runbox.no' },
+            { id: 3, name: 'rbx.email' },
+        ]) as any);
         rmmapi.getSignupHCaptchaSiteKey.and.returnValue(of('test-site-key'));
 
         await TestBed.configureTestingModule({
@@ -61,6 +68,28 @@ describe('SignupComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SignupComponent);
         component = fixture.componentInstance;
+        // Minimal hCaptcha stub so renderHCaptcha completes on first try when
+        // a test exercises the script-loaded path. Tests that don't reach
+        // renderHCaptcha (loadResult=false) ignore this.
+        (window as any).hcaptcha = { render: () => 'test-widget-id' };
+    });
+
+    afterEach(() => {
+        try {
+            if (fixture) {
+                fixture.destroy();
+            }
+        } finally {
+            delete (window as any).hcaptcha;
+        }
+    });
+
+    // Defensive: signup adds body classes in ngOnInit; if a previous test's
+    // fixture.destroy failed to run (e.g. spec aborted), the classes could leak
+    // into siblings. Strip them unconditionally after the describe block.
+    afterAll(() => {
+        document.body.classList.remove('signup-page');
+        document.getElementById('main')?.classList.remove('signup-page-shell');
     });
 
     function stubCaptchaInitialization(loadResult = false): jasmine.Spy {
@@ -105,7 +134,7 @@ describe('SignupComponent', () => {
     }
 
     it('loads signup metadata from explicit API sources', async () => {
-        await initComponent();
+        await initComponent(true);
 
         expect(component.signupAction).toBe('/signup/signup');
         expect(component.hCaptchaSiteKey).toBe('test-site-key');
@@ -185,8 +214,27 @@ describe('SignupComponent', () => {
         expect(fixture.nativeElement.textContent).toContain('Enter a valid domain such as example.com.');
     });
 
-    it('blocks submit if captcha is missing even when required fields are valid', async () => {
-        await initComponent();
+    it('blocks submit if captcha script failed to load even when required fields are valid', async () => {
+        await initComponent();   // loadResult = false: simulates script failure
+        await fillRequiredFields();
+
+        const formElement = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+        const submitSpy = spyOn(formElement, 'submit');
+
+        component.onSubmit(getForm(), formElement);
+        fixture.detectChanges();
+
+        // After the S3 fix, a failed script load clears hCaptchaSiteKey so the
+        // submit guard reports CAPTCHA unavailable rather than blaming the user
+        // for not completing a widget that does not exist.
+        expect(component.hCaptchaSiteKey).toBe('');
+        expect(component.showCaptchaValidationError).toBeFalse();
+        expect(component.submitError).toBe('CAPTCHA is unavailable right now. Please try again shortly.');
+        expect(submitSpy).not.toHaveBeenCalled();
+    });
+
+    it('blocks submit if user skipped captcha after script loaded', async () => {
+        await initComponent(true);   // script loaded, widget render attempted
         await fillRequiredFields();
 
         const formElement = fixture.nativeElement.querySelector('form') as HTMLFormElement;
@@ -200,8 +248,31 @@ describe('SignupComponent', () => {
         expect(submitSpy).not.toHaveBeenCalled();
     });
 
+    it('blocks submit with a loading message when captcha script is still loading', async () => {
+        // Simulate a slow CDN: site key arrives but the script never settles.
+        spyOn<any>(component, 'loadHCaptchaScript').and.returnValue(new Promise<boolean>(() => {}));
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(component.hCaptchaSiteKey).toBe('test-site-key');
+        expect((component as any).hCaptchaReady).toBeFalse();
+
+        await fillRequiredFields();
+
+        const formElement = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+        const submitSpy = spyOn(formElement, 'submit');
+
+        component.onSubmit(getForm(), formElement);
+        fixture.detectChanges();
+
+        expect(component.submitError).toBe('CAPTCHA is still loading. Please wait a moment and try again.');
+        expect(submitSpy).not.toHaveBeenCalled();
+    });
+
     it('submits the native form when validation and captcha both pass', async () => {
-        await initComponent();
+        await initComponent(true);
         await fillRequiredFields();
 
         const formElement = fixture.nativeElement.querySelector('form') as HTMLFormElement;
