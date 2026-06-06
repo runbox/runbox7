@@ -141,6 +141,7 @@ describe('AliasesListerComponent', () => {
 
         // spawn a modal
         component.create();
+        tick();
         fixture.detectChanges();
 
         const modal = 
@@ -153,6 +154,7 @@ describe('AliasesListerComponent', () => {
         // FIXME: doesn't work, value isn't set, probably because of ngModel
         // expect(forwardTo.value)
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
+        tick();
     }));
 
     it('dialog loads allowed domains', () => {

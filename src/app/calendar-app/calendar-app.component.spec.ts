@@ -47,19 +47,21 @@ describe('CalendarAppComponent', () => {
     let fixture: ComponentFixture<CalendarAppComponent>;
 
     // jCal spec: https://tools.ietf.org/html/rfc7265
+    // Use noon (not moment()) so events never span midnight, which would
+    // cause angular-calendar to render them in two day cells.
     const simpleEvents = [
         {'id': 'test-calendar/event0',
          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-             [ 'dtstart', {}, 'date-time', moment().toISOString() ],
-             [ 'dtend',   {}, 'date-time', moment().add(1, 'hour').toISOString() ],
+             [ 'dtstart', {}, 'date-time', moment().hour(12).minute(0).second(0).millisecond(0).toISOString() ],
+             [ 'dtend',   {}, 'date-time', moment().hour(13).minute(0).second(0).millisecond(0).toISOString() ],
             [ 'summary', {}, 'text',      'Test Event #0'        ],
          ]]]]).toString(),
          'calendar': 'test-calendar',
         },
         {'id': 'test-calendar/event1',
          'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-             [ 'dtstart', {}, 'date-time', moment().date(15).add(1, 'month').add(1, 'day').add(2, 'hour').toISOString() ],
-             [ 'dtend', {}, 'date-time', moment().date(15).add(1, 'month').add(1, 'day').add(3, 'hour').toISOString() ],
+             [ 'dtstart', {}, 'date-time', moment().date(15).add(1, 'month').hour(12).minute(0).second(0).millisecond(0).toISOString() ],
+             [ 'dtend', {}, 'date-time', moment().date(15).add(1, 'month').hour(13).minute(0).second(0).millisecond(0).toISOString() ],
             [ 'summary', {}, 'text',      'Event #1, next month' ],
          ]]]]).toString(),
          'calendar': 'test-calendar',
