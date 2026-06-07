@@ -369,6 +369,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             }, { once: true });
             document.body.appendChild(script);
         }).catch((): boolean => {
+            if (this.destroyed) { return false; }
             // Remove a failed/stale script element so the next attempt takes the
             // "create new script" branch instead of polling a settled element
             // whose load/error events will never re-fire.

@@ -250,7 +250,10 @@ describe('SignupComponent', () => {
 
     it('blocks submit with a loading message when captcha script is still loading', async () => {
         // Simulate a slow CDN: site key arrives but the script never settles.
-        spyOn<any>(component, 'loadHCaptchaScript').and.returnValue(new Promise<boolean>(() => {}));
+        let resolveScriptLoad!: (v: boolean) => void;
+        spyOn<any>(component, 'loadHCaptchaScript').and.returnValue(
+            new Promise<boolean>((resolve) => { resolveScriptLoad = resolve; }),
+        );
 
         fixture.detectChanges();
         await fixture.whenStable();
@@ -269,6 +272,9 @@ describe('SignupComponent', () => {
 
         expect(component.submitError).toBe('CAPTCHA is still loading. Please wait a moment and try again.');
         expect(submitSpy).not.toHaveBeenCalled();
+
+        // Release the paused async chain so the component instance can be GC'd.
+        resolveScriptLoad(false);
     });
 
     it('submits the native form when validation and captcha both pass', async () => {
