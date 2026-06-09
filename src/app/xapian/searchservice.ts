@@ -54,6 +54,7 @@ export const XAPIAN_GLASS_WR = 'xapianglasswr';
 export class SearchIndexDocumentData {
   id: string;
   from: string;
+  fromEmailAddress?: string;
   subject: string;
   recipients: string[];
   textcontent: string;
@@ -853,6 +854,7 @@ export class SearchService {
             id: docdataparts[0],
             from: docdataparts[1],
             subject: docdataparts[2],
+            fromEmailAddress: docdataparts[3] || '',
             recipients: [],
             textcontent: null
           };
@@ -882,6 +884,8 @@ export class SearchService {
                 } else if (s.indexOf('XRECIPIENT') === 0) {
                   const recipient = s.substring('XRECIPIENT:'.length);
                   this.currentDocData.recipients.push(recipient);
+                } else if (s.indexOf('XFROMEMAIL:') === 0) {
+                  this.currentDocData.fromEmailAddress = s.substring('XFROMEMAIL:'.length);
                 }
               });
           } catch (e) {
