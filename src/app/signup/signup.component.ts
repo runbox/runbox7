@@ -20,6 +20,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 type AccountType = 'person' | 'business';
@@ -75,6 +76,9 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     private hCaptchaReady = false;
     private nativeSubmitting = false;
     private pendingCaptchaRender = false;
+    private destroyed = false;
+    private captchaRenderTimer: number | null = null;
+    private readonly subs = new Subscription();
     private readonly customDomainPattern = /^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
 
     constructor(
@@ -103,7 +107,8 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             if (domainType === 'user' || domainType === 'runbox') {
                 this.domainType = domainType;
             }
-            this.accountNumber = params.get('account_number') || params.get('accountNumber') || '';
+            const rawAccountNumber = params.get('account_number') || params.get('accountNumber') || '';
+            this.accountNumber = /^[0-9]{0,12}$/.test(rawAccountNumber) ? rawAccountNumber : '';
         });
 
         this.initializeHCaptcha();
@@ -116,6 +121,12 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this.destroyed = true;
+        this.subs.unsubscribe();
+        if (this.captchaRenderTimer !== null) {
+            window.clearTimeout(this.captchaRenderTimer);
+            this.captchaRenderTimer = null;
+        }
         document.body.classList.remove('signup-page');
         document.getElementById('main')?.classList.remove('signup-page-shell');
     }
@@ -125,7 +136,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.password.length >= 8) {
             score++;
         }
-        if (/[a-z]/.test(this.password) && /[A-Z]/.test(this.password)) {
+        if (/\p{Ll}/u.test(this.password) && /\p{Lu}/u.test(this.password)) {
             score++;
         }
         if (/\d/.test(this.password)) {
@@ -168,8 +179,10 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
 
-        if (!this.hCaptchaSiteKey) {
-            this.submitError = 'CAPTCHA is unavailable right now. Please try again shortly.';
+        if (!this.hCaptchaReady) {
+            this.submitError = this.hCaptchaSiteKey
+                ? 'CAPTCHA is still loading. Please wait a moment and try again.'
+                : 'CAPTCHA is unavailable right now. Please try again shortly.';
             return;
         }
 
@@ -182,7 +195,13 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.submitInProgress = true;
         this.nativeSubmitting = true;
-        formElement.submit();
+        try {
+            formElement.submit();
+        } catch (err) {
+            this.submitInProgress = false;
+            this.nativeSubmitting = false;
+            this.submitError = 'Signup could not be submitted. Please try again.';
+        }
     }
 
     showFieldError(control?: NgModel | null, form?: NgForm): boolean {
@@ -237,10 +256,15 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private loadRunboxDomains(): void {
-        this.rmmapi.getRunboxDomains().subscribe({
+        this.subs.add(this.rmmapi.getRunboxDomains().subscribe({
             next: (domains) => {
-                if (domains.length > 0) {
-                    this.runboxDomains = domains;
+                // Backend returns {results: [{id, name}, ...]}; tolerate either shape
+                // since other consumers historically treat the result as string[].
+                const names = (Array.isArray(domains) ? domains : [])
+                    .map((d: any) => typeof d === 'string' ? d : d?.name)
+                    .filter((name: string | undefined): name is string => Boolean(name));
+                if (names.length > 0) {
+                    this.runboxDomains = names;
                     if (!this.runboxDomains.includes(this.runboxDomain)) {
                         this.runboxDomain = this.runboxDomains[0];
                     }
@@ -249,11 +273,11 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             error: () => {
                 // Keep safe defaults if the domain list cannot be loaded.
             },
-        });
+        }));
     }
 
     private loadHCaptchaMetadata(): void {
-        this.rmmapi.getSignupHCaptchaSiteKey().subscribe({
+        this.subs.add(this.rmmapi.getSignupHCaptchaSiteKey().subscribe({
             next: async (siteKey) => {
                 this.hCaptchaSiteKey = siteKey;
                 if (!this.hCaptchaSiteKey) {
@@ -262,7 +286,14 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
 
                 const captchaLoaded = await this.loadHCaptchaScript();
+                if (this.destroyed) {
+                    return;
+                }
                 if (!captchaLoaded) {
+                    // Site key was set above but the script never loaded; clear it so the
+                    // submit guard correctly reports CAPTCHA unavailable instead of telling
+                    // the user to complete a widget that does not exist.
+                    this.hCaptchaSiteKey = '';
                     return;
                 }
 
@@ -273,10 +304,17 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.hCaptchaSiteKey = '';
                 this.hCaptchaError = 'CAPTCHA is temporarily unavailable. Please try again shortly.';
             },
-        });
+        }));
     }
 
     private loadHCaptchaScript(): Promise<boolean> {
+        // Ad blockers, privacy extensions, and strict CSP can silently drop the
+        // script request without ever firing a `load` or `error` event. Without
+        // a deadline the polling interval (existing-script path) and the promise
+        // itself (new-script path) would hang indefinitely, leaking resources
+        // and leaving the user with no widget and no error message.
+        const SCRIPT_LOAD_TIMEOUT_MS = 15_000;
+
         return new Promise<boolean>((resolve, reject) => {
             const existingScript = document.querySelector<HTMLScriptElement>('script[data-runbox-hcaptcha="1"]');
             if (existingScript) {
@@ -288,15 +326,26 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
                 const pollForHCaptcha = window.setInterval(() => {
                     if ((window as WindowWithHCaptcha).hcaptcha) {
                         window.clearInterval(pollForHCaptcha);
+                        window.clearTimeout(timeoutId);
                         resolve(true);
                     }
                 }, 100);
 
+                const timeoutId = window.setTimeout(() => {
+                    window.clearInterval(pollForHCaptcha);
+                    reject(new Error('hCaptcha load timed out.'));
+                }, SCRIPT_LOAD_TIMEOUT_MS);
+
                 existingScript.addEventListener('load', () => {
                     window.clearInterval(pollForHCaptcha);
+                    window.clearTimeout(timeoutId);
                     resolve(true);
                 }, { once: true });
-                existingScript.addEventListener('error', () => reject(new Error('Failed to load hCaptcha.')), { once: true });
+                existingScript.addEventListener('error', () => {
+                    window.clearInterval(pollForHCaptcha);
+                    window.clearTimeout(timeoutId);
+                    reject(new Error('Failed to load hCaptcha.'));
+                }, { once: true });
                 return;
             }
 
@@ -305,17 +354,33 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             script.async = true;
             script.defer = true;
             script.setAttribute('data-runbox-hcaptcha', '1');
-            script.addEventListener('load', () => resolve(true), { once: true });
-            script.addEventListener('error', () => reject(new Error('Failed to load hCaptcha.')), { once: true });
+
+            const timeoutId = window.setTimeout(() => {
+                reject(new Error('hCaptcha load timed out.'));
+            }, SCRIPT_LOAD_TIMEOUT_MS);
+
+            script.addEventListener('load', () => {
+                window.clearTimeout(timeoutId);
+                resolve(true);
+            }, { once: true });
+            script.addEventListener('error', () => {
+                window.clearTimeout(timeoutId);
+                reject(new Error('Failed to load hCaptcha.'));
+            }, { once: true });
             document.body.appendChild(script);
         }).catch((): boolean => {
+            if (this.destroyed) { return false; }
+            // Remove a failed/stale script element so the next attempt takes the
+            // "create new script" branch instead of polling a settled element
+            // whose load/error events will never re-fire.
+            document.querySelector('script[data-runbox-hcaptcha="1"]')?.remove();
             this.hCaptchaError = 'CAPTCHA could not be loaded. Please try again shortly.';
             return false;
         });
     }
 
     private renderHCaptcha(): void {
-        if (!this.hCaptchaReady || !this.hCaptchaSiteKey) {
+        if (this.destroyed || !this.hCaptchaReady || !this.hCaptchaSiteKey) {
             return;
         }
 
@@ -323,11 +388,15 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         const hcaptcha = (window as WindowWithHCaptcha).hcaptcha;
         if (!container || !hcaptcha) {
             this.pendingCaptchaRender = true;
-            window.setTimeout(() => this.renderHCaptcha(), 0);
+            this.captchaRenderTimer = window.setTimeout(() => {
+                this.captchaRenderTimer = null;
+                this.renderHCaptcha();
+            }, 0);
             return;
         }
 
         this.pendingCaptchaRender = false;
+        this.captchaRenderTimer = null;
 
         if (this.hCaptchaWidgetId !== null) {
             return;
@@ -354,9 +423,9 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private focusFirstInvalidField(formElement: HTMLFormElement): void {
-        const firstInvalidField = formElement.querySelector<HTMLElement>(
-            'input.ng-invalid, select.ng-invalid, textarea.ng-invalid, input:invalid, select:invalid, textarea:invalid',
-        );
+        const firstInvalidField =
+            formElement.querySelector<HTMLElement>('input.ng-invalid, select.ng-invalid, textarea.ng-invalid') ||
+            formElement.querySelector<HTMLElement>('input:invalid, select:invalid, textarea:invalid');
         firstInvalidField?.focus();
         firstInvalidField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

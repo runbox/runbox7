@@ -24,7 +24,11 @@ describe('Signup', () => {
         cy.intercept('GET', '/rest/v1/runbox_domains', {
             statusCode: 200,
             body: {
-                results: ['runbox.com', 'runbox.no', 'rbx.email'],
+                results: [
+                    { id: 1, name: 'runbox.com' },
+                    { id: 2, name: 'runbox.no' },
+                    { id: 3, name: 'rbx.email' },
+                ],
             },
         }).as('runboxDomains');
 
@@ -37,7 +41,7 @@ describe('Signup', () => {
 
         cy.intercept('GET', 'https://hcaptcha.com/1/api.js?render=explicit', {
             statusCode: 200,
-            body: 'window.hcaptcha = { render: function() { return "test-widget"; } };',
+            body: 'window.hcaptcha = { render: function(c, p) { window.__hcaptchaParams = p; return "test-widget"; } };',
             headers: {
                 'content-type': 'application/javascript',
             },

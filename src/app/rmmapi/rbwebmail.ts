@@ -633,7 +633,7 @@ export class RunboxWebmailAPI {
 
     public getSignupHCaptchaSiteKey(): Observable<string> {
         return this.http.get('/rest/v1/signup/hcaptcha/site_key').pipe(
-            map((res: any) => res.result),
+            map((res: any) => res?.result ?? ''),
         );
     }
 

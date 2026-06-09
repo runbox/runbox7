@@ -76,7 +76,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .signup-main {
-    width: min(1380px, calc(100% - 2rem));
+    width: min(1380px, calc(100% - clamp(0.75rem, 2vw + 0.4rem, 2rem)));
     margin: 0 auto;
     padding: 1.5rem 0 2rem;
     display: grid;
@@ -105,7 +105,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .hero-copy {
-    padding: 2rem 1.75rem 1.5rem;
+    padding: 2rem clamp(0.9rem, calc(1.5vw + 0.45rem), 1.75rem) 1.5rem;
 }
 
 .eyebrow {
@@ -124,7 +124,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .hero-text {
     margin: 1rem 0 0;
-    font-size: 1.04rem;
+    font-size: clamp(0.92rem, calc(0.4vw + 0.84rem), 1.04rem);
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.88);
 }
@@ -144,7 +144,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .note {
-    padding: 1.15rem 1.75rem;
+    padding: 1.15rem clamp(0.9rem, calc(1.5vw + 0.45rem), 1.75rem);
     background: transparent;
     border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
@@ -156,6 +156,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .note p {
     margin: 0;
+    font-size: clamp(0.92rem, calc(0.4vw + 0.8rem), 1rem);
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.78);
 }
@@ -170,7 +171,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
     align-items: center;
-    padding: 1.4rem 1.5rem;
+    padding: 1.4rem clamp(0.9rem, calc(1.2vw + 0.45rem), 1.5rem);
     border-bottom: 1px solid rmm.$rmm-gray;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 246, 252, 0.92));
 }
@@ -182,12 +183,13 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .form-heading p {
     margin: 0.35rem 0 0;
-    color: #486175;
+    font-size: clamp(0.92rem, calc(0.4vw + 0.8rem), 1rem);
+    color: rmm.$rmm-signup-slate-900;
     line-height: 1.5;
 }
 
 .signup-form {
-    padding: 1.4rem 1.5rem 1.6rem;
+    padding: 1.4rem clamp(0.9rem, calc(1.2vw + 0.45rem), 1.5rem) 1.6rem;
 }
 
 .form-section + .form-section {
@@ -196,7 +198,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .form-section {
     padding-top: 1.35rem;
-    border-top: 1px solid #dde7f0;
+    border-top: 1px solid rmm.$rmm-signup-slate-200;
 }
 
 .form-section:first-child {
@@ -215,7 +217,8 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .section-head p {
     margin: 0.28rem 0 0;
-    color: #5a7187;
+    font-size: clamp(0.92rem, calc(0.4vw + 0.8rem), 1rem);
+    color: rmm.$rmm-signup-slate-800;
     line-height: 1.5;
 }
 
@@ -230,9 +233,9 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     gap: 0.32rem;
     padding: 1rem 1rem 1rem 2.8rem;
     position: relative;
-    border: 1px solid #bfd0e1;
+    border: 1px solid rmm.$rmm-signup-slate-300;
     border-radius: 8px;
-    background: #f8fbfe;
+    background: rmm.$rmm-signup-slate-050;
     cursor: pointer;
 }
 
@@ -254,7 +257,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .choice-copy {
-    color: #587085;
+    color: rmm.$rmm-signup-slate-700;
     line-height: 1.45;
     font-weight: 400;
 }
@@ -322,13 +325,13 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .field > small {
-    color: #637b90;
+    color: rmm.$rmm-signup-slate-600;
     font-size: 0.82rem;
 }
 
 .field.is-invalid > span,
 .checkbox-row.is-invalid span {
-    color: #a12020;
+    color: mat.get-color-from-palette(rmm.$rmm-default-error, 700);
 }
 
 .info-chip {
@@ -457,15 +460,15 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .field.is-invalid input,
 .field.is-invalid select,
 .checkbox-row.is-invalid input {
-    border-color: #d04848;
-    background: #fff7f7;
+    border-color: mat.get-color-from-palette(rmm.$rmm-default-error, 500);
+    background: mat.get-color-from-palette(rmm.$rmm-default-error, 50);
 }
 
 .field.is-invalid input:focus,
 .field.is-invalid select:focus,
 .checkbox-row.is-invalid input:focus {
-    border-color: #c23030;
-    box-shadow: 0 0 0 3px rgba(210, 72, 72, 0.14);
+    border-color: mat.get-color-from-palette(rmm.$rmm-default-error, 700);
+    box-shadow: 0 0 0 3px mat.get-color-from-palette(rmm.$rmm-default-error, 500, 0.14);
 }
 
 .strength-meter {
@@ -489,8 +492,8 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .captcha-box {
     padding: 1rem;
     border-radius: 8px;
-    background: #f6fafd;
-    border: 1px solid #d6e2ec;
+    background: rmm.$rmm-signup-slate-030;
+    border: 1px solid rmm.$rmm-signup-slate-150;
     overflow-x: auto;
 }
 
@@ -505,23 +508,23 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .captcha-host:empty::before {
     content: 'Loading CAPTCHA...';
     display: inline-block;
-    color: #587085;
+    color: rmm.$rmm-signup-slate-700;
     font-size: 0.92rem;
 }
 
 .captcha-missing {
     margin: 0;
     padding: 0.8rem 0.9rem;
-    border: 1px solid #d6b087;
-    background: #fff3e4;
+    border: 1px solid rmm.$rmm-signup-warning-border;
+    background: rmm.$rmm-signup-warning-bg;
     border-radius: 8px;
     line-height: 1.5;
 }
 
 .policy-block {
-    background: linear-gradient(180deg, #f8fbfe 0%, #f2f7fb 100%);
+    background: linear-gradient(180deg, rmm.$rmm-signup-slate-050 0%, rmm.$rmm-signup-slate-020 100%);
     padding: 1.25rem;
-    border: 1px solid #dce6ef;
+    border: 1px solid rmm.$rmm-signup-slate-100;
     border-radius: 8px;
 }
 
@@ -573,16 +576,16 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     margin: 1.1rem 0 0;
     padding: 0.85rem 1rem;
     border-radius: 8px;
-    border: 1px solid #d79a9a;
-    background: #fff2f2;
-    color: #8b1d1d;
+    border: 1px solid mat.get-color-from-palette(rmm.$rmm-default-error, 300);
+    background: mat.get-color-from-palette(rmm.$rmm-default-error, 50);
+    color: mat.get-color-from-palette(rmm.$rmm-default-error, 900);
     line-height: 1.5;
     font-weight: 600;
 }
 
 .field-error {
     display: block;
-    color: #a12020;
+    color: mat.get-color-from-palette(rmm.$rmm-default-error, 700);
     font-size: 0.82rem;
     line-height: 1.4;
 }
@@ -641,7 +644,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .signup-footer {
     padding: 1.2rem 1.25rem 1.8rem;
-    background-image: linear-gradient(170deg, #014f89, #001e35);
+    background-image: linear-gradient(
+        170deg,
+        mat.get-color-from-palette(rmm.$rmm-default-primary),
+        rmm.$rmm-dark-background
+    );
     color: rgba(255, 255, 255, 0.82);
     text-align: center;
 }
@@ -684,16 +691,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     }
 
     .signup-main {
-        width: min(100% - 1.5rem, 1380px);
         gap: 1.1rem;
-    }
-
-    .hero-copy,
-    .note,
-    .signup-form,
-    .form-heading {
-        padding-left: 1.2rem;
-        padding-right: 1.2rem;
     }
 
     .form-heading {
@@ -723,7 +721,6 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     }
 
     .signup-main {
-        width: min(100% - 1rem, 1380px);
         padding-top: 0.75rem;
         padding-bottom: 1.2rem;
         gap: 1rem;
@@ -731,14 +728,6 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
     .hero-panel {
         grid-template-columns: 1fr;
-    }
-
-    .hero-copy,
-    .note,
-    .signup-form,
-    .form-heading {
-        padding-left: 1rem;
-        padding-right: 1rem;
     }
 
     .news-choice {
@@ -794,21 +783,6 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
         line-height: 1.08;
     }
 
-    .hero-text,
-    .hero-subtext,
-    .note p,
-    .section-head p {
-        font-size: 0.95rem;
-    }
-
-    .signup-form,
-    .form-heading,
-    .hero-copy,
-    .note {
-        padding-left: 0.9rem;
-        padding-right: 0.9rem;
-    }
-
     .field input,
     .field select {
         padding: 0.72rem 0.82rem;
@@ -838,20 +812,11 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 @media (max-width: 420px) {
     .signup-main {
-        width: calc(100% - 0.75rem);
         gap: 0.85rem;
     }
 
     .hero-copy h1 {
         font-size: 1.85rem;
-    }
-
-    .hero-text,
-    .hero-subtext,
-    .note p,
-    .form-heading p,
-    .section-head p {
-        font-size: 0.92rem;
     }
 
     .form-heading {
