@@ -133,6 +133,11 @@ export class LoginComponent implements OnInit {
         };
         if (!loginresonseobj.is_2fa_enabled && loginresonseobj.code && error_msgs_1fa[loginresonseobj.code]) {
             this.login_error_html = '<p>' + error_msgs_1fa[loginresonseobj.code] + '</p>';
+            return;
+        }
+        if (loginresonseobj.error) {
+            this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
+            return;
         }
         if (loginresonseobj.user_status === '1') {
             this.accountSuspended = true;
@@ -146,8 +151,6 @@ export class LoginComponent implements OnInit {
             this.accountCanceled = true;
         } else if (loginresonseobj.user_status > 5) {
             this.accountClosed = true;
-        } else if (loginresonseobj.error) {
-            this.login_error_html = '<p>' + (loginresonseobj.error || 'Error occurred') + '</p>';
         } else {
             this.accountError = true;
         }
@@ -176,5 +179,11 @@ export class LoginComponent implements OnInit {
 
     private login_errors_reset() {
         this.login_error_html = undefined;
+        this.accountSuspended = false;
+        this.accountExpiredTrial = false;
+        this.accountExpiredSubscription = false;
+        this.accountCanceled = false;
+        this.accountClosed = false;
+        this.accountError = false;
     }
 }
