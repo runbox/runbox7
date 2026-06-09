@@ -50,6 +50,7 @@ export interface FolderMessageCountMap {
 @Injectable()
 export class MessageListService {
     messagesInViewSubject: BehaviorSubject<MessageInfo[]> = new BehaviorSubject([]);
+    lastUpdatedSubject: BehaviorSubject<Date | null> = new BehaviorSubject(null);
     folderListSubject: BehaviorSubject<FolderListEntry[]> = new BehaviorSubject([]);
     folderMessageCountSubject: ReplaySubject<FolderMessageCountMap> = new ReplaySubject(1);
 
@@ -117,8 +118,13 @@ export class MessageListService {
                 // Message counts update
                 this.folderMessageCountSubject.next(this.folderCounts);
                 // current folder contents update
-                this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+                this.updateMessagesInView(this.folderMessageLists[this.currentFolder]);
             });
+    }
+
+    private updateMessagesInView(messages: MessageInfo[]) {
+        this.messagesInViewSubject.next(messages);
+        this.lastUpdatedSubject.next(new Date());
     }
 
     public setCurrentFolder(folder: string) {
@@ -283,7 +289,7 @@ export class MessageListService {
         // messagelist data, then updates the backend, so applyChanges
         // won't have anything to do unless its pulling changes
         // made from outside of runbox7 (eg via IMAP)
-        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        this.updateMessagesInView(this.folderMessageLists[this.currentFolder]);
         this.refreshFolderList();
     }
 
@@ -322,7 +328,7 @@ export class MessageListService {
         // Message counts update
         this.folderMessageCountSubject.next(this.folderCounts);
         // current folder contents update
-        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        this.updateMessagesInView(this.folderMessageLists[this.currentFolder]);
     }
 
     // Non-index users (or trash/spam) - move to other folder
@@ -398,7 +404,7 @@ export class MessageListService {
       console.log('msl moveMessages updating folderCounts');
         this.folderMessageCountSubject.next(this.folderCounts);
         // current folder contents update
-        this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+        this.updateMessagesInView(this.folderMessageLists[this.currentFolder]);
     }
 
     public fetchFolderMessages(resetContents = false) {
@@ -433,7 +439,7 @@ export class MessageListService {
                     }
                     res.forEach((m: MessageInfo) => this.messagesById[m.id] = m);
                 }
-                this.messagesInViewSubject.next(this.folderMessageLists[this.currentFolder]);
+                this.updateMessagesInView(this.folderMessageLists[this.currentFolder]);
                 this.fetchInProgress = false;
             });
     }
