@@ -76,6 +76,9 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
+export const LOCAL_INDEX_STOP_TOOLTIP =
+  'Stop synchronization and remove the locally stored search index from this device. ' +
+  'The index makes message search faster; remove it on shared or untrusted devices.';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -101,6 +104,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadMessagesOnlyCheckbox = false;
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
+  localIndexStopTooltip = LOCAL_INDEX_STOP_TOOLTIP;
   offerInitialLocalIndex = false;
 
   indexDocCount = 0;
