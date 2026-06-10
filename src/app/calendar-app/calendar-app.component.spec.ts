@@ -228,6 +228,16 @@ END:VCALENDAR
         expect(icon.style.color).toBe('pink');
     });
 
+    it('should display the account time zone in the side menu', () => {
+        fixture.detectChanges();
+
+        const timezoneInfo = fixture.debugElement.nativeElement.querySelector('.timezoneInfo');
+        expect(timezoneInfo).toBeDefined();
+        expect(timezoneInfo.attributes['routerLink'].value).toBe('/account/details');
+        expect(timezoneInfo.innerText).toContain('Account time zone');
+        expect(timezoneInfo.innerText).toContain('Europe/London');
+    });
+
     it('should display events', () => {
         mockData['events'] = simpleEvents;
         component.calendarservice.syncCaldav(true);
