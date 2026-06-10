@@ -65,6 +65,12 @@ import { DefaultPrefGroups, PreferencesService } from '../common/preferences.ser
 
 import '../sentry';
 
+const EVENT_EDITOR_DIALOG_CONFIG = {
+    width: '90vw',
+    maxWidth: '920px',
+    maxHeight: '90vh',
+};
+
 @Component({
     selector: 'app-calendar-app-component',
     templateUrl: './calendar-app.component.html',
@@ -171,8 +177,9 @@ export class CalendarAppComponent implements OnDestroy {
         const new_event = RunboxCalendarEvent.newEmpty(this.calendarservice.me.timezone);
         new_event.timezone = this.calendarservice.me.timezone;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
-            data: { event: new_event, calendars: this.calendars, settings: this.settings, start: on, is_new: true } }
-        );
+            ...EVENT_EDITOR_DIALOG_CONFIG,
+            data: { event: new_event, calendars: this.calendars, settings: this.settings, start: on, is_new: true }
+        });
         dialogRef.afterClosed().subscribe(event => {
             if (event) {
                 this.calendarservice.addEvent(event);
@@ -277,6 +284,7 @@ export class CalendarAppComponent implements OnDestroy {
     openEvent(event: CalendarEvent): void {
         const target = event as RunboxCalendarEvent;
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
+            ...EVENT_EDITOR_DIALOG_CONFIG,
             data: { event: target, calendars: this.calendars, settings: this.settings, is_new: false }
         });
         dialogRef.afterClosed().subscribe(result => {
