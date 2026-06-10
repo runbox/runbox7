@@ -115,6 +115,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public savedForThisSender = false;
   public savedAlways = false;
   public showAllHeaders = false;
+  public displayOriginDate = false;
 
   contacts: Contact[] = [];
 
@@ -543,25 +544,29 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     if (!res.headers.date) {
       res.headers.date = '1970-01-01T00:00:00.000Z';
     }
-    res.date = (
-      (arr: string[]): Date =>
-        new Date(
-          parseInt(arr[1], 10),
-          parseInt(arr[2], 10) - 1,
-          parseInt(arr[3], 10),
-          parseInt(arr[4], 10),
-          parseInt(arr[5], 10),
-          parseInt(arr[6], 10),
-          parseInt(arr[7], 10)
-        )
-    )
-      (
-        new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
-          '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
-          .exec(res.headers.date)
-      );
+    res.dateOriginTimezone = this.getDateHeaderTimezone(res.headers.date);
+    res.date = res.dateOriginTimezone ? new Date(res.headers.date) : new Date(NaN);
+    if (isNaN(res.date.getTime())) {
+      res.date = (
+        (arr: string[]): Date =>
+          new Date(
+            parseInt(arr[1], 10),
+            parseInt(arr[2], 10) - 1,
+            parseInt(arr[3], 10),
+            parseInt(arr[4], 10),
+            parseInt(arr[5], 10),
+            parseInt(arr[6], 10),
+            parseInt(arr[7], 10)
+          )
+      )
+        (
+          new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T' +
+            '([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\.([0-9][0-9][0-9])')
+            .exec(res.headers.date)
+        );
 
-    res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
+      res.date.setMinutes(res.date.getMinutes() - res.date.getTimezoneOffset());
+    }
 
     res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
     res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
@@ -623,6 +628,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
    //  res.text = text;
     res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
     return res;
+  }
+
+  private getDateHeaderTimezone(dateHeader: string): string | undefined {
+    const timezone = /(Z|[+-][0-9]{2}:?[0-9]{2})$/.exec(dateHeader);
+    if (!timezone) {
+      return undefined;
+    }
+    if (timezone[1] === 'Z') {
+      return '+0000';
+    }
+    return timezone[1].replace(':', '');
   }
 
   expandAttachmentData(attachments: any[], html: string): string {
@@ -854,6 +870,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       }, 0);
     }
 
+  }
+
+  public get messageDateFormat(): string {
+    return this.displayOriginDate ? 'yyyy-MM-dd HH:mm ZZZZZ' : 'yyyy-MM-dd HH:mm';
+  }
+
+  public get messageDateTimezone(): string | undefined {
+    return this.displayOriginDate ? this.mailObj?.dateOriginTimezone : undefined;
+  }
+
+  public get messageDateModeLabel(): string {
+    return this.displayOriginDate ? 'Origin time' : 'Local time';
+  }
+
+  public toggleMessageDateMode() {
+    this.displayOriginDate = !this.displayOriginDate;
   }
 
   heightChanged(percentage: number) {
