@@ -46,6 +46,13 @@ describe('MailAddressInfo', () => {
         expect(ma[0].address).toBe('test1@runbox.com');
         expect(ma[0].nameAndAddress).toBe('"Test" <test1@runbox.com>');
     });
+    it('Parse full single address with unquoted comma in name', () => {
+        const ma = MailAddressInfo.parse('Surname, Firstname <test1@runbox.com>');
+        expect(ma.length).toBe(1);
+        expect(ma[0].name).toBe('Surname, Firstname');
+        expect(ma[0].address).toBe('test1@runbox.com');
+        expect(ma[0].nameAndAddress).toBe('"Surname, Firstname" <test1@runbox.com>');
+    });
     it('Parse address list', () => {
         const ma_list = MailAddressInfo.parse('test1@runbox.com,test2@runbox.com');
         expect(ma_list[0].name).toBe(null);
@@ -69,6 +76,14 @@ describe('MailAddressInfo', () => {
         expect(ma_list[1].name).toBe('Test2');
         expect(ma_list[1].address).toBe('test2@runbox.com');
         expect(ma_list[1].nameAndAddress).toBe('"Test2" <test2@runbox.com>');
+    });
+    it('Parse address list with unquoted comma in name', () => {
+        const ma_list = MailAddressInfo.parse('Surname, Firstname <test1@runbox.com>, Test2 <test2@runbox.com>');
+        expect(ma_list.length).toBe(2);
+        expect(ma_list[0].name).toBe('Surname, Firstname');
+        expect(ma_list[0].address).toBe('test1@runbox.com');
+        expect(ma_list[1].name).toBe('Test2');
+        expect(ma_list[1].address).toBe('test2@runbox.com');
     });
     it('Parse multi-level domain', () => {
         const ma_list = MailAddressInfo.parse('"Fred B" <fred@foo.bar.baz.tld>');
