@@ -428,14 +428,19 @@ export class RunboxWebmailAPI {
             console.log(res);
             if (res.errors && res.errors.length) {
                 const error_msg = res.errors.map((key) => {
-                    let loc = this.rblocale.translate(key).replace('_', ' ');
-                    if (loc.length === 0) {
-                        loc = key;
+                    const errorKey = String(key || '').trim();
+                    let loc = errorKey.length > 0 ? this.rblocale.translate(errorKey) : '';
+                    if (typeof loc !== 'string' || loc.trim().length === 0) {
+                        loc = errorKey;
                     }
-                    return loc;
-                }).join('. ');
-                const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
-                this.snackBar.open(error_formatted, 'Dismiss');
+                    return loc.replace(/_/g, ' ').trim();
+                }).filter((message) => message.length > 0).join('. ');
+                if (error_msg.length > 0) {
+                    const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
+                    this.snackBar.open(error_formatted, 'Dismiss');
+                } else {
+                    this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
+                }
             } else {
                 this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
             }
