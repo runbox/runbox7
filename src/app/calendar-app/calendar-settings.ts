@@ -22,6 +22,7 @@ import { RunboxCalendarView } from './runbox-calendar-view';
 export class CalendarSettings {
     weekStartsOnSunday = false;
     lastUsedView: RunboxCalendarView = RunboxCalendarView.Month;
+    showWeekNumbers = false;
 
     constructor(props: any) {
         if ('weekStartsOnSunday' in props) {
@@ -29,6 +30,9 @@ export class CalendarSettings {
         }
         if ('lastUsedView' in props) {
             this.lastUsedView = props['lastUsedView'];
+        }
+        if ('showWeekNumbers' in props) {
+            this.showWeekNumbers = props['showWeekNumbers'];
         }
     }
 }

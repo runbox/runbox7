@@ -1,6 +1,13 @@
 <ng-template #dayViewTemplate let-day="day" let-locale="locale">
     <div class="calendarMonthDayView">
         <div class="cal-cell-top">
+            <span
+                *ngIf="settings.showWeekNumbers && isFirstDayOfCalendarWeek(day.date)"
+                class="calendarWeekNumber"
+                [attr.aria-label]="'Week ' + getCalendarWeekNumber(day.date)"
+            >
+                W{{ getCalendarWeekNumber(day.date) }}
+            </span>
             <span class="cal-day-number">
                 {{ day.date | calendarDate:'monthViewDayNumber':locale }}
             </span>

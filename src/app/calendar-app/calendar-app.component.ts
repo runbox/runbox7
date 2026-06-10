@@ -33,7 +33,11 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 
-import { isSameDay, } from 'date-fns';
+import {
+    getISOWeek,
+    getWeek,
+    isSameDay,
+} from 'date-fns';
 
 import { Subject } from 'rxjs';
 
@@ -249,6 +253,18 @@ export class CalendarAppComponent implements OnDestroy {
 
     importEventClicked(): void {
         this.icsUploadInput.nativeElement.click();
+    }
+
+    getCalendarWeekNumber(date: Date): number {
+        if (this.settings.weekStartsOnSunday) {
+            return getWeek(date, { weekStartsOn: 0, firstWeekContainsDate: 1 });
+        }
+
+        return getISOWeek(date);
+    }
+
+    isFirstDayOfCalendarWeek(date: Date): boolean {
+        return date.getDay() === (this.settings.weekStartsOnSunday ? 0 : 1);
     }
 
     importEvents(calendarId: string, ics: string): void {

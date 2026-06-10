@@ -36,6 +36,7 @@ import { of, Observable, ReplaySubject } from 'rxjs';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { CalendarSettings } from './calendar-settings';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
@@ -244,6 +245,43 @@ END:VCALENDAR
 
         const event = events[0];
         expect(event.innerText).toContain('Test Event #0', 'test event is displayed in the month view');
+    });
+
+    it('should preserve the week number calendar setting', () => {
+        const settings = new CalendarSettings({ showWeekNumbers: true });
+
+        expect(settings.showWeekNumbers).toBeTrue();
+    });
+
+    it('should display week numbers in month view when enabled', () => {
+        component.viewDate = new Date(2026, 0, 15);
+        component.settings.showWeekNumbers = true;
+
+        fixture.detectChanges();
+
+        const weekNumbers = Array.from<HTMLElement>(
+            fixture.debugElement.nativeElement.querySelectorAll('.calendarWeekNumber')
+        ).map(element => element.innerText.trim());
+
+        expect(weekNumbers).toContain('W1');
+        expect(weekNumbers).toContain('W2');
+    });
+
+    it('should use Sunday as the first week-number day when the calendar starts on Sunday', () => {
+        component.settings = new CalendarSettings({ showWeekNumbers: true, weekStartsOnSunday: true });
+
+        expect(component.isFirstDayOfCalendarWeek(new Date(2026, 0, 4))).toBeTrue();
+        expect(component.isFirstDayOfCalendarWeek(new Date(2026, 0, 5))).toBeFalse();
+    });
+
+    it('should hide week numbers in month view by default', () => {
+        component.viewDate = new Date(2026, 0, 15);
+
+        fixture.detectChanges();
+
+        const weekNumbers = fixture.debugElement.nativeElement.querySelectorAll('.calendarWeekNumber');
+
+        expect(weekNumbers.length).toBe(0);
     });
 
     it('should be possible to hide calendars', () => {

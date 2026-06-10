@@ -33,6 +33,11 @@ import { CalendarService } from './calendar.service';
             Week starts on sunday
         </mat-checkbox>
     </p>
+    <p>
+        <mat-checkbox [(ngModel)]="settings.showWeekNumbers">
+            Show week numbers
+        </mat-checkbox>
+    </p>
     <mat-divider></mat-divider>
     <p>
         <button mat-raised-button (click)="removeCache()">
