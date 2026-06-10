@@ -22,7 +22,9 @@ import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { debounceTime, filter, map } from 'rxjs/operators';
+
+export const UPDATE_READY_DEBOUNCE_MS = 1000;
 
 interface UpdateStatus {
     type: string;
@@ -49,7 +51,7 @@ export class UpdateAlertService {
     constructor(
         private ngZone: NgZone,
         private swupdate: SwUpdate,
-        dialog: MatDialog
+        _dialog: MatDialog
     ) {
         if (environment.production && swupdate.isEnabled) {
             console.log('UpdateAlertService started');
@@ -63,7 +65,8 @@ export class UpdateAlertService {
                         available: evt.latestVersion,
                     };
                     return update;
-                })
+                }),
+                debounceTime(UPDATE_READY_DEBOUNCE_MS)
             );
             updatesAvailable.subscribe(ev => {
               this.updateStatus = ev;
