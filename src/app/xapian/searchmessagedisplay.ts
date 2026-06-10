@@ -23,6 +23,9 @@ import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
 export class SearchMessageDisplay extends MessageDisplay {
+  private static readonly CONVERSATION_COUNT_INDEX = 2;
+  private static readonly CONVERSATION_UNREAD_INDEX = 3;
+
   private searchService: SearchService;
 
   // MessageDisplay implementations have different numbers of arguments..
@@ -32,6 +35,11 @@ export class SearchMessageDisplay extends MessageDisplay {
   }
 
   getRowSeen(index: number): boolean {
+    const conversationUnread = this.rows[index][SearchMessageDisplay.CONVERSATION_UNREAD_INDEX];
+    if (typeof conversationUnread === 'boolean') {
+      return conversationUnread;
+    }
+
     return this.searchService.getDocData(this.rows[index][0]).seen ? false : true;
   }
 
@@ -121,8 +129,13 @@ export class SearchMessageDisplay extends MessageDisplay {
           conversationSearchText,
           1, 0, 0, 1000, 1
         );
+        const unreadResults = this.searchService.api.sortedXapianQuery(
+          `${conversationSearchText} AND NOT flag:seen`,
+          1, 0, 0, 1, -1
+        );
         this.searchService.api.clearValueRange();
-        rowObj[2] = `${results[0][1] + 1}`;
+        rowObj[SearchMessageDisplay.CONVERSATION_COUNT_INDEX] = `${results[0][1] + 1}`;
+        rowObj[SearchMessageDisplay.CONVERSATION_UNREAD_INDEX] = unreadResults.length > 0;
 
         currentCountObject = null;
       };
@@ -135,14 +148,16 @@ export class SearchMessageDisplay extends MessageDisplay {
           sortColumn: null,
           rowWrapModeChipCounter: true,
           getValue: (rowIndex): string => {
-            if (!this.getRow(rowIndex)[2]) {
+            const row = this.getRow(rowIndex);
+            if (!row[SearchMessageDisplay.CONVERSATION_COUNT_INDEX]
+              || typeof row[SearchMessageDisplay.CONVERSATION_UNREAD_INDEX] !== 'boolean') {
               if (currentCountObject === null) {
-                currentCountObject = this.getRow(rowIndex);
+                currentCountObject = row;
                 setTimeout(() => processCurrentCountObject(), 0);
               }
               return 'RETRY';
             } else {
-              return this.getRow(rowIndex)[2];
+              return row[SearchMessageDisplay.CONVERSATION_COUNT_INDEX];
             }
           },
           textAlign: 1,
