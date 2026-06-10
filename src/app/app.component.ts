@@ -944,8 +944,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.showSelectOperations = this.canvastable.rows.anySelected();
 
     if (this.canvastable.rows.hasChanges) {
-      this.updateUrlFragment(this.canvastable.rows.getRowMessageId(rowIndex));
-      this.singlemailviewer.messageId = this.canvastable.rows.getRowMessageId(rowIndex);
+      const messageId = this.canvastable.rows.getRowMessageId(rowIndex);
+      const fragmentFolder = this.canvastable.rows.getRowFolder(rowIndex) || this.selectedFolder;
+      this.updateUrlFragment(messageId, fragmentFolder);
+      this.singlemailviewer.messageId = messageId;
 
       if (!this.mobileQuery.matches && !this.messageSubjectDragTipShown) {
         this.snackBar.open('Tip: Drag subject to a folder to move message(s)' , 'Got it');
@@ -1422,12 +1424,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     ).subscribe();
   }
 
-  private updateUrlFragment(messageId?: number): void {
+  private updateUrlFragment(messageId?: number, folder = this.selectedFolder): void {
     if (this.router.url.match('^/[^#]')) {
       // we're not actually on mailviewer, so don't try to be smart
       return;
     }
-    let fragment = this.selectedFolder;
+    let fragment = folder;
     if (fragment && messageId) { //  || this.singlemailviewer?.messageId) {
       //      fragment += `:${this.singlemailviewer.messageId}`;
       fragment += `:${messageId}`;
