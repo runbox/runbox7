@@ -93,7 +93,8 @@ import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirec
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => event.preventDefault());
 
-const routes: Routes = [
+export const routes: Routes = [
+  { path: 'changelog',          loadChildren: () => import('./changelog/changelog.module').then(m => m.ChangelogModule) },
   {
     path: '',
     canActivateChild: [RMMAuthGuardService],
@@ -126,7 +127,6 @@ const routes: Routes = [
       { path: 'dev',                loadChildren: () => import('./dev/dev.module').then(m => m.DevModule) },
       { path: 'dkim',               loadChildren: () => import('./dkim/dkim.module').then(m => m.DkimModule) },
       { path: 'calendar',           loadChildren: () => import('./calendar-app/calendar-app.module').then(m => m.CalendarAppModule) },
-      { path: 'changelog',          loadChildren: () => import('./changelog/changelog.module').then(m => m.ChangelogModule) },
       { path: 'contacts',           loadChildren: () => import('./contacts-app/contacts-app.module').then(m => m.ContactsAppModule) },
       { path: 'onscreen',           loadChildren: () => import('./onscreen/onscreen.module').then(m => m.OnscreenModule) },
       { path: 'identities',         redirectTo: '/account/identities' },
