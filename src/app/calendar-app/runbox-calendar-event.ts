@@ -379,10 +379,19 @@ export class RunboxCalendarEvent implements CalendarEvent {
     // startdate = date/Time of *this instance* of a recurring event/exception
     // enddate   = date/Time of *this instance* of a recurring event/exception
     // if non-recurring, then the event/start/end of single item
-    constructor(id: string, icalevent: ICAL.Event, startdate: ICAL.Time, enddate: ICAL.Time, timezone?: string) {
+    constructor(
+        id: string,
+        icalevent: ICAL.Event,
+        startdate: ICAL.Time,
+        enddate: ICAL.Time,
+        timezone?: string,
+        calendar?: string,
+    ) {
         this.id = id;
         this.timezone = timezone;
-        if (this.id) {
+        if (calendar) {
+            this._calendar = calendar;
+        } else if (this.id) {
             this._calendar = this.id.split('/')[0];
         }
 

@@ -44,12 +44,18 @@ enum Activity {
     GeneratingEvents    = 'Generating Events',
 }
 
+interface ImportedCalendarEvent {
+    id: string;
+    event: ICAL.Event;
+    calendar?: string;
+}
+
 @Injectable()
 export class CalendarService implements OnDestroy {
     calendars:    RunboxCalendar[]      = [];
     events:       RunboxCalendarEvent[] = [];
     // Stores ICAL.Events, one per single/recurring item, with .exceptions set
-    icalevents:   { id: string, event: ICAL.Event}[] = [];
+    icalevents:   ImportedCalendarEvent[] = [];
 
     syncTokens = {};
     syncInterval: any;
@@ -99,7 +105,7 @@ export class CalendarService implements OnDestroy {
                     this.syncTokens[cal.id] = cal.syncToken;
                 }
                 const runboxevents = cache['events'].map((e: any) => {
-                    const ievent = this.importFromIcal(e.id, e.ical);
+                    const ievent = this.importFromIcal(e.id, e.ical, true, e.calendar);
                     return this.generateEvents(undefined, undefined, [ievent]);
                 });
                 runboxevents.forEach((events) => this.events = this.events.concat(events));
@@ -302,7 +308,7 @@ export class CalendarService implements OnDestroy {
     // item, set their specific dtstart date, store the same ICAL.Event.
     // an exception ICAL.Event gets both the exception, and the main one!?
     // set an "isException" flag!?
-    importFromIcal(id: string, ical: string, keep = true): {id: string, event: any} {
+    importFromIcal(id: string, ical: string, keep = true, calendar?: string): ImportedCalendarEvent {
         let component = new ICAL.Component(ICAL.parse(ical));
         // https://github.com/mozilla-comm/ical.js/issues/455
         if (component.getFirstSubcomponent('vtimezone')) {
@@ -339,16 +345,20 @@ export class CalendarService implements OnDestroy {
             // Lets hope we get these in order (rrule first, exception after)
             if (existingEvent && ievent.isRecurrenceException()) {
                 existingEvent['event'].relateException(ievent);
+                if (calendar && !existingEvent.calendar) {
+                    existingEvent.calendar = calendar;
+                }
                 // we could save modified event, and delete this one
                 // or keep doing this and leave that for a different fix?
             }
             return;
         }
+        const importedEvent = { 'id': id, 'event': vevents[0], 'calendar': calendar };
         if (keep) {
-            this.icalevents.push({ 'id': id, 'event': vevents[0] });
+            this.icalevents.push(importedEvent);
         }
 
-        return { 'id': id, 'event': vevents[0] };
+        return importedEvent;
     }
 
     // generate RBE events from ICAL.Events (inc exceptions)
@@ -356,7 +366,7 @@ export class CalendarService implements OnDestroy {
     // iterator will quite happily generate events before the ICAL startdate
     // if you ask it to!
 
-    generateEvents(startDate?: Date, endDate?: Date, ical_events?: { id: string, event: ICAL.Event}[]): RunboxCalendarEvent[] {
+    generateEvents(startDate?: Date, endDate?: Date, ical_events?: ImportedCalendarEvent[]): RunboxCalendarEvent[] {
 
         // end does not default! recurs forever unless stopped
         // set below if not a COUNT item
@@ -371,13 +381,21 @@ export class CalendarService implements OnDestroy {
         const events: RunboxCalendarEvent[] = [];
         event_list.forEach((ievent) => {
             const id = ievent['id'];
+            const calendar = ievent['calendar'];
             let icalevent = ievent['event'];
 
             if (!icalevent.isRecurring()) {
                 if (!startDate ||
                     (moment(startDate).isSameOrBefore(icalevent.endDate.toJSDate())
                         && moment(endDate).isSameOrAfter(icalevent.startDate.toJSDate()) )) {
-                    events.push(new RunboxCalendarEvent(id, icalevent, icalevent.startDate, icalevent.endDate, this.me.timezone));
+                    events.push(new RunboxCalendarEvent(
+                        id,
+                        icalevent,
+                        icalevent.startDate,
+                        icalevent.endDate,
+                        this.me.timezone,
+                        calendar
+                    ));
                 }
                 return;
             }
@@ -418,7 +436,14 @@ export class CalendarService implements OnDestroy {
                 && (end_date_Moment ? end_date_Moment.isAfter(next_time.toJSDate()) : true) ) {
                 const details = icalevent.getOccurrenceDetails(next_time);
                 events.push(
-                    new RunboxCalendarEvent(id, details.item, details.startDate, details.endDate, this.me.timezone));
+                    new RunboxCalendarEvent(
+                        id,
+                        details.item,
+                        details.startDate,
+                        details.endDate,
+                        this.me.timezone,
+                        calendar
+                    ));
             }
         });
         return events;
@@ -505,7 +530,7 @@ export class CalendarService implements OnDestroy {
             this.icalevents = [];
             events.forEach((e: any) => {
                 // store events into this.icalevents
-                this.importFromIcal(e.id, e.ical);
+                this.importFromIcal(e.id, e.ical, true, e.calendar);
             });
 
             // generate RBE events for just this set, for current month+1:
@@ -532,7 +557,11 @@ export class CalendarService implements OnDestroy {
             version:   4,
             calendars: this.calendars,
             events:    this.icalevents.map((event) =>
-                ({'id': event['id'], 'ical': event['event'].component.parent.toString() } ))
+                ({
+                    'id': event['id'],
+                    'ical': event['event'].component.parent.toString(),
+                    'calendar': event['calendar'],
+                } ))
         };
         this.storage.set('caldavCache', cache);
     }
