@@ -37,6 +37,7 @@ import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
+import { decodeMimeEncodedWords } from '../common/mime-encoded-word';
 
 // eslint-disable-next-line no-var
 declare var FS; declare var IDBFS; declare var Module;
@@ -851,8 +852,8 @@ export class SearchService {
 
           this.currentDocData = {
             id: docdataparts[0],
-            from: docdataparts[1],
-            subject: docdataparts[2],
+            from: decodeMimeEncodedWords(docdataparts[1]),
+            subject: decodeMimeEncodedWords(docdataparts[2]),
             recipients: [],
             textcontent: null
           };
@@ -880,7 +881,7 @@ export class SearchService {
                 } else if (s === XAPIAN_TERM_HASATTACHMENTS) {
                   this.currentDocData.attachment = true;
                 } else if (s.indexOf('XRECIPIENT') === 0) {
-                  const recipient = s.substring('XRECIPIENT:'.length);
+                  const recipient = decodeMimeEncodedWords(s.substring('XRECIPIENT:'.length));
                   this.currentDocData.recipients.push(recipient);
                 }
               });
