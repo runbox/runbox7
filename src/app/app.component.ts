@@ -870,10 +870,19 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     }
     if (displayType === 'messagelist') {
+      let createdMessageList = false;
       if (this.canvastable.rows instanceof MessageList) {
         this.canvastable.updateRows(args[0]);
       } else {
         this.canvastable.rows = new MessageList(...args);
+        createdMessageList = true;
+      }
+      (this.canvastable.rows as MessageList).sortBy(
+        this.canvastablecontainer.sortColumn,
+        this.canvastablecontainer.sortDescending,
+        this.selectedFolder
+      );
+      if (createdMessageList) {
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }
