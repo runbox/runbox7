@@ -33,6 +33,7 @@ import { PreferencesService } from '../common/preferences.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { take } from 'rxjs/operators';
 import { of, Observable, ReplaySubject } from 'rxjs';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
@@ -97,8 +98,12 @@ describe('CalendarAppComponent', () => {
          'calendar': 'test-calendar',
         }];
 
+    const testCalendars = () => [
+        new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink', syncToken: 'testsync' })
+    ];
+
     const mockData = {
-        calendars: [ new RunboxCalendar({ id: 'test-calendar', displayname: 'Test Calendar', color: 'pink', syncToken: 'testsync' }) ],
+        calendars: testCalendars(),
         events:    [], // set in test cases
         timezone:
 `BEGIN:VCALENDAR
@@ -209,6 +214,8 @@ END:VCALENDAR
 
     beforeEach(() => {
         localStorage.clear();
+        mockData['calendars'] = testCalendars();
+        mockData['events'] = [];
         fixture = TestBed.createComponent(CalendarAppComponent);
         component = fixture.componentInstance;
     });
@@ -226,6 +233,21 @@ END:VCALENDAR
 
         const icon = calendar.querySelector('.calendarColorLabel', 'test calendar has a correct icon colour');
         expect(icon.style.color).toBe('pink');
+    });
+
+    it('should not offer to add events before calendars are loaded', () => {
+        const dialog = TestBed.inject(MatDialog);
+        const openDialog = spyOn(dialog, 'open');
+
+        component.calendars = [];
+        fixture.detectChanges();
+
+        expect(component.canAddEvents).toBeFalse();
+        const addEventButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#addEventButton');
+        expect(addEventButton.disabled).toBeTrue();
+
+        component.addEvent();
+        expect(openDialog).not.toHaveBeenCalled();
     });
 
     it('should display events', () => {

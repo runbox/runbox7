@@ -100,8 +100,10 @@ export class EventEditorDialogComponent {
         public dialogRef: MatDialogRef<EventEditorDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        this.calendars = data['calendars'];
-        this.calendarFC.setValue(this.calendars[0].id);
+        this.calendars = data['calendars'] || [];
+        if (this.calendars.length > 0) {
+            this.calendarFC.setValue(this.calendars[0].id);
+        }
 
         this.event = data['event'];
         if (!data['is_new']) {

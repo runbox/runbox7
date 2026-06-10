@@ -166,7 +166,15 @@ export class CalendarAppComponent implements OnDestroy {
         clearInterval(this.viewRefreshInterval);
     }
 
+    get canAddEvents(): boolean {
+        return this.calendars.length > 0;
+    }
+
     addEvent(on?: Date): void {
+        if (!this.canAddEvents) {
+            return;
+        }
+
         // setup new event
         const new_event = RunboxCalendarEvent.newEmpty(this.calendarservice.me.timezone);
         new_event.timezone = this.calendarservice.me.timezone;
