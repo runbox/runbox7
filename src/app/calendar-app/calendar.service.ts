@@ -63,6 +63,7 @@ export class CalendarService implements OnDestroy {
     activities      = new BackgroundActivityService<Activity>();
 
     me: RunboxMe    = new RunboxMe();
+    accountTimezone = '';
 
     userTimezoneLoaded = new AsyncSubject<ICAL.Timezone>();
 
@@ -74,7 +75,8 @@ export class CalendarService implements OnDestroy {
         // VTIMEZONE for their events to use
         this.rmmapi.me.subscribe(me => {
             this.me = me;
-            this.loadVTimezone(this.me.timezone);
+            this.accountTimezone = this.me.timezone;
+            this.loadVTimezone(this.accountTimezone);
         });
 
         // We need the user's timezone to display their events:

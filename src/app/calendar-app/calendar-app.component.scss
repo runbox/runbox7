@@ -18,6 +18,13 @@
     }
 }
 
+.timezoneInfo {
+    .timezoneName {
+        opacity: 0.75;
+        word-break: break-word;
+    }
+}
+
 .updateInfo {
     &:hover {
         background-color: #fff;
