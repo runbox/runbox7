@@ -51,7 +51,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     sendNewsOffers = '';
     tosAccepted = false;
     passwordStrength = 0;
-    accountNumber = '';
     timezone = 'UTC';
     signupAction = '/signup/signup';
 
@@ -107,8 +106,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             if (domainType === 'user' || domainType === 'runbox') {
                 this.domainType = domainType;
             }
-            const rawAccountNumber = params.get('account_number') || params.get('accountNumber') || '';
-            this.accountNumber = /^[0-9]{0,12}$/.test(rawAccountNumber) ? rawAccountNumber : '';
         });
 
         this.initializeHCaptcha();

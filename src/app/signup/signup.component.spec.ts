@@ -155,7 +155,6 @@ describe('SignupComponent', () => {
 
         expect(component.accountType).toBe('business');
         expect(component.domainType).toBe('user');
-        expect(component.accountNumber).toBe('12345');
     });
 
     it('keeps safe defaults if legacy metadata cannot be fetched', async () => {

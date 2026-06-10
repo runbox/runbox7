@@ -292,7 +292,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
           <div class="captcha-box">
             <div #captchaContainer class="captcha-host" [class.is-hidden]="!hCaptchaSiteKey"></div>
             <p class="captcha-missing" *ngIf="!hCaptchaSiteKey">
-              CAPTCHA is temporarily unavailable. Please use the legacy signup form below.
+              CAPTCHA is temporarily unavailable. Please try again shortly.
             </p>
             <p class="field-error captcha-error" *ngIf="showCaptchaValidationError">Complete the CAPTCHA verification to continue.</p>
           </div>
@@ -334,7 +334,6 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
         <input type="hidden" name="signup" value="1" />
         <input type="hidden" name="domain" [value]="userDomain" />
-        <input type="hidden" name="account_number" [value]="accountNumber" />
         <input type="hidden" name="timezone" [value]="timezone" />
 
         <div class="form-actions">
