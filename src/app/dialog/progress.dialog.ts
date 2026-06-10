@@ -25,20 +25,24 @@ import { Component } from '@angular/core';
 import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
-    template: `<mat-spinner *ngIf="!value"></mat-spinner>
-                <mat-progress-spinner *ngIf="value" [value]="value"></mat-progress-spinner>`
+    template: `<mat-spinner *ngIf="!hasProgressValue"></mat-spinner>
+                <mat-progress-bar *ngIf="hasProgressValue" mode="determinate" [value]="value"></mat-progress-bar>`,
+    styles: [`
+        mat-progress-bar {
+            min-width: 240px;
+        }
+    `]
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ProgressDialog {
     static progressDialogRef: MatDialogRef<ProgressDialog>;
-    value: number;
+    value: number | null = null;
 
-    constructor() {
-
+    get hasProgressValue(): boolean {
+        return this.value !== null && typeof this.value !== 'undefined';
     }
 
-
-    static setValue(value: number) {
+    static setValue(value: number | null) {
         ProgressDialog.progressDialogRef.componentInstance.value = value;
     }
 
