@@ -17,9 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { AliasesListerComponent } from './aliases.lister';
-import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -30,10 +30,12 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { MatLegacyCommonModule, MatLegacyOptionModule } from '@angular/material/legacy-core';
 import { HttpClient } from '@angular/common/http';
+import { ProfileService } from '../profiles/profile.service';
 
 describe('AliasesListerComponent', () => {
     let component: AliasesListerComponent;
     let fixture: ComponentFixture<AliasesListerComponent>;
+    let profileService: jasmine.SpyObj<ProfileService>;
 
     const DEFAULT_EMAIL = 'a.kalou@shadowcat.co.uk';
     const ALLOWED_DOMAINS = ['runbox.com', 'shadowcat.co.uk'];
@@ -44,6 +46,8 @@ describe('AliasesListerComponent', () => {
     ];
 
     beforeEach(() => {
+        profileService = jasmine.createSpyObj<ProfileService>('ProfileService', ['deleteAssociatedAliasIdentities']);
+        profileService.deleteAssociatedAliasIdentities.and.returnValue(of([]));
         TestBed.configureTestingModule({
             imports: [
                 CommonModule,
@@ -84,8 +88,12 @@ describe('AliasesListerComponent', () => {
                             status: 'success',
                             result: {alias: alias}
                         }),
+                        delete: () => of({
+                            status: 'success',
+                        }),
                     }
                 } },
+                { provide: ProfileService, useValue: profileService },
             ],
             declarations: [
                 AliasesListerComponent,
@@ -161,4 +169,26 @@ describe('AliasesListerComponent', () => {
             expect(domain.textContent).toContain(allowed_domain);
         });
     });
+
+    it('cleans up the associated identity after deleting an alias', fakeAsync(() => {
+        const alias = {
+            id: 123,
+            localpart: 'testface',
+            domain: 'runbox.com',
+            forward_to: 'mctestface@runbox.com',
+        };
+        component.aliases = [alias];
+
+        component.delete(alias);
+        fixture.detectChanges();
+
+        const dialog = TestBed.inject(MatDialog);
+        dialog.openDialogs[dialog.openDialogs.length - 1].componentInstance.delete();
+        tick();
+
+        expect(component.aliases).toEqual([]);
+        expect(profileService.deleteAssociatedAliasIdentities).toHaveBeenCalledTimes(1);
+        expect(profileService.deleteAssociatedAliasIdentities).toHaveBeenCalledWith(alias);
+        flush();
+    }));
 });
