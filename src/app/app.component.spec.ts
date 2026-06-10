@@ -55,7 +55,7 @@ describe('AppComponent folder deletion', () => {
       messagelistservice,
       rmmapi,
       snackBar
-    } as any as AppComponent;
+    };
 
     return { component, messagelistservice, rmmapi, snackBar };
   };
