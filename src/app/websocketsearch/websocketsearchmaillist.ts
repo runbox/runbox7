@@ -49,6 +49,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
     if (options.has('unreadOnly') && options.get('unreadOnly')) {
       this.rows = this._rows.filter((msg) => !msg.seen);
     }
+    this.refreshOpenedRowIndex();
   }
 
     public getCanvasTableColumns(app: any): CanvasTableColumn[] {
