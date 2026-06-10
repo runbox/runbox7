@@ -8,11 +8,13 @@
         <ng-content></ng-content>
 
         <button mat-list-item *ngFor="let search of searches; let idx = index"
-            (click)="searchClicked.emit(search.query)"
+            [ngClass]="{'selectedFolder': isSelected(search)}"
+            [attr.aria-current]="isSelected(search) ? 'page' : null"
+            (click)="searchClicked.emit(search)"
         >
             {{ search.name }}
             <span style="flex-grow: 1"></span>
-            <button mat-icon-button (click)="remove(idx)">
+            <button mat-icon-button (click)="$event.stopPropagation(); remove(idx)">
                 <mat-icon svgIcon="delete"></mat-icon>
             </button>
         </button>
