@@ -44,6 +44,22 @@ export class GroupMember {
         return this.scheme === 'mailto' ? this.value : this.prop.getParameter('x-email');
     }
 
+    display_name(): string {
+        if (this.name && this.email) {
+            return `${this.name} <${this.email}>`;
+        }
+        if (this.name) {
+            return this.name;
+        }
+        if (this.email) {
+            return this.email;
+        }
+        if (this.uuid) {
+            return 'Deleted contact';
+        }
+        return this.value;
+    }
+
     constructor(public prop: ICAL.Property) {
         const value = prop.getFirstValue();
         const splitter = value.lastIndexOf(':');
