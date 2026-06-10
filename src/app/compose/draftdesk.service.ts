@@ -77,6 +77,7 @@ export class DraftFormModel {
         ret.mid = draftId;
         ret.to = to ? MailAddressInfo.parse(to) : [];
         ret.subject = subject;
+        ret.message_date = message_date;
         if (preview) {
             // We create an element here because we want the plain text
             const previewElm = document.createElement('div');
@@ -85,6 +86,27 @@ export class DraftFormModel {
             ret.preview = DraftFormModel.trimmedPreview(previewElm.innerText.trim().replace(/\s+/g, ' '));
         }
         return ret;
+    }
+
+    public static compareByUpdatedDesc(a: DraftFormModel, b: DraftFormModel): number {
+        if (a.isUnsaved() && b.isUnsaved()) {
+            return a.mid - b.mid;
+        }
+        if (a.isUnsaved()) {
+            return -1;
+        }
+        if (b.isUnsaved()) {
+            return 1;
+        }
+
+        const aTime = a.message_date instanceof Date ? a.message_date.getTime() : 0;
+        const bTime = b.message_date instanceof Date ? b.message_date.getTime() : 0;
+
+        if (aTime !== bTime) {
+            return bTime - aTime;
+        }
+
+        return b.mid - a.mid;
     }
 
     public static reply(mailObj, froms: Identity[], all: boolean, useHTML: boolean): DraftFormModel {
@@ -295,12 +317,13 @@ export class DraftDeskService {
                                 this.mainIdentity(),
                                 msgInfo.to.map((addr) => addr.name === null || addr.address.indexOf(addr.name + '@') === 0 ?
                                     addr.address : addr.name + '<' + addr.address + '>').join(','),
-                                msgInfo.subject, null, msgInfo.messageDate)
+                                msgInfo.subject, null, msgInfo.changedDate)
                         )
                                 );
                     if (this.composingNewDraft) {
                         newDrafts.splice(0, 0, this.composingNewDraft);
                     }
+                    newDrafts.sort(DraftFormModel.compareByUpdatedDesc);
                     this.draftModels.next(newDrafts);
                 });
         }

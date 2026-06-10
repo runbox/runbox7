@@ -410,6 +410,34 @@ Subject: Test subject <br />
         expect(draft.isUnsaved()).toBe(false);
         done();
     });
+
+    it('sorts saved drafts by updated date descending and keeps unsaved drafts first', () => {
+        const olderDraft = DraftFormModel.create(
+            200,
+            Identity.fromObject({'email':'to@runbox.com'}),
+            '"Older" <older@runbox.com>',
+            'Older',
+            null,
+            new Date('2024-01-01T00:00:00Z'));
+        const newerDraft = DraftFormModel.create(
+            100,
+            Identity.fromObject({'email':'to@runbox.com'}),
+            '"Newer" <newer@runbox.com>',
+            'Newer',
+            null,
+            new Date('2024-02-01T00:00:00Z'));
+        const unsavedDraft = DraftFormModel.create(
+            -1,
+            Identity.fromObject({'email':'to@runbox.com'}),
+            null,
+            'Unsaved');
+
+        const sortedDraftIds = [olderDraft, newerDraft, unsavedDraft]
+            .sort(DraftFormModel.compareByUpdatedDesc)
+            .map((draft) => draft.mid);
+
+        expect(sortedDraftIds).toEqual([-1, 100, 200]);
+    });
 });
 
 describe('DraftDeskService', () => {
@@ -494,6 +522,33 @@ describe('DraftDeskService', () => {
 
             // The drafts array should have been updated
             expect(drafts.length).toBeGreaterThan(0);
+        });
+
+        it('should sort refreshed drafts by changed date descending', async () => {
+            const olderChangedDate = new Date('2024-01-01T00:00:00Z');
+            const newerChangedDate = new Date('2024-02-01T00:00:00Z');
+
+            mockRmmapi.listAllMessages.and.returnValue(of([
+                {
+                    id: 200,
+                    changedDate: olderChangedDate,
+                    to: [{ name: null, address: 'older@runbox.com' }],
+                    subject: 'Older draft'
+                },
+                {
+                    id: 100,
+                    changedDate: newerChangedDate,
+                    to: [{ name: null, address: 'newer@runbox.com' }],
+                    subject: 'Newer draft'
+                }
+            ]));
+
+            draftDeskService['refreshDrafts']();
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            expect(draftDeskService.draftModels.value.map((draft) => draft.mid)).toEqual([100, 200]);
+            expect(draftDeskService.draftModels.value[0].message_date).toEqual(newerChangedDate);
         });
     });
 
