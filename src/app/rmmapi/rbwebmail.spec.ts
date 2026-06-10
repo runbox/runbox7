@@ -21,7 +21,10 @@ import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI } from './rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import {
+    MatLegacySnackBar as MatSnackBar,
+    MatLegacySnackBarModule as MatSnackBarModule
+} from '@angular/material/legacy-snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MessageCache } from './messagecache';
 import { firstValueFrom } from 'rxjs';
@@ -45,6 +48,69 @@ describe('RBWebMail', () => {
                 } },
             ]
         });
+    });
+
+    it('maps profile validation errors to field errors', async () => {
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const httpTestingController = TestBed.inject(HttpTestingController);
+        const snackBar = TestBed.inject(MatSnackBar);
+        const fieldErrors = {};
+        let emitted = false;
+        let completed = false;
+        spyOn(snackBar, 'open');
+        spyOn(rmmapi.rblocale, 'translate').and.callFake(key => key);
+
+        rmmapi.createProfile({
+            email: 'test',
+            from_name: '',
+        }, fieldErrors).subscribe({
+            next: () => emitted = true,
+            complete: () => completed = true,
+        });
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const req = httpTestingController.expectOne('/rest/v1/profile');
+        req.flush({
+            status: 'error',
+            field_errors: {
+                email: ['Invalid email address'],
+                from_name: ['Required'],
+            },
+        });
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(fieldErrors['email']).toEqual(['Please enter an email address.']);
+        expect(fieldErrors['from_name']).toEqual(['Please enter a name.']);
+        expect(emitted).toBeFalse();
+        expect(completed).toBeTrue();
+        expect(snackBar.open).not.toHaveBeenCalled();
+    });
+
+    it('maps profile alias ownership errors to the email field', async () => {
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const httpTestingController = TestBed.inject(HttpTestingController);
+        const snackBar = TestBed.inject(MatSnackBar);
+        const fieldErrors = {};
+        spyOn(snackBar, 'open');
+        spyOn(rmmapi.rblocale, 'translate').and.callFake(key => key);
+
+        rmmapi.updateProfile(11, {
+            email: 'alias@runbox.com',
+            from_name: 'Alias User',
+        }, fieldErrors).subscribe();
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const req = httpTestingController.expectOne('/rest/v1/profile/11');
+        req.flush({
+            status: 'error',
+            errors: ['Please create the alias first.'],
+        });
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(fieldErrors['email']).toEqual([
+            'Please enter an email address that belongs to this account, or create it on the Email Aliases screen first.'
+        ]);
+        expect(snackBar.open).not.toHaveBeenCalled();
     });
 
     it('should cache message contents', async () => {
