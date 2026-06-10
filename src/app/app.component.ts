@@ -76,6 +76,7 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
+const MESSAGE_ACTION_SNACKBAR_DURATION = 3000;
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -750,7 +751,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public setReadStatus(status: boolean) {
-    this.snackBar.open('Toggling read status...');
+    this.snackBar.open('Toggling read status...', undefined, { duration: MESSAGE_ACTION_SNACKBAR_DURATION });
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
     this.messageActionsHandler.updateMessages({
@@ -779,7 +780,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public setFlaggedStatus(status: boolean) {
-    this.snackBar.open('Toggling flags...');
+    this.snackBar.open('Toggling flags...', undefined, { duration: MESSAGE_ACTION_SNACKBAR_DURATION });
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
     this.messageActionsHandler.updateMessages({
