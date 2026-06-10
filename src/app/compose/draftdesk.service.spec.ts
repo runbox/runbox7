@@ -565,6 +565,28 @@ describe('DraftDeskService', () => {
         });
     });
 
+    describe('newSharedDraft', () => {
+        it('should create shared draft from Web Share Target fields', async () => {
+            await draftDeskService.newSharedDraft('Shared page', 'Shared text', 'https://example.com/page');
+
+            const drafts = draftDeskService.draftModels.value;
+            expect(drafts.length).toBeGreaterThan(0);
+
+            const sharedDraft = drafts[0];
+            expect(sharedDraft.subject).toBe('Shared page');
+            expect(sharedDraft.msg_body).toBe('Shared text\n\nhttps://example.com/page');
+            expect(sharedDraft.to).toEqual([]);
+        });
+
+        it('should not duplicate identical shared text and URL values', async () => {
+            await draftDeskService.newSharedDraft('', 'https://example.com/page', 'https://example.com/page');
+
+            const drafts = draftDeskService.draftModels.value;
+            expect(drafts[0].subject).toBe('');
+            expect(drafts[0].msg_body).toBe('https://example.com/page');
+        });
+    });
+
     describe('mainIdentity', () => {
         it('should return compose profile from ProfileService', () => {
             const identity = draftDeskService.mainIdentity();
