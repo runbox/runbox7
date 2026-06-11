@@ -36,6 +36,7 @@ describe('SignupComponent', () => {
         rmmapi = jasmine.createSpyObj<RunboxWebmailAPI>('RunboxWebmailAPI', [
             'getRunboxDomains',
             'getSignupHCaptchaSiteKey',
+            'getSignupUsernameAvailability',
         ]);
         // Real backend returns {id, name}[]; service signature is currently
         // typed as string[]. Cast so the mock exercises the runtime shape
@@ -46,6 +47,7 @@ describe('SignupComponent', () => {
             { id: 3, name: 'rbx.email' },
         ]) as any);
         rmmapi.getSignupHCaptchaSiteKey.and.returnValue(of('test-site-key'));
+        rmmapi.getSignupUsernameAvailability.and.returnValue(of({ available: true }));
 
         await TestBed.configureTestingModule({
             imports: [FormsModule],
@@ -210,6 +212,23 @@ describe('SignupComponent', () => {
 
         expect(component.showUserDomainError(domainControl, getForm())).toBeTrue();
         expect(fixture.nativeElement.textContent).toContain('Enter a valid domain such as example.com.');
+    });
+
+    it('shows a field-level validation error when the username is already taken', async () => {
+        rmmapi.getSignupUsernameAvailability.and.returnValue(of({ available: false, reason: 'username_taken' }));
+        await initComponent();
+
+        setInputValue('input[name="user"]', 'existinguser');
+        const input = fixture.nativeElement.querySelector('input[name="user"]') as HTMLInputElement;
+        input.dispatchEvent(new Event('blur', { bubbles: true }));
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        const userControl = fixture.debugElement.query(By.css('input[name="user"]')).injector.get(NgModel);
+        expect(component.showUsernameError(userControl, getForm())).toBeTrue();
+        expect(component.usernameErrorMessage(userControl)).toBe('This username is already taken.');
+        expect(fixture.nativeElement.textContent).toContain('This username is already taken.');
     });
 
     it('blocks submit if captcha script failed to load even when required fields are valid', async () => {

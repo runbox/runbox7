@@ -70,6 +70,9 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     submitError = '';
     submitInProgress = false;
     showCaptchaValidationError = false;
+    usernameAvailabilityPending = false;
+    usernameAvailable = true;
+    usernameAvailabilityError = '';
 
     private hCaptchaWidgetId: string | null = null;
     private hCaptchaReady = false;
@@ -77,6 +80,8 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     private pendingCaptchaRender = false;
     private destroyed = false;
     private captchaRenderTimer: number | null = null;
+    private usernameAvailabilityKey = '';
+    private usernameAvailabilityRequestId = 0;
     private readonly subs = new Subscription();
     private readonly customDomainPattern = /^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
 
@@ -149,6 +154,20 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         this.userDomain = this.userDomain.trim().toLowerCase();
     }
 
+    onUsernameInput(): void {
+        this.user = this.user.trim().toLowerCase();
+        this.usernameAvailable = true;
+        this.usernameAvailabilityError = '';
+        if (this.currentUsernameAvailabilityKey() !== this.usernameAvailabilityKey) {
+            this.usernameAvailabilityPending = false;
+        }
+    }
+
+    onUsernameBlur(): void {
+        this.user = this.user.trim().toLowerCase();
+        this.checkUsernameAvailability();
+    }
+
     onSubmit(form: NgForm, formElement: HTMLFormElement): void {
         this.submitError = '';
         this.showCaptchaValidationError = false;
@@ -173,6 +192,27 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             this.submitError = 'Choose a stronger password before continuing.';
             const passwordInput = formElement.querySelector<HTMLInputElement>('input[name="password"]');
             passwordInput?.focus();
+            return;
+        }
+
+        if (this.usernameAvailabilityPending) {
+            this.submitError = 'Still checking whether that username is available.';
+            const usernameInput = formElement.querySelector<HTMLInputElement>('input[name="user"]');
+            usernameInput?.focus();
+            return;
+        }
+
+        if (!this.isUsernameAvailabilitySatisfied()) {
+            this.checkUsernameAvailability(() => this.onSubmit(form, formElement), true);
+            const usernameInput = formElement.querySelector<HTMLInputElement>('input[name="user"]');
+            usernameInput?.focus();
+            return;
+        }
+
+        if (!this.usernameAvailable) {
+            this.submitError = 'Choose another username before continuing.';
+            const usernameInput = formElement.querySelector<HTMLInputElement>('input[name="user"]');
+            usernameInput?.focus();
             return;
         }
 
@@ -209,6 +249,35 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         return control.invalid && (control.touched || control.dirty || Boolean(form?.submitted));
     }
 
+    showUsernameError(control?: NgModel | null, form?: NgForm): boolean {
+        if (!control) {
+            return false;
+        }
+
+        const shouldShow = control.touched || control.dirty || Boolean(form?.submitted);
+        if (!shouldShow) {
+            return false;
+        }
+
+        return control.invalid
+            || this.usernameAvailabilityError !== ''
+            || (this.isUsernameAvailabilitySatisfied() && !this.usernameAvailable);
+    }
+
+    usernameErrorMessage(control?: NgModel | null): string {
+        if (control?.errors?.['required']) {
+            return 'Choose a username for your mailbox.';
+        }
+        if (this.usernameAvailabilityError) {
+            return this.usernameAvailabilityError;
+        }
+        if (this.isUsernameAvailabilitySatisfied() && !this.usernameAvailable) {
+            return 'This username is already taken.';
+        }
+
+        return 'Choose a username for your mailbox.';
+    }
+
     showUserDomainError(control?: NgModel | null, form?: NgForm): boolean {
         if (!control) {
             return false;
@@ -243,8 +312,128 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'Enter a valid domain such as example.com.';
     }
 
+    private isUsernameFormatValid(): boolean {
+        return this.usernameFormatErrorMessage() === '';
+    }
+
+    private usernameFormatErrorMessage(): string {
+        const username = this.user.trim().toLowerCase();
+        if (!username) {
+            return '';
+        }
+        if (!/^[a-z0-9_-]+(\.[a-z0-9_-]+)*[a-z0-9_-]*$/.test(username)) {
+            return 'Use only letters, numbers, dots, hyphens, or underscores.';
+        }
+        if (username.length > 32) {
+            return 'Use 32 characters or fewer.';
+        }
+        if (this.domainType === 'runbox' && username.length < 4) {
+            return 'Use at least 4 characters for a Runbox address.';
+        }
+        return '';
+    }
+
+    private usernameAvailabilityReasonMessage(reason?: string): string {
+        switch (reason) {
+        case 'username_required':
+            return 'Choose a username for your mailbox.';
+        case 'username_taken':
+            return 'This username is already taken.';
+        case 'username_contains_illegal':
+            return 'Use only letters, numbers, dots, hyphens, or underscores.';
+        case 'username_too_short':
+            return 'Use at least 4 characters for a Runbox address.';
+        case 'username_too_long':
+            return 'Use 32 characters or fewer.';
+        case 'domain_invalid_name':
+            return 'Enter a valid domain such as example.com.';
+        default:
+            return 'This username is not available.';
+        }
+    }
+
     private isUserDomainValid(): boolean {
         return this.customDomainPattern.test(this.userDomain.trim());
+    }
+
+    private currentUsernameAvailabilityKey(): string {
+        return JSON.stringify({
+            username: this.user.trim().toLowerCase(),
+            domainType: this.domainType,
+            runboxDomain: this.runboxDomain,
+            userDomain: this.userDomain.trim().toLowerCase(),
+        });
+    }
+
+    private isUsernameAvailabilitySatisfied(): boolean {
+        return this.currentUsernameAvailabilityKey() === this.usernameAvailabilityKey
+            && !this.usernameAvailabilityPending
+            && this.usernameAvailabilityError === '';
+    }
+
+    private checkUsernameAvailability(onAvailable?: () => void, fromSubmit = false): void {
+        this.user = this.user.trim().toLowerCase();
+
+        if (!this.isUsernameFormatValid()) {
+            this.usernameAvailable = false;
+            this.usernameAvailabilityPending = false;
+            this.usernameAvailabilityError = this.usernameFormatErrorMessage();
+            if (fromSubmit) {
+                this.submitError = this.usernameAvailabilityError;
+            }
+            return;
+        }
+        if (this.domainType === 'user' && !this.isUserDomainValid()) {
+            return;
+        }
+
+        const requestKey = this.currentUsernameAvailabilityKey();
+        if (requestKey === this.usernameAvailabilityKey && !this.usernameAvailabilityPending && this.usernameAvailabilityError === '') {
+            if (this.usernameAvailable && onAvailable) {
+                onAvailable();
+            }
+            return;
+        }
+
+        this.usernameAvailabilityPending = true;
+        this.usernameAvailabilityError = '';
+        const requestId = ++this.usernameAvailabilityRequestId;
+
+        this.subs.add(this.rmmapi.getSignupUsernameAvailability(
+            this.user.trim().toLowerCase(),
+            this.domainType,
+            this.runboxDomain,
+            this.userDomain.trim().toLowerCase(),
+        ).subscribe({
+            next: (result) => {
+                if (requestId !== this.usernameAvailabilityRequestId || this.destroyed) {
+                    return;
+                }
+                this.usernameAvailabilityPending = false;
+                this.usernameAvailabilityKey = requestKey;
+                this.usernameAvailable = Boolean(result?.available);
+                this.usernameAvailabilityError = result?.available
+                    ? ''
+                    : this.usernameAvailabilityReasonMessage(result?.reason);
+                if (fromSubmit && !result?.available) {
+                    this.submitError = this.usernameAvailabilityError;
+                }
+                if (this.usernameAvailable && !this.usernameAvailabilityError && onAvailable) {
+                    onAvailable();
+                }
+            },
+            error: () => {
+                if (requestId !== this.usernameAvailabilityRequestId || this.destroyed) {
+                    return;
+                }
+                this.usernameAvailabilityPending = false;
+                this.usernameAvailable = false;
+                this.usernameAvailabilityError = 'Could not verify this username right now. Please try again.';
+                if (fromSubmit) {
+                    this.submitError = this.usernameAvailabilityError;
+                }
+            },
+        }));
     }
 
     private initializeHCaptcha(): void {

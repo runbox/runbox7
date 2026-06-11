@@ -128,10 +128,18 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
             <p>Pick a Runbox address or use your own domain. Note that all Runbox domain names are synonymous.</p>
           </div>
           <div class="field-grid">
-            <label class="field" [class.is-invalid]="showFieldError(userModel, signupForm)">
+            <label class="field" [class.is-invalid]="showUsernameError(userModel, signupForm)">
               <span>Username</span>
-              <input name="user" [(ngModel)]="user" maxlength="64" required #userModel="ngModel" />
-              <small class="field-error" *ngIf="showFieldError(userModel, signupForm)">Choose a username for your mailbox.</small>
+              <input
+                name="user"
+                [(ngModel)]="user"
+                (input)="onUsernameInput()"
+                (blur)="onUsernameBlur()"
+                maxlength="64"
+                required
+                #userModel="ngModel"
+              />
+              <small class="field-error" *ngIf="showUsernameError(userModel, signupForm)">{{ usernameErrorMessage(userModel) }}</small>
             </label>
             <label class="field">
               <span>Domain type</span>

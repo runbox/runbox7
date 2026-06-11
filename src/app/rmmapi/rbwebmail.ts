@@ -637,6 +637,24 @@ export class RunboxWebmailAPI {
         );
     }
 
+    public getSignupUsernameAvailability(
+        username: string,
+        domainType: 'runbox' | 'user',
+        runboxDomain: string,
+        userDomain: string,
+    ): Observable<{ available: boolean; reason?: string }> {
+        return this.http.get('/rest/v1/signup/username_available', {
+            params: {
+                username,
+                domainType,
+                runboxDomain,
+                userDomain,
+            },
+        }).pipe(
+            map((res: any) => res?.result ?? { available: false }),
+        );
+    }
+
     public copyAttachmentToDraft(messageId: string, attachmentIndex: number): Observable<any> {
         return this.http.put(
             `/rest/v1/email/${messageId}/copyattachmenttodraft/${attachmentIndex}`,
