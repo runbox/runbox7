@@ -54,6 +54,17 @@ export class SearchMessageDisplay extends MessageDisplay {
   filterBy(options: Map<string, any>) {
   }
 
+  getRecipientColumnValueForRow(rowIndex: number): string {
+    return this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', ');
+  }
+
+  private shouldShowRecipientColumn(
+    app: { displayRecipientColumn: boolean; displayFolderColumn: boolean; selectedFolder: string }
+  ): boolean {
+    return app.displayRecipientColumn
+      && (app.displayFolderColumn || app.selectedFolder.indexOf('Sent') !== 0);
+  }
+
   // columns
   // app is a Component (currently)
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
@@ -106,6 +117,18 @@ export class SearchMessageDisplay extends MessageDisplay {
           // tooltipText: 'Tip: Drag subject to a folder to move message(s)'
         }
     ];
+
+    if (this.shouldShowRecipientColumn(app)) {
+      columns.splice(3, 0, {
+        name: 'Recipient',
+        draggable: true,
+        cacheKey: 'recipient',
+        sortColumn: null,
+        rowWrapModeHidden: true,
+        getValue: (rowIndex): string => this.getRecipientColumnValueForRow(rowIndex),
+        width: 220
+      });
+    }
 
     if (app.viewmode === 'conversations') {
       // Array containing row (conversation) objects waiting to be counted

@@ -347,6 +347,17 @@
                 Inline previews
               </mat-checkbox>
             </mat-list-item>
+            <mat-list-item *ngIf="!mobileQuery.matches">
+              <mat-checkbox [(ngModel)]="displayRecipientColumn"
+                            matLine
+                            (change)="saveRecipientColumnSetting()"
+                            (click)="$event.stopPropagation()"
+                            class="tableViewOptionsMenuElement"
+                            >
+                <mat-icon svgIcon="email-open" class="tableViewOptionsMenuElement" matTooltip="Recipient address column"></mat-icon>
+                Recipient column
+              </mat-checkbox>
+            </mat-list-item>
             <!-- currently only supporting threading for local index -->
             <mat-list-item>
               <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
