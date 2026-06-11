@@ -213,6 +213,10 @@ END:VCALENDAR
         component = fixture.componentInstance;
     });
 
+    afterEach(() => {
+        document.body.classList.remove('calendar-printing');
+    });
+
     it('should display calendars', () => {
         expect(component).toBeTruthy();
         component.calendarservice.syncCaldav();
@@ -226,6 +230,30 @@ END:VCALENDAR
 
         const icon = calendar.querySelector('.calendarColorLabel', 'test calendar has a correct icon colour');
         expect(icon.style.color).toBe('pink');
+    });
+
+    it('should display a calendar print option', () => {
+        fixture.detectChanges();
+
+        const toolbarButton = fixture.debugElement.nativeElement.querySelector('#printCalendarToolbarButton');
+        const menuButton = fixture.debugElement.nativeElement.querySelector('#printCalendarMenuButton');
+
+        expect(toolbarButton).toBeDefined();
+        expect(menuButton).toBeDefined();
+        expect(menuButton.innerText).toContain('Print Calendar');
+    });
+
+    it('should print the calendar using print mode styles', () => {
+        const print = spyOn(window, 'print');
+
+        component.printCalendar();
+
+        expect(document.body.classList.contains('calendar-printing')).toBe(true);
+        expect(print).toHaveBeenCalled();
+
+        window.dispatchEvent(new Event('afterprint'));
+
+        expect(document.body.classList.contains('calendar-printing')).toBe(false);
     });
 
     it('should display events', () => {

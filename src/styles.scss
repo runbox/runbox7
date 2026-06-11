@@ -1392,6 +1392,57 @@ app-calendar-app-component mat-nav-list button {
     }
 }
 
+@media print {
+    body.calendar-printing {
+        overflow: visible !important;
+
+        rmm-headertoolbar,
+        #mainMenuContainer,
+        app-calendar-app-component mat-sidenav,
+        app-calendar-app-component .mat-drawer-backdrop,
+        app-calendar-app-component .calendarToolbar,
+        app-calendar-app-component .add-new-event {
+            display: none !important;
+        }
+
+        app-calendar-app-component,
+        app-calendar-app-component mat-sidenav-container,
+        app-calendar-app-component mat-sidenav-content,
+        app-calendar-app-component .mat-drawer-content,
+        app-calendar-app-component .calendarPrintArea {
+            display: block !important;
+            position: static !important;
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            transform: none !important;
+            width: 100% !important;
+        }
+
+        app-calendar-app-component mat-sidenav-container {
+            bottom: auto !important;
+            left: 0 !important;
+            margin: 0 !important;
+            right: auto !important;
+            top: 0 !important;
+        }
+
+        app-calendar-app-component mat-sidenav-content,
+        app-calendar-app-component .mat-drawer-content {
+            margin: 0 !important;
+        }
+
+        app-calendar-app-component .cal-month-view,
+        app-calendar-app-component .cal-week-view,
+        app-calendar-app-component .cal-day-view {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+    }
+}
+
 .calendarTitle {
     font-size: 20px !important;
     font-weight: bold;
