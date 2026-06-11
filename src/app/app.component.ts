@@ -232,6 +232,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.messageActionsHandler.searchService = searchService;
     this.messageActionsHandler.messageListService = messagelistservice;
     this.messageActionsHandler.snackBar = snackBar;
+    this.messageActionsHandler.deleteMessageHandler = (messageIds: number[]) => this.deleteMessages(messageIds);
 
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (this.singlemailviewer.messageId) {
@@ -809,14 +810,22 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   // Delete selected messages in current canvastable view
   // If looking at Trash, this will be "delete permanently"
-  public deleteMessages() {
-    const messageIds = this.canvastable.rows.selectedMessageIds();
+  public deleteMessages(messageIds = this.canvastable.rows.selectedMessageIds()) {
+    if (messageIds.length === 0) {
+      return;
+    }
+
+    const currentMessageId = this.singlemailviewer?.messageId;
+    const deletingOpenMessage = !!currentMessageId && messageIds.includes(currentMessageId);
+    const nextMessageId = deletingOpenMessage
+      ? this.canvastable.rows.getMessageIdAfterRemoving(messageIds, currentMessageId)
+      : null;
 
     this.messageActionsHandler.updateMessages({
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // remove from message display
-        this.canvastable.rows.removeMessages(messageIds);
+        this.canvastable.rows.removeMessages(msgIds);
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
@@ -824,8 +833,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.messagelistservice.moveMessages(msgIds, this.messagelistservice.trashFolderName);
         }
         this.clearSelection();
-        if (this.singlemailviewer && this.singlemailviewer.messageId && msgIds.includes(this.singlemailviewer.messageId)) {
-          this.singlemailviewer.close();
+        if (deletingOpenMessage) {
+          if (this.keepMessagePaneOpen && nextMessageId) {
+            this.selectRowByMessageId(nextMessageId);
+          } else if (this.singlemailviewer) {
+            this.singlemailviewer.close();
+          }
         }
       },
       updateRemote: (msgIds: number[]) => this.rmmapi.deleteMessages(msgIds)
