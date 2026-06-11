@@ -60,13 +60,13 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
 
 // See https://momentjs.com/docs/#/displaying/format/
 export const MOMENT_FORMATS = {
-    parseInput: 'l LT',
-    fullPickerInput: 'l LT',
-    datePickerInput: 'l',
-    timePickerInput: 'LT',
-    monthYearLabel: 'MMM YYYY',
-    dateA11yLabel: 'LL',
-    monthYearA11yLabel: 'MMMM YYYY',
+    parseInput: 'YYYY-MM-DD HH:mm',
+    fullPickerInput: 'YYYY-MM-DD HH:mm',
+    datePickerInput: 'YYYY-MM-DD',
+    timePickerInput: 'HH:mm',
+    monthYearLabel: 'YYYY-MM',
+    dateA11yLabel: 'YYYY-MM-DD',
+    monthYearA11yLabel: 'YYYY-MM',
 };
 
 @NgModule({
