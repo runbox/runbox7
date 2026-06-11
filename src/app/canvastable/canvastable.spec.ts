@@ -73,4 +73,28 @@ describe('canvastable', () => {
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
     });
+
+    it('should expand row height for the selected number of preview lines', () => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        fixture.detectChanges();
+
+        const canvastable = fixture.componentInstance.canvastable;
+        canvastable.rowWrapMode = false;
+        canvastable.showContentTextPreview = false;
+
+        expect(canvastable.rowheight).toBe(28);
+
+        canvastable.showContentTextPreview = true;
+        canvastable.contentTextPreviewLines = 1;
+        expect(canvastable.rowheight).toBe(49);
+
+        canvastable.contentTextPreviewLines = 2;
+        expect(canvastable.rowheight).toBe(64);
+
+        canvastable.contentTextPreviewLines = 3;
+        expect(canvastable.rowheight).toBe(79);
+
+        canvastable.contentTextPreviewLines = 99;
+        expect(canvastable.contentTextPreviewLines).toBe(3);
+    });
 });
