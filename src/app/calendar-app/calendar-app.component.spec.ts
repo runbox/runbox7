@@ -40,6 +40,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
 import ICAL from 'ical.js';
+import { RunboxCalendarView } from './runbox-calendar-view';
 
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
@@ -226,6 +227,19 @@ END:VCALENDAR
 
         const icon = calendar.querySelector('.calendarColorLabel', 'test calendar has a correct icon colour');
         expect(icon.style.color).toBe('pink');
+    });
+
+    it('should use a short title in mobile day view', () => {
+        component.mobileQuery.matches = true;
+        component.viewDate = new Date(2020, 4, 23);
+        component.setView(RunboxCalendarView.Day);
+
+        fixture.detectChanges();
+
+        const title = fixture.debugElement.nativeElement.querySelector('.calendarTitle');
+
+        expect(component.mobileCalendarTitle).toBe('Sat, May 23, 2020');
+        expect(title.innerText.trim()).toBe('Sat, May 23, 2020');
     });
 
     it('should display events', () => {
