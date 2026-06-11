@@ -46,6 +46,15 @@ export class ForwardedAttachment {
 export class DraftFormModel {
     static MAX_DRAFT_PREVIEW_LENGTH = 200;
     static newDraftCount = -1;
+    private static readonly responseRecipientHeaderNames = [
+        'envelope-to',
+        'x-envelope-to',
+        'x-original-to'
+    ];
+    private static readonly fallbackResponseRecipientHeaderNames = [
+        'delivered-to',
+        'x-delivered-to'
+    ];
 
     from: string = null;
     mid: number = (DraftFormModel.newDraftCount--);
@@ -219,13 +228,52 @@ ${mailObj.sanitized_html}`;
     private setFromForResponse(mailObj, froms: Identity[]): void {
         if (froms.length > 0) {
             this.from = (
-                [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                    addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
+                DraftFormModel.responseRecipientCandidates(mailObj).find(
+                    addr => froms.find(fromObj => fromObj.email.toLowerCase() === addr.address.toLowerCase())
                 ) || { address: froms[0].email }
             ).address.toLowerCase();
         } else {
             console.error('DraftDesk: No froms passed to setFromForResponse');
         }
+    }
+
+    private static responseRecipientCandidates(mailObj): MailAddressInfo[] {
+        const headers = mailObj.headers || {};
+        const visibleRecipients = [].concat(mailObj.to || []).concat(mailObj.cc || []);
+
+        return this.mailAddressesFromHeaders(headers, this.responseRecipientHeaderNames)
+            .concat(visibleRecipients)
+            .concat(this.mailAddressesFromHeaders(headers, this.fallbackResponseRecipientHeaderNames))
+            .filter((addr) => addr && addr.address);
+    }
+
+    private static mailAddressesFromHeaders(headers, headerNames: string[]): MailAddressInfo[] {
+        return headerNames
+            .flatMap(headerName => this.mailAddressesFromHeader(headers[headerName]));
+    }
+
+    private static mailAddressesFromHeader(header): MailAddressInfo[] {
+        if (!header) {
+            return [];
+        }
+        if (Array.isArray(header)) {
+            return header.flatMap(entry => this.mailAddressesFromHeader(entry));
+        }
+        if (header.value && Array.isArray(header.value)) {
+            return header.value
+                .filter(entry => entry && entry.address)
+                .map(entry => new MailAddressInfo(entry.name, entry.address));
+        }
+        if (header.address) {
+            return [new MailAddressInfo(header.name, header.address)];
+        }
+        if (header.text) {
+            return MailAddressInfo.parse(header.text);
+        }
+        if (typeof header === 'string') {
+            return MailAddressInfo.parse(header);
+        }
+        return [];
     }
 
     private setSubjectForResponse(mailObj, prefix): void {
