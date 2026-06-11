@@ -131,6 +131,11 @@
                 <p mat-line>Settings</p>
             </mat-list-item>
 
+            <mat-list-item id="printCalendarMenuButton" mat-button (click)="printCalendar()" class="calendarMenuButton">
+                <mat-icon mat-list-icon svgIcon="printer"></mat-icon>
+                <p mat-line>Print Calendar</p>
+            </mat-list-item>
+
             <a mat-list-item target="_blank" href="https://help.runbox.com/using-a-calendar-client-with-caldav/" class="calendarMenuButton">
                 <mat-icon mat-list-icon svgIcon="sync"></mat-icon>
                 <p mat-line>CalDAV Sync Guide</p>
@@ -198,7 +203,7 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-        <mat-toolbar>
+        <mat-toolbar class="calendarToolbar">
             <button mat-icon-button (click)="sidemenu.toggle()">
                 <mat-icon svgIcon="menu"></mat-icon>
             </button>
@@ -221,6 +226,16 @@
                 </ng-container>
 
                 <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
+
+                <button mat-icon-button
+                    id="printCalendarToolbarButton"
+                    class="calendarToolbarButton"
+                    matTooltip="Print calendar"
+                    aria-label="Print calendar"
+                    (click)="printCalendar()"
+                >
+                    <mat-icon svgIcon="printer"></mat-icon>
+                </button>
             </div>
 
             <ng-template #mobileHeader>
@@ -237,7 +252,7 @@
             </ng-template>
         </mat-toolbar>
 
-        <div [ngSwitch]="view">
+        <div class="calendarPrintArea" [ngSwitch]="view">
           <app-calendar-overview
             *ngSwitchCase="RunboxCalendarView.Overview"
             [events]="shown_events"

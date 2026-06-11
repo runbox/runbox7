@@ -100,6 +100,12 @@ export class CalendarAppComponent implements OnDestroy {
     shown_events: RunboxCalendarEvent[] = [];
 
     prefGroup = DefaultPrefGroups.Global;
+    private readonly calendarPrintClass = 'calendar-printing';
+
+    private readonly clearCalendarPrintMode = (): void => {
+        document.body.classList.remove(this.calendarPrintClass);
+        window.removeEventListener('afterprint', this.clearCalendarPrintMode);
+    };
 
     constructor(
         public  calendarservice: CalendarService,
@@ -164,6 +170,7 @@ export class CalendarAppComponent implements OnDestroy {
 
     ngOnDestroy() {
         clearInterval(this.viewRefreshInterval);
+        this.clearCalendarPrintMode();
     }
 
     addEvent(on?: Date): void {
@@ -326,6 +333,13 @@ export class CalendarAppComponent implements OnDestroy {
                 this.importEvents(result, ics);
             }
         });
+    }
+
+    printCalendar(): void {
+        document.body.classList.add(this.calendarPrintClass);
+        window.removeEventListener('afterprint', this.clearCalendarPrintMode);
+        window.addEventListener('afterprint', this.clearCalendarPrintMode);
+        window.print();
     }
 
     setView(view: RunboxCalendarView): void {
