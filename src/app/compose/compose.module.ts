@@ -37,6 +37,7 @@ import { DraftDeskComponent } from './draftdesk.component';
 import { ComposeComponent } from './compose.component';
 export { ComposeComponent } from './compose.component';
 import { MenuModule } from '../menu/menu.module';
+import { DialogModule } from '../dialog/dialog.module';
 import { MailRecipientInputComponent} from './mailrecipientinput.component';
 export { MailRecipientInputComponent} from './mailrecipientinput.component';
 
@@ -56,6 +57,7 @@ export { MailRecipientInputComponent} from './mailrecipientinput.component';
       FormsModule,
       ReactiveFormsModule,
       MenuModule,
+      DialogModule,
       MatTooltipModule
   ],
   declarations: [DraftDeskComponent, ComposeComponent, MailRecipientInputComponent],
