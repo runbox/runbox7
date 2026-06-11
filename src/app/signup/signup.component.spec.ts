@@ -148,7 +148,6 @@ describe('SignupComponent', () => {
         queryParamMap$.next(convertToParamMap({
             accountType: 'business',
             domainType: 'user',
-            account_number: '12345',
         }));
 
         await initComponent();
