@@ -97,6 +97,18 @@
     </span>
 </ng-template>
 
+<ng-template #addEventInViewButton>
+    <button mat-icon-button
+        *ngIf="view === RunboxCalendarView.Week || view === RunboxCalendarView.Day"
+        id="addEventInViewButton"
+        aria-label="Add event"
+        matTooltip="Add event"
+        (click)="addEvent(viewDate)"
+    >
+        <mat-icon svgIcon="plus-circle"></mat-icon>
+    </button>
+</ng-template>
+
 <mat-sidenav-container autosize>
     <mat-sidenav #sidemenu
         [opened]="sideMenuOpened"
@@ -220,6 +232,9 @@
                 <ng-container *ngTemplateOutlet="calendarTitle">
                 </ng-container>
 
+                <ng-container *ngTemplateOutlet="addEventInViewButton">
+                </ng-container>
+
                 <ng-container *ngTemplateOutlet="viewModeButtons"></ng-container>
             </div>
 
@@ -232,6 +247,9 @@
                     </ng-container>
 
                     <ng-container *ngTemplateOutlet="nextPeriodButton">
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="addEventInViewButton">
                     </ng-container>
                 </div>
             </ng-template>
