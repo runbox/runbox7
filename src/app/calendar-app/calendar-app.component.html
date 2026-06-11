@@ -93,7 +93,12 @@
 
 <ng-template #calendarTitle>
     <span class="calendarTitle">
-        {{ mwlView ? (viewDate | calendarDate:(mwlView + 'ViewTitle'):'en') : 'Overview' }}
+        <ng-container *ngIf="mobileCalendarTitle as title; else defaultCalendarTitle">
+            {{ title }}
+        </ng-container>
+        <ng-template #defaultCalendarTitle>
+            {{ mwlView ? (viewDate | calendarDate:(mwlView + 'ViewTitle'):'en') : 'Overview' }}
+        </ng-template>
     </span>
 </ng-template>
 
@@ -224,7 +229,7 @@
             </div>
 
             <ng-template #mobileHeader>
-                <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                <div class="calendarMobileHeader">
                     <ng-container *ngTemplateOutlet="previousPeriodButton">
                     </ng-container>
 

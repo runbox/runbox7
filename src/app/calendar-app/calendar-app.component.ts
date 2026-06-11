@@ -24,6 +24,7 @@ import {
     OnDestroy,
     ViewChild,
 } from '@angular/core';
+import { formatDate } from '@angular/common';
 
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -164,6 +165,19 @@ export class CalendarAppComponent implements OnDestroy {
 
     ngOnDestroy() {
         clearInterval(this.viewRefreshInterval);
+    }
+
+    get mobileCalendarTitle(): string | null {
+        if (!this.mobileQuery.matches || this.view !== RunboxCalendarView.Day) {
+            return null;
+        }
+
+        const currentYear = new Date().getFullYear();
+        const titleFormat = this.viewDate.getFullYear() === currentYear
+            ? 'EEE, MMM d'
+            : 'EEE, MMM d, y';
+
+        return formatDate(this.viewDate, titleFormat, 'en');
     }
 
     addEvent(on?: Date): void {
