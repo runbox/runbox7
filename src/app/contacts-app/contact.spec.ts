@@ -210,6 +210,33 @@ END:VCARD`);
         expect(sut.members[1].email).toBe('sybil@syb.il');
     });
 
+    it('can build recipient lists from group members', () => {
+        const contact = new Contact({ email: 'member@example.com' });
+        const duplicateContact = new Contact({ email: 'MEMBER@example.com' });
+        const group = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:4.0
+KIND:group
+MEMBER:mailto:subscriber@example.com
+MEMBER;X-EMAIL=resolved@example.com;X-CN=Resolved:urn:uuid:f00d
+MEMBER:urn:uuid:deleted
+END:VCARD`);
+
+        const emails = Contact.groupRecipientEmails([
+            contact,
+            duplicateContact,
+            group.members[0],
+            group.members[1],
+            group.members[2],
+        ]);
+
+        expect(emails).toEqual([
+            'member@example.com',
+            'subscriber@example.com',
+            'resolved@example.com',
+        ]);
+        expect(Contact.groupRecipientQuery([contact, group.members[0]])).toBe('member@example.com,subscriber@example.com');
+    });
+
     it('can parse org and department correctly', () => {
         let sut = Contact.fromVcard(null, `BEGIN:VCARD
 VERSION:3.0
