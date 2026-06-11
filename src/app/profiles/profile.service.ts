@@ -36,6 +36,7 @@ export class Identity {
     name: string;
     reference_type: string;
     reply_to: string;
+    default_bcc: string;
     signature: string;
     type: string;
     smtp_address: string;
