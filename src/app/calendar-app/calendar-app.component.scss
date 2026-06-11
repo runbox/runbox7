@@ -31,3 +31,21 @@
         padding: 16px;
     }
 }
+
+@media(min-width: 1025px) {
+    .calendarToolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    :host ::ng-deep {
+        .cal-month-view .cal-header,
+        .cal-week-view .cal-day-headers {
+            background-color: #fff;
+            position: sticky;
+            top: 64px;
+            z-index: 9;
+        }
+    }
+}

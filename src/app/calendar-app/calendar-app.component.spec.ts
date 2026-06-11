@@ -228,6 +228,13 @@ END:VCALENDAR
         expect(icon.style.color).toBe('pink');
     });
 
+    it('should mark the calendar toolbar for sticky positioning', () => {
+        fixture.detectChanges();
+
+        const toolbar = fixture.debugElement.nativeElement.querySelector('mat-toolbar.calendarToolbar');
+        expect(toolbar).toBeTruthy();
+    });
+
     it('should display events', () => {
         mockData['events'] = simpleEvents;
         component.calendarservice.syncCaldav(true);
