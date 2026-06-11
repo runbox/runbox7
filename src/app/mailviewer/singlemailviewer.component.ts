@@ -129,6 +129,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   folder: string;
 
+  public get isSentFolder(): boolean {
+    return !!this.folder && this.folder.indexOf('Sent') === 0;
+  }
+
+  public toolbarIndex(index: number): number {
+    return this.isSentFolder ? index + 1 : index;
+  }
+
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -537,6 +545,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     res.from = res.headers.from.value.map(f => new MailAddressInfo(f.name,f.address));
     res.to = res.headers.to ? res.headers.to.value : '';
     res.cc = res.headers.cc ? res.headers.cc.value : '';
+    res.bcc = res.headers.bcc ? res.headers.bcc.value : '';
 
     // RFC 5322 says "Date" and "From" are the only 2 required fields
     // and yet we get emails without em.
