@@ -1,0 +1,51 @@
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.recipient-field {
+    width: 100%;
+}
+
+.recipient-chip-list {
+    width: 100%;
+}
+
+.recipient-chip {
+    background-color: #e3f2fd;
+    height: auto;
+    min-height: 32px;
+    max-width: 100%;
+    white-space: normal;
+}
+
+.recipient-chip-label,
+.recipient-option-label {
+    line-height: 18px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.recipient-search-input {
+    flex: 1 1 180px;
+    min-width: 180px;
+}
+
+.recipient-option {
+    height: auto;
+    min-height: 48px;
+    padding-bottom: 8px;
+    padding-top: 8px;
+}
+
+@media only screen and (max-width: 600px) {
+    .recipient-chip {
+        width: 100%;
+    }
+
+    .recipient-search-input {
+        flex-basis: 100%;
+        min-width: 0;
+    }
+}
