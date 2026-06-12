@@ -88,6 +88,7 @@ import { SavedSearchesService } from './saved-searches/saved-searches.service';
 import { HelpComponent } from './help/help.component';
 import { HelpModule } from './help/help.module';
 import { DomainRegisterRedirectComponent } from './domainregister/domreg-redirect.component';
+import { FrameDefenseGuard } from './security/frame-defense.guard';
 
 
 window.addEventListener('dragover', (event) => event.preventDefault());
@@ -125,9 +126,11 @@ const routes: Routes = [
       { path: 'help', component: HelpComponent },
       { path: 'dev',                loadChildren: () => import('./dev/dev.module').then(m => m.DevModule) },
       { path: 'dkim',               loadChildren: () => import('./dkim/dkim.module').then(m => m.DkimModule) },
-      { path: 'calendar',           loadChildren: () => import('./calendar-app/calendar-app.module').then(m => m.CalendarAppModule) },
+      { path: 'calendar',           canActivate: [FrameDefenseGuard],
+        loadChildren: () => import('./calendar-app/calendar-app.module').then(m => m.CalendarAppModule) },
       { path: 'changelog',          loadChildren: () => import('./changelog/changelog.module').then(m => m.ChangelogModule) },
-      { path: 'contacts',           loadChildren: () => import('./contacts-app/contacts-app.module').then(m => m.ContactsAppModule) },
+      { path: 'contacts',           canActivate: [FrameDefenseGuard],
+        loadChildren: () => import('./contacts-app/contacts-app.module').then(m => m.ContactsAppModule) },
       { path: 'onscreen',           loadChildren: () => import('./onscreen/onscreen.module').then(m => m.OnscreenModule) },
       { path: 'identities',         redirectTo: '/account/identities' },
       { path: 'account-security',   redirectTo: '/account/security'   },
