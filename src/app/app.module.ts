@@ -134,6 +134,7 @@ const routes: Routes = [
       // can't handle it with a simple redirectTo because it'd lose the query params
       // (https://github.com/angular/angular/issues/13315)
       { path: 'domainregistration', component: DomainRegisterRedirectComponent },
+      { path: 'signup', component: SignupPageComponent },
     ]
   },
   { path: 'login', component: LoginComponent }
