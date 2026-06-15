@@ -231,6 +231,19 @@ describe('SignupComponent', () => {
         expect(fixture.nativeElement.textContent).toContain('This username is already taken.');
     });
 
+    it('disables the username field and submit button while username availability is being checked', async () => {
+        await initComponent();
+
+        component.usernameAvailabilityPending = true;
+        fixture.detectChanges();
+
+        const usernameInput = fixture.nativeElement.querySelector('input[name="user"]') as HTMLInputElement;
+        const submitButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        expect(usernameInput.disabled).toBeTrue();
+        expect(submitButton.disabled).toBeTrue();
+    });
+
     it('blocks submit if captcha script failed to load even when required fields are valid', async () => {
         await initComponent();   // loadResult = false: simulates script failure
         await fillRequiredFields();

@@ -81,7 +81,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
     private destroyed = false;
     private captchaRenderTimer: number | null = null;
     private usernameAvailabilityKey = '';
-    private usernameAvailabilityRequestId = 0;
     private readonly subs = new Subscription();
     private readonly customDomainPattern = /^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
 
@@ -158,9 +157,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
         this.user = this.user.trim().toLowerCase();
         this.usernameAvailable = true;
         this.usernameAvailabilityError = '';
-        if (this.currentUsernameAvailabilityKey() !== this.usernameAvailabilityKey) {
-            this.usernameAvailabilityPending = false;
-        }
     }
 
     onUsernameBlur(): void {
@@ -397,7 +393,6 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.usernameAvailabilityPending = true;
         this.usernameAvailabilityError = '';
-        const requestId = ++this.usernameAvailabilityRequestId;
 
         this.subs.add(this.rmmapi.getSignupUsernameAvailability(
             this.user.trim().toLowerCase(),
@@ -406,7 +401,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
             this.userDomain.trim().toLowerCase(),
         ).subscribe({
             next: (result) => {
-                if (requestId !== this.usernameAvailabilityRequestId || this.destroyed) {
+                if (this.destroyed) {
                     return;
                 }
                 this.usernameAvailabilityPending = false;
@@ -423,7 +418,7 @@ export class SignupComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             },
             error: () => {
-                if (requestId !== this.usernameAvailabilityRequestId || this.destroyed) {
+                if (this.destroyed) {
                     return;
                 }
                 this.usernameAvailabilityPending = false;

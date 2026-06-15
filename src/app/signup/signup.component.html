@@ -136,6 +136,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
                 (input)="onUsernameInput()"
                 (blur)="onUsernameBlur()"
                 maxlength="64"
+                [disabled]="usernameAvailabilityPending"
                 required
                 #userModel="ngModel"
               />
@@ -345,7 +346,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
         <input type="hidden" name="timezone" [value]="timezone" />
 
         <div class="form-actions">
-          <button class="submit" type="submit" [class.is-submitting]="submitInProgress">
+          <button class="submit" type="submit" [class.is-submitting]="submitInProgress" [disabled]="submitInProgress || usernameAvailabilityPending">
             {{ submitInProgress ? 'Submitting...' : 'Set up my Runbox account' }}
           </button>
         </div>
