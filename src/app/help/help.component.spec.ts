@@ -17,6 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HelpComponent } from './help.component';
@@ -27,7 +28,8 @@ describe('HelpComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ HelpComponent ]
+      declarations: [ HelpComponent ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents();
   });

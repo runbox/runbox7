@@ -236,6 +236,8 @@ describe('SignupComponent', () => {
 
         component.usernameAvailabilityPending = true;
         fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
 
         const usernameInput = fixture.nativeElement.querySelector('input[name="user"]') as HTMLInputElement;
         const submitButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
