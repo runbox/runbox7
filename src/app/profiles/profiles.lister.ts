@@ -46,7 +46,7 @@ export class ProfilesListerComponent {
     edit(item): void {
         this.dialog_ref = this.dialog.open(ProfilesEditorModalComponent, {
             width: '600px',
-            data: item,
+            data: { ...item },
         });
 
         this.dialog_ref.componentInstance.is_update = true;
