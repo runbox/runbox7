@@ -20,7 +20,7 @@ import { Component } from '@angular/core';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { RMM } from '../rmm';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxDomain, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
   selector: 'app-aliases-lister',
@@ -29,7 +29,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 })
 export class AliasesListerComponent {
   aliases: any[] = [];
-  domains: string[] = [];
+  domains: RunboxDomain[] = [];
   defaultEmail: string;
 
   constructor(
