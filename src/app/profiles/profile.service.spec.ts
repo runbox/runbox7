@@ -19,7 +19,7 @@
 
 import { Identity, ProfileService } from './profile.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
 
@@ -40,6 +40,9 @@ describe('Identity', () => {
 
 describe('ProfileService', () => {
     let service: ProfileService;
+    let createdProfile: Partial<Identity>;
+    let updatedProfile: Partial<Identity>;
+    let profileList;
 
     const DEFAULT_EMAIL = 'a2@example.com';
     const PROFILES =        [{
@@ -134,9 +137,18 @@ describe('ProfileService', () => {
         'id': 16450
     }];
 
-    const ALLOWED_DOMAINS = ['runbox.com', 'example.com'];
+    const ALIASES = [
+        { id: 1, localpart: 'aliasmatch', domain: 'example.com', forward_to: DEFAULT_EMAIL },
+        { id: 2, localpart: 'casealias', domain: 'runbox.com', email: 'CaseAlias@Runbox.com' },
+    ];
 
     beforeEach(waitForAsync(() => {
+        createdProfile = null;
+        updatedProfile = null;
+        profileList = PROFILES.map(profile => ({
+            ...profile,
+            reference: { ...profile.reference },
+        }));
         TestBed.configureTestingModule({
             imports: [
                 HttpClientTestingModule,
@@ -144,12 +156,18 @@ describe('ProfileService', () => {
             providers: [
                 { provide: RunboxWebmailAPI, useValue: {
                     me: of({first_name: 'Test', last_name: 'User'}),
-                    getProfiles: () => of(PROFILES),
+                    getProfiles: () => of(profileList),
                     createProfile: (newprofile) => {
+                        createdProfile = newprofile;
                         newprofile['reference_type'] = 'aliases';
-                        PROFILES.unshift(newprofile);
-                        return of(PROFILES.length);
+                        profileList.unshift(newprofile);
+                        return of(profileList.length);
                     },
+                    updateProfile: (_id, profile) => {
+                        updatedProfile = profile;
+                        return of(true);
+                    },
+                    getAliases: () => of(ALIASES),
                     getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
                 } },
                 ProfileService
@@ -199,5 +217,35 @@ describe('ProfileService', () => {
                 done();
             });
                              
+    });
+
+    it('creates alias identities without email validation when the address matches an existing alias', (done) => {
+        service.create({
+            name: 'Alias Identity',
+            email: 'aliasmatch@example.com',
+            from_name: 'Alias User',
+            signature: 'Alias sig'
+        })
+            .subscribe((res) => {
+                expect(res).toBeTruthy();
+                expect(createdProfile.type).toBe('aliases');
+                done();
+            });
+
+    });
+
+    it('updates identities without email validation when the address matches an existing alias', (done) => {
+        service.update(123, {
+            name: 'Alias Identity',
+            email: 'casealias@runbox.com',
+            from_name: 'Alias User',
+            signature: 'Alias sig'
+        })
+            .subscribe((res) => {
+                expect(res).toBeTruthy();
+                expect(updatedProfile.type).toBe('aliases');
+                done();
+            });
+
     });
 });
