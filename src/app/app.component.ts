@@ -550,11 +550,24 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public drafts() {
     this.router.navigate(['/compose']);
-    setTimeout(() => {
-        if (this.mobileQuery.matches && this.sidemenu.opened) {
-          this.sidemenu.close();
-        }
-      }, 0);
+    this.closeSideMenuAfterLocalNavigation();
+  }
+
+  public closeSideMenuAfterLocalNavigation(event?: MouseEvent): void {
+    if (event && this.isBrowserHandledNavigation(event)) {
+      return;
+    }
+    setTimeout(() => this.closeSideMenuOnMobile(), 0);
+  }
+
+  private isBrowserHandledNavigation(event: MouseEvent): boolean {
+    return event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+  }
+
+  private closeSideMenuOnMobile(): void {
+    if (this.mobileQuery.matches && this.sidemenu.opened) {
+      this.sidemenu.close();
+    }
   }
 
   // folder-related stuff: perhaps move to its own service
@@ -581,11 +594,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public overview() {
     this.router.navigate(['/overview']);
-    setTimeout(() => {
-        if (this.mobileQuery.matches && this.sidemenu.opened) {
-          this.sidemenu.close();
-        }
-      }, 0);
+    this.closeSideMenuAfterLocalNavigation();
   }
 
   renameFolder(folder: RenameFolderEvent) {
@@ -634,9 +643,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public compose() {
-    if (this.mobileQuery.matches && this.sidemenu.opened) {
-      this.sidemenu.close();
-    }
+    this.closeSideMenuOnMobile();
     this.router.navigate(['/compose'],  {queryParams: {'new': true}});
   }
 

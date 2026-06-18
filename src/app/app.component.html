@@ -60,30 +60,30 @@
       <mat-divider></mat-divider>
 
       <div class="sidenavSubMenu" *ngIf="mobileQuery.matches">
-        <a mat-button (click)="compose();" matTooltip="Compose">
+        <a mat-button routerLink="/compose" [queryParams]="{new: true}" (click)="closeSideMenuAfterLocalNavigation($event)" matTooltip="Compose">
           <mat-icon  svgIcon="pencil" color="primary"></mat-icon></a>
-        <a mat-button (click)="drafts();" matTooltip="Drafts">
+        <a mat-button routerLink="/compose" (click)="closeSideMenuAfterLocalNavigation($event)" matTooltip="Drafts">
           <mat-icon svgIcon="email-open" color="primary"></mat-icon></a>
       </div>
 
-      <button mat-list-item (click)="compose();" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
+      <a mat-list-item routerLink="/compose" [queryParams]="{new: true}" (click)="closeSideMenuAfterLocalNavigation($event)" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
         <mat-icon mat-list-icon  svgIcon="pencil" class="folderIconStandard"></mat-icon>
         Compose
-      </button>
+      </a>
 
-      <button mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
+      <a mat-list-item routerLink="/compose" (click)="closeSideMenuAfterLocalNavigation($event)" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
         <mat-icon mat-list-icon  svgIcon="email-open" class="folderIconStandard"></mat-icon>
         <p mat-line class="folderName">Drafts</p>
         <span style="flex-grow: 1"></span>
         <span class="foldersidebarcount" style="margin-right: 24px"> {{ draftDeskService.draftModels.value.length }} </span>
-      </button>
+      </a>
 
-      <button mat-list-item (click)="overview()" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}"
+      <a mat-list-item routerLink="/overview" (click)="closeSideMenuAfterLocalNavigation($event)" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}"
         *ngIf="searchService.localSearchActivated"
       >
         <mat-icon mat-list-icon svgIcon="blur" class="folderIconStandard"></mat-icon>
         <p mat-line class="folderName">Overview</p>
-      </button>
+      </a>
 
       <mat-divider></mat-divider>
     </mat-nav-list>
