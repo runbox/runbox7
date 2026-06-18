@@ -22,11 +22,24 @@ import { MessageInfo } from './messageinfo';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
+const SORT_FROM_OR_TO = 0;
+const SORT_SUBJECT = 1;
+const SORT_DATE = 2;
+const SORT_SIZE = 3;
+
 export class MessageList extends MessageDisplay {
+  private sortColumn: number = null;
+  private sortDescending = false;
+  private sortSelectedFolder = '';
 
   // MessageDisplay implementations have different numbers of arguments..
   constructor(...args: any[]) {
     super(args[0]);
+  }
+
+  setRows(rows: MessageInfo[]) {
+    super.setRows(rows);
+    this.applyCurrentSort();
   }
 
   getRowSeen(index: number): boolean {
@@ -62,6 +75,62 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  public sortBy(sortColumn: number, sortDescending: boolean, selectedFolder: string) {
+    this.sortColumn = sortColumn;
+    this.sortDescending = sortDescending;
+    this.sortSelectedFolder = selectedFolder || '';
+    this.applyCurrentSort();
+  }
+
+  private applyCurrentSort() {
+    if (this.sortColumn === null || this.sortColumn === undefined) {
+      return;
+    }
+
+    this._rows = [...this._rows].sort((first: MessageInfo, second: MessageInfo) =>
+      this.compareMessages(first, second) * (this.sortDescending ? -1 : 1)
+    );
+    this.rows = this._rows;
+  }
+
+  private compareMessages(first: MessageInfo, second: MessageInfo): number {
+    switch (this.sortColumn) {
+      case SORT_FROM_OR_TO:
+        return this.compareStrings(
+          this.getAddressColumnValue(first),
+          this.getAddressColumnValue(second)
+        );
+      case SORT_SUBJECT:
+        return this.compareStrings(first.subject, second.subject);
+      case SORT_DATE:
+        return this.compareNumbers(
+          first.messageDate ? first.messageDate.getTime() : 0,
+          second.messageDate ? second.messageDate.getTime() : 0
+        );
+      case SORT_SIZE:
+        return this.compareNumbers(first.size, second.size);
+      default:
+        return 0;
+    }
+  }
+
+  private getAddressColumnValue(row: MessageInfo): string {
+    const addressList = this.sortSelectedFolder === 'Sent' ? row.to : row.from;
+    const address = addressList && addressList.length > 0 ? addressList[0] : null;
+    return address ? address.name || address.address || '' : '';
+  }
+
+  private compareStrings(first: string, second: string): number {
+    return (first || '').localeCompare(second || '', undefined, {
+      sensitivity: 'base',
+      numeric: true
+    });
+  }
+
+  private compareNumbers(first: number, second: number): number {
+    return (first || 0) - (second || 0);
+  }
+
   // filter visible rows by whatever options the frontend has
   filterBy(options: Map<string, any>) {
     this.rows = this._rows;
@@ -84,7 +153,7 @@ export class MessageList extends MessageDisplay {
       {
         name: 'Date',
         cacheKey: 'date',
-        sortColumn: null,
+        sortColumn: SORT_DATE,
         rowWrapModeMuted: true,
         getValue: (rowIndex: number): string => this.getRow(rowIndex).messageDate.toJSON(),
         getFormattedValue: (datestring) => MessageTableRowTool.formatTimestamp(datestring),
@@ -93,7 +162,7 @@ export class MessageList extends MessageDisplay {
       {
         name: app.selectedFolder === 'Sent' ? 'To' : 'From',
         cacheKey: 'from',
-        sortColumn: null,
+        sortColumn: SORT_FROM_OR_TO,
         getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
@@ -102,7 +171,7 @@ export class MessageList extends MessageDisplay {
       {
         name: 'Subject',
         cacheKey: 'subject',
-        sortColumn: null,
+        sortColumn: SORT_SUBJECT,
         getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
         draggable: true,
         getContentPreviewText: (rowIndex): string => {
@@ -112,7 +181,7 @@ export class MessageList extends MessageDisplay {
         // tooltipText: 'Tip: Drag subject to a folder to move message(s)'
       },
       {
-        sortColumn: null,
+        sortColumn: SORT_SIZE,
         name: 'Size',
         cacheKey: 'size',
         rowWrapModeHidden: true,
