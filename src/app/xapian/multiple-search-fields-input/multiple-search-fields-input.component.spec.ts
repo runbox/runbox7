@@ -29,7 +29,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { firstValueFrom } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { SimpleChange } from '@angular/core';
 
 describe('MultipleSearchFieldsInputComponent', () => {
   let component: MultipleSearchFieldsInputComponent;
@@ -70,5 +70,35 @@ describe('MultipleSearchFieldsInputComponent', () => {
     const searchExpression = await searchExpressionPromise;
     console.log(searchExpression);
     expect(searchExpression).toBe('folder:"Testfolder" AND subject:"testsubject"');
+  });
+
+  it('should update fields from a generated search expression', () => {
+    component.currentFolder = 'Inbox';
+    (component as any).searchExpression = 'folder:"Inbox" AND from:"from@example.com" AND to:"to@example.com" AND subject:"Quarterly report" AND (budget) AND flag:attachment AND flag:answered AND flag:flagged AND date:202606 AND NOT flag:seen';
+
+    (component as any).ngOnChanges({
+      searchExpression: new SimpleChange('', (component as any).searchExpression, false)
+    });
+
+    expect(component.formGroup.get('currentfolderonly').value).toBeTrue();
+    expect(component.formGroup.get('from').value).toBe('from@example.com');
+    expect(component.formGroup.get('to').value).toBe('to@example.com');
+    expect(component.formGroup.get('subject').value).toBe('Quarterly report');
+    expect(component.formGroup.get('allfieldsandcontent').value).toBe('budget');
+    expect(component.formGroup.get('hasAttachment').value).toBeTrue();
+    expect(component.formGroup.get('hasReply').value).toBeTrue();
+    expect(component.formGroup.get('hasFlag').value).toBeTrue();
+    expect(component.formGroup.get('date').value).toBe('202606');
+    expect(component.formGroup.get('unreadOnly').value).toBeTrue();
+  });
+
+  it('should show unstructured query text in the all fields input', () => {
+    (component as any).searchExpression = 'monthly budget';
+
+    (component as any).ngOnChanges({
+      searchExpression: new SimpleChange('', (component as any).searchExpression, false)
+    });
+
+    expect(component.formGroup.get('allfieldsandcontent').value).toBe('monthly budget');
   });
 });
