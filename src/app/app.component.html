@@ -171,6 +171,10 @@
       <single-mail-viewer #singlemailviewer
       [messageActionsHandler]="messageActionsHandler"
       [adjustableHeight]="false"
+      [canNavigatePreviousMessage]="canNavigateOpenMessage(-1)"
+      [canNavigateNextMessage]="canNavigateOpenMessage(1)"
+      (previousMessage)="navigateOpenMessage(-1)"
+      (nextMessage)="navigateOpenMessage(1)"
       (afterLoadMessage)="updateMessageListHeight()"
       (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
       (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
@@ -419,6 +423,10 @@
           [adjustableHeight]="true"
           [showVerticalSplitButton]="allowMailViewerOrientationChange"
           [messageActionsHandler]="messageActionsHandler"
+          [canNavigatePreviousMessage]="canNavigateOpenMessage(-1)"
+          [canNavigateNextMessage]="canNavigateOpenMessage(1)"
+          (previousMessage)="navigateOpenMessage(-1)"
+          (nextMessage)="navigateOpenMessage(1)"
           (afterLoadMessage)="updateMessageListHeight()"
           (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
           (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
