@@ -41,20 +41,18 @@
           {{node.folderName}}
         </a>
         <span *ngIf="folderMessageCounts | async as messageCounts">
-          <span *ngIf="messageCounts[node.folderPath] !== undefined">
-            <span
-                *ngIf="messageCounts[node.folderPath].unread > 0"
-                [matBadge]="messageCounts[node.folderPath].unread"
-                matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">
-                &nbsp;
-            </span>
+          <span
+            *ngIf="getDisplayedUnreadCount(node, messageCounts) > 0"
+            [matBadge]="getDisplayedUnreadCount(node, messageCounts)"
+            matBadgeOverlap="true" class="newMessagesCount" matBadgeSize="medium">
+            &nbsp;
           </span>
          
         </span>
 	    <span style="flex-grow: 1"></span>
         <span *ngIf="folderMessageCounts | async as messageCounts">
-          <span *ngIf="messageCounts[node.folderPath] !== undefined; else NoTotalCountYet">
-            <span class="foldersidebarcount">{{ messageCounts[node.folderPath].total }}</span>
+          <span *ngIf="hasDisplayedMessageCounts(node, messageCounts); else NoTotalCountYet">
+            <span class="foldersidebarcount">{{ getDisplayedTotalCount(node, messageCounts) }}</span>
           </span>
           <ng-template #NoTotalCountYet>
             <span class="foldersidebarcount">N/A</span>
