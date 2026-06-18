@@ -32,11 +32,20 @@ export class MailAddressInfo {
         let lastStart = 0;
         let name: string = null;
         let addr: string = null;
+        const pushCurrent = () => {
+            ret.push(new MailAddressInfo(name, addr));
+            addr = null;
+            name = null;
+        };
         for (let n = 0; n < mailaddr.length; n++) {
             const ch = mailaddr.charAt(n);
 
             switch (ch) {
                 case '"':
+                    if (!namePart && addr) {
+                        pushCurrent();
+                    }
+
                     namePart = !namePart;
 
                     if (namePart) {
@@ -50,14 +59,15 @@ export class MailAddressInfo {
                         if (!addr) {
                             addr = mailaddr.substring(lastStart, n).trim();
                         }
-                        ret.push(new MailAddressInfo(name, addr));
-                        addr = null;
-                        name = null;
+                        pushCurrent();
                         lastStart = n + 1;
                     }
                     break;
                 case '<':
                     if (!namePart) {
+                        if (addr) {
+                            pushCurrent();
+                        }
                         if (name == null) {
                             name = mailaddr.substring(lastStart, n).trim();
                         }
@@ -67,6 +77,7 @@ export class MailAddressInfo {
                 case '>':
                     if (!namePart) {
                         addr = mailaddr.substring(lastStart, n).trim();
+                        lastStart = n + 1;
                     }
                     break;
             }
