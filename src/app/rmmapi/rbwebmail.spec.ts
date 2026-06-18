@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { RunboxWebmailAPI } from './rbwebmail';
+import { getPreviousSuccessfulLogin, RunboxWebmailAPI } from './rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
@@ -116,6 +116,60 @@ describe('RBWebMail', () => {
         messageContents = await firstValueFrom(messageContentsObservable);
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test3');
+    });
+
+    it('should fetch last logins', async () => {
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const lastLogins = [
+            {
+                service: 'web',
+                login: 'testuser',
+                ip: '192.0.2.10',
+                created: '2026-06-10 10:00:00',
+                success: 1,
+            },
+        ];
+
+        const lastLoginsPromise = firstValueFrom(rmmapi.getLastLogins({ status: 1, service: 'web' }));
+        const httpTestingController = TestBed.inject(HttpTestingController);
+        const req = httpTestingController.expectOne('/rest/v1/acl/logins?status=1&service=web');
+        req.flush({
+            status: 'success',
+            last_logins: lastLogins,
+        });
+
+        expect(await lastLoginsPromise).toEqual(lastLogins);
+    });
+
+    it('should select the previous successful login', () => {
+        const currentLogin = {
+            service: 'web',
+            login: 'testuser',
+            ip: '192.0.2.10',
+            created: '2026-06-10 10:00:00',
+            success: 1,
+        };
+        const failedLogin = {
+            service: 'web',
+            login: 'testuser',
+            ip: '192.0.2.11',
+            created: '2026-06-10 09:50:00',
+            success: 0,
+        };
+        const previousLogin = {
+            service: 'web',
+            login: 'testuser',
+            ip: '192.0.2.12',
+            created: '2026-06-09 10:00:00',
+            success: '1',
+        };
+
+        expect(getPreviousSuccessfulLogin([
+            currentLogin,
+            failedLogin,
+            previousLogin,
+        ])).toEqual(previousLogin);
+        expect(getPreviousSuccessfulLogin([currentLogin])).toBeNull();
     });
 
     it('should flatten folder tree structure', async () => {
