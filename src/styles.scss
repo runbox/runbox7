@@ -753,6 +753,10 @@ mat-sidenav-container {
     }
 }
 
+body.tox-fullscreen #sideMenu {
+    z-index: 1;
+}
+
 #toggleFolderPaneIcon {
     overflow: visible;
     margin-right: 10px;
