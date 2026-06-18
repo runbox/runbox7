@@ -19,6 +19,8 @@
 
 import moment from 'moment';
 
+import { formatCalendarDescriptionForDisplay } from './calendar-description';
+
 export class EventOverview {
     ongoing: boolean;
 
@@ -40,5 +42,9 @@ export class EventOverview {
             this.recurringFrequency = freq.charAt(0).toUpperCase()
                                     + freq.slice(1).toLowerCase();
         }
+    }
+
+    get displayDescription(): string {
+        return formatCalendarDescriptionForDisplay(this.description);
     }
 }
