@@ -287,15 +287,12 @@ export class FolderListComponent implements OnChanges {
                 filter(res => res && res.length > 0),
             ).subscribe(newFolderName => {
                 // order needs to be: this.folders, with newFolder inserted
-                // after its parent .. put a "-1" there
+                // after the parent subtree .. put a "-1" there
                 this.folders.pipe(take(1)).subscribe((folders) => {
-                    const order = folders.map(folder => folder.folderId);
-                    const parentInd = order.findIndex((ind) => parentFolderId);
-                    order.splice(parentInd > -1 ? parentInd : 0, 0, -1);
                     this.createFolder.emit({
                         parentId: parentFolderId,
                         name:     newFolderName,
-                        order:    order,
+                        order:    this.createFolderOrder(folders, parentFolderId),
                     });
                 });
             });
@@ -316,16 +313,37 @@ export class FolderListComponent implements OnChanges {
             filter(res => res && res.length > 0),
         ).subscribe(newFolderName => {
             this.folders.pipe(take(1)).subscribe((folders) => {
-                const order = folders.map(f => f.folderId);
-                const parentInd = order.findIndex((ind) => folder.folderId);
-                order.splice(parentInd > -1 ? parentInd : 0, 0, -1);
                 this.createFolder.emit({
                     parentId: folder.folderId,
                     name:     newFolderName,
-                    order:    order,
+                    order:    this.createFolderOrder(folders, folder.folderId),
                 });
             });
         });
+    }
+
+    private createFolderOrder(folders: FolderListEntry[], parentFolderId: number): number[] {
+        const order = folders.map(folder => folder.folderId);
+
+        if (!parentFolderId) {
+            return [...order, -1];
+        }
+
+        const parentIndex = folders.findIndex(folder => folder.folderId === parentFolderId);
+        if (parentIndex === -1) {
+            return [...order, -1];
+        }
+
+        let insertIndex = parentIndex + 1;
+        while (
+            insertIndex < folders.length
+            && folders[insertIndex].folderLevel > folders[parentIndex].folderLevel
+        ) {
+            insertIndex++;
+        }
+
+        order.splice(insertIndex, 0, -1);
+        return order;
     }
 
     renameFolderDialog(folder: FolderListEntry): void {
