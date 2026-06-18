@@ -18,6 +18,33 @@
     }
 }
 
+.calendarTitle {
+    margin: 0 12px;
+}
+
+.calendarMobileHeader {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+
+    .calendarTitle {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .calendarToolbarButton {
+        flex: 0 0 auto;
+        min-width: 40px;
+        padding: 0 8px;
+    }
+}
+
 .updateInfo {
     &:hover {
         background-color: #fff;
