@@ -28,7 +28,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { DialogModule } from '../dialog/dialog.module';
+import { ConfirmDialog, DialogModule } from '../dialog/dialog.module';
 import { HotkeysService } from 'angular2-hotkeys';
 
 class MatDialogMock {
@@ -251,5 +251,25 @@ describe('FolderListComponent', () => {
         expect(newListOfFolders.length).toEqual(3);
         expect(newListOfFolders[2].folderName).toEqual('testtest');
         expect(newListOfFolders[2].folderLevel).toEqual(0);
+    });
+
+    it('warns that deleting a folder also deletes its contents', () => {
+        const componentInstance: Partial<ConfirmDialog> = {};
+        const dialogRef = {
+            componentInstance,
+            afterClosed: () => of(false)
+        };
+        const deleteDialog = {
+            open: jasmine.createSpy('open').and.returnValue(dialogRef)
+        } as unknown as MatDialog;
+        const comp = new FolderListComponent(deleteDialog, hotkeyMock);
+        const folder = new FolderListEntry(2, 50, 40, 'user', 'Clients', 'Clients', 0);
+
+        comp.deleteFolderDialog(folder);
+
+        expect(componentInstance.title).toEqual('Delete folder Clients?');
+        expect(componentInstance.question).toEqual(
+            'Are you sure that you want to delete the folder named Clients and its contents?'
+        );
     });
 });
