@@ -59,15 +59,22 @@ describe('ContactsService', () => {
   let storage: StorageService;
   const prefService = new MockPrefService() as unknown as PreferencesService;
   let sut: ContactsService;
+  let fetchSpy: jasmine.Spy;
 
   beforeEach(async () => {
+    fetchSpy = spyOn(window, 'fetch').and.callFake((url: RequestInfo): Promise<Response> => {
+      const avatarUrl = url.toString();
+      const responseOk = (avatarUrl.includes('gravatar.com') && avatarUrl.includes('d770e753373e7b886680847fd773396d'))
+        || (avatarUrl.includes('libravatar.org') && avatarUrl.includes('291167d1fdc699e76ee26f977b87a906'));
+      return Promise.resolve({ ok: responseOk } as Response);
+    });
     rmmapi = new MockRMMAPI();
     storage = new StorageService(rmmapi as unknown as RunboxWebmailAPI);
     sut = new ContactsService(rmmapi as unknown as RunboxWebmailAPI, prefService, storage);
   });
 
   describe('Avatar lookup', () => {
-    it('should look up remote avatars (gravatar)', (done) => {
+    it('should look up remote avatars', (done) => {
       prefService.set(prefService.prefGroup, 'avatarSource', 'remote' );
 
       prefService.preferences.pipe(take(1)).subscribe(async _ => {
@@ -75,12 +82,22 @@ describe('ContactsService', () => {
         let avatarUrl = await sut.lookupAvatar('test+gravatar@runbox.com');
         expect(avatarUrl).toMatch(/gravatar/);
 
+        avatarUrl = await sut.lookupAvatar('test+libravatar@runbox.com');
+        expect(avatarUrl).toMatch(/libravatar/);
+
         // local avatar wins over gravatar
         avatarUrl = await sut.lookupAvatar('test@runbox.com');
         expect(avatarUrl).toMatch(/test.url/);
 
-        avatarUrl = await sut.lookupAvatar('test+no+gravatar@runbox.com');
+        avatarUrl = await sut.lookupAvatar('test+no+avatar@runbox.com');
         expect(avatarUrl).toBeFalsy();
+        expect(fetchSpy.calls.allArgs().map(args => args[0].toString())).toEqual([
+          jasmine.stringMatching(/gravatar\.com/),
+          jasmine.stringMatching(/gravatar\.com/),
+          jasmine.stringMatching(/libravatar\.org/),
+          jasmine.stringMatching(/gravatar\.com/),
+          jasmine.stringMatching(/libravatar\.org/),
+        ]);
 
         done();
       });
