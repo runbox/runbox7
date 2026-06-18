@@ -135,6 +135,16 @@ export class RMM7MessageActions implements MessageActions {
         });
     }
 
+    public sendAgain() {
+        ProgressDialog.open(this.dialog);
+        this.draftDeskService.newDraft(
+            DraftFormModel.sendAgain(this.mailViewerComponent.mailObj, this.draftDeskService.fromsSubject.value)
+        ).then(() => {
+            this.mailViewerComponent.close('goToDraftDesk');
+            ProgressDialog.close();
+        });
+    }
+
     public markSeen(seen_flag_value = 1) {
         this.updateMessages({
             messageIds: [this.mailViewerComponent.messageId],
