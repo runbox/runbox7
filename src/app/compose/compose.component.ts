@@ -83,6 +83,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     has_pasted_signature: boolean;
     signature: string;
     selector: string;
+    private defaultBccRecipients: MailAddressInfo[] = [];
 
     saveErrorMessage: string;
 
@@ -196,6 +197,15 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         this.formGroup = this.formBuilder.group(this.model);
 
+        if (this.model.isUnsaved()) {
+            this.updateDefaultBcc(this.formGroup.controls.from.value, false);
+        } else {
+            this.trackDefaultBcc(this.formGroup.controls.from.value);
+        }
+
+        this.formGroup.controls.from.valueChanges
+            .subscribe((selected_from_address) => this.updateDefaultBcc(selected_from_address));
+
         // Mark not saved if changes
         this.formGroup.valueChanges.subscribe(() => this.saved = null);
 
@@ -222,8 +232,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.formGroup.controls.from.valueChanges
             .pipe(debounceTime(1000))
             .subscribe((selected_from_address) => {
-                const from: Identity = this.draftDeskservice.fromsSubject.value.find((f) =>
-                    f.nameAndAddress === selected_from_address);
+                const from: Identity = this.identityForAddress(selected_from_address);
+                if (!from) {
+                    return;
+                }
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
                         // replaces current signature with new one
@@ -525,6 +537,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.draftDeskservice.shouldReturnToPreviousPage = false;
 
         this.formGroup.patchValue(this.model, { emitEvent: false });
+        this.trackDefaultBcc(this.formGroup.controls.from.value);
 
         this.htmlToggled();
     }
@@ -696,6 +709,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.savingInProgress = true;
 
         if (send) {
+            this.updateDefaultBcc(this.formGroup.controls.from.value, false);
+
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
             if (!validemails) {
@@ -736,8 +751,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
 
         // this.model.from should have a value (cos it defaults)
-        const from = this.draftDeskservice.fromsSubject.value.find(
-            (f) => this.model.from === f.nameAndAddress || this.model.from === f.email);
+        const from = this.identityForAddress(this.model.from);
         let draft_from = this.model.from;
         if (!from) {
             console.log(`Compose: Could not find ${this.model.from} in ${this.draftDeskservice.fromsSubject.value}`);
@@ -914,5 +928,51 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.filteredSuggestions = this.suggestedRecipients.filter(
             s => !currentrecipients.find(r => r.address === s.address)
         ).slice(0, 10);
+    }
+
+    private updateDefaultBcc(selectedFromAddress: string, emitEvent = true): void {
+        if (!this.formGroup || !this.formGroup.controls.bcc) {
+            return;
+        }
+
+        const nextDefaultBcc = DraftFormModel.defaultBccRecipients(this.identityForAddress(selectedFromAddress));
+        const currentBcc: MailAddressInfo[] = this.model.bcc || [];
+        const bccWithoutPreviousDefault = currentBcc.filter((recipient) =>
+            !this.defaultBccRecipients.some((defaultRecipient) => this.sameEmailAddress(recipient, defaultRecipient)));
+        const mergedBcc = bccWithoutPreviousDefault.slice();
+
+        for (const defaultRecipient of nextDefaultBcc) {
+            if (!mergedBcc.some((recipient) => this.sameEmailAddress(recipient, defaultRecipient))) {
+                mergedBcc.push(defaultRecipient);
+            }
+        }
+
+        this.defaultBccRecipients = nextDefaultBcc;
+        this.model.bcc = mergedBcc;
+        this.hasBCC = mergedBcc.length > 0;
+        this.formGroup.controls.bcc.setValue(mergedBcc, { emitEvent });
+    }
+
+    private trackDefaultBcc(selectedFromAddress: string): void {
+        this.defaultBccRecipients = DraftFormModel.defaultBccRecipients(this.identityForAddress(selectedFromAddress));
+    }
+
+    private identityForAddress(selectedFromAddress: string): Identity {
+        if (!selectedFromAddress) {
+            return null;
+        }
+
+        const selectedAddresses = MailAddressInfo.parse(selectedFromAddress)
+            .map((address) => address.address.toLowerCase())
+            .filter((address) => address);
+        return this.draftDeskservice.fromsSubject.value.find((identity) =>
+            identity.nameAndAddress === selectedFromAddress ||
+            identity.email === selectedFromAddress ||
+            selectedAddresses.includes(identity.email.toLowerCase())
+        );
+    }
+
+    private sameEmailAddress(left: MailAddressInfo, right: MailAddressInfo): boolean {
+        return (left?.address || '').toLowerCase() === (right?.address || '').toLowerCase();
     }
 }
