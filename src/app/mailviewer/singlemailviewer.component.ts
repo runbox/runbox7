@@ -52,6 +52,7 @@ import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { PreferencesService } from '../common/preferences.service';
 // import { ShowImagesDialogComponent } from '../dialog/imagesconfirm.dialog';
 import { MailAddressInfo } from '../common/mailaddressinfo';
+import { decodeMimeEncodedWords } from '../common/mime-encoded-word';
 
 // const DOMPurify = require('dompurify');
 const showHtmlDecisionKey = 'rmm7showhtmldecision';
@@ -533,10 +534,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       // Skip if we previously had an issue loading this messge
       throw res;
     }
-    res.subject = res.headers.subject;
+    res.subject = decodeMimeEncodedWords(res.headers.subject);
     res.from = res.headers.from.value.map(f => new MailAddressInfo(f.name,f.address));
-    res.to = res.headers.to ? res.headers.to.value : '';
-    res.cc = res.headers.cc ? res.headers.cc.value : '';
+    res.to = res.headers.to ? res.headers.to.value.map(to => new MailAddressInfo(to.name, to.address)) : '';
+    res.cc = res.headers.cc ? res.headers.cc.value.map(cc => new MailAddressInfo(cc.name, cc.address)) : '';
+    res.bcc = res.headers.bcc ? res.headers.bcc.value.map(bcc => new MailAddressInfo(bcc.name, bcc.address)) : '';
 
     // RFC 5322 says "Date" and "From" are the only 2 required fields
     // and yet we get emails without em.

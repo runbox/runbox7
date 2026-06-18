@@ -30,6 +30,29 @@ describe('MessageInfo', () => {
         expect(MessageInfo.getSubjectWithoutAbbreviation(null)).toBe('');
     });
 
+    it('decodes MIME encoded subjects', () => {
+        const msg = new MessageInfo(1,
+            new Date(),
+            new Date(),
+            'Inbox',
+            false,
+            false,
+            false,
+            MailAddressInfo.parse('test@example.com'),
+            MailAddressInfo.parse('test2@example.com'),
+            [],
+            [],
+            '=?UTF-8?Q?[Par_S=C3=A9rie]?= renewal',
+            'The text',
+            50,
+            false
+            );
+
+        expect(msg.subject).toBe('[Par S\u00e9rie] renewal');
+        expect(MessageInfo.getSubjectWithoutAbbreviation('Re: =?UTF-8?Q?[Par_S=C3=A9rie]?= renewal'))
+            .toBe('[Par S\u00e9rie] renewal');
+    });
+
     it('testAddMessageToIndexWithDeleteFolders', () => {
         console.log('Testing that messages added to specified folders will be deleted');
         const msg = new MessageInfo(1,
