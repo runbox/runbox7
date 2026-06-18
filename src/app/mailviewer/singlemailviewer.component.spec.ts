@@ -231,6 +231,29 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('should navigate to Draft Desk to edit a draft message', fakeAsync(() => {
+    const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    component.messageId = 22;
+    component.folder = 'Drafts';
+
+    component.editDraft();
+    tick();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ['/compose'],
+      { queryParams: { edit: 22 } }
+    );
+    expect(component.messageId).toBeNull();
+  }));
+
+  it('should identify messages in Drafts as editable drafts', () => {
+    component.folder = 'Drafts';
+    expect(component.isDraftMessage()).toBeTrue();
+
+    component.folder = 'Inbox';
+    expect(component.isDraftMessage()).toBeFalse();
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
