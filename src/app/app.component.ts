@@ -1173,13 +1173,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   selectFolder(folder: string): void {
+    const hadChildRouterOutlet = this.hasChildRouterOutlet;
     if (this.mobileQuery.matches && this.sidemenu.opened) {
       this.sidemenu.close();
     }
     this.singlemailviewer.close();
     this.searchFor('');
     this.switchToFolder(folder);
-    this.updateUrlFragment();
+    if (!hadChildRouterOutlet) {
+      this.updateUrlFragment();
+    }
   }
 
   private switchToFolder(folder: string): void {
@@ -1216,7 +1219,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     if (this.hasChildRouterOutlet) {
-      this.router.navigate(['/']);
+      this.updateUrlFragment();
     }
 
     setTimeout(() => {
@@ -1423,8 +1426,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   private updateUrlFragment(messageId?: number): void {
-    if (this.router.url.match('^/[^#]')) {
-      // we're not actually on mailviewer, so don't try to be smart
+    if (this.router.url.match('^/[^#]') && !this.hasChildRouterOutlet) {
+      // We're outside the message list view, so don't replace the current route.
       return;
     }
     let fragment = this.selectedFolder;
@@ -1434,7 +1437,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
 
     // navigating to the same page does not fire off our fragment.subscribe
-    if (fragment !== this.fragment) {
+    if (fragment !== this.fragment || this.hasChildRouterOutlet) {
       this.fragment = fragment;
       this.router.navigate(['/'], { fragment });
     }
