@@ -53,6 +53,7 @@ export const XAPIAN_GLASS_WR = 'xapianglasswr';
 // FIXME: Also in index.worker.ts
 export class SearchIndexDocumentData {
   id: string;
+  date?: string;
   from: string;
   subject: string;
   recipients: string[];
@@ -853,6 +854,7 @@ export class SearchService {
 
           this.currentDocData = {
             id: docdataparts[0],
+            date: this.api.getStringValue(docid, 2),
             from: docdataparts[1],
             subject: docdataparts[2],
             recipients: [],
