@@ -501,11 +501,16 @@ export class CalendarService implements OnDestroy {
         console.log('Fetching events');
         this.activities.begin(Activity.RefreshingEvents);
         this.rmmapi.getCalendarEvents().subscribe(events => {
+            this.activities.end(Activity.RefreshingEvents);
             this.events = [];
             this.icalevents = [];
+            if (events.length > 0) {
+                this.activities.begin(Activity.RefreshingEvents, events.length, 'events');
+            }
             events.forEach((e: any) => {
                 // store events into this.icalevents
                 this.importFromIcal(e.id, e.ical);
+                this.activities.end(Activity.RefreshingEvents);
             });
 
             // generate RBE events for just this set, for current month+1:
@@ -514,7 +519,6 @@ export class CalendarService implements OnDestroy {
             const runboxevents = this.generateEvents();
             this.events = this.events.concat(runboxevents);
             this.eventSubject.next(this.events);
-            this.activities.end(Activity.RefreshingEvents);
         }, e => {
             this.apiErrorHandler(e);
             this.activities.end(Activity.RefreshingEvents);
