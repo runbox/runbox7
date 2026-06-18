@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2021 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2026 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -17,30 +17,20 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { SignupComponent } from './signup.component';
 
-import { HelpComponent } from './help.component';
-
-describe('HelpComponent', () => {
-  let component: HelpComponent;
-  let fixture: ComponentFixture<HelpComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ HelpComponent ],
-      schemas: [NO_ERRORS_SCHEMA],
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(HelpComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+@NgModule({
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule.forChild([
+            { path: '', component: SignupComponent },
+        ]),
+    ],
+    declarations: [SignupComponent],
+})
+export class SignupModule {}

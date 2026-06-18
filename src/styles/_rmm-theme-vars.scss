@@ -1,0 +1,63 @@
+/* --------- BEGIN RUNBOX LICENSE ---------
+Copyright (C) 2016-2026 Runbox Solutions AS (runbox.com).
+
+This file is part of Runbox 7.
+
+Runbox 7 is free software: You can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+Runbox 7 is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
+---------- END RUNBOX LICENSE ---------- */
+
+@use '@angular/material' as mat;
+
+$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
+$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 200, 100, 400);
+$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
+$rmm-default-caution:    mat.define-palette(mat.$deep-orange-palette, 500, A400, A700);
+$rmm-default-error:      mat.define-palette(mat.$red-palette, 500, A400, A700);
+$rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
+$rmm-default-highlight:  mat.define-palette(mat.$blue-palette, 100, 50, 200);
+$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
+
+$rmm-dark-background:       #011b40;
+$rmm-dark-background-03:    rgba(1,27,64,0.3);
+$rmm-darker-background:     #01001c;
+$rmm-gray:                  #dddddd;
+$rmm-gray-light:            #eeeeee;
+$rmm-gray-lighter:          #f3f3f3;
+
+$rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
+
+$rmm-default-lighter-gray: #eeeeee;
+$rmm-default-light-gray: #f4f4f4;
+$rmm-default-dark-gray: #949494;
+$rmm-default-black: #444444;
+
+// Signup form chrome — slate-blue palette used only by the marketing signup
+// surface. Intentionally distinct from the in-app Material theme tokens above;
+// kept here so future theme changes have one canonical source.
+$rmm-signup-slate-900: #486175;
+$rmm-signup-slate-800: #5a7187;
+$rmm-signup-slate-700: #587085;
+$rmm-signup-slate-600: #637b90;
+$rmm-signup-slate-300: #bfd0e1;
+$rmm-signup-slate-200: #dde7f0;
+$rmm-signup-slate-150: #d6e2ec;
+$rmm-signup-slate-100: #dce6ef;
+$rmm-signup-slate-050: #f8fbfe;
+$rmm-signup-slate-030: #f6fafd;
+$rmm-signup-slate-020: #f2f7fb;
+
+// Signup warning callout — warm tan/peach for advisory banners (e.g. CAPTCHA
+// unavailable). Kept here for the same reason as the slate palette above.
+$rmm-signup-warning-border: #d6b087;
+$rmm-signup-warning-bg: #fff3e4;
