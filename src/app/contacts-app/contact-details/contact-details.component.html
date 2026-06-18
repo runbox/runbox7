@@ -126,7 +126,9 @@
                             </button>
                         </span>
                         <ng-template #not_contact>
-                            {{ member.value }}
+                            <span [matTooltip]="member.uuid ? 'Missing contact ID: ' + member.value : ''">
+                                {{ member.display_name() }}
+                            </span>
                         </ng-template>
 
                         <button mat-icon-button *ngIf="mobileQuery.matches" (click)="removeGroupMember(idx)">
