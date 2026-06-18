@@ -257,7 +257,7 @@
           </div>
         </ng-container>
         <table *ngIf="showAllHeaders">
-          <tr *ngFor="let header of mailObj.headers | keyvalue" style="font-size: 12px;">
+          <tr *ngFor="let header of mailObj.headers | keyvalue: keepHeaderOrder" style="font-size: 12px;">
             <td style="vertical-align: top; white-space: nowrap; font-weight: bold;">{{header.key}}</td>
             <td style="vertical-align: top;">
               <span *ngIf="header.value.html" [innerHTML]="header.value.html"></span>
