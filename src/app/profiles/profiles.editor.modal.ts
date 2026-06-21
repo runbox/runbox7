@@ -62,10 +62,14 @@ export class ProfilesEditorModalComponent implements OnDestroy {
                 return this.profileService.me[attr];
             }).join(' ');
         }
-        if (identity.email) {
-            this.set_localpart(identity);
+        // Clone the identity so that edits don't mutate the original until saved
+        this.identity = Object.assign(new Identity(), identity);
+        if (this.identity.reference) {
+            this.identity.reference = { ...identity.reference };
         }
-        this.identity = identity;
+        if (this.identity.email) {
+            this.set_localpart(this.identity);
+        }
         if (this.identity.is_signature_html) {
             this.init_tinymce();
         } else {
