@@ -89,6 +89,7 @@ git checkout -b my-fix-branch master
 	3. Your tests must prove that your PR fixes the issue you claim it does, and this should be clear from the code and comments in the test.
 6. Follow our [Coding Rules](#coding-rules). Please be aware this includes disclosing any use of AI in creating your PR.
 7. Run the full test suite (`npm run ci-tests`), and ensure that all tests pass.
+   **Note:** `npm run build` auto-generates `src/app/changelog/changes.ts` from the git log. This file is in `.gitignore` and must not be committed; it is regenerated during deployment.
 8. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-guidelines). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
 ```
