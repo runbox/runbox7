@@ -28,7 +28,7 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
-import { firstValueFrom } from 'rxjs';
+import { AsyncSubject, BehaviorSubject, Subject, of, firstValueFrom } from 'rxjs';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 
@@ -326,5 +326,115 @@ describe('SearchService', () => {
 
         FS.chdir('/');
         FS.unmount('/' + localdir);
+    });
+});
+
+describe('SearchService.getDocData cache', () => {
+
+    let searchService: SearchService;
+    let mockApi: any;
+    let mockModule: { documenttermlistresult: string[] };
+
+    beforeEach(() => {
+        mockModule = { documenttermlistresult: [] };
+        (window as any).Module = mockModule;
+        (window as any).FS = {
+            syncfs: (_populate: boolean, cb: () => void) => cb(),
+        };
+
+        const RealWorker = (window as any).Worker;
+        (window as any).Worker = class {
+            postMessage() {}
+            onmessage: any = null;
+            onerror: any = null;
+            terminate() {}
+            addEventListener() {}
+        };
+
+        searchService = new SearchService(
+            {
+                me: new AsyncSubject(),
+                messageFlagChangeSubject: new Subject(),
+                getMessageContents: () => of({ status: 'success', text: { text: '' } }),
+                deleteCachedMessageContents: () => {},
+            } as any,
+            {} as any,
+            {} as any,
+            {} as any,
+            {
+                folderListSubject: new BehaviorSubject([]),
+                refreshFolderList: () => Promise.resolve([]),
+                searchservice: new AsyncSubject(),
+            } as any,
+        );
+
+        (window as any).Worker = RealWorker;
+
+        mockApi = {
+            getDocumentData: jasmine.createSpy().and.returnValue('Q123\tsender@test.com\tTest Subject'),
+            documentXTermList: jasmine.createSpy(),
+            reloadXapianDatabase: jasmine.createSpy(),
+        };
+        searchService.api = mockApi;
+        searchService.messageTextCache = new Map([[123, 'preview text']]);
+    });
+
+    afterEach(() => {
+        delete (window as any).Module;
+        delete (window as any).FS;
+    });
+
+    it('returns fresh seen flag after index reload', () => {
+        mockModule.documenttermlistresult = [];
+        const before = searchService.getDocData(1);
+        expect(before.seen).toBeFalsy();
+
+        mockModule.documenttermlistresult = ['XFseen'];
+        searchService.indexUpdatedSubject.next(undefined);
+
+        const after = searchService.getDocData(1);
+        expect(after.seen).toBe(true);
+    });
+
+    it('returns fresh flagged flag after index reload', () => {
+        mockModule.documenttermlistresult = [];
+        const before = searchService.getDocData(1);
+        expect(before.flagged).toBeFalsy();
+
+        mockModule.documenttermlistresult = ['XFflagged'];
+        searchService.indexUpdatedSubject.next(undefined);
+
+        const after = searchService.getDocData(1);
+        expect(after.flagged).toBe(true);
+    });
+
+    it('reflects multiple flag changes in one reload', () => {
+        mockModule.documenttermlistresult = [];
+        searchService.getDocData(1);
+
+        mockModule.documenttermlistresult = ['XFseen', 'XFflagged'];
+        searchService.indexUpdatedSubject.next(undefined);
+
+        const after = searchService.getDocData(1);
+        expect(after.seen).toBe(true);
+        expect(after.flagged).toBe(true);
+    });
+
+    it('still caches between calls when no reload happened', () => {
+        mockModule.documenttermlistresult = [];
+        searchService.getDocData(1);
+        expect(mockApi.getDocumentData).toHaveBeenCalledTimes(1);
+
+        searchService.getDocData(1);
+        expect(mockApi.getDocumentData).toHaveBeenCalledTimes(1);
+    });
+
+    it('does fresh lookup for a different docid without reload', () => {
+        mockModule.documenttermlistresult = [];
+        searchService.getDocData(1);
+        expect(mockApi.getDocumentData).toHaveBeenCalledTimes(1);
+
+        searchService.getDocData(2);
+        expect(mockApi.getDocumentData).toHaveBeenCalledTimes(2);
     });
 });

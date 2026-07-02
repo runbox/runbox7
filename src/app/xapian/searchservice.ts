@@ -263,6 +263,9 @@ export class SearchService {
             // console.log(FS.stat(`${this.partitionsdir}/${f}`));
           // });
         this.api.reloadXapianDatabase();
+        // Invalidate the single-doc cache so getDocData reads fresh data
+        // from the reloaded database instead of returning stale values
+        this.currentXapianDocId = null;
         this.indexReloadedSubject.next(undefined);
       });
     });
