@@ -2,10 +2,9 @@
 
 Guidance for AI agents (and the humans driving them) contributing to **Runbox 7**.
 
-This file distills the contribution rules in [CONTRIBUTING.md](CONTRIBUTING.md) and the
-[Feature and Bug Bounty Program](https://community.runbox.com/t/runbox-7-feature-and-bug-bounty-program/753),
-plus general principles for agentic contribution. Where this file and CONTRIBUTING.md
-disagree, **CONTRIBUTING.md wins** — it is the canonical source.
+This file distills the contribution rules in [CONTRIBUTING.md](CONTRIBUTING.md), plus general
+principles for agentic contribution. Where this file and CONTRIBUTING.md disagree,
+**CONTRIBUTING.md wins** — it is the canonical source.
 
 ## If You Are an AI Agent
 
@@ -120,32 +119,7 @@ rejects non-conforming messages. Format:
 
 ---
 
-## Bounty program (rewards available)
-
-Runbox runs a [Feature and Bug Bounty Program](https://community.runbox.com/t/runbox-7-feature-and-bug-bounty-program/753).
-Contributions still follow all the rules above (tests + documentation required).
-
-### Feature bounties
-
-Issues suitable for bounties are tagged **`good first issue`** in the repo.
-
-| Tier   | Reward  | Examples                                                  |
-|--------|---------|-----------------------------------------------------------|
-| Gold   | $1,000  | Major screens, REST endpoints, performance optimizations  |
-| Silver | $500    | Medium features or significant improvements               |
-| Bronze | $100    | Smaller enhancements to existing features                 |
-
-### Bug bounties (security)
-
-| Level  | Reward  | Criteria                                                       |
-|--------|---------|----------------------------------------------------------------|
-| High   | $1,000  | Elevated privileges, data compromise, service downtime         |
-| Medium | $500    | Limited access, DoS risk, account manipulation                 |
-| Low    | $100    | Low-impact vulnerabilities requiring deep system knowledge     |
-
-Submitting a working fix alongside a vulnerability may qualify for a **double bounty**.
-
-### Security testing rules
+## Security testing rules
 
 **Do:** test only on approved systems, single-request vulnerability checks, and pre-approved
 automated tools with rate limits. Report findings confidentially and immediately.
@@ -155,7 +129,7 @@ password spraying, attempt DoS/DDoS or flooding, attempt unauthorized access, us
 engineering, or test production systems without explicit permission. **Violations end
 participation and may lead to legal action.**
 
-**Reporting:** email **support@runbox.com**, subject "Bug Bounty Program Submission", with a
+**Reporting:** email **support@runbox.com**, subject "Security Report Submission", with a
 description, reproduction steps, proof-of-concept, and your contact details.
 
 ---
