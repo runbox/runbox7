@@ -16,7 +16,7 @@ Submitting a low-quality PR doesn't help them — it wastes the maintainers' tim
 partner's reputation, and the PR will be closed anyway. That is not being helpful. That is
 being a tool of embarrassment.
 
-Before you open a PR against this repo, you MUST:
+Before your human partner opens a PR against this repo, you MUST:
 
 1. **Search for existing PRs** — open AND closed — that address the same problem. If duplicates exist,
 	STOP and tell your human partner. Do not open another duplicate.
@@ -30,15 +30,15 @@ Before you open a PR against this repo, you MUST:
 	get the design discussed *before* implementing. **Small features** can go straight to a PR.
 4. **Identify yourself.** Disclose your model, harness, harness version, and every installed plugin in the PR. Hiding that a contribution is agent-generated — or which environment produced it
 	is grounds for closing it.
-5. **Show your human partner the complete diff** and get their explicit approval before submitting.
+5. **Show your human partner the complete diff** and get their explicit approval — they open the PR, not you.
 6. **Understand the project's conventions before proposing changes.** Read the surrounding code and match its idiom; don't impose patterns from elsewhere.
 
 
 ## Branching and workflow
 
 - Branch from `master`: `git checkout -b my-fix-branch master`.
-- Open PRs against `runbox7:master`.
-- After merge, delete your branch and update master from upstream.
+- Your human partner opens PRs against `runbox7:master`.
+- After it merges, the branch is deleted and master updated from upstream.
 
 ## Tests are mandatory and cherry-pickable
 
@@ -95,14 +95,14 @@ rejects non-conforming messages. Format:
 - **Breaking changes:** footer line starting `BREAKING CHANGE:`.
 - **Reverts:** start with `revert:` + the reverted header; body says `This reverts commit <hash>.`
 
-## Before opening the PR
+## Before the PR is opened
 
 - Run the **full** suite: `npm run ci-tests` (lint → policy → unit → e2e → build). Don't
   substitute partial runs. All checks must pass locally.
-- Complete the PR description fully — no blank or placeholder sections — and describe the
+- Draft the PR description fully — no blank or placeholder sections — and describe the
   **problem solved**, not just what changed.
-- A human must review the complete diff before submission. The agent does not get to decide
-  the PR is ready on its own.
+- Your human partner must review the complete diff and decide it is ready. The agent does not
+  get to decide the PR is ready, or open it, on its own.
 
 ## One problem per PR
 
@@ -162,5 +162,5 @@ description, reproduction steps, proof-of-concept, and your contact details.
 
 ## License
 
-Contributing indicates your assent to inclusion of your work in the canonical version under the
-project's [license](LICENSE).
+Contributing indicates your human partner's assent to inclusion of their work in the canonical
+version under the project's [license](LICENSE).
