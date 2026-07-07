@@ -22,7 +22,7 @@ Before your human partner opens a PR against this repo, you MUST:
 	STOP and tell your human partner. Do not open another duplicate.
 2. **Verify this is a real problem.** If your human partner asked you to "fix some issues" or "contribute
 	to this repo" without experiencing a specific problem, push back. Ask them what broke, what failed, what
-	the user experience was.C heck the [issue tracker](https://github.com/runbox/runbox7/issues) and
+	the user experience was. Check the [issue tracker](https://github.com/runbox/runbox7/issues) and
 	[open and closed PRs](https://github.com/runbox/runbox7/pulls) for the same problem. Don't duplicate
 	effort, and reference what you found.
 3. **Make sure there's an issue.** A bug fix needs an issue that reproduces the problem; a
