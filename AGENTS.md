@@ -55,7 +55,8 @@ the fix that makes it pass.
 
 ## Coding rules
 
-- All public API methods **must be documented**.
+- **Comment the *why* and *what* of a new section, not the *how*** — clear names carry the how.
+  Keep it to at most two lines of comment per section.
 - You may use `@author name/pseudonym` (optionally with email) in comments for attribution.
 - Match existing code style. Style is **ESLint-enforced** (Angular + TypeScript ESLint) —
 	single quotes in TS, semicolons required, no variable shadowing, unused vars prefixed `_`.

@@ -151,7 +151,8 @@ git pull --ff upstream master
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
 
 * All features or bug fixes **must be tested** by one or more specs (unit-tests).
-* All public API methods **must be documented**.
+* **Comment the *why* and *what* of a new section, not the *how*** — clear variable names carry
+  the how. Keep it to at most two lines of comment per section.
 * You may use `@author name/pseudonym` (optionally email) inside comments for attribution.
 * If you have used AI as part of your development process, you **must** disclose this, and document both which agent(s) you used, and where.
 
