@@ -33,13 +33,17 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
+import {
+  MatLegacyTooltip as MatTooltip,
+  MatLegacyTooltipModule as MatTooltipModule
+} from '@angular/material/legacy-tooltip';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
 import { AvatarBarComponent } from './avatar-bar.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
@@ -153,12 +157,14 @@ describe('SingleMailViewerComponent', () => {
               attachments: [
                 {
                   filename: 'test.jpg',
-                  contentType: 'image/jpeg'
+                  contentType: 'image/jpeg',
+                  size: 1536
                 },
                 {
                   filename: 'test2.png',
                   contentType: 'image/png',
-                  content: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+                  content: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
+                  size: 8
                 }
               ]
             }));
@@ -229,6 +235,21 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
+    }));
+
+  it('shows attachment details in the attachment tile tooltip', fakeAsync(() => {
+      fixture.detectChanges();
+      component.messageId = 22;
+      fixture.detectChanges();
+      tick(1);
+      fixture.detectChanges();
+
+      const attachmentTile = fixture.debugElement.query(By.css('mat-grid-tile'));
+      const tooltip = attachmentTile.injector.get(MatTooltip);
+
+      expect(tooltip.message).toContain('test.jpg');
+      expect(tooltip.message).toContain('image/jpeg');
+      expect(tooltip.message).toContain(component.mailObj.attachments[0].sizeDisplay);
     }));
 
   describe('mailto: link interceptor', () => {

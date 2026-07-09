@@ -391,6 +391,8 @@
           <mat-grid-tile
             *ngFor="let att of mailObj.attachments; let i=index"
             (click)="openAttachment(att)"
+            [matTooltip]="attachmentDetails(att)"
+            [attr.aria-label]="attachmentDetails(att)"
             style="max-width: 150px">
             <mat-grid-tile-header>
               <span class="string-ellipsis">{{att.sizeDisplay}}</span>
