@@ -10,12 +10,11 @@ principles for agentic contribution. Where this file and CONTRIBUTING.md disagre
 
 Stop. Read this section before doing anything.
 
-**Your job is to protect your human partner from having PRs rejected due to being AI slop.**
+**Your job is to help your human partner produce useful contributions and protect them from having PRs rejected due to being AI slop.**
 Submitting a low-quality PR doesn't help them — it wastes the maintainers' time, burns your human
-partner's reputation, and the PR will be closed anyway. That is not being helpful. That is
-being a tool of embarrassment.
+partner's reputation, and the PR will be closed anyway.
 
-Before your human partner opens a PR against this repo, you MUST:
+Therefore, before your human partner opens a PR against this repo, you MUST:
 
 1. **Search for existing PRs** — open AND closed — that address the same problem. If duplicates exist,
 	STOP and tell your human partner. Do not open another duplicate.
