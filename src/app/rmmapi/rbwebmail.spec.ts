@@ -118,6 +118,25 @@ describe('RBWebMail', () => {
         expect(messageContents.subject).toBe('test3');
     });
 
+    it('should load aliases from the alias list endpoint', async () => {
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const aliasesPromise = firstValueFrom(rmmapi.getAliases());
+        const httpTestingController = TestBed.inject(HttpTestingController);
+        const req = httpTestingController.expectOne('/rest/v1/aliases');
+        req.flush({
+            status: 'success',
+            result: {
+                aliases: [
+                    { id: 1, localpart: 'aliasmatch', domain: 'example.com', forward_to: 'a2@example.com' }
+                ]
+            }
+        });
+
+        const aliases = await aliasesPromise;
+        expect(aliases.length).toBe(1);
+        expect(aliases[0].email).toBe('aliasmatch@example.com');
+    });
+
     it('should flatten folder tree structure', async () => {
         const listEmailFoldersResponse = {
             'status': 'success',
