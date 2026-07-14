@@ -58,7 +58,7 @@ import { environment } from '../environments/environment';
 import { LogoutService } from './login/logout.service';
 import { ExtendedKeyboardEvent, Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { AppSettings } from './app-settings';
-import { SavedSearchesService } from './saved-searches/saved-searches.service';
+import { SavedSearch, SavedSearchesService } from './saved-searches/saved-searches.service';
 import { DefaultPrefGroups, PreferencesService } from './common/preferences.service';
 import { StorageService } from './storage.service';
 import { SearchMessageDisplay } from './xapian/searchmessagedisplay';
@@ -109,6 +109,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   displayedFolders = new Observable<FolderListEntry[]>();
   selectedFolder = '';
+  selectedSavedSearch: SavedSearch = null;
   composeSelected: boolean;
   draftsSelected: boolean;
   overviewSelected: boolean;
@@ -991,17 +992,28 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     setTimeout(() => this.updateTime(), 1000);
   }
 
-  searchFor(text) {
-    if (text !== this.searchText) {
+  searchFor(text: string, keepSavedSearchSelected = false) {
+    if (!keepSavedSearchSelected) {
+      this.selectedSavedSearch = null;
+    }
+
+    const forceSearch = keepSavedSearchSelected && text === this.searchText;
+    if (text !== this.searchText || forceSearch) {
       this.searchText = text;
       if (this.usewebsocketsearch) {
         this.websocketsearchservice.search(text);
       } else {
         setTimeout(() =>
-          this.updateSearch()
+          this.updateSearch(forceSearch)
           , 1);
       }
     }
+  }
+
+  savedSearchSelected(search: SavedSearch): void {
+    this.selectedSavedSearch = search;
+    this.selectedFolder = null;
+    this.searchFor(search.query, true);
   }
 
   public afterUpdateIndex() {
@@ -1023,6 +1035,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (yes) {
       // Don't highlight a folder if we're not viewing one
       this.selectedFolder = null;
+      this.selectedSavedSearch = null;
     }
   }
 
@@ -1183,6 +1196,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   private switchToFolder(folder: string): void {
+    this.selectedSavedSearch = null;
+
     if (folder === this.selectedFolder) {
         return;
     }
@@ -1318,7 +1333,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
             break;
           case 'conversations':
           default:
-            if (this.searchText.length < 3) {
+            if (this.searchText.length < 3 && this.selectedFolder) {
               // Expand to all folders if search text length is longer than 3 characters
               const restrictToUnread = this.unreadMessagesOnlyCheckbox
                 && !this.messagelistservice.ignoreUnreadInFolders.includes(this.selectedFolder)
