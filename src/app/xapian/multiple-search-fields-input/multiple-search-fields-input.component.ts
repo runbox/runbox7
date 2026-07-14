@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Component, OnChanges, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnChanges, Output, EventEmitter, Input, SimpleChanges } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { distinctUntilChanged } from 'rxjs/operators';
 
@@ -31,8 +31,11 @@ export class MultipleSearchFieldsInputComponent implements OnChanges {
   formGroup;
 
   @Input() currentFolder: string;
+  @Input() searchExpression = '';
   @Output() searchexpression = new EventEmitter<string>();
   @Output() close = new EventEmitter();
+
+  private lastEmittedSearchExpression = '';
 
   constructor(
     formbuilder: FormBuilder
@@ -58,7 +61,12 @@ export class MultipleSearchFieldsInputComponent implements OnChanges {
     });
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes?: SimpleChanges) {
+    if (changes && changes.searchExpression && this.searchExpression !== this.lastEmittedSearchExpression) {
+      this.updateFormFromSearchExpression(this.searchExpression || '');
+      return;
+    }
+
     this.enableDisableUnread();
     this.buildSearchExpression();
   }
@@ -99,6 +107,84 @@ export class MultipleSearchFieldsInputComponent implements OnChanges {
       (fields.date ? (and() + 'date:' + fields.date + '') : '') + // FIXME: This parameter must come last
       (fields.unreadOnly ? (and() + 'NOT flag:seen') : ''); // FIXME: This parameter must also come last...
 
+    this.lastEmittedSearchExpression = searchexpression;
     this.searchexpression.emit(searchexpression);
+  }
+
+  private updateFormFromSearchExpression(searchExpression: string): void {
+    this.formGroup.patchValue(this.parseSearchExpression(searchExpression), { emitEvent: false });
+    this.enableDisableUnread();
+  }
+
+  private parseSearchExpression(searchExpression: string) {
+    const fields = {
+      allfieldsandcontent: '',
+      from: '',
+      to: '',
+      subject: '',
+      date: '',
+      currentfolderonly: false,
+      hasAttachment: false,
+      hasReply: false,
+      hasFlag: false,
+      unreadOnly: false
+    };
+    let remaining = searchExpression.trim();
+
+    remaining = this.consumeQuotedTerm(remaining, 'from', value => fields.from = value);
+    remaining = this.consumeQuotedTerm(remaining, 'to', value => fields.to = value);
+    remaining = this.consumeQuotedTerm(remaining, 'subject', value => fields.subject = value);
+    remaining = remaining.replace(/\bfolder:"([^"]*)"/g, (match, value) => {
+      if (value === this.currentFolder) {
+        fields.currentfolderonly = true;
+        return ' ';
+      }
+      return match;
+    });
+    remaining = this.consumeTerm(remaining, /\bdate:([^\s)]+)/g, value => fields.date = value);
+    remaining = this.consumeFlag(remaining, 'attachment', () => fields.hasAttachment = true);
+    remaining = this.consumeFlag(remaining, 'answered', () => fields.hasReply = true);
+    remaining = this.consumeFlag(remaining, 'flagged', () => fields.hasFlag = true);
+    remaining = this.consumeTerm(remaining, /\bNOT\s+flag:seen\b/g, () => fields.unreadOnly = true);
+
+    remaining = remaining.replace(/\(([^()]*)\)/, (_match, value) => {
+      fields.allfieldsandcontent = value;
+      return ' ';
+    });
+    remaining = this.cleanDanglingAnd(remaining);
+    if (remaining) {
+      fields.allfieldsandcontent = fields.allfieldsandcontent
+        ? `${fields.allfieldsandcontent} ${remaining}`
+        : remaining;
+    }
+
+    return fields;
+  }
+
+  private consumeQuotedTerm(searchExpression: string, term: string, applyValue: (value: string) => void): string {
+    return this.consumeTerm(searchExpression, new RegExp(`\\b${term}:"([^"]*)"`, 'g'), applyValue);
+  }
+
+  private consumeFlag(searchExpression: string, flag: string, applyValue: () => void): string {
+    return this.consumeTerm(searchExpression, new RegExp(`\\bflag:${flag}\\b`, 'g'), applyValue);
+  }
+
+  private consumeTerm(searchExpression: string, pattern: RegExp, applyValue: (value?: string) => void): string {
+    return searchExpression.replace(pattern, (_match, value) => {
+      applyValue(value);
+      return ' ';
+    });
+  }
+
+  private cleanDanglingAnd(searchExpression: string): string {
+    const cleaned = searchExpression
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^(AND\s+)+/, '')
+      .replace(/(\s+AND)+$/, '')
+      .replace(/\s+AND\s+AND\s+/g, ' AND ')
+      .trim();
+
+    return /^(AND\s*)+$/.test(cleaned) ? '' : cleaned;
   }
 }
