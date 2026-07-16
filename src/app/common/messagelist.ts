@@ -103,7 +103,7 @@ export class MessageList extends MessageDisplay {
         name: 'Subject',
         cacheKey: 'subject',
         sortColumn: null,
-        getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
+        getValue: (rowIndex: number): string => MessageTableRowTool.formatSubject(this.getRow(rowIndex).subject),
         draggable: true,
         getContentPreviewText: (rowIndex): string => {
           const ret = this.getRow(rowIndex).plaintext;

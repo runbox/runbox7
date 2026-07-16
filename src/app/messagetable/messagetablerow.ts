@@ -20,6 +20,9 @@
 const datelen: number = 'yyyy-MM-dd'.length;
 
 export class MessageTableRowTool {
+    public static formatSubject(subject: string): string {
+        return subject && subject.trim().length > 0 ? subject : '(No subject)';
+    }
 
     public static formatTimestampFromDate(mailTime: Date): string {
         // Adjust for users timezone

@@ -80,7 +80,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
                 name: 'Subject',
                 cacheKey: 'subject',
                 sortColumn: null,
-                getValue: (rowIndex: number): string => this.getRow(rowIndex).subject,
+                getValue: (rowIndex: number): string => MessageTableRowTool.formatSubject(this.getRow(rowIndex).subject),
                 draggable: true
                 // tooltipText: "Tip: Drag subject to a folder to move message(s)"
             },
