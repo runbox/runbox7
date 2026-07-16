@@ -101,6 +101,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadMessagesOnlyCheckbox = false;
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
+  rememberLocalIndexPromptDecision = false;
   offerInitialLocalIndex = false;
 
   indexDocCount = 0;
@@ -328,8 +329,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
       this.preferences = prefs;
     });
-    // localSearchIndexPrompted isnt a "preference" (users cant change it back)
-    // and we want it to prompt for eeach new device:
+    // Device-scoped storage controls whether the initial index prompt should be shown again.
     this.storage.get(LOCAL_STORAGE_INDEX_PROMPT).then((val) => {
       this.localSearchIndexPrompted = val === 'true';
     });
@@ -1028,8 +1028,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   public downloadIndexFromServer() {
     this.enableNotification();
-    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
-    this.localSearchIndexPrompted = true;
+    this.setLocalSearchIndexPrompted();
     this.searchService.downloadIndexFromServer().subscribe((res) => {
       if (res && !this.searchService.stopIndexDownloadingInProgress) {
         this.searchService.downloadPartitions().subscribe(() => {
@@ -1057,9 +1056,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.searchService.indexDownloadingInProgress) {
       this.searchService.stopIndexDownloadingInProgress = true;
     }
-    // User has had the initial prompt, stop asking
-    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
+    if (this.rememberLocalIndexPromptDecision) {
+      this.setLocalSearchIndexPrompted();
+    }
     this.offerInitialLocalIndex = false;
+  }
+
+  private setLocalSearchIndexPrompted(): void {
+    this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
+    this.localSearchIndexPrompted = true;
   }
 
   singleMailViewerClosed(action: string): void {
