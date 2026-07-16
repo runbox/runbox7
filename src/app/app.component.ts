@@ -816,7 +816,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       messageIds: messageIds,
       updateLocal: (msgIds: number[]) => {
         // remove from message display
-        this.canvastable.rows.removeMessages(messageIds);
+        this.canvastable.removeMessages(msgIds);
         this.searchService.deleteMessages(msgIds);
         if (this.selectedFolder === this.messagelistservice.trashFolderName) {
           this.messagelistservice.deleteTrashMessages(msgIds);
