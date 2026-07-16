@@ -110,7 +110,7 @@ export class EventEditorDialogComponent {
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
             this.event_title = this.event.title;
             this.event_location = this.event.location;
-            this.event_description = this.event.description;
+            this.event_description = this.event.displayDescription;
             this.event_allDay = this.event.allDay;
 
             this.event_start = this.event.start;
