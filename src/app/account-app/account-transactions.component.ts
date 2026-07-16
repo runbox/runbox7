@@ -53,7 +53,7 @@ export class AccountTransactionsComponent implements OnInit {
         creditcard: 'Netaxept',
         giro:       'Offline',
         paypal:     'PayPal',
-        stripe:     'Stripe',
+        stripe:     'Card or wallet',
     };
 
     statuses = {
