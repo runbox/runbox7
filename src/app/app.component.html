@@ -413,6 +413,10 @@
 	<div [hidden]="hasChildRouterOutlet">
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
         <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
+        <div *ngIf="messageListEmptyNotice" class="messageListEmptyNotice">
+          <mat-icon svgIcon="email-open"></mat-icon>
+          <span>{{ messageListEmptyNotice }}</span>
+        </div>
       </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
