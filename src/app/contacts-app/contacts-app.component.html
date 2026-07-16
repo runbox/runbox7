@@ -69,21 +69,6 @@
             </mat-list-item>
         </mat-nav-list>
 
-        <div class="multiContactActions" *ngIf="selectedCount > 0">
-            <button mat-fab *ngIf="groups.length > 0"
-                matTooltip="Add these contacts to a group"
-                (click)="addSelectedToGroup()"
-            >
-                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before" svgIcon="account-multiple-plus"></mat-icon>
-            </button>
-
-            <button mat-fab
-                matTooltip="Delete these contacts"
-                (click)="deleteSelected()"
-            >
-                <mat-icon [matBadge]="selectedCount" matBadgePosition="below before" svgIcon="delete"></mat-icon>
-            </button>
-        </div>
     </mat-sidenav>
     <mat-sidenav-content>
         <div id="contactsPageTop"></div>
@@ -103,6 +88,27 @@
         </mat-toolbar>
         <div [class]="appLayout">
             <div class="contactList">
+                <div class="multiContactActions" *ngIf="selectedCount > 0">
+                    <span class="multiContactActionsLabel">{{ selectedCount }} selected</span>
+                    <span class="multiContactActionsSpacer"></span>
+
+                    <button mat-mini-fab *ngIf="groups.length > 0"
+                        aria-label="Add selected contacts to a group"
+                        matTooltip="Add these contacts to a group"
+                        (click)="addSelectedToGroup()"
+                    >
+                        <mat-icon svgIcon="account-multiple-plus"></mat-icon>
+                    </button>
+
+                    <button mat-mini-fab
+                        aria-label="Delete selected contacts"
+                        matTooltip="Delete these contacts"
+                        (click)="deleteSelected()"
+                    >
+                        <mat-icon svgIcon="delete"></mat-icon>
+                    </button>
+                </div>
+
                 <mat-nav-list dense>
                     <app-contact-list #contactList
                         [contacts]="shownContacts"

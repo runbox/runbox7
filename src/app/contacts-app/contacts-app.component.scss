@@ -48,15 +48,25 @@ mat-list-item.contactListButton {
 
 .multiContactActions {
     display: flex;
-    flex-flow: column;
-    position: fixed;
-    bottom: 50px;
-    right: 50px;
-    z-index: 10;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fafafa;
 }
 
 .multiContactActions button {
-    margin-top: 10px;
+    flex: 0 0 auto;
+}
+
+.multiContactActionsLabel {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.multiContactActionsSpacer {
+    flex: 1 1 auto;
 }
 
 .contactListControls {
