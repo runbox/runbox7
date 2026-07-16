@@ -80,6 +80,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @Output() onClose: EventEmitter<string> = new EventEmitter();
   @Output() afterViewInit: EventEmitter<any> = new EventEmitter();
   @Output() orientationChangeRequest: EventEmitter<string> = new EventEmitter();
+  @Output() restorePreviewRequest: EventEmitter<void> = new EventEmitter();
   @Output() afterLoadMessage: EventEmitter<boolean> = new EventEmitter();
 
   @Input() messageActionsHandler: MessageActions;
@@ -333,6 +334,16 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
   public changeOrientation(orientation: string) {
     this.orientationChangeRequest.emit(orientation);
+  }
+
+  public restorePreviewOnToolbarDoubleClick(event: MouseEvent): void {
+    const target = event.target;
+    if (target instanceof Element && target.closest('button,a,mat-menu,mat-icon')) {
+      return;
+    }
+
+    event.preventDefault();
+    this.restorePreviewRequest.emit();
   }
 
   attachmentIconFromContentType(contentType: string) {
