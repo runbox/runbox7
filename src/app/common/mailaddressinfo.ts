@@ -17,12 +17,15 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { decodeMimeEncodedWords } from './mime-encoded-word';
+
 export class MailAddressInfo {
     nameAndAddress: string;
     domain: string;
 
     constructor(public name: string, public address: string) {
-        this.nameAndAddress = name ? `"${name}" <${address}>` : address;
+        this.name = decodeMimeEncodedWords(name);
+        this.nameAndAddress = this.name ? `"${this.name}" <${address}>` : address;
         this.domain = address.split('@')[1];
     }
 
