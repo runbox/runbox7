@@ -105,6 +105,27 @@
         <div *ngIf="contact.kind === kind.GROUP">
             <h3> Members </h3>
 
+            <div class="contact-details-row">
+                <button mat-button type="button"
+                    [disabled]="loadedGroupMembers.length === 0"
+                    (click)="composeGroupRecipients('to')"
+                >
+                    <mat-icon svgIcon="email"></mat-icon> Email group
+                </button>
+                <button mat-button type="button"
+                    [disabled]="loadedGroupMembers.length === 0"
+                    (click)="composeGroupRecipients('cc')"
+                >
+                    <mat-icon svgIcon="email-outline"></mat-icon> Cc group
+                </button>
+                <button mat-button type="button"
+                    [disabled]="loadedGroupMembers.length === 0"
+                    (click)="composeGroupRecipients('bcc')"
+                >
+                    <mat-icon svgIcon="email-lock"></mat-icon> Bcc group
+                </button>
+            </div>
+
             <div
                 (drop)="addMember($event)"
                 [ngStyle]="{ 'border':  (loadedGroupMembers.length === 0 || contactIsDragged) ? '2px dotted' : '',
