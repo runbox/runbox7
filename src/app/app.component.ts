@@ -1355,6 +1355,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
               this.canvastablecontainer.sortDescending ? 1 : 0, 0, 50000,
               this.viewmode === 'conversations' ? 1 : -1
             );
+            if (this.canvastablecontainer.sortColumn === 0) {
+              searchResults = SearchMessageDisplay.sortRowsByFrom(
+                searchResults,
+                this.searchService,
+                this.canvastablecontainer.sortDescending
+              );
+            }
           });
           // console.log("Search time: "+(new Date().getTime()-startTime));
           // console.log(searchResults.length);
