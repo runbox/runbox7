@@ -353,7 +353,7 @@
                             matLine
                             (change)="updateViewMode($event.source.checked ? 'conversations' : 'messages')"
                             (click)="$event.stopPropagation()"
-                            [disabled]="unreadMessagesOnlyCheckbox || !showingSearchResults"
+                            [disabled]="unreadMessagesOnlyCheckbox || !canUseConversationGrouping()"
                             class="tableViewOptionsMenuElement"
                             >
                 <mat-icon  svgIcon="format-align-right" class="tableViewOptionsMenuElement" [matTooltip]="conversationGroupingToolTip"></mat-icon>
@@ -365,7 +365,7 @@
                             matLine
                             (change)="updateSearch(true)"
                             (click)="$event.stopPropagation()"
-                            [disabled]="viewmode==='conversations'"
+                            [disabled]="conversationGroupingCheckbox"
                             class="tableViewOptionsMenuElement"
                             >
                 <mat-icon  svgIcon="email-open" class="tableViewOptionsMenuElement" [matTooltip]="unreadOnlyToolTip"></mat-icon>
