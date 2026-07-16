@@ -977,7 +977,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
       if(this.jumpToMessage) {
         // currently selected row in the centre:
-        if (this.rows.rowCount() > 0 && this.rows.openedRowIndex) {
+        if (this.rows.rowCount() > 0 && this.rows.openedRowIndex !== null && this.rows.openedRowIndex !== undefined) {
           this.topindex = this.rows.openedRowIndex - Math.round(this.maxVisibleRows / 2);
         }
         this.jumpToMessage = false;
