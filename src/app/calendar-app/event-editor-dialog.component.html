@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>{{ event_title || "New event" }}</h1>
-<section mat-dialog-content style="max-width: 500px; box-sizing: border-box;">
+<section mat-dialog-content style="box-sizing: border-box; width: 100%;">
   <mat-tab-group>
     <mat-tab label="Details">
     <style>
@@ -17,7 +17,7 @@
         </mat-form-field>
     </p><p>
         <mat-form-field>
-            <textarea matInput placeholder="Description" [(ngModel)]="event_description"></textarea>
+            <textarea matInput placeholder="Description" rows="5" [(ngModel)]="event_description"></textarea>
         </mat-form-field>
     </p><p>
         <mat-form-field>
