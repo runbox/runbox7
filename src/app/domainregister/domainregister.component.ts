@@ -61,6 +61,20 @@ export interface ElementTld {
   privacy_price: string;
 }
 
+export function emailDomainQuotaCount(value: unknown): number {
+  const count = Number(value);
+  return Number.isFinite(count) ? count : 0;
+}
+
+export function isEmailDomainQuotaLimitReached(used: unknown, allowed: unknown): boolean {
+  const usedCount = emailDomainQuotaCount(used);
+  const allowedCount = emailDomainQuotaCount(allowed);
+
+  return usedCount > 0
+    && allowedCount > 0
+    && usedCount >= allowedCount;
+}
+
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'domain-register',
@@ -157,6 +171,10 @@ export class DomainRegisterComponent implements AfterViewInit {
     return this.is_available ? 'primary' : 'button';
   };
 
+  public is_domain_quota_limit_reached = function () {
+    return isEmailDomainQuotaLimitReached(this.domain_quota_used, this.domain_quota_allowed);
+  };
+
   public calculate_total = function () {
     // eslint-disable-next-line no-eval
     this.total_price = eval(this.selected_product.price[0].price);
@@ -194,7 +212,7 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public check_avail = function () {
     if (this.is_btn_search_domain_disabled) { return; }
-    if ( this.domain_quota_used && this.domain_quota_allowed && this.domain_quota_used >= this.domain_quota_allowed ) {
+    if ( this.is_domain_quota_limit_reached() ) {
         return this.show_error('You have reached your allowed Email Domain quota. Please purchase more Email Hosting products.', 'Dismiss');
     }
     this.is_btn_search_domain_disabled = true;
@@ -820,9 +838,9 @@ export class DomainRegisterComponent implements AfterViewInit {
     const req = this.http.get('/rest/v1/email_hosting/domains_quota');
     req.pipe(timeout(180000))
       .subscribe((result: any) => {
-        this.domain_quota_allowed = result.result.domain_quota_allowed;
-        this.domain_quota_used = result.result.domain_quota_used;
-        if ( this.domain_quota_used >= this.domain_quota_allowed ) {
+        this.domain_quota_allowed = emailDomainQuotaCount(result.result.domain_quota_allowed);
+        this.domain_quota_used = emailDomainQuotaCount(result.result.domain_quota_used);
+        if ( this.is_domain_quota_limit_reached() ) {
             this.show_error('You have reached your allowed Email Domain quota. Please purchase more Email Hosting products.', 'Dismiss');
         }
       },
