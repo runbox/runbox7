@@ -19,54 +19,60 @@
   <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
     <div class="loginScreen">
       <div id="loginArea">
-	<div>
+	    <div>
           <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
-	  <p>Log in below or <a routerLink="/signup" [queryParams]="{ runbox7: 1 }" class="login-link">create a new account</a>.</p>
-	</div>
-	<mat-form-field>
+	      <p>Log in below or <a routerLink="/signup" [queryParams]="{ runbox7: 1 }" class="login-link">create a new account</a>.</p>
+	    </div>
+        <div class="loginLinks">
+	      <span id='runbox6' class="login-link">
+	        <a href="https://runbox.com/mail">Runbox 6 Login</a>
+	      </span>
+	      <span id='norwegian' class="login-link">
+	        <a href="https://runbox.no/mail">Norsk Login</a>
+	      </span>
+        </div>
+
+	    <mat-form-field>
           <input matInput autocomplete="email" placeholder="Username" name="user" type="email" inputmode="email" autofocus ngModel required />
-	</mat-form-field>
-	<mat-form-field>
+	    </mat-form-field>
+	    <mat-form-field>
           <input matInput autocomplete="current-password" placeholder="Password" type="password" name="password" ngModel required />
-  </mat-form-field>
-  <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
-	<button [disabled]="loginForm.invalid" mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
-	<p *ngIf='accountSuspended' class='login_error_html'>
+        </mat-form-field>
+        <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
+	    <button [disabled]="loginForm.invalid" mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
+	    <p *ngIf='accountSuspended' class='login_error_html'>
           Your Runbox account has been suspended. <br>
           Please contact <a href="https://support.runbox.com">Runbox Support</a>.
-	</p>
-	<p *ngIf='accountExpiredTrial' class='login_error_html'>
+	    </p>
+	    <p *ngIf='accountExpiredTrial' class='login_error_html'>
           Your Runbox trial account has expired. <br>
           Go to <a routerLink="/account/plans">Plans & Upgrades</a> to reopen it now!
-	</p>
-	<p *ngIf='accountExpiredSubscription' class='login_error_html'>
+	    </p>
+	    <p *ngIf='accountExpiredSubscription' class='login_error_html'>
           Your Runbox subscription has expired. <br>
           Go to <a routerLink="/account/subscriptions">Your Subscriptions</a> to renew it now!
-	</p>
-	<p *ngIf='accountCanceled' class='login_error_html'>
+	    </p>
+	    <p *ngIf='accountCanceled' class='login_error_html'>
           Your Runbox subscription has been canceled. <br>
           Please contact <a href="https://support.runbox.com">Runbox Support</a>.
-	</p>
-	<p *ngIf='accountClosed' class='login_error_html'>
+	    </p>
+	    <p *ngIf='accountClosed' class='login_error_html'>
           This Runbox account has been closed. <br>
-	</p>
-	<p *ngIf='accountError' class='login_error_html'>
+	    </p>
+	    <p *ngIf='accountError' class='login_error_html'>
           An unknown error has occurred. <br>
-	  Please contact <a href="https://support.runbox.com">Runbox Support</a>.
-	</p>
-	<div id="loginOptions">
-	  <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox><br />
-	  <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
-	</div>
-	<div id='norwegian' class="login-link">
-	  <a href="https://runbox.no/mail">Use Norwegian legacy webmail</a>
-	</div>
-	<div id='forgotPassword' class="login-link">
-	  <a href="/pw_reset">Forgot password?</a>
-	</div>
-	<div id="progressBar">
-	  <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
-	</div>
+	      Please contact <a href="https://support.runbox.com">Runbox Support</a>.
+	    </p>
+	    <div id="loginOptions">
+	      <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox>
+	      <!--<mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>-->
+	    </div>
+	    <div id='forgotPassword' class="login-link">
+	      <a href="/pw_reset">Forgot password?</a>
+	    </div>
+	    <div id="progressBar">
+	      <mat-progress-bar mode="indeterminate" *ngIf="progressService.httpRequestInProgress | async"></mat-progress-bar>
+	    </div>
       </div>
     </div>   
   </form>
