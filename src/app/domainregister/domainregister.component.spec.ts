@@ -45,13 +45,33 @@ describe('DomainRegisterComponent quota checks', () => {
                     }
                 })
             ),
-            post: jasmine.createSpy('post').and.returnValue(of({
-                result: {
-                    is_available: 0,
-                    products: [],
-                    privacy_products: []
-                }
-            }))
+            post: jasmine.createSpy('post').and.returnValues(
+                of({
+                    result: {
+                        is_available: 0,
+                        products: [],
+                        privacy_products: []
+                    }
+                }),
+                of({
+                    result: {
+                        agreement: {
+                            generic: null,
+                            specific: null
+                        }
+                    }
+                }),
+                of({
+                    result: {
+                        specific_docs: []
+                    }
+                }),
+                of({
+                    result: {
+                        generic_docs: []
+                    }
+                })
+            )
         };
         const snackBar = {
             open: jasmine.createSpy('open')
