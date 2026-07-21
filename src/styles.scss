@@ -498,31 +498,42 @@ div.loginScreen {
     background-color: #fff;
 
     a {
-	color: mat.get-color-from-palette($rmm-default-primary);
+	    color: mat.get-color-from-palette($rmm-default-primary);
+    }
+
+    .loginLinks {
+	    margin: 0 0 1em 0;
+    }
+    #runbox6, #norwegian {
+        margin: 0 0.5em;
+	    font-size: 13px;
     }
 
     #loginArea {
-	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
-	min-width: 300px;
-	min-height: 350px;
-	display: flex;
-	flex-flow: column;
-	align-items: center;
-	justify-content: center;
-	padding: 10px;
+	    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+	    min-width: 300px;
+	    min-height: 350px;
+	    display: flex;
+	    flex-flow: column;
+	    align-items: center;
+	    justify-content: center;
+	    padding: 10px;
 
-	mat-form-field {
-	    width: 200px;
-	}
+	    mat-form-field {
+	        width: 200px;
+	    }
+        p {
+            margin: 0.5em;
+        }
     }
     #loginOptions {
         display: flex;
-        margin: 0.5em;
+        margin: 0em;
         font-size: 13px;
 
-	.mat-checkbox-label {
-	    padding-top: 3px;
-	}
+	    .mat-checkbox-label {
+	        padding-top: 3px;
+	    }
     }
     #loginButton {
         width: 100px;
@@ -541,31 +552,35 @@ div.loginScreen {
         width: 13px;
     }
     .login_error_html p {
-	margin: 0;
+	    margin: 0;
     }
 
     .login_error_html a {
-	color: #f00 !important;
+	    color: #f00 !important;
     }
 
     #progressBar {
-	position: absolute;
-	bottom: 0;
-	height: 5px;
-	width: 100%;
+	    position: absolute;
+	    bottom: 0;
+	    height: 5px;
+	    width: 100%;
     }
 
     .loginScreen #tfaArea {
-	border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+	    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     }
 
     mat-button-toggle button {
-	border-right: 1px solid #949494;
+	    border-right: 1px solid #949494;
     }
 
-    #forgotPassword, #createAccount, #norwegian {
-	margin: 0.5em;
-	font-size: 13px;
+    .login-checkbox {
+        margin: 0em;
+        padding: 0em;
+    }
+    #forgotPassword {
+	    margin: 0.5em;
+	    font-size: 14px;
     }
 }
 
