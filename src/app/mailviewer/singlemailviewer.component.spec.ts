@@ -30,6 +30,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -106,6 +107,7 @@ describe('SingleMailViewerComponent', () => {
         MatIconModule,
         MatIconTestingModule,
         MatGridListModule,
+        MatListModule,
         MatToolbarModule,
         MatTooltipModule,
         MatDividerModule,
@@ -117,7 +119,7 @@ describe('SingleMailViewerComponent', () => {
       providers: [
         MobileQueryService,
         StorageService,
-        { provide: MessageListService, useValue: { spamFolderName: 'Spam' }},
+        { provide: MessageListService, useValue: { spamFolderName: 'Spam', trashFolderName: 'Trash' }},
         { provide: HttpClient, useValue: {} },
         { provide: PreferencesService, useValue: {
           preferences: new ReplaySubject<Map<string, any>>(),
@@ -143,8 +145,17 @@ describe('SingleMailViewerComponent', () => {
                            'name': 'Testy' }]
                 },
                 date: new Date(2016, 0, 1).toJSON(),
-                subject: 'Test subject'
+                subject: 'Test subject',
+                to: {
+                  value: [{ 'address': 'to@runbox.com',
+                           'name': 'Recipient' }]
+                },
+                bcc: {
+                  value: [{ 'address': 'bcc@runbox.com',
+                           'name': 'Hidden Recipient' }]
+                }
               },
+              folder: 'Sent.Subfolder',
               text: {
                 text: 'blablabla',
                 html: null,
@@ -198,6 +209,9 @@ describe('SingleMailViewerComponent', () => {
       forward(useHTML?: boolean) {
         throw new Error('Method not implemented.');
       }
+      sendAgain() {
+        throw new Error('Method not implemented.');
+      }
       markSeen(seen_flag_value?: number) {
         throw new Error('Method not implemented.');
       }
@@ -227,6 +241,8 @@ describe('SingleMailViewerComponent', () => {
 
       expect(component.mailObj.attachments[0].downloadURL.indexOf('attachment/0')).toBeGreaterThan(-1);
       expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
+      expect(component.mailObj.bcc[0].address).toBe('bcc@runbox.com');
+      expect(component.isSentFolder).toBe(true);
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
