@@ -19,6 +19,7 @@
 
 import { Component, ChangeDetectionStrategy, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 
+import { MessageTableRowTool } from '../messagetable/messagetablerow';
 import { SearchIndexDocumentData } from '../xapian/searchservice';
 import { ContactHilights } from './startdesk.component';
 
@@ -34,6 +35,7 @@ import { ContactHilights } from './startdesk.component';
   <div class="subject">
     <ul>
       <li *ngFor="let email of shownEmails">
+          <span class="emailDate" *ngIf="messageDate(email) as date">{{ date }}</span>
           <a routerLink="/" [fragment]="emailPath(email)"> {{ email.subject }} </a>
       </li>
     </ul>
@@ -75,5 +77,12 @@ export class SenderHilightsComponent implements OnChanges {
         const folderPath = email.folder.replace(/\./, '/');
         const id = email.id.slice(1);
         return `${folderPath}:${id}`;
+    }
+
+    public messageDate(email: SearchIndexDocumentData): string {
+        if (!email.date) {
+            return '';
+        }
+        return MessageTableRowTool.formatTimestampFromStringWithoutSeparators(email.date);
     }
 }
