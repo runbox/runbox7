@@ -19,10 +19,7 @@
   <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
     <div class="loginScreen">
       <div id="loginArea">
-	    <div>
-          <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
-	      <p>Log in below or <a routerLink="/signup" [queryParams]="{ runbox7: 1 }" class="login-link">create a new account</a>.</p>
-	    </div>
+        <h2>Runbox Login</h2>
         <div class="loginLinks">
 	      <span id='runbox6' class="login-link">
 	        <a href="https://runbox.com/mail">Runbox 6 Login</a>
@@ -31,7 +28,7 @@
 	        <a href="https://runbox.no/mail">Norsk Login</a>
 	      </span>
         </div>
-
+	    <p>Log in below or <a routerLink="/signup" [queryParams]="{ runbox7: 1 }" class="login-link">create a new account</a>.</p>
 	    <mat-form-field>
           <input matInput autocomplete="email" placeholder="Username" name="user" type="email" inputmode="email" autofocus ngModel required />
 	    </mat-form-field>
@@ -64,8 +61,8 @@
 	      Please contact <a href="https://support.runbox.com">Runbox Support</a>.
 	    </p>
 	    <div id="loginOptions">
-	      <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox>
-	      <!--<mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>-->
+	      <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox>&nbsp;
+	      <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
 	    </div>
 	    <div id='forgotPassword' class="login-link">
 	      <a href="/pw_reset">Forgot password?</a>
@@ -80,10 +77,7 @@
     <div class="loginScreen">
       <div id="tfaArea">
 	<mat-card style="max-width: 90vw">
-	  <div>
-	    <img src="assets/runbox7_blue_dark.png" id="logoLogin" alt="Runbox 7" />
-	  </div>            
-		<div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
+	  <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	  <mat-card-title><h3>Two-Factor Authentication</h3></mat-card-title>
 	  <mat-card-content>
             <ng-container *ngIf="!twofactormethodgroup.value">
