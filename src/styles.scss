@@ -502,11 +502,11 @@ div.loginScreen {
     }
 
     .loginLinks {
-	    margin: 0 0 1em 0;
+	    margin: 0.5em 0;
     }
     #runbox6, #norwegian {
         margin: 0 0.5em;
-	    font-size: 13px;
+	    font-size: 15px;
     }
 
     #loginArea {
@@ -522,8 +522,11 @@ div.loginScreen {
 	    mat-form-field {
 	        width: 200px;
 	    }
+        h2 {
+            margin: 0;
+        }
         p {
-            margin: 0.5em;
+            margin: 0 0 1em 0;
         }
     }
     #loginOptions {
