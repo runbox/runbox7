@@ -427,6 +427,10 @@ body.signup-page app-rmm {
     color: #fff;
 }
 
+.loginSection form {
+    height: 100%;
+}
+
 #loginHeader {
     text-align: center;
     color: #fff;
@@ -495,7 +499,11 @@ div.loginScreen {
     text-align: center;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-image: url('assets/sustainability2.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
 
     a {
 	    color: mat.get-color-from-palette($rmm-default-primary);
@@ -506,17 +514,18 @@ div.loginScreen {
     }
     #runbox6, #norwegian {
         margin: 0 0.5em;
-	    font-size: 15px;
+	    font-size: 16px;
     }
 
     #loginArea {
-	    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
 	    min-width: 300px;
 	    min-height: 350px;
 	    display: flex;
 	    flex-flow: column;
 	    align-items: center;
 	    justify-content: center;
+	    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+        background-color: rgba(255,255,255,0.9);
 	    padding: 10px;
 
 	    mat-form-field {
@@ -632,7 +641,7 @@ div.loginScreen .login-link a {
 
 #loginFooterMenuBottom {
     width: 100%;
-    margin-top: 2vh;
+    /* margin-top: 2vh; */
 }
 
 @media(max-width: 812px) {

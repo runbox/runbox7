@@ -6,16 +6,6 @@
   </div>
 </div>
 <div class="loginSection" style="width: 100%; height: 60%;">
-  <div class="loginSide">
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 40vh; left: 7vw; height: 4vh; width: auto; transform: rotate(65deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 46vh; left: 12vw; height: 6vh; width: auto; transform: rotate(51deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 50vh; left: 18vw; height: 8vh; width: auto; transform: rotate(43deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 53vh; left: 27vw; height: 10vh; width: auto; transform: rotate(33deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 52vh; left: 64vw; height: 12vh; width: auto; transform: rotate(12deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 45vh; left: 74vw; height: 16vh; width: auto; transform: rotate(5deg); filter: opacity(100%)" />
-    <img src="assets/runbox7_blue_dark_7only.png" class="side7" style="position: absolute; top: 35vh; left: 85vw; height: 20vh; width: auto; filter: opacity(100%)" />
-  </div>
-  
   <form *ngIf="!twofactor" (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm">
     <div class="loginScreen">
       <div id="loginArea">
@@ -62,7 +52,7 @@
 	    </p>
 	    <div id="loginOptions">
 	      <mat-checkbox name="is_keep_logged" class="login-checkbox" title="Stay logged into Runbox until logging out manually" ngModel>Stay logged in</mat-checkbox>&nbsp;
-	      <mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>
+	      <!--<mat-checkbox name="is_use_rmm6" id="useRmm6" class="login-checkbox" title="Use Runbox 6, the previous version of Runbox" ngModel>Use Runbox 6</mat-checkbox>-->
 	    </div>
 	    <div id='forgotPassword' class="login-link">
 	      <a href="/pw_reset">Forgot password?</a>
@@ -142,7 +132,7 @@
 </div>
 <div class="loginSection" style="height: 20%; background-image: linear-gradient(170deg, #014f89, #001e35);">
   <div id="loginFooter">
-    <p style="margin: 1vh 0 0 0; text-align: center"><a href="https://runbox.com/features/email-services/runbox-7-project/">More information about the Runbox 7 project</a></p>
+    <!--<p style="margin: 1vh 0 0 0; text-align: center"><a href="https://runbox.com/features/email-services/runbox-7-project/">More information about the Runbox 7 project</a></p>-->
     <div id="loginFooterMenuBottom">
       <ul>
 	<li><a href="/about/">About Runbox</a></li>
