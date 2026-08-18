@@ -421,14 +421,14 @@ body.signup-page app-rmm {
     justify-content: center;
     width: 100%;
     overflow: hidden;
-    background-image: url('/assets/sustainability2.jpg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
 }
 
 .loginSection a {
     color: #fff;
+}
+
+.loginSection form {
+    height: 100%;
 }
 
 #loginHeader {
@@ -499,6 +499,11 @@ div.loginScreen {
     text-align: center;
     width: 100%;
     height: 100%;
+    background-image: url('assets/sustainability2.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
 
     a {
 	    color: mat.get-color-from-palette($rmm-default-primary);
