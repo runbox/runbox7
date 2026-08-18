@@ -205,6 +205,12 @@
                     <div><button mat-raised-button class="primaryContentButton"
                             [disabled]="is_btn_trust_browser_disabled" (click)="device_trust_create()">Trust this
                             Browser</button></div>
+                    <div>
+                        <button mat-raised-button class="primaryContentButton"
+                            *ngIf="rmm.account_security.device.results && rmm.account_security.device.results.length > 0"
+                            [disabled]="is_busy_delete_all_devices"
+                            (click)="device_delete_all()">Delete all</button>
+                    </div>
                     <div>Suggestion: "Firefox on PC"</div>
                 </div>
             </div>

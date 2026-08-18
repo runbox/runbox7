@@ -22,8 +22,10 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MobileQueryService } from '../mobile-query.service';
 import { RMM } from '../rmm';
-import { timeout, share } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { timeout, share, concatMap, finalize } from 'rxjs/operators';
 import { ModalUnlockcodeComponent, ModalPasswordComponent } from './account.security.component';
+import { ConfirmDialog } from '../dialog/dialog.module';
 
 @Component({
     selector: 'app-two-factor-authentication',
@@ -43,6 +45,7 @@ export class TwoFactorAuthenticationComponent implements OnInit {
     trusted_browser_columns_mobile = ['name', 'status'];
     is_busy_otp_update = false;
     is_busy_unlock_code_update = false;
+    is_busy_delete_all_devices = false;
     modal_password_ref;
 
     constructor(public snackBar: MatSnackBar, public dialog: MatDialog, public mobileQuery: MobileQueryService, public rmm: RMM) {
@@ -304,6 +307,44 @@ export class TwoFactorAuthenticationComponent implements OnInit {
                     this.show_error(res.error || res.errors.join(''), 'Dismiss');
                 }
             });
+    }
+
+    device_delete_all() {
+        if (!this.rmm.account_security.user_password) {
+            this.show_modal_password();
+            return;
+        }
+        const devices = this.rmm.account_security.device.results || [];
+        if (devices.length === 0) {
+            return;
+        }
+
+        const confirmDialog = this.dialog.open(ConfirmDialog);
+        confirmDialog.componentInstance.title = 'Delete all trusted browsers?';
+        confirmDialog.componentInstance.question = 'This will remove every trusted browser from your account.';
+        confirmDialog.componentInstance.noOptionTitle = 'cancel';
+        confirmDialog.componentInstance.yesOptionTitle = 'delete all';
+        confirmDialog.afterClosed().subscribe((confirmed) => {
+            if (!confirmed) {
+                return;
+            }
+            this.is_busy_delete_all_devices = true;
+            from(devices).pipe(
+                concatMap(device => this.rmm.account_security.device.update({
+                    password: this.rmm.account_security.user_password,
+                    action: 'delete_device',
+                    id: device.id,
+                }, false)),
+                finalize(() => {
+                    this.is_busy_delete_all_devices = false;
+                    this.rmm.account_security.device.list();
+                })
+            ).subscribe((res) => {
+                if (res.status === 'error') {
+                    this.show_error(res.error || res.errors.join(''), 'Dismiss');
+                }
+            });
+        });
     }
 
     unlock_code_generate() {
