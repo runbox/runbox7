@@ -35,6 +35,27 @@ import { VcfImportDialogComponent, VcfImportDialogResult } from './vcf-import-di
 import { v4 as uuidv4 } from 'uuid';
 import { take } from 'rxjs/operators';
 
+const CONTACT_IMPORT_SAVE_CONCURRENCY = 5;
+
+export async function runContactImportQueue<T>(
+    contacts: T[],
+    concurrency: number,
+    saveContact: (contact: T) => Promise<unknown>
+): Promise<void> {
+    const pendingContacts = contacts.slice();
+    const workerCount = Math.min(
+        Math.max(1, concurrency),
+        pendingContacts.length || 1
+    );
+
+    await Promise.all(Array.from({ length: workerCount }, async () => {
+        while (pendingContacts.length > 0) {
+            const contact = pendingContacts.shift();
+            await saveContact(contact);
+        }
+    }));
+}
+
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'contacts-app-root',
@@ -278,7 +299,7 @@ export class ContactsAppComponent {
             if (!result) {
                 return;
             }
-            const promises = [];
+            const contactsToImport: Contact[] = [];
             for (const c of contacts) {
                 // Assign an uuid unless it already has one.
                 // Without it we won't be able to add them to groups if requested
@@ -296,10 +317,14 @@ export class ContactsAppComponent {
                     if (result.newCategory) {
                         c.categories = c.categories.concat(result.newCategory);
                     }
-                    promises.push(this.contactsservice.saveContact(c, false));
+                    contactsToImport.push(c);
                 }
             }
-            Promise.all(promises).finally(() => this.contactsservice.reload());
+            runContactImportQueue(
+                contactsToImport,
+                CONTACT_IMPORT_SAVE_CONCURRENCY,
+                contact => this.contactsservice.saveContact(contact, false)
+            ).finally(() => this.contactsservice.reload());
             if (result.addToGroup) {
                 this.addContactsToGroup(result.addToGroup, contacts);
             }
