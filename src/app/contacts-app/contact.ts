@@ -140,6 +140,52 @@ export class Contact {
     component: ICAL.Component;
     url:       string;
 
+    private static readonly standardPropertyTypes = new Set([
+        'acquaintance',
+        'agent',
+        'bbs',
+        'car',
+        'cell',
+        'child',
+        'co-resident',
+        'co-worker',
+        'colleague',
+        'contact',
+        'crush',
+        'date',
+        'dom',
+        'emergency',
+        'fax',
+        'friend',
+        'home',
+        'internet',
+        'intl',
+        'isdn',
+        'kin',
+        'me',
+        'met',
+        'modem',
+        'msg',
+        'muse',
+        'neighbor',
+        'pager',
+        'parcel',
+        'parent',
+        'pcs',
+        'personal',
+        'postal',
+        'pref',
+        'sibling',
+        'spouse',
+        'sweetheart',
+        'text',
+        'textphone',
+        'video',
+        'voice',
+        'work',
+        'x400',
+    ]);
+
     private static preprocessVcf(vcf: string): string {
         // since ical.js can't parse these
         // (not until https://github.com/mozilla-comm/ical.js/pull/442/files is merged anyway)
@@ -148,6 +194,18 @@ export class Contact {
         // `group = 1*(ALPHA / DIGIT / "-")`, as in https://tools.ietf.org/html/rfc6350#section-3.3
         const group = /^[a-z0-9\-]+\./gmi;
         return vcf.replace(group, '');
+    }
+
+    private static displayPropertyType(type: string): string {
+        return type.toLowerCase().replace(/^x-/, '');
+    }
+
+    private static serializePropertyType(type: string): string {
+        const lowerType = type.toLowerCase();
+        if (lowerType.startsWith('x-') || Contact.standardPropertyTypes.has(lowerType)) {
+            return lowerType;
+        }
+        return 'x-' + lowerType;
     }
 
     // may throw ICAL.ParserError if input is not a valid vcf
@@ -233,7 +291,7 @@ export class Contact {
         for (const e of values) {
             const prop = this.component.addPropertyWithValue(name, e.value);
             if (e.types.length > 0) {
-                prop.setParameter('type', e.types);
+                prop.setParameter('type', e.types.map(Contact.serializePropertyType));
             }
         }
     }
@@ -245,7 +303,7 @@ export class Contact {
         } else if (typeof types === 'string') {
             types = [types];
         }
-        return types.map(t => t.toLowerCase());
+        return types.map(Contact.displayPropertyType);
     }
 
     private normalizeStringProperty(p: ICAL.Property): StringValueWithTypes {
@@ -433,7 +491,7 @@ export class Contact {
         for (const e of values) {
             const prop = this.component.addPropertyWithValue('adr', e.value.values);
             if (e.types.length > 0) {
-                prop.setParameter('type', e.types);
+                prop.setParameter('type', e.types.map(Contact.serializePropertyType));
             }
         }
     }
