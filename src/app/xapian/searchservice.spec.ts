@@ -28,12 +28,50 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
-import { firstValueFrom } from 'rxjs';
+import { AsyncSubject, firstValueFrom, NEVER } from 'rxjs';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 
 declare let FS;
 declare let IDBFS;
+
+describe('SearchService worker boundary', () => {
+    it('uses the injected worker and routes index update events', () => {
+        const fakeWorker = {
+            onmessage: null,
+            onerror: null,
+            postMessage: () => undefined
+        } as unknown as Worker;
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            updateStaleFolders: () => undefined,
+            applyChanges: () => undefined,
+            refreshFolderList: () => undefined,
+            fetchFolderMessages: () => undefined
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            null,
+            null,
+            null,
+            messageListService,
+            () => fakeWorker
+        );
+        let indexUpdated = false;
+        searchService.indexUpdatedSubject.subscribe(() => indexUpdated = true);
+
+        fakeWorker.onmessage(new MessageEvent('message', {
+            data: { action: PostMessageAction.indexUpdated }
+        }));
+
+        expect(searchService.indexWorker).toBe(fakeWorker);
+        expect(indexUpdated).toBeTrue();
+    });
+});
 
 describe('SearchService', () => {
 
