@@ -90,10 +90,6 @@ export function listAllMessages(
         return ret;
       });
       return msgs;
-    })
-    .catch((error) => {
-      console.error(error);
-      return [];
     });
 
 }
