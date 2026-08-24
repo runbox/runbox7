@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar';
@@ -37,6 +37,7 @@ import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
+import { INDEX_WORKER_FACTORY, IndexWorkerFactory } from './index-worker.factory';
 
 // eslint-disable-next-line no-var
 declare var FS; declare var IDBFS; declare var Module;
@@ -127,10 +128,11 @@ export class SearchService {
        private httpclient: HttpClient,
        private snackbar: MatSnackBar,
        private dialog: MatDialog,
-       private messagelistservice: MessageListService) {
+       private messagelistservice: MessageListService,
+       @Inject(INDEX_WORKER_FACTORY) workerFactory: IndexWorkerFactory) {
 
     if (typeof Worker !== 'undefined') {
-      this.indexWorker = new Worker(new URL('./index.worker', import.meta.url), { type: 'module' });
+      this.indexWorker = workerFactory();
 
       this.indexWorker.onmessage = ({ data }) => {
         // console.log('Message from worker '),
