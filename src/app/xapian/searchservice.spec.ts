@@ -48,6 +48,7 @@ describe('SearchService worker boundary', () => {
         } as unknown as RunboxWebmailAPI;
         const messageListService = {
             searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER,
             updateStaleFolders: () => undefined,
             applyChanges: () => undefined,
             refreshFolderList: () => undefined,
@@ -61,15 +62,12 @@ describe('SearchService worker boundary', () => {
             messageListService,
             () => fakeWorker
         );
-        let indexUpdated = false;
-        searchService.indexUpdatedSubject.subscribe(() => indexUpdated = true);
-
         fakeWorker.onmessage(new MessageEvent('message', {
-            data: { action: PostMessageAction.indexUpdated }
+            data: { action: PostMessageAction.localSearchActivated, value: true }
         }));
 
         expect(searchService.indexWorker).toBe(fakeWorker);
-        expect(indexUpdated).toBeTrue();
+        expect(searchService.localSearchActivated).toBeTrue();
     });
 });
 
