@@ -230,26 +230,59 @@ describe('FolderListComponent', () => {
         expect(moveEvent.order).toEqual([1, 7, 6, 5, 3, 2, 4]);
     });
 
-    it('should create new folder in root', async () => {
+    it('should create new folder in root', () => {
         const comp = new FolderListComponent(dialog, hotkeyMock);
         comp.selectedFolder = 'Inbox';
         const folders = [
-            new FolderListEntry(1, 50, 40, 'inbox', 'folder1', 'folder2', 0),
+            new FolderListEntry(1, 50, 40, 'inbox', 'Inbox', 'Inbox', 0),
             new FolderListEntry(2, 50, 40, 'user', 'folder2', 'folder2', 0),
         ];
-        const foldersSubject = new BehaviorSubject(folders);
-        comp.folders = foldersSubject;
+        comp.folders = new BehaviorSubject(folders);
 
-        comp.createFolder.subscribe((ev: CreateFolderEvent) =>
-            foldersSubject.next([...folders, new FolderListEntry(3, 50, 40, 'user', ev.name, 'folder2', 0)])
-        );
+        let createEvent: CreateFolderEvent;
+        comp.createFolder.subscribe((ev: CreateFolderEvent) => createEvent = ev);
         comp.addFolder();
-        const newListOfFolders = await firstValueFrom(comp.folders);
 
-        console.log(newListOfFolders);
+        expect(createEvent.parentId).toEqual(0);
+        expect(createEvent.name).toEqual('testtest');
+        expect(createEvent.order).toEqual([1, 2, -1]);
+    });
 
-        expect(newListOfFolders.length).toEqual(3);
-        expect(newListOfFolders[2].folderName).toEqual('testtest');
-        expect(newListOfFolders[2].folderLevel).toEqual(0);
+    it('should create a selected user folder child after its existing subtree', () => {
+        const comp = new FolderListComponent(dialog, hotkeyMock);
+        comp.selectedFolder = 'folder2';
+        comp.folders = new BehaviorSubject([
+            new FolderListEntry(1, 50, 40, 'inbox', 'Inbox', 'Inbox', 0),
+            new FolderListEntry(2, 50, 40, 'user', 'folder2', 'folder2', 0),
+            new FolderListEntry(3, 50, 40, 'user', 'subfolder', 'folder2.subfolder', 1),
+            new FolderListEntry(4, 50, 40, 'user', 'folder3', 'folder3', 0),
+        ]);
+
+        let createEvent: CreateFolderEvent;
+        comp.createFolder.subscribe((ev: CreateFolderEvent) => createEvent = ev);
+        comp.addFolder();
+
+        expect(createEvent.parentId).toEqual(2);
+        expect(createEvent.name).toEqual('testtest');
+        expect(createEvent.order).toEqual([1, 2, 3, -1, 4]);
+    });
+
+    it('should create a menu-selected subfolder after its existing subtree', () => {
+        const comp = new FolderListComponent(dialog, hotkeyMock);
+        const parentFolder = new FolderListEntry(2, 50, 40, 'user', 'folder2', 'folder2', 0);
+        comp.folders = new BehaviorSubject([
+            new FolderListEntry(1, 50, 40, 'inbox', 'Inbox', 'Inbox', 0),
+            parentFolder,
+            new FolderListEntry(3, 50, 40, 'user', 'subfolder', 'folder2.subfolder', 1),
+            new FolderListEntry(4, 50, 40, 'user', 'folder3', 'folder3', 0),
+        ]);
+
+        let createEvent: CreateFolderEvent;
+        comp.createFolder.subscribe((ev: CreateFolderEvent) => createEvent = ev);
+        comp.addSubFolderDialog(parentFolder);
+
+        expect(createEvent.parentId).toEqual(2);
+        expect(createEvent.name).toEqual('testtest');
+        expect(createEvent.order).toEqual([1, 2, 3, -1, 4]);
     });
 });
