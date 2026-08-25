@@ -23,6 +23,7 @@ import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { MessageCache } from '../rmmapi/messagecache';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpClient } from '@angular/common/http';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 
@@ -68,6 +69,47 @@ describe('SearchService worker boundary', () => {
 
         expect(searchService.indexWorker).toBe(fakeWorker);
         expect(searchService.localSearchActivated).toBeTrue();
+    });
+
+    it('discovers the partition manifest before downloading index files', () => {
+        TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+        const httpclient = TestBed.inject(HttpClient);
+        const httpController = TestBed.inject(HttpTestingController);
+        const fakeWorker = {
+            onmessage: null,
+            onerror: null,
+            postMessage: () => undefined
+        } as unknown as Worker;
+        const rmmapi = {
+            me: NEVER,
+            messageFlagChangeSubject: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER,
+            updateStaleFolders: () => undefined,
+            applyChanges: () => undefined,
+            refreshFolderList: () => undefined,
+            fetchFolderMessages: () => undefined
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            httpclient,
+            null,
+            null,
+            messageListService,
+            () => fakeWorker
+        );
+        const phases: string[] = [];
+
+        searchService.startInitialIndexSynchronization()
+            .subscribe(state => phases.push(state.phase));
+
+        expect(phases).toEqual(['discovering']);
+        httpController.expectOne('/rest/v1/searchindex/partitions');
+        httpController.expectNone(request =>
+            request.url.startsWith('/mail/download_xapian_index'));
     });
 });
 
