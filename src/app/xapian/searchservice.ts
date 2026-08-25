@@ -22,7 +22,15 @@ import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/c
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar';
 
-import { Observable, AsyncSubject, Subject, of, from } from 'rxjs';
+import {
+  AsyncSubject,
+  BehaviorSubject,
+  firstValueFrom,
+  Observable,
+  Subject,
+  of,
+  from
+} from 'rxjs';
 import { mergeMap, map, filter, catchError, tap, take, bufferCount, distinctUntilChanged } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
@@ -38,6 +46,19 @@ import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
 import { INDEX_WORKER_FACTORY, IndexWorkerFactory } from './index-worker.factory';
+import { IndexWorkerClient } from './index-worker-client';
+import { normalizeIndexManifest } from './index-sync-manifest';
+import {
+  IndexSyncCoordinator,
+  IndexSyncCoordinatorDependencies
+} from './index-sync-coordinator';
+import {
+  IndexSyncState,
+  NormalizedIndexManifest,
+  NormalizedIndexPartition,
+  RecentCatchUpCompleteEvent,
+  RecentChunkCommittedEvent
+} from './index-sync.types';
 
 // eslint-disable-next-line no-var
 declare var FS; declare var IDBFS; declare var Module;
@@ -123,6 +144,13 @@ export class SearchService {
   currentDocData: SearchIndexDocumentData;
 
   public indexWorker: Worker;
+  private indexWorkerClient: IndexWorkerClient;
+  private initialSyncCoordinator: IndexSyncCoordinator = null;
+  private initialSyncOperationNumber = 0;
+  private initialSyncDownloadedBytes = 0;
+  private readonly initialSyncStateSubject =
+    new BehaviorSubject<IndexSyncState | null>(null);
+  public readonly initialSyncState = this.initialSyncStateSubject.asObservable();
 
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
@@ -133,8 +161,12 @@ export class SearchService {
 
     if (typeof Worker !== 'undefined') {
       this.indexWorker = workerFactory();
+      this.indexWorkerClient = new IndexWorkerClient(this.indexWorker);
 
       this.indexWorker.onmessage = ({ data }) => {
+        if (this.indexWorkerClient.handleMessage(data)) {
+          return;
+        }
         // console.log('Message from worker '),
         // console.log(data);
         if (data['action'] === PostMessageAction.localSearchActivated) {
@@ -497,6 +529,232 @@ export class SearchService {
 
   public getMessageIdFromDocId(documentId: any): number {
     return parseInt(this.api.getDocumentData(documentId).split('\t')[0].match(/[0-9]+/)[0], 10);
+  }
+
+  public startInitialIndexSynchronization(): Observable<IndexSyncState> {
+    const operationId = `index-sync-${++this.initialSyncOperationNumber}`;
+    this.initialSyncDownloadedBytes = 0;
+    this.indexDownloadingInProgress = true;
+    this.stopIndexDownloadingInProgress = false;
+    this.notifyOnNewMessages = false;
+    this.indexWorkerClient.startOperation(operationId);
+
+    const dependencies: IndexSyncCoordinatorDependencies = {
+      discoverManifest: () => this.discoverIndexManifest(),
+      downloadMainPartition: (manifest, onProgress) =>
+        this.downloadInitialMainPartition(manifest, onProgress),
+      openWorkerIndex: () => this.openInitialWorkerIndex(),
+      catchUpRecent: (baseline, finalizeWatermark, onChunk) =>
+        this.catchUpRecentMessages(baseline, finalizeWatermark, onChunk),
+      publishLocalIndex: () => this.publishInitialLocalIndex(),
+      downloadHistoricalPartition: (partition, onProgress) =>
+        this.downloadInitialHistoricalPartition(partition, operationId, onProgress),
+      startPeriodicSync: () => this.indexWorkerClient.startPeriodicSync(),
+      cancelWorkerSync: () => this.indexWorkerClient.cancelInitialSync(),
+      discardIncompleteIndex: () => this.discardInitialLocalIndex()
+    };
+    this.initialSyncCoordinator = new IndexSyncCoordinator(operationId, dependencies);
+    this.initialSyncCoordinator.state.subscribe(state => {
+      this.initialSyncStateSubject.next(state);
+      this.indexDownloadingInProgress = ![
+        'complete', 'failed', 'cancelled'
+      ].includes(state.phase);
+    });
+    this.initialSyncCoordinator.start();
+    return this.initialSyncCoordinator.state.asObservable();
+  }
+
+  public cancelInitialIndexSynchronization(): void {
+    this.initialSyncCoordinator?.cancel();
+  }
+
+  private async discoverIndexManifest(): Promise<NormalizedIndexManifest> {
+    const manifest = await firstValueFrom(
+      this.httpclient.get<DownloadableSearchIndexMap>('/rest/v1/searchindex/partitions')
+    );
+    return normalizeIndexManifest(manifest);
+  }
+
+  private async downloadInitialMainPartition(
+    manifest: NormalizedIndexManifest,
+    onProgress: (downloadedBytes: number) => void
+  ): Promise<void> {
+    this.indexWorker.postMessage({ action: PostMessageAction.stopIndexUpdates });
+    this.init();
+    await firstValueFrom(this.initSubject);
+
+    if (this.localSearchActivated) {
+      this.api.closeXapianDatabase();
+      this.localSearchActivated = false;
+    }
+    this.ensureDirectory(XAPIAN_GLASS_WR);
+
+    const mainPartition = manifest.partitions.find(partition => partition.number === 0);
+    if (!mainPartition) {
+      throw new Error('Index manifest has no main partition');
+    }
+
+    const files = [
+      { filename: 'iamglass', fileno: 1 },
+      { filename: 'docdata.glass', fileno: 2 },
+      { filename: 'termlist.glass', fileno: 3 },
+      { filename: 'postlist.glass', fileno: 4 }
+    ];
+    for (const file of files) {
+      const data = await this.downloadIndexFile(
+        `/mail/download_xapian_index?ngsw-bypass=1&fileno=${file.fileno}`,
+        loaded => onProgress(this.initialSyncDownloadedBytes + loaded)
+      );
+      FS.writeFile(`${XAPIAN_GLASS_WR}/${file.filename}`, data, { encoding: 'binary' });
+      this.initialSyncDownloadedBytes += data.length;
+      onProgress(this.initialSyncDownloadedBytes);
+    }
+
+    this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
+    if (!this.updateIndexLastUpdateTime()) {
+      throw new Error('Downloaded index has no valid synchronization baseline');
+    }
+    FS.writeFile('indexLastUpdateTime', `${this.indexLastUpdateTime}`, { encoding: 'utf8' });
+    await this.syncFileSystem(false);
+  }
+
+  private openInitialWorkerIndex(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const subscription = this.indexWorkerClient.events.subscribe(event => {
+        if (event.action === 'workerIndexReady') {
+          subscription.unsubscribe();
+          resolve(event.baseline);
+        } else if (event.action === 'recentCatchUpFailed' &&
+          event.phase === 'opening-worker') {
+          subscription.unsubscribe();
+          reject(new Error(event.message));
+        }
+      });
+      this.indexWorkerClient.openIndex(this.localdir, this.partitionsdir);
+    });
+  }
+
+  private catchUpRecentMessages(
+    baseline: number,
+    finalizeWatermark: boolean,
+    onChunk: (event: RecentChunkCommittedEvent) => Promise<void>
+  ): Promise<RecentCatchUpCompleteEvent> {
+    return new Promise((resolve, reject) => {
+      let publications = Promise.resolve();
+      const subscription = this.indexWorkerClient.events.subscribe(event => {
+        if (event.action === 'recentChunkCommitted') {
+          publications = publications.then(() => onChunk(event));
+        } else if (event.action === 'recentCatchUpComplete') {
+          subscription.unsubscribe();
+          publications.then(() => resolve(event)).catch(reject);
+        } else if (event.action === 'recentCatchUpFailed') {
+          subscription.unsubscribe();
+          reject(new Error(event.message));
+        } else if (event.action === 'initialSyncCancelled') {
+          subscription.unsubscribe();
+          reject(new Error('Initial index synchronization cancelled'));
+        }
+      });
+      this.indexWorkerClient.catchUpRecent(baseline, finalizeWatermark);
+    });
+  }
+
+  private async publishInitialLocalIndex(): Promise<void> {
+    await this.syncFileSystem(true);
+    this.api.reloadXapianDatabase();
+    this.localSearchActivated = true;
+    this.messagelistservice.refreshFolderList();
+    this.indexReloadedSubject.next(undefined);
+  }
+
+  private async downloadInitialHistoricalPartition(
+    partition: NormalizedIndexPartition,
+    operationId: string,
+    onProgress: (downloadedBytes: number) => void
+  ): Promise<void> {
+    const temporaryFolder = `${partition.folder}.sync-${operationId}`;
+    const temporaryPath = `${this.partitionsdir}/${temporaryFolder}`;
+    const finalPath = `${this.partitionsdir}/${partition.folder}`;
+    this.ensureDirectory(temporaryPath);
+
+    try {
+      for (const file of partition.files) {
+        const data = await this.downloadIndexFile(
+          `/rest/v1/searchindex/file/${partition.folder}/${file.filename}?ngsw-bypass=1`,
+          loaded => onProgress(this.initialSyncDownloadedBytes + loaded)
+        );
+        FS.writeFile(`${temporaryPath}/${file.filename}`, data, { encoding: 'binary' });
+        this.initialSyncDownloadedBytes += data.length;
+        onProgress(this.initialSyncDownloadedBytes);
+      }
+      FS.rename(temporaryPath, finalPath);
+      await this.syncFileSystem(false);
+      this.api.addFolderXapianIndex(finalPath);
+      this.indexReloadedSubject.next(undefined);
+    } catch (error) {
+      this.removeTemporaryPartition(temporaryPath);
+      throw error;
+    }
+  }
+
+  private downloadIndexFile(
+    url: string,
+    onProgress: (loaded: number) => void
+  ): Promise<Uint8Array> {
+    return firstValueFrom(this.httpclient.request(
+      new HttpRequest('GET', url, {
+        reportProgress: true,
+        responseType: 'arraybuffer'
+      })
+    ).pipe(
+      tap(event => {
+        if (event.type === HttpEventType.DownloadProgress) {
+          onProgress(event.loaded);
+        }
+      }),
+      filter(event => event instanceof HttpResponse),
+      map(event => new Uint8Array((event as HttpResponse<ArrayBuffer>).body))
+    ));
+  }
+
+  private syncFileSystem(populate: boolean): Promise<void> {
+    return new Promise((resolve, reject) => FS.syncfs(populate, error => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    }));
+  }
+
+  private ensureDirectory(path: string): void {
+    try {
+      FS.stat(path);
+    } catch (_error) {
+      FS.mkdir(path);
+    }
+  }
+
+  private removeTemporaryPartition(path: string): void {
+    try {
+      FS.readdir(path)
+        .filter(filename => filename !== '.' && filename !== '..')
+        .forEach(filename => FS.unlink(`${path}/${filename}`));
+      FS.rmdir(path);
+    } catch (_error) {
+      // The failed download may not have created its temporary directory.
+    }
+  }
+
+  private async discardInitialLocalIndex(): Promise<void> {
+    this.localSearchActivated = false;
+    try {
+      this.api?.closeXapianDatabase();
+    } catch (_error) {
+      // The read-only database may not have opened yet.
+    }
+    this.indexWorker.postMessage({ action: PostMessageAction.deleteLocalIndex });
+    this.messagelistservice.fetchFolderMessages();
   }
 
   public downloadIndexFromServer(): Observable<boolean> {
