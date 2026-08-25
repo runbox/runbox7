@@ -539,8 +539,13 @@ export class SearchService {
     this.notifyOnNewMessages = false;
     this.indexWorkerClient.startOperation(operationId);
 
+    let historicalDownloadAccepted = false;
+    let discoveredManifest: NormalizedIndexManifest;
     const dependencies: IndexSyncCoordinatorDependencies = {
-      discoverManifest: () => this.discoverIndexManifest(),
+      discoverManifest: async () => {
+        discoveredManifest = await this.discoverIndexManifest();
+        return discoveredManifest;
+      },
       downloadMainPartition: (manifest, onProgress) =>
         this.downloadInitialMainPartition(manifest, onProgress),
       openWorkerIndex: () => this.openInitialWorkerIndex(),
@@ -549,6 +554,16 @@ export class SearchService {
       publishLocalIndex: () => this.publishInitialLocalIndex(),
       downloadHistoricalPartition: (partition, onProgress) =>
         this.downloadInitialHistoricalPartition(partition, operationId, onProgress),
+      shouldDownloadHistoricalPartition: async (_partition, index) => {
+        if (index === 0 || historicalDownloadAccepted) {
+          return true;
+        }
+        historicalDownloadAccepted = await this.confirmInitialHistoricalDownload(
+          discoveredManifest,
+          index
+        );
+        return historicalDownloadAccepted;
+      },
       startPeriodicSync: () => this.indexWorkerClient.startPeriodicSync(),
       cancelWorkerSync: () => this.indexWorkerClient.cancelInitialSync(),
       discardIncompleteIndex: () => this.discardInitialLocalIndex()
@@ -695,6 +710,33 @@ export class SearchService {
       this.removeTemporaryPartition(temporaryPath);
       throw error;
     }
+  }
+
+  private async confirmInitialHistoricalDownload(
+    manifest: NormalizedIndexManifest,
+    historicalIndex: number
+  ): Promise<boolean> {
+    const historicalPartitions = manifest.partitions.filter(partition => partition.number > 0);
+    const remainingPartitions = historicalPartitions.slice(historicalIndex);
+    const remainingDownloadMB = Math.round(remainingPartitions.reduce(
+      (total, partition) => total + partition.files.reduce(
+        (partitionTotal, file) => partitionTotal + file.compressedsize,
+        0
+      ),
+      0
+    ) / (1024 * 1024));
+    const remainingMessages = remainingPartitions.reduce(
+      (total, partition) => total + partition.numberOfMessages,
+      0
+    );
+    const dialog = this.dialog.open(ConfirmDialog);
+    dialog.componentInstance.title = 'Continue synchronizing?';
+    dialog.componentInstance.question = `Already synchronized index for
+        ${this.api.getXapianDocCount()} of
+        your most recent messages. To synchronize the entire index
+        (another ${remainingMessages} messages),
+        there's an additional download of ${remainingDownloadMB} MB.`;
+    return Boolean(await firstValueFrom(dialog.afterClosed()));
   }
 
   private downloadIndexFile(

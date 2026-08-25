@@ -49,6 +49,10 @@ export interface IndexSyncCoordinatorDependencies {
     partition: NormalizedIndexPartition,
     onProgress: (downloadedBytes: number) => void
   ) => Promise<void>;
+  shouldDownloadHistoricalPartition: (
+    partition: NormalizedIndexPartition,
+    index: number
+  ) => Promise<boolean>;
   startPeriodicSync: () => void;
   cancelWorkerSync: () => void;
   discardIncompleteIndex: () => Promise<void>;
@@ -126,7 +130,10 @@ export class IndexSyncCoordinator {
       const historicalPartitions = manifest.partitions
         .filter(partition => partition.number > 0)
         .sort((left, right) => left.number - right.number);
-      for (const partition of historicalPartitions) {
+      for (const [index, partition] of historicalPartitions.entries()) {
+        if (!await this.dependencies.shouldDownloadHistoricalPartition(partition, index)) {
+          break;
+        }
         this.updateState({
           phase: 'downloading-history',
           currentPartition: partition.number
