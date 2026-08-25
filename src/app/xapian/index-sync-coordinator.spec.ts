@@ -69,6 +69,7 @@ const dependencies = (
   },
   publishLocalIndex: async () => undefined,
   downloadHistoricalPartition: async () => undefined,
+  shouldDownloadHistoricalPartition: async () => true,
   startPeriodicSync: () => undefined,
   cancelWorkerSync: () => undefined,
   discardIncompleteIndex: async () => undefined,
@@ -198,6 +199,43 @@ describe('IndexSyncCoordinator', () => {
 
     expect(discarded).toEqual([]);
     expect(coordinator.state.value.phase).toBe('failed');
+  });
+
+  it('retains the recent index and reconciles when optional history is declined', async () => {
+    const timeline: string[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      shouldDownloadHistoricalPartition: async indexPartition => {
+        timeline.push(`confirm-${indexPartition.number}`);
+        return indexPartition.number === 1;
+      },
+      downloadHistoricalPartition: async indexPartition => {
+        timeline.push(`history-${indexPartition.number}`);
+      },
+      catchUpRecent: async (_baseline, finalizeWatermark, onChunk) => {
+        timeline.push(finalizeWatermark ? 'reconcile' : 'recent');
+        if (!finalizeWatermark) {
+          await onChunk(chunk(100));
+        }
+        return {
+          fetchedMessages: finalizeWatermark ? 0 : 100,
+          committedMessages: finalizeWatermark ? 0 : 100,
+          watermarkCandidate: 2000
+        };
+      },
+      startPeriodicSync: () => timeline.push('periodic')
+    }));
+
+    await coordinator.start();
+
+    expect(timeline).toEqual([
+      'recent',
+      'confirm-1',
+      'history-1',
+      'confirm-2',
+      'reconcile',
+      'periodic'
+    ]);
+    expect(coordinator.state.value.phase).toBe('complete');
   });
 
   it('cancels the worker and discards data when cancelled before cutover', async () => {
