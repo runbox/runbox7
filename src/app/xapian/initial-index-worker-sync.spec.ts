@@ -141,8 +141,7 @@ describe('InitialIndexWorkerSync', () => {
 
   it('emits cancellation for the active operation between batches', async () => {
     const actions: string[] = [];
-    let sync: InitialIndexWorkerSync;
-    sync = new InitialIndexWorkerSync({
+    const sync = new InitialIndexWorkerSync({
       fetchPage: async () => Array.from({ length: 250 }, (_value, index) =>
         message(index + 1)),
       fetchDeletedMessages: async () => [],
