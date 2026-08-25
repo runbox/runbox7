@@ -25,13 +25,18 @@ import { Observer, Observable, of, from, AsyncSubject, firstValueFrom, lastValue
 import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
-import { DownloadableSearchIndexMap, DownloadablePartition } from '@runboxcom/runbox-searchindex/downloadablesearchindexmap.class';
-import { IndexingTools } from '../common/messageinfo';
+import { IndexingTools, MessageInfo } from '../common/messageinfo';
 import { FolderListEntry } from '../common/folderlistentry';
 import { FolderStatsEntry } from '../common/folderstatsentry';
 import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
+import { InitialIndexWorkerSync } from './initial-index-worker-sync';
+import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
+import {
+  CatchUpRecentCommand,
+  OpenIndexCommand
+} from './index-sync.types';
 
 // eslint-disable-next-line no-var
 declare var FS; declare var IDBFS; declare var Module;
@@ -71,6 +76,11 @@ class SearchIndexDocumentUpdate {
     public id: number,
     public updateFunction: () => void
   ) {}
+}
+
+interface ProvidedIndexChanges {
+  messages: MessageInfo[];
+  deletedMessageIds: number[];
 }
 
 class SearchIndexService {
@@ -123,7 +133,7 @@ class SearchIndexService {
 
   // constructor( private httpclient: HttpClient ) {}
 
-  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
+  loadSearchIndexes(db: IDBDatabase, initialOperationId?: string): Observable<boolean> {
     console.log(`Worker: got localdir: ${this.localdir}`);
     return new Observable<any>((observer) => {
       try {
@@ -136,7 +146,7 @@ class SearchIndexService {
           // console.log(req);
           if (req.result !== undefined) {
             // console.log('Worker: Req defined, running init()');
-            this.init();
+            this.init(initialOperationId);
             observer.next(true);
           } else {
             // we shouldnt get here cos we only open index on worker if it exists in main thread
@@ -156,8 +166,15 @@ class SearchIndexService {
     });
   }
 
-  init() {
+  init(initialOperationId?: string) {
     if (this.initcalled) {
+      if (initialOperationId) {
+        ctx.postMessage({
+          action: 'workerIndexReady',
+          operationId: initialOperationId,
+          baseline: this.indexLastUpdateTime
+        });
+      }
       return;
     }
     this.initcalled = true;
@@ -178,6 +195,19 @@ class SearchIndexService {
         console.log('Worker: Local dir is ' + this.localdir);
 
         FS.syncfs(true, (err) => {
+          if (err) {
+            if (initialOperationId) {
+              ctx.postMessage({
+                action: 'recentCatchUpFailed',
+                operationId: initialOperationId,
+                phase: 'opening-worker',
+                code: 'worker-filesystem-failed',
+                message: 'Unable to open the local search index'
+              });
+            }
+            this.initSubject.error(err);
+            return;
+          }
           console.log('Worker: File system synced - starting Xapian');
 
           FS.mkdir(this.partitionsdir); // Partitions will sync later down if there is a main partition
@@ -202,13 +232,38 @@ class SearchIndexService {
             }
 
             this.localSearchActivated = true;
-            ctx.postMessage({'action': PostMessageAction.localSearchActivated, 'value': this.localSearchActivated });
+            if (!initialOperationId) {
+              ctx.postMessage({
+                'action': PostMessageAction.localSearchActivated,
+                'value': this.localSearchActivated
+              });
+            }
 
-            FS.syncfs(true, async () => {
+            FS.syncfs(true, async (partitionError) => {
+              if (partitionError) {
+                if (initialOperationId) {
+                  ctx.postMessage({
+                    action: 'recentCatchUpFailed',
+                    operationId: initialOperationId,
+                    phase: 'opening-worker',
+                    code: 'worker-filesystem-failed',
+                    message: 'Unable to open the local search index'
+                  });
+                }
+                return;
+              }
               // console.log('Worker: Loading partitions');
               this.openStoredPartitions();
-              ctx.postMessage({'action': PostMessageAction.indexUpdated});
-              await this.updateIndexWithNewChanges();
+              if (initialOperationId) {
+                ctx.postMessage({
+                  action: 'workerIndexReady',
+                  operationId: initialOperationId,
+                  baseline: this.indexLastUpdateTime
+                });
+              } else {
+                ctx.postMessage({'action': PostMessageAction.indexUpdated});
+                await this.updateIndexWithNewChanges();
+              }
             });
 
 
@@ -428,7 +483,7 @@ not matching with index for current folder`);
   async updateIndexWithNewChanges(next_update?: {
     start_message: string,
     list_messages_args: [number, number, number, number, boolean, string?],
-    set_next_update_time: boolean }) {
+    set_next_update_time: boolean }, providedChanges?: ProvidedIndexChanges) {
     clearTimeout(this.indexUpdateIntervalId);
 
     // console.log('Worker: updateIndexWithNewChanges');
@@ -443,7 +498,8 @@ not matching with index for current folder`);
     console.log(next_update['start_message']);
 
     try {
-      const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
+      const pendingIndexVerificationsArray = providedChanges ? [] :
+        Object.keys(this.pendingIndexVerifications)
         .map(idstring => {
                       const msgobj = this.pendingIndexVerifications[idstring];
                       return {
@@ -457,7 +513,9 @@ not matching with index for current folder`);
                     }
         );
 
-      this.pendingIndexVerifications = {};
+      if (!providedChanges) {
+        this.pendingIndexVerifications = {};
+      }
       const filteredpendingIndexVerificationsArray = pendingIndexVerificationsArray
         .filter(msgobj => Number.isInteger(msgobj.id));
 
@@ -475,13 +533,15 @@ not matching with index for current folder`);
                     });
       }
 
-      let msginfos = [];
-      try {
-        msginfos = await listAllMessages(...next_update['list_messages_args']);
-      } catch (err) {
-        console.error(err);
-        if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
-          console.log(err.errors);
+      let msginfos: MessageInfo[] = providedChanges ? [...providedChanges.messages] : [];
+      if (!providedChanges) {
+        try {
+          msginfos = await listAllMessages(...next_update['list_messages_args']);
+        } catch (err) {
+          console.error(err);
+          if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
+            console.log(err.errors);
+          }
         }
       }
 
@@ -497,13 +557,14 @@ not matching with index for current folder`);
       }
       msginfos.forEach((msg) => this.currentIndexUpdateMessageIds.add(msg.id));
 
-      const deletedMessages = await listDeletedMessagesSince(
-        new Date(
-          // Subtract timezone offset to get UTC
-          this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
-      );
+      const deletedMessages = providedChanges ? [...providedChanges.deletedMessageIds] :
+        await listDeletedMessagesSince(
+          new Date(
+            // Subtract timezone offset to get UTC
+            this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
+        );
 
-        if (this.numberOfMessagesSyncedLastTime === 0) {
+        if (!providedChanges && this.numberOfMessagesSyncedLastTime === 0) {
           // nothing else to do, check for folder count discrepancies
 
           const currentFolder = this.folderList.find(folder => folder.folderPath === this.currentFolder);
@@ -786,11 +847,16 @@ not matching with rest api counts for current folder`);
         this.processMessageHistoryProgress = null;
         this.processMessageIndex = 0;
       }
+      if (providedChanges) {
+        throw err;
+      }
     }
     this.currentIndexUpdateMessageIds.clear();
     // FIXME: postMessage ?
     // this.notifyOnNewMessages = true;
-    this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 30000);
+    if (!providedChanges) {
+      this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 30000);
+    }
   }
 
   persistIndex(): Observable<boolean> {
@@ -804,7 +870,12 @@ not matching with rest api counts for current folder`);
         console.log('Worker: Persisting to indexeddb');
 
         FS.writeFile('indexLastUpdateTime', '' + this.indexLastUpdateTime, { encoding: 'utf8' });
-        FS.syncfs(false, () => {
+        FS.syncfs(false, (error) => {
+          if (error) {
+            this.persistIndexInProgressSubject.error(error);
+            this.persistIndexInProgressSubject = null;
+            return;
+          }
           // console.log('Worker: Syncd files:');
           // console.log(FS.stat(XAPIAN_GLASS_WR));
           FS.readdir(this.partitionsdir).forEach((f) => {
@@ -981,11 +1052,72 @@ not matching with rest api counts for current folder`);
 }
 
 const searchIndexService = new SearchIndexService();
+const initialIndexWorkerSync = new InitialIndexWorkerSync({
+  fetchPage: (page, baseline, pageSize) =>
+    listAllMessages(page, 0, baseline, pageSize, true),
+  fetchDeletedMessages: (baseline) => listDeletedMessagesSince(
+    new Date(baseline - new Date().getTimezoneOffset() * 60 * 1000)
+  ),
+  commitBatch: async (messages, deletedMessageIds) => {
+    await searchIndexService.updateIndexWithNewChanges({
+      start_message: 'Worker: Applying initial synchronization batch',
+      list_messages_args: [0, 0, 0, 0, true],
+      set_next_update_time: false
+    }, { messages, deletedMessageIds });
+  },
+  finalizeWatermark: async (watermark) => {
+    searchIndexService.indexLastUpdateTime = watermark;
+    searchIndexService.indexNotPersisted = true;
+  },
+  persist: async () => {
+    await lastValueFrom(searchIndexService.persistIndex());
+  },
+  postEvent: event => ctx.postMessage(event)
+});
+
+const postWorkerOpenFailure = (command: OpenIndexCommand) => ctx.postMessage({
+  action: 'recentCatchUpFailed',
+  operationId: command.operationId,
+  phase: 'opening-worker',
+  code: 'worker-open-failed',
+  message: 'Unable to open the local search index'
+});
+
+const openInitialIndex = (command: OpenIndexCommand) => {
+  clearTimeout(searchIndexService.indexUpdateIntervalId);
+  initialIndexWorkerSync.startOperation(command.operationId);
+  searchIndexService.localdir = command.localdir;
+  searchIndexService.partitionsdir = command.partitionsdir;
+
+  const idbrequest: IDBOpenDBRequest = self.indexedDB.open('/' + command.localdir);
+  idbrequest.onsuccess = () => {
+    searchIndexService.loadSearchIndexes(
+      idbrequest.result,
+      command.operationId
+    ).subscribe(result => {
+      if (!result) {
+        postWorkerOpenFailure(command);
+      }
+    });
+  };
+  idbrequest.onerror = () => postWorkerOpenFailure(command);
+};
 
 ctx.addEventListener('message', ({ data }) => {
   console.log('Message to worker ');
   console.log(data['action']);
   try {
+    if (handleInitialSyncWorkerCommand(data, {
+      openIndex: command => openInitialIndex(command),
+      catchUpRecent: (command: CatchUpRecentCommand) => {
+        initialIndexWorkerSync.catchUp(command);
+      },
+      cancelInitialSync: command => initialIndexWorkerSync.cancel(command.operationId),
+      startPeriodicSync: () => searchIndexService.updateIndexWithNewChanges()
+    })) {
+      return;
+    }
+
     if (data['action'] === PostMessageAction.opendb) {
       searchIndexService.localdir = data['localdir'];
       searchIndexService.partitionsdir = data['partitionsdir'];
@@ -1070,4 +1202,3 @@ ctx.addEventListener('message', ({ data }) => {
     console.error('Failed to deal with message: ', e);
   }
 });
-
