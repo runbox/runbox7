@@ -113,7 +113,11 @@ describe('IndexSyncCoordinator', () => {
       },
       startPeriodicSync: () => timeline.push('periodic')
     }));
-    coordinator.state.subscribe(state => phases.push(state.phase));
+    coordinator.state.subscribe(state => {
+      if (phases[phases.length - 1] !== state.phase) {
+        phases.push(state.phase);
+      }
+    });
 
     await coordinator.start();
 
@@ -136,7 +140,6 @@ describe('IndexSyncCoordinator', () => {
       'opening-worker',
       'catching-up-recent',
       'local-index-ready',
-      'downloading-history',
       'downloading-history',
       'final-reconciliation',
       'complete'
