@@ -17,6 +17,9 @@
     background-image: url(/_img/avatar.svg);
     background-size: cover;
 }
+.mat-card {
+    padding: 20px;
+}
 .mat_header {
     align-items: center;
 }
@@ -46,4 +49,7 @@
     .mobile-edit {
         height: 50px;
     }
+}
+.heading {
+    font-weight: bold;
 }
