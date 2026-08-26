@@ -901,7 +901,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public filterMessageDisplay() {
-    if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
+    if (this.canvastable.rows) {
       const options = new Map();
       options.set('unreadOnly', this.unreadMessagesOnlyCheckbox);
       options.set('searchText', this.searchText);
