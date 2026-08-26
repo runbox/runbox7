@@ -44,6 +44,10 @@ export class WebSocketSearchMailList extends MessageDisplay {
     return msg.id;
   }
 
+  getRowFolder(_index: number): string {
+    return null;
+  }
+
   filterBy(options: Map<string, any>) {
     this.rows = this._rows;
     if (options.has('unreadOnly') && options.get('unreadOnly')) {

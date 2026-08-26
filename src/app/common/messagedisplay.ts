@@ -166,6 +166,7 @@ export abstract class MessageDisplay {
   abstract getRowSeen(index: number): boolean;
   abstract getRowId(index: number): number;
   abstract getRowMessageId(index: number): number;
+  abstract getRowFolder(index: number): string;
 
   public getRow(index: number): any {
     return this.rows[index];
