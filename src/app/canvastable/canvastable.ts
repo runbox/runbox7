@@ -42,6 +42,39 @@ import { PreferencesService } from '../common/preferences.service';
 
 const MIN_COLUMN_WIDTH = 40;
 
+export const CANVAS_TABLE_FONT_FAMILY = [
+  '"Avenir Next Pro Regular"',
+  '"Helvetica Neue"',
+  '"Segoe UI"',
+  '"Noto Sans"',
+  '"Noto Sans CJK SC"',
+  '"Noto Sans CJK JP"',
+  '"Noto Sans CJK KR"',
+  '"PingFang SC"',
+  '"Hiragino Sans"',
+  '"Microsoft YaHei"',
+  'Meiryo',
+  'Arial',
+  'sans-serif'
+].join(', ');
+
+export const CANVAS_TABLE_FONT_FAMILY_BOLD = [
+  '"Avenir Next Pro Medium"',
+  '"Helvetica Neue"',
+  '"Segoe UI Semibold"',
+  '"Segoe UI"',
+  '"Noto Sans"',
+  '"Noto Sans CJK SC"',
+  '"Noto Sans CJK JP"',
+  '"Noto Sans CJK KR"',
+  '"PingFang SC"',
+  '"Hiragino Sans"',
+  '"Microsoft YaHei"',
+  'Meiryo',
+  'Arial',
+  'sans-serif'
+].join(', ');
+
 const getCSSClassProperty = (className, propertyName) => {
   const elementId = '_classPropertyLookup_' + className;
   let element: HTMLSpanElement = document.getElementById(elementId);
@@ -120,8 +153,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   private scrollbarwidth = 12;
 
-  public fontFamily = '"Avenir Next Pro Regular", "Helvetica Neue", sans-serif';
-  public fontFamilyBold = '"Avenir Next Pro Medium", "Helvetica Neue", sans-serif';
+  public fontFamily = CANVAS_TABLE_FONT_FAMILY;
+  public fontFamilyBold = CANVAS_TABLE_FONT_FAMILY_BOLD;
 
   private maxVisibleRows: number;
 

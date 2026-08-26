@@ -18,7 +18,12 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { TestBed } from '@angular/core/testing';
-import { CanvasTableModule, CanvasTableContainerComponent } from './canvastable';
+import {
+    CANVAS_TABLE_FONT_FAMILY,
+    CANVAS_TABLE_FONT_FAMILY_BOLD,
+    CanvasTableModule,
+    CanvasTableContainerComponent
+} from './canvastable';
 import { MessageList } from '../common/messagelist';
 
 describe('canvastable', () => {
@@ -72,5 +77,19 @@ describe('canvastable', () => {
         fixture.detectChanges();
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
+    });
+
+    it('should include non-Latin fallbacks in the message-list canvas font stack', () => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        const canvastable = fixture.componentInstance.canvastable;
+
+        expect(canvastable.fontFamily).toBe(CANVAS_TABLE_FONT_FAMILY);
+        expect(canvastable.fontFamily).toContain('"Noto Sans"');
+        expect(canvastable.fontFamily).toContain('"Noto Sans CJK JP"');
+        expect(canvastable.fontFamily).toContain('"Microsoft YaHei"');
+        expect(canvastable.fontFamily).toContain('Meiryo');
+        expect(canvastable.fontFamilyBold).toBe(CANVAS_TABLE_FONT_FAMILY_BOLD);
+        expect(canvastable.fontFamilyBold).toContain('"Segoe UI Semibold"');
+        expect(canvastable.fontFamilyBold).toContain('"Noto Sans CJK KR"');
     });
 });
