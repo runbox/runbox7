@@ -37,7 +37,16 @@ const columnsDefault = ['renewal_name', 'quantity', 'price', 'active_from', 'act
 const columnsMobile = ['renewal_name'];
 
 // TODO define it as an interface
-type ActiveProduct = any;
+export type ActiveProduct = any;
+
+export function canRenewActiveProduct(p: ActiveProduct): boolean {
+    const isStorageAddon = p.type === 'addon'
+        && typeof p.name === 'string'
+        && p.name.toLowerCase().includes('storage');
+
+    // no renewals for trials; domains handled separately
+    return (p.pid !== 1000) && (p.subtype !== 'domain') && !isStorageAddon;
+}
 
 @Component({
     selector: 'app-account-renewals-component',
@@ -88,8 +97,7 @@ export class AccountRenewalsComponent {
                     p.expired_over_2_years = true;
                 }
 
-                // no renewals for trials; domains handled separately
-                p.can_renew = (p.pid !== 1000) && (p.subtype !== 'domain');
+                p.can_renew = canRenewActiveProduct(p);
 
                 return p;
             });
@@ -114,10 +122,10 @@ export class AccountRenewalsComponent {
     }
 
     renew(p: ActiveProduct) {
-        if (p.subtype !== 'domain') {
-            this.cart.add(new ProductOrder(p.pid, p.type, p.quantity, p.apid));
-        } else {
+        if (p.subtype === 'domain') {
             this.renewDomain(p);
+        } else if (p.can_renew) {
+            this.cart.add(new ProductOrder(p.pid, p.type, p.quantity, p.apid));
         }
     }
 
