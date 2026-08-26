@@ -19,12 +19,12 @@
 
 import { Component, Input, EventEmitter, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { MatLegacyAutocomplete as MatAutocomplete } from '@angular/material/legacy-autocomplete';
 import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ENTER } from '@angular/cdk/keycodes';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, startWith } from 'rxjs/operators';
 import { RecipientsService } from './recipients.service';
 import { Recipient } from './recipient';
 import { MailAddressInfo } from '../common/mailaddressinfo';
@@ -61,25 +61,25 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
         private snackBar: MatSnackBar,
         recipientservice: RecipientsService
     ) {
-        recipientservice.recipients.subscribe((recipients) => {
-
-        // Listen to search text input and popup suggestions from recipient list
-        this.searchTextFormControl.valueChanges
-            .pipe(debounceTime(50))
-            .subscribe((searchtext: string | Recipient) => {
-                if (searchtext) {
-                    const lowercaseSearchText = searchtext.toString().toLowerCase();
-                    this.filteredRecipients.next(
-                        recipients.filter(recipient =>
-                            recipient.name.toLowerCase().indexOf(lowercaseSearchText) > -1
-                        )
-                    );
-                } else {
-                    this.filteredRecipients.next([]);
-                }
-            }
-            );
+        combineLatest([
+            recipientservice.recipients,
+            this.searchTextFormControl.valueChanges.pipe(debounceTime(50), startWith('')),
+        ]).subscribe(([recipients, searchtext]: [Recipient[], string | Recipient]) => {
+            this.filterRecipients(recipients, searchtext);
         });
+    }
+
+    private filterRecipients(recipients: Recipient[], searchtext: string | Recipient) {
+        if (searchtext) {
+            const lowercaseSearchText = searchtext.toString().toLowerCase();
+            this.filteredRecipients.next(
+                recipients.filter(recipient =>
+                    recipient.name.toLowerCase().indexOf(lowercaseSearchText) > -1
+                )
+            );
+        } else {
+            this.filteredRecipients.next([]);
+        }
     }
 
     ngOnChanges() {
