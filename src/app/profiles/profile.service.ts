@@ -100,7 +100,11 @@ export class ProfileService {
     }  
     
     create(values): Observable<boolean> {
-      return this.rmmapi.createProfile(values).pipe(
+      const profileValues = {
+          ...values,
+          type: values.type || 'external_email',
+      };
+      return this.rmmapi.createProfile(profileValues).pipe(
           map((res: boolean) => {
               this.refresh();
               return res;
