@@ -59,6 +59,8 @@ export class ContactListComponent implements OnChanges {
     }
 
     filterContacts() {
+        const searchTerm = this.searchTerm.trim().toLowerCase();
+
         this.shownContacts = this.contacts.filter(c => {
             if (this.categoryFilter === 'RUNBOX:ALL') {
                 return true;
@@ -71,10 +73,36 @@ export class ContactListComponent implements OnChanges {
 
             return c.categories.find(g => g === target);
         }).filter(c => {
-            return (c.display_name() || '').toLowerCase().indexOf(this.searchTerm.toLowerCase()) !== -1;
+            return !searchTerm || this.contactMatchesSearch(c, searchTerm);
         });
 
         this.sortContacts();
+    }
+
+    private contactMatchesSearch(contact: Contact, searchTerm: string): boolean {
+        return this.valueMatchesSearch(contact.display_name(), searchTerm)
+            || this.valueMatchesSearch(contact.toDict(), searchTerm);
+    }
+
+    private valueMatchesSearch(value: unknown, searchTerm: string): boolean {
+        if (value === null || value === undefined) {
+            return false;
+        }
+
+        if (typeof value === 'string' || typeof value === 'number') {
+            return value.toString().toLowerCase().indexOf(searchTerm) !== -1;
+        }
+
+        if (Array.isArray(value)) {
+            return value.some(entry => this.valueMatchesSearch(entry, searchTerm));
+        }
+
+        if (typeof value === 'object') {
+            return Object.values(value as Record<string, unknown>)
+                .some(entry => this.valueMatchesSearch(entry, searchTerm));
+        }
+
+        return false;
     }
 
     onContactChecked(): void {
