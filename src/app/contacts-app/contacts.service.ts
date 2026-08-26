@@ -45,7 +45,7 @@ interface AvatarCacheEntry {
 
 /* This caches avatar URLs, or `null`s in their absence.
  * Mostly useful for avatars not available in Contacts,
- * and loaded from external services like gravatar.
+ * and loaded from external services like Gravatar and Libravatar.
  *
  * Putting (gr)avatar URLs in <img src's> will cache them nicely,
  * except if they 404d last time around
@@ -349,14 +349,26 @@ export class ContactsService implements OnDestroy {
             return Promise.resolve(null);
         }
 
-        const hash = Md5.hashStr(email.toLowerCase());
-        const url = 'https://gravatar.com/avatar/' + hash + '?d=404';
+        const resolvedUrl = await this.lookupRemoteAvatar(email);
+        this.avatarCache.add(email, resolvedUrl);
+        return resolvedUrl;
+    }
 
-        return fetch(url).then(response => {
-            const resolvedUrl = response.ok ? url : null;
-            this.avatarCache.add(email, resolvedUrl);
-            return Promise.resolve(resolvedUrl);
-        });
+    private async lookupRemoteAvatar(email: string): Promise<string> {
+        const hash = Md5.hashStr(email.toLowerCase());
+        const urls = [
+            'https://gravatar.com/avatar/' + hash + '?d=404',
+            'https://seccdn.libravatar.org/avatar/' + hash + '?d=404',
+        ];
+
+        for (const url of urls) {
+            const response = await fetch(url);
+            if (response.ok) {
+                return url;
+            }
+        }
+
+        return null;
     }
 
     lookupContact(email: string): Promise<Contact> {
