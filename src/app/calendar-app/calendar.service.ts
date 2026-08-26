@@ -303,7 +303,7 @@ export class CalendarService implements OnDestroy {
     // an exception ICAL.Event gets both the exception, and the main one!?
     // set an "isException" flag!?
     importFromIcal(id: string, ical: string, keep = true): {id: string, event: any} {
-        let component = new ICAL.Component(ICAL.parse(ical));
+        let component = new ICAL.Component(ICAL.parse(CalendarService.preprocessIcal(ical)));
         // https://github.com/mozilla-comm/ical.js/issues/455
         if (component.getFirstSubcomponent('vtimezone')) {
             for (const tzComponent of component.getAllSubcomponents('vtimezone')) {
@@ -349,6 +349,102 @@ export class CalendarService implements OnDestroy {
         }
 
         return { 'id': id, 'event': vevents[0] };
+    }
+
+    private static preprocessIcal(ical: string): string {
+        const lines = CalendarService.unfoldIcalLines(ical);
+        const calendarCharset = CalendarService.getCalendarCharset(lines);
+        return lines
+            .map((line) => CalendarService.decodeQuotedPrintableLine(line, calendarCharset))
+            .join('\r\n');
+    }
+
+    private static unfoldIcalLines(ical: string): string[] {
+        const lines = ical.split(/\r\n|\n|\r/);
+        const unfolded: string[] = [];
+
+        for (const line of lines) {
+            if (/^[ \t]/.test(line) && unfolded.length > 0) {
+                unfolded[unfolded.length - 1] += line.slice(1);
+            } else {
+                unfolded.push(line);
+            }
+        }
+
+        return unfolded;
+    }
+
+    private static getCalendarCharset(lines: string[]): string | undefined {
+        const charsetLine = lines.find((line) => /^X-LOTUS-CHARSET:/i.test(line));
+        if (!charsetLine) {
+            return undefined;
+        }
+
+        return charsetLine.slice(charsetLine.indexOf(':') + 1).trim();
+    }
+
+    private static decodeQuotedPrintableLine(line: string, calendarCharset: string | undefined): string {
+        const separator = CalendarService.findIcalValueSeparator(line);
+        if (separator < 0) {
+            return line;
+        }
+
+        const property = line.slice(0, separator);
+        if (!/;\s*ENCODING\s*=\s*"?QUOTED-PRINTABLE"?/i.test(property)) {
+            return line;
+        }
+
+        const charset = CalendarService.getIcalParameter(property, 'CHARSET') || calendarCharset || 'UTF-8';
+        const decodedValue = CalendarService.decodeQuotedPrintableValue(line.slice(separator + 1), charset)
+            .replace(/\r\n|\r|\n/g, '\\n');
+        const decodedProperty = property
+            .replace(/;\s*ENCODING\s*=\s*"?QUOTED-PRINTABLE"?/i, '')
+            .replace(/;\s*CHARSET\s*=\s*("[^"]*"|[^;]*)/i, '');
+
+        return `${decodedProperty}:${decodedValue}`;
+    }
+
+    private static findIcalValueSeparator(line: string): number {
+        let quoted = false;
+
+        for (let i = 0; i < line.length; i++) {
+            if (line[i] === '"') {
+                quoted = !quoted;
+            } else if (line[i] === ':' && !quoted) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static getIcalParameter(property: string, name: string): string | undefined {
+        const parameter = new RegExp(`;\\s*${name}\\s*=\\s*("[^"]*"|[^;]*)`, 'i').exec(property);
+        if (!parameter) {
+            return undefined;
+        }
+
+        return parameter[1].replace(/^"|"$/g, '');
+    }
+
+    private static decodeQuotedPrintableValue(value: string, charset: string): string {
+        const bytes: number[] = [];
+        const textEncoder = new TextEncoder();
+
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] === '=' && /^[0-9A-Fa-f]{2}$/.test(value.slice(i + 1, i + 3))) {
+                bytes.push(parseInt(value.slice(i + 1, i + 3), 16));
+                i += 2;
+            } else {
+                bytes.push(...textEncoder.encode(value[i]));
+            }
+        }
+
+        try {
+            return new TextDecoder(charset).decode(new Uint8Array(bytes));
+        } catch {
+            return new TextDecoder('UTF-8').decode(new Uint8Array(bytes));
+        }
     }
 
     // generate RBE events from ICAL.Events (inc exceptions)
