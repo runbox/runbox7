@@ -870,10 +870,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
     }
     if (displayType === 'messagelist') {
+      const folderContext = args[1] || this.selectedFolder;
       if (this.canvastable.rows instanceof MessageList) {
         this.canvastable.updateRows(args[0]);
+        this.canvastable.rows.setFolderContext(folderContext);
       } else {
-        this.canvastable.rows = new MessageList(...args);
+        this.canvastable.rows = new MessageList(args[0], folderContext);
         // messages updated, check if we need to select a message from the fragment
         this.selectMessageFromFragment(this.fragment);
       }

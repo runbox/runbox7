@@ -23,10 +23,21 @@ import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
 export class MessageList extends MessageDisplay {
+  private folderContext: string;
 
   // MessageDisplay implementations have different numbers of arguments..
   constructor(...args: any[]) {
     super(args[0]);
+    this.setFolderContext(args[1]);
+  }
+
+  setFolderContext(folder: string) {
+    this.folderContext = folder;
+  }
+
+  private isSentFolder(app: any): boolean {
+    const folder = this.folderContext || app.selectedFolder;
+    return !!folder && folder.startsWith('Sent');
   }
 
   getRowSeen(index: number): boolean {
@@ -71,6 +82,7 @@ export class MessageList extends MessageDisplay {
   }
 
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
+    const isSentFolder = this.isSentFolder(app);
     const columns: CanvasTableColumn[] = [
       {
         sortColumn: null,
@@ -91,10 +103,10 @@ export class MessageList extends MessageDisplay {
         draggable: true
       },
       {
-        name: app.selectedFolder === 'Sent' ? 'To' : 'From',
+        name: isSentFolder ? 'To' : 'From',
         cacheKey: 'from',
         sortColumn: null,
-        getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
+        getValue: (rowIndex: number): any => isSentFolder
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
         draggable: true
