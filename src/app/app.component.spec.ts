@@ -163,4 +163,34 @@ describe('AppComponent initial index synchronization', () => {
       .toBe('Finishing synchronization');
     expect(component.isIndexSyncBusy(state('complete'))).toBeFalse();
   });
+
+  it('falls back to the database when the first local query fails', () => {
+    const component = componentWithoutConstructor();
+    const fetchFolderMessages = jasmine.createSpy('fetchFolderMessages');
+    component.usewebsocketsearch = false;
+    component.dataReady = true;
+    component.messagelistservice = { fetchFolderMessages } as never;
+
+    component.handleLocalIndexQueryFailure(new Error('query failed'));
+
+    expect(component.usewebsocketsearch).toBeTrue();
+    expect(component.dataReady).toBeFalse();
+    expect(fetchFolderMessages).toHaveBeenCalledTimes(1);
+    expect(component.indexSyncError).toBe('Unable to display the local message index');
+  });
+
+  it('keeps rendered local rows when a later redraw fails', () => {
+    const component = componentWithoutConstructor();
+    const fetchFolderMessages = jasmine.createSpy('fetchFolderMessages');
+    component.usewebsocketsearch = false;
+    component.dataReady = true;
+    component.messagelistservice = { fetchFolderMessages } as never;
+    Object.assign(component, { hasRenderedLocalIndex: true });
+
+    component.handleLocalIndexQueryFailure(new Error('query failed'));
+
+    expect(component.usewebsocketsearch).toBeFalse();
+    expect(component.dataReady).toBeTrue();
+    expect(fetchFolderMessages).not.toHaveBeenCalled();
+  });
 });
