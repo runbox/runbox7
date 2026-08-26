@@ -236,23 +236,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (this.singlemailviewer.messageId) {
         if (evt.code === 'ArrowUp') {
-          // slightly ugly as we need to call *this* rowSelected, not
-          // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex - 1;
-          if (newRowIndex >= 0) {
-            this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.scrollUp();
-            this.canvastable.hasChanges = true;
+          if (this.navigateOpenMessage(-1)) {
             evt.preventDefault();
           }
         } else if (evt.code === 'ArrowDown') {
-          // slightly ugly as we need to call *this* rowSelected, not
-          // the cvtable one
-          const newRowIndex = this.canvastable.rows.openedRowIndex + 1;
-          if (newRowIndex < this.canvastable.rows.rowCount()) {
-            this.rowSelected(newRowIndex, 3, false);
-            this.canvastable.scrollDown();
-            this.canvastable.hasChanges = true;
+          if (this.navigateOpenMessage(1)) {
             evt.preventDefault();
           }
         }
@@ -926,6 +914,38 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     } else {
       this.singlemailviewer.close();
     }
+  }
+
+  public canNavigateOpenMessage(offset: number): boolean {
+    if (!this.singlemailviewer?.messageId || !this.canvastable?.rows) {
+      return false;
+    }
+
+    const openedRowIndex = this.canvastable.rows.openedRowIndex;
+    if (openedRowIndex === null || openedRowIndex === undefined) {
+      return false;
+    }
+
+    const newRowIndex = openedRowIndex + offset;
+    return newRowIndex >= 0 && newRowIndex < this.canvastable.rows.rowCount();
+  }
+
+  public navigateOpenMessage(offset: number): boolean {
+    if (!this.canNavigateOpenMessage(offset)) {
+      return false;
+    }
+
+    // Use AppComponent.rowSelected so URL, preview, selection, and conversation
+    // behavior stay identical to clicking a message-list row.
+    const newRowIndex = this.canvastable.rows.openedRowIndex + offset;
+    this.rowSelected(newRowIndex, 3, false);
+    if (offset < 0) {
+      this.canvastable.scrollUp();
+    } else {
+      this.canvastable.scrollDown();
+    }
+    this.canvastable.hasChanges = true;
+    return true;
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
