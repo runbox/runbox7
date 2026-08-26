@@ -99,8 +99,8 @@ export class CalendarService implements OnDestroy {
                     this.syncTokens[cal.id] = cal.syncToken;
                 }
                 const runboxevents = cache['events'].map((e: any) => {
-                    const ievent = this.importFromIcal(e.id, e.ical);
-                    return this.generateEvents(undefined, undefined, [ievent]);
+                    const ievent = this.importFromIcalSafely(e.id, e.ical);
+                    return ievent ? this.generateEvents(undefined, undefined, [ievent]) : [];
                 });
                 runboxevents.forEach((events) => this.events = this.events.concat(events));
                 this.calendarSubject.next(this.calendars);
@@ -180,6 +180,16 @@ export class CalendarService implements OnDestroy {
 
     apiErrorHandler(e: HttpErrorResponse): void {
         this.errorLog.next(e);
+    }
+
+    calendarEventErrorHandler(id: string, e: unknown): void {
+        const message = e instanceof Error ? e.message : String(e);
+        const eventId = id ? ` ${id}` : '';
+        this.apiErrorHandler(new HttpErrorResponse({
+            error: { error: `Could not load calendar event${eventId}: ${message}` },
+            status: 0,
+            statusText: 'Calendar event error',
+        }));
     }
 
     deleteCalendar(id: string) {
@@ -351,6 +361,15 @@ export class CalendarService implements OnDestroy {
         return { 'id': id, 'event': vevents[0] };
     }
 
+    importFromIcalSafely(id: string, ical: string, keep = true): {id: string, event: ICAL.Event} | undefined {
+        try {
+            return this.importFromIcal(id, ical, keep);
+        } catch (e) {
+            this.calendarEventErrorHandler(id, e);
+            return undefined;
+        }
+    }
+
     // generate RBE events from ICAL.Events (inc exceptions)
     // default to "now", plus 1mo, and "events stored by fromIcal previously
     // iterator will quite happily generate events before the ICAL startdate
@@ -370,55 +389,62 @@ export class CalendarService implements OnDestroy {
         // ICAL.RecurExpansion iterator
         const events: RunboxCalendarEvent[] = [];
         event_list.forEach((ievent) => {
+            if (!ievent) {
+                return;
+            }
             const id = ievent['id'];
             let icalevent = ievent['event'];
 
-            if (!icalevent.isRecurring()) {
-                if (!startDate ||
-                    (moment(startDate).isSameOrBefore(icalevent.endDate.toJSDate())
-                        && moment(endDate).isSameOrAfter(icalevent.startDate.toJSDate()) )) {
-                    events.push(new RunboxCalendarEvent(id, icalevent, icalevent.startDate, icalevent.endDate, this.me.timezone));
-                }
-                return;
-            }
-            // start defaults to event dtstart if undefined
-            // don't start before the event itself starts
-            // (after end is checked below)
-            const start_date_ICAL = startDate && moment(startDate).isSameOrAfter(icalevent.startDate.toJSDate())
-                ? ICAL.Time.fromJSDate(startDate) : undefined;
-
-            // in case we just got passed a generic date:
-            if (start_date_ICAL) {
-                start_date_ICAL.isDate = icalevent.startDate.isDate;
-            }
-
-            // improve RRULEs if underspecified (then save!?)
-            icalevent = this.fixICALEvent(icalevent);
-
-            // Now recheck the start_date_ICAL against the known
-            // start/end/until dates
-            // And actually generate some events!
-            let next_time;
-            let iterator = icalevent.iterator(start_date_ICAL);
-            if (iterator.ruleIterators[0].rule.isByCount()
-                && icalevent.component.parent.hasProperty('X-RUNBOX-CALCULATED-DTEND')) {
-                const calc_end_date = ICAL.Time.fromString(icalevent.component.parent
-                    .getFirstPropertyValue('X-RUNBOX-CALCULATED-DTEND')).toJSDate();
-                if (startDate && moment(startDate).isAfter(calc_end_date)) {
-                    // console.log('Skipping generation as already ended');
+            try {
+                if (!icalevent.isRecurring()) {
+                    if (!startDate ||
+                        (moment(startDate).isSameOrBefore(icalevent.endDate.toJSDate())
+                            && moment(endDate).isSameOrAfter(icalevent.startDate.toJSDate()) )) {
+                        events.push(new RunboxCalendarEvent(id, icalevent, icalevent.startDate, icalevent.endDate, this.me.timezone));
+                    }
                     return;
                 }
-                // on COUNT, generate all
-                iterator = icalevent.iterator();
-            } else if (!end_date_Moment) {
-                end_date_Moment =  moment().startOf('month').add(2, 'month');
-            }
-            // keep going until we pass the end date:
-            while ( ( next_time = iterator.next() )
-                && (end_date_Moment ? end_date_Moment.isAfter(next_time.toJSDate()) : true) ) {
-                const details = icalevent.getOccurrenceDetails(next_time);
-                events.push(
-                    new RunboxCalendarEvent(id, details.item, details.startDate, details.endDate, this.me.timezone));
+                // start defaults to event dtstart if undefined
+                // don't start before the event itself starts
+                // (after end is checked below)
+                const start_date_ICAL = startDate && moment(startDate).isSameOrAfter(icalevent.startDate.toJSDate())
+                    ? ICAL.Time.fromJSDate(startDate) : undefined;
+
+                // in case we just got passed a generic date:
+                if (start_date_ICAL) {
+                    start_date_ICAL.isDate = icalevent.startDate.isDate;
+                }
+
+                // improve RRULEs if underspecified (then save!?)
+                icalevent = this.fixICALEvent(icalevent);
+
+                // Now recheck the start_date_ICAL against the known
+                // start/end/until dates
+                // And actually generate some events!
+                let next_time;
+                let iterator = icalevent.iterator(start_date_ICAL);
+                if (iterator.ruleIterators[0].rule.isByCount()
+                    && icalevent.component.parent.hasProperty('X-RUNBOX-CALCULATED-DTEND')) {
+                    const calc_end_date = ICAL.Time.fromString(icalevent.component.parent
+                        .getFirstPropertyValue('X-RUNBOX-CALCULATED-DTEND')).toJSDate();
+                    if (startDate && moment(startDate).isAfter(calc_end_date)) {
+                        // console.log('Skipping generation as already ended');
+                        return;
+                    }
+                    // on COUNT, generate all
+                    iterator = icalevent.iterator();
+                } else if (!end_date_Moment) {
+                    end_date_Moment =  moment().startOf('month').add(2, 'month');
+                }
+                // keep going until we pass the end date:
+                while ( ( next_time = iterator.next() )
+                    && (end_date_Moment ? end_date_Moment.isAfter(next_time.toJSDate()) : true) ) {
+                    const details = icalevent.getOccurrenceDetails(next_time);
+                    events.push(
+                        new RunboxCalendarEvent(id, details.item, details.startDate, details.endDate, this.me.timezone));
+                }
+            } catch (e) {
+                this.calendarEventErrorHandler(id, e);
             }
         });
         return events;
@@ -505,7 +531,7 @@ export class CalendarService implements OnDestroy {
             this.icalevents = [];
             events.forEach((e: any) => {
                 // store events into this.icalevents
-                this.importFromIcal(e.id, e.ical);
+                this.importFromIcalSafely(e.id, e.ical);
             });
 
             // generate RBE events for just this set, for current month+1:

@@ -21,6 +21,7 @@ import { StorageService } from '../storage.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CalendarService } from './calendar.service';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import moment from 'moment';
@@ -224,6 +225,25 @@ END:VCALENDAR
             expect(calls.deleteCalendarEvent).toBe(1, '1 event was deleted');
             r(null);
         }));
+    });
+
+    it('should skip malformed calendar events while loading valid ones', () => {
+        dav_events['test/broken'] = {
+            calendar: 'test',
+            id: 'test/broken',
+            ical: 'BEGIN:VCALENDAR\nBEGIN:VEVENT\nDESCRIPTION;ALTREP\nDTSTART:20210425T090000\nDTEND:20210425T100000\nSUMMARY:Broken\nEND:VEVENT\nEND:VCALENDAR\n'
+        };
+
+        const errors: HttpErrorResponse[] = [];
+        sut.errorLog.subscribe(e => errors.push(e));
+
+        sut.reloadEvents();
+
+        expect(sut.icalevents.length).toBe(2, '2 valid ical events were kept');
+        expect(sut.events.length).toBe(6, 'valid events were still generated');
+        expect(errors.length).toBe(1, 'one calendar event error was reported');
+        expect(errors[0].error.error).toContain('test/broken');
+        expect(errors[0].error.error).toContain('Invalid parameters');
     });
 
     it('should be possible to  import an .ics file', () => {
