@@ -18,7 +18,8 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {
-    Input, Output, EventEmitter, Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit, NgZone
+    Input, Output, EventEmitter, Component, ElementRef, ViewChild, ViewChildren, AfterViewInit, OnDestroy, OnInit,
+    NgZone, QueryList
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -41,6 +42,7 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 import { objectEqualWithKeys } from '../common/util';
+import { MailRecipientInputComponent } from './mailrecipientinput.component';
 
 declare const MailParser;
 
@@ -60,6 +62,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     @ViewChild('editor') editorRef: ElementRef;
     @ViewChild('attachmentFileUploadInput') attachmentFileUploadInput: any;
     @ViewChild('messageTextArea', { read: ElementRef }) messageTextArea: ElementRef;
+    @ViewChildren(MailRecipientInputComponent) recipientInputs: QueryList<MailRecipientInputComponent>;
 
     editor: any = null;
     editorId: string;
@@ -696,6 +699,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.savingInProgress = true;
 
         if (send) {
+            this.recipientInputs?.forEach(input => input.commitPendingRecipient(true));
+
             let validemails = false;
             validemails = isValidEmailArray(this.model.to);
             if (!validemails) {
