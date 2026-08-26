@@ -28,6 +28,7 @@ import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { Identity, ProfileService } from '../profiles/profile.service';
 import { from, of, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
+import { decodeMimeEncodedWords } from '../common/mime-encoded-word';
 
 import moment from 'moment';
 import 'moment-timezone';
@@ -76,7 +77,7 @@ export class DraftFormModel {
         ret.from = fromAddress.email;
         ret.mid = draftId;
         ret.to = to ? MailAddressInfo.parse(to) : [];
-        ret.subject = subject;
+        ret.subject = decodeMimeEncodedWords(subject);
         if (preview) {
             // We create an element here because we want the plain text
             const previewElm = document.createElement('div');
@@ -134,9 +135,9 @@ export class DraftFormModel {
             + moment(mailObj.date, localTZ).format('yyyy-MM-DD HH:mm Z')
             + ' ' + moment.tz(localTZ).format('z')
             + ', '
-            + (mailObj.from[0].name
-                ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt; wrote:`
-                : `${mailObj.from[0].address} wrote:`);
+            + (sender[0].name
+                ? `"${sender[0].name}" &lt;${sender[0].address}&gt; wrote:`
+                : `${sender[0].address} wrote:`);
 
         if (!useHTML && mailObj.rawtext) {
             let replyHeaderText = replyHeaderHTML.replaceAll('&lt;', '<');
@@ -170,14 +171,17 @@ export class DraftFormModel {
         const ret = new DraftFormModel();
         ret.setFromForResponse(mailObj, froms);
 
-        const fwdFromNameStr = mailObj.from[0].name
-            ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt;`
-            : `${mailObj.from[0].address}`;
+        const sender = new MailAddressInfo(mailObj.from[0].name, mailObj.from[0].address);
+        const fwdFromNameStr = sender.name
+            ? `"${sender.name}" &lt;${sender.address}&gt;`
+            : `${sender.address}`;
         const localTZ = moment.tz.guess();
         const fwdDateStr = moment(mailObj.date, localTZ).local().format('yyyy-MM-DD HH:mm Z ') + moment.tz(localTZ).format('z');
-        const fwdSubjectStr = `Subject: ${mailObj.subject}`;
-        const fwdTo = mailObj.to ? mailObj.to.map((to) => `"${to.name}" &lt;${to.address}&gt;`) : [];
-        const fwdCC = mailObj.cc ? mailObj.cc.map((cc) => `"${cc.name}" &lt;${cc.address}&gt;`) : [];
+        const fwdSubjectStr = `Subject: ${decodeMimeEncodedWords(mailObj.subject)}`;
+        const fwdTo = mailObj.to ? mailObj.to.map((to) => new MailAddressInfo(to.name, to.address))
+            .map((to) => `"${to.name}" &lt;${to.address}&gt;`) : [];
+        const fwdCC = mailObj.cc ? mailObj.cc.map((cc) => new MailAddressInfo(cc.name, cc.address))
+            .map((cc) => `"${cc.name}" &lt;${cc.address}&gt;`) : [];
         const fwdHeaderHTML = `From: ${fwdFromNameStr} <br />
 Time: ${fwdDateStr} <br />
 ${fwdSubjectStr} <br />`
@@ -229,7 +233,7 @@ ${mailObj.sanitized_html}`;
     }
 
     private setSubjectForResponse(mailObj, prefix): void {
-        this.subject = prefix + MessageInfo.getSubjectWithoutAbbreviation(mailObj.subject);
+        this.subject = prefix + MessageInfo.getSubjectWithoutAbbreviation(decodeMimeEncodedWords(mailObj.subject));
     }
 }
 
