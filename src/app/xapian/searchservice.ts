@@ -65,6 +65,21 @@ export class SearchIndexDocumentData {
   attachment?: boolean;
 }
 
+export function getNewMessageNotificationBody(message: { from?: { name?: string | null; address?: string | null }[] }): string {
+  const sender = message && message.from && message.from[0];
+  if (!sender) {
+    return 'Unknown sender';
+  }
+
+  const name = typeof sender.name === 'string' ? sender.name.trim() : '';
+  if (name) {
+    return name;
+  }
+
+  const address = typeof sender.address === 'string' ? sender.address.trim() : '';
+  return address || 'Unknown sender';
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -159,14 +174,17 @@ export class SearchService {
         } else if (data['action'] === PostMessageAction.newMessagesNotification) {
           if (this.notifyOnNewMessages && 'Notification' in window &&
             window['Notification']['permission'] === 'granted') {
-            const newMessagesTitle = data.prototype.hasOwnProperty('newMessages')
-              && data['newMessages'].length > 1 ?
-              `${data['newMessages'].length} new email messages` :
+            const newMessages = Array.isArray(data['newMessages']) ? data['newMessages'] : [];
+            if (newMessages.length === 0) {
+              return;
+            }
+            const newMessagesTitle = newMessages.length > 1 ?
+              `${newMessages.length} new email messages` :
               'New email message';
             try {
               // eslint-disable-next-line @typescript-eslint/no-unused-expressions
               new Notification(newMessagesTitle, {
-                body: data['newMessages'][0].from[0].name,
+                body: getNewMessageNotificationBody(newMessages[0]),
                 icon: 'assets/icons/icon-192x192.png',
                 tag: 'newmessages'
               });

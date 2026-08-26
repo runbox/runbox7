@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { SearchService, XAPIAN_GLASS_WR } from './searchservice';
+import { getNewMessageNotificationBody, SearchService, XAPIAN_GLASS_WR } from './searchservice';
 import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
@@ -326,5 +326,23 @@ describe('SearchService', () => {
 
         FS.chdir('/');
         FS.unmount('/' + localdir);
+    });
+});
+
+describe('getNewMessageNotificationBody', () => {
+    it('uses the sender name when present', () => {
+        expect(getNewMessageNotificationBody({
+            from: [{ name: 'Sender Name', address: 'sender@example.com' }]
+        })).toBe('Sender Name');
+    });
+
+    it('falls back to the sender email address when the name is missing', () => {
+        expect(getNewMessageNotificationBody({
+            from: [{ name: null, address: 'sender@example.com' }]
+        })).toBe('sender@example.com');
+    });
+
+    it('falls back to an unknown sender label without sender details', () => {
+        expect(getNewMessageNotificationBody({ from: [] })).toBe('Unknown sender');
     });
 });
