@@ -49,7 +49,7 @@
             No messages (yet?)
           </div>
           <app-overview-sender-hilights
-            *ngFor="let sender of regularOverview.concat(mailingListOverview)"
+            *ngFor="let sender of allOverview"
             [sender]="sender"
             (showMore)="showMoreFor(sender)"
             (showLess)="showLessFor(sender)"
