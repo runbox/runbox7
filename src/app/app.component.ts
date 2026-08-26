@@ -66,6 +66,7 @@ import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { UpdateAlertService } from './updatealert/updatealert.service';
 import { UpdateAlertComponent } from './updatealert/updatealert.component';
+import { calculateMailContentTopOffset } from './mail-layout.util';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -342,6 +343,15 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.singlemailviewer && this.singlemailviewer.adjustableHeight
       ? this.singlemailviewer.resizerHeight
       : 0;
+  }
+
+  public get canvasTableTopOffset() {
+    return calculateMailContentTopOffset(
+      this.searchService.downloadProgress !== null,
+      this.websocketsearchservice.searchInProgress,
+      this.searchService.partitionDownloadProgress !== null
+        && this.searchService.partitionDownloadProgress !== 1
+    );
   }
 
   ngDoCheck(): void {

@@ -411,7 +411,7 @@
         </app-multiple-search-fields-input>
 
 	<div [hidden]="hasChildRouterOutlet">
-      <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
+      <div id="canvasTableContainerArea" [ngStyle]="{'top.px': canvasTableTopOffset, 'bottom.px': canvasTableBtmOffset}">
         <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
       </div>
 
