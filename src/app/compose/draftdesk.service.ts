@@ -19,14 +19,14 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxDomain, RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { Identity, ProfileService } from '../profiles/profile.service';
-import { from, of, BehaviorSubject, firstValueFrom } from 'rxjs';
+import { from, of, BehaviorSubject, firstValueFrom, combineLatest } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 import moment from 'moment';
@@ -246,8 +246,12 @@ export class DraftDeskService {
                 private profileService: ProfileService,
                 private http: HttpClient
                ) {
-        this.profileService.validProfiles.subscribe((profiles) => {
-            this.fromsSubject.next(profiles);
+        combineLatest([
+            this.profileService.validProfiles,
+            this.profileService.globalDomains,
+            this.profileService.meSubject
+        ]).subscribe(([profiles, globalDomains, me]) => {
+            this.fromsSubject.next(this.withRunboxGlobalDomainIdentities(profiles, globalDomains, me));
         });
 
         // Recreate drafts when froms(identities) change
@@ -275,6 +279,84 @@ export class DraftDeskService {
     // default identity for creating an email
     public mainIdentity(): Identity {
         return this.profileService.composeProfile;
+    }
+
+    private withRunboxGlobalDomainIdentities(
+        profiles: Identity[],
+        globalDomains: RunboxDomain[],
+        me: RunboxMe | null
+    ): Identity[] {
+        const globalDomainNames = this.globalDomainNames(globalDomains);
+        if (globalDomainNames.length === 0) {
+            return profiles;
+        }
+
+        const seenEmails = new Set<string>();
+        const froms = profiles.filter(profile => {
+            const email = (profile.email || '').toLowerCase();
+            if (!email || seenEmails.has(email)) {
+                return false;
+            }
+            seenEmails.add(email);
+            return true;
+        });
+
+        profiles
+            .filter(profile => this.shouldGenerateRunboxGlobalDomainIdentities(profile, globalDomainNames, me))
+            .forEach(profile => {
+                const localpart = this.runboxGlobalDomainLocalpart(profile, me);
+                if (!localpart) {
+                    return;
+                }
+
+                globalDomainNames.forEach(domainName => {
+                    const email = `${localpart}@${domainName}`;
+                    if (seenEmails.has(email)) {
+                        return;
+                    }
+
+                    froms.push(Identity.fromObject(Object.assign({}, profile, { email })));
+                    seenEmails.add(email);
+                });
+            });
+
+        return froms;
+    }
+
+    private globalDomainNames(globalDomains: RunboxDomain[]): string[] {
+        return Array.from(new Set((globalDomains || [])
+            .map(domain => this.globalDomainName(domain))
+            .filter(domain => domain)
+            .map(domain => domain.toLowerCase())));
+    }
+
+    private globalDomainName(domain: RunboxDomain): string {
+        return domain.name;
+    }
+
+    private shouldGenerateRunboxGlobalDomainIdentities(
+        profile: Identity,
+        globalDomainNames: string[],
+        me: RunboxMe | null
+    ): boolean {
+        if (profile.type === 'main') {
+            return !!this.runboxGlobalDomainLocalpart(profile, me);
+        }
+
+        return profile.type === 'aliases'
+            && globalDomainNames.includes(this.emailDomain(profile.email));
+    }
+
+    private runboxGlobalDomainLocalpart(profile: Identity, me: RunboxMe | null): string {
+        const source = profile.type === 'main' && me?.username
+            ? me.username
+            : profile.email;
+
+        return (source || '').split('@')[0].toLowerCase();
+    }
+
+    private emailDomain(email: string): string {
+        return (email || '').split('@')[1]?.toLowerCase();
     }
 
     private refreshDrafts() {

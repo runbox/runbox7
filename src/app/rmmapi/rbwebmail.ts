@@ -126,6 +126,10 @@ export class RunboxMe {
     }
 }
 
+export interface RunboxDomain {
+    name: string;
+}
+
 export class MessageTextpart {
     type: string;
     textAsHtml: string;
@@ -624,7 +628,7 @@ export class RunboxWebmailAPI {
         return this.http.get('/rest/v1/aliases/limits');
     }
 
-    public getRunboxDomains(): Observable<string[]> {
+    public getRunboxDomains(): Observable<RunboxDomain[]> {
         return this.http.get('/rest/v1/runbox_domains')
             .pipe(
                 map((res: any) => res.results),
