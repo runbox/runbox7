@@ -299,16 +299,15 @@
         <mat-radio-group
           aria-label="Toggle Plain/HTML view"
           [value]="showHTML ? 'HTML' : 'Plain'"
+          (change)="setHtmlView($event.value)"
           >
           <mat-radio-button
-            (click)="toggleHtml($event)"
             value="Plain"
             matTooltip="Toggle Plain Text version of message"
             >
             <mat-icon svgIcon="format-letter-case"></mat-icon>
           </mat-radio-button>
           <mat-radio-button
-            (click)="toggleHtml($event)"
             value="HTML"
             matTooltip="Toggle HTML version of message"
             >
@@ -316,17 +315,20 @@
           </mat-radio-button>
         </mat-radio-group>
 	<mat-checkbox *ngIf="showHTML"
-          (click)="showExternalImages($event)"
+          (change)="setExternalImages($event.checked)"
           [checked]="showImages"
           matTooltip="Show external images"
 	  >
           <mat-icon svgIcon="image"></mat-icon>
+          Images
 	</mat-checkbox>
         <mat-checkbox *ngIf="!showHTML"
           color="gray"
+          [disabled]="true"
           matTooltip="Show external images (only in HTML view)"
           >
           <mat-icon svgIcon="image" class="themePaletteDarkGray"></mat-icon>
+          Images
         </mat-checkbox>
 	<span class="space"></span>
         <span> For: </span>
