@@ -215,6 +215,33 @@ describe('SingleMailViewerComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('emits preview restore requests from empty toolbar double clicks', () => {
+    const emitSpy = spyOn(component.restorePreviewRequest, 'emit');
+    const event = {
+      target: null,
+      preventDefault: jasmine.createSpy('preventDefault')
+    } as unknown as MouseEvent;
+
+    component.restorePreviewOnToolbarDoubleClick(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalled();
+  });
+
+  it('ignores toolbar double clicks on action controls', () => {
+    const emitSpy = spyOn(component.restorePreviewRequest, 'emit');
+    const button = document.createElement('button');
+    const event = {
+      target: button,
+      preventDefault: jasmine.createSpy('preventDefault')
+    } as unknown as MouseEvent;
+
+    component.restorePreviewOnToolbarDoubleClick(event);
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(emitSpy).not.toHaveBeenCalled();
+  });
+
   it('show mail', fakeAsync(() => {
       expect(component).toBeTruthy();
 

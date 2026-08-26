@@ -4,7 +4,7 @@
     sandbox="allow-same-origin allow-modals"
     style="width: 0px; height: 0px; border: none; position: absolute"
   ></iframe>
-  <mat-toolbar *ngIf="mailObj" style="display: flex; overflow-x: auto;">
+  <mat-toolbar *ngIf="mailObj" style="display: flex; overflow-x: auto;" (dblclick)="restorePreviewOnToolbarDoubleClick($event)">
     
     <!-- Message preview toolbar -->
     <!-- NOTE: These items need to be replicated in the overflow toolbar further down. The number of items shown is controlled by morebuttonindex and TOOLBAR_BUTTON_WIDTH in the .ts file. -->

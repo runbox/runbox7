@@ -165,7 +165,7 @@
               && (singlemailviewer.messageId
                   || (!mobileQuery.matches && keepMessagePaneOpen)
             )"
-    [style.width]="mailViewerRightSideWidth"
+    [style.width]="messageViewerFullscreen ? '100%' : mailViewerRightSideWidth"
     id="rightPane"
     appResizable>
       <single-mail-viewer #singlemailviewer
@@ -173,6 +173,7 @@
       [adjustableHeight]="false"
       (afterLoadMessage)="updateMessageListHeight()"
       (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
+      (restorePreviewRequest)="restoreMessageListPreview()"
       (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
       <div *ngIf="mailViewerOnRightSide && !singlemailviewer.messageId"
 	   class="noMessageSelectedNotification">
@@ -421,6 +422,7 @@
           [messageActionsHandler]="messageActionsHandler"
           (afterLoadMessage)="updateMessageListHeight()"
           (orientationChangeRequest)="mailViewerOrientationChangeRequest($event)"
+          (restorePreviewRequest)="restoreMessageListPreview()"
           (onClose)="singleMailViewerClosed($event)"></single-mail-viewer>
     </div>
   </div>

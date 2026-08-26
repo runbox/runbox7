@@ -73,4 +73,45 @@ describe('canvastable', () => {
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
     });
+
+    it('should notify listener when a row is double clicked', () => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        const rowDoubleClicked = jasmine.createSpy('rowDoubleClicked');
+        fixture.componentInstance.canvastableselectlistener = {
+            rowSelected: jasmine.createSpy('rowSelected'),
+            rowDoubleClicked,
+            saveColumnWidthsPreference: jasmine.createSpy('saveColumnWidthsPreference')
+        };
+        fixture.componentInstance.canvastable.columns = [
+            {
+                name: '',
+                cacheKey: 'selected',
+                sortColumn: null,
+                checkbox: true,
+                getValue: () => '',
+                width: 40
+            },
+            {
+                name: 'Subject',
+                cacheKey: 'subject',
+                sortColumn: null,
+                getValue: (row) => row.subject,
+                width: 200
+            },
+        ];
+        fixture.componentInstance.canvastable.rows = new MessageList([
+            { id: 1, subject: 'subject1' },
+            { id: 2, subject: 'subject2' }
+        ]);
+        fixture.componentInstance.canvastable.rowWrapMode = false;
+        fixture.detectChanges();
+
+        const canvasRect = fixture.componentInstance.canvastable.canvRef.nativeElement.getBoundingClientRect();
+        fixture.componentInstance.canvastable.canvRef.nativeElement.dispatchEvent(new MouseEvent('dblclick', {
+            clientX: canvasRect.left + 60,
+            clientY: canvasRect.top + 10
+        }));
+
+        expect(rowDoubleClicked).toHaveBeenCalledWith(0, 1);
+    });
 });
