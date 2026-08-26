@@ -21,6 +21,7 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { RMM } from '../rmm';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { ProfileService } from '../profiles/profile.service';
 
 @Component({
   selector: 'app-aliases-lister',
@@ -36,6 +37,7 @@ export class AliasesListerComponent {
     private dialog: MatDialog,
     rmmapi: RunboxWebmailAPI,
     rmm: RMM,
+    private profileService: ProfileService,
   ) {
     rmm.alias.load().subscribe(reply => { 
         if (reply['status'] === 'success') { 
@@ -86,6 +88,7 @@ export class AliasesListerComponent {
         if (result !== undefined) {
             const itemIndex = this.aliases.findIndex(v => v.id === result.id);
             this.aliases.splice(itemIndex, 1);
+            this.profileService.deleteAssociatedAliasIdentities(result).subscribe();
         }
     });
   }
