@@ -126,6 +126,14 @@ export abstract class MessageDisplay {
     // multiSelect is true if we're applying rowSelect in a loop
     this.selectedRowId = selectedRowId;
 
+    // Clicks right of the checkbox open a message. Keep existing checkbox
+    // selections intact so the selected messages can still be operated on.
+    if (columnIndex > 0) {
+      this.openedRowIndex = rowIndex;
+      this.hasChanges = true;
+      return;
+    }
+
     // flip sense of selected row (deleted below if now false)
     if (columnIndex >= -1) {
       this.flipSelectedRow(this.selectedRowId);
@@ -134,12 +142,6 @@ export abstract class MessageDisplay {
       // MS is a special snowflake:
       this.selectRow(this.selectedRowId);
       return;
-    }
-
-    // click anywhere on a row right of the checkbox, reset the selected rows
-    // as we want to open the email instead
-    if (columnIndex > 0) {
-      this.msgIdsSelected = {};
     }
 
     // columnIndex == -1 if drag & drop
@@ -151,15 +153,6 @@ export abstract class MessageDisplay {
       this.delSelectedRow(selectedRowId);
     }
 
-    // If we clicked right of the checkbox, we wanted to open the email:
-    if (columnIndex > 0) {
-      // selectedRow will change when we click on other checkboxes, this one
-      // stays attached to the opened email
-//      this.openedRowId = this.selectedRowId;
-      this.openedRowIndex = rowIndex;
-
-      this.hasChanges = true;
-    }
   }
 
   // row entries
