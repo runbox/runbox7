@@ -228,6 +228,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     this.router.navigate(['/compose'], { queryParams: { to } });
   }
 
+  public isDraftMessage(): boolean {
+    return this.folder === 'Drafts';
+  }
+
+  public editDraft() {
+    this.router.navigate(['/compose'], { queryParams: { edit: this.messageId } })
+      .then(() => this.close());
+  }
+
   public close(actionstring?: string) {
     const doClose = () => {
       if (this.resizer) {

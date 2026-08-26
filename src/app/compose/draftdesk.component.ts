@@ -35,6 +35,7 @@ export class DraftDeskComponent implements OnInit {
     public hasMoreDrafts = false;
     public currentMaxDraftsInView: number = MAX_DRAFTS_IN_VIEW;
     private hasInitialized = false;
+    private draftToEdit: number = null;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
@@ -43,7 +44,7 @@ export class DraftDeskComponent implements OnInit {
         public draftDeskservice: DraftDeskService) {
 
         this.draftDeskservice.draftModels.subscribe(
-            drafts => this.updateDraftsInView(),
+            _drafts => this.updateDraftsInView(),
             err => console.log(err)
         );
     }
@@ -51,7 +52,9 @@ export class DraftDeskComponent implements OnInit {
     ngOnInit() {
         this.route.queryParams
             .subscribe(params => {
-                if (params['to']) {
+                if (params['edit']) {
+                    this.editDraft(parseInt(params['edit'], 10));
+                } else if (params['to']) {
                     this.draftDeskservice.newDraft(
                         DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
                     ).then(() => this.updateDraftsInView());
@@ -109,10 +112,32 @@ export class DraftDeskComponent implements OnInit {
         } else {
             this.draftModelsInView = this.draftDeskservice.draftModels.value.slice(0, this.currentMaxDraftsInView);
         }
+        this.keepDraftToEditInView();
+        this.hasMoreDrafts = this.currentMaxDraftsInView < this.draftDeskservice.draftModels.value.length;
     }
 
     draftDeleted(messageId) {
         this.draftDeskservice.deleteDraft(messageId);
+    }
+
+    editDraft(messageId: number) {
+        if (!Number.isInteger(messageId) || messageId <= 0) {
+            return;
+        }
+        this.draftToEdit = messageId;
+        this.draftDeskservice.isEditing = messageId;
+        this.updateDraftsInView();
+    }
+
+    private keepDraftToEditInView() {
+        if (!this.draftToEdit || this.draftModelsInView.some((draft) => draft.mid === this.draftToEdit)) {
+            return;
+        }
+        const draft = this.draftDeskservice.draftModels.value.find((model) => model.mid === this.draftToEdit);
+        if (draft) {
+            this.draftModelsInView.splice(0, 0, draft);
+            this.draftModelsInView = this.draftModelsInView.slice(0, this.currentMaxDraftsInView);
+        }
     }
 
     exitToTable() {
