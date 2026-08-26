@@ -11,10 +11,16 @@
                 <mat-form-field>
                     <mat-label>First name</mat-label>
                     <input type="text" matInput formControlName="first_name">
+                    <mat-error *ngIf="detailsForm.get('first_name').hasError('invalidName')">
+                        Use letters, spaces, hyphens, or apostrophes only.
+                    </mat-error>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Last name</mat-label>
                     <input type="text" matInput formControlName="last_name">
+                    <mat-error *ngIf="detailsForm.get('last_name').hasError('invalidName')">
+                        Use letters, spaces, hyphens, or apostrophes only.
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div class="form-container form-contact">

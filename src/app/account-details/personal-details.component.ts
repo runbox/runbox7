@@ -19,7 +19,14 @@
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+    AbstractControl,
+    UntypedFormBuilder,
+    UntypedFormControl,
+    UntypedFormGroup,
+    ValidationErrors,
+    Validators,
+} from '@angular/forms';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { firstValueFrom, Subject } from 'rxjs';
 import { RMM } from '../rmm';
@@ -32,6 +39,25 @@ interface CountryAndTimezone {
     id: string;
     name: string;
     timezones: string[];
+}
+
+const NAME_PATTERN = /^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u;
+
+function nameValidator(control: AbstractControl): ValidationErrors | null {
+    if (typeof control.value !== 'string') {
+        return null;
+    }
+
+    const normalizedValue = normalizeNameValue(control.value);
+    if (!normalizedValue) {
+        return null;
+    }
+
+    return NAME_PATTERN.test(normalizedValue) ? null : { invalidName: true };
+}
+
+function normalizeNameValue(value: string): string {
+    return value.trim().replace(/\s+/g, ' ');
 }
 
 @Component({
@@ -80,8 +106,8 @@ export class PersonalDetailsComponent implements OnInit {
 
     private createForm(): UntypedFormGroup {
         return this.fb.group({
-            first_name: this.fb.control(''),
-            last_name: this.fb.control(''),
+            first_name: this.fb.control('', [nameValidator]),
+            last_name: this.fb.control('', [nameValidator]),
             email_alternative: this.fb.control('', [Validators.email]),
             phone_number: this.fb.control(''),
             company: this.fb.control(''),
@@ -140,6 +166,14 @@ export class PersonalDetailsComponent implements OnInit {
             return;
         }
 
+        this.normalizeNameControls();
+
+        if (this.detailsForm.invalid) {
+            this.detailsForm.markAllAsTouched();
+            this.rmm.show_error('Please correct the highlighted fields', 'Dismiss');
+            return;
+        }
+
         const updates = {};
         for (const name of Object.keys(this.detailsForm.controls)) {
             const ctl = this.detailsForm.get(name);
@@ -171,7 +205,7 @@ export class PersonalDetailsComponent implements OnInit {
 
     public validate_alt_email() {
       this.http.post('/rest/v1/account/alt_email_validation', {})
-            .subscribe((res) => {
+            .subscribe(() => {
                 this.rmm.show_error('Validation email resent', 'Dismiss');
             });
     }
@@ -187,5 +221,19 @@ export class PersonalDetailsComponent implements OnInit {
                 this.rmm.account_security.user_password = result['password'];
             }
         });
+    }
+
+    private normalizeNameControls() {
+        for (const controlName of ['first_name', 'last_name']) {
+            const control = this.detailsForm.get(controlName);
+            if (typeof control?.value !== 'string') {
+                continue;
+            }
+
+            const normalizedValue = normalizeNameValue(control.value);
+            if (normalizedValue !== control.value) {
+                control.setValue(normalizedValue, { emitEvent: false });
+            }
+        }
     }
 }
