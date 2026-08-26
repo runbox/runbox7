@@ -1023,6 +1023,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (yes) {
       // Don't highlight a folder if we're not viewing one
       this.selectedFolder = null;
+    } else if (!this.selectedFolder) {
+      this.switchToFolder(this.messagelistservice.currentFolder || 'Inbox');
     }
   }
 
