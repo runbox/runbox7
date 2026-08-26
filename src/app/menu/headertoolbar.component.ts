@@ -22,7 +22,6 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
-import { RunboxMe } from '../rmmapi/rbwebmail';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -34,22 +33,21 @@ export class HeaderToolbarComponent implements OnInit {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     user_is_trial = false;
     isMainAccount: boolean;
+    username: string;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
         public rmmoffline: RMMOfflineService,
         private router: Router,
         public logoutservice: LogoutService
-    ) {
-         rmmapi.me.subscribe((me: RunboxMe) => {
-         this.isMainAccount = !me.owner;
-        });
-    }
+    ) { }
 
     ngOnInit() {
         this.rmmapi.me.subscribe(me => {
-           this.user_is_trial = me.is_trial;
-      });
+            this.user_is_trial = me.is_trial;
+            this.isMainAccount = !me.owner;
+            this.username = me.username;
+        });
     }
 
     public mailtable() {
