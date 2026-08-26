@@ -290,6 +290,19 @@ END:VCARD`);
         expect(sut.vcard().toLowerCase()).toContain('bday;value=text:yesterday');
     });
 
+    it('serializes ISO birthday dates as date values', () => {
+        const sut = new Contact({});
+        sut.nickname = 'Birthday Boy';
+        sut.birthday = '2021-09-14';
+
+        const vcard = sut.vcard().toLowerCase();
+        expect(vcard).toContain('bday:20210914');
+        expect(vcard).not.toContain('bday;value=text:2021-09-14');
+
+        const parsed = Contact.fromVcard(null, sut.vcard());
+        expect(parsed.birthday).toBe('2021-09-14');
+    });
+
     it('can set photo to a data uri', () => {
         let sut = new Contact({});
         sut.nickname = 'Mr Photographed';

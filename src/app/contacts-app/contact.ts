@@ -150,6 +150,22 @@ export class Contact {
         return vcf.replace(group, '');
     }
 
+    private static isIsoDate(value: string): boolean {
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+        if (!match) {
+            return false;
+        }
+
+        const year = Number(match[1]);
+        const month = Number(match[2]);
+        const day = Number(match[3]);
+        const date = new Date(Date.UTC(year, month - 1, day));
+
+        return date.getUTCFullYear() === year
+            && date.getUTCMonth() === month - 1
+            && date.getUTCDate() === day;
+    }
+
     // may throw ICAL.ParserError if input is not a valid vcf
     static fromVcf(vcf: string): Contact[] {
         let cards = ICAL.parse(this.preprocessVcf(vcf));
@@ -375,9 +391,9 @@ export class Contact {
             this.component.removeAllProperties('bday');
         }
         const prop = this.component.addPropertyWithValue('bday', value);
-        // TODO skip that bit if it's a correct format
-        // according to https://tools.ietf.org/html/rfc6350#section-4.3.4
-        prop.setParameter('value', 'text');
+        if (!Contact.isIsoDate(value)) {
+            prop.setParameter('value', 'text');
+        }
     }
 
     get note(): string {
