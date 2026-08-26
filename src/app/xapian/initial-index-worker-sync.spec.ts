@@ -179,4 +179,49 @@ describe('InitialIndexWorkerSync', () => {
       message: 'Unable to synchronize recent messages'
     }]);
   });
+
+  it('does not publish a batch when persistence fails', async () => {
+    const actions: string[] = [];
+    const sync = new InitialIndexWorkerSync({
+      fetchPage: async () => [message(1)],
+      fetchDeletedMessages: async () => [],
+      commitBatch: async () => undefined,
+      finalizeWatermark: async () => undefined,
+      persist: async () => Promise.reject(new Error('storage unavailable')),
+      postEvent: event => actions.push(event.action)
+    });
+    sync.startOperation('sync-1');
+
+    await sync.catchUp(command());
+
+    expect(actions).toEqual(['recentCatchUpFailed']);
+  });
+
+  it('acknowledges exactly two durable batches before cancellation', async () => {
+    const committed: number[] = [];
+    const events: InitialIndexSyncWorkerEvent[] = [];
+    const sync = new InitialIndexWorkerSync({
+      fetchPage: async () => Array.from({ length: 250 }, (_value, index) =>
+        message(index + 1)),
+      fetchDeletedMessages: async () => [],
+      commitBatch: async messages => {
+        committed.push(messages.length);
+        if (committed.length === 2) {
+          sync.cancel('sync-1');
+        }
+      },
+      finalizeWatermark: async () => undefined,
+      persist: async () => undefined,
+      postEvent: event => events.push(event)
+    });
+    sync.startOperation('sync-1');
+
+    await sync.catchUp(command());
+
+    expect(committed).toEqual([100, 100]);
+    expect(events.filter(event => event.action === 'recentChunkCommitted').map(event =>
+      event.action === 'recentChunkCommitted' ? event.cumulativeCommitted : 0
+    )).toEqual([100, 200]);
+    expect(events[events.length - 1].action).toBe('initialSyncCancelled');
+  });
 });

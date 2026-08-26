@@ -198,4 +198,35 @@ describe('runRecentIndexSync', () => {
       cancelled: false
     }));
   });
+
+  it('publishes 2,050 newest-first messages as 21 sequential batches', async () => {
+    const committedIds: number[] = [];
+    let requestInProgress = false;
+    const result = await runRecentIndexSync({
+      operationId: 'sync-1',
+      baseline: 1234,
+      pageSize: 1000,
+      publishSize: 100,
+      fetchPage: async page => {
+        expect(requestInProgress).toBeFalse();
+        requestInProgress = true;
+        const pageMessages = page === 0
+          ? messages(1051, 1000)
+          : page === 1
+            ? messages(51, 1000)
+            : messages(1, 50);
+        requestInProgress = false;
+        return pageMessages;
+      },
+      commitBatch: async batch => {
+        committedIds.push(...batch.map(item => item.id));
+      },
+      isCancelled: () => false,
+      onBatchCommitted: () => undefined
+    });
+
+    expect(committedIds.length).toBe(2050);
+    expect(committedIds).toEqual([...committedIds].sort((left, right) => right - left));
+    expect(result.committedMessages).toBe(2050);
+  });
 });

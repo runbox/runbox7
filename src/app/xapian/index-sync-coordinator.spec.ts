@@ -73,6 +73,7 @@ const dependencies = (
   startPeriodicSync: () => undefined,
   cancelWorkerSync: () => undefined,
   discardIncompleteIndex: async () => undefined,
+  waitBeforeRetry: async () => undefined,
   ...overrides
 });
 
@@ -252,5 +253,76 @@ describe('IndexSyncCoordinator', () => {
 
     expect(timeline).toEqual(['cancel-worker', 'discard']);
     expect(coordinator.state.value.phase).toBe('cancelled');
+  });
+
+  it('keeps cumulative counts when final reconciliation publishes a batch', async () => {
+    let pass = 0;
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async (_baseline, _finalizeWatermark, onChunk) => {
+        pass++;
+        const committedMessages = pass === 1 ? 250 : 1;
+        await onChunk({
+          ...chunk(committedMessages),
+          fetchedMessages: committedMessages,
+          cumulativeCommitted: committedMessages
+        });
+        return {
+          fetchedMessages: committedMessages,
+          committedMessages,
+          watermarkCandidate: 2000
+        };
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(coordinator.state.value).toEqual(jasmine.objectContaining({
+      fetchedMessages: 251,
+      committedMessages: 251
+    }));
+  });
+
+  it('retries transient recent synchronization failures with bounded backoff', async () => {
+    let attempts = 0;
+    const delays: number[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async () => {
+        attempts++;
+        if (attempts < 4) {
+          throw new Error('temporary transport failure');
+        }
+        return {
+          fetchedMessages: 0,
+          committedMessages: 0,
+          watermarkCandidate: 2000
+        };
+      },
+      waitBeforeRetry: async delay => {
+        delays.push(delay);
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(attempts).toBe(5);
+    expect(delays).toEqual([1000, 2000, 4000]);
+    expect(coordinator.state.value.phase).toBe('complete');
+  });
+
+  it('retries a failed historical partition without restarting earlier phases', async () => {
+    const attempts: number[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      downloadHistoricalPartition: async indexPartition => {
+        attempts.push(indexPartition.number);
+        if (indexPartition.number === 1 && attempts.length === 1) {
+          throw new Error('temporary partition failure');
+        }
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(attempts).toEqual([1, 1, 2]);
+    expect(coordinator.state.value.phase).toBe('complete');
   });
 });
