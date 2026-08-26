@@ -69,6 +69,8 @@ import { UpdateAlertComponent } from './updatealert/updatealert.component';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
+const LOCAL_STORAGE_MAILVIEWER_RIGHT_SIDE_WIDTH = 'mailViewerRightSideWidth';
+const MAILVIEWER_RIGHT_SIDE_DEFAULT_WIDTH = '40%';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
 const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
@@ -124,7 +126,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   displayFolderColumn = false;
 
   mailViewerOnRightSide = true;
-  mailViewerRightSideWidth = '40%';
+  mailViewerRightSideWidth = MAILVIEWER_RIGHT_SIDE_DEFAULT_WIDTH;
   allowMailViewerOrientationChange = true;
   messageSubjectDragTipShown = false;
   showPopularRecipients = true;
@@ -283,12 +285,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const storedMailViewerOrientationSetting = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`);
         this.mailViewerOnRightSide = !storedMailViewerOrientationSetting || storedMailViewerOrientationSetting === 'true';
         this.allowMailViewerOrientationChange = true;
-        this.mailViewerRightSideWidth = '35%';
+        this.applyMailViewerRightSideWidthPreference(this.preferences);
       }
 
       if (size !== ScreenSize.Desktop) {
         // #935 - Allow vertical preview also on mobile, and use full width
-        this.mailViewerRightSideWidth = '100%';
+        this.applyMailViewerRightSideWidthPreference(this.preferences);
         this.mailViewerOnRightSide = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`);
       }
       console.log(this.mailViewerOnRightSide);
@@ -321,6 +323,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       }
       // after the above
       this.mailViewerOnRightSide = storedMailViewerOrientationSettingMobile === 'true';
+      this.applyMailViewerRightSideWidthPreference(prefs);
 
       // sidebar
       this.showPopularRecipients = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS}`) === 'true';
@@ -342,6 +345,27 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.singlemailviewer && this.singlemailviewer.adjustableHeight
       ? this.singlemailviewer.resizerHeight
       : 0;
+  }
+
+  public applyMailViewerRightSideWidthPreference(prefs: Map<string, unknown>): void {
+    if (this.mobileQuery.screenSize !== ScreenSize.Desktop) {
+      this.mailViewerRightSideWidth = '100%';
+      return;
+    }
+
+    const storedWidth = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_MAILVIEWER_RIGHT_SIDE_WIDTH}`);
+    this.mailViewerRightSideWidth = typeof storedWidth === 'string' && storedWidth
+      ? storedWidth
+      : MAILVIEWER_RIGHT_SIDE_DEFAULT_WIDTH;
+  }
+
+  public mailViewerRightSideResized(width: number): void {
+    if (this.mobileQuery.screenSize !== ScreenSize.Desktop || width <= 0) {
+      return;
+    }
+
+    this.mailViewerRightSideWidth = `${width}px`;
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_MAILVIEWER_RIGHT_SIDE_WIDTH, this.mailViewerRightSideWidth);
   }
 
   ngDoCheck(): void {
@@ -1377,6 +1401,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const currentMessageId = this.singlemailviewer.messageId;
     if (orientation === 'vertical') {
       this.mailViewerOnRightSide = true;
+      this.applyMailViewerRightSideWidthPreference(this.preferences);
     } else {
       this.mailViewerOnRightSide = false;
     }
