@@ -33,9 +33,11 @@ import { PreferencesService } from '../common/preferences.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { take } from 'rxjs/operators';
 import { of, Observable, ReplaySubject } from 'rxjs';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { EventEditorDialogComponent } from './event-editor-dialog.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
@@ -322,5 +324,40 @@ END:VCALENDAR
         expect(first_occurence.getDate()).toBe(1, 'day matches');
         expect(first_occurence.getHours()).toBe(12, 'hour matches');
         expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
+    });
+
+    it('opens event editor dialogs with responsive dimensions', () => {
+        component.calendars = mockData.calendars;
+
+        const dialogRef = {
+            afterClosed: () => of(null),
+        } as unknown as MatDialogRef<EventEditorDialogComponent, null>;
+        const openSpy = spyOn(component['dialog'], 'open').and.returnValue(dialogRef);
+
+        component.addEvent();
+
+        expect(openSpy).toHaveBeenCalledWith(
+            EventEditorDialogComponent,
+            jasmine.objectContaining({
+                width: '90vw',
+                maxWidth: '920px',
+                maxHeight: '90vh',
+                data: jasmine.objectContaining({ is_new: true }),
+            }),
+        );
+
+        openSpy.calls.reset();
+
+        component.openEvent(RunboxCalendarEvent.newEmpty('Europe/London'));
+
+        expect(openSpy).toHaveBeenCalledWith(
+            EventEditorDialogComponent,
+            jasmine.objectContaining({
+                width: '90vw',
+                maxWidth: '920px',
+                maxHeight: '90vh',
+                data: jasmine.objectContaining({ is_new: false }),
+            }),
+        );
     });
 });
