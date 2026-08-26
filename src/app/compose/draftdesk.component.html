@@ -1,6 +1,14 @@
 <div class="draftdesk-container">
   <div class="appPageHeader">
     <h1>Draft Desk</h1>
+    <button
+      mat-icon-button
+      id="emptyDrafts"
+      matTooltip="Empty Drafts"
+      [disabled]="savedDraftCount === 0 || isEmptyingDrafts"
+      (click)="emptyDrafts()">
+      <mat-icon svgIcon="delete"></mat-icon>
+    </button>
   </div>
   
   <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView" [ngClass]="{'draftPreviewContainer': !editing}"></compose>

@@ -26,7 +26,7 @@ import { MailAddressInfo } from '../common/mailaddressinfo';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { Identity, ProfileService } from '../profiles/profile.service';
-import { from, of, BehaviorSubject, firstValueFrom } from 'rxjs';
+import { from, of, BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { map, mergeMap, bufferCount, take, distinctUntilChanged } from 'rxjs/operators';
 
 import moment from 'moment';
@@ -307,9 +307,27 @@ export class DraftDeskService {
     }
 
     public deleteDraft(messageId: number) {
-        let models = this.draftModels.value;
-        models = models.filter(dm => dm.mid !== messageId);
-        this.draftModels.next(models);
+        this.removeDrafts([messageId]);
+    }
+
+    public deleteDrafts(messageIds: number[]): Observable<unknown> {
+        const savedDraftIds = messageIds.filter((messageId) => messageId > 0);
+
+        if (savedDraftIds.length === 0) {
+            return of({ status: 'success' });
+        }
+
+        return this.rmmapi.deleteMessages(savedDraftIds).pipe(
+            map((reply) => {
+                this.removeDrafts(savedDraftIds);
+                return reply;
+            })
+        );
+    }
+
+    private removeDrafts(messageIds: number[]) {
+        const messageIdSet = new Set(messageIds);
+        this.draftModels.next(this.draftModels.value.filter((dm) => !messageIdSet.has(dm.mid)));
     }
 
     public async newTemplateDraft(
