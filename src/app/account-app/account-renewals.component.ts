@@ -113,9 +113,25 @@ export class AccountRenewalsComponent {
         });
     }
 
-    renew(p: ActiveProduct) {
+    async renew(p: ActiveProduct) {
         if (p.subtype !== 'domain') {
-            this.cart.add(new ProductOrder(p.pid, p.type, p.quantity, p.apid));
+            await this.cart.add(new ProductOrder(p.pid, p.type, p.quantity, p.apid));
+
+            if (await this.cart.contains(p.pid, p.apid)) {
+                p.ordered = true;
+                this.snackbar.open(
+                    'Added subscription renewal to your shopping cart.',
+                    'View cart',
+                    { duration: 5000 }
+                ).onAction().subscribe(() => {
+                    this.router.navigateByUrl('/account/cart');
+                });
+            } else {
+                this.snackbar.open(
+                    'Your shopping cart already contains another subscription. Remove it before adding this renewal.',
+                    'Okay'
+                );
+            }
         } else {
             this.renewDomain(p);
         }
