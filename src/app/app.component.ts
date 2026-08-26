@@ -779,7 +779,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public setFlaggedStatus(status: boolean) {
-    this.snackBar.open('Toggling flags...');
+    this.snackBar.open('Toggling flags...', undefined, { duration: 3000 });
     const messageIds = this.canvastable.rows.selectedMessageIds();
 
     this.messageActionsHandler.updateMessages({
