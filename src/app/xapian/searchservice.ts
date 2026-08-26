@@ -679,7 +679,6 @@ export class SearchService {
     this.api.reloadXapianDatabase();
     this.localSearchActivated = true;
     this.messagelistservice.refreshFolderList();
-    this.indexReloadedSubject.next(undefined);
   }
 
   private async downloadInitialHistoricalPartition(

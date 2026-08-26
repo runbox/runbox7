@@ -390,17 +390,16 @@
         </button>
       </ng-container>
     </mat-toolbar>
-    <mat-progress-bar *ngIf="searchService.downloadProgress!==null"
-                      [mode]="searchService.downloadProgress===0 ? 'indeterminate' : 'determinate'"
-                      [value]="searchService.downloadProgress">
+    <mat-progress-bar
+      *ngIf="indexSyncState && isIndexSyncBusy(indexSyncState)"
+      [mode]="indexSyncState.totalBytes > 0 ? 'determinate' : 'indeterminate'"
+      [value]="indexSyncProgress(indexSyncState)">
     </mat-progress-bar>
+    <span *ngIf="indexSyncState" class="index-sync-status" aria-live="polite">
+      {{ indexSyncStatusText(indexSyncState) }}
+    </span>
 
     <mat-progress-bar *ngIf="websocketsearchservice.searchInProgress" mode="indeterminate">
-    </mat-progress-bar>
-
-    <mat-progress-bar
-      *ngIf="searchService.partitionDownloadProgress!==null && searchService.partitionDownloadProgress!==1"
-      [value]="searchService.partitionDownloadProgress*100">
     </mat-progress-bar>
 
 	<app-multiple-search-fields-input

@@ -66,6 +66,7 @@ import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { UpdateAlertService } from './updatealert/updatealert.service';
 import { UpdateAlertComponent } from './updatealert/updatealert.component';
+import { IndexSyncState } from './xapian/index-sync.types';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -102,6 +103,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
+  indexSyncState: IndexSyncState = null;
+  indexSyncError: string = null;
+
+  private indexSyncOperationId: string = null;
+  private hasCutOverToLocalIndex = false;
+  private lastRenderedCommittedMessages = 0;
 
   indexDocCount = 0;
 
@@ -451,8 +458,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   ngAfterViewInit() {
     this.searchService.indexReloadedSubject.subscribe(() => {
       console.log('Redrawing after search results update');
-      // this.searchService.api.reloadXapianDatabase();
-      this.afterUpdateIndex();
+      if (this.hasCutOverToLocalIndex) {
+        this.updateSearch(true, true);
+      } else {
+        this.afterUpdateIndex();
+      }
+    });
+
+    this.searchService.initialSyncState.subscribe(state => {
+      if (state) {
+        this.handleInitialIndexSyncState(state);
+      }
     });
 
     this.searchService.noLocalIndexFoundSubject.subscribe(() => {
@@ -1027,36 +1043,83 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.enableNotification();
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
-    this.searchService.downloadIndexFromServer().subscribe((res) => {
-      if (res && !this.searchService.stopIndexDownloadingInProgress) {
-        this.searchService.downloadPartitions().subscribe(() => {
-          // only done prompting after all partitions fetched
-          if(this.searchService.stopIndexDownloadingInProgress) {
-            // decided to stop mid partition download
-            this.deleteLocalIndex();
-          }
-          this.searchService.indexDownloadingInProgress = false;
-          this.offerInitialLocalIndex = false;
-        });
-      } else {
-        console.log('Index download cancelled or failed');
-        this.deleteLocalIndex();
-      }
-      this.searchService.indexDownloadingInProgress = false;
-      this.searchService.stopIndexDownloadingInProgress = false;
-      this.offerInitialLocalIndex = false;
-    });
+    this.searchService.startInitialIndexSynchronization();
   }
 
   public cancelOrRefuseLocalIndex() {
     this.enableNotification();
-    // Downloading is in progress, pause it:
-    if (this.searchService.indexDownloadingInProgress) {
-      this.searchService.stopIndexDownloadingInProgress = true;
+    if (this.indexSyncState && this.isIndexSyncBusy(this.indexSyncState)) {
+      this.searchService.cancelInitialIndexSynchronization();
     }
     // User has had the initial prompt, stop asking
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.offerInitialLocalIndex = false;
+  }
+
+  public handleInitialIndexSyncState(state: IndexSyncState): void {
+    if (state.operationId !== this.indexSyncOperationId) {
+      this.indexSyncOperationId = state.operationId;
+      this.hasCutOverToLocalIndex = false;
+      this.lastRenderedCommittedMessages = 0;
+      this.indexSyncError = null;
+    }
+    this.indexSyncState = state;
+
+    if (state.phase === 'failed') {
+      this.indexSyncError = state.error;
+      this.offerInitialLocalIndex = !this.hasCutOverToLocalIndex;
+      return;
+    }
+    if (state.phase === 'cancelled') {
+      this.offerInitialLocalIndex = false;
+      return;
+    }
+    if (state.phase === 'local-index-ready' && !this.hasCutOverToLocalIndex) {
+      this.hasCutOverToLocalIndex = true;
+      this.lastRenderedCommittedMessages = state.committedMessages;
+      this.afterUpdateIndex();
+      return;
+    }
+    if (this.hasCutOverToLocalIndex &&
+        state.committedMessages > this.lastRenderedCommittedMessages) {
+      this.lastRenderedCommittedMessages = state.committedMessages;
+      this.updateSearch(true, true);
+    }
+    if (state.phase === 'complete') {
+      this.offerInitialLocalIndex = false;
+    }
+  }
+
+  public isIndexSyncBusy(state: IndexSyncState): boolean {
+    return !['complete', 'failed', 'cancelled'].includes(state.phase);
+  }
+
+  public indexSyncProgress(state: IndexSyncState): number {
+    return state.totalBytes > 0
+      ? Math.min(100, state.downloadedBytes / state.totalBytes * 100)
+      : 0;
+  }
+
+  public indexSyncStatusText(state: IndexSyncState): string {
+    switch (state.phase) {
+      case 'discovering':
+      case 'downloading-main':
+      case 'opening-worker':
+        return 'Preparing recent messages';
+      case 'catching-up-recent':
+      case 'local-index-ready':
+        return 'Adding recent messages';
+      case 'downloading-history':
+        return 'Adding older messages';
+      case 'final-reconciliation':
+        return 'Finishing synchronization';
+      case 'complete':
+        return 'Message synchronization complete';
+      case 'failed':
+        return state.error;
+      case 'cancelled':
+        return 'Message synchronization cancelled';
+    }
   }
 
   singleMailViewerClosed(action: string): void {
