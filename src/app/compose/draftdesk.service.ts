@@ -216,6 +216,69 @@ ${mailObj.sanitized_html}`;
         return false;
     }
 
+    private static normalizeText(content: string): string {
+        return (content ?? '')
+            .replace(/\u00a0/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    private static normalizeHtml(content: string): string {
+        if (!content) {
+            return '';
+        }
+        const html = content.replace(/<br\s*\/?>/gi, '\n');
+        const previewElm = document.createElement('div');
+        previewElm.innerHTML = html;
+        return DraftFormModel.normalizeText(previewElm.textContent || previewElm.innerText || '');
+    }
+
+    private static removeKnownSignature(content: string, useHTML: boolean, froms: Identity[]): string {
+        let normalizedContent = useHTML
+            ? DraftFormModel.normalizeHtml(content)
+            : DraftFormModel.normalizeText(content);
+
+        for (const identity of froms || []) {
+            if (!identity.signature) {
+                continue;
+            }
+
+            const normalizedSignature = identity.is_signature_html
+                ? DraftFormModel.normalizeHtml(identity.signature)
+                : DraftFormModel.normalizeText(identity.signature);
+
+            if (!normalizedSignature) {
+                continue;
+            }
+
+            if (normalizedContent === normalizedSignature) {
+                return '';
+            }
+
+            if (normalizedContent.startsWith(normalizedSignature + ' ')) {
+                normalizedContent = normalizedContent.slice(normalizedSignature.length).trim();
+            }
+        }
+
+        return normalizedContent;
+    }
+
+    public isBlankDraft(froms: Identity[] = []): boolean {
+        return this.isUnsaved()
+            && this.to.length === 0
+            && this.cc.length === 0
+            && this.bcc.length === 0
+            && !DraftFormModel.normalizeText(this.subject)
+            && !this.attachments?.length
+            && !this.reply_to
+            && !this.in_reply_to
+            && !this.reply_to_id
+            && !this.tags
+            && !this.tid
+            && !DraftFormModel.removeKnownSignature(this.msg_body, false, froms)
+            && !DraftFormModel.removeKnownSignature(this.html, true, froms);
+    }
+
     private setFromForResponse(mailObj, froms: Identity[]): void {
         if (froms.length > 0) {
             this.from = (
@@ -310,6 +373,18 @@ export class DraftDeskService {
         let models = this.draftModels.value;
         models = models.filter(dm => dm.mid !== messageId);
         this.draftModels.next(models);
+    }
+
+    public closeBlankComposingDraft(): boolean {
+        if (!this.composingNewDraft?.isBlankDraft(this.fromsSubject.value)) {
+            return false;
+        }
+
+        this.composingNewDraft = null;
+        this.isEditing = -1;
+        this.shouldReturnToPreviousPage = false;
+        this.draftModels.next(this.draftModels.value.filter((draft) => draft.mid >= 0));
+        return true;
     }
 
     public async newTemplateDraft(
