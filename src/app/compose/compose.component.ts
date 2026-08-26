@@ -693,6 +693,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             return;
         }
 
+        const subject = (this.formGroup?.value?.subject ?? this.model.subject ?? '').trim();
+        if (send && !subject && !window.confirm('Send this message without a subject?')) {
+            return;
+        }
+
         this.savingInProgress = true;
 
         if (send) {
