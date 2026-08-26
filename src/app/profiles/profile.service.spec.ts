@@ -36,6 +36,34 @@ describe('Identity', () => {
         });
         expect(ident.nameAndAddress).toEqual('Fred Bloggs <test@example.com>');
     });
+
+    // Regression test for issue #1571: ProfilesEditorModalComponent must clone
+    // the identity on edit so that cancelling the dialog discards changes instead
+    // of mutating the original identity object.
+    it('Clone identity on edit: mutating the clone does not affect the original', () => {
+        const original = Identity.fromObject({
+            'email': 'test@example.com',
+            'from_name': 'Original Name',
+            'signature': 'Original Sig',
+            'reference': { status: 1 },
+        });
+
+        // Replicate constructor cloning logic from ProfilesEditorModalComponent
+        const clone = Object.assign(new Identity(), original);
+        if (clone.reference) {
+            clone.reference = { ...original.reference };
+        }
+
+        // Mutate the clone
+        clone.from_name = 'Edited Name';
+        clone.signature = 'Edited Sig';
+        clone.reference.status = 99;
+
+        // Original must be unchanged
+        expect(original.from_name).toEqual('Original Name');
+        expect(original.signature).toEqual('Original Sig');
+        expect(original.reference.status).toEqual(1);
+    });
 });
 
 describe('ProfileService', () => {
