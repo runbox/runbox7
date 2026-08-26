@@ -56,7 +56,10 @@ export interface IndexSyncCoordinatorDependencies {
   startPeriodicSync: () => void;
   cancelWorkerSync: () => void;
   discardIncompleteIndex: () => Promise<void>;
+  waitBeforeRetry: (delayMilliseconds: number) => Promise<void>;
 }
+
+const retryDelays = [1000, 2000, 4000];
 
 const initialState = (operationId: string): IndexSyncState => ({
   operationId,
@@ -112,10 +115,10 @@ export class IndexSyncCoordinator {
       }
 
       this.updateState({ phase: 'catching-up-recent' });
-      const recentResult = await this.dependencies.catchUpRecent(
+      const recentResult = await this.catchUpRecentWithRetry(
         baseline,
         false,
-        event => this.onRecentChunk(event)
+        event => this.onRecentChunk(event, 0, 0)
       );
       if (await this.finishCancellation()) {
         return;
@@ -138,9 +141,11 @@ export class IndexSyncCoordinator {
           phase: 'downloading-history',
           currentPartition: partition.number
         });
-        await this.dependencies.downloadHistoricalPartition(
-          partition,
-          downloadedBytes => this.updateState({ downloadedBytes })
+        await this.withBoundedRetry(() =>
+          this.dependencies.downloadHistoricalPartition(
+            partition,
+            downloadedBytes => this.updateState({ downloadedBytes })
+          )
         );
         if (await this.finishCancellation()) {
           return;
@@ -148,17 +153,23 @@ export class IndexSyncCoordinator {
       }
 
       this.updateState({ phase: 'final-reconciliation' });
-      const finalResult = await this.dependencies.catchUpRecent(
+      const fetchedBeforeReconciliation = this.state.value.fetchedMessages;
+      const committedBeforeReconciliation = this.state.value.committedMessages;
+      const finalResult = await this.catchUpRecentWithRetry(
         baseline,
         true,
-        event => this.onRecentChunk(event)
+        event => this.onRecentChunk(
+          event,
+          fetchedBeforeReconciliation,
+          committedBeforeReconciliation
+        )
       );
       if (await this.finishCancellation()) {
         return;
       }
       this.updateState({
-        fetchedMessages: this.state.value.fetchedMessages + finalResult.fetchedMessages,
-        committedMessages: this.state.value.committedMessages + finalResult.committedMessages
+        fetchedMessages: fetchedBeforeReconciliation + finalResult.fetchedMessages,
+        committedMessages: committedBeforeReconciliation + finalResult.committedMessages
       });
 
       this.dependencies.startPeriodicSync();
@@ -186,13 +197,42 @@ export class IndexSyncCoordinator {
     this.dependencies.cancelWorkerSync();
   }
 
-  private async onRecentChunk(event: RecentChunkCommittedEvent): Promise<void> {
+  private async onRecentChunk(
+    event: RecentChunkCommittedEvent,
+    fetchedOffset: number,
+    committedOffset: number
+  ): Promise<void> {
     this.updateState({
-      fetchedMessages: event.fetchedMessages,
-      committedMessages: event.cumulativeCommitted,
+      fetchedMessages: fetchedOffset + event.fetchedMessages,
+      committedMessages: committedOffset + event.cumulativeCommitted,
       currentPage: event.page
     });
     await this.publishLocalIndex();
+  }
+
+  private catchUpRecentWithRetry(
+    baseline: number,
+    finalizeWatermark: boolean,
+    onChunk: (event: RecentChunkCommittedEvent) => Promise<void>
+  ): Promise<IndexSyncCatchUpResult> {
+    return this.withBoundedRetry(() => this.dependencies.catchUpRecent(
+      baseline,
+      finalizeWatermark,
+      onChunk
+    ));
+  }
+
+  private async withBoundedRetry<T>(operation: () => Promise<T>): Promise<T> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (this.cancelled || attempt >= retryDelays.length) {
+          throw error;
+        }
+        await this.dependencies.waitBeforeRetry(retryDelays[attempt]);
+      }
+    }
   }
 
   private async publishLocalIndex(): Promise<void> {

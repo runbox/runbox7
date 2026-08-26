@@ -566,7 +566,10 @@ export class SearchService {
       },
       startPeriodicSync: () => this.indexWorkerClient.startPeriodicSync(),
       cancelWorkerSync: () => this.indexWorkerClient.cancelInitialSync(),
-      discardIncompleteIndex: () => this.discardInitialLocalIndex()
+      discardIncompleteIndex: () => this.discardInitialLocalIndex(),
+      waitBeforeRetry: delayMilliseconds => new Promise(resolve =>
+        setTimeout(resolve, delayMilliseconds)
+      )
     };
     this.initialSyncCoordinator = new IndexSyncCoordinator(operationId, dependencies);
     this.initialSyncCoordinator.state.subscribe(state => {
@@ -686,6 +689,7 @@ export class SearchService {
     operationId: string,
     onProgress: (downloadedBytes: number) => void
   ): Promise<void> {
+    const startingDownloadedBytes = this.initialSyncDownloadedBytes;
     const temporaryFolder = `${partition.folder}.sync-${operationId}`;
     const temporaryPath = `${this.partitionsdir}/${temporaryFolder}`;
     const finalPath = `${this.partitionsdir}/${partition.folder}`;
@@ -706,6 +710,8 @@ export class SearchService {
       this.api.addFolderXapianIndex(finalPath);
       this.indexReloadedSubject.next(undefined);
     } catch (error) {
+      this.initialSyncDownloadedBytes = startingDownloadedBytes;
+      onProgress(startingDownloadedBytes);
       this.removeTemporaryPartition(temporaryPath);
       throw error;
     }
