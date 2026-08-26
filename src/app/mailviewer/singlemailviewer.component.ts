@@ -115,6 +115,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public savedForThisSender = false;
   public savedAlways = false;
   public showAllHeaders = false;
+  public readonly allowSenderMenuLabel = 'Add sender to allowlist';
+  public readonly blockSenderEmailMenuLabel = 'Add sender email to blocklist';
+  public readonly blockSenderDomainMenuLabel = 'Add sender domain to blocklist';
 
   contacts: Contact[] = [];
 

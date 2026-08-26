@@ -83,13 +83,13 @@
 
       <mat-menu #senderRulesMenu>
         <button mat-menu-item (click)="messageActionsHandler.allowSender(mailObj.from[0].address)">
-          Allow Sender
+          {{allowSenderMenuLabel}}
         </button>
         <button mat-menu-item (click)="messageActionsHandler.blockSender(mailObj.from[0].address)">
-          Block Sender Email
+          {{blockSenderEmailMenuLabel}}
         </button>
         <button mat-menu-item (click)="messageActionsHandler.blockSender(mailObj.from[0].domain)">
-          Block Sender Domain
+          {{blockSenderDomainMenuLabel}}
         </button>
         <a mat-menu-item
            [href]="'/mail/rules'" target="rmm6">

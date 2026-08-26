@@ -231,6 +231,12 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('should describe sender rule actions as allowlist and blocklist updates', () => {
+    expect((component as any).allowSenderMenuLabel).toBe('Add sender to allowlist');
+    expect((component as any).blockSenderEmailMenuLabel).toBe('Add sender email to blocklist');
+    expect((component as any).blockSenderDomainMenuLabel).toBe('Add sender domain to blocklist');
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
