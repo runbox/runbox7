@@ -195,6 +195,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   private dragSelectionDirectionIsDown: boolean = null;
+  private lastCheckboxSelectedRowIndex: number = null;
 
   // Auto row wrap mode (width based on iphone 5) - set to 0 to disable row wrap mode
   public autoRowWrapModeWidth = 540;
@@ -533,7 +534,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         const lastrow = this.getRowIndexByClientY(this.lastMouseDownEvent.clientY);
         const thisrow = this.getRowIndexByClientY(event.clientY);
         if (lastcol === thiscol && lastrow === thisrow) {
-          this.selectRow(event.clientX, event.clientY);
+          this.selectRow(event.clientX, event.clientY, undefined, event.shiftKey);
         }
       }
 
@@ -655,7 +656,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public columnOverlayClicked(event: MouseEvent) {
     this.lastMouseDownEvent = null;
-    this.selectRow(event.clientX, event.clientY);
+    this.selectRow(event.clientX, event.clientY, undefined, event.shiftKey);
   }
 
   public doScrollBarDrag(clientY: number) {
@@ -759,18 +760,47 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
-  public selectRow(clientX: number, clientY: number, multiSelect?: boolean) {
+  public selectRow(clientX: number, clientY: number, multiSelect?: boolean, rangeSelect?: boolean) {
     const selectedRowIndex = this.getRowIndexByClientY(clientY);
+    const selectedColIndex = this.getSelectedColIndex(clientX);
+
+    if (
+      rangeSelect &&
+      selectedColIndex === 0 &&
+      this.lastCheckboxSelectedRowIndex !== null &&
+      this.rows.rowExists(this.lastCheckboxSelectedRowIndex) &&
+      this.rows.rowExists(selectedRowIndex)
+    ) {
+      this.selectCheckboxRange(clientX, this.lastCheckboxSelectedRowIndex, selectedRowIndex);
+      return;
+    }
+
     this.selectRowByIndex(clientX, selectedRowIndex, multiSelect);
+    if (selectedColIndex === 0 && this.rows.rowExists(selectedRowIndex)) {
+      this.lastCheckboxSelectedRowIndex = selectedRowIndex;
+    }
   }
 
   public selectRowByIndex(clientX: number, selectedRowIndex: number, multiSelect?: boolean) {
-    const canvrect = this.canv.getBoundingClientRect();
-    clientX -= canvrect.left;
-
     this.selectListener.rowSelected(selectedRowIndex,
-      this.getColIndexByClientX(clientX),
+      this.getSelectedColIndex(clientX),
       multiSelect);
+
+    this.hasChanges = true;
+  }
+
+  private getSelectedColIndex(clientX: number): number {
+    const canvrect = this.canv.getBoundingClientRect();
+    return this.getColIndexByClientX(clientX - canvrect.left);
+  }
+
+  private selectCheckboxRange(clientX: number, startRowIndex: number, endRowIndex: number) {
+    const firstRowIndex = Math.min(startRowIndex, endRowIndex);
+    const lastRowIndex = Math.max(startRowIndex, endRowIndex);
+
+    for (let rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++) {
+      this.selectRowByIndex(clientX, rowIndex, true);
+    }
 
     this.hasChanges = true;
   }
