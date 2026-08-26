@@ -26,6 +26,24 @@ export class MailAddressInfo {
         this.domain = address.split('@')[1];
     }
 
+    private static commaSeparatesAddress(mailaddr: string, lastStart: number, commaIndex: number): boolean {
+        const currentAddressPart = mailaddr.substring(lastStart, commaIndex);
+        if (
+            currentAddressPart.indexOf('@') >= 0 ||
+            currentAddressPart.indexOf('<') >= 0 ||
+            currentAddressPart.indexOf('>') >= 0
+        ) {
+            return true;
+        }
+
+        const nextCommaIndex = mailaddr.indexOf(',', commaIndex + 1);
+        const nextAddressPart = mailaddr.substring(
+            commaIndex + 1,
+            nextCommaIndex === -1 ? mailaddr.length : nextCommaIndex
+        );
+        return nextAddressPart.indexOf('<') === -1;
+    }
+
     public static parse(mailaddr: string): MailAddressInfo[] {
         const ret: MailAddressInfo[] = [];
         let namePart = false;
@@ -46,7 +64,7 @@ export class MailAddressInfo {
                     }
                     break;
                 case ',':
-                    if (!namePart) {
+                    if (!namePart && MailAddressInfo.commaSeparatesAddress(mailaddr, lastStart, n)) {
                         if (!addr) {
                             addr = mailaddr.substring(lastStart, n).trim();
                         }
