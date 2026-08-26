@@ -48,7 +48,6 @@ describe('CartService', () => {
 
         const order = new ProductOrder(401,'subscription', new Decimal(3), 402);
         await cart.add(order);
-        console.log(await firstValueFrom(cart.items));
         expect(await cart.contains(401, 402)).toBe(true, 'cart contains the renewal product');
         expect(await cart.contains(401)).toBe(false, 'cart does not contain the new product');
     });
@@ -102,5 +101,49 @@ describe('CartService', () => {
         await cart.add(new ProductOrder(404, 'subscription', new Decimal(1)));
         expect(await cart.contains(403)).toBe(true, 'cart contains added products');
         expect(await cart.contains(404)).toBe(false, 'cart does not contain 2nd subscription');
+    });
+
+    it('should only add one unit of a main subscription product', async () => {
+        localStorage.clear();
+        const cart = new CartService(storage);
+
+        await cart.add(new ProductOrder(403, 'subscription', new Decimal(3)));
+        const items = await firstValueFrom(cart.items);
+
+        expect(items.length).toBe(1);
+        expect(items[0].pid).toBe(403);
+        expect(items[0].quantity.equals(new Decimal(1))).toBe(true);
+    });
+
+    it('should clean multiple main subscription products loaded from storage', async () => {
+        localStorage.clear();
+        localStorage.setItem('42:shoppingCart', JSON.stringify([
+            { pid: 403, type: 'subscription', quantity: 2 },
+            { pid: 404, type: 'subscription', quantity: 1 },
+            { pid: 405, type: 'add-on', quantity: 1 },
+        ]));
+
+        const cart = new CartService(storage);
+        const items = await firstValueFrom(cart.items);
+
+        expect(items.length).toBe(2);
+        expect(items[0].pid).toBe(403);
+        expect(items[0].quantity.equals(new Decimal(1))).toBe(true);
+        expect(items[1].pid).toBe(405);
+        expect(await cart.contains(404)).toBe(false, 'cart drops the 2nd subscription');
+    });
+
+    it('should preserve renewal quantities loaded from storage', async () => {
+        localStorage.clear();
+        localStorage.setItem('42:shoppingCart', JSON.stringify([
+            { pid: 403, type: 'subscription', quantity: 3, apid: 420 },
+        ]));
+
+        const cart = new CartService(storage);
+        const items = await firstValueFrom(cart.items);
+
+        expect(items.length).toBe(1);
+        expect(items[0].quantity.equals(new Decimal(3))).toBe(true);
+        expect(await cart.contains(403, 420)).toBe(true, 'cart still contains the renewal');
     });
 });
