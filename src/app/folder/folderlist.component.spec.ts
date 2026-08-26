@@ -32,9 +32,12 @@ import { DialogModule } from '../dialog/dialog.module';
 import { HotkeysService } from 'angular2-hotkeys';
 
 class MatDialogMock {
+    public closedValue = 'testtest';
+
     open() {
       return {
-        afterClosed: () => of('testtest')
+        componentInstance: {},
+        afterClosed: () => of(this.closedValue)
       };
     }
   }
@@ -228,6 +231,67 @@ describe('FolderListComponent', () => {
         expect(rearrangedFolders.map(f => f.folderId)).toEqual([1, 7, 6, 5, 3, 2, 4]);
         expect(rearrangedFolders.map(f => f.folderLevel)).toEqual([0, 0, 0, 0, 1, 2, 1]);
         expect(moveEvent.order).toEqual([1, 7, 6, 5, 3, 2, 4]);
+    });
+
+    it('should sort user folders alphabetically without changing parents', async () => {
+        (dialog as any).closedValue = true;
+
+        const comp = new FolderListComponent(dialog, hotkeyMock);
+        comp.selectedFolder = 'Inbox';
+        comp.folders = new BehaviorSubject([
+            new FolderListEntry(1, 50, 40, 'inbox', 'Inbox', 'Inbox', 0),
+            new FolderListEntry(2, 50, 40, 'user', 'Zebra', 'Zebra', 0),
+            new FolderListEntry(3, 50, 40, 'user', 'Gamma', 'Zebra.Gamma', 1),
+            new FolderListEntry(4, 50, 40, 'user', 'Alpha', 'Zebra.Alpha', 1),
+            new FolderListEntry(5, 50, 40, 'sent', 'Sent', 'Sent', 0),
+            new FolderListEntry(6, 50, 40, 'user', 'Apple', 'Apple', 0),
+            new FolderListEntry(7, 50, 40, 'user', 'Delta', 'Apple.Delta', 1),
+            new FolderListEntry(8, 50, 40, 'user', 'Charlie', 'Apple.Charlie', 1),
+            new FolderListEntry(9, 50, 40, 'user', 'Mango', 'Mango', 0),
+        ]);
+
+        let moveEvent: MoveFolderEvent;
+        comp.moveFolder.subscribe((e: MoveFolderEvent) => moveEvent = e);
+
+        comp.sortFoldersAlphabetically();
+        const reorderedFolders = await firstValueFrom(comp.folders);
+
+        expect(reorderedFolders.map(folder => folder.folderId)).toEqual([1, 6, 8, 7, 5, 9, 2, 4, 3]);
+        expect(reorderedFolders.map(folder => folder.folderLevel)).toEqual([0, 0, 1, 1, 0, 0, 0, 1, 1]);
+        expect(reorderedFolders.map(folder => folder.folderPath)).toEqual([
+            'Inbox',
+            'Apple',
+            'Apple.Charlie',
+            'Apple.Delta',
+            'Sent',
+            'Mango',
+            'Zebra',
+            'Zebra.Alpha',
+            'Zebra.Gamma',
+        ]);
+        expect(moveEvent.sourceId).toEqual(6);
+        expect(moveEvent.destinationId).toEqual(0);
+        expect(moveEvent.order).toEqual([1, 6, 8, 7, 5, 9, 2, 4, 3]);
+    });
+
+    it('should not reorder folders that are already alphabetically sorted', async () => {
+        (dialog as any).closedValue = true;
+
+        const comp = new FolderListComponent(dialog, hotkeyMock);
+        comp.folders = new BehaviorSubject([
+            new FolderListEntry(1, 50, 40, 'inbox', 'Inbox', 'Inbox', 0),
+            new FolderListEntry(2, 50, 40, 'user', 'Apple', 'Apple', 0),
+            new FolderListEntry(3, 50, 40, 'user', 'Beta', 'Beta', 0),
+        ]);
+
+        let moveEvent: MoveFolderEvent;
+        comp.moveFolder.subscribe((e: MoveFolderEvent) => moveEvent = e);
+
+        comp.sortFoldersAlphabetically();
+        const reorderedFolders = await firstValueFrom(comp.folders);
+
+        expect(reorderedFolders.map(folder => folder.folderId)).toEqual([1, 2, 3]);
+        expect(moveEvent).toBeUndefined();
     });
 
     it('should create new folder in root', async () => {
