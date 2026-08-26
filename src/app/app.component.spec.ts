@@ -148,4 +148,19 @@ describe('AppComponent initial index synchronization', () => {
     expect(component.usewebsocketsearch).toBeFalse();
     expect(component.afterUpdateIndex).toHaveBeenCalledTimes(1);
   });
+
+  it('presents byte progress and phase-aware status without message details', () => {
+    const component = componentWithoutConstructor();
+    const historyState = state('downloading-history', {
+      downloadedBytes: 150,
+      totalBytes: 300
+    });
+
+    expect(component.isIndexSyncBusy(historyState)).toBeTrue();
+    expect(component.indexSyncProgress(historyState)).toBe(50);
+    expect(component.indexSyncStatusText(historyState)).toBe('Adding older messages');
+    expect(component.indexSyncStatusText(state('final-reconciliation')))
+      .toBe('Finishing synchronization');
+    expect(component.isIndexSyncBusy(state('complete'))).toBeFalse();
+  });
 });
