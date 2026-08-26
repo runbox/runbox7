@@ -22,6 +22,15 @@ import { CanvasTableModule, CanvasTableContainerComponent } from './canvastable'
 import { MessageList } from '../common/messagelist';
 
 describe('canvastable', () => {
+    const selectListener = {
+        rowSelected: (): void => {
+            return undefined;
+        },
+        saveColumnWidthsPreference: (): void => {
+            return undefined;
+        }
+    };
+
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [
@@ -32,13 +41,7 @@ describe('canvastable', () => {
 
     it('should activate draggable column overlay on mouseover', async () => {
         const fixture = TestBed.createComponent(CanvasTableContainerComponent);
-        fixture.componentInstance.canvastableselectlistener = {
-            rowSelected: (rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void => {
-
-            },
-            saveColumnWidthsPreference: (widths: any): void => {
-            }
-        };
+        fixture.componentInstance.canvastableselectlistener = selectListener;
         fixture.componentInstance.canvastable.columns = [
             {
                 name: 'Column1',
@@ -72,5 +75,33 @@ describe('canvastable', () => {
         fixture.detectChanges();
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
+    });
+
+    it('should move the deleted message follower to the top after row removal', () => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        fixture.componentInstance.canvastableselectlistener = selectListener;
+        fixture.componentInstance.canvastable.columns = [
+            {
+                name: 'Subject',
+                cacheKey: 'subject',
+                sortColumn: null,
+                getValue: (row) => row.subject,
+                width: 200
+            }
+        ];
+        fixture.componentInstance.canvastable.rows = new MessageList(
+            Array.from({ length: 40 }, (_, index) => ({
+                id: index + 1,
+                subject: `Message ${index + 1}`
+            }))
+        );
+        fixture.componentInstance.canvastable.topindex = 4;
+        fixture.detectChanges();
+
+        fixture.componentInstance.canvastable.removeMessages([6, 11, 21]);
+
+        expect(fixture.componentInstance.canvastable.rows.rowCount()).toBe(37);
+        expect(fixture.componentInstance.canvastable.topindex).toBe(18);
+        expect(fixture.componentInstance.canvastable.rows.getRowMessageId(18)).toBe(22);
     });
 });
