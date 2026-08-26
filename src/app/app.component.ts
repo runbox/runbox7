@@ -270,6 +270,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.setMessageDisplay('websocketlist', results);
         this.showingWebSocketSearchResults = true;
       }
+      this.syncMessageViewOptionState();
+      this.updateTooltips();
       this.resetColumns();
     });
 
@@ -304,7 +306,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
       this.viewmode = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_VIEWMODE}`);
-      this.conversationGroupingCheckbox = !this.unreadMessagesOnlyCheckbox && this.viewmode === 'conversations';
+      this.syncMessageViewOptionState();
+      this.updateTooltips();
       this.messageSubjectDragTipShown = prefs.get(`${DefaultPrefGroups.Global}:messageSubjectDragTipShown`) === 'true';
 
       // jitsi video calling
@@ -342,6 +345,32 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return this.singlemailviewer && this.singlemailviewer.adjustableHeight
       ? this.singlemailviewer.resizerHeight
       : 0;
+  }
+
+  public canUseConversationGrouping(): boolean {
+    return this.dataReady &&
+      this.showingSearchResults &&
+      !this.showingWebSocketSearchResults &&
+      !this.usewebsocketsearch;
+  }
+
+  private switchToMessagesViewMode(): void {
+    if (this.viewmode !== 'conversations') {
+      return;
+    }
+
+    this.viewmode = 'messages';
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
+  }
+
+  private syncMessageViewOptionState(): void {
+    if (this.unreadMessagesOnlyCheckbox) {
+      this.switchToMessagesViewMode();
+    }
+
+    this.conversationGroupingCheckbox = this.canUseConversationGrouping() &&
+      !this.unreadMessagesOnlyCheckbox &&
+      this.viewmode === 'conversations';
   }
 
   ngDoCheck(): void {
@@ -838,10 +867,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.canvastable.topindex = 0;
       this.canvastable.rows = null;
       this.viewmode = 'messages';
-      this.conversationGroupingCheckbox = this.viewmode === 'conversations';
       this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_VIEWMODE, this.viewmode);
       this.dataReady = false;
       this.showingSearchResults = false;
+      this.syncMessageViewOptionState();
       this.searchText = '';
 
       this.resetColumns();
@@ -1167,6 +1196,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       if (viewmode !== 'singleconversation') {
         this.conversationSearchText = null;
       }
+      this.syncMessageViewOptionState();
       this.resetColumns();
       this.updateSearch(true);
     }
@@ -1257,10 +1287,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   updateTooltips() {
-    this.unreadOnlyToolTip = this.viewmode === 'conversations'
+    this.unreadOnlyToolTip = this.conversationGroupingCheckbox
       ? 'Leave threaded mode to view unread only'
       : 'Unread messages only';
-    this.conversationGroupingToolTip = !this.showingSearchResults
+    this.conversationGroupingToolTip = !this.canUseConversationGrouping()
       ? 'Synchronise the index to see threaded view'
       :  this.unreadMessagesOnlyCheckbox
         ? 'Leave unread only to see threaded view'
@@ -1274,6 +1304,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     // Ensure we save changed settings
     const setting = this.unreadMessagesOnlyCheckbox ? 'true' : 'false';
     this.preferenceService.set(DefaultPrefGroups.Global, LOCAL_STORAGE_SHOW_UNREAD_ONLY, setting);
+    this.syncMessageViewOptionState();
     this.updateTooltips();
 
     if (!this.dataReady || this.showingWebSocketSearchResults) {
@@ -1293,10 +1324,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         /*
          * Message table from database, shown if local search index is not present
          */
+        this.switchToMessagesViewMode();
         if (this.showingSearchResults) {
           this.showingSearchResults = false;
           this.resetColumns();
         }
+        this.syncMessageViewOptionState();
+        this.updateTooltips();
 
         this.setMessageDisplay('messagelist', this.messagelist);
 
@@ -1338,6 +1372,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         if (!this.showingSearchResults ||
           this.displayFolderColumn !== previousDisplayFolderColumn) {
           this.showingSearchResults = true;
+          this.syncMessageViewOptionState();
+          this.updateTooltips();
           this.resetColumns();
         }
 
