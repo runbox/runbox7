@@ -302,6 +302,65 @@ Subject: Test subject <br />
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
+    it('Reply: selects from address from envelope recipient before visible list address', (done) => {
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+                'envelope-to': 'alias@runbox.com',
+            },
+            from: [
+                {address: 'sender@example.com', name: 'Sender'}
+            ],
+            to: [
+                {address: 'list@example.org', name: 'Project List'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [
+            Identity.fromObject({'email':'primary@runbox.com'}),
+            Identity.fromObject({'email':'alias@runbox.com'})
+        ],
+        false, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.from).toBe('alias@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"Sender" <sender@example.com>');
+        expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "Sender" <sender@example.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Reply: keeps visible recipient before delivered-to fallback', (done) => {
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+                'delivered-to': 'primary@runbox.com',
+            },
+            from: [
+                {address: 'sender@example.com', name: 'Sender'}
+            ],
+            to: [
+                {address: 'alias@runbox.com', name: 'Alias'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [
+            Identity.fromObject({'email':'primary@runbox.com'}),
+            Identity.fromObject({'email':'alias@runbox.com'})
+        ],
+        false, false);
+
+        expect(draft.from).toBe('alias@runbox.com');
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
     it('Reply: Address with MAI', (done) => {
         console.log('Reply test: Address with MAI');
         const draft = DraftFormModel.reply({
