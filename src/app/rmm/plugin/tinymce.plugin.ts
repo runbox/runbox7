@@ -45,7 +45,7 @@ export class TinyMCEPlugin {
                     'strikethrough forecolor backcolor codesample | ' +
                     'link image paste pastetext | alignleft aligncenter ' +
                     'alignright alignjustify  | ' +
-                    'numlist bullist outdent indent | removeformat | addcomment | code'),
+                    'numlist bullist outdent indent | removeformat | addcomment | fullscreen code'),
                 codesample_languages: (options.codesample_languages || [
                             {text: 'HTML/XML', value: 'markup'},
                             {text: 'JavaScript', value: 'javascript'},
