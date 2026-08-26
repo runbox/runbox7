@@ -72,6 +72,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public editing = false;
     public isUnsaved = false;
     public savingInProgress = false;
+    private sendAfterCurrentSave = false;
     // public uploadprogress: number = null;
     public uploadingFiles: File[] = [];
     public uploadRequest: Subscription = null;
@@ -690,10 +691,16 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const isTemplate = Boolean(this.isTemplate ?? this.model.tid);
 
         if (this.savingInProgress) {
+            if (send) {
+                this.sendAfterCurrentSave = true;
+            }
             return;
         }
 
         this.savingInProgress = true;
+        if (send) {
+            this.sendAfterCurrentSave = false;
+        }
 
         if (send) {
             let validemails = false;
@@ -718,8 +725,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     `Error sending: ${this.saveErrorMessage}`,
                     'Dismiss'
                 );
+                this.savingInProgress = false;
                 return;
             }
+            this.saveErrorMessage = null;
             this.dialogService.openProgressDialog();
         }
         this.model.from = this.formGroup.value.from;
@@ -756,6 +765,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
             if (!from) {
                 this.snackBar.open('You must set from address', 'OK', {duration: 1000});
+                this.savingInProgress = false;
+                this.dialogService.closeProgressDialog();
                 return;
             }
             // Use old form based API for sending as JSON api doesn't support this
@@ -767,6 +778,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 .subscribe((res) => {
                     if (res[0] === '0') {
                         this.snackBar.open(res[1], 'Dismiss');
+                        this.savingInProgress = false;
                         this.dialogService.closeProgressDialog();
                         return;
                     }
@@ -774,6 +786,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.model.mid = parseInt(res[2], 10);
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
                     this.snackBar.open(res[1], null, { duration: 3000 });
+                    this.saveErrorMessage = null;
 
                     this.draftDeskservice.isEditing = -1;
                     this.draftDeleted.emit(this.model.mid);
@@ -850,7 +863,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.saved = new Date();
                     this.saveErrorMessage = null;
 
-                    this.savingInProgress = false;
+                    this.finishSaving();
                     if (send) {
                         this.draftDeleted.emit(this.model.mid);
                         this.snackBar.open(res.status_msg, null, { duration: 3000 });
@@ -862,9 +875,18 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                                 .map(fieldname =>
                                     `field ${fieldname}: ${err.field_errors[fieldname][0]}`);
                     }
-                    this.savingInProgress = false;
                     this.saveErrorMessage = `Error saving draft: ${msg}`;
+                    this.finishSaving();
                 });
+        }
+    }
+
+    private finishSaving() {
+        this.savingInProgress = false;
+
+        if (this.sendAfterCurrentSave) {
+            this.sendAfterCurrentSave = false;
+            this.submit(true);
         }
     }
 
