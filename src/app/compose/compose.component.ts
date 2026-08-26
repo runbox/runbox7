@@ -48,6 +48,24 @@ const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
 const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename=';
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+export const updateMessageSignature = (message: string, currentSignature: string | null, nextSignature: string | null) => {
+    if (currentSignature && nextSignature) {
+        return message.replace(new RegExp('^' + escapeRegExp(currentSignature), 'g'), nextSignature);
+    }
+
+    if (currentSignature && !nextSignature) {
+        return message.replace(new RegExp('^' + escapeRegExp(currentSignature), 'g'), '');
+    }
+
+    if (!currentSignature && nextSignature) {
+        return nextSignature.concat('\n\n', message);
+    }
+
+    return message;
+};
+
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
@@ -227,22 +245,39 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                 if ( this.formGroup.controls.msg_body.pristine ) {
                     if ( this.signature && from.signature ) {
                         // replaces current signature with new one
+                        const current_signature = this.signature;
                         const new_signature = from.signature;
-                        const rgx = new RegExp('^' + this.signature, 'g');
-                        const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
+                        const msg_body = updateMessageSignature(
+                            this.formGroup.controls.msg_body.value,
+                            current_signature,
+                            new_signature,
+                        );
                         this.signature = new_signature;
                         if (this.formGroup.value.useHTML && this.editor) {
-                            this.model.html = this.model.html.replace(rgx, new_signature);
+                            this.model.html = updateMessageSignature(this.model.html, current_signature, new_signature);
                             this.editor.setContent(this.model.html);
                         } else {
                             this.formGroup.controls.msg_body.setValue(msg_body);
                         }
+                    } else if ( this.signature && !from.signature ) {
+                        // remove current signature when switching to identity with no signature
+                        const current_signature = this.signature;
+                        if (this.formGroup.value.useHTML && this.editor) {
+                            this.model.html = updateMessageSignature(this.model.html, current_signature, null);
+                            this.editor.setContent(this.model.html);
+                        } else {
+                            const msg_body = updateMessageSignature(this.formGroup.controls.msg_body.value, current_signature, null);
+                            this.formGroup.controls.msg_body.setValue(msg_body);
+                        }
+                        this.signature = null;
+                        this.has_pasted_signature = false;
                     } else if ( !this.signature && from.signature) {
+                        const new_signature = from.signature;
                         this.has_pasted_signature = true;
-                        const msg_body = from.signature.concat('\n\n', this.model.msg_body);
-                        this.signature = from.signature;
+                        const msg_body = updateMessageSignature(this.model.msg_body, null, new_signature);
+                        this.signature = new_signature;
                         if (from.is_signature_html || (this.formGroup.value.useHTML && this.editor)) {
-                            this.model.html = this.signature.concat('\n\n', this.model.html);
+                            this.model.html = updateMessageSignature(this.model.html, null, new_signature);
                             if (!this.formGroup.value.useHTML) {
                                 this.formGroup.controls.msg_body.setValue(true);
                                 this.htmlToggled();
