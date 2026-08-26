@@ -96,16 +96,13 @@ export class PersonalDetailsComponent implements OnInit {
     }
 
     loadCountryList() {
-        for (const country in ct.getAllCountries()) {
-            if (country) {
-                const ctObject = {
-                    id: country,
-                    name: ct.getAllCountries()[country].name,
-                    timezones: ct.getAllCountries()[country].timezones,
-                };
-                this.countriesAndTimezones.push(ctObject);
-            }
-        }
+        this.countriesAndTimezones = Object.entries(ct.getAllCountries())
+            .map(([id, country]) => ({
+                id,
+                name: country.name,
+                timezones: country.timezones,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     loadTimezones() {
