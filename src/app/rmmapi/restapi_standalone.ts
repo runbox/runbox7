@@ -113,10 +113,6 @@ export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number
   })
     .then((r) => {
       return r.message_ids as number[];
-    })
-    .catch((error) => {
-      console.error(error);
-      return [];
     });
 }
 

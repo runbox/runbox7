@@ -33,6 +33,8 @@ import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCou
 import { PostMessageAction } from './messageactions';
 import { InitialIndexWorkerSync } from './initial-index-worker-sync';
 import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
+import { prepareInitialIndexOpen } from './initial-index-open';
+import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
 import {
   CatchUpRecentCommand,
   OpenIndexCommand
@@ -168,13 +170,11 @@ class SearchIndexService {
 
   init(initialOperationId?: string) {
     if (this.initcalled) {
-      if (initialOperationId) {
-        ctx.postMessage({
-          action: 'workerIndexReady',
-          operationId: initialOperationId,
-          baseline: this.indexLastUpdateTime
-        });
-      }
+      void prepareInitialIndexOpen({
+        alreadyInitialized: true,
+        initialize: async () => undefined,
+        reload: () => this.reloadInitialIndex(initialOperationId)
+      });
       return;
     }
     this.initcalled = true;
@@ -279,6 +279,40 @@ class SearchIndexService {
 
       initXapianFileSys();
     });
+  }
+
+  private async reloadInitialIndex(initialOperationId?: string): Promise<void> {
+    if (!initialOperationId) {
+      return;
+    }
+    try {
+      if (this.messageProcessingInProgressSubject) {
+        await firstValueFrom(this.messageProcessingInProgressSubject);
+      }
+      this.api.closeXapianDatabase();
+      await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
+        error ? reject(error) : resolve()
+      ));
+      this.openStoredMainPartition();
+      this.openStoredPartitions();
+      this.indexLastUpdateTime = parseInt(
+        FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }),
+        10
+      );
+      ctx.postMessage({
+        action: 'workerIndexReady',
+        operationId: initialOperationId,
+        baseline: this.indexLastUpdateTime
+      });
+    } catch (_error) {
+      ctx.postMessage({
+        action: 'recentCatchUpFailed',
+        operationId: initialOperationId,
+        phase: 'opening-worker',
+        code: 'worker-reload-failed',
+        message: 'Unable to reload the local search index'
+      });
+    }
   }
 
   private openStoredPartitions() {
@@ -741,7 +775,10 @@ not matching with rest api counts for current folder`);
           this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
 
           if (searchIndexDocumentUpdates.length > 0) {
-            await lastValueFrom(this.postMessagesToXapianWorker(searchIndexDocumentUpdates));
+            await lastValueFrom(this.postMessagesToXapianWorker(
+              searchIndexDocumentUpdates,
+              shouldPostLegacyIndexUpdated(Boolean(providedChanges))
+            ));
           }
 
           // Look up messages with missing body text term and add the missing text to the index
@@ -773,7 +810,7 @@ not matching with rest api counts for current folder`);
                   console.error('Worker: Failed to add text to document', messageId, e);
                 }
               });
-            })));
+            }), shouldPostLegacyIndexUpdated(Boolean(providedChanges))));
           }
       } else {
         // localsearchactivated is off
@@ -893,7 +930,10 @@ not matching with rest api counts for current folder`);
     }
   }
 
-    postMessagesToXapianWorker(newMessagesToProcess: SearchIndexDocumentUpdate[]): Observable<any> {
+    postMessagesToXapianWorker(
+      newMessagesToProcess: SearchIndexDocumentUpdate[],
+      postLegacyIndexUpdated = true
+    ): Observable<any> {
     if (!this.localSearchActivated) {
       return of();
     }
@@ -957,7 +997,9 @@ not matching with rest api counts for current folder`);
           this.messageProcessingInProgressSubject.complete();
           this.messageProcessingInProgressSubject = null;
 
-          ctx.postMessage({'action': PostMessageAction.indexUpdated});
+          if (postLegacyIndexUpdated) {
+            ctx.postMessage({'action': PostMessageAction.indexUpdated});
+          }
         }
       };
       if (this.persistIndexInProgressSubject) {

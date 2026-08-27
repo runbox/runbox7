@@ -48,6 +48,7 @@ import { objectEqualWithKeys } from '../common/util';
 import { INDEX_WORKER_FACTORY, IndexWorkerFactory } from './index-worker.factory';
 import { IndexWorkerClient } from './index-worker-client';
 import { normalizeIndexManifest } from './index-sync-manifest';
+import { promoteHistoricalPartition } from './historical-partition-promotion';
 import {
   IndexSyncCoordinator,
   IndexSyncCoordinatorDependencies
@@ -552,6 +553,7 @@ export class SearchService {
       catchUpRecent: (baseline, finalizeWatermark, onChunk) =>
         this.catchUpRecentMessages(baseline, finalizeWatermark, onChunk),
       publishLocalIndex: () => this.publishInitialLocalIndex(),
+      reloadPublishedLocalIndex: () => this.reloadPublishedLocalIndex(),
       downloadHistoricalPartition: (partition, onProgress) =>
         this.downloadInitialHistoricalPartition(partition, operationId, onProgress),
       shouldDownloadHistoricalPartition: async (_partition, index) => {
@@ -684,6 +686,11 @@ export class SearchService {
     this.messagelistservice.refreshFolderList();
   }
 
+  private async reloadPublishedLocalIndex(): Promise<void> {
+    await this.syncFileSystem(true);
+    this.api.reloadXapianDatabase();
+  }
+
   private async downloadInitialHistoricalPartition(
     partition: NormalizedIndexPartition,
     operationId: string,
@@ -705,9 +712,15 @@ export class SearchService {
         this.initialSyncDownloadedBytes += data.length;
         onProgress(this.initialSyncDownloadedBytes);
       }
-      FS.rename(temporaryPath, finalPath);
-      await this.syncFileSystem(false);
-      this.api.addFolderXapianIndex(finalPath);
+      await promoteHistoricalPartition({
+        promote: () => FS.rename(temporaryPath, finalPath),
+        persist: () => this.syncFileSystem(false),
+        open: () => this.api.addFolderXapianIndex(finalPath),
+        removePromoted: async () => {
+          this.removeTemporaryPartition(finalPath);
+          await this.syncFileSystem(false);
+        }
+      });
       this.indexReloadedSubject.next(undefined);
     } catch (error) {
       this.initialSyncDownloadedBytes = startingDownloadedBytes;

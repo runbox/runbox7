@@ -45,6 +45,7 @@ export interface IndexSyncCoordinatorDependencies {
     onChunk: (event: RecentChunkCommittedEvent) => Promise<void>
   ) => Promise<IndexSyncCatchUpResult>;
   publishLocalIndex: () => Promise<void>;
+  reloadPublishedLocalIndex: () => Promise<void>;
   downloadHistoricalPartition: (
     partition: NormalizedIndexPartition,
     onProgress: (downloadedBytes: number) => void
@@ -202,12 +203,17 @@ export class IndexSyncCoordinator {
     fetchedOffset: number,
     committedOffset: number
   ): Promise<void> {
+    if (this.localIndexPublished) {
+      await this.dependencies.reloadPublishedLocalIndex();
+    }
     this.updateState({
       fetchedMessages: fetchedOffset + event.fetchedMessages,
       committedMessages: committedOffset + event.cumulativeCommitted,
       currentPage: event.page
     });
-    await this.publishLocalIndex();
+    if (!this.localIndexPublished) {
+      await this.publishLocalIndex();
+    }
   }
 
   private catchUpRecentWithRetry(
