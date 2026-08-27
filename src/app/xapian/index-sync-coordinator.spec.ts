@@ -68,6 +68,7 @@ const dependencies = (
     };
   },
   publishLocalIndex: async () => undefined,
+  reloadPublishedLocalIndex: async () => undefined,
   downloadHistoricalPartition: async () => undefined,
   shouldDownloadHistoricalPartition: async () => true,
   startPeriodicSync: () => undefined,
@@ -167,6 +168,33 @@ describe('IndexSyncCoordinator', () => {
     await coordinator.start();
 
     expect(timeline).toEqual(['publish-local', 'history-1', 'history-2']);
+  });
+
+  it('reloads the published local index after every later durable batch', async () => {
+    const timeline: string[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async (_baseline, finalizeWatermark, onChunk) => {
+        if (!finalizeWatermark) {
+          await onChunk(chunk(100));
+          await onChunk(chunk(200));
+        }
+        return {
+          fetchedMessages: finalizeWatermark ? 0 : 200,
+          committedMessages: finalizeWatermark ? 0 : 200,
+          watermarkCandidate: 2000
+        };
+      },
+      publishLocalIndex: async () => {
+        timeline.push('cutover');
+      },
+      reloadPublishedLocalIndex: async () => {
+        timeline.push('reload');
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(timeline).toEqual(['cutover', 'reload']);
   });
 
   it('discards an incomplete index when synchronization fails before cutover', async () => {

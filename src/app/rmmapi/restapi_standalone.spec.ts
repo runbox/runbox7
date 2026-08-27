@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { listAllMessages } from './restapi_standalone';
+import { listAllMessages, listDeletedMessagesSince } from './restapi_standalone';
 
 describe('listAllMessages', () => {
   it('rejects a failed response instead of reporting an empty page', async () => {
@@ -27,6 +27,16 @@ describe('listAllMessages', () => {
     }));
 
     await expectAsync(listAllMessages(0, 0, 0, 1000, true))
+      .toBeRejectedWithError(/Service Unavailable/);
+  });
+
+  it('rejects a failed deleted-message response instead of losing deletions', async () => {
+    spyOn(window, 'fetch').and.resolveTo(new Response('', {
+      status: 503,
+      statusText: 'Service Unavailable'
+    }));
+
+    await expectAsync(listDeletedMessagesSince(new Date(0)))
       .toBeRejectedWithError(/Service Unavailable/);
   });
 });
