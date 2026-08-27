@@ -197,6 +197,35 @@ describe('IndexSyncCoordinator', () => {
     expect(timeline).toEqual(['cutover', 'reload']);
   });
 
+  it('does not publish a batch acknowledged after cancellation', async () => {
+    const timeline: string[] = [];
+    let coordinator: IndexSyncCoordinator;
+    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async (_baseline, finalizeWatermark, onChunk) => {
+        if (!finalizeWatermark) {
+          coordinator.cancel();
+          await onChunk(chunk(100));
+        }
+        return {
+          fetchedMessages: 100,
+          committedMessages: 100,
+          watermarkCandidate: 2000
+        };
+      },
+      publishLocalIndex: async () => {
+        timeline.push('publish');
+      },
+      discardIncompleteIndex: async () => {
+        timeline.push('discard');
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(timeline).toEqual(['discard']);
+    expect(coordinator.state.value.phase).toBe('cancelled');
+  });
+
   it('discards an incomplete index when synchronization fails before cutover', async () => {
     const discarded: string[] = [];
     const coordinator = new IndexSyncCoordinator('sync-1', dependencies({

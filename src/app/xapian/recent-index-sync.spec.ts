@@ -177,6 +177,25 @@ describe('runRecentIndexSync', () => {
     })).toBeRejectedWith(failure);
   });
 
+  it('uses changedDate only for the server change watermark', async () => {
+    const skewedMessage = message(1);
+    skewedMessage.changedDate = new Date(2000);
+    skewedMessage.messageDate = new Date(Date.now() + 86400000);
+
+    const result = await runRecentIndexSync({
+      operationId: 'sync-1',
+      baseline: 1234,
+      pageSize: 1000,
+      publishSize: 100,
+      fetchPage: async () => [skewedMessage],
+      commitBatch: async () => undefined,
+      isCancelled: () => false,
+      onBatchCommitted: () => undefined
+    });
+
+    expect(result.watermarkCandidate).toBe(2000);
+  });
+
   it('completes an empty catch-up without publishing a batch', async () => {
     const events = [];
 

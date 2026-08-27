@@ -74,6 +74,23 @@ describe('IndexWorkerClient', () => {
     expect(client.handleMessage({ action: 'indexUpdated' })).toBeFalse();
   });
 
+  it('turns a worker crash into a failure for the active operation', () => {
+    const failures = [];
+    client.events.subscribe(event => {
+      if (event.action === 'recentCatchUpFailed') {
+        failures.push(event);
+      }
+    });
+
+    client.reportWorkerFailure('worker crashed');
+
+    expect(failures).toEqual([jasmine.objectContaining({
+      operationId: 'sync-1',
+      code: 'worker-crashed',
+      message: 'worker crashed'
+    })]);
+  });
+
   it('sends cancellation and periodic synchronization commands', () => {
     client.cancelInitialSync();
     client.startPeriodicSync();
