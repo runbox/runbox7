@@ -82,7 +82,7 @@ export class IndexSyncCoordinator {
   private cutoverPromise: Promise<void> = null;
 
   constructor(
-    private operationId: string,
+    operationId: string,
     private dependencies: IndexSyncCoordinatorDependencies
   ) {
     this.state = new BehaviorSubject(initialState(operationId));
