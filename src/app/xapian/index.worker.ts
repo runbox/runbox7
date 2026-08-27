@@ -423,7 +423,7 @@ not matching with index for current folder`);
   }
 
   /**
-   * Polling loop (every 10th sec)
+   * Polling loop (every 30th sec)
    */
   async updateIndexWithNewChanges(next_update?: {
     start_message: string,
@@ -790,7 +790,7 @@ not matching with rest api counts for current folder`);
     this.currentIndexUpdateMessageIds.clear();
     // FIXME: postMessage ?
     // this.notifyOnNewMessages = true;
-    this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 10000);
+    this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 30000);
   }
 
   persistIndex(): Observable<boolean> {
