@@ -23,12 +23,16 @@ describe('handleInitialSyncWorkerCommand', () => {
   it('dispatches each initial synchronization command', () => {
     const received: string[] = [];
     const handlers = {
+      prepareIndexReplacement: () => received.push('prepareIndexReplacement'),
       openIndex: () => received.push('openIndex'),
       catchUpRecent: () => received.push('catchUpRecent'),
       cancelInitialSync: () => received.push('cancelInitialSync'),
       startPeriodicSync: () => received.push('startPeriodicSync')
     };
 
+    expect(handleInitialSyncWorkerCommand({
+      action: 'prepareIndexReplacement', operationId: 'sync-1'
+    }, handlers)).toBeTrue();
     expect(handleInitialSyncWorkerCommand({
       action: 'openIndex', operationId: 'sync-1', localdir: '/local', partitionsdir: '/parts'
     }, handlers)).toBeTrue();
@@ -44,12 +48,14 @@ describe('handleInitialSyncWorkerCommand', () => {
     }, handlers)).toBeTrue();
 
     expect(received).toEqual([
-      'openIndex', 'catchUpRecent', 'cancelInitialSync', 'startPeriodicSync'
+      'prepareIndexReplacement', 'openIndex', 'catchUpRecent',
+      'cancelInitialSync', 'startPeriodicSync'
     ]);
   });
 
   it('leaves legacy worker actions for the existing dispatcher', () => {
     const handlers = {
+      prepareIndexReplacement: () => fail('legacy action must not prepare replacement'),
       openIndex: () => fail('legacy action must not open an index'),
       catchUpRecent: () => fail('legacy action must not start catch-up'),
       cancelInitialSync: () => fail('legacy action must not cancel catch-up'),

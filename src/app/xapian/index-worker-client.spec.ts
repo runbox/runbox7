@@ -34,10 +34,14 @@ describe('IndexWorkerClient', () => {
   });
 
   it('sends typed open and recent catch-up commands', () => {
+    client.prepareIndexReplacement();
     client.openIndex('/local', '/partitions');
     client.catchUpRecent(1234, false);
 
     expect(postedMessages).toEqual([{
+      action: 'prepareIndexReplacement',
+      operationId: 'sync-1'
+    }, {
       action: 'openIndex',
       operationId: 'sync-1',
       localdir: '/local',
@@ -68,6 +72,20 @@ describe('IndexWorkerClient', () => {
     })).toBeTrue();
 
     expect(receivedActions).toEqual(['workerIndexReady']);
+  });
+
+  it('publishes replacement readiness only for the active operation', () => {
+    const receivedActions: string[] = [];
+    client.events.subscribe(event => receivedActions.push(event.action));
+
+    client.handleMessage({
+      action: 'indexReplacementReady', operationId: 'sync-old'
+    });
+    client.handleMessage({
+      action: 'indexReplacementReady', operationId: 'sync-1'
+    });
+
+    expect(receivedActions).toEqual(['indexReplacementReady']);
   });
 
   it('does not consume a legacy worker event', () => {
