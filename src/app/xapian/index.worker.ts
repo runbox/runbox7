@@ -35,6 +35,7 @@ import { InitialIndexWorkerSync } from './initial-index-worker-sync';
 import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
 import { prepareInitialIndexOpen } from './initial-index-open';
 import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
+import { executeIndexMutation } from './index-mutation';
 import {
   CatchUpRecentCommand,
   OpenIndexCommand
@@ -647,12 +648,7 @@ not matching with rest api counts for current folder`);
           if (docid !== 0) {
             searchIndexDocumentUpdates.push(
               new SearchIndexDocumentUpdate(msgid, async () => {
-                try {
-                  this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
-                } catch (e) {
-                  console.error(e);
-                  console.error('Worker: Unable to delete message from index', msgid);
-                }
+                this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
               })
             );
           }
@@ -670,17 +666,13 @@ not matching with rest api counts for current folder`);
             ) {
               searchIndexDocumentUpdates.push(
                 new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                  try {
-                    this.indexingTools.addMessageToIndex(
-                      msginfo, this.unindexedFolders
-                    );
-                    // Add term about missing body text so that later stage can add this
-                    this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
-                    if (msginfo.deletedFlag) {
-                      this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_DELETED);
-                    }
-                  } catch (e) {
-                    console.error('Worker: failed to add message to index', msginfo, e);
+                  this.indexingTools.addMessageToIndex(
+                    msginfo, this.unindexedFolders
+                  );
+                  // Add term about missing body text so that later stage can add this
+                  this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
+                  if (msginfo.deletedFlag) {
+                    this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_DELETED);
                   }
                 })
               );
@@ -697,11 +689,7 @@ not matching with rest api counts for current folder`);
               const addSearchIndexDocumentUpdate = (func: () => void) =>
                 searchIndexDocumentUpdates.push(
                   new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                    try {
-                      func();
-                    } catch (err) {
-                      console.error('Worker: Error updating doc in searchindex', msginfo, documentTermList, err);
-                    }
+                    func();
                   }
                   )
                 );
@@ -788,27 +776,17 @@ not matching with rest api counts for current folder`);
               const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
 
               return new SearchIndexDocumentUpdate(messageId, async () => {
-                try {
-                  const docIdTerm = `Q${messageId}`;
-                  // const msg = (await this.rmmapi.getMessageContents(messageId).toPromise());
-                  // const msg = { 'status' : 'success', 'text': { 'text': 'nuttin to see here' } };
-                  // Sent over from main thread, when we load messagecontents
-                  // for the current items in view
-                  // (not quite as good as fetching content for all index updates!)
-                  // this could be a sep api? (id => text)
-                  if (this.messageTextCache.has(messageId)) {
-                    const text = this.messageTextCache.get(messageId);
+                const docIdTerm = `Q${messageId}`;
+                // Sent from the main thread when message content enters its cache.
+                if (this.messageTextCache.has(messageId)) {
+                  const text = this.messageTextCache.get(messageId);
                   // if (msg.status === 'success') {
-                    if (text) {
-                      this.api.addTextToDocument(docIdTerm, true, text);
-                    }
-                    // There may have been known backend warnings, so
-                    // don't keep repeating the attempt
+                  if (text) {
+                    this.api.addTextToDocument(docIdTerm, true, text);
                   }
-                  this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
-                } catch (e) {
-                  console.error('Worker: Failed to add text to document', messageId, e);
+                  // Do not repeat attempts that produced known backend warnings.
                 }
+                this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
               });
             }), shouldPostLegacyIndexUpdated(Boolean(providedChanges))));
           }
@@ -968,7 +946,15 @@ not matching with rest api counts for current folder`);
                            'messageId': this.pendingMessagesToProcess[this.processMessageIndex].id});
 
           const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
-          await nextMessage.updateFunction();
+          try {
+            await executeIndexMutation(nextMessage.updateFunction);
+          } catch (error) {
+            this.messageProcessingInProgressSubject.error(error);
+            this.messageProcessingInProgressSubject = null;
+            this.pendingMessagesToProcess = null;
+            this.processMessageIndex = 0;
+            return;
+          }
 
           if (this.persistIndexInProgressSubject) {
             // Wait for persistence of index to finish before doing more work on the index
