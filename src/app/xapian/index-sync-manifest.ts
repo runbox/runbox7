@@ -64,8 +64,9 @@ const normalizeFiles = (
   }
 
   return files.map(file => {
-    if (!file || typeof file.filename !== 'string' || file.filename.length === 0) {
-      throw new IndexManifestError(`Invalid file metadata for ${folder}`);
+    if (!file || typeof file.filename !== 'string' ||
+      !/^[A-Za-z0-9_-][A-Za-z0-9._-]*$/.test(file.filename)) {
+      throw new IndexManifestError(`Invalid filename metadata for ${folder}`);
     }
     return {
       filename: file.filename,

@@ -727,6 +727,9 @@ export class SearchService {
         promote: () => FS.rename(temporaryPath, finalPath),
         persist: () => this.syncFileSystem(false),
         open: () => this.api.addFolderXapianIndex(finalPath),
+        reopenWorker: async () => {
+          await this.openInitialWorkerIndex();
+        },
         removePromoted: async () => {
           this.removeTemporaryPartition(finalPath);
           await this.syncFileSystem(false);

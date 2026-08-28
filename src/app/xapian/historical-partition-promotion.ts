@@ -21,6 +21,7 @@ export interface HistoricalPartitionPromotionDependencies {
   promote: () => void;
   persist: () => Promise<void>;
   open: () => void;
+  reopenWorker: () => Promise<void>;
   removePromoted: () => Promise<void>;
 }
 
@@ -31,6 +32,7 @@ export async function promoteHistoricalPartition(
   try {
     await dependencies.persist();
     dependencies.open();
+    await dependencies.reopenWorker();
   } catch (error) {
     await dependencies.removePromoted();
     throw error;
