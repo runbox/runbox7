@@ -23,6 +23,7 @@ import {
   INITIAL_SYNC_PAGE_SIZE,
   InitialIndexSyncWorkerCommand,
   InitialIndexSyncWorkerEvent,
+  RecentCatchUpFailedEvent,
   VISIBLE_INDEX_BATCH_SIZE
 } from './index-sync.types';
 
@@ -75,6 +76,22 @@ export class IndexWorkerClient {
     this.postMessage({
       action: 'startPeriodicSync',
       operationId: this.requireOperationId()
+    });
+  }
+
+  public reportWorkerFailure(
+    message: string,
+    phase: RecentCatchUpFailedEvent['phase'] = 'catching-up-recent'
+  ): void {
+    if (!this.operationId) {
+      return;
+    }
+    this.events.next({
+      action: 'recentCatchUpFailed',
+      operationId: this.operationId,
+      phase,
+      code: 'worker-crashed',
+      message
     });
   }
 

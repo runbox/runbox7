@@ -48,6 +48,7 @@ import { objectEqualWithKeys } from '../common/util';
 import { INDEX_WORKER_FACTORY, IndexWorkerFactory } from './index-worker.factory';
 import { IndexWorkerClient } from './index-worker-client';
 import { normalizeIndexManifest } from './index-sync-manifest';
+import { canStartInitialSync } from './initial-sync-start-policy';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
 import {
   IndexSyncCoordinator,
@@ -215,6 +216,13 @@ export class SearchService {
       this.indexWorker.onerror = (error) => {
         console.error(`Error from worker:  ${error.message}`);
         console.error(`${error.filename} ${error.lineno}`);
+        const phase = this.initialSyncCoordinator?.state.value.phase;
+        this.indexWorkerClient.reportWorkerFailure(
+          error.message,
+          phase === 'opening-worker' ? 'opening-worker' :
+            phase === 'final-reconciliation' ? 'final-reconciliation' :
+              'catching-up-recent'
+        );
 
         // Attempt to recover:
         if (!this.localSearchActivated) {
@@ -533,6 +541,9 @@ export class SearchService {
   }
 
   public startInitialIndexSynchronization(): Observable<IndexSyncState> {
+    if (!canStartInitialSync(this.indexDownloadingInProgress)) {
+      return this.initialSyncCoordinator.state.asObservable();
+    }
     const operationId = `index-sync-${++this.initialSyncOperationNumber}`;
     this.initialSyncDownloadedBytes = 0;
     this.indexDownloadingInProgress = true;

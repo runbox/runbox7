@@ -203,8 +203,14 @@ export class IndexSyncCoordinator {
     fetchedOffset: number,
     committedOffset: number
   ): Promise<void> {
+    if (this.cancelled) {
+      return;
+    }
     if (this.localIndexPublished) {
       await this.dependencies.reloadPublishedLocalIndex();
+    }
+    if (this.cancelled) {
+      return;
     }
     this.updateState({
       fetchedMessages: fetchedOffset + event.fetchedMessages,

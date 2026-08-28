@@ -52,10 +52,7 @@ export interface RecentIndexSyncResult {
 
 const messageWatermark = (message: MessageInfo): number => Math.min(
   Date.now(),
-  Math.max(
-    message.changedDate ? message.changedDate.getTime() : 0,
-    message.messageDate ? message.messageDate.getTime() : 0
-  )
+  message.changedDate ? message.changedDate.getTime() : 0
 );
 
 export const runRecentIndexSync = async (
