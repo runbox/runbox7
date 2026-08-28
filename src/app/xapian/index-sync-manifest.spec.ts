@@ -95,4 +95,12 @@ describe('normalizeIndexManifest', () => {
     expect(() => normalizeIndexManifest(missingSize))
       .toThrowError(IndexManifestError, /metadata/i);
   });
+
+  it('rejects filenames that can escape their partition directory', () => {
+    const unsafe = partition('downloadable');
+    unsafe.files[0].filename = '../iamglass';
+
+    expect(() => normalizeIndexManifest(manifest(unsafe)))
+      .toThrowError(IndexManifestError, /filename/i);
+  });
 });

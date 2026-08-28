@@ -32,11 +32,34 @@ describe('promoteHistoricalPartition', () => {
         timeline.push('open');
         throw new Error('invalid partition');
       },
+      reopenWorker: async () => {
+        timeline.push('worker');
+      },
       removePromoted: async () => {
         timeline.push('remove');
       }
     })).toBeRejectedWithError(/invalid partition/);
 
     expect(timeline).toEqual(['promote', 'persist', 'open', 'remove']);
+  });
+
+  it('reopens the worker on each promoted historical partition', async () => {
+    const timeline: string[] = [];
+
+    await promoteHistoricalPartition({
+      promote: () => timeline.push('promote'),
+      persist: async () => {
+        timeline.push('persist');
+      },
+      open: () => timeline.push('open'),
+      reopenWorker: async () => {
+        timeline.push('worker');
+      },
+      removePromoted: async () => {
+        timeline.push('remove');
+      }
+    });
+
+    expect(timeline).toEqual(['promote', 'persist', 'open', 'worker']);
   });
 });
