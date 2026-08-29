@@ -92,6 +92,9 @@ class SearchIndexService {
   localdir: string;
   partitionsdir: string;
   private initcalled = false;
+  private activeIndexUpdates = 0;
+  private indexUpdateIdleResolvers: Array<() => void> = [];
+  private indexReplacementPending = false;
 
   public localSearchActivated = false;
 
@@ -233,6 +236,7 @@ class SearchIndexService {
             }
 
             this.localSearchActivated = true;
+            this.indexReplacementPending = false;
             if (!initialOperationId) {
               ctx.postMessage({
                 'action': PostMessageAction.localSearchActivated,
@@ -300,6 +304,8 @@ class SearchIndexService {
         FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }),
         10
       );
+      this.localSearchActivated = true;
+      this.indexReplacementPending = false;
       ctx.postMessage({
         action: 'workerIndexReady',
         operationId: initialOperationId,
@@ -519,6 +525,7 @@ not matching with index for current folder`);
     start_message: string,
     list_messages_args: [number, number, number, number, boolean, string?],
     set_next_update_time: boolean }, providedChanges?: ProvidedIndexChanges) {
+    this.activeIndexUpdates++;
     clearTimeout(this.indexUpdateIntervalId);
 
     // console.log('Worker: updateIndexWithNewChanges');
@@ -863,14 +870,38 @@ not matching with rest api counts for current folder`);
         this.processMessageIndex = 0;
       }
       if (providedChanges) {
+        this.finishIndexUpdate();
         throw err;
       }
     }
     this.currentIndexUpdateMessageIds.clear();
     // FIXME: postMessage ?
     // this.notifyOnNewMessages = true;
-    if (!providedChanges) {
+    if (!providedChanges && !this.indexReplacementPending) {
       this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 30000);
+    }
+    this.finishIndexUpdate();
+  }
+
+  public async prepareIndexReplacement(): Promise<void> {
+    this.indexReplacementPending = true;
+    clearTimeout(this.indexUpdateIntervalId);
+    if (this.activeIndexUpdates > 0) {
+      await new Promise<void>(resolve => this.indexUpdateIdleResolvers.push(resolve));
+    }
+    if (this.messageProcessingInProgressSubject) {
+      await firstValueFrom(this.messageProcessingInProgressSubject);
+    }
+    if (this.localSearchActivated && this.api) {
+      this.api.closeXapianDatabase();
+      this.localSearchActivated = false;
+    }
+  }
+
+  private finishIndexUpdate(): void {
+    this.activeIndexUpdates--;
+    if (this.activeIndexUpdates === 0) {
+      this.indexUpdateIdleResolvers.splice(0).forEach(resolve => resolve());
     }
   }
 
@@ -1136,6 +1167,13 @@ ctx.addEventListener('message', ({ data }) => {
   console.log(data['action']);
   try {
     if (handleInitialSyncWorkerCommand(data, {
+      prepareIndexReplacement: async command => {
+        await searchIndexService.prepareIndexReplacement();
+        ctx.postMessage({
+          action: 'indexReplacementReady',
+          operationId: command.operationId
+        });
+      },
       openIndex: command => openInitialIndex(command),
       catchUpRecent: (command: CatchUpRecentCommand) => {
         initialIndexWorkerSync.catchUp(command);

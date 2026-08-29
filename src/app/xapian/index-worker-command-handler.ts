@@ -21,10 +21,12 @@ import {
   CancelInitialSyncCommand,
   CatchUpRecentCommand,
   OpenIndexCommand,
+  PrepareIndexReplacementCommand,
   StartPeriodicSyncCommand
 } from './index-sync.types';
 
 export interface InitialSyncWorkerCommandHandlers {
+  prepareIndexReplacement: (command: PrepareIndexReplacementCommand) => void;
   openIndex: (command: OpenIndexCommand) => void;
   catchUpRecent: (command: CatchUpRecentCommand) => void;
   cancelInitialSync: (command: CancelInitialSyncCommand) => void;
@@ -40,6 +42,9 @@ export const handleInitialSyncWorkerCommand = (
   }
 
   switch ((data as { action: string }).action) {
+    case 'prepareIndexReplacement':
+      handlers.prepareIndexReplacement(data as PrepareIndexReplacementCommand);
+      return true;
     case 'openIndex':
       handlers.openIndex(data as OpenIndexCommand);
       return true;

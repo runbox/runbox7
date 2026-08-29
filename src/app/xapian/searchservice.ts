@@ -610,7 +610,7 @@ export class SearchService {
     manifest: NormalizedIndexManifest,
     onProgress: (downloadedBytes: number) => void
   ): Promise<void> {
-    this.indexWorker.postMessage({ action: PostMessageAction.stopIndexUpdates });
+    await this.prepareWorkerForIndexReplacement();
     this.init();
     await firstValueFrom(this.initSubject);
 
@@ -647,6 +647,21 @@ export class SearchService {
     }
     FS.writeFile('indexLastUpdateTime', `${this.indexLastUpdateTime}`, { encoding: 'utf8' });
     await this.syncFileSystem(false);
+  }
+
+  private prepareWorkerForIndexReplacement(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const subscription = this.indexWorkerClient.events.subscribe(event => {
+        if (event.action === 'indexReplacementReady') {
+          subscription.unsubscribe();
+          resolve();
+        } else if (event.action === 'recentCatchUpFailed') {
+          subscription.unsubscribe();
+          reject(new Error(event.message));
+        }
+      });
+      this.indexWorkerClient.prepareIndexReplacement();
+    });
   }
 
   private openInitialWorkerIndex(): Promise<number> {

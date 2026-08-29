@@ -29,6 +29,7 @@ import {
 
 const INITIAL_SYNC_EVENT_ACTIONS = new Set<InitialIndexSyncWorkerEvent['action']>([
   'workerIndexReady',
+  'indexReplacementReady',
   'recentChunkCommitted',
   'recentCatchUpComplete',
   'recentCatchUpFailed',
@@ -51,6 +52,13 @@ export class IndexWorkerClient {
       operationId: this.requireOperationId(),
       localdir,
       partitionsdir
+    });
+  }
+
+  public prepareIndexReplacement(): void {
+    this.postMessage({
+      action: 'prepareIndexReplacement',
+      operationId: this.requireOperationId()
     });
   }
 

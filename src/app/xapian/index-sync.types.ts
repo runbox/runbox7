@@ -72,6 +72,11 @@ export interface OpenIndexCommand {
   partitionsdir: string;
 }
 
+export interface PrepareIndexReplacementCommand {
+  action: 'prepareIndexReplacement';
+  operationId: string;
+}
+
 export interface CatchUpRecentCommand {
   action: 'catchUpRecent';
   operationId: string;
@@ -92,6 +97,7 @@ export interface StartPeriodicSyncCommand {
 }
 
 export type InitialIndexSyncWorkerCommand =
+  | PrepareIndexReplacementCommand
   | OpenIndexCommand
   | CatchUpRecentCommand
   | CancelInitialSyncCommand
@@ -101,6 +107,11 @@ export interface WorkerIndexReadyEvent {
   action: 'workerIndexReady';
   operationId: string;
   baseline: number;
+}
+
+export interface IndexReplacementReadyEvent {
+  action: 'indexReplacementReady';
+  operationId: string;
 }
 
 export interface RecentChunkCommittedEvent {
@@ -135,9 +146,9 @@ export interface InitialSyncCancelledEvent {
 }
 
 export type InitialIndexSyncWorkerEvent =
+  | IndexReplacementReadyEvent
   | WorkerIndexReadyEvent
   | RecentChunkCommittedEvent
   | RecentCatchUpCompleteEvent
   | RecentCatchUpFailedEvent
   | InitialSyncCancelledEvent;
-
