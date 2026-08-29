@@ -44,7 +44,7 @@ describe('promoteHistoricalPartition', () => {
     })).toBeRejectedWithError(/invalid partition/);
 
     expect(timeline).toEqual([
-      'remove-existing', 'promote', 'persist', 'open', 'remove'
+      'remove-existing', 'promote', 'persist', 'worker', 'open', 'remove'
     ]);
   });
 
