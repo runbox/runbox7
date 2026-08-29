@@ -196,6 +196,22 @@ describe('runRecentIndexSync', () => {
     expect(result.watermarkCandidate).toBe(2000);
   });
 
+  it('rejects an invalid server change date', async () => {
+    const invalidMessage = message(1);
+    invalidMessage.changedDate = new Date('invalid');
+
+    await expectAsync(runRecentIndexSync({
+      operationId: 'sync-1',
+      baseline: 1234,
+      pageSize: 1000,
+      publishSize: 100,
+      fetchPage: async () => [invalidMessage],
+      commitBatch: async () => undefined,
+      isCancelled: () => false,
+      onBatchCommitted: () => undefined
+    })).toBeRejectedWithError(/changed date/i);
+  });
+
   it('completes an empty catch-up without publishing a batch', async () => {
     const events = [];
 

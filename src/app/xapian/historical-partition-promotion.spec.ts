@@ -69,7 +69,7 @@ describe('promoteHistoricalPartition', () => {
     });
 
     expect(timeline).toEqual([
-      'remove-existing', 'promote', 'persist', 'open', 'worker'
+      'remove-existing', 'promote', 'persist', 'worker', 'open'
     ]);
   });
 });
