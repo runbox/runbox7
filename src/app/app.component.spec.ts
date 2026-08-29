@@ -149,6 +149,22 @@ describe('AppComponent initial index synchronization', () => {
     expect(component.afterUpdateIndex).toHaveBeenCalledTimes(1);
   });
 
+  it('restores the database display when synchronization is cancelled after cutover', () => {
+    const component = componentWithoutConstructor();
+    const fetchFolderMessages = jasmine.createSpy('fetchFolderMessages');
+    component.usewebsocketsearch = true;
+    component.messagelistservice = { fetchFolderMessages } as never;
+    spyOn(component, 'afterUpdateIndex').and.callFake(() => {
+      component.usewebsocketsearch = false;
+    });
+
+    component.handleInitialIndexSyncState(state('local-index-ready'));
+    component.handleInitialIndexSyncState(state('cancelled'));
+
+    expect(component.usewebsocketsearch).toBeTrue();
+    expect(fetchFolderMessages).toHaveBeenCalledTimes(1);
+  });
+
   it('presents byte progress and phase-aware status without message details', () => {
     const component = componentWithoutConstructor();
     const historyState = state('downloading-history', {
