@@ -250,6 +250,9 @@ export class IndexSyncCoordinator {
   private async publishLocalIndex(): Promise<void> {
     if (!this.cutoverPromise) {
       this.cutoverPromise = this.dependencies.publishLocalIndex().then(() => {
+        if (this.cancelled) {
+          return;
+        }
         this.localIndexPublished = true;
         this.updateState({ phase: 'local-index-ready' });
       });

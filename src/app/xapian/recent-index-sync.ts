@@ -50,10 +50,13 @@ export interface RecentIndexSyncResult {
   cancelled: boolean;
 }
 
-const messageWatermark = (message: MessageInfo): number => Math.min(
-  Date.now(),
-  message.changedDate ? message.changedDate.getTime() : 0
-);
+const messageWatermark = (message: MessageInfo): number => {
+  const changedTime = message.changedDate ? message.changedDate.getTime() : 0;
+  if (!Number.isFinite(changedTime)) {
+    throw new Error('Invalid message changed date');
+  }
+  return Math.min(Date.now(), changedTime);
+};
 
 export const runRecentIndexSync = async (
   dependencies: RecentIndexSyncDependencies

@@ -36,6 +36,9 @@ import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
 import { prepareInitialIndexOpen } from './initial-index-open';
 import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
 import { executeIndexMutation } from './index-mutation';
+import { clearFailedIndexUpdate } from './index-update-failure-policy';
+import { openStoredPartitions as openPartitionPaths } from './stored-partition-open';
+import { completeIndexBatch } from './index-batch-completion';
 import {
   CatchUpRecentCommand,
   OpenIndexCommand
@@ -134,7 +137,7 @@ class SearchIndexService {
   /**
    * what the indexer update is currently working on
    */
-  currentIndexUpdateMessageIds = new Set();
+  currentIndexUpdateMessageIds = new Set<number>();
 
 
   // constructor( private httpclient: HttpClient ) {}
@@ -299,7 +302,7 @@ class SearchIndexService {
         error ? reject(error) : resolve()
       ));
       this.openStoredMainPartition();
-      this.openStoredPartitions();
+      this.openStoredPartitions(true);
       this.indexLastUpdateTime = parseInt(
         FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }),
         10
@@ -312,6 +315,12 @@ class SearchIndexService {
         baseline: this.indexLastUpdateTime
       });
     } catch (_error) {
+      try {
+        this.api.closeXapianDatabase();
+      } catch (_closeError) {
+        // Opening may have failed before Xapian created a database handle.
+      }
+      this.localSearchActivated = false;
       ctx.postMessage({
         action: 'recentCatchUpFailed',
         operationId: initialOperationId,
@@ -322,16 +331,17 @@ class SearchIndexService {
     }
   }
 
-  private openStoredPartitions() {
+  private openStoredPartitions(strict = false) {
     try {
-      FS.readdir(this.partitionsdir).forEach((f) => {
-        if ( f !== '.' && f !== '..' &&
-          FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-
-          this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
-        }
-      });
+      const paths = FS.readdir(this.partitionsdir)
+        .filter(f => f !== '.' && f !== '..' &&
+          FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode))
+        .map(f => `${this.partitionsdir}/${f}`);
+      openPartitionPaths(paths, path => this.api.addFolderXapianIndex(path));
     } catch (e) {
+      if (strict) {
+        throw e;
+      }
       console.error(e);
     }
   }
@@ -341,30 +351,30 @@ class SearchIndexService {
   }
 
   public deleteLocalIndex(): Observable<boolean> {
-    if (!this.localSearchActivated) {
-      // called mid-index load and we hadnt loaded it anyway
-      // send indexDeleted so the progress dialog closes
-      console.log('Worker: Tried to delete local index when it is not present');
-      ctx.postMessage({'action': PostMessageAction.indexDeleted});
-      return of(null);
-    }
-
     this.localSearchActivated = false;
 
     return new Observable((observer) => {
       console.log('Worker: Closing xapian database');
       if (this.api) {
         console.log('Worker: API exists?');
-        this.api.closeXapianDatabase();
+        try {
+          this.api.closeXapianDatabase();
+        } catch (_error) {
+          // Replacement preparation may already have closed the database.
+        }
       }
 
-      FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
-        if ( f !== '.' && f !== '..') {
-          console.log(f);
-          FS.unlink('xapianglasswr/' + f);
-        }
-      });
-      FS.rmdir(XAPIAN_GLASS_WR);
+      try {
+        FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
+          if ( f !== '.' && f !== '..') {
+            console.log(f);
+            FS.unlink('xapianglasswr/' + f);
+          }
+        });
+        FS.rmdir(XAPIAN_GLASS_WR);
+      } catch (_error) {
+        // The failed synchronization may not have created partition zero.
+      }
       try {
         FS.unlink('xapianglass');
       } catch (e) {
@@ -870,6 +880,7 @@ not matching with rest api counts for current folder`);
         this.processMessageIndex = 0;
       }
       if (providedChanges) {
+        clearFailedIndexUpdate(this.currentIndexUpdateMessageIds);
         this.finishIndexUpdate();
         throw err;
       }
@@ -887,7 +898,7 @@ not matching with rest api counts for current folder`);
     this.indexReplacementPending = true;
     clearTimeout(this.indexUpdateIntervalId);
     if (this.activeIndexUpdates > 0) {
-      await new Promise<void>(resolve => this.indexUpdateIdleResolvers.push(resolve));
+      await this.waitForIndexUpdatesToFinish();
     }
     if (this.messageProcessingInProgressSubject) {
       await firstValueFrom(this.messageProcessingInProgressSubject);
@@ -896,6 +907,19 @@ not matching with rest api counts for current folder`);
       this.api.closeXapianDatabase();
       this.localSearchActivated = false;
     }
+  }
+
+  private waitForIndexUpdatesToFinish(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Timed out while draining index updates')),
+        30000
+      );
+      this.indexUpdateIdleResolvers.push(() => {
+        clearTimeout(timeout);
+        resolve();
+      });
+    });
   }
 
   private finishIndexUpdate(): void {
@@ -999,8 +1023,20 @@ not matching with rest api counts for current folder`);
             this.processMessageIndex = 0;
             this.indexNotPersisted = true;
           }
-          this.api.commitXapianUpdates();
-          await lastValueFrom(this.persistIndex());
+          try {
+            await completeIndexBatch(
+              () => this.api.commitXapianUpdates(),
+              async () => {
+                await lastValueFrom(this.persistIndex());
+              }
+            );
+          } catch (error) {
+            this.messageProcessingInProgressSubject.error(error);
+            this.messageProcessingInProgressSubject = null;
+            this.pendingMessagesToProcess = null;
+            this.processMessageIndex = 0;
+            return;
+          }
 
           if (hasProgressSnackBar) {
             ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
@@ -1168,11 +1204,21 @@ ctx.addEventListener('message', ({ data }) => {
   try {
     if (handleInitialSyncWorkerCommand(data, {
       prepareIndexReplacement: async command => {
-        await searchIndexService.prepareIndexReplacement();
-        ctx.postMessage({
-          action: 'indexReplacementReady',
-          operationId: command.operationId
-        });
+        try {
+          await searchIndexService.prepareIndexReplacement();
+          ctx.postMessage({
+            action: 'indexReplacementReady',
+            operationId: command.operationId
+          });
+        } catch (_error) {
+          ctx.postMessage({
+            action: 'recentCatchUpFailed',
+            operationId: command.operationId,
+            phase: 'opening-worker',
+            code: 'worker-drain-failed',
+            message: 'Unable to prepare the local index for replacement'
+          });
+        }
       },
       openIndex: command => openInitialIndex(command),
       catchUpRecent: (command: CatchUpRecentCommand) => {

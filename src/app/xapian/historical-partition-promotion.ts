@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 export interface HistoricalPartitionPromotionDependencies {
+  removeExisting: () => Promise<void>;
   promote: () => void;
   persist: () => Promise<void>;
   open: () => void;
@@ -28,11 +29,12 @@ export interface HistoricalPartitionPromotionDependencies {
 export async function promoteHistoricalPartition(
   dependencies: HistoricalPartitionPromotionDependencies
 ): Promise<void> {
+  await dependencies.removeExisting();
   dependencies.promote();
   try {
     await dependencies.persist();
-    dependencies.open();
     await dependencies.reopenWorker();
+    dependencies.open();
   } catch (error) {
     await dependencies.removePromoted();
     throw error;

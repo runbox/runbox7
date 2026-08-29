@@ -38,6 +38,7 @@ const INITIAL_SYNC_EVENT_ACTIONS = new Set<InitialIndexSyncWorkerEvent['action']
 
 export class IndexWorkerClient {
   private operationId: string = null;
+  private workerFailure: RecentCatchUpFailedEvent = null;
   public readonly events = new Subject<InitialIndexSyncWorkerEvent>();
 
   constructor(private worker: Worker) {}
@@ -94,13 +95,18 @@ export class IndexWorkerClient {
     if (!this.operationId) {
       return;
     }
-    this.events.next({
+    this.workerFailure = {
       action: 'recentCatchUpFailed',
       operationId: this.operationId,
       phase,
       code: 'worker-crashed',
       message
-    });
+    };
+    this.events.next(this.workerFailure);
+  }
+
+  public getWorkerFailure(): RecentCatchUpFailedEvent {
+    return this.workerFailure;
   }
 
   public handleMessage(data: unknown): boolean {

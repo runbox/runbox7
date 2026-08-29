@@ -31,7 +31,17 @@ import {
   of,
   from
 } from 'rxjs';
-import { mergeMap, map, filter, catchError, tap, take, bufferCount, distinctUntilChanged } from 'rxjs/operators';
+import {
+  mergeMap,
+  map,
+  filter,
+  catchError,
+  tap,
+  take,
+  takeUntil,
+  bufferCount,
+  distinctUntilChanged
+} from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
 import { DownloadableSearchIndexMap, DownloadablePartition } from '@runboxcom/runbox-searchindex/downloadablesearchindexmap.class';
@@ -150,8 +160,10 @@ export class SearchService {
   private initialSyncCoordinator: IndexSyncCoordinator = null;
   private initialSyncOperationNumber = 0;
   private initialSyncDownloadedBytes = 0;
+  private initialSyncCancellationSubject = new Subject<void>();
   private readonly initialSyncStateSubject =
     new BehaviorSubject<IndexSyncState | null>(null);
+  private readonly indexDeletedSubject = new Subject<void>();
   public readonly initialSyncState = this.initialSyncStateSubject.asObservable();
 
   constructor(public rmmapi: RunboxWebmailAPI,
@@ -188,6 +200,7 @@ export class SearchService {
           this.messagelistservice.applyChanges([], data['deletedMessages']);
           this.messagelistservice.refreshFolderList();
         } else if (data['action'] === PostMessageAction.indexDeleted) {
+          this.indexDeletedSubject.next();
           this.stopIndexDownloadingInProgress = false;
           console.log('Closing progress dialog');
           ProgressDialog.close();
@@ -545,6 +558,7 @@ export class SearchService {
       return this.initialSyncCoordinator.state.asObservable();
     }
     const operationId = `index-sync-${++this.initialSyncOperationNumber}`;
+    this.initialSyncCancellationSubject = new Subject<void>();
     this.initialSyncDownloadedBytes = 0;
     this.indexDownloadingInProgress = true;
     this.stopIndexDownloadingInProgress = false;
@@ -596,6 +610,7 @@ export class SearchService {
   }
 
   public cancelInitialIndexSynchronization(): void {
+    this.initialSyncCancellationSubject.next();
     this.initialSyncCoordinator?.cancel();
   }
 
@@ -650,6 +665,10 @@ export class SearchService {
   }
 
   private prepareWorkerForIndexReplacement(): Promise<void> {
+    const retainedFailure = this.indexWorkerClient.getWorkerFailure();
+    if (retainedFailure) {
+      return Promise.reject(new Error(retainedFailure.message));
+    }
     return new Promise((resolve, reject) => {
       const subscription = this.indexWorkerClient.events.subscribe(event => {
         if (event.action === 'indexReplacementReady') {
@@ -665,6 +684,10 @@ export class SearchService {
   }
 
   private openInitialWorkerIndex(): Promise<number> {
+    const retainedFailure = this.indexWorkerClient.getWorkerFailure();
+    if (retainedFailure) {
+      return Promise.reject(new Error(retainedFailure.message));
+    }
     return new Promise((resolve, reject) => {
       const subscription = this.indexWorkerClient.events.subscribe(event => {
         if (event.action === 'workerIndexReady') {
@@ -685,6 +708,10 @@ export class SearchService {
     finalizeWatermark: boolean,
     onChunk: (event: RecentChunkCommittedEvent) => Promise<void>
   ): Promise<RecentCatchUpCompleteEvent> {
+    const retainedFailure = this.indexWorkerClient.getWorkerFailure();
+    if (retainedFailure) {
+      return Promise.reject(new Error(retainedFailure.message));
+    }
     return new Promise((resolve, reject) => {
       let publications = Promise.resolve();
       const subscription = this.indexWorkerClient.events.subscribe(event => {
@@ -739,6 +766,11 @@ export class SearchService {
         onProgress(this.initialSyncDownloadedBytes);
       }
       await promoteHistoricalPartition({
+        removeExisting: async () => {
+          await this.prepareWorkerForIndexReplacement();
+          this.removeTemporaryPartition(finalPath);
+          await this.syncFileSystem(false);
+        },
         promote: () => FS.rename(temporaryPath, finalPath),
         persist: () => this.syncFileSystem(false),
         open: () => this.api.addFolderXapianIndex(finalPath),
@@ -802,7 +834,8 @@ export class SearchService {
         }
       }),
       filter(event => event instanceof HttpResponse),
-      map(event => new Uint8Array((event as HttpResponse<ArrayBuffer>).body))
+      map(event => new Uint8Array((event as HttpResponse<ArrayBuffer>).body)),
+      takeUntil(this.initialSyncCancellationSubject)
     ));
   }
 
@@ -842,8 +875,13 @@ export class SearchService {
     } catch (_error) {
       // The read-only database may not have opened yet.
     }
-    this.indexWorker.postMessage({ action: PostMessageAction.deleteLocalIndex });
-    this.messagelistservice.fetchFolderMessages();
+    if (!this.indexWorkerClient.getWorkerFailure()) {
+      const deleted = firstValueFrom(this.indexDeletedSubject.pipe(take(1)));
+      this.indexWorker.postMessage({ action: PostMessageAction.deleteLocalIndex });
+      await deleted;
+    } else {
+      this.messagelistservice.fetchFolderMessages();
+    }
   }
 
   public downloadIndexFromServer(): Observable<boolean> {
