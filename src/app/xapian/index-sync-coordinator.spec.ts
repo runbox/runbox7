@@ -225,6 +225,44 @@ describe('IndexSyncCoordinator', () => {
     expect(coordinator.state.value.phase).toBe('cancelled');
   });
 
+  it('does not announce local readiness when cancellation wins during publication', async () => {
+    let announcePublicationStarted: () => void;
+    let finishPublication: () => void;
+    const publicationStarted = new Promise<void>(resolve => {
+      announcePublicationStarted = resolve;
+    });
+    const publicationFinished = new Promise<void>(resolve => {
+      finishPublication = resolve;
+    });
+    const phases: string[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async (_baseline, finalizeWatermark, onChunk) => {
+        if (!finalizeWatermark) {
+          await onChunk(chunk(100));
+        }
+        return {
+          fetchedMessages: 100,
+          committedMessages: 100,
+          watermarkCandidate: 2000
+        };
+      },
+      publishLocalIndex: () => {
+        announcePublicationStarted();
+        return publicationFinished;
+      }
+    }));
+    coordinator.state.subscribe(state => phases.push(state.phase));
+
+    const synchronization = coordinator.start();
+    await publicationStarted;
+    coordinator.cancel();
+    finishPublication();
+    await synchronization;
+
+    expect(phases).not.toContain('local-index-ready');
+    expect(coordinator.state.value.phase).toBe('cancelled');
+  });
+
   it('discards an incomplete index when synchronization fails before cutover', async () => {
     const discarded: string[] = [];
     const coordinator = new IndexSyncCoordinator('sync-1', dependencies({

@@ -107,6 +107,10 @@ describe('IndexWorkerClient', () => {
       code: 'worker-crashed',
       message: 'worker crashed'
     })]);
+    expect(client.getWorkerFailure()).toEqual(jasmine.objectContaining({
+      code: 'worker-crashed',
+      message: 'worker crashed'
+    }));
   });
 
   it('sends cancellation and periodic synchronization commands', () => {

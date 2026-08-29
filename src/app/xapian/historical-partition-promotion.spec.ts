@@ -24,6 +24,9 @@ describe('promoteHistoricalPartition', () => {
     const timeline: string[] = [];
 
     await expectAsync(promoteHistoricalPartition({
+      removeExisting: async () => {
+        timeline.push('remove-existing');
+      },
       promote: () => timeline.push('promote'),
       persist: async () => {
         timeline.push('persist');
@@ -40,13 +43,18 @@ describe('promoteHistoricalPartition', () => {
       }
     })).toBeRejectedWithError(/invalid partition/);
 
-    expect(timeline).toEqual(['promote', 'persist', 'open', 'remove']);
+    expect(timeline).toEqual([
+      'remove-existing', 'promote', 'persist', 'open', 'remove'
+    ]);
   });
 
   it('reopens the worker on each promoted historical partition', async () => {
     const timeline: string[] = [];
 
     await promoteHistoricalPartition({
+      removeExisting: async () => {
+        timeline.push('remove-existing');
+      },
       promote: () => timeline.push('promote'),
       persist: async () => {
         timeline.push('persist');
@@ -60,6 +68,8 @@ describe('promoteHistoricalPartition', () => {
       }
     });
 
-    expect(timeline).toEqual(['promote', 'persist', 'open', 'worker']);
+    expect(timeline).toEqual([
+      'remove-existing', 'promote', 'persist', 'open', 'worker'
+    ]);
   });
 });
