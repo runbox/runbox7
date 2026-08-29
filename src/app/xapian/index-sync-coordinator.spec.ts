@@ -199,8 +199,7 @@ describe('IndexSyncCoordinator', () => {
 
   it('does not publish a batch acknowledged after cancellation', async () => {
     const timeline: string[] = [];
-    let coordinator: IndexSyncCoordinator;
-    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
       catchUpRecent: async (_baseline, finalizeWatermark, onChunk) => {
         if (!finalizeWatermark) {
           coordinator.cancel();

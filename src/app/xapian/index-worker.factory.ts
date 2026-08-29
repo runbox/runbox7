@@ -31,4 +31,3 @@ export const INDEX_WORKER_FACTORY = new InjectionToken<IndexWorkerFactory>(
     )
   }
 );
-
