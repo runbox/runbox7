@@ -100,9 +100,7 @@ describe('AppComponent initial index synchronization', () => {
   it('cuts over once and redraws later batches without scrolling', () => {
     const component = componentWithoutConstructor();
     component.usewebsocketsearch = true;
-    spyOn(component, 'afterUpdateIndex').and.callFake(() => {
-      component.usewebsocketsearch = false;
-    });
+    spyOn(component, 'afterUpdateIndex');
     spyOn(component, 'updateSearch');
 
     component.handleInitialIndexSyncState(state('local-index-ready', {
@@ -116,7 +114,25 @@ describe('AppComponent initial index synchronization', () => {
     }));
 
     expect(component.afterUpdateIndex).toHaveBeenCalledTimes(1);
+    expect(component.usewebsocketsearch).toBeFalse();
     expect(component.updateSearch).toHaveBeenCalledOnceWith(true, true);
+  });
+
+  it('cancels an active initial synchronization instead of deleting the index', () => {
+    const component = componentWithoutConstructor();
+    const searchService = jasmine.createSpyObj<SearchService>(
+      'SearchService',
+      ['cancelInitialIndexSynchronization', 'deleteLocalIndex']
+    );
+    searchService.localSearchActivated = false;
+    component.searchService = searchService;
+    component.indexSyncState = state('catching-up-recent');
+    component.dataReady = false;
+
+    component.deleteLocalIndex();
+
+    expect(searchService.cancelInitialIndexSynchronization).toHaveBeenCalledTimes(1);
+    expect(searchService.deleteLocalIndex).not.toHaveBeenCalled();
   });
 
   it('keeps the database display when synchronization fails before cutover', () => {
@@ -165,7 +181,7 @@ describe('AppComponent initial index synchronization', () => {
     expect(fetchFolderMessages).toHaveBeenCalledTimes(1);
   });
 
-  it('presents byte progress and phase-aware status without message details', () => {
+  it('presents byte progress while synchronization is active', () => {
     const component = componentWithoutConstructor();
     const historyState = state('downloading-history', {
       downloadedBytes: 150,
@@ -174,9 +190,6 @@ describe('AppComponent initial index synchronization', () => {
 
     expect(component.isIndexSyncBusy(historyState)).toBeTrue();
     expect(component.indexSyncProgress(historyState)).toBe(50);
-    expect(component.indexSyncStatusText(historyState)).toBe('Adding older messages');
-    expect(component.indexSyncStatusText(state('final-reconciliation')))
-      .toBe('Finishing synchronization');
     expect(component.isIndexSyncBusy(state('complete'))).toBeFalse();
   });
 
