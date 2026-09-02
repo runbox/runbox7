@@ -119,7 +119,8 @@
 
     <mat-divider></mat-divider>
 
-    <mat-nav-list *ngIf="searchService.localSearchActivated">
+    <mat-nav-list *ngIf="searchService.localSearchActivated ||
+      (indexSyncState && isIndexSyncBusy(indexSyncState))">
       <button mat-list-item
         (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">
@@ -128,7 +129,9 @@
       </button>
     </mat-nav-list>
 
-    <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress === null && !offerInitialLocalIndex">
+    <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated &&
+      searchService.downloadProgress === null && !offerInitialLocalIndex &&
+      (!indexSyncState || !isIndexSyncBusy(indexSyncState))">
       <button mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
         <mat-icon matListIcon svgIcon="sync"></mat-icon>
         Synchronize index
@@ -395,10 +398,6 @@
       [mode]="indexSyncState.totalBytes > 0 ? 'determinate' : 'indeterminate'"
       [value]="indexSyncProgress(indexSyncState)">
     </mat-progress-bar>
-    <span *ngIf="indexSyncState" class="index-sync-status" aria-live="polite">
-      {{ indexSyncStatusText(indexSyncState) }}
-    </span>
-
     <mat-progress-bar *ngIf="websocketsearchservice.searchInProgress" mode="indeterminate">
     </mat-progress-bar>
 

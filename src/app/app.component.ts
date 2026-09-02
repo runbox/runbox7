@@ -847,6 +847,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public deleteLocalIndex() {
+    if (this.indexSyncState && this.isIndexSyncBusy(this.indexSyncState)) {
+      this.searchService.cancelInitialIndexSynchronization();
+      return;
+    }
     if (this.searchService.localSearchActivated || this.dataReady) {
       this.usewebsocketsearch = true;
       this.canvastable.topindex = 0;
@@ -1083,6 +1087,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       return;
     }
     if (state.phase === 'local-index-ready' && !this.hasCutOverToLocalIndex) {
+      this.usewebsocketsearch = false;
       this.hasCutOverToLocalIndex = true;
       this.lastRenderedCommittedMessages = state.committedMessages;
       this.afterUpdateIndex();
@@ -1106,28 +1111,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     return state.totalBytes > 0
       ? Math.min(100, state.downloadedBytes / state.totalBytes * 100)
       : 0;
-  }
-
-  public indexSyncStatusText(state: IndexSyncState): string {
-    switch (state.phase) {
-      case 'discovering':
-      case 'downloading-main':
-      case 'opening-worker':
-        return 'Preparing recent messages';
-      case 'catching-up-recent':
-      case 'local-index-ready':
-        return 'Adding recent messages';
-      case 'downloading-history':
-        return 'Adding older messages';
-      case 'final-reconciliation':
-        return 'Finishing synchronization';
-      case 'complete':
-        return 'Message synchronization complete';
-      case 'failed':
-        return state.error;
-      case 'cancelled':
-        return 'Message synchronization cancelled';
-    }
   }
 
   public handleLocalIndexQueryFailure(_error: unknown): void {
