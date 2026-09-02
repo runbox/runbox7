@@ -708,7 +708,6 @@ div.loginScreen {
         margin: 0em;
         font-size: 13px;
 
-	/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
 	.mdc-label {
 	    padding-top: 3px;
 	}
@@ -747,7 +746,6 @@ div.loginScreen {
     .loginScreen #tfaArea {
 	    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
     }
-    /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
     mat-button-toggle button {
 	    border-right: 1px solid #949494;
     }
