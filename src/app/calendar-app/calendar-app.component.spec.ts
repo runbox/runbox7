@@ -32,8 +32,12 @@ import { UsageReportsService } from '../common/usage-reports.service';
 import { PreferencesService } from '../common/preferences.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { take } from 'rxjs/operators';
-import { of, Observable, ReplaySubject } from 'rxjs';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { of, Observable, ReplaySubject, Subject } from 'rxjs';
+import {
+    MatLegacySnackBar as MatSnackBar,
+    MatLegacySnackBarRef as MatSnackBarRef,
+    LegacyTextOnlySnackBar,
+} from '@angular/material/legacy-snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { MatIcon } from '@angular/material/icon';
@@ -45,6 +49,8 @@ import { RunboxCalendarView } from './runbox-calendar-view';
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
     let fixture: ComponentFixture<CalendarAppComponent>;
+    let snackBar: jasmine.SpyObj<MatSnackBar>;
+    let snackBarRef: jasmine.SpyObj<MatSnackBarRef<LegacyTextOnlySnackBar>>;
 
     // jCal spec: https://tools.ietf.org/html/rfc7265
     const simpleEvents = [
@@ -161,6 +167,10 @@ END:VCALENDAR
 `    };
 
     beforeEach(waitForAsync(() => {
+        snackBarRef = jasmine.createSpyObj('MatSnackBarRef', ['dismiss']);
+        snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+        snackBar.open.and.returnValue(snackBarRef);
+
         TestBed.configureTestingModule({
                 imports: [
                     NoopAnimationsModule,
@@ -194,8 +204,7 @@ END:VCALENDAR
                     } },
                     { provide: HttpClient, useValue: {
                     } },
-                    { provide: MatSnackBar, useValue: {
-                    } },
+                    { provide: MatSnackBar, useValue: snackBar },
                     { provide: LogoutService, useValue: {
                     } },
                     { provide: SearchService, useValue: {
@@ -322,5 +331,34 @@ END:VCALENDAR
         expect(first_occurence.getDate()).toBe(1, 'day matches');
         expect(first_occurence.getHours()).toBe(12, 'hour matches');
         expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
+    });
+
+    it('should show progress feedback while importing calendar events', () => {
+        const importResult = new Subject<{ events_imported: number }>();
+        spyOn(component.calendarservice, 'importCalendar').and.returnValue(importResult);
+
+        component.importEvents('test-calendar',
+            'BEGIN:VCALENDAR\nBEGIN:VEVENT\nEND:VEVENT\nBEGIN:VEVENT\nEND:VEVENT\nEND:VCALENDAR\n');
+
+        expect(snackBar.open.calls.argsFor(0)).toEqual(['Importing 2 calendar events...', 'Dismiss']);
+        expect(snackBarRef.dismiss).not.toHaveBeenCalled();
+
+        importResult.next({ events_imported: 2 });
+
+        expect(snackBarRef.dismiss).toHaveBeenCalled();
+        expect(snackBar.open.calls.argsFor(1)).toEqual(['2 events imported', 'Ok', { duration: 3000 }]);
+    });
+
+    it('should dismiss import progress feedback on import failure', () => {
+        const importResult = new Subject<{ events_imported: number }>();
+        spyOn(component.calendarservice, 'importCalendar').and.returnValue(importResult);
+
+        component.importEvents('test-calendar', 'BEGIN:VCALENDAR\nEND:VCALENDAR\n');
+
+        expect(snackBar.open.calls.argsFor(0)).toEqual(['Importing calendar events...', 'Dismiss']);
+
+        importResult.error(new Error('Import failed'));
+
+        expect(snackBarRef.dismiss).toHaveBeenCalled();
     });
 });

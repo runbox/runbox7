@@ -266,9 +266,23 @@ export class CalendarAppComponent implements OnDestroy {
     }
 
     importEvents(calendarId: string, ics: string): void {
-        this.calendarservice.importCalendar(calendarId, ics).subscribe(res => {
-            this.showInfo(res['events_imported'] + ' events imported');
+        const progressSnackBar = this.snackBar.open(this.importProgressMessage(ics), 'Dismiss');
+        this.calendarservice.importCalendar(calendarId, ics).subscribe({
+            next: res => {
+                progressSnackBar.dismiss();
+                this.showInfo(res['events_imported'] + ' events imported');
+            },
+            error: () => progressSnackBar.dismiss(),
         });
+    }
+
+    importProgressMessage(ics: string): string {
+        const eventCount = (ics.match(/^BEGIN:VEVENT$/gmi) || []).length;
+        if (eventCount === 0) {
+            return 'Importing calendar events...';
+        }
+
+        return 'Importing ' + eventCount + ' calendar event' + (eventCount === 1 ? '' : 's') + '...';
     }
 
     onIcsUploaded(uploadEvent: any) {

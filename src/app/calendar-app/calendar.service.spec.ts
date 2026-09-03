@@ -21,7 +21,8 @@ import { StorageService } from '../storage.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CalendarService } from './calendar.service';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { take } from 'rxjs/operators';
 import moment from 'moment';
 import ICAL from 'ical.js';
@@ -96,6 +97,7 @@ END:VCALENDAR
 
     let storage: StorageService;
     let sut: CalendarService;
+    let importCalendarResponse: Observable<{ events_imported: number }>;
 
     const rmmapi = <unknown>{
         me: of({ uid: 1, timezone: 'Europe/London' }),
@@ -121,6 +123,7 @@ END:VCALENDAR
             delete dav_events[id];
             return of('mmm coffee');
         },
+        importCalendar: (_calendarId: string, _ics: string) => importCalendarResponse,
     } as RunboxWebmailAPI;
 
     // This is a deliberate mess, rrules and their exceptions should not be
@@ -149,6 +152,7 @@ END:VCALENDAR
         for (const key of Object.keys(calls)) {
             calls[key] = 0;
         }
+        importCalendarResponse = of({ events_imported: 1 });
 
         localStorage.clear();
         storage = new StorageService(rmmapi);
@@ -271,6 +275,28 @@ END:VCALENDAR
         // Produces multiple CalendarEvents which refer to the same ICal.Event
         expect(rbevents.length).toEqual(5, 'Recurring event contains 5 instances');
         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
+    });
+
+    it('should complete after importing an .ics file through the API', (done) => {
+        sut.importCalendar('test', 'BEGIN:VCALENDAR\nEND:VCALENDAR\n').subscribe({
+            next: res => expect(res.events_imported).toBe(1),
+            complete: done,
+            error: done.fail,
+        });
+    });
+
+    it('should propagate calendar import API errors after logging them', (done) => {
+        const error = { status: 500 } as HttpErrorResponse;
+        importCalendarResponse = throwError(() => error);
+
+        sut.errorLog.pipe(take(1)).subscribe(logged => expect(logged).toBe(error));
+        sut.importCalendar('test', 'BEGIN:VCALENDAR\nEND:VCALENDAR\n').subscribe({
+            next: () => done.fail('import should not emit a successful result'),
+            error: err => {
+                expect(err).toBe(error);
+                done();
+            },
+        });
     });
 
     it('should be possible to import an .ics file with exceptions', () => {
