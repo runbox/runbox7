@@ -20,11 +20,12 @@ import { Component, Input, Inject, OnDestroy } from '@angular/core';
 
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { Identity, ProfileService } from './profile.service';
+import { Identity, ProfileFieldErrors, ProfileService } from './profile.service';
 import { RMM } from '../rmm';
 import { Location } from '@angular/common';
 import { DraftDeskService } from '../compose/draftdesk.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
+import { isValidEmail } from '../compose/emailvalidator';
 
 @Component({
     selector: 'app-profiles-edit',
@@ -34,7 +35,7 @@ import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 
 export class ProfilesEditorModalComponent implements OnDestroy {
     @Input() value: any[];
-    field_errors: Identity;
+    field_errors: ProfileFieldErrors = {};
     allowed_domains = [];
     is_valid = false;
 
@@ -93,6 +94,11 @@ export class ProfilesEditorModalComponent implements OnDestroy {
         }
     }
     save() {
+        this.field_errors = {};
+        if (!this.validate_identity()) {
+            return;
+        }
+
         if (this.is_create) {
             this.create();
         } else { this.update(); }
@@ -113,7 +119,7 @@ export class ProfilesEditorModalComponent implements OnDestroy {
             is_signature_html: (identity.is_signature_html ? 1 : 0),
             is_smtp_enabled: (identity.is_smtp_enabled ? 1 : 0),
         };
-        this.profileService.create(values).subscribe(
+        this.profileService.create(values, this.field_errors).subscribe(
             res => this.close()
         );
     }
@@ -138,7 +144,7 @@ export class ProfilesEditorModalComponent implements OnDestroy {
             is_signature_html: (identity.is_signature_html ? 1 : 0),
             is_smtp_enabled: (identity.is_smtp_enabled ? 1 : 0),
         };
-      this.profileService.update(this.identity.id, values).subscribe(
+      this.profileService.update(this.identity.id, values, this.field_errors).subscribe(
         res => this.close()
       );
     }
@@ -164,6 +170,22 @@ export class ProfilesEditorModalComponent implements OnDestroy {
                 this.identity.reply_to = '';
             }
         }
+    }
+    validate_identity(): boolean {
+        if (!this.identity.from_name || !this.identity.from_name.trim()) {
+            this.field_errors.from_name = ['Please enter a name.'];
+        }
+
+        if (!this.identity.email || !isValidEmail(this.identity.email)) {
+            this.field_errors.email = ['Please enter an email address.'];
+        }
+
+        if (this.is_different_reply_to &&
+            (!this.identity.reply_to || !isValidEmail(this.identity.reply_to))) {
+            this.field_errors.reply_to = ['Please enter an email address.'];
+        }
+
+        return !Object.keys(this.field_errors).some(field => this.field_errors[field].length > 0);
     }
     get_form_field_style() {
         const styles = {};

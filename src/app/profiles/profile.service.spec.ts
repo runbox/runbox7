@@ -40,6 +40,8 @@ describe('Identity', () => {
 
 describe('ProfileService', () => {
     let service: ProfileService;
+    let createFieldErrors;
+    let updateFieldErrors;
 
     const DEFAULT_EMAIL = 'a2@example.com';
     const PROFILES =        [{
@@ -137,6 +139,9 @@ describe('ProfileService', () => {
     const ALLOWED_DOMAINS = ['runbox.com', 'example.com'];
 
     beforeEach(waitForAsync(() => {
+        createFieldErrors = undefined;
+        updateFieldErrors = undefined;
+
         TestBed.configureTestingModule({
             imports: [
                 HttpClientTestingModule,
@@ -145,10 +150,15 @@ describe('ProfileService', () => {
                 { provide: RunboxWebmailAPI, useValue: {
                     me: of({first_name: 'Test', last_name: 'User'}),
                     getProfiles: () => of(PROFILES),
-                    createProfile: (newprofile) => {
+                    createProfile: (newprofile, fieldErrors?) => {
+                        createFieldErrors = fieldErrors;
                         newprofile['reference_type'] = 'aliases';
                         PROFILES.unshift(newprofile);
                         return of(PROFILES.length);
+                    },
+                    updateProfile: (_id, _values, fieldErrors?) => {
+                        updateFieldErrors = fieldErrors;
+                        return of(true);
                     },
                     getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
                 } },
@@ -198,6 +208,33 @@ describe('ProfileService', () => {
                 expect(PROFILES.length).toBe(PROFILES.length);
                 done();
             });
-                             
+
+    });
+
+    it('passes field errors through on create', (done) => {
+        const fieldErrors = {};
+        service.create({
+            name: 'New Profile Name',
+            email: 'newp@runbox.com',
+            from_name: 'New Profile',
+            signature: 'My sig'
+        }, fieldErrors)
+            .subscribe(() => {
+                expect(createFieldErrors).toBe(fieldErrors);
+                done();
+            });
+    });
+
+    it('passes field errors through on update', (done) => {
+        const fieldErrors = {};
+        service.update(16448, {
+            name: 'Updated Profile Name',
+            email: 'updated@runbox.com',
+            from_name: 'Updated Profile',
+        }, fieldErrors)
+            .subscribe(() => {
+                expect(updateFieldErrors).toBe(fieldErrors);
+                done();
+            });
     });
 });

@@ -41,6 +41,14 @@ import { SavedSearchStorage } from '../saved-searches/saved-searches.service';
 import { PreferencesResult } from '../common/preferences.service';
 import { Domain } from '../dkim/domain.service';
 
+type FieldErrors = { [field: string]: string[] };
+
+interface BackendResponse {
+    status?: string;
+    errors?: unknown;
+    field_errors?: { [field: string]: unknown };
+}
+
 export class MessageFields {
     id: number;
     subject: string;
@@ -167,6 +175,9 @@ export class RunboxWebmailAPI {
     public messageFlagChangeSubject: Subject<MessageFlagChange> = new Subject();
     public me: AsyncSubject<RunboxMe> = new AsyncSubject();
     public rblocale: any;
+
+    private readonly profileAliasOwnershipMessage =
+        'Please enter an email address that belongs to this account, or create it on the Email Aliases screen first.';
 
     public last_on_interval;
 
@@ -417,22 +428,22 @@ export class RunboxWebmailAPI {
             );
         }
 
-    subscribeShowBackendErrors(req: any) {
-        req.subscribe((res: any) => {
+    subscribeShowBackendErrors(req: Observable<BackendResponse>, responseErrorHandler?: (res: BackendResponse) => boolean) {
+        req.subscribe((res: BackendResponse) => {
+            if (responseErrorHandler && responseErrorHandler(res)) {
+                return;
+            }
             this.showBackendErrors(res);
         });
     }
 
-    showBackendErrors(res: any) {
+    showBackendErrors(res: BackendResponse) {
         if (res.status === 'error' || res.status === 'warning') {
             console.log(res);
-            if (res.errors && res.errors.length) {
-                const error_msg = res.errors.map((key) => {
-                    let loc = this.rblocale.translate(key).replace('_', ' ');
-                    if (loc.length === 0) {
-                        loc = key;
-                    }
-                    return loc;
+            const errors = this.asErrorList(res.errors);
+            if (errors.length) {
+                const error_msg = errors.map((key) => {
+                    return this.localizeBackendError(key);
                 }).join('. ');
                 const error_formatted = error_msg.charAt(0).toUpperCase() + error_msg.slice(1);
                 this.snackBar.open(error_formatted, 'Dismiss');
@@ -440,6 +451,105 @@ export class RunboxWebmailAPI {
                 this.snackBar.open('There was an unknown error and this action cannot be completed.', 'Dismiss');
             }
         }
+    }
+
+    private handleProfileFieldErrors(res: BackendResponse, fieldErrors?: FieldErrors): boolean {
+        if (!fieldErrors || res.status !== 'error') {
+            return false;
+        }
+
+        const mappedErrors = this.profileFieldErrors(res);
+        const mappedFields = Object.keys(mappedErrors);
+
+        if (!mappedFields.length) {
+            return false;
+        }
+
+        mappedFields.forEach(field => fieldErrors[field] = mappedErrors[field]);
+        return true;
+    }
+
+    private profileFieldErrors(res: BackendResponse): FieldErrors {
+        const fieldErrors: FieldErrors = {};
+
+        if (res.field_errors) {
+            Object.keys(res.field_errors).forEach(field => {
+                const messages = this.asErrorList(res.field_errors[field])
+                    .map(error => this.normalizeProfileFieldError(field, error))
+                    .filter(error => error.length > 0);
+
+                if (messages.length) {
+                    fieldErrors[field] = messages;
+                }
+            });
+        }
+
+        const generalMessages = this.asErrorList(res.errors)
+            .map(error => this.localizeBackendError(error));
+        if (generalMessages.some(message => this.isProfileAliasOwnershipError(message))) {
+            fieldErrors.email = [this.profileAliasOwnershipMessage];
+        }
+
+        return fieldErrors;
+    }
+
+    private normalizeProfileFieldError(field: string, error: unknown): string {
+        const message = this.localizeBackendError(error);
+        const normalized = message.toLowerCase();
+
+        if (field === 'email') {
+            if (this.isProfileAliasOwnershipError(message)) {
+                return this.profileAliasOwnershipMessage;
+            }
+            if (this.isRequiredOrInvalid(normalized)) {
+                return 'Please enter an email address.';
+            }
+        }
+
+        if (field === 'reply_to' && this.isRequiredOrInvalid(normalized)) {
+            return 'Please enter an email address.';
+        }
+
+        if ((field === 'from_name' || field === 'name') && this.isRequiredOrInvalid(normalized)) {
+            return 'Please enter a name.';
+        }
+
+        return message;
+    }
+
+    private asErrorList(errors: unknown): unknown[] {
+        if (!errors) {
+            return [];
+        }
+
+        return Array.isArray(errors) ? errors : [errors];
+    }
+
+    private localizeBackendError(error: unknown): string {
+        const key = String(error || '');
+        let translated = this.rblocale.translate(key);
+        translated = translated ? String(translated).replace(/_/g, ' ') : '';
+
+        if (!translated.length) {
+            translated = key;
+        }
+
+        return translated;
+    }
+
+    private isProfileAliasOwnershipError(message: string): boolean {
+        const normalized = message.toLowerCase();
+        return normalized.includes('create') &&
+            normalized.includes('alias') &&
+            normalized.includes('first');
+    }
+
+    private isRequiredOrInvalid(message: string): boolean {
+        return message.includes('required') ||
+            message.includes('valid') ||
+            message.includes('invalid') ||
+            message.includes('missing') ||
+            message.includes('empty');
     }
 
     createFolder(parentFolderId: number, newFolderName: string, order: number[]): Observable<boolean> {
@@ -575,22 +685,22 @@ export class RunboxWebmailAPI {
             }));
     }
 
-    public createProfile(profileData: any): Observable<boolean> {
+    public createProfile(profileData: any, fieldErrors?: FieldErrors): Observable<boolean> {
         const req = this.http.post(
             '/rest/v1/profile',
             profileData
         ).pipe(share());
-        this.subscribeShowBackendErrors(req);
+        this.subscribeShowBackendErrors(req, res => this.handleProfileFieldErrors(res, fieldErrors));
         return req.pipe(filter((res: any) => res.status === 'success'));
     }
 
     // FIXME: This should be PATCH
-    public updateProfile(profileId: number, profileData: any): Observable<boolean> {
+    public updateProfile(profileId: number, profileData: any, fieldErrors?: FieldErrors): Observable<boolean> {
         const req = this.http.put(
             '/rest/v1/profile/' + profileId,
             profileData
         ).pipe(share());
-        this.subscribeShowBackendErrors(req);
+        this.subscribeShowBackendErrors(req, res => this.handleProfileFieldErrors(res, fieldErrors));
         return req.pipe(filter((res: any) => res.status === 'success'));
     }
 

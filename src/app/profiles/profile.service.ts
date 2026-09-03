@@ -21,6 +21,8 @@ import { map } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
+export type ProfileFieldErrors = { [field: string]: string[] };
+
 export interface FromPriority {
     from_priority: number;
     id: number;
@@ -99,8 +101,8 @@ export class ProfileService {
         );
     }  
     
-    create(values): Observable<boolean> {
-      return this.rmmapi.createProfile(values).pipe(
+    create(values, fieldErrors?: ProfileFieldErrors): Observable<boolean> {
+      return this.rmmapi.createProfile(values, fieldErrors).pipe(
           map((res: boolean) => {
               this.refresh();
               return res;
@@ -116,8 +118,8 @@ export class ProfileService {
         );
     }
 
-    update(id, values): Observable<boolean> {
-        return this.rmmapi.updateProfile(id, values).pipe(
+    update(id, values, fieldErrors?: ProfileFieldErrors): Observable<boolean> {
+        return this.rmmapi.updateProfile(id, values, fieldErrors).pipe(
           map((res: boolean) => {
               this.refresh();
               return res;
