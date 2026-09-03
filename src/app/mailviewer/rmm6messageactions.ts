@@ -57,6 +57,10 @@ export class RMM6MessageActions implements MessageActions {
         this.openCompose('/mail/forward?message=' + this.mailViewerComponent.messageId);
     }
 
+    sendAgain() {
+        this.snackBar.open('Not supported in RMM6 yet', null, {duration: 1000});
+    }
+
     markSeen(seen_flag_value = 1) {
         this.http.put('/rest/v1/email/' + this.mailViewerComponent.messageId, JSON.stringify(
             { seen_flag : seen_flag_value }))
