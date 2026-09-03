@@ -295,6 +295,23 @@ END:VCALENDAR
         expect(component.shown_events.length).toBe(shownEventsCount, 'same number of events shown after cycling through months');
     });
 
+    it('should use the backend calendar color for recurring events', () => {
+        mockData['events'] = [{
+            ...recurringEvents[0],
+            id: 'backend-event-id',
+            calendar: 'test-calendar',
+        }];
+        component.calendarservice.syncCaldav(true);
+
+        fixture.detectChanges();
+
+        expect(component.shown_events.length).toBeGreaterThan(3, 'at least 4 events should appear');
+        component.shown_events.forEach(event => {
+            expect(event.calendar).toBe('test-calendar');
+            expect(event.color.primary).toBe('pink');
+        });
+    });
+
     it('should not display yearly events as longer than they are (GH-179)', () => {
         mockData['events'] = GH_179_recurring_yearly;
         component.calendarservice.syncCaldav(true);
