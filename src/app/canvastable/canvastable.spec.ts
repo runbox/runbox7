@@ -73,4 +73,30 @@ describe('canvastable', () => {
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
     });
+
+    describe('message delete navigation', () => {
+        it('returns the next visible message after the opened message is removed', () => {
+            const rows = new MessageList([{ id: 10 }, { id: 20 }, { id: 30 }]);
+
+            expect(rows.getMessageIdAfterRemoving([20], 20)).toBe(30);
+        });
+
+        it('skips other removed messages when finding the next message', () => {
+            const rows = new MessageList([{ id: 10 }, { id: 20 }, { id: 30 }, { id: 40 }]);
+
+            expect(rows.getMessageIdAfterRemoving([20, 30], 20)).toBe(40);
+        });
+
+        it('falls back to the previous visible message at the end of the list', () => {
+            const rows = new MessageList([{ id: 10 }, { id: 20 }, { id: 30 }]);
+
+            expect(rows.getMessageIdAfterRemoving([30], 30)).toBe(20);
+        });
+
+        it('returns null when no visible messages remain', () => {
+            const rows = new MessageList([{ id: 10 }, { id: 20 }]);
+
+            expect(rows.getMessageIdAfterRemoving([10, 20], 10)).toBeNull();
+        });
+    });
 });

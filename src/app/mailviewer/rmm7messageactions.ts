@@ -38,6 +38,7 @@ export class RMM7MessageActions implements MessageActions {
     messageListService: MessageListService;
     draftDeskService: DraftDeskService;
     rmmapi: RunboxWebmailAPI;
+    deleteMessageHandler?: (messageIds: number[]) => void;
 
     public updateMessages(args: { messageIds: number[],
                                   updateLocal: (messageIds: number[]) => void,
@@ -94,6 +95,11 @@ export class RMM7MessageActions implements MessageActions {
     }
 
     public deleteMessage() {
+        if (this.deleteMessageHandler) {
+            this.deleteMessageHandler([this.mailViewerComponent.messageId]);
+            return;
+        }
+
         this.updateMessages({
             messageIds: [this.mailViewerComponent.messageId],
             updateLocal: (msgIds: number[]) => {
