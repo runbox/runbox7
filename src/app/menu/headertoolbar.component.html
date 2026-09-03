@@ -2,8 +2,15 @@
   <a routerLink="/welcome" class="mainMenuLogo"><img src="assets/runbox7_blue.png" id="logo" alt="Runbox 7" /></a>
 
   <div class="mainMenu">
-    <a mat-button routerLink="/">
-      <mat-icon svgIcon="email"></mat-icon>
+    <a mat-button routerLink="/" [attr.aria-label]="mailMenuAriaLabel">
+      <mat-icon
+        svgIcon="email"
+        aria-hidden="false"
+        [matBadge]="mailUnreadCount"
+        [matBadgeHidden]="mailUnreadCount === 0"
+        matBadgeColor="accent"
+        matBadgeSize="small"
+      ></mat-icon>
       <p class="mainMenuDesc">Mail</p>
     </a>
   </div>
