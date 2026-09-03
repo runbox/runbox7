@@ -350,7 +350,7 @@ export class FolderListComponent implements OnChanges {
         const confirmDialog = this.dialog.open(ConfirmDialog);
         confirmDialog.componentInstance.title = `Delete folder ${folder.folderName}?`;
         confirmDialog.componentInstance.question =
-        `Are you sure that you want to delete the folder named ${folder.folderName}?`;
+        `Are you sure that you want to delete the folder named ${folder.folderName} and its contents?`;
         confirmDialog.componentInstance.noOptionTitle = 'cancel';
         confirmDialog.componentInstance.yesOptionTitle = 'ok';
         confirmDialog.afterClosed().pipe(
