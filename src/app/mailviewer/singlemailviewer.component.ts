@@ -354,6 +354,17 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
+  attachmentDetails(attachment: any): string {
+    const filename = attachment.filename || 'Unnamed attachment';
+    const contentType = attachment.contentType || 'Unknown type';
+    const sizeDisplay = attachment.sizeDisplay
+      || (typeof attachment.size === 'number'
+        ? MessageTableRowTool.formatBytes(attachment.size, 2)
+        : 'Unknown size');
+
+    return `${filename} - ${contentType} - ${sizeDisplay}`;
+  }
+
   public toggleHtml(event) {
     event.preventDefault();
 
