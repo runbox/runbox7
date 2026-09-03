@@ -21,7 +21,7 @@ import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI } from './rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MessageCache } from './messagecache';
 import { firstValueFrom } from 'rxjs';
@@ -648,5 +648,21 @@ describe('RBWebMail', () => {
         expect(folders[12].folderLevel).toBe(2);
         expect(folders[15].folderPath).toBe('HTML.lalala.hohohohahaha.subtest');
         expect(folders[15].folderLevel).toBe(3);
+    });
+
+    it('should show fallback text for blank backend error messages', () => {
+        const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const snackBar = TestBed.inject(MatSnackBar);
+        const openSpy = spyOn(snackBar, 'open');
+
+        rmmapi.showBackendErrors({
+            status: 'error',
+            errors: ['']
+        });
+
+        expect(openSpy).toHaveBeenCalledWith(
+            'There was an unknown error and this action cannot be completed.',
+            'Dismiss'
+        );
     });
 });
