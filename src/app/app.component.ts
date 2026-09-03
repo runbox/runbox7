@@ -71,6 +71,7 @@ const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRi
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
 const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
+const LOCAL_STORAGE_SHOW_RECIPIENT_COLUMN = 'rmm7mailViewerShowRecipientColumn';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
@@ -122,6 +123,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   showingSearchResults = false; // Toggle if showing from message list or xapian search
   showingWebSocketSearchResults = false;
   displayFolderColumn = false;
+  displayRecipientColumn = false;
 
   mailViewerOnRightSide = true;
   mailViewerRightSideWidth = '40%';
@@ -301,6 +303,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
         this.canvastable.columnWidths = prefs.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
       }
+      this.displayRecipientColumn = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_RECIPIENT_COLUMN}`) === 'true';
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
       this.viewmode = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_VIEWMODE}`);
@@ -676,6 +679,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
 //    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
+  }
+
+  saveRecipientColumnSetting(): void {
+    const setting = this.displayRecipientColumn ? 'true' : 'false';
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOW_RECIPIENT_COLUMN, setting);
+    this.resetColumns();
   }
 
   public trainSpam(params) {
@@ -1232,8 +1241,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     if (this.canvastable && this.canvastable.rows) {
       this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
     }
-    this.canvastable.rowWrapModeWrapColumn = 3;
-    this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
+    const subjectColumnIndex = this.canvastable.columns.findIndex((column) => column.cacheKey === 'subject');
+    const defaultSelectedColumn = subjectColumnIndex > -1 ? subjectColumnIndex : 3;
+    this.canvastable.rowWrapModeWrapColumn = defaultSelectedColumn;
+    this.canvastable.rowWrapModeDefaultSelectedColumn = defaultSelectedColumn;
     this.autoAdjustColumnWidths();
   }
 
