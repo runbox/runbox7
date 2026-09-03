@@ -328,6 +328,10 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.formGroup.controls[field].setValue(recipientString);
     }
 
+    public closeRecipientField(field: 'cc' | 'bcc') {
+        this.onUpdateRecipient(field, []);
+    }
+
     public hideDropZone() {
       this.draggingOverDropZone = false;
       this.showDropZone = false;
