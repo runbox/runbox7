@@ -19,8 +19,8 @@
 
 import { Subject } from 'rxjs';
 
-// a glorified fraction
-export type ActivityProgress = [number, number];
+// a glorified fraction with an optional unit label
+export type ActivityProgress = [number, number, string?];
 
 // not @Injectable on purpose: each app/service is expected to have its own,
 // implemented with its own relevant type
@@ -28,13 +28,16 @@ export class BackgroundActivityService<ActivityType> {
     activityMap = new Map<ActivityType, ActivityProgress>();
     observable  = new Subject<Map<ActivityType, ActivityProgress>>();
 
-    public begin(activity: ActivityType, parts = 1) {
+    public begin(activity: ActivityType, parts = 1, unit?: string) {
         const existingProgress = this.activityMap.get(activity);
         if (existingProgress) {
             existingProgress[1] += parts;
+            if (unit) {
+                existingProgress[2] = unit;
+            }
             this.activityMap.set(activity, existingProgress);
         } else {
-            this.activityMap.set(activity, [0, parts]);
+            this.activityMap.set(activity, [0, parts, unit]);
         }
         this.observable.next(this.activityMap);
     }

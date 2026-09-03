@@ -21,6 +21,7 @@ import { StorageService } from '../storage.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CalendarService } from './calendar.service';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
+import { ActivityProgress } from '../common/background-activity.service';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import moment from 'moment';
@@ -224,6 +225,24 @@ END:VCALENDAR
             expect(calls.deleteCalendarEvent).toBe(1, '1 event was deleted');
             r(null);
         }));
+    });
+
+    it('should report calendar refresh progress against the total number of raw events', () => {
+        const eventRefreshProgress: ActivityProgress[] = [];
+        sut.activities.observable.subscribe(activityMap => {
+            activityMap.forEach((progress, activity) => {
+                if (activity.toString() === 'Refreshing Events' && progress[1] > 1) {
+                    eventRefreshProgress.push([...progress] as ActivityProgress);
+                }
+            });
+        });
+
+        sut.reloadEvents();
+
+        expect(eventRefreshProgress.length).toBeGreaterThan(0);
+        expect(eventRefreshProgress[0]).toEqual([0, 3, 'events']);
+        expect(eventRefreshProgress[1]).toEqual([1, 3, 'events']);
+        expect(eventRefreshProgress.every(progress => progress[1] === 3)).toBeTrue();
     });
 
     it('should be possible to  import an .ics file', () => {

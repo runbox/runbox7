@@ -43,7 +43,11 @@ export class BackgroundActivityIndicatorComponent implements OnChanges {
             activityMap.forEach((progress: ActivityProgress, activity: any) => {
                 let description = activity.toString();
                 if (progress[1] !== 1) {
-                    description += ` ${progress[0] + 1}/${progress[1]}`;
+                    if (progress[2]) {
+                        description += ` (${progress[0] + 1}/${progress[1]} ${progress[2]})`;
+                    } else {
+                        description += ` ${progress[0] + 1}/${progress[1]}`;
+                    }
                 }
                 this.shownActivities.push(description);
             });
