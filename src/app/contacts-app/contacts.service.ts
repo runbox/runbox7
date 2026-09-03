@@ -295,14 +295,19 @@ export class ContactsService implements OnDestroy {
         return promise;
     }
 
-    deleteContact(contact: Contact): Promise<void> {
+    async deleteContact(contact: Contact): Promise<void> {
         this.activities.begin(Activity.DeletingContact);
 
-        const promise = this.deleteContactSilently(contact);
-        promise.finally(() => this.activities.end(Activity.DeletingContact));
-        promise.then(() => this.reload());
-
-        return promise;
+        const previousContacts = await this.removeContactsLocally([contact]);
+        try {
+            await this.deleteContactSilently(contact);
+            this.reload();
+        } catch (e) {
+            this.processContacts(previousContacts);
+            throw e;
+        } finally {
+            this.activities.end(Activity.DeletingContact);
+        }
     }
 
     deleteMultiple(contacts: Contact[]): Promise<void> {
@@ -387,7 +392,25 @@ export class ContactsService implements OnDestroy {
                 resolve();
             }, e => {
                 this.apiErrorHandler(e);
-                reject();
+                reject(e);
+            });
+        });
+    }
+
+    private removeContactsLocally(contactsToRemove: Contact[]): Promise<Contact[]> {
+        return new Promise(resolve => {
+            this.contactsSubject.pipe(take(1)).subscribe(currentContacts => {
+                const ids = new Set(contactsToRemove.map(c => c.id).filter(id => id));
+                const urls = new Set(contactsToRemove.map(c => c.url).filter(url => url));
+                const remainingContacts = currentContacts.filter(c =>
+                    !ids.has(c.id) && !urls.has(c.url)
+                );
+
+                if (remainingContacts.length !== currentContacts.length) {
+                    this.processContacts(remainingContacts);
+                }
+
+                resolve(currentContacts);
             });
         });
     }
