@@ -76,6 +76,9 @@ export class DraftFormModel {
         ret.from = fromAddress.email;
         ret.mid = draftId;
         ret.to = to ? MailAddressInfo.parse(to) : [];
+        if (ret.isUnsaved()) {
+            ret.bcc = DraftFormModel.defaultBccRecipients(fromAddress);
+        }
         ret.subject = subject;
         if (preview) {
             // We create an element here because we want the plain text
@@ -126,7 +129,8 @@ export class DraftFormModel {
                     });
             }
         }
-        ret.setFromForResponse(mailObj, froms);
+        const selectedFrom = ret.setFromForResponse(mailObj, froms);
+        ret.bcc = DraftFormModel.defaultBccRecipients(selectedFrom);
         ret.setSubjectForResponse(mailObj, 'Re: ');
 
         const localTZ = moment.tz.guess();
@@ -166,9 +170,18 @@ export class DraftFormModel {
         return ret;
     }
 
+    public static defaultBccRecipients(identity: Identity): MailAddressInfo[] {
+        if (!identity || !identity.default_bcc || !identity.default_bcc.trim()) {
+            return [];
+        }
+        return MailAddressInfo.parse(identity.default_bcc)
+            .filter(recipient => recipient.address);
+    }
+
     public static forward(mailObj, froms: Identity[], useHTML: boolean): DraftFormModel {
         const ret = new DraftFormModel();
-        ret.setFromForResponse(mailObj, froms);
+        const selectedFrom = ret.setFromForResponse(mailObj, froms);
+        ret.bcc = DraftFormModel.defaultBccRecipients(selectedFrom);
 
         const fwdFromNameStr = mailObj.from[0].name
             ? `"${mailObj.from[0].name}" &lt;${mailObj.from[0].address}&gt;`
@@ -216,15 +229,19 @@ ${mailObj.sanitized_html}`;
         return false;
     }
 
-    private setFromForResponse(mailObj, froms: Identity[]): void {
-        if (froms.length > 0) {
-            this.from = (
-                [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                    addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
-                ) || { address: froms[0].email }
-            ).address.toLowerCase();
+    private setFromForResponse(mailObj, froms: Identity[]): Identity {
+        if (froms && froms.length > 0) {
+            const recipientAddress = [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
+                addr => froms.find(fromObj => fromObj.email.toLowerCase() === addr.address.toLowerCase())
+            );
+            const selectedFrom = recipientAddress
+                ? froms.find(fromObj => fromObj.email.toLowerCase() === recipientAddress.address.toLowerCase())
+                : froms[0];
+            this.from = selectedFrom.email.toLowerCase();
+            return selectedFrom;
         } else {
             console.error('DraftDesk: No froms passed to setFromForResponse');
+            return null;
         }
     }
 

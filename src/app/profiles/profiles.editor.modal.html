@@ -88,6 +88,17 @@
                 </div>
             </mat-form-field>
 
+            <mat-form-field class="form-field form-item">
+                <input matInput placeholder="Bcc sent messages to" name="default_bcc" [(ngModel)]="identity.default_bcc"
+                    (ngModelChange)="onchange_field('default_bcc')" />
+                <div *ngIf="field_errors && field_errors.default_bcc">
+                    <mat-hint>ie. archive@runbox.com</mat-hint>
+                    <mat-error *ngFor="let error of field_errors.default_bcc; let i = index;">
+                        {{error}}
+                    </mat-error>
+                </div>
+            </mat-form-field>
+
             <mat-form-field class="signature form-item">
                 <textarea matInput placeholder="Signature" [id]="selector" name="signature"
                     [(ngModel)]="identity.signature" (ngModelChange)="onchange_field('signature')"></textarea>
