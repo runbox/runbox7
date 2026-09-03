@@ -30,14 +30,42 @@ import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
 import { DataUsageInterface } from '../rmm/account-storage';
 import { AsyncSubject } from 'rxjs';
 import { RMM } from '../rmm';
+import { Decimal } from 'decimal.js-light';
 
 import moment from 'moment';
 
 const columnsDefault = ['renewal_name', 'quantity', 'price', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
 const columnsMobile = ['renewal_name'];
 
-// TODO define it as an interface
-type ActiveProduct = any;
+interface ActiveProduct {
+    [property: string]: unknown;
+    active: boolean;
+    active_from: moment.Moment;
+    active_until: moment.Moment;
+    apid: number;
+    associated_domain?: string;
+    associated_domain_failed?: boolean;
+    associated_domain_loading?: boolean;
+    can_renew?: boolean;
+    changingAutorenew?: Promise<unknown>;
+    currency: string;
+    expired?: boolean;
+    expired_over_2_years?: boolean;
+    expires_soon?: boolean;
+    name: string;
+    ordered?: boolean;
+    pid: number;
+    price: string;
+    quantity: Decimal;
+    quotas: {
+        [quota: string]: {
+            quota: number;
+        };
+    };
+    subaccounts?: string[];
+    subtype?: string;
+    type: string;
+}
 
 @Component({
     selector: 'app-account-renewals-component',
@@ -91,6 +119,8 @@ export class AccountRenewalsComponent {
                 // no renewals for trials; domains handled separately
                 p.can_renew = (p.pid !== 1000) && (p.subtype !== 'domain');
 
+                this.loadAssociatedDomain(p);
+
                 return p;
             });
 
@@ -122,9 +152,14 @@ export class AccountRenewalsComponent {
     }
 
     renewDomain(p: ActiveProduct) {
+        if (p.associated_domain) {
+            this.openDomainRenewal(p.associated_domain);
+            return;
+        }
+
         this.rmmapi.getProductDomain(p.apid).subscribe(
             domain => {
-                this.router.navigateByUrl('/domainregistration?renew_domain=' + domain);
+                this.openDomainRenewal(domain);
             },
             _err => {
                 this.snackbar.open('Failed to determine domain for the product. Try again later or contact Runbox Support', 'Okay');
@@ -181,6 +216,43 @@ export class AccountRenewalsComponent {
                 }
             );
         });
+    }
+
+    domainDisplayText(p: ActiveProduct): string {
+        if (p.associated_domain) {
+            return p.associated_domain;
+        }
+        if (p.associated_domain_loading) {
+            return 'Loading domain...';
+        }
+        if (p.associated_domain_failed) {
+            return 'Domain unavailable';
+        }
+        return '';
+    }
+
+    private loadAssociatedDomain(p: ActiveProduct) {
+        if (p.subtype !== 'domain') {
+            return;
+        }
+
+        p.associated_domain_loading = true;
+        p.associated_domain_failed = false;
+
+        this.rmmapi.getProductDomain(p.apid).subscribe(
+            domain => {
+                p.associated_domain = domain;
+                p.associated_domain_loading = false;
+            },
+            _err => {
+                p.associated_domain_failed = true;
+                p.associated_domain_loading = false;
+            },
+        );
+    }
+
+    private openDomainRenewal(domain: string) {
+        this.router.navigateByUrl('/domainregistration?renew_domain=' + encodeURIComponent(domain));
     }
 }
 
