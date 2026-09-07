@@ -74,6 +74,15 @@ export class IndexWorkerClient {
     });
   }
 
+  public acknowledgeRecentChunk(page: number, batch: number): void {
+    this.postMessage({
+      action: 'acknowledgeRecentChunk',
+      operationId: this.requireOperationId(),
+      page,
+      batch
+    });
+  }
+
   public cancelInitialSync(): void {
     this.postMessage({
       action: 'cancelInitialSync',

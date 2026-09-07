@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import {
+  AcknowledgeRecentChunkCommand,
   CancelInitialSyncCommand,
   CatchUpRecentCommand,
   OpenIndexCommand,
@@ -29,6 +30,7 @@ export interface InitialSyncWorkerCommandHandlers {
   prepareIndexReplacement: (command: PrepareIndexReplacementCommand) => void;
   openIndex: (command: OpenIndexCommand) => void;
   catchUpRecent: (command: CatchUpRecentCommand) => void;
+  acknowledgeRecentChunk: (command: AcknowledgeRecentChunkCommand) => void;
   cancelInitialSync: (command: CancelInitialSyncCommand) => void;
   startPeriodicSync: (command: StartPeriodicSyncCommand) => void;
 }
@@ -50,6 +52,9 @@ export const handleInitialSyncWorkerCommand = (
       return true;
     case 'catchUpRecent':
       handlers.catchUpRecent(data as CatchUpRecentCommand);
+      return true;
+    case 'acknowledgeRecentChunk':
+      handlers.acknowledgeRecentChunk(data as AcknowledgeRecentChunkCommand);
       return true;
     case 'cancelInitialSync':
       handlers.cancelInitialSync(data as CancelInitialSyncCommand);

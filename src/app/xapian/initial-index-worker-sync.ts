@@ -20,7 +20,8 @@
 import { MessageInfo } from '../common/messageinfo';
 import {
   CatchUpRecentCommand,
-  InitialIndexSyncWorkerEvent
+  InitialIndexSyncWorkerEvent,
+  RecentChunkCommittedEvent
 } from './index-sync.types';
 import { runRecentIndexSync } from './recent-index-sync';
 
@@ -40,6 +41,12 @@ export interface InitialIndexWorkerSyncDependencies {
 export class InitialIndexWorkerSync {
   private operationId: string = null;
   private cancelled = false;
+  private pendingRecentChunk: {
+    operationId: string;
+    page: number;
+    batch: number;
+    resolve: () => void;
+  } = null;
 
   constructor(private dependencies: InitialIndexWorkerSyncDependencies) {}
 
@@ -51,6 +58,15 @@ export class InitialIndexWorkerSync {
   public cancel(operationId: string): void {
     if (operationId === this.operationId) {
       this.cancelled = true;
+      this.releasePendingRecentChunk();
+    }
+  }
+
+  public acknowledgeRecentChunk(operationId: string, page: number, batch: number): void {
+    if (this.pendingRecentChunk?.operationId === operationId &&
+      this.pendingRecentChunk.page === page &&
+      this.pendingRecentChunk.batch === batch) {
+      this.releasePendingRecentChunk();
     }
   }
 
@@ -77,7 +93,7 @@ export class InitialIndexWorkerSync {
           await this.dependencies.persist();
         },
         isCancelled: () => this.cancelled,
-        onBatchCommitted: event => this.dependencies.postEvent(event)
+        onBatchCommitted: event => this.publishRecentChunk(event)
       });
 
       if (result.cancelled) {
@@ -116,5 +132,23 @@ export class InitialIndexWorkerSync {
         message: 'Unable to synchronize recent messages'
       });
     }
+  }
+
+  private publishRecentChunk(event: RecentChunkCommittedEvent): Promise<void> {
+    return new Promise(resolve => {
+      this.pendingRecentChunk = {
+        operationId: event.operationId,
+        page: event.page,
+        batch: event.batch,
+        resolve
+      };
+      this.dependencies.postEvent(event);
+    });
+  }
+
+  private releasePendingRecentChunk(): void {
+    const pendingRecentChunk = this.pendingRecentChunk;
+    this.pendingRecentChunk = null;
+    pendingRecentChunk?.resolve();
   }
 }

@@ -62,6 +62,8 @@ export interface IndexSyncCoordinatorDependencies {
 
 const retryDelays = [1000, 2000, 4000];
 
+class IndexPublicationError extends Error {}
+
 const initialState = (operationId: string): IndexSyncState => ({
   operationId,
   phase: 'discovering',
@@ -206,8 +208,12 @@ export class IndexSyncCoordinator {
     if (this.cancelled) {
       return;
     }
-    if (this.localIndexPublished) {
-      await this.dependencies.reloadPublishedLocalIndex();
+    try {
+      if (this.localIndexPublished) {
+        await this.dependencies.reloadPublishedLocalIndex();
+      }
+    } catch (_error) {
+      throw new IndexPublicationError('Unable to publish the local search index');
     }
     if (this.cancelled) {
       return;
@@ -218,7 +224,11 @@ export class IndexSyncCoordinator {
       currentPage: event.page
     });
     if (!this.localIndexPublished) {
-      await this.publishLocalIndex();
+      try {
+        await this.publishLocalIndex();
+      } catch (_error) {
+        throw new IndexPublicationError('Unable to publish the local search index');
+      }
     }
   }
 
@@ -239,7 +249,8 @@ export class IndexSyncCoordinator {
       try {
         return await operation();
       } catch (error) {
-        if (this.cancelled || attempt >= retryDelays.length) {
+        if (this.cancelled || error instanceof IndexPublicationError ||
+          attempt >= retryDelays.length) {
           throw error;
         }
         await this.dependencies.waitBeforeRetry(retryDelays[attempt]);

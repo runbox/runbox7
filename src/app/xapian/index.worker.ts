@@ -1224,6 +1224,11 @@ ctx.addEventListener('message', ({ data }) => {
       catchUpRecent: (command: CatchUpRecentCommand) => {
         initialIndexWorkerSync.catchUp(command);
       },
+      acknowledgeRecentChunk: command => initialIndexWorkerSync.acknowledgeRecentChunk(
+        command.operationId,
+        command.page,
+        command.batch
+      ),
       cancelInitialSync: command => initialIndexWorkerSync.cancel(command.operationId),
       startPeriodicSync: () => searchIndexService.updateIndexWithNewChanges()
     })) {

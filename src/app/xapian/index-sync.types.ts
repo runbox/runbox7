@@ -86,6 +86,13 @@ export interface CatchUpRecentCommand {
   finalizeWatermark: boolean;
 }
 
+export interface AcknowledgeRecentChunkCommand {
+  action: 'acknowledgeRecentChunk';
+  operationId: string;
+  page: number;
+  batch: number;
+}
+
 export interface CancelInitialSyncCommand {
   action: 'cancelInitialSync';
   operationId: string;
@@ -100,6 +107,7 @@ export type InitialIndexSyncWorkerCommand =
   | PrepareIndexReplacementCommand
   | OpenIndexCommand
   | CatchUpRecentCommand
+  | AcknowledgeRecentChunkCommand
   | CancelInitialSyncCommand
   | StartPeriodicSyncCommand;
 

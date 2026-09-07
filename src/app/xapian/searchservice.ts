@@ -716,7 +716,15 @@ export class SearchService {
       let publications = Promise.resolve();
       const subscription = this.indexWorkerClient.events.subscribe(event => {
         if (event.action === 'recentChunkCommitted') {
-          publications = publications.then(() => onChunk(event));
+          publications = publications.then(async () => {
+            await onChunk(event);
+            this.indexWorkerClient.acknowledgeRecentChunk(event.page, event.batch);
+          });
+          publications.catch(error => {
+            subscription.unsubscribe();
+            this.indexWorkerClient.cancelInitialSync();
+            reject(error);
+          });
         } else if (event.action === 'recentCatchUpComplete') {
           subscription.unsubscribe();
           publications.then(() => resolve(event)).catch(reject);

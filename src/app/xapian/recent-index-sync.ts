@@ -40,7 +40,7 @@ export interface RecentIndexSyncDependencies {
     context: RecentIndexSyncBatchContext
   ) => Promise<void>;
   isCancelled: () => boolean;
-  onBatchCommitted: (event: RecentChunkCommittedEvent) => void;
+  onBatchCommitted: (event: RecentChunkCommittedEvent) => void | Promise<void>;
 }
 
 export interface RecentIndexSyncResult {
@@ -95,7 +95,7 @@ export const runRecentIndexSync = async (
       watermarkCandidate = messages.reduce((candidate, message) =>
         Math.max(candidate, messageWatermark(message)), watermarkCandidate);
 
-      dependencies.onBatchCommitted({
+      await dependencies.onBatchCommitted({
         action: 'recentChunkCommitted',
         operationId: dependencies.operationId,
         page,
