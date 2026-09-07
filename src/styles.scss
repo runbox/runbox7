@@ -1524,10 +1524,6 @@ app-saved-searches mat-expansion-panel-header {
     font-size: 14px;
     align-items: center;
 
-    .mat-mdc-raised-button {
-	min-width: 30px;
-	line-height: 24px;
-    }
     .mat-mdc-radio-button .mdc-label {
 	padding: 0 !important;
     }
@@ -1639,9 +1635,6 @@ compose {
     flex-grow: 1;
 }
 
-compose.draftPreviewContainer {
-}
-
 // MDC INTERNAL SELECTORS: The following compose/contacts rules target MDC internal DOM classes.
 // These are valid for Angular Material v17 but should be reviewed during the
 // Angular 19 upgrade (EP-06) as MDC internals may change.
@@ -1720,9 +1713,6 @@ compose #fieldFrom .mat-mdc-form-field-subscript-wrapper, compose .fieldRecipien
 
 #fieldFrom, #fieldSubject {
     overflow: hidden;
-        .mat-mdc-form-field-infix {
-	padding-bottom: 4px;
-    }
 }
 
 // Compose form fields - compact density
