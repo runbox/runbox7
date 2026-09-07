@@ -26,6 +26,7 @@ describe('handleInitialSyncWorkerCommand', () => {
       prepareIndexReplacement: () => received.push('prepareIndexReplacement'),
       openIndex: () => received.push('openIndex'),
       catchUpRecent: () => received.push('catchUpRecent'),
+      acknowledgeRecentChunk: () => received.push('acknowledgeRecentChunk'),
       cancelInitialSync: () => received.push('cancelInitialSync'),
       startPeriodicSync: () => received.push('startPeriodicSync')
     };
@@ -41,6 +42,9 @@ describe('handleInitialSyncWorkerCommand', () => {
       pageSize: 1000, publishSize: 100, finalizeWatermark: false
     }, handlers)).toBeTrue();
     expect(handleInitialSyncWorkerCommand({
+      action: 'acknowledgeRecentChunk', operationId: 'sync-1', page: 2, batch: 3
+    }, handlers)).toBeTrue();
+    expect(handleInitialSyncWorkerCommand({
       action: 'cancelInitialSync', operationId: 'sync-1'
     }, handlers)).toBeTrue();
     expect(handleInitialSyncWorkerCommand({
@@ -49,7 +53,7 @@ describe('handleInitialSyncWorkerCommand', () => {
 
     expect(received).toEqual([
       'prepareIndexReplacement', 'openIndex', 'catchUpRecent',
-      'cancelInitialSync', 'startPeriodicSync'
+      'acknowledgeRecentChunk', 'cancelInitialSync', 'startPeriodicSync'
     ]);
   });
 
@@ -58,6 +62,7 @@ describe('handleInitialSyncWorkerCommand', () => {
       prepareIndexReplacement: () => fail('legacy action must not prepare replacement'),
       openIndex: () => fail('legacy action must not open an index'),
       catchUpRecent: () => fail('legacy action must not start catch-up'),
+      acknowledgeRecentChunk: () => fail('legacy action must not acknowledge a chunk'),
       cancelInitialSync: () => fail('legacy action must not cancel catch-up'),
       startPeriodicSync: () => fail('legacy action must not start periodic sync')
     };

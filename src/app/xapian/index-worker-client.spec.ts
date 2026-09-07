@@ -125,4 +125,17 @@ describe('IndexWorkerClient', () => {
       operationId: 'sync-1'
     }]);
   });
+
+  it('acknowledges the exact recent chunk after publication', () => {
+    (client as unknown as {
+      acknowledgeRecentChunk: (page: number, batch: number) => void;
+    }).acknowledgeRecentChunk(2, 3);
+
+    expect(postedMessages).toEqual([{
+      action: 'acknowledgeRecentChunk',
+      operationId: 'sync-1',
+      page: 2,
+      batch: 3
+    }]);
+  });
 });

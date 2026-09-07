@@ -403,6 +403,27 @@ describe('IndexSyncCoordinator', () => {
     expect(coordinator.state.value.phase).toBe('complete');
   });
 
+  it('does not restart message fetching when local publication fails', async () => {
+    let attempts = 0;
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async (_baseline, _finalizeWatermark, onChunk) => {
+        attempts++;
+        await onChunk(chunk(100));
+        return {
+          fetchedMessages: 100,
+          committedMessages: 100,
+          watermarkCandidate: 2000
+        };
+      },
+      publishLocalIndex: async () => Promise.reject(new Error('FS error'))
+    }));
+
+    await coordinator.start();
+
+    expect(attempts).toBe(1);
+    expect(coordinator.state.value.phase).toBe('failed');
+  });
+
   it('retries a failed historical partition without restarting earlier phases', async () => {
     const attempts: number[] = [];
     const coordinator = new IndexSyncCoordinator('sync-1', dependencies({

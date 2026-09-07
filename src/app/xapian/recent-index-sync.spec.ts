@@ -56,7 +56,9 @@ describe('runRecentIndexSync', () => {
         committedIds.push(batch.map(item => item.id));
       },
       isCancelled: () => false,
-      onBatchCommitted: event => events.push(event)
+      onBatchCommitted: event => {
+        events.push(event);
+      }
     });
 
     expect(committedIds.map(batch => batch.length)).toEqual([100, 100, 50]);
@@ -153,7 +155,9 @@ describe('runRecentIndexSync', () => {
         cancelled = true;
       },
       isCancelled: () => cancelled,
-      onBatchCommitted: event => events.push(event)
+      onBatchCommitted: event => {
+        events.push(event);
+      }
     });
 
     expect(committedSizes).toEqual([100]);
@@ -223,7 +227,9 @@ describe('runRecentIndexSync', () => {
       fetchPage: async () => [],
       commitBatch: async () => fail('empty catch-up must not commit a batch'),
       isCancelled: () => false,
-      onBatchCommitted: event => events.push(event)
+      onBatchCommitted: event => {
+        events.push(event);
+      }
     });
 
     expect(events).toEqual([]);

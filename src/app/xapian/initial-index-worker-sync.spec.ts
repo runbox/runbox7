@@ -48,7 +48,61 @@ const command = (finalizeWatermark = false): CatchUpRecentCommand => ({
   finalizeWatermark
 });
 
+interface AcknowledgingInitialIndexWorkerSync {
+  acknowledgeRecentChunk: (operationId: string, page: number, batch: number) => void;
+}
+
+const acknowledging = (sync: InitialIndexWorkerSync): AcknowledgingInitialIndexWorkerSync =>
+  sync as unknown as AcknowledgingInitialIndexWorkerSync;
+
+const acknowledgeChunk = (
+  sync: InitialIndexWorkerSync,
+  event: InitialIndexSyncWorkerEvent
+): void => {
+  if (event.action === 'recentChunkCommitted') {
+    acknowledging(sync).acknowledgeRecentChunk(event.operationId, event.page, event.batch);
+  }
+};
+
 describe('InitialIndexWorkerSync', () => {
+  it('waits for each durable batch to be published before committing the next batch', async () => {
+    const committed: number[] = [];
+    let announceFirstChunk: () => void;
+    let announceSecondChunk: () => void;
+    const firstChunk = new Promise<void>(resolve => announceFirstChunk = resolve);
+    const secondChunk = new Promise<void>(resolve => announceSecondChunk = resolve);
+    const sync = new InitialIndexWorkerSync({
+      fetchPage: async () => Array.from({ length: 200 }, (_value, index) =>
+        message(index + 1)),
+      fetchDeletedMessages: async () => [],
+      commitBatch: async messages => {
+        committed.push(messages.length);
+      },
+      finalizeWatermark: async () => undefined,
+      persist: async () => undefined,
+      postEvent: event => {
+        if (event.action === 'recentChunkCommitted' && event.batch === 0) {
+          announceFirstChunk();
+        } else if (event.action === 'recentChunkCommitted' && event.batch === 1) {
+          announceSecondChunk();
+        }
+      }
+    });
+    sync.startOperation('sync-1');
+
+    const catchUp = sync.catchUp(command());
+    await firstChunk;
+
+    expect(committed).toEqual([100]);
+
+    acknowledging(sync).acknowledgeRecentChunk('sync-1', 0, 0);
+    await secondChunk;
+    acknowledging(sync).acknowledgeRecentChunk('sync-1', 0, 1);
+    await catchUp;
+
+    expect(committed).toEqual([100, 100]);
+  });
+
   it('acknowledges a batch only after message changes are persisted', async () => {
     const timeline: string[] = [];
     const events: InitialIndexSyncWorkerEvent[] = [];
@@ -65,6 +119,7 @@ describe('InitialIndexWorkerSync', () => {
       postEvent: event => {
         timeline.push(event.action);
         events.push(event);
+        acknowledgeChunk(sync, event);
       }
     });
     sync.startOperation('sync-1');
@@ -96,7 +151,10 @@ describe('InitialIndexWorkerSync', () => {
       persist: async () => {
         timeline.push('persist');
       },
-      postEvent: event => timeline.push(event.action)
+      postEvent: event => {
+        timeline.push(event.action);
+        acknowledgeChunk(sync, event);
+      }
     });
     sync.startOperation('sync-1');
 
@@ -123,7 +181,10 @@ describe('InitialIndexWorkerSync', () => {
       persist: async () => {
         timeline.push('persist');
       },
-      postEvent: event => timeline.push(event.action)
+      postEvent: event => {
+        timeline.push(event.action);
+        acknowledgeChunk(sync, event);
+      }
     });
     sync.startOperation('sync-1');
 
@@ -148,7 +209,10 @@ describe('InitialIndexWorkerSync', () => {
       commitBatch: async () => sync.cancel('sync-1'),
       finalizeWatermark: async () => undefined,
       persist: async () => undefined,
-      postEvent: event => actions.push(event.action)
+      postEvent: event => {
+        actions.push(event.action);
+        acknowledgeChunk(sync, event);
+      }
     });
     sync.startOperation('sync-1');
 
@@ -165,7 +229,10 @@ describe('InitialIndexWorkerSync', () => {
       commitBatch: async () => undefined,
       finalizeWatermark: async () => undefined,
       persist: async () => undefined,
-      postEvent: event => events.push(event)
+      postEvent: event => {
+        events.push(event);
+        acknowledgeChunk(sync, event);
+      }
     });
     sync.startOperation('sync-1');
 
@@ -212,7 +279,10 @@ describe('InitialIndexWorkerSync', () => {
       },
       finalizeWatermark: async () => undefined,
       persist: async () => undefined,
-      postEvent: event => events.push(event)
+      postEvent: event => {
+        events.push(event);
+        acknowledgeChunk(sync, event);
+      }
     });
     sync.startOperation('sync-1');
 
