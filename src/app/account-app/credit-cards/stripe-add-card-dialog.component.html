@@ -31,13 +31,13 @@
 }
 </style>
 
-<h1 mat-dialog-title>Credit card setup via Stripe</h1>
+<h1 mat-dialog-title>Add a payment card</h1>
 
 <ng-template #legacyFallback>
     <p> Form not loading? </p>
 
     <p>
-        Make sure your browser extensions are not blocking access to <span style="font-family: monospace">stripe.com</span>.
+        Make sure your browser extensions are not blocking the payment form.
     </p>
 </ng-template>
 
@@ -51,7 +51,7 @@
     </div>
 
     <div [style.display]="state === 'loading' ? 'block' : 'none'">
-        <div> Loading Stripe form... </div>
+        <div> Loading payment form... </div>
         <mat-spinner style="margin:0 auto;"></mat-spinner>
 
         <ng-container *ngTemplateOutlet="legacyFallback"></ng-container>
