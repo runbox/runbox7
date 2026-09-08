@@ -29,9 +29,10 @@ describe('SearchService without a server index', () => {
   let directory: string;
   let databaseOpen: boolean;
 
+  // Allow for loading and compiling the real WASM module under coverage instrumentation.
   beforeAll(async () => {
     await firstValueFrom(xapianLoadedSubject);
-  });
+  }, 30000);
 
   beforeEach(() => {
     directory = '/empty-index-' + Math.random().toString(36).slice(2);
