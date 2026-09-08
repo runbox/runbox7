@@ -112,7 +112,7 @@
             logo="assets/payment/Stripe.png"
             logo_alt="Credit card and PayPal logos"
 	        disable_payment="{{total <= 0}}"
-            (clicked)="initiatePayment('stripe')"
+            (clicked)="startPayment('stripe')"
           >
             <h4>
                 Pay with a card, PayPal, Apple Pay, and others.
@@ -126,7 +126,7 @@
             logo="assets/payment/Cryptocurrencies.png"
             logo_alt="Cryptocurrency logos"
 	        disable_payment="{{total <= 0}}"
-            (clicked)="initiatePayment('coinbase')"
+            (clicked)="startPayment('coinbase')"
           >
             <h4>
                  Pay with cryptocurrencies to Coinbase
@@ -141,7 +141,7 @@
             <mat-panel-title style="text-align: center"> Other payment methods </mat-panel-title>
           </mat-expansion-panel-header>
       	  <p>
-            <button id="payDirectly" mat-raised-button (click)="initiatePayment('giro')" color="primary">
+            <button id="payDirectly" mat-raised-button (click)="startPayment('giro')" color="primary">
 	            Bank Transfer, or Cash Payment
             </button>
           </p>
@@ -152,6 +152,13 @@
             Please note that your subscription won't activate until the payment is received by Runbox.
           </p>
       	</mat-expansion-panel>
+    </div>
+
+    <div *ngIf="paymentError" style="text-align: center;">
+        {{ paymentError }} <br>
+        <a routerLink="/compose" [queryParams]="{ to: 'support@runbox.com' }">
+            support@runbox.com
+        </a>
     </div>
 </div>
 
