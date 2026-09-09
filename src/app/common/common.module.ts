@@ -27,6 +27,7 @@ import { RunboxContactSupportSnackBar, RunboxContactSupportSnackBarContent } fro
 import { RunboxLoadingComponent } from './loading.component';
 import { BackgroundActivityIndicatorComponent } from './background-activity-indicator.component';
 import { UsageReportsService } from './usage-reports.service';
+import { TouchDescriptionDirective, TouchDescriptionsDirective } from '../directives/touch-descriptions.directive';
 
 @NgModule({
     imports: [
@@ -35,12 +36,16 @@ import { UsageReportsService } from './usage-reports.service';
         MatProgressSpinnerModule,
     ],
     declarations: [
+        TouchDescriptionDirective,
+        TouchDescriptionsDirective,
         BackgroundActivityIndicatorComponent,
         RunboxContactSupportComponent,
         RunboxContactSupportSnackBarContent,
         RunboxLoadingComponent,
     ],
     exports: [
+        TouchDescriptionDirective,
+        TouchDescriptionsDirective,
         BackgroundActivityIndicatorComponent,
         RunboxContactSupportComponent,
         RunboxLoadingComponent,
