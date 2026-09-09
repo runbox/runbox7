@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync, flush } from '@angular/core/testing';
+import { NgZone } from '@angular/core';
 
 import { SingleMailViewerComponent } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
@@ -230,6 +231,40 @@ describe('SingleMailViewerComponent', () => {
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
+
+  it('should not recalculate toolbar width during every change detection check', () => {
+    const calculateSpy = spyOn(component, 'calculateWidthDependentElements');
+
+    component.ngDoCheck();
+
+    expect(calculateSpy).not.toHaveBeenCalled();
+  });
+
+  it('should run toolbar resize recalculation inside Angular zone', () => {
+    const originalResizeObserver = window.ResizeObserver;
+    let resizeObserverCallback: ResizeObserverCallback;
+    (window as any).ResizeObserver = class {
+      constructor(callback: ResizeObserverCallback) {
+        resizeObserverCallback = callback;
+      }
+
+      observe() {}
+
+      disconnect() {}
+    };
+    const ngZone = TestBed.inject(NgZone);
+    const ngZoneRunSpy = spyOn(ngZone, 'run').and.callFake(<T>(callback: () => T) => callback());
+    const toolbarElement = document.createElement('div');
+
+    component.toolbarButtonContainer = {
+      nativeElement: toolbarElement
+    } as any;
+    resizeObserverCallback([], {} as ResizeObserver);
+
+    expect(ngZoneRunSpy).toHaveBeenCalled();
+
+    window.ResizeObserver = originalResizeObserver;
+  });
 
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
