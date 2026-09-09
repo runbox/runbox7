@@ -51,6 +51,13 @@ export class WebSocketSearchMailList extends MessageDisplay {
     }
   }
 
+  getFromColumnTooltipValueForRow(rowIndex: number): string {
+    const row = this.getRow(rowIndex);
+    return row.fromName && row.fromAddr && row.fromName !== row.fromAddr ?
+      row.fromAddr :
+      null;
+  }
+
     public getCanvasTableColumns(app: any): CanvasTableColumn[] {
         const columns: CanvasTableColumn[] = [
             {
@@ -75,6 +82,7 @@ export class WebSocketSearchMailList extends MessageDisplay {
                 cacheKey: 'from',
                 sortColumn: null,
                 getValue: (rowIndex: number): string => this.getRow(rowIndex).fromName,
+                tooltipText: (rowIndex: number): string => this.getFromColumnTooltipValueForRow(rowIndex),
             },
             {
                 name: 'Subject',
