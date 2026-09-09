@@ -71,6 +71,7 @@ const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRi
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
 const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
+const LOCAL_STORAGE_SHOW_FROM_EMAIL_COLUMN = 'rmm7mailViewerShowFromEmailColumn';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
@@ -96,6 +97,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   preferences: Map<string, any> = new Map();
   viewmode = 'messages';
   keepMessagePaneOpen = true;
+  showFromEmailColumn = false;
   conversationGroupingCheckbox = false;
   conversationGroupingToolTip = 'Threaded conversation view';
   unreadMessagesOnlyCheckbox = false;
@@ -302,6 +304,8 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         this.canvastable.columnWidths = prefs.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
       }
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
+      const previousShowFromEmailColumn = this.showFromEmailColumn;
+      this.showFromEmailColumn = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOW_FROM_EMAIL_COLUMN}`) === 'true';
       this.unreadMessagesOnlyCheckbox = prefs.get(`${DefaultPrefGroups.Global}:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`) === 'true';
       this.viewmode = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_VIEWMODE}`);
       this.conversationGroupingCheckbox = !this.unreadMessagesOnlyCheckbox && this.viewmode === 'conversations';
@@ -327,6 +331,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       this.avatarSource = prefs.get(`${this.preferenceService.prefGroup}:avatarSource`);
 
       this.preferences = prefs;
+
+      if (previousShowFromEmailColumn !== this.showFromEmailColumn && this.canvastable && this.canvastable.rows) {
+        this.resetColumns();
+      }
     });
     // localSearchIndexPrompted isnt a "preference" (users cant change it back)
     // and we want it to prompt for eeach new device:
@@ -676,6 +684,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
 //    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
+  }
+
+  saveFromEmailColumnSetting(): void {
+    const setting = this.showFromEmailColumn ? 'true' : 'false';
+    this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOW_FROM_EMAIL_COLUMN, setting);
+    this.resetColumns();
   }
 
   public trainSpam(params) {
@@ -1229,11 +1243,16 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   resetColumns() {
-    if (this.canvastable && this.canvastable.rows) {
+    if (!this.canvastable) {
+      return;
+    }
+    if (this.canvastable.rows) {
       this.canvastable.columns = this.canvastable.rows.getCanvasTableColumns(this);
     }
-    this.canvastable.rowWrapModeWrapColumn = 3;
-    this.canvastable.rowWrapModeDefaultSelectedColumn = 3;
+    const subjectColumnIndex = this.canvastable.columns.findIndex(column => column.cacheKey === 'subject');
+    const rowWrapColumn = subjectColumnIndex > -1 ? subjectColumnIndex : 3;
+    this.canvastable.rowWrapModeWrapColumn = rowWrapColumn;
+    this.canvastable.rowWrapModeDefaultSelectedColumn = rowWrapColumn;
     this.autoAdjustColumnWidths();
   }
 

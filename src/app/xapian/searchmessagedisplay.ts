@@ -54,9 +54,15 @@ export class SearchMessageDisplay extends MessageDisplay {
   filterBy(options: Map<string, any>) {
   }
 
+  getFromEmailColumnValueForRow(rowIndex: number): string {
+    const docData = this.searchService.getDocData(this.getRowId(rowIndex));
+    return docData.fromEmailAddress || docData.from;
+  }
+
   // columns
   // app is a Component (currently)
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
+    const showToColumn = app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn;
     const columns: CanvasTableColumn[] = [
       {
         sortColumn: null,
@@ -75,7 +81,7 @@ export class SearchMessageDisplay extends MessageDisplay {
         getValue: (rowIndex): string => this.searchService.api.getStringValue(this.getRowId(rowIndex), 2),
         getFormattedValue: (datestring) => MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring)
       },
-      (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
+      showToColumn ? {
         name: 'To',
         draggable: true,
         cacheKey: 'from',
@@ -91,6 +97,19 @@ export class SearchMessageDisplay extends MessageDisplay {
             return this.searchService.getDocData(this.getRowId(rowIndex)).from;
           },
         },
+    ];
+
+    if (app.showFromEmailColumn && !showToColumn) {
+      columns.push({
+        name: 'From Email',
+        draggable: true,
+        cacheKey: 'fromEmail',
+        sortColumn: null,
+        getValue: (rowIndex): string => this.getFromEmailColumnValueForRow(rowIndex),
+      });
+    }
+
+    columns.push(
       {
           name: 'Subject',
           cacheKey: 'subject',
@@ -105,7 +124,7 @@ export class SearchMessageDisplay extends MessageDisplay {
           },
           // tooltipText: 'Tip: Drag subject to a folder to move message(s)'
         }
-    ];
+    );
 
     if (app.viewmode === 'conversations') {
       // Array containing row (conversation) objects waiting to be counted

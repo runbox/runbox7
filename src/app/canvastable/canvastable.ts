@@ -156,6 +156,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     'Date':    110,
     'To':      300,
     'From':    300,
+    'From Email': 220,
     'Subject': 300,
     'Size':    80,
     'Count':   80,
