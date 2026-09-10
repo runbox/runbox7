@@ -21,8 +21,8 @@
 
 import '../sentry';
 
-import { Observer, Observable, of, from, AsyncSubject, firstValueFrom, lastValueFrom } from 'rxjs';
-import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
+import { Observable, of, from, AsyncSubject, firstValueFrom, lastValueFrom } from 'rxjs';
+import { tap, take } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
 import { IndexingTools, MessageInfo } from '../common/messageinfo';
@@ -39,6 +39,10 @@ import { executeIndexMutation } from './index-mutation';
 import { clearFailedIndexUpdate } from './index-update-failure-policy';
 import { openStoredPartitions as openPartitionPaths } from './stored-partition-open';
 import { completeIndexBatch } from './index-batch-completion';
+import {
+  closeIndexedDatabaseConnections,
+  deleteIndexedDatabase
+} from './index-storage-cleanup';
 import {
   CatchUpRecentCommand,
   OpenIndexCommand
@@ -352,89 +356,71 @@ class SearchIndexService {
 
   public deleteLocalIndex(): Observable<boolean> {
     this.localSearchActivated = false;
-
-    return new Observable((observer) => {
-      console.log('Worker: Closing xapian database');
-      if (this.api) {
-        console.log('Worker: API exists?');
-        try {
-          this.api.closeXapianDatabase();
-        } catch (_error) {
-          // Replacement preparation may already have closed the database.
-        }
-      }
-
+    console.log('Worker: Closing xapian database');
+    if (this.api) {
       try {
-        FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
-          if ( f !== '.' && f !== '..') {
-            console.log(f);
-            FS.unlink('xapianglasswr/' + f);
-          }
-        });
-        FS.rmdir(XAPIAN_GLASS_WR);
+        this.api.closeXapianDatabase();
       } catch (_error) {
-        // The failed synchronization may not have created partition zero.
+        // Replacement preparation may already have closed the database.
       }
-      try {
-        FS.unlink('xapianglass');
-      } catch (e) {
-        console.error(e);
-      }
+    }
 
+    this.removeWritableMainPartition();
+    this.removeLegacyMainPartition();
+    this.removeStoredPartitions();
+    closeIndexedDatabaseConnections(IDBFS.dbs);
 
+    return from(this.deleteIndexDatabases()).pipe(
+      tap(() => ctx.postMessage({ action: PostMessageAction.indexDeleted }))
+    );
+  }
 
-      // clearTimeout(this.indexUpdateIntervalId);
-
-      let hasPartitionsDir = true;
-      try {
-        FS.stat(this.partitionsdir);
-      } catch (e) {
-        console.error(e);
-        hasPartitionsDir = false;
-      }
-      if (hasPartitionsDir) {
-        FS.readdir(this.partitionsdir).forEach((f) => {
-          if ( f !== '.' && f !== '..') {
-
-            if (FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-              FS.readdir(`${this.partitionsdir}/${f}`)
-                .filter((ent: string) => ent.charAt(0) !== '.').forEach(partitionFile =>
-                FS.unlink(`${this.partitionsdir}/${f}/${partitionFile}`)
-              );
-              FS.rmdir(`${this.partitionsdir}/${f}`);
-            } else {
-              FS.unlink(`${this.partitionsdir}/${f}`);
-            }
-          }
-        });
-      }
-
-      console.log('Worker: Closing indexed dbs');
-      // ---- Hack for emscripten not closing databases
-      Object.keys(IDBFS.dbs).forEach(k => IDBFS.dbs[k].close());
-      IDBFS.dbs = {};
-
-      // ----------------------
-
-      new Observable(o => {
-        // console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
-        const req = self.indexedDB.deleteDatabase('/' + this.localdir);
-        req.onsuccess = () =>
-          o.next(true);
-      }).pipe(
-        mergeMap(() =>
-          new Observable(o => {
-            // console.log('Worker: Deleting indexeddb database', this.partitionsdir);
-            const req = self.indexedDB.deleteDatabase(this.partitionsdir);
-            req.onsuccess = () =>
-              o.next(true);
-          })
-        )
-      ).subscribe(() => {
-        ctx.postMessage({'action': PostMessageAction.indexDeleted});
-        observer.next(true);
+  private removeWritableMainPartition(): void {
+    try {
+      FS.readdir(XAPIAN_GLASS_WR).forEach((filename) => {
+        if (filename !== '.' && filename !== '..') {
+          FS.unlink(`${XAPIAN_GLASS_WR}/${filename}`);
+        }
       });
-    });
+      FS.rmdir(XAPIAN_GLASS_WR);
+    } catch (_error) {
+      // A failed synchronization may not have created partition zero.
+    }
+  }
+
+  private removeLegacyMainPartition(): void {
+    try {
+      FS.unlink('xapianglass');
+    } catch (_error) {
+      // Current indexes use the writable main partition directory.
+    }
+  }
+
+  private removeStoredPartitions(): void {
+    try {
+      FS.readdir(this.partitionsdir).forEach((filename) => {
+        if (filename === '.' || filename === '..') {
+          return;
+        }
+        const path = `${this.partitionsdir}/${filename}`;
+        if (FS.isDir(FS.stat(path).mode)) {
+          FS.readdir(path)
+            .filter((entry: string) => entry.charAt(0) !== '.')
+            .forEach(entry => FS.unlink(`${path}/${entry}`));
+          FS.rmdir(path);
+        } else {
+          FS.unlink(path);
+        }
+      });
+    } catch (_error) {
+      // Historical partitions are optional during the initial transition.
+    }
+  }
+
+  private async deleteIndexDatabases(): Promise<boolean> {
+    await deleteIndexedDatabase(self.indexedDB, '/' + this.localdir);
+    await deleteIndexedDatabase(self.indexedDB, this.partitionsdir);
+    return true;
   }
 
   /**
@@ -1167,7 +1153,10 @@ const initialIndexWorkerSync = new InitialIndexWorkerSync({
   persist: async () => {
     await lastValueFrom(searchIndexService.persistIndex());
   },
-  postEvent: event => ctx.postMessage(event)
+  postEvent: event => ctx.postMessage(event),
+  reportFailure: (phase, error) => {
+    console.error(`Initial index synchronization failed during ${phase}`, error);
+  }
 });
 
 const postWorkerOpenFailure = (command: OpenIndexCommand) => ctx.postMessage({
@@ -1254,10 +1243,12 @@ ctx.addEventListener('message', ({ data }) => {
     } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
       clearTimeout(searchIndexService.indexUpdateIntervalId);
     } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
-      // console.log('Worker: deleting local index...');
-      searchIndexService.deleteLocalIndex().subscribe(() => {
-        // console.log('Worker: sub to local index delete');
-        searchIndexService.updateIndexWithNewChanges();
+      searchIndexService.deleteLocalIndex().subscribe({
+        next: () => searchIndexService.updateIndexWithNewChanges(),
+        error: error => ctx.postMessage({
+          action: PostMessageAction.indexDeleteFailed,
+          message: error instanceof Error ? error.message : String(error)
+        })
       });
     } else if (data['action'] === PostMessageAction.folderListUpdate) {
       searchIndexService.folderList = data['value'];

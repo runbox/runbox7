@@ -36,6 +36,7 @@ export interface InitialIndexWorkerSyncDependencies {
   finalizeWatermark: (watermark: number) => Promise<void>;
   persist: () => Promise<void>;
   postEvent: (event: InitialIndexSyncWorkerEvent) => void;
+  reportFailure?: (phase: string, error: unknown) => void;
 }
 
 export class InitialIndexWorkerSync {
@@ -121,13 +122,15 @@ export class InitialIndexWorkerSync {
         committedMessages: result.committedMessages,
         watermarkCandidate: result.watermarkCandidate
       });
-    } catch (_error) {
+    } catch (error) {
+      const phase = command.finalizeWatermark
+        ? 'final-reconciliation'
+        : 'catching-up-recent';
+      this.dependencies.reportFailure?.(phase, error);
       this.dependencies.postEvent({
         action: 'recentCatchUpFailed',
         operationId: command.operationId,
-        phase: command.finalizeWatermark
-          ? 'final-reconciliation'
-          : 'catching-up-recent',
+        phase,
         code: 'recent-sync-failed',
         message: 'Unable to synchronize recent messages'
       });

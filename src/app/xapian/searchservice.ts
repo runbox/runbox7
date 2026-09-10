@@ -60,6 +60,7 @@ import { IndexWorkerClient } from './index-worker-client';
 import { normalizeIndexManifest } from './index-sync-manifest';
 import { canStartInitialSync } from './initial-sync-start-policy';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
+import { closeIndexedDatabaseConnections } from './index-storage-cleanup';
 import {
   IndexSyncCoordinator,
   IndexSyncCoordinatorDependencies
@@ -163,7 +164,7 @@ export class SearchService {
   private initialSyncCancellationSubject = new Subject<void>();
   private readonly initialSyncStateSubject =
     new BehaviorSubject<IndexSyncState | null>(null);
-  private readonly indexDeletedSubject = new Subject<void>();
+  private readonly indexDeletionResultSubject = new Subject<string | null>();
   public readonly initialSyncState = this.initialSyncStateSubject.asObservable();
 
   constructor(public rmmapi: RunboxWebmailAPI,
@@ -200,9 +201,16 @@ export class SearchService {
           this.messagelistservice.applyChanges([], data['deletedMessages']);
           this.messagelistservice.refreshFolderList();
         } else if (data['action'] === PostMessageAction.indexDeleted) {
-          this.indexDeletedSubject.next();
+          this.indexDeletionResultSubject.next(null);
           this.stopIndexDownloadingInProgress = false;
           console.log('Closing progress dialog');
+          ProgressDialog.close();
+          this.messagelistservice.fetchFolderMessages();
+        } else if (data['action'] === PostMessageAction.indexDeleteFailed) {
+          this.indexDeletionResultSubject.next(
+            data['message'] || 'Unable to delete the local search index'
+          );
+          this.stopIndexDownloadingInProgress = false;
           ProgressDialog.close();
           this.messagelistservice.fetchFolderMessages();
         } else if (data['action'] === PostMessageAction.newMessagesNotification) {
@@ -542,8 +550,7 @@ export class SearchService {
 
       console.log('Closing indexed dbs');
       // ---- Hack for emscripten not closing databases
-      Object.keys(IDBFS.dbs).forEach(k => IDBFS.dbs[k].close());
-      IDBFS.dbs = {};
+      closeIndexedDatabaseConnections(IDBFS.dbs);
 
     });
 
@@ -884,9 +891,16 @@ export class SearchService {
       // The read-only database may not have opened yet.
     }
     if (!this.indexWorkerClient.getWorkerFailure()) {
-      const deleted = firstValueFrom(this.indexDeletedSubject.pipe(take(1)));
+      // IndexedDB deletion is blocked while this thread retains an IDBFS connection.
+      closeIndexedDatabaseConnections(IDBFS.dbs);
+      const deletionResult = firstValueFrom(
+        this.indexDeletionResultSubject.pipe(take(1))
+      );
       this.indexWorker.postMessage({ action: PostMessageAction.deleteLocalIndex });
-      await deleted;
+      const error = await deletionResult;
+      if (error) {
+        throw new Error(error);
+      }
     } else {
       this.messagelistservice.fetchFolderMessages();
     }

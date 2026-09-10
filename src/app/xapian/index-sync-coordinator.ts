@@ -62,7 +62,11 @@ export interface IndexSyncCoordinatorDependencies {
 
 const retryDelays = [1000, 2000, 4000];
 
-class IndexPublicationError extends Error {}
+class IndexPublicationError extends Error {
+  constructor(message: string, public readonly originalError: unknown) {
+    super(message);
+  }
+}
 
 const initialState = (operationId: string): IndexSyncState => ({
   operationId,
@@ -177,13 +181,17 @@ export class IndexSyncCoordinator {
 
       this.dependencies.startPeriodicSync();
       this.updateState({ phase: 'complete' });
-    } catch (_error) {
+    } catch (error) {
       if (this.cancelled) {
         await this.finishCancellation();
         return;
       }
+      console.error(
+        `Initial index synchronization failed during ${this.state.value.phase}`,
+        error instanceof IndexPublicationError ? error.originalError : error
+      );
       if (!this.localIndexPublished) {
-        await this.dependencies.discardIncompleteIndex();
+        await this.discardIncompleteIndex();
       }
       this.updateState({
         phase: 'failed',
@@ -212,8 +220,11 @@ export class IndexSyncCoordinator {
       if (this.localIndexPublished) {
         await this.dependencies.reloadPublishedLocalIndex();
       }
-    } catch (_error) {
-      throw new IndexPublicationError('Unable to publish the local search index');
+    } catch (error) {
+      throw new IndexPublicationError(
+        'Unable to publish the local search index',
+        error
+      );
     }
     if (this.cancelled) {
       return;
@@ -226,8 +237,11 @@ export class IndexSyncCoordinator {
     if (!this.localIndexPublished) {
       try {
         await this.publishLocalIndex();
-      } catch (_error) {
-        throw new IndexPublicationError('Unable to publish the local search index');
+      } catch (error) {
+        throw new IndexPublicationError(
+          'Unable to publish the local search index',
+          error
+        );
       }
     }
   }
@@ -275,9 +289,17 @@ export class IndexSyncCoordinator {
     if (!this.cancelled) {
       return false;
     }
-    await this.dependencies.discardIncompleteIndex();
+    await this.discardIncompleteIndex();
     this.updateState({ phase: 'cancelled' });
     return true;
+  }
+
+  private async discardIncompleteIndex(): Promise<void> {
+    try {
+      await this.dependencies.discardIncompleteIndex();
+    } catch (error) {
+      console.error('Unable to discard the incomplete local search index', error);
+    }
   }
 
   private updateState(changes: Partial<IndexSyncState>): void {

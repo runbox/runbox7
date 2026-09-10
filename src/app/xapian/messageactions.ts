@@ -26,6 +26,7 @@ export enum PostMessageAction {
   closeProgressSnackBar = 'closeProgressSnackBar',
   updateMessageListService = 'updateMessageListService',
   indexDeleted = 'indexDeleted',
+  indexDeleteFailed = 'indexDeleteFailed',
   newMessagesNotification = 'newMessagesNotification',
   opendb = 'opendb',
   updateIndexWithNewChanges = 'updateIndexWithNewChanges',
