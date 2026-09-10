@@ -424,6 +424,20 @@ describe('IndexSyncCoordinator', () => {
     expect(coordinator.state.value.phase).toBe('failed');
   });
 
+  it('reaches failed state when cleanup cannot delete incomplete storage', async () => {
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      discoverManifest: async () => Promise.reject(new Error('manifest unavailable')),
+      discardIncompleteIndex: async () => Promise.reject(new Error('cleanup blocked'))
+    }));
+
+    await coordinator.start();
+
+    expect(coordinator.state.value.phase).toBe('failed');
+    expect(coordinator.state.value.error).toBe(
+      'Unable to synchronize the local search index'
+    );
+  });
+
   it('retries a failed historical partition without restarting earlier phases', async () => {
     const attempts: number[] = [];
     const coordinator = new IndexSyncCoordinator('sync-1', dependencies({

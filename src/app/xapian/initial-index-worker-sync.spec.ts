@@ -249,19 +249,28 @@ describe('InitialIndexWorkerSync', () => {
 
   it('does not publish a batch when persistence fails', async () => {
     const actions: string[] = [];
+    const failure = new Error('storage unavailable');
+    let reportedFailure: { phase: string; error: unknown };
     const sync = new InitialIndexWorkerSync({
       fetchPage: async () => [message(1)],
       fetchDeletedMessages: async () => [],
       commitBatch: async () => undefined,
       finalizeWatermark: async () => undefined,
-      persist: async () => Promise.reject(new Error('storage unavailable')),
-      postEvent: event => actions.push(event.action)
+      persist: async () => Promise.reject(failure),
+      postEvent: event => actions.push(event.action),
+      reportFailure: (phase: string, error: unknown) => {
+        reportedFailure = { phase, error };
+      }
     });
     sync.startOperation('sync-1');
 
     await sync.catchUp(command());
 
     expect(actions).toEqual(['recentCatchUpFailed']);
+    expect(reportedFailure).toEqual({
+      phase: 'catching-up-recent',
+      error: failure
+    });
   });
 
   it('acknowledges exactly two durable batches before cancellation', async () => {
