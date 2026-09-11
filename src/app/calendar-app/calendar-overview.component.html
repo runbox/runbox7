@@ -11,7 +11,7 @@
     </app-calendar-event-card>
 
     <div *ngIf="visible_events.length - event_limit; let remaining">
-        <mat-card *ngIf="remaining > 0" class="upcomingEventCard">
+        <mat-card appearance="outlined" *ngIf="remaining > 0" class="upcomingEventCard">
             <mat-card-header>
                 <mat-card-subtitle>
                     ... and {{ remaining }} more event{{ (remaining > 1) ? 's' : '' }}

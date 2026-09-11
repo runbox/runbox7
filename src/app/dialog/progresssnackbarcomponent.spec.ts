@@ -20,7 +20,7 @@
 import { TestBed, ComponentFixture, tick, fakeAsync, waitForAsync } from '@angular/core/testing';
 import { DialogModule } from './dialog.module';
 import { ProgressSnackbarComponent } from './progresssnackbar.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component } from '@angular/core';
 
@@ -54,7 +54,7 @@ describe('ProgressService', () => {
         fixture.detectChanges();
 
         let snackbarElement: HTMLElement;
-        document.querySelectorAll('snack-bar-container').forEach((e: HTMLElement) => {
+        document.querySelectorAll('mat-snack-bar-container').forEach((e: HTMLElement) => {
             if (e.innerText.indexOf('Test1') > -1) {
                 snackbarElement = e;
             }
@@ -72,7 +72,7 @@ describe('ProgressService', () => {
         fixture.detectChanges();
 
         snackbarElement = null;
-        document.querySelectorAll('snack-bar-container').forEach((e: HTMLElement) => {
+        document.querySelectorAll('mat-snack-bar-container').forEach((e: HTMLElement) => {
             if (e.innerText.indexOf('Test2') > -1) {
                 snackbarElement = e;
             }

@@ -2,7 +2,7 @@
     <ng-content select="[section-header]"></ng-content>
     <ng-content select="[section-description]"></ng-content>
     <ng-content select="[section-buttons]"></ng-content>
-    <mat-card class="mat-elevation-z2 profile-card" *ngFor="let item of profiles; let i = index;">
+    <mat-card appearance="outlined" class="mat-elevation-z2 profile-card" *ngFor="let item of profiles; let i = index;">
         <mat-card-content class="profile-content">
             <mat-grid-list cols="{{mobile?6:7}}" rowHeight="15px">
                 <mat-grid-tile *ngIf="item.type === 'main'" colspan="6" rowspan="2">

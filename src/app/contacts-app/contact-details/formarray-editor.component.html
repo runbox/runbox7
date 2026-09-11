@@ -22,9 +22,11 @@
                 <div formGroupName="value" *ngIf="faName === 'addresses'; else notAddresses">
                     <div class="contact-details-row">
                         <mat-form-field>
+                            <mat-label>Street</mat-label>
                             <input matInput formControlName="street" placeholder="Street">
                         </mat-form-field>
                         <mat-form-field>
+                            <mat-label>City</mat-label>
                             <input matInput formControlName="city" placeholder="City">
                         </mat-form-field>
                         <div class="mat-form-field">
@@ -35,12 +37,15 @@
                     </div>
                     <div class="contact-details-row">
                         <mat-form-field>
+                            <mat-label>Region</mat-label>
                             <input matInput formControlName="region" placeholder="Region">
                         </mat-form-field>
                         <mat-form-field>
+                            <mat-label>Post code</mat-label>
                             <input matInput formControlName="post_code" placeholder="Post code">
                         </mat-form-field>
                         <mat-form-field>
+                            <mat-label>Country</mat-label>
                             <input matInput formControlName="country" placeholder="Country">
                         </mat-form-field>
                     </div>
@@ -48,6 +53,7 @@
 
                 <ng-template #notAddresses>
                     <mat-form-field>
+                        <mat-label>{{valuePlaceholder}}</mat-label>
                         <input matInput formControlName="value" [placeholder]="valuePlaceholder">
                     </mat-form-field>
                     <div class="mat-form-field" *ngIf="faName === 'urls'">

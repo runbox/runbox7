@@ -22,7 +22,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'app-payment-method',
     template: `
-<mat-card>
+<mat-card appearance="outlined">
     <div style="display: flex; justify-content: center">
         <img mat-card-image src="{{ logo }}" alt="{{ logo_alt }}" (click)="clicked.emit()">
     </div>

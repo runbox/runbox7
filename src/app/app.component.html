@@ -67,13 +67,13 @@
       </div>
 
       <button mat-list-item (click)="compose();" id="composeButton" [ngClass]="{'selectedFolder' : composeSelected}">
-        <mat-icon mat-list-icon  svgIcon="pencil" class="folderIconStandard"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="pencil"></mat-icon>
         Compose
       </button>
 
       <button mat-list-item (click)="drafts()" id="draftsButton" [ngClass]="{'selectedFolder' : draftsSelected}">
-        <mat-icon mat-list-icon  svgIcon="email-open" class="folderIconStandard"></mat-icon>
-        <p mat-line class="folderName">Drafts</p>
+        <mat-icon matListItemIcon svgIcon="email-open"></mat-icon>
+        Drafts
         <span style="flex-grow: 1"></span>
         <span class="foldersidebarcount" style="margin-right: 24px"> {{ draftDeskService.draftModels.value.length }} </span>
       </button>
@@ -81,8 +81,8 @@
       <button mat-list-item (click)="overview()" id="overviewButton" [ngClass]="{'selectedFolder' : overviewSelected}"
         *ngIf="searchService.localSearchActivated"
       >
-        <mat-icon mat-list-icon svgIcon="blur" class="folderIconStandard"></mat-icon>
-        <p mat-line class="folderName">Overview</p>
+        <mat-icon matListItemIcon svgIcon="blur"></mat-icon>
+        Overview
       </button>
 
       <mat-divider></mat-divider>
@@ -123,25 +123,25 @@
       <button mat-list-item
         (click)="deleteLocalIndex()"
         matTooltip="Stop synchronization and remove index stored on your device">
-          <mat-icon  svgIcon="sync-off" mat-list-icon></mat-icon>
+          <mat-icon svgIcon="sync-off" matListItemIcon></mat-icon>
           Stop index synchronization
       </button>
     </mat-nav-list>
 
     <mat-nav-list *ngIf="(xapianLoaded | async) && !searchService.localSearchActivated && searchService.downloadProgress === null && !offerInitialLocalIndex">
       <button mat-list-item (click)="downloadIndexFromServer()" matTooltip="Synchronize index with your device">
-        <mat-icon matListIcon svgIcon="sync"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="sync"></mat-icon>
         Synchronize index
       </button>
     </mat-nav-list>
 
     <mat-nav-list>
       <button mat-list-item (click)="composeBugReport()" matTooltip="Compose an email to runbox support">
-        <mat-icon matListIcon svgIcon="spider"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="spider"></mat-icon>
         Compose a bug report
       </button>
       <button *ngIf="showNotificationButton" mat-list-item (click)="enableNotification()">
-        <mat-icon matListIcon svgIcon="bell"></mat-icon>
+        <mat-icon matListItemIcon svgIcon="bell"></mat-icon>
         Enable Notifications
       </button>
     </mat-nav-list>
@@ -212,6 +212,7 @@
         <ng-template #searchBar>
           <mat-form-field id="searchField" floatLabel="auto"
                           *ngIf="searchService.downloadProgress===null">
+            <mat-label>Start typing to search messages</mat-label>
             <input matInput #searchInputField type="text"
                    (focus)="searchTextFieldFocus()"
                    (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"

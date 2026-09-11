@@ -26,7 +26,7 @@ import { ContactHilights } from './startdesk.component';
     selector: 'app-overview-sender-hilights',
     styleUrls: ['./sender-hilights.component.scss'],
     template: `
-<mat-card class="dashdeskCard senderItem">
+<mat-card appearance="outlined" class="dashdeskCard senderItem">
   <div class="contact">
     <mat-icon> {{ sender.icon }}</mat-icon> <h4> {{ sender.name }} </h4>
     <div class="messages"> {{ sender.emails.length }} messages </div>
