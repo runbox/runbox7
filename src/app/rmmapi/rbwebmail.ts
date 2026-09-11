@@ -19,7 +19,7 @@
 
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, from, of, Subject, AsyncSubject, firstValueFrom, throwError } from 'rxjs';
-import { catchError, concatMap, share, filter, map, mergeMap } from 'rxjs/operators';
+import { catchError, concatMap, share, filter, map, tap, mergeMap } from 'rxjs/operators';
 import { MessageInfo } from '../common/messageinfo';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { FolderListEntry } from '../common/folderlistentry';
@@ -418,9 +418,9 @@ export class RunboxWebmailAPI {
         }
 
     subscribeShowBackendErrors(req: any) {
-        req.subscribe((res: any) => {
+      req.pipe(tap((res: any) => {
             this.showBackendErrors(res);
-        });
+      }));
     }
 
     showBackendErrors(res: any) {

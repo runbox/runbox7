@@ -714,14 +714,11 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         const userFolders = this.messagelistservice.folderListSubject.value;
         const currentFolderId = userFolders.find(fld => fld.folderPath === this.messagelistservice.currentFolder).folderId;
         const res = this.rmmapi.trainSpam({is_spam: params.is_spam, from_folder_id: currentFolderId, messages: messageIds});
-        res.subscribe(data => {
+        res.pipe(tap(data => {
           if ( data.status === 'error' ) {
             this.snackBar.open('There was an error with Spam functionality. Please select the messages and try again.', 'Dismiss');
           }
-        }, (err) => {
-          console.error('Error reporting spam', err);
-          this.snackBar.open('There was an error with Spam functionality.', 'Dismiss');
-        });
+        }));
         return res;
       },
       afterwards: (result) => this.snackBar.open(
