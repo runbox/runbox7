@@ -215,6 +215,29 @@ describe('SingleMailViewerComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('does not show overflow menu for plaintext messages when every plaintext toolbar action fits', () => {
+    component.mailContentHTML = null;
+
+    component.morebuttonindex = 9;
+    expect(component.hasHiddenToolbarActions()).toBeTrue();
+
+    component.morebuttonindex = 10;
+    expect(component.hasHiddenToolbarActions()).toBeFalse();
+  });
+
+  it('keeps overflow menu visible when HTML-only toolbar actions are hidden', () => {
+    component.mailContentHTML = '<p>HTML content</p>';
+
+    component.morebuttonindex = 10;
+    expect(component.hasHiddenToolbarActions()).toBeTrue();
+
+    component.morebuttonindex = 11;
+    expect(component.hasHiddenToolbarActions()).toBeTrue();
+
+    component.morebuttonindex = 12;
+    expect(component.hasHiddenToolbarActions()).toBeFalse();
+  });
+
   it('show mail', fakeAsync(() => {
       expect(component).toBeTruthy();
 
