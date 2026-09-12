@@ -413,6 +413,9 @@
 	<div [hidden]="hasChildRouterOutlet">
       <div id="canvasTableContainerArea" [ngStyle]="{'bottom.px': canvasTableBtmOffset}">
         <canvastablecontainer [canvastableselectlistener]="this" (sortToggled)="updateSearch(true)"></canvastablecontainer>
+        <p *ngIf="showUnreadEmptyState" class="unreadEmptyState" role="status" data-testid="unread-empty-state">
+          No unread messages in this view.
+        </p>
       </div>
 
       <single-mail-viewer #singlemailviewer *ngIf="!mailViewerOnRightSide"
