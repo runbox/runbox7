@@ -18,6 +18,16 @@
     width: 90%;
 }
 
+.draftdesk-options {
+    position: relative;
+    top: 55px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
 @media only screen and (max-width: 768px) {
     .draftdesk-container {
         padding: 0;
