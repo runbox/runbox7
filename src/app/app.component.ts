@@ -897,6 +897,29 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   }
 
+  get showUnreadEmptyState(): boolean {
+    const rows = this.canvastable?.rows;
+    if (!this.unreadMessagesOnlyCheckbox || this.hasChildRouterOutlet || this.viewmode === 'conversations'
+        || !rows || rows.rowCount() !== 0
+        || this.messagelistservice.ignoreUnreadInFolders.includes(this.selectedFolder)
+        || this.messagelistservice.fetchInProgress || this.websocketsearchservice.searchInProgress
+        || this.searchService.downloadProgress !== null) {
+      return false;
+    }
+
+    if (rows instanceof SearchMessageDisplay) {
+      return this.showingSearchResults;
+    }
+    if (rows instanceof WebSocketSearchMailList) {
+      return this.showingWebSocketSearchResults;
+    }
+
+    // The initial empty subject value and a previous folder are not completed results for this view.
+    return rows instanceof MessageList
+      && this.messagelist === this.messagelistservice.folderMessageLists[this.selectedFolder]
+      && rows._rows === this.messagelist;
+  }
+
   public filterMessageDisplay() {
     if (this.canvastable.rows && this.canvastable.rows.rowCount() > 0) {
       const options = new Map();
