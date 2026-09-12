@@ -189,7 +189,7 @@
       </div>
   </mat-sidenav>
   <div id="mailMenuContainer">
-    <mat-toolbar id="mailMenu" style="display: flex">
+    <mat-toolbar appTouchDescriptions id="mailMenu" style="display: flex">
       <button mat-icon-button (click)="sidemenu.toggle();" matTooltip="Toggle folder pane" id="toggleFolderPaneIcon">
 	    <mat-icon svgIcon="menu"></mat-icon>
       </button>
@@ -426,7 +426,7 @@
   </div>
 
   <!-- Message action floating menu for mobile screens -->
-  <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
+  <div appTouchDescriptions class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && !showSelectMarkOpMenu">
     <button mat-fab matTooltip="Move&nbsp;to&nbsp;folder" matTooltipPosition="left" (click)="moveToFolder()">
       <mat-icon svgIcon="folder"></mat-icon>
     </button>
@@ -455,7 +455,7 @@
   </div>
   
   <!-- Message action floating submenu for mobile screens -->
-  <div class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
+  <div appTouchDescriptions class="contextToolButtonsMobile" *ngIf="mobileQuery.matches && !hasChildRouterOutlet && showSelectOperations && showSelectMarkOpMenu">
     <button mat-fab matTooltip="Mark unread" matTooltipPosition="left" (click)="setReadStatus(false)">
       <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
     </button>
