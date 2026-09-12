@@ -194,7 +194,7 @@ export class DomainRegisterComponent implements AfterViewInit {
 
   public check_avail = function () {
     if (this.is_btn_search_domain_disabled) { return; }
-    if ( this.domain_quota_used && this.domain_quota_allowed && this.domain_quota_used >= this.domain_quota_allowed ) {
+    if ( this.domain_quota_used >= this.domain_quota_allowed ) {
         return this.show_error('You have reached your allowed Email Domain quota. Please purchase more Email Hosting products.', 'Dismiss');
     }
     this.is_btn_search_domain_disabled = true;
@@ -820,8 +820,9 @@ export class DomainRegisterComponent implements AfterViewInit {
     const req = this.http.get('/rest/v1/email_hosting/domains_quota');
     req.pipe(timeout(180000))
       .subscribe((result: any) => {
-        this.domain_quota_allowed = result.result.domain_quota_allowed;
-        this.domain_quota_used = result.result.domain_quota_used;
+        // The API can return strings; both the template and action checks need numeric counts.
+        this.domain_quota_allowed = Number(result.result.domain_quota_allowed);
+        this.domain_quota_used = Number(result.result.domain_quota_used);
         if ( this.domain_quota_used >= this.domain_quota_allowed ) {
             this.show_error('You have reached your allowed Email Domain quota. Please purchase more Email Hosting products.', 'Dismiss');
         }
