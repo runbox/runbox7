@@ -126,6 +126,16 @@ You can run the individual tests using one of the following commands:
 Or run them all at once with `npm run ci-tests` -- this option will run the tests with the same settings as our CI setup,
 making sure that any errors will be caught before your code becomes public.
 
+### Inline attachment display
+
+In the HTML message view, images embedded in the message do not create separate
+attachment rows or grid tiles. Downloadable files remain listed, and their download
+and decryption actions retain the original MIME attachment indices. Inline images
+remain available in the attachment list when viewing plain text or when the HTML
+sandbox is unavailable.
+
+The regression checks are in `src/app/mailviewer/singlemailviewer.component.spec.ts`.
+
 ## Further help
 
 To get more help on the Angular CLI use `npx ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
