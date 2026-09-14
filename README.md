@@ -126,6 +126,17 @@ You can run the individual tests using one of the following commands:
 Or run them all at once with `npm run ci-tests` -- this option will run the tests with the same settings as our CI setup,
 making sure that any errors will be caught before your code becomes public.
 
+### Reply signature spacing
+
+Replies and Reply All should leave two line breaks before the sender's signature,
+so typing at the start does not run into the signature. HTML replies need visible
+`<br>` elements; newline characters alone do not create that space. Switching the
+sender identity before editing should replace the signature and keep the space.
+
+The focused regression checks are in `src/app/compose/compose.component.spec.ts`:
+
+`npm run test -- --watch=false --browsers=FirefoxHeadless --include=src/app/compose/compose.component.spec.ts`
+
 ## Further help
 
 To get more help on the Angular CLI use `npx ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
