@@ -61,6 +61,7 @@ import { normalizeIndexManifest } from './index-sync-manifest';
 import { canStartInitialSync } from './initial-sync-start-policy';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
 import { closeIndexedDatabaseConnections } from './index-storage-cleanup';
+import { rehydratePublishedIndexView } from './published-index-view';
 import {
   IndexSyncCoordinator,
   IndexSyncCoordinatorDependencies
@@ -748,15 +749,41 @@ export class SearchService {
   }
 
   private async publishInitialLocalIndex(): Promise<void> {
-    await this.syncFileSystem(true);
-    this.api.reloadXapianDatabase();
-    this.localSearchActivated = true;
+    await this.rehydratePublishedLocalIndex();
     this.messagelistservice.refreshFolderList();
   }
 
   private async reloadPublishedLocalIndex(): Promise<void> {
-    await this.syncFileSystem(true);
-    this.api.reloadXapianDatabase();
+    await this.rehydratePublishedLocalIndex();
+  }
+
+  private rehydratePublishedLocalIndex(): Promise<void> {
+    return rehydratePublishedIndexView({
+      close: () => this.api.closeXapianDatabase(),
+      removeLocalCopy: () => this.removeLocalMainPartition(),
+      populate: () => this.syncFileSystem(true),
+      openMainPartition: () => this.openStoredMainPartition(),
+      openHistoricalPartitions: () => this.openStoredPartitions(),
+      activate: () => {
+        this.localSearchActivated = true;
+      },
+      fallback: () => {
+        this.localSearchActivated = false;
+        this.messagelistservice.fetchFolderMessages();
+      }
+    });
+  }
+
+  private removeLocalMainPartition(): void {
+    try {
+      FS.stat(XAPIAN_GLASS_WR);
+    } catch (_error) {
+      return;
+    }
+    FS.readdir(XAPIAN_GLASS_WR)
+      .filter(filename => filename !== '.' && filename !== '..')
+      .forEach(filename => FS.unlink(`${XAPIAN_GLASS_WR}/${filename}`));
+    FS.rmdir(XAPIAN_GLASS_WR);
   }
 
   private async downloadInitialHistoricalPartition(
