@@ -2,7 +2,9 @@
     <mat-chip-list #chipList>
         <mat-chip *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
                 style="background-color: #e3f2fd;"
-                [removable]="true" 
+                [removable]="true"
+                draggable="true"
+                (dragstart)="dragRecipient($event, recipient)"
                 (removed)="removeRecipient(ndx)">        
                 {{recipient.nameAndAddress}}
                 <mat-icon matChipRemove svgIcon="close"></mat-icon>
