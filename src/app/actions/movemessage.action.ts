@@ -25,9 +25,19 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 @Component({
     template: `
         <mat-spinner *ngIf="moving"></mat-spinner>
-        <mat-dialog-content  *ngIf="!moving">
-            <mat-nav-list dense id="moveMessagesToFolderList">
-                <mat-list-item *ngFor="let fce of folderListEntries" (click)="moveMessages(fce.folderId)"
+        <mat-dialog-content *ngIf="!moving" class="moveMessagesToFolderContent">
+            <mat-form-field class="moveMessagesFolderFilter">
+                <mat-label>Search folders</mat-label>
+                <input matInput
+                    type="search"
+                    autocomplete="off"
+                    [(ngModel)]="folderFilter"
+                    (ngModelChange)="updateFolderFilter()"
+                >
+            </mat-form-field>
+
+            <mat-nav-list *ngIf="filteredFolderListEntries.length" dense id="moveMessagesToFolderList">
+                <mat-list-item *ngFor="let fce of filteredFolderListEntries" (click)="moveMessages(fce.folderId)"
                     [style.paddingLeft.px]="fce.folderLevel*10"
                 >
                 <mat-icon *ngIf="fce.folderType==='inbox'" mat-list-icon class="folderIconStandard" svgIcon="inbox-arrow-down"></mat-icon>
@@ -39,12 +49,31 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
                     <p mat-line>{{fce.folderName}}</p>
                 </mat-list-item>
             </mat-nav-list>
+            <p *ngIf="folderListEntries.length && !filteredFolderListEntries.length" class="moveMessagesNoMatches">
+                No matching folders
+            </p>
         </mat-dialog-content>
-    `
+    `,
+    styles: [`
+        .moveMessagesToFolderContent {
+            min-width: min(420px, 90vw);
+        }
+
+        .moveMessagesFolderFilter {
+            width: 100%;
+        }
+
+        .moveMessagesNoMatches {
+            margin: 12px 0;
+            opacity: 0.75;
+        }
+    `]
 })
 export class MoveMessageDialogComponent implements OnInit {
     moving = false;
-    folderListEntries: FolderListEntry[];
+    folderFilter = '';
+    folderListEntries: FolderListEntry[] = [];
+    filteredFolderListEntries: FolderListEntry[] = [];
 
     constructor(
         public dialogRef: MatDialogRef<MoveMessageDialogComponent>,
@@ -54,12 +83,28 @@ export class MoveMessageDialogComponent implements OnInit {
 
     ngOnInit() {
         this.rmmapi.getFolderList()
-            .subscribe((folderListEntries) => this.folderListEntries = folderListEntries
+            .subscribe((folderListEntries) => {
+                this.folderListEntries = folderListEntries
                 .filter(fce =>
                     fce.folderType !== 'drafts' &&
                     fce.folderType !== 'sent' &&
                     fce.folderType !== 'templates'
-                ));
+                );
+                this.updateFolderFilter();
+            });
+    }
+
+    public updateFolderFilter() {
+        const folderFilter = this.folderFilter.trim().toLowerCase();
+        if (!folderFilter) {
+            this.filteredFolderListEntries = this.folderListEntries;
+            return;
+        }
+
+        this.filteredFolderListEntries = this.folderListEntries.filter(fce =>
+            fce.folderName.toLowerCase().includes(folderFilter) ||
+            fce.folderPath.toLowerCase().includes(folderFilter)
+        );
     }
 
     public moveMessages(folderId: number) {
