@@ -19,7 +19,6 @@
 
 import { Component } from '@angular/core';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 
 @Component({
     selector: 'app-account-welcome-component',
@@ -30,9 +29,7 @@ export class AccountWelcomeComponent {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     isMainAccount: boolean;
 
-    constructor(rmmapi: RunboxWebmailAPI,
-                public sidenavService: RunboxSidenavService,
-) {
+    constructor(rmmapi: RunboxWebmailAPI) {
         rmmapi.me.subscribe((me: RunboxMe) => {
             this.isMainAccount = !me.owner;
         });

@@ -28,7 +28,6 @@ import { RMM } from '../rmm';
 import { DataUsageInterface } from '../rmm/account-storage';
 import { RunboxTimerComponent } from './runbox-timer';
 import { AsyncSubject } from 'rxjs';
-import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 import { ProductOrder } from './product-order';
 
 import { Decimal } from 'decimal.js-light';
@@ -74,7 +73,6 @@ export class AccountUpgradesComponent implements OnInit {
         public  rmmapi:          RunboxWebmailAPI,
         private snackbar:        MatSnackBar,
         private rmm:             RMM,
-        public sidenavService:   RunboxSidenavService,
         private router:          Router,
     ) {
       this.router.events.subscribe(e => {

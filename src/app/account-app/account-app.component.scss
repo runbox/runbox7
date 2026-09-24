@@ -4,3 +4,16 @@ mat-expansion-panel-header mat-icon {
 mat-expansion-panel-header span {
     vertical-align: bottom;
 }
+
+.mobileSettingsToolbar {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.mobileSettingsToolbar .sideNavHeader {
+    flex: 1;
+    margin: 0;
+}
