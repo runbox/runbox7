@@ -19,6 +19,8 @@
 
 import { Directive, ElementRef, OnInit, Input, Renderer2 } from '@angular/core';
 
+const TOUCH_GRAB_WIDTH = 24;
+
 @Directive({
     selector: '[appResizable]' // Attribute selector
 })
@@ -95,7 +97,18 @@ export class ResizerDirective implements OnInit {
         );
     }
 
-    ngOnInit(): void {
+private isTouchDragSurface(): boolean {
+    return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
+        || navigator.maxTouchPoints > 0;
+}
+
+private get effectiveGrabWidth(): number {
+    return this.isTouchDragSurface()
+        ? Math.max(this.resizableGrabWidth, TOUCH_GRAB_WIDTH)
+        : this.resizableGrabWidth;
+}
+
+ngOnInit(): void {
         if (this.position !== 'end') {
             this.el.nativeElement.style['border-right'] = this.resizableGrabWidth + 'px solid darkgrey';
         } else {
@@ -109,12 +122,12 @@ export class ResizerDirective implements OnInit {
             const rect = this.el.nativeElement.getBoundingClientRect();
             const dragX1 = (rect.left );
 
-            return  evt.clientX < dragX1 + this.resizableGrabWidth;
+            return evt.clientX < dragX1 + this.effectiveGrabWidth;
         } else {
             const rect = this.el.nativeElement.getBoundingClientRect();
             const dragX1 = (rect.left + rect.width);
 
-            return  evt.clientX > dragX1 - this.resizableGrabWidth;
+            return evt.clientX > dragX1 - this.effectiveGrabWidth;
         }
     }
 
