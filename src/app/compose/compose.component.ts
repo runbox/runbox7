@@ -165,14 +165,6 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             if (this.model.bcc.length > 0) {
                 this.hasBCC = true;
             }
-            if (this.model.replying) {
-                setTimeout(() => {
-                    if (!this.model.useHTML) {
-                        this.messageTextArea.nativeElement.setSelectionRange(0, 0);
-                        this.messageTextArea.nativeElement.focus();
-                    }
-                });
-            }
         } else {
           this.rmmapi.getMessageContents(this.model.mid).subscribe(
               msgObj => {
@@ -272,6 +264,24 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.model.mid <= -1) {
             this.htmlToggled();
         }
+        this.focusReplyBody();
+    }
+
+    private focusReplyBody() {
+        if (!this.model.replying || this.model.useHTML) {
+            return;
+        }
+
+        setTimeout(() => {
+            const messageTextArea = this.messageTextArea?.nativeElement;
+
+            if (!messageTextArea) {
+                return;
+            }
+
+            messageTextArea.focus();
+            messageTextArea.setSelectionRange(0, 0);
+        });
     }
 
     onDragLeave(event: DragEvent) {
