@@ -39,6 +39,7 @@ import { executeIndexMutation } from './index-mutation';
 import { clearFailedIndexUpdate } from './index-update-failure-policy';
 import { openStoredPartitions as openPartitionPaths } from './stored-partition-open';
 import { completeIndexBatch } from './index-batch-completion';
+import { formatIndexSyncProgressMessage } from './index-sync-progress-message';
 import {
   closeIndexedDatabaseConnections,
   deleteIndexedDatabase
@@ -961,7 +962,10 @@ not matching with rest api counts for current folder`);
       this.pendingMessagesToProcess = newMessagesToProcess;
       this.messageProcessingInProgressSubject = new AsyncSubject();
 
-      const getProgressSnackBarMessageText = () => `Syncing ${this.processMessageIndex} / ${this.pendingMessagesToProcess.length}`;
+      const getProgressSnackBarMessageText = () => formatIndexSyncProgressMessage(
+        this.processMessageIndex,
+        this.pendingMessagesToProcess.length
+      );
       let hasProgressSnackBar = false;
       if (this.pendingMessagesToProcess.length > 10) {
         hasProgressSnackBar = true;
