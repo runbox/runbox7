@@ -28,7 +28,7 @@ export class AccountSecurity2fa {
     otp: any;
     new_totp_code = '';
     totp_label: string;
-    qr_code_value: any;
+    qr_code_value: string;
     otp_generated_list: any;
 
 
@@ -147,7 +147,11 @@ export class AccountSecurity2fa {
             label: this.totp_label,
             secret: this.new_totp_code
         });
-        this.qr_code_value = new URL(otpa.toString());
+        this.qr_code_value = this.format_qr_code_value(otpa.toString());
+    }
+
+    format_qr_code_value(qr_code_value: string) {
+        return qr_code_value.replace(/%40/g, '@');
     }
 
     generate_totp_code() {
