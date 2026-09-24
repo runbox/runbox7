@@ -82,6 +82,9 @@
         </div>
       </ng-container>
     </ng-container>
+    <div class="selection-progress" *ngIf="canvastable.bulkSelectionInProgress">
+      {{ canvastable.bulkSelectionMessage }}
+    </div>
     <div *ngIf="canvastable.rowWrapMode && canvastable.hasSortColumns" style="display: flex">  
       <ng-container *ngFor="let col of canvastable.columns; let colIndex = index">
         <div *ngIf="col.sortColumn!==null"
