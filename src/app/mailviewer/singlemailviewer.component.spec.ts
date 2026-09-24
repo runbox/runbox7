@@ -458,4 +458,30 @@ describe('SingleMailViewerComponent', () => {
       expect(() => component['initMailtoInterceptor']()).not.toThrow();
     });
   });
+
+  describe('showHTMLForThisSender', () => {
+    it('does not auto-enable HTML in the spam folder even when always-show is enabled', () => {
+      component.showHTMLDecision = 'alwaysshowhtml';
+      component.folder = 'Spam';
+      component.showHTML = false;
+      component.savedAlways = false;
+
+      component.showHTMLForThisSender('test@example.com');
+
+      expect(component.showHTML).toBeFalse();
+      expect(component.savedAlways).toBeFalse();
+    });
+
+    it('still auto-enables HTML outside the spam folder when always-show is enabled', () => {
+      component.showHTMLDecision = 'alwaysshowhtml';
+      component.folder = 'Inbox';
+      component.showHTML = false;
+      component.savedAlways = false;
+
+      component.showHTMLForThisSender('test@example.com');
+
+      expect(component.showHTML).toBeTrue();
+      expect(component.savedAlways).toBeTrue();
+    });
+  });
 });
