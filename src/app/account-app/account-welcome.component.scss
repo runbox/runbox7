@@ -5,7 +5,7 @@ mat-icon.category {
     line-height: 24px;
 }
 mat-card {
-    padding: 10px 20px;
+    padding: 10px 16px;
 }
 mat-card a {
     color: inherit;
@@ -31,6 +31,8 @@ div.settingsRow {
 }
 mat-card.settingsItem {
     display: flex;
+    // no shrink: rows wrap rather than squeeze cards below heading width
+    flex-shrink: 0;
     width: 180px;
     min-height: 125px;
     margin: 0 10px 10px 0;

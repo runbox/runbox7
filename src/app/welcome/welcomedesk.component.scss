@@ -66,12 +66,15 @@ div.gridHighlight {
 }
 mat-card {
     display: flex;
+    // no shrink: a row that cannot fit all cards wraps instead of squeezing
+    // them below heading width (prod behaviour)
+    flex-shrink: 0;
     width: 200px;
     min-height: 130px;
     margin: 0 10px 10px 0;
     border: 2px solid #f4f4f4;
     overflow: hidden;
-    padding: 10px 20px;
+    padding: 10px 16px;
 }
 mat-card mat-icon {
     margin-right: 5px;

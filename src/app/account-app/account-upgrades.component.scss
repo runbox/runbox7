@@ -18,7 +18,9 @@
 #productGrid, .productGrid {
     display: flex;
     flex-flow: row wrap;
-    align-items: center;
+    // stretch: cards in a row share height. MDC cards size to content, so the
+    // old center alignment staggered rows once fixed heights became min-heights
+    align-items: stretch;
     margin-bottom: 30px;
 }
 
@@ -58,6 +60,8 @@
         font-size: 1.1em !important;
     }
     mat-card-actions {
+        // pin to the card bottom so buttons align across a stretched row
+        margin-top: auto;
         margin-bottom: 5px;
     }
 

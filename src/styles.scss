@@ -154,7 +154,9 @@ mat-form-field {
 }
 
 .mat-mdc-form-field-focus-overlay {
-    background-color: transparent;
+    /* !important: Material ships this rule in component styles, which cascade
+       after global styles and would otherwise win the tie. */
+    background-color: transparent !important;
 }
 
 .mat-mdc-form-field-subscript-wrapper {
@@ -208,8 +210,16 @@ mat-list-item p.mdc-list-item__secondary-text mat-icon {
     font-weight: 400;
 }
 
-button, mat-button, mat-raised-button {
-    padding-top: 2px !important;
+// Text buttons grow with wrapped labels instead of clipping them; doubled
+// specificity beats the padding/height MDC ships in later component styles.
+.mat-mdc-button-base.mat-mdc-button, .mat-mdc-button-base.mat-mdc-unelevated-button,
+.mat-mdc-button-base.mat-mdc-raised-button, .mat-mdc-button-base.mat-mdc-stroked-button,
+.mat-mdc-button-base.mat-mdc-outlined-button {
+    height: auto;
+    min-height: 32px;
+    white-space: normal;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 button:hover, mat-button:hover, mat-raised-button:hover {
@@ -705,12 +715,18 @@ div.loginScreen {
     }
     #loginOptions {
         display: flex;
+        align-items: center;
         margin: 0em;
         font-size: 13px;
 
-	.mdc-label {
-	    padding-top: 3px;
-	}
+        // MDC labels wrap by default and the 48px touch target overflows the
+        // small login checkbox; keep one line with a compact hit area.
+        --mat-checkbox-touch-target-display: none;
+        --mdc-checkbox-state-layer-size: 18px;
+
+        .mdc-form-field {
+            white-space: nowrap;
+        }
     }
     #loginButton {
         width: 100px;
@@ -725,8 +741,6 @@ div.loginScreen {
     }
         .mat-mdc-checkbox .mdc-checkbox {
         margin: 0 5px;
-        height: 13px;
-        width: 13px;
     }
     .login_error_html p {
 	    margin: 0;
@@ -1524,6 +1538,13 @@ app-saved-searches mat-expansion-panel-header {
     font-size: 14px;
     align-items: center;
 
+    // MDC's 48px invisible touch targets overlap in this tight row and steal
+    // clicks (HTML toggle fired the images checkbox). Collapse hit areas.
+    --mat-radio-touch-target-display: none;
+    --mat-checkbox-touch-target-display: none;
+    --mdc-radio-state-layer-size: 24px;
+    --mdc-checkbox-state-layer-size: 24px;
+
     .mat-mdc-radio-button .mdc-label {
 	padding: 0 !important;
     }
@@ -1653,6 +1674,12 @@ compose {
 
 /* Styles to decrease vertical spacing on Compose */
 
+// MDC cards ship without container padding (legacy mat-card had it), which
+// left the compose title and fields flush against the outlined card edge.
+compose .draft-card {
+    padding: 8px 16px;
+}
+
 compose .mat-mdc-card-actions {
     padding: 0 !important;
     margin-bottom: 8px !important;
@@ -1660,11 +1687,6 @@ compose .mat-mdc-card-actions {
 
 compose .mat-mdc-form-field-underline, compose input.mat-mdc-chip-input {
     bottom: 10px !important;
-}
-
-compose .mat-mdc-card-title {
-    margin-bottom: 0px !important;
-    font-size: 13px;
 }
 
 compose .mat-mdc-card-subtitle {
@@ -1715,9 +1737,9 @@ compose #fieldFrom .mat-mdc-form-field-subscript-wrapper, compose .fieldRecipien
     overflow: hidden;
 }
 
-// Compose form fields - compact density
+// Compose form fields - compact density, but roomier than plain webmail rows
 compose .mat-mdc-form-field-infix {
-    padding: 0.2em 0 !important;
+    padding: 0.35em 0 !important;
 }
 
 
