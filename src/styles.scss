@@ -8,7 +8,6 @@
 
 @font-face {
     font-family: "Avenir Next Pro Regular";
-    src: url("assets/AvenirNextLTPro-Regular.otf");
     src: url("assets/Avenir-Next-LT-Pro.ttf");
     font-style: normal;
     font-weight: normal;
@@ -16,8 +15,7 @@
 
 @font-face {
     font-family: "Avenir Next Pro Medium";
-    src: url("assets/AvenirNextLTPro-Medium.otf");
-    src: url("assets/Avenir-Next-LT-Pro.ttf");
+    src: url("assets/AvenirNextLTPro-Medium.ttf");
     font-style: normal;
     font-weight: normal;
 }
@@ -1284,8 +1282,10 @@ app-saved-searches mat-expansion-panel-header {
     overflow: hidden;
 }
 
-.messageListActionButtonsRight button {
+.messageListActionButtonsRight .mat-mdc-icon-button.mat-mdc-button-base {
     width: 30px; // Remember to also update TOOLBAR_LIST_BUTTON_WIDTH in app.component.ts in order to show the correct number of menu items
+    --mdc-icon-button-state-layer-size: 30px;
+    --mat-icon-button-touch-target-display: none;
 }
 
 #mailMenu .mat-mdc-icon-button {
@@ -1525,8 +1525,11 @@ app-saved-searches mat-expansion-panel-header {
     overflow: hidden;
 }
 
-.messageActionButtonsLeft button, .messageActionButtonsRight button {
+// MDC emits the 44px state-layer size on a doubled class that beats a plain width override
+.messageActionButtonsLeft .mat-mdc-icon-button.mat-mdc-button-base, .messageActionButtonsRight .mat-mdc-icon-button.mat-mdc-button-base {
     width: 30px; // Remember to also update TOOLBAR_BUTTON_WIDTH in singlemailviewer.component.ts in order to show the correct number of menu items
+    --mdc-icon-button-state-layer-size: 30px;
+    --mat-icon-button-touch-target-display: none;
 }
 
 /* Message display options */

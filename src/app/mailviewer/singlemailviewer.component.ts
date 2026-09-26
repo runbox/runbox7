@@ -59,7 +59,7 @@ const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
-const TOOLBAR_BUTTON_WIDTH = 30;
+export const TOOLBAR_BUTTON_WIDTH = 30;
 
 
 type Mail = any;

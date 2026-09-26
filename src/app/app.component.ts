@@ -75,7 +75,7 @@ const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
-const TOOLBAR_LIST_BUTTON_WIDTH = 30;
+export const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
