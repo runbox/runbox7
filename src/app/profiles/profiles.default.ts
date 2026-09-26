@@ -20,7 +20,7 @@
 import { Component, Input } from '@angular/core';
 import { Identity, FromPriority, ProfileService } from './profile.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-profiles-default',

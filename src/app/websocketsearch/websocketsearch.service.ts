@@ -20,7 +20,7 @@
 import { Injectable } from '@angular/core';
 import { WebSocketSearchMailRow } from '../websocketsearch/websocketsearchmailrow.class';
 import { Subject, AsyncSubject } from 'rxjs';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { take } from 'rxjs/operators';
 
 @Injectable()

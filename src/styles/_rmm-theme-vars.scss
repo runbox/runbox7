@@ -35,7 +35,13 @@ $rmm-gray:                  #dddddd;
 $rmm-gray-light:            #eeeeee;
 $rmm-gray-lighter:          #f3f3f3;
 
-$rmm-default-theme: mat.define-light-theme($rmm-default-primary, $rmm-default-accent, $rmm-default-warn);
+$rmm-default-theme: mat.define-light-theme((
+  color: (
+    primary: $rmm-default-primary,
+    accent: $rmm-default-accent,
+    warn: $rmm-default-warn,
+  ),
+));
 
 $rmm-default-lighter-gray: #eeeeee;
 $rmm-default-light-gray: #f4f4f4;

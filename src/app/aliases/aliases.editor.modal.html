@@ -1,4 +1,4 @@
-<mat-card class="mat_card mat-elevation-z0 update create modal-card">
+<mat-card appearance="outlined" class="mat_card mat-elevation-z0 update create modal-card">
     <mat-card-header class="header">
         <mat-card-title class="header-title">
             <div *ngIf="isCreate">Create alias</div>
@@ -14,6 +14,7 @@
         <div mat-dialog-content>
             <form>
                 <mat-form-field style="margin: 10px; width: 40%;">
+                    <mat-label>Localpart</mat-label>
                     <input matInput placeholder="Localpart"
                         name="localpart"
                         [readonly]="!isCreate"
@@ -29,7 +30,7 @@
                         </mat-error>
                     </div>
                 </mat-form-field>
-                @
+                &#64;
                 <mat-form-field style="margin: 10px; width: 40%;">
                     <mat-label>Domain</mat-label>
                     <mat-select
@@ -48,6 +49,7 @@
                     </div>
                 </mat-form-field>
                 <mat-form-field style="margin: 10px; width: 45%;" *ngIf="!isCreate">
+                    <mat-label>Domain</mat-label>
                     <input matInput placeholder="Domain"
                         name="domain"
                         readonly
@@ -56,13 +58,14 @@
                     >
                 </mat-form-field>
                 <mat-form-field style="margin: 10px; width: 95%;">
+                    <mat-label>Deliver to account</mat-label>
                     <input matInput placeholder="Deliver to account"
                         name="forward_to"
                         [(ngModel)]="data.forward_to"
                         (ngModelChange)="onChangeField('forward_to')"
                     >
                     <mat-hint>
-                        ie. you@runbox.com
+                        ie. you&#64;runbox.com
                     </mat-hint>
                     <div *ngIf="fieldErrors && fieldErrors.forward_to">
                         <mat-error *ngFor="let error of fieldErrors.forward_to">

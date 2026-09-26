@@ -62,18 +62,22 @@
         <h3> Basic Information </h3>
         <div *ngIf="contact.kind !== kind.INVIDIDUAL">
             <mat-form-field>
+                <mat-label>Name</mat-label>
                 <input matInput formControlName="full_name" placeholder="Name">
             </mat-form-field>
         </div>
         <div *ngIf="contact.kind === kind.INVIDIDUAL">
             <div class="contact-details-row">
                 <mat-form-field>
+                    <mat-label>Nickname</mat-label>
                     <input matInput formControlName="nickname" placeholder="Nickname">
                 </mat-form-field>
                 <mat-form-field>
+                    <mat-label>First name</mat-label>
                     <input matInput formControlName="first_name" placeholder="First name">
                 </mat-form-field>
                 <mat-form-field>
+                    <mat-label>Last Name</mat-label>
                     <input matInput formControlName="last_name" placeholder="Last Name">
                 </mat-form-field>
                 <app-contact-details-multivalue-editor
@@ -86,14 +90,17 @@
             </div>
             <div class="contact-details-row">
                 <mat-form-field>
+                    <mat-label>Company</mat-label>
                     <input matInput formControlName="company" placeholder="Company">
                 </mat-form-field>
                 <mat-form-field>
+                    <mat-label>Department</mat-label>
                     <input matInput formControlName="department" placeholder="Department">
                 </mat-form-field>
             </div>
             <div class="contact-details-row">
                 <mat-form-field>
+                    <mat-label>Birthday</mat-label>
                     <input matInput formControlName="birthday" placeholder="Birthday">
                 </mat-form-field>
             </div>
