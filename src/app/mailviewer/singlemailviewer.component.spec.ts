@@ -19,7 +19,7 @@
 
 import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync, flush } from '@angular/core/testing';
 
-import { SingleMailViewerComponent } from './singlemailviewer.component';
+import { SingleMailViewerComponent, TOOLBAR_BUTTON_WIDTH } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -231,6 +231,37 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
+    }));
+
+  it('renders preview toolbar buttons at the morebuttonindex budget size', fakeAsync(() => {
+      component.messageId = 22;
+      const host: HTMLElement = fixture.nativeElement;
+      document.body.appendChild(host);
+      fixture.detectChanges();
+      tick(1);
+      fixture.detectChanges();
+
+      try {
+        const actionItems = host.querySelectorAll('.messageActionButtonsLeft .mat-mdc-icon-button, .messageActionButtonsRight .mat-mdc-icon-button');
+        const visibleItems = Array.from(actionItems)
+          .filter(item => getComputedStyle(item).display !== 'none');
+        expect(visibleItems.length).toBeGreaterThan(0);
+        expect(visibleItems.some(item => item.closest('.messageActionButtonsLeft'))).toBe(true);
+        for (const item of visibleItems) {
+          // Height shares the state-layer token; a width-only override leaves 44px height
+          expect(item.getBoundingClientRect().width).toBe(TOOLBAR_BUTTON_WIDTH);
+          expect(item.getBoundingClientRect().height).toBe(TOOLBAR_BUTTON_WIDTH);
+        }
+
+        // 48px invisible touch targets overlap at this pitch and steal clicks
+        const touchTargets = host.querySelectorAll('.messageActionButtonsLeft .mat-mdc-button-touch-target, .messageActionButtonsRight .mat-mdc-button-touch-target');
+        expect(touchTargets.length).toBe(actionItems.length);
+        for (const touchTarget of Array.from(touchTargets)) {
+          expect(getComputedStyle(touchTarget).display).toBe('none');
+        }
+      } finally {
+        document.body.removeChild(host);
+      }
     }));
 
   describe('mailto: link interceptor', () => {
