@@ -117,7 +117,7 @@
       </p>
       <mat-form-field style="margin-top: 10px;">
             <mat-label> modify which events? </mat-label>
-            <mat-select placeholder="All ocurrences" [(ngModel)]="recur_save_type" [disabled]="!change_save_type">
+            <mat-select placeholder="All occurrences" [(ngModel)]="recur_save_type" [disabled]="!change_save_type">
                 <mat-option *ngFor="let type of save_types" [value]="type.val" [disabled]="type.disabled">
                     {{ type.name }}
                 </mat-option>

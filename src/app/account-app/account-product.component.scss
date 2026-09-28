@@ -1,9 +1,16 @@
 
+:host {
+    // fill the grid cell so all cards in a stretched row share one height
+    display: flex;
+    flex-direction: column;
+}
+
 mat-card {
     min-height: 225px;
     padding: 20px;
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
 
     h4 {
         margin: 0;

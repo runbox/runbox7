@@ -88,7 +88,7 @@ export class EventEditorDialogComponent {
         { name: 'December',   val: '12',    selected: false },
     ];
     save_types = [
-        { name: 'All ocurrences',         val: RecurSaveType.ALL_OCCURENCES,  disabled: false },
+        { name: 'All occurrences',        val: RecurSaveType.ALL_OCCURENCES,  disabled: false },
         { name: 'This event only',        val: RecurSaveType.THIS_ONLY,       disabled: false },
         { name: 'This and future events', val: RecurSaveType.THIS_AND_FUTURE, disabled: false },
     ];

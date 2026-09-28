@@ -255,6 +255,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.canv = this.canvRef.nativeElement;
     this.ctx = this.canv.getContext('2d');
 
+    // webfonts often finish loading after the first paint; without this flag
+    // the list keeps rendering rows in the fallback font until the next redraw
+    document.fonts.ready.then(() => (this.hasChanges = true));
+
     this.canv.onwheel = (event: WheelEvent) => {
       event.preventDefault();
       switch (event.deltaMode) {

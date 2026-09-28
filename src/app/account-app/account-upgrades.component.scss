@@ -46,6 +46,9 @@
     margin-right: 2%;
     padding: 0;
     text-align: center;
+    // flex column so the pinned actions actually engage
+    display: flex;
+    flex-flow: column nowrap;
     mat-card-title {
         padding: 12px 0 8px 0;
         color: white;

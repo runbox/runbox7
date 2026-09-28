@@ -4,12 +4,12 @@
   <p style="flex-grow: 1">
 
   </p>
-  <button mat-icon-button 
-    [matTooltip]="yesOptionTitle" (click)="dialogRef.close(true)">
+  <button mat-icon-button
+    [matTooltip]="yesOptionTitle" [attr.aria-label]="yesOptionTitle" (click)="dialogRef.close(true)">
       <mat-icon svgIcon="check"></mat-icon>
   </button>
-  <button mat-icon-button 
-    (click)="dialogRef.close(false)" [matTooltip]="noOptionTitle">
+  <button mat-icon-button
+    (click)="dialogRef.close(false)" [matTooltip]="noOptionTitle" [attr.aria-label]="noOptionTitle">
     <mat-icon svgIcon="cancel"></mat-icon>
   </button>
 </div>
