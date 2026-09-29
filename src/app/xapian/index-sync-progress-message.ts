@@ -22,5 +22,5 @@ export function formatIndexSyncProgressMessage(
   targetMessageCount: number
 ): string {
   const progress = `${currentMessageCount}/${targetMessageCount}`;
-  return `Finalizing synchronization for maximum speed (${progress})`;
+  return `Synchronizing for maximum speed (${progress})`;
 }
