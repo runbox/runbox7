@@ -20,9 +20,9 @@
 import { formatIndexSyncProgressMessage } from './index-sync-progress-message';
 
 describe('index synchronization progress message', () => {
-  it('describes the finalization progress with the current and target counts', () => {
+  it('describes synchronization progress with the current and target counts', () => {
     expect(formatIndexSyncProgressMessage(23, 100)).toBe(
-      'Finalizing synchronization for maximum speed (23/100)'
+      'Synchronizing for maximum speed (23/100)'
     );
   });
 });
