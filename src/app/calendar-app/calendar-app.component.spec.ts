@@ -36,7 +36,6 @@ import { of, Observable, ReplaySubject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
-import { MatIcon } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
 import ICAL from 'ical.js';
@@ -71,8 +70,8 @@ describe('CalendarAppComponent', () => {
     const recurringEvents = [
         { 'id': 'test-calendar/recurring',
           'ical': new ICAL.Component(['vcalendar', [], [ [ 'vevent', [
-            [ 'dtstart', {}, 'date-time', moment().date(15).toISOString() ],
-              [ 'dtend', {}, 'date-time', moment().add(1, 'hour').date(15).toISOString() ],
+            [ 'dtstart', {}, 'date-time', moment().date(15).hour(12).minute(0).second(0).millisecond(0).toISOString() ],
+              [ 'dtend', {}, 'date-time', moment().date(15).hour(13).minute(0).second(0).millisecond(0).toISOString() ],
             [ 'summary', {}, 'text',      'Weekly Event #0' ],
             [ 'rrule',   {}, 'recur',     {'freq': 'WEEKLY'}     ],
           ]]]]).toString(),
