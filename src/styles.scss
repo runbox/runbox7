@@ -181,11 +181,6 @@ mat-form-field {
     transform-origin: left top !important;
 }
 
-/* Hide placeholder text — the mat-label handles the floating label */
-mat-form-field input::placeholder {
-    color: transparent !important;
-}
-
 /* Global input/select font sizing — MDC typography overrides the form-field font-size */
 mat-form-field input,
 mat-form-field textarea,

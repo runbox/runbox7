@@ -215,7 +215,7 @@
             <mat-label>Start typing to search messages</mat-label>
             <input matInput #searchInputField type="text"
                    (focus)="searchTextFieldFocus()"
-                   (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
+                   (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder"
                    [value]="searchText" (keyup)="searchFor($event.target.value)" matTooltip="Enter one or more search terms, or click the wrench to display the advanced search pane" />
             <!-- <app-search-expression-builder
                  [searchInputField]="searchInputField"

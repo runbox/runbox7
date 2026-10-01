@@ -1,11 +1,11 @@
 <div [formGroup]="formGroup" id="multipleSearchFieldsContainer" class="mat-mdc-form-field-compact">
   <mat-form-field id="allfieldsandcontent" floatLabel="auto">
     <mat-label>All fields</mat-label>
-    <input matInput formControlName="allfieldsandcontent" type="text" placeholder="All fields" matTooltip="Matches any part of the message" />
+    <input matInput formControlName="allfieldsandcontent" type="text" matTooltip="Matches any part of the message" />
   </mat-form-field>
   <mat-form-field floatLabel="auto">
     <mat-label>Date (YYYYMMDD)</mat-label>
-    <input matInput formControlName="date" type="text" placeholder="Date (YYYYMMDD)" matTooltip="Matches the year (YYYY), month (YYYYMM), or date (YYYYMMDD)" />
+    <input matInput formControlName="date" type="text" matTooltip="Matches the year (YYYY), month (YYYYMM), or date (YYYYMMDD)" />
   </mat-form-field>
   <button id="multipleSearchFieldsClose" mat-icon-button (click)="closePanel()" matTooltip="Close this pane">
     <mat-icon svgIcon="close"></mat-icon>
@@ -13,15 +13,15 @@
   <br />
   <mat-form-field floatLabel="auto">
     <mat-label>From</mat-label>
-    <input matInput formControlName="from" type="text" placeholder="From" matTooltip="Matches the From name or email address" />
+    <input matInput formControlName="from" type="text" matTooltip="Matches the From name or email address" />
   </mat-form-field>
   <mat-form-field floatLabel="auto">
     <mat-label>To</mat-label>
-    <input matInput formControlName="to" type="text" placeholder="To" matTooltip="Matches the To name or email address" />
+    <input matInput formControlName="to" type="text" matTooltip="Matches the To name or email address" />
   </mat-form-field>
   <mat-form-field floatLabel="auto">
     <mat-label>Subject</mat-label>
-    <input matInput formControlName="subject" type="text" placeholder="Subject" matTooltip="Matches the Subject field" />
+    <input matInput formControlName="subject" type="text" matTooltip="Matches the Subject field" />
   </mat-form-field>
   <a mat-icon-button target="_blank" id="multipleSearchFieldsHelp" href="https://help.runbox.com/runbox-7-webmail-new-features/#message-search">
     <mat-icon svgIcon="help-circle"></mat-icon>    

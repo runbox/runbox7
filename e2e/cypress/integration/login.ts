@@ -7,8 +7,8 @@ describe('Login', () => {
     }
 
     function enterCredentials() {
-        cy.get('input[placeholder=Username]').type('testuser');
-        cy.get('input[placeholder=Password]').type('testpassword');
+        cy.get('input[name=user]').type('testuser');
+        cy.get('input[name=password]').type('testpassword');
     }
 
     function clickLogin() {
@@ -44,7 +44,7 @@ describe('Login', () => {
         clickLogin();
 
         cy.get('mat-button-toggle:contains(TOTP)').click();
-        cy.get('input[placeholder="Timed one-time password"]').focus().type('123456');
+        cy.get('input[name=totp]').focus().type('123456');
         clickLogin();
 
         expectWebmail();

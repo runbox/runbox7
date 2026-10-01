@@ -10,22 +10,22 @@
     <p>
         <mat-form-field>
             <mat-label>Title</mat-label>
-            <input matInput type="text" placeholder="Title" [(ngModel)]="event_title">
+            <input matInput type="text" data-cy="event-title" [(ngModel)]="event_title">
         </mat-form-field>
     </p><p>
         <mat-form-field>
             <mat-label>Location</mat-label>
-            <input matInput type="text" placeholder="Location" [(ngModel)]="event_location">
+            <input matInput type="text" [(ngModel)]="event_location">
         </mat-form-field>
     </p><p>
         <mat-form-field>
             <mat-label>Description</mat-label>
-            <textarea matInput placeholder="Description" [(ngModel)]="event_description"></textarea>
+            <textarea matInput [(ngModel)]="event_description"></textarea>
         </mat-form-field>
     </p><p>
         <mat-form-field>
             <mat-label> Calendar </mat-label>
-            <mat-select placeholder="Calendar" [formControl]="calendarFC" required>
+            <mat-select [formControl]="calendarFC" required>
                 <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
                     {{ calendar.toString() }}
                 </mat-option>

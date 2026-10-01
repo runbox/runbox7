@@ -15,7 +15,7 @@
             <form>
                 <mat-form-field style="margin: 10px; width: 40%;">
                     <mat-label>Localpart</mat-label>
-                    <input matInput placeholder="Localpart"
+                    <input matInput
                         name="localpart"
                         [readonly]="!isCreate"
                         [(ngModel)]="data.localpart"
@@ -50,7 +50,7 @@
                 </mat-form-field>
                 <mat-form-field style="margin: 10px; width: 45%;" *ngIf="!isCreate">
                     <mat-label>Domain</mat-label>
-                    <input matInput placeholder="Domain"
+                    <input matInput
                         name="domain"
                         readonly
                         [(ngModel)]="data.domain"
@@ -59,7 +59,7 @@
                 </mat-form-field>
                 <mat-form-field style="margin: 10px; width: 95%;">
                     <mat-label>Deliver to account</mat-label>
-                    <input matInput placeholder="Deliver to account"
+                    <input matInput
                         name="forward_to"
                         [(ngModel)]="data.forward_to"
                         (ngModelChange)="onChangeField('forward_to')"

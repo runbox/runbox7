@@ -21,7 +21,7 @@
         <form>
             <mat-form-field class="form-field form-item">
                 <mat-label>From Name</mat-label>
-                <input matInput placeholder="From Name" name="from" [(ngModel)]="identity.from_name"
+                <input matInput name="from" [(ngModel)]="identity.from_name"
                     (ngModelChange)="onchange_field('from_name')" />
                 <div *ngIf="field_errors && field_errors.from_name">
                     <mat-hint> ie. James Bond </mat-hint>
@@ -47,7 +47,7 @@
             <ng-template #other_content>
                 <mat-form-field class="form-field form-item">
                     <mat-label>Email</mat-label>
-                    <input matInput placeholder="Email" [ngStyle]="get_form_field_style()" name="email"
+                    <input matInput [ngStyle]="get_form_field_style()" name="email"
                         [readonly]="( identity && (identity.type === 'aliases' || identity.type === 'main' ))"
                         [(ngModel)]="identity.email" (ngModelChange)="onchange_field('email')" />
                     <div *ngIf="field_errors && field_errors.email">
@@ -63,7 +63,7 @@
 
             <mat-form-field class="form-field form-item">
                 <mat-label>Description</mat-label>
-                <input matInput placeholder="Description" name="name" [(ngModel)]="identity.name"
+                <input matInput name="name" [(ngModel)]="identity.name"
                     (ngModelChange)="onchange_field('name')" />
                 <div *ngIf="field_errors && field_errors.name">
                     <mat-hint> ie. My main identity </mat-hint>
@@ -82,7 +82,7 @@
 
             <mat-form-field class="form-field form-item" *ngIf="is_different_reply_to">
                 <mat-label>Reply-to</mat-label>
-                <input matInput placeholder="Reply-to" name="reply_to" [(ngModel)]="identity.reply_to"
+                <input matInput name="reply_to" [(ngModel)]="identity.reply_to"
                     (ngModelChange)="onchange_field('reply_to')" />
                 <div *ngIf="field_errors && field_errors.reply_to">
                     <mat-hint>ie. noreply&#64;runbox.com</mat-hint>
@@ -94,7 +94,7 @@
 
             <mat-form-field class="signature form-item">
                 <mat-label>Signature</mat-label>
-                <textarea matInput placeholder="Signature" [id]="selector" name="signature"
+                <textarea matInput [id]="selector" name="signature"
                     [(ngModel)]="identity.signature" (ngModelChange)="onchange_field('signature')"></textarea>
                 <div *ngIf="field_errors && field_errors.signature">
                     <mat-hint>

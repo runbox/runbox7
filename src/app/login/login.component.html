@@ -21,11 +21,11 @@
 	    <p>Log in below or <a routerLink="/signup" [queryParams]="{ runbox7: 1 }" class="login-link">create a new account</a>.</p>
 	    <mat-form-field>
 	      <mat-label>Username</mat-label>
-          <input matInput autocomplete="email" placeholder="Username" name="user" type="email" inputmode="email" autofocus ngModel required />
+          <input matInput autocomplete="email" name="user" type="email" inputmode="email" autofocus ngModel required />
 	    </mat-form-field>
 	    <mat-form-field>
 	      <mat-label>Password</mat-label>
-          <input matInput autocomplete="current-password" placeholder="Password" type="password" name="password" ngModel required />
+          <input matInput autocomplete="current-password" type="password" name="password" ngModel required />
         </mat-form-field>
         <div *ngIf='login_error_html' [innerHTML]="login_error_html" class='login_error_html'></div>
 	    <button [disabled]="loginForm.invalid" mat-raised-button color="primary" type="submit" id="loginButton">Log in</button>
@@ -81,7 +81,7 @@
               <br />
               <mat-form-field>
 		<mat-label>Timed one-time password</mat-label>
-		<input matInput placeholder="Timed one-time password" name="totp" id="totp" inputmode="numeric" ngModel />
+		<input matInput name="totp" id="totp" inputmode="numeric" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
@@ -92,7 +92,7 @@
               <br />
               <mat-form-field>
 		<mat-label>One-time password</mat-label>
-		<input matInput placeholder="One-time password" name="otp" id="otp" ngModel />
+		<input matInput name="otp" id="otp" ngModel />
               </mat-form-field>
 	      <button mat-raised-button color="primary" type="submit">Log in</button>
 	      <br />
@@ -103,7 +103,7 @@
               <br />
               <mat-form-field style="width: 100%">
 		<mat-label>Unlock code</mat-label>
-		<input matInput type="password" placeholder="Unlock code" name="unlock_code" ngModel />
+		<input matInput type="password" name="unlock_code" ngModel />
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit">Unlock</button>
             </ng-container>

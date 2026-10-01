@@ -17,7 +17,7 @@ describe('Composing emails', () => {
         cy.visit('/compose?new=true');
         cy.wait('@listAllmessages', {'timeout':10000});
         cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
-        cy.focused().should('have.attr', 'placeholder', 'To');
+        cy.get('#fieldTo input').should('be.focused');
     });
 
     it('should update action bar text to subject', () => {
@@ -27,7 +27,7 @@ describe('Composing emails', () => {
         cy.wait('@listAllmessages', {'timeout':10000});
 
         cy.get('mat-card-actions div', {'timeout':10000}).should('contain', 'New message');
-        cy.get('input[placeholder="Subject"]').type('Email about Subject X');
+        cy.get('#fieldSubject input').type('Email about Subject X');
         cy.get('mat-card-actions div').should('contain', 'Subject X');
     });
 
@@ -155,7 +155,7 @@ describe('Composing emails', () => {
 
     it('should show a save template button and save on click', () => {
         cy.visit('/compose?new=true');
-        cy.get('input[placeholder="Subject"]').type('Template subject here');
+        cy.get('#fieldSubject input').type('Template subject here');
         cy.get('button[mattooltip="Save as template"').click();
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq('/compose');

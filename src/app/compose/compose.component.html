@@ -36,7 +36,7 @@
     <mat-card-subtitle>
         <mat-form-field floatLabel="always" *ngIf="editing" style="width: 100%" id="fieldFrom">
             <mat-label>From</mat-label>
-            <mat-select placeholder="From" formControlName="from">
+            <mat-select formControlName="from">
                 <mat-option *ngFor="let from of draftDeskservice.fromsSubject.value" [value]="from.nameAndAddress">
                     {{from.nameAndAddress}}
                 </mat-option>
@@ -104,7 +104,7 @@
     <mat-card-content>
         <mat-form-field *ngIf="editing" floatLabel="auto" id="fieldSubject">
             <mat-label>Subject</mat-label>
-            <input matInput placeholder="Subject" name="subject" formControlName="subject" />
+            <input matInput name="subject" formControlName="subject" />
         </mat-form-field>
         <section *ngIf="editing" [ngClass]="{'dropzonehighlight': showDropZone, 'overdropzone': draggingOverDropZone}" (dragover)="draggingOverDropZone=true" (dragleave)="draggingOverDropZone=false" (drop)="dropFiles($event)" id="dropZone">
           <h1 *ngIf="showDropZone" id="dropZoneText">Drop files here</h1>
@@ -155,7 +155,6 @@
             <mat-label>Message text</mat-label>
             <textarea
                #messageTextArea
-               placeholder="Message text"
                matInput
                formControlName="msg_body"
                rows="20"

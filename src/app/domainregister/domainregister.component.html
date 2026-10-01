@@ -135,7 +135,7 @@
                                   <td colspan="3">
                                     <mat-form-field style="width: 100%">
                                         <mat-label>Domain</mat-label>
-                                        <input matInput disabled placeholder="Domain" [value]="selected_domain.name">
+                                        <input matInput disabled [value]="selected_domain.name">
                                     </mat-form-field>
                                   </td>
                               </tr>
@@ -143,7 +143,7 @@
                                   <td colspan="3">
                                     <mat-form-field style="width: 100%">
                                         <mat-label>Registered date</mat-label>
-                                        <input matInput disabled placeholder="Registred date" [value]='selected_domain.created'>
+                                        <input matInput disabled [value]='selected_domain.created'>
                                     </mat-form-field>
                                   </td>
                               </tr>
@@ -151,7 +151,7 @@
                                   <td>
                                     <mat-form-field>
                                         <mat-label>Expiration date</mat-label>
-                                        <input matInput placeholder="Expiration date" [value]='selected_domain.expires'>
+                                        <input matInput [value]='selected_domain.expires'>
                                     </mat-form-field>
                                   </td>
                                   <td>
@@ -233,7 +233,7 @@
                                               <td>
                                                   <mat-form-field>
                                                       <mat-label>Address</mat-label>
-                                                      <input matInput placeholder="Address '{{element.type}}'" [(ngModel)]="element.address">
+                                                      <input matInput [(ngModel)]="element.address">
                                                   </mat-form-field>
                                               </td>
                                           </tr>
@@ -243,7 +243,7 @@
                                               <td>
                                                   <mat-form-field>
                                                       <mat-label>CNAME</mat-label>
-                                                      <input matInput placeholder="Cname" [(ngModel)]='element.cname'>
+                                                      <input matInput [(ngModel)]='element.cname'>
                                                   </mat-form-field>
                                               </td>
                                           </tr>
@@ -253,7 +253,7 @@
                                               <td>
                                                   <mat-form-field>
                                                       <mat-label>NS Name</mat-label>
-                                                      <input matInput placeholder="Nsdname" [(ngModel)]='element.nsdname'>
+                                                      <input matInput [(ngModel)]='element.nsdname'>
                                                   </mat-form-field>
                                               </td>
                                           </tr>
@@ -269,13 +269,13 @@
                                               <td>
                                                   <mat-form-field style="">
                                                       <mat-label>Exchange</mat-label>
-                                                      <input matInput placeholder="Exchange" [(ngModel)]='element.exchange'>
+                                                      <input matInput [(ngModel)]='element.exchange'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="width: 40px">
                                                       <mat-label>Preference</mat-label>
-                                                      <input matInput placeholder="Preference" [(ngModel)]='element.preference'>
+                                                      <input matInput [(ngModel)]='element.preference'>
                                                   </mat-form-field>
                                               </td>
                                           </tr>
@@ -285,25 +285,25 @@
                                               <td>
                                                   <mat-form-field style="width: 40px">
                                                       <mat-label>Priority</mat-label>
-                                                      <input matInput placeholder="Priority" [(ngModel)]='element.priority'>
+                                                      <input matInput [(ngModel)]='element.priority'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="width: 40px">
                                                       <mat-label>Weight</mat-label>
-                                                      <input matInput placeholder="Weight" [(ngModel)]='element.weight'>
+                                                      <input matInput [(ngModel)]='element.weight'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="width: 40px">
                                                       <mat-label>Port</mat-label>
-                                                      <input matInput placeholder="Port" [(ngModel)]='element.port'>
+                                                      <input matInput [(ngModel)]='element.port'>
                                                   </mat-form-field>
                                               </td>
                                               <td>
                                                   <mat-form-field style="">
                                                       <mat-label>Target</mat-label>
-                                                      <input matInput placeholder="Target" [(ngModel)]='element.target'>
+                                                      <input matInput [(ngModel)]='element.target'>
                                                   </mat-form-field>
                                               </td>
                                           </tr>
@@ -313,7 +313,7 @@
                                               <td>
                                                   <mat-form-field>
                                                       <mat-label>TXT</mat-label>
-                                                      <input matInput placeholder="TXT" [(ngModel)]='element.txtdata'>
+                                                      <input matInput [(ngModel)]='element.txtdata'>
                                                   </mat-form-field>
                                               </td>
                                           </tr>
@@ -627,7 +627,6 @@
                                     <mat-label>{{doc.label}}{{doc.sublabel ? ' ' + doc.sublabel : ''}}</mat-label>
                                     <input
                                         matInput
-                                        [placeholder]="doc.label + (doc.sublabel ? ' ' + doc.sublabel + '' : '' )"
                                         [name]="doc.field"
                                         [(ngModel)]="doc.value"
                                         (ngModelChange)="update_specific_doc_value($event, doc)"
@@ -733,10 +732,8 @@
                             <mat-label>{{doc.description}}</mat-label>
                             <div>
                                 <input
-                                    *ngIf="doc.type === 'text'" 
-                                    matInput 
-                                    placeholder="" 
-                                    [placeholder]="doc.description" 
+                                    *ngIf="doc.type === 'text'"
+                                    matInput
                                     [name]="doc.name"
                                     [(ngModel)]="doc.value"
                                     (ngModelChange)="update_specific_doc_value($event, doc)"
@@ -861,7 +858,7 @@
                     <div class="example-header" style="display: none">
                       <mat-form-field >
                         <mat-label>Filter</mat-label>
-                        <input matInput (keyup)="applyFilterTLD($event.target.value)" placeholder="Filter">
+                        <input matInput (keyup)="applyFilterTLD($event.target.value)">
                       </mat-form-field>
                     </div>
                     <mat-table #table [dataSource]="dataSourceTld" style='max-height: 500px; overflow-y: scroll;'>
