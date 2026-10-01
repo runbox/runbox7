@@ -60,7 +60,7 @@
     </h2>
     <form [formGroup]="contactForm">
         <h3> Basic Information </h3>
-        <div *ngIf="contact.kind !== kind.INVIDIDUAL">
+        <div class="contact-details-row" *ngIf="contact.kind !== kind.INVIDIDUAL">
             <mat-form-field>
                 <mat-label>Name</mat-label>
                 <input matInput formControlName="full_name">
