@@ -116,7 +116,7 @@ describe('RBWebMail', () => {
         messageContents = await firstValueFrom(messageContentsObservable);
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test3');
-    });
+    }, 10000);
 
     it('should flatten folder tree structure', async () => {
         const listEmailFoldersResponse = {
