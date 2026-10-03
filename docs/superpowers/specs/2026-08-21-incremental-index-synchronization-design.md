@@ -3,7 +3,7 @@
 **Date:** 2026-08-21
 **Issue:** [#1158 — Populate message list index incrementally](https://github.com/runbox/runbox7/issues/1158)
 **Scope:** Runbox 7 frontend initial local-index synchronization
-**Status:** Approved design
+**Status:** Approved design; reliability revision pending written review
 
 ## Problem
 
@@ -65,6 +65,9 @@ mutate synchronization flags.
 
 ### SearchService
 
+- Own one operation-scoped lifecycle object with durable cancellation state and a completion signal.
+- Wait for a distinct fresh-initialization readiness promise before accessing Xapian or IDBFS; do
+  not reuse the stored-index discovery result as initialization readiness.
 - Create a unique operation ID.
 - Fetch, validate, normalize, and total the partition manifest.
 - Download partition `0` through the existing main-index endpoint.
@@ -74,10 +77,14 @@ mutate synchronization flags.
 - Download historical partitions `1` through `N` in numerical order.
 - Request final reconciliation and wait for completion.
 - Publish a single synchronization-state stream to the UI.
+- Serialize every main-thread populate, Xapian reopen, and acknowledged publication through one
+  publication queue. Legacy worker events must not bypass this queue during an initial operation.
 
 ### Index Worker
 
 - Open partition `0` and acknowledge readiness after IDBFS and Xapian initialization.
+- Report every IndexedDB lookup, IDBFS population, and Xapian-open outcome as exactly one typed
+  success or failure event for the active operation.
 - Fetch recent database messages in 1,000-message pages.
 - Normalize each page to descending message ID.
 - Divide each page into ordered 100-message publication batches.
@@ -85,6 +92,8 @@ mutate synchronization flags.
 - Keep the initial catch-up watermark provisional until final reconciliation succeeds.
 - Emit typed success, failure, cancellation, and progress events.
 - Resume normal periodic synchronization only after initial synchronization completes.
+- Serialize persistence and mutation work under one guarded queue that rejects queued callers and
+  returns to an idle state after any failure.
 
 ### AppComponent
 
@@ -126,6 +135,11 @@ totalBytes
 error
 ```
 
+`error` is either `null` or structured failure metadata containing the operation ID, phase, page or
+partition when applicable, attempt, category, recoverability, and a user-safe message. Failure
+categories distinguish transient transport failures from initialization, persistence, validation,
+publication, cancellation-cleanup, and corruption failures.
+
 State describes user-relevant progress and does not expose raw Worker, IDBFS, or Xapian objects.
 
 ## Worker Protocol
@@ -151,6 +165,10 @@ recentCatchUpComplete
 recentCatchUpFailed
 initialSyncCancelled
 ```
+
+Every command receives either one terminal success event or one typed failure event. IndexedDB
+request errors, Xapian-open exceptions, worker crashes, and persistence rejection must all settle
+the corresponding main-thread request; no request may remain pending indefinitely.
 
 A delayed event whose operation ID does not match the active operation is ignored.
 
@@ -210,6 +228,11 @@ Keep the database-backed list visible until either:
 Synchronize and reload the main-thread read-only Xapian view before cutover. Switch once. Later
 batch acknowledgements reload and redraw without scrolling to the top.
 
+All cutover and redraw publications use one main-thread queue. While an initial operation is active,
+legacy `indexUpdated` notifications are coalesced into that queue and cannot independently populate
+IDBFS or close and reopen Xapian. Opening historical partitions is strict in acknowledged
+publication paths: any open failure rejects publication and activates the database-list fallback.
+
 The visible list uses the existing global Xapian sort. With Date descending, messages appear in
 their correct visible chronological positions even when header date and message ID differ.
 
@@ -223,6 +246,13 @@ available.
 Preserve the current user choice about downloading optional historical data. Declining additional
 history retains partition `0` and recent database synchronization; it does not cancel local index
 use.
+
+Replacing an existing historical partition is transactional. Rename the existing final partition
+to an operation-specific backup, persist that backup state, promote and persist the replacement,
+and open the replacement in both worker and main-thread views. Delete the backup only after both
+views acknowledge success. On any promotion, persistence, worker-open, or main-thread-open failure,
+remove the replacement, restore and persist the backup, and reopen the restored partition before
+reporting failure.
 
 ### 8. Reconcile and finalize
 
@@ -265,6 +295,11 @@ recoverable
 
 Logs and state must not contain subjects, addresses, message bodies, or other message content.
 
+Retry only failures categorized as transient transport failures. Validation, persistence,
+filesystem, Xapian-open, publication, corruption, and rollback failures terminate the current
+attempt immediately. Retry delay is cancellation-aware and rechecks the durable cancellation token
+before invoking another dependency.
+
 ### Before cutover
 
 Manifest, main download, worker opening, or first catch-up failure leaves the database-backed list
@@ -280,8 +315,9 @@ advance the watermark or report completion.
 Keep partition `0`, recent messages, and previously completed historical partitions available.
 Retry the failed partition rather than restarting the operation.
 
-Download files into an operation-specific temporary directory. Promote the directory to its final
-partition name only after every file arrives and the partition opens successfully.
+Download files into an operation-specific temporary directory. Preserve any existing final
+partition as a rollback backup until every replacement file is persisted and the partition opens
+successfully in both views.
 
 ### Final reconciliation failure
 
@@ -298,14 +334,29 @@ synchronization completes.
 
 ## Cancellation
 
-- Overall initial-sync cancellation preserves existing behavior: complete or roll back the current
-  atomic operation, delete the newly created local index, and keep the database-backed list.
+- Overall initial-sync cancellation is durable for the lifetime of the operation. Every phase checks
+  the same operation-scoped token before and after dependency calls.
+- Cancellation closes any open history-confirmation dialog, aborts main-thread HTTP requests,
+  requests cancellation of worker HTTP activity, interrupts retry delay, and prevents another
+  dependency call from starting.
+- Complete or roll back the current atomic operation, delete the newly created local index, and keep
+  the database-backed list.
 - Declining optional historical download retains the usable recent local index.
 - The worker checks cancellation between 100-message batches.
 - The current batch finishes and persists before `initialSyncCancelled` is emitted.
 - Cancellation invalidates the operation ID so delayed events cannot advance state.
 - In-flight partition requests are unsubscribed or aborted.
 - Operation-specific temporary files are removed.
+- Publish `cancelled` only after cleanup succeeds. Cleanup failure produces a terminal recoverable
+  cancellation-cleanup failure and must not claim that rollback succeeded.
+
+## Progress Accounting
+
+Download progress uses decoded response-body bytes for both `downloadedBytes` and `totalBytes`.
+Manifest uncompressed sizes provide totals; compressed sizes remain available for the optional
+history download estimate. Progress is monotonic across retries: an attempt reports its local bytes
+against a durable high-water offset and cannot overwrite a greater committed value from an earlier
+attempt.
 
 ## Testing Strategy
 
@@ -351,6 +402,16 @@ commit, persist, and event functions.
 - Never promote a partial historical partition.
 - Retain recent synchronization when optional history is declined.
 - Return to the database list after a local-index query failure.
+- Wait for fresh initialization instead of replaying the no-index discovery result.
+- Settle worker opening on IndexedDB lookup, IDBFS, and Xapian failures.
+- Restore an existing historical partition after replacement failure.
+- Report cancellation cleanup failure instead of `cancelled`.
+- Drain and reset mutation waiters after persistence rejection.
+- Reject acknowledged publication when a historical partition cannot open.
+- Cancel during the history dialog and retry delay without starting later work.
+- Prevent legacy publication from racing an acknowledged initial publication.
+- Retry transient transport failures only.
+- Keep byte and message progress monotonic across retries.
 
 ### Integration test
 
@@ -417,6 +478,14 @@ Before any PR is opened:
 - The watermark advances only after final reconciliation.
 - Optional-history decline retains a usable recent local index.
 - Failures and cancellation cannot be mistaken for successful completion.
+- Fresh-profile filesystem access waits for completed initialization.
+- Every worker-open request settles with one typed success or failure event.
+- Replacing historical data either commits the new partition or restores the previous partition.
+- Persistence failure releases the worker mutation queue and reports failure.
+- Initial and legacy publication cannot close, populate, or reopen the same view concurrently.
+- Only transient transport failures are retried.
+- Cancellation remains observable across dialogs, network activity, and retry delays.
+- Download progress uses one byte domain and never regresses across retries.
 - Stale worker events cannot advance a newer operation.
 - All new behavior has active red/green unit coverage.
 - The full project test suite passes before PR review.
