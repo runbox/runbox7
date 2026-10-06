@@ -22,6 +22,8 @@ import {
   IndexSyncCoordinatorDependencies
 } from './index-sync-coordinator';
 import {
+  IndexSyncError,
+  IndexSyncFailureCategory,
   NormalizedIndexManifest,
   NormalizedIndexPartition,
   RecentChunkCommittedEvent
@@ -383,7 +385,16 @@ describe('IndexSyncCoordinator', () => {
       catchUpRecent: async () => {
         attempts++;
         if (attempts < 4) {
-          throw new Error('temporary transport failure');
+          throw new IndexSyncError({
+            operationId: 'sync-1',
+            phase: 'catching-up-recent',
+            page: null,
+            partition: null,
+            attempt: attempts,
+            category: 'transport',
+            recoverable: true,
+            message: 'Temporary transport failure'
+          });
         }
         return {
           fetchedMessages: 0,
@@ -398,9 +409,102 @@ describe('IndexSyncCoordinator', () => {
 
     await coordinator.start();
 
-    expect(attempts).toBe(5);
+    expect(attempts).toBe(4);
     expect(delays).toEqual([1000, 2000, 4000]);
     expect(coordinator.state.value.phase).toBe('complete');
+  });
+
+  ([
+    'persistence',
+    'validation',
+    'corruption',
+    'publication',
+    'rollback'
+  ] as IndexSyncFailureCategory[]).forEach(category => {
+    it(`does not retry ${category} failures`, async () => {
+      let attempts = 0;
+      const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+        catchUpRecent: async () => {
+          attempts++;
+          throw new IndexSyncError({
+            operationId: 'sync-1',
+            phase: 'catching-up-recent',
+            page: null,
+            partition: null,
+            attempt: attempts,
+            category,
+            recoverable: false,
+            message: `Unable to continue after ${category} failure`
+          });
+        }
+      }));
+
+      await coordinator.start();
+
+      expect(attempts).toBe(1);
+      expect(coordinator.state.value.error).toEqual(jasmine.objectContaining({
+        operationId: 'sync-1',
+        phase: 'catching-up-recent',
+        attempt: 1,
+        category,
+        recoverable: false
+      }));
+    });
+  });
+
+  it('does not retry a transport failure marked unrecoverable', async () => {
+    let attempts = 0;
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async () => {
+        attempts++;
+        throw new IndexSyncError({
+          operationId: 'sync-1',
+          phase: 'catching-up-recent',
+          page: null,
+          partition: null,
+          attempt: attempts,
+          category: 'transport',
+          recoverable: false,
+          message: 'Transport request cannot be retried'
+        });
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(attempts).toBe(1);
+  });
+
+  it('preserves the greatest durable progress across retry attempts', async () => {
+    let attempts = 0;
+    const observedBytes: number[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      downloadHistoricalPartition: async (_indexPartition, onProgress) => {
+        attempts++;
+        onProgress(attempts === 1 ? 80 : 10);
+        if (attempts === 1) {
+          throw new IndexSyncError({
+            operationId: 'sync-1',
+            phase: 'downloading-history',
+            page: null,
+            partition: 1,
+            attempt: attempts,
+            category: 'transport',
+            recoverable: true,
+            message: 'History download interrupted'
+          });
+        }
+      },
+      shouldDownloadHistoricalPartition: async indexPartition => indexPartition.number === 1
+    }));
+    coordinator.state.subscribe(state => observedBytes.push(state.downloadedBytes));
+
+    await coordinator.start();
+
+    expect(observedBytes.every((value, index) =>
+      index === 0 || value >= observedBytes[index - 1]
+    )).toBeTrue();
+    expect(coordinator.state.value.downloadedBytes).toBe(80);
   });
 
   it('does not restart message fetching when local publication fails', async () => {
@@ -433,9 +537,14 @@ describe('IndexSyncCoordinator', () => {
     await coordinator.start();
 
     expect(coordinator.state.value.phase).toBe('failed');
-    expect(coordinator.state.value.error).toBe(
-      'Unable to synchronize the local search index'
-    );
+    expect(coordinator.state.value.error).toEqual(jasmine.objectContaining({
+      operationId: 'sync-1',
+      phase: 'discovering',
+      attempt: 1,
+      category: 'validation',
+      recoverable: false,
+      message: 'Unable to synchronize the local search index'
+    }));
   });
 
   it('retries a failed historical partition without restarting earlier phases', async () => {
@@ -444,7 +553,16 @@ describe('IndexSyncCoordinator', () => {
       downloadHistoricalPartition: async indexPartition => {
         attempts.push(indexPartition.number);
         if (indexPartition.number === 1 && attempts.length === 1) {
-          throw new Error('temporary partition failure');
+          throw new IndexSyncError({
+            operationId: 'sync-1',
+            phase: 'downloading-history',
+            page: null,
+            partition: indexPartition.number,
+            attempt: 1,
+            category: 'transport',
+            recoverable: true,
+            message: 'Temporary partition failure'
+          });
         }
       }
     }));
