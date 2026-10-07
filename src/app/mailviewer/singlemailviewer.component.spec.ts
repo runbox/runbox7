@@ -231,6 +231,24 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('shows the current HTML message when always show HTML is saved', () => {
+    const preferencesService = TestBed.inject(PreferencesService);
+    spyOn(preferencesService, 'set');
+
+    component.mailContentHTML = '<p>HTML body</p>';
+    component.showHTML = false;
+    component.savedAlways = false;
+    component.savedForThisSender = true;
+    component.showHTMLDecision = 'alwaysshowhtml';
+
+    component.saveShowHTMLDecision();
+
+    expect(preferencesService.set).toHaveBeenCalled();
+    expect(component.showHTML).toBeTrue();
+    expect(component.savedAlways).toBeTrue();
+    expect(component.savedForThisSender).toBeFalse();
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;

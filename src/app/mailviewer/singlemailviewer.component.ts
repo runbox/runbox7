@@ -670,6 +670,13 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     } else {
       this.preferenceService.remove(this.preferenceService.prefGroup, showHtmlDecisionKey);
     }
+    if (this.showHTMLDecision === 'alwaysshowhtml' && this.mailContentHTML) {
+      this.showHTML = true;
+      this.savedAlways = true;
+      this.savedForThisSender = false;
+    } else {
+      this.savedAlways = false;
+    }
   }
 
   saveShowImagesDecision() {
