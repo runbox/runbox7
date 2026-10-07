@@ -6,6 +6,16 @@
   "display": "standalone",
   "scope": "/app/",
   "start_url": "/app/",
+  "share_target": {
+    "action": "/app/compose",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "share-title",
+      "text": "share-text",
+      "url": "share-url"
+    }
+  },
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",
