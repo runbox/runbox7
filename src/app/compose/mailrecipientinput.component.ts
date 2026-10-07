@@ -35,9 +35,11 @@ const COMMA = 188;
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'mailrecipient-input',
-    templateUrl: 'mailrecipientinput.component.html'
+    templateUrl: 'mailrecipientinput.component.html',
+    styleUrls: ['mailrecipientinput.component.scss']
 })
 export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
+    autocompletePanelWidth = 'min(95vw, 520px)';
     filteredRecipients: BehaviorSubject<Recipient[]> = new BehaviorSubject([]);
 
     searchTextFormControl: UntypedFormControl = new UntypedFormControl();

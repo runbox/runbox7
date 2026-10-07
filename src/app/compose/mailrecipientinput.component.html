@@ -1,10 +1,10 @@
-<mat-form-field style="width: 100%" floatPlaceholder="auto">
-    <mat-chip-list #chipList>
+<mat-form-field class="recipient-field" floatPlaceholder="auto">
+    <mat-chip-list #chipList class="recipient-chip-list">
         <mat-chip *ngFor="let recipient of recipientsList; let ndx=index" [selectable]="selectable"
-                style="background-color: #e3f2fd;"
+                class="recipient-chip"
                 [removable]="true" 
                 (removed)="removeRecipient(ndx)">        
-                {{recipient.nameAndAddress}}
+                <span class="recipient-chip-label">{{recipient.nameAndAddress}}</span>
                 <mat-icon matChipRemove svgIcon="close"></mat-icon>
         </mat-chip>
         <input #searchTextInput [formControl]="searchTextFormControl" [placeholder]="placeholder" 
@@ -13,7 +13,7 @@
                 [matChipInputAddOnBlur]="false"
                 (blur)="addRecipientFromBlur()"
                 (matChipInputTokenEnd)="addRecipientFromEnter($event)" 
-                [matAutocomplete]="auto" style="flex-grow: 1" 
+                [matAutocomplete]="auto" class="recipient-search-input"
                 type="email"
             />
         <mat-error *ngIf="invalidemail">
@@ -21,8 +21,8 @@
         </mat-error>        
     </mat-chip-list>
 </mat-form-field>
-<mat-autocomplete #auto="matAutocomplete" (optionSelected)="addRecipientFromAutoComplete($event.option.value)">
-    <mat-option *ngFor="let recipient of filteredRecipients | async" [value]="recipient">
-        {{ recipient.name }}
+<mat-autocomplete #auto="matAutocomplete" [panelWidth]="autocompletePanelWidth" (optionSelected)="addRecipientFromAutoComplete($event.option.value)">
+    <mat-option *ngFor="let recipient of filteredRecipients | async" [value]="recipient" class="recipient-option">
+        <span class="recipient-option-label">{{ recipient.name }}</span>
     </mat-option>
 </mat-autocomplete>
