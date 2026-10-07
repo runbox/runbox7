@@ -18,11 +18,11 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, OnInit } from '@angular/core';
-import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMMOfflineService } from '../rmmapi/rmmoffline.service';
 import { Router } from '@angular/router';
 import { LogoutService } from '../login/logout.service';
-import { RunboxMe } from '../rmmapi/rbwebmail';
+import { FolderMessageCountMap, MessageListService } from '../rmmapi/messagelist.service';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -34,15 +34,20 @@ export class HeaderToolbarComponent implements OnInit {
     rmm6tooltip = 'This area isn\'t upgraded to Runbox 7 yet and will open in a new tab';
     user_is_trial = false;
     isMainAccount: boolean;
+    mailUnreadCount = 0;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
         public rmmoffline: RMMOfflineService,
         private router: Router,
-        public logoutservice: LogoutService
+        public logoutservice: LogoutService,
+        messagelistservice: MessageListService
     ) {
          rmmapi.me.subscribe((me: RunboxMe) => {
          this.isMainAccount = !me.owner;
+        });
+        messagelistservice.folderMessageCountSubject.subscribe(counts => {
+            this.mailUnreadCount = this.sumUnreadMail(counts);
         });
     }
 
@@ -62,5 +67,25 @@ export class HeaderToolbarComponent implements OnInit {
 
     public contacts() {
         this.router.navigate(['contacts']);
+    }
+
+    get mailMenuAriaLabel(): string {
+        if (this.mailUnreadCount === 0) {
+            return 'Mail';
+        }
+
+        const messageLabel = this.mailUnreadCount === 1 ? 'message' : 'messages';
+        return `Mail, ${this.mailUnreadCount} unread ${messageLabel}`;
+    }
+
+    private sumUnreadMail(counts: FolderMessageCountMap): number {
+        if (!counts) {
+            return 0;
+        }
+
+        return Object.keys(counts).reduce((total, folder) => {
+            const unread = counts[folder]?.unread || 0;
+            return total + (unread > 0 ? unread : 0);
+        }, 0);
     }
 }
