@@ -379,18 +379,27 @@ describe('IndexSyncCoordinator', () => {
   });
 
   it('retries transient recent synchronization failures with bounded backoff', async () => {
-    let attempts = 0;
+    let recentAttempts = 0;
+    let reconciliationAttempts = 0;
     const delays: number[] = [];
     const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
-      catchUpRecent: async () => {
-        attempts++;
-        if (attempts < 4) {
+      catchUpRecent: async (_baseline, finalizeWatermark) => {
+        if (finalizeWatermark) {
+          reconciliationAttempts++;
+          return {
+            fetchedMessages: 0,
+            committedMessages: 0,
+            watermarkCandidate: 2000
+          };
+        }
+        recentAttempts++;
+        if (recentAttempts < 4) {
           throw new IndexSyncError({
             operationId: 'sync-1',
             phase: 'catching-up-recent',
             page: null,
             partition: null,
-            attempt: attempts,
+            attempt: recentAttempts,
             category: 'transport',
             recoverable: true,
             message: 'Temporary transport failure'
@@ -409,7 +418,8 @@ describe('IndexSyncCoordinator', () => {
 
     await coordinator.start();
 
-    expect(attempts).toBe(4);
+    expect(recentAttempts).toBe(4);
+    expect(reconciliationAttempts).toBe(1);
     expect(delays).toEqual([1000, 2000, 4000]);
     expect(coordinator.state.value.phase).toBe('complete');
   });
