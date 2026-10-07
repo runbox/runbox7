@@ -19,21 +19,32 @@
 
 import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
-interface UpdateStatus {
+export interface UpdateAppData {
+    commit?: string;
+    build_time?: string;
+    build_epoch?: string;
+}
+
+interface UpdateVersion {
+    hash: string;
+    appData?: UpdateAppData;
+}
+
+function toUpdateVersion(version: VersionReadyEvent['currentVersion']): UpdateVersion {
+    return {
+        hash: version.hash,
+        appData: version.appData as UpdateAppData | undefined,
+    };
+}
+
+export interface UpdateStatus {
     type: string;
-    current: {
-        hash: string;
-        appData?: object;
-    };
-    available: {
-        hash: string;
-        appData?: object;
-    };
+    current: UpdateVersion;
+    available: UpdateVersion;
 }
 
 @Injectable()
@@ -48,8 +59,7 @@ export class UpdateAlertService {
     };
     constructor(
         private ngZone: NgZone,
-        private swupdate: SwUpdate,
-        dialog: MatDialog
+        private swupdate: SwUpdate
     ) {
         if (environment.production && swupdate.isEnabled) {
             console.log('UpdateAlertService started');
@@ -59,8 +69,8 @@ export class UpdateAlertService {
                 map(evt => {
                     const update: UpdateStatus = {
                         type: 'UPDATE_AVAILABLE',
-                        current: evt.currentVersion,
-                        available: evt.latestVersion,
+                        current: toUpdateVersion(evt.currentVersion),
+                        available: toUpdateVersion(evt.latestVersion),
                     };
                     return update;
                 })
