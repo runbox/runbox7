@@ -30,6 +30,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { MatListModule } from '@angular/material/list';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -43,6 +44,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AvatarBarComponent } from './avatar-bar.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
 
 import { RunboxWebmailAPI, MessageContents } from '../rmmapi/rbwebmail';
 import { ContactsService } from '../contacts-app/contacts.service';
@@ -105,6 +107,7 @@ describe('SingleMailViewerComponent', () => {
         ResizerModule,
         MatIconModule,
         MatIconTestingModule,
+        MatListModule,
         MatGridListModule,
         MatToolbarModule,
         MatTooltipModule,
@@ -230,6 +233,39 @@ describe('SingleMailViewerComponent', () => {
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
+
+  it('should emit previous and next message events from toolbar buttons', fakeAsync(() => {
+    const previousSpy = jasmine.createSpy('previousMessage');
+    const nextSpy = jasmine.createSpy('nextMessage');
+    component.previousMessage.subscribe(previousSpy);
+    component.nextMessage.subscribe(nextSpy);
+    component.canNavigatePreviousMessage = true;
+    component.canNavigateNextMessage = true;
+
+    component.messageId = 22;
+    tick(1);
+    fixture.detectChanges();
+
+    fixture.debugElement.query(By.css('.messageNavigationPrevious')).triggerEventHandler('click', new MouseEvent('click'));
+    fixture.debugElement.query(By.css('.messageNavigationNext')).triggerEventHandler('click', new MouseEvent('click'));
+
+    expect(previousSpy).toHaveBeenCalledTimes(1);
+    expect(nextSpy).toHaveBeenCalledTimes(1);
+    flush();
+  }));
+
+  it('should disable message navigation buttons at list boundaries', fakeAsync(() => {
+    component.canNavigatePreviousMessage = false;
+    component.canNavigateNextMessage = false;
+
+    component.messageId = 22;
+    tick(1);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('.messageNavigationPrevious')).nativeElement.disabled).toBeTrue();
+    expect(fixture.debugElement.query(By.css('.messageNavigationNext')).nativeElement.disabled).toBeTrue();
+    flush();
+  }));
 
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;

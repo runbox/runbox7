@@ -194,6 +194,14 @@
     </div>
 
     <div class="messageActionButtonsRight">
+      <button class="messageNavigationPrevious" mat-icon-button matTooltip="Previous message" aria-label="Previous message"
+              [disabled]="!canNavigatePreviousMessage" (click)="previousMessage.emit()">
+        <mat-icon svgIcon="chevron-up"></mat-icon>
+      </button>
+      <button class="messageNavigationNext" mat-icon-button matTooltip="Next message" aria-label="Next message"
+              [disabled]="!canNavigateNextMessage" (click)="nextMessage.emit()">
+        <mat-icon svgIcon="chevron-down"></mat-icon>
+      </button>
       <button mat-icon-button matTooltip="Print message (Please consider the environment before printing this email)" (click)="print()" id="buttonPrint">
 	<mat-icon svgIcon="printer"></mat-icon>
       </button>
