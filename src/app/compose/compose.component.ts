@@ -48,6 +48,74 @@ const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
 const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename=';
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+    return value && typeof value === 'object' ? value as Record<string, unknown> : null;
+}
+
+function getContentTypeCandidates(value: unknown): string[] {
+    if (!value) {
+        return [];
+    }
+
+    if (typeof value === 'string') {
+        return [value];
+    }
+
+    if (Array.isArray(value)) {
+        return value.flatMap((entry) => getContentTypeCandidates(entry));
+    }
+
+    const record = asRecord(value);
+
+    if (record) {
+        return [
+            ...getContentTypeCandidates(record.type),
+            ...getContentTypeCandidates(record.value),
+            ...getContentTypeCandidates(record.text),
+            ...getContentTypeCandidates(record.contentType),
+            ...getContentTypeCandidates(record.mimeType),
+        ];
+    }
+
+    return [];
+}
+
+function isHtmlContentType(value: unknown): boolean {
+    return getContentTypeCandidates(value).some((candidate) => {
+        const normalized = candidate.trim().toLowerCase();
+        return normalized === 'html' || /\btext\/html\b/.test(normalized);
+    });
+}
+
+export function getDraftHtmlBody(message: unknown): string | null {
+    const messageRecord = asRecord(message);
+    const text = asRecord(messageRecord?.text);
+
+    if (!text) {
+        return null;
+    }
+
+    if (typeof text.html === 'string' && text.html.length > 0) {
+        return text.html;
+    }
+
+    if (typeof text.text !== 'string' || text.text.length === 0) {
+        return null;
+    }
+
+    const headers = asRecord(messageRecord?.headers) || {};
+    const hasHtmlContentType = isHtmlContentType(text.type)
+        || isHtmlContentType(text.contentType)
+        || isHtmlContentType(messageRecord?.contentType)
+        || isHtmlContentType(messageRecord?.ctype)
+        || isHtmlContentType(headers['content-type'])
+        || isHtmlContentType(headers['Content-Type'])
+        || isHtmlContentType(headers.contentType)
+        || isHtmlContentType(headers.ctype);
+
+    return hasHtmlContentType ? text.text : null;
+}
+
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
@@ -506,8 +574,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         model.subject = msgObj.headers.subject;
         if (msgObj.text) {
-            if (msgObj.text.html) {
-                model.html = msgObj.text.html;
+            const draftHtmlBody = getDraftHtmlBody(msgObj);
+            if (draftHtmlBody) {
+                model.html = draftHtmlBody;
                 model.msg_body = msgObj.text.text;
                 model.useHTML = true;
             } else {
