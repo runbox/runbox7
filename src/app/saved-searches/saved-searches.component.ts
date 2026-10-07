@@ -27,7 +27,8 @@ import { SavedSearch, SavedSearchesService } from './saved-searches.service';
 })
 export class SavedSearchesComponent implements OnInit {
     @Input() expanded = false;
-    @Output() searchClicked: EventEmitter<string> = new EventEmitter();
+    @Input() selectedSearch: SavedSearch = null;
+    @Output() searchClicked: EventEmitter<SavedSearch> = new EventEmitter();
 
     searches: SavedSearch[] = [];
 
@@ -41,5 +42,11 @@ export class SavedSearchesComponent implements OnInit {
 
     remove(index: number): void {
         this.service.remove(index);
+    }
+
+    isSelected(search: SavedSearch): boolean {
+        return !!this.selectedSearch
+            && this.selectedSearch.name === search.name
+            && this.selectedSearch.query === search.query;
     }
 }
