@@ -38,6 +38,7 @@ const INITIAL_SYNC_EVENT_ACTIONS = new Set<InitialIndexSyncWorkerEvent['action']
 
 export class IndexWorkerClient {
   private operationId: string = null;
+  private workerOpenPending = false;
   private workerFailure: RecentCatchUpFailedEvent = null;
   public readonly events = new Subject<InitialIndexSyncWorkerEvent>();
 
@@ -45,9 +46,12 @@ export class IndexWorkerClient {
 
   public startOperation(operationId: string): void {
     this.operationId = operationId;
+    this.workerOpenPending = false;
+    this.workerFailure = null;
   }
 
   public openIndex(localdir: string, partitionsdir: string): void {
+    this.workerOpenPending = true;
     this.postMessage({
       action: 'openIndex',
       operationId: this.requireOperationId(),
@@ -111,6 +115,12 @@ export class IndexWorkerClient {
       code: 'worker-crashed',
       message
     };
+    if (phase === 'opening-worker') {
+      if (!this.workerOpenPending) {
+        return;
+      }
+      this.workerOpenPending = false;
+    }
     this.events.next(this.workerFailure);
   }
 
@@ -130,6 +140,14 @@ export class IndexWorkerClient {
 
     const event = data as InitialIndexSyncWorkerEvent;
     if (event.operationId === this.operationId) {
+      const openingTerminal = event.action === 'workerIndexReady' ||
+        (event.action === 'recentCatchUpFailed' && event.phase === 'opening-worker');
+      if (openingTerminal) {
+        if (!this.workerOpenPending) {
+          return true;
+        }
+        this.workerOpenPending = false;
+      }
       this.events.next(event);
     }
     return true;

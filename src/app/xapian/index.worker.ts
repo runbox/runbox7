@@ -33,7 +33,7 @@ import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCou
 import { PostMessageAction } from './messageactions';
 import { InitialIndexWorkerSync } from './initial-index-worker-sync';
 import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
-import { prepareInitialIndexOpen } from './initial-index-open';
+import { runInitialIndexOpen } from './initial-index-open';
 import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
 import { executeIndexMutation } from './index-mutation';
 import { clearFailedIndexUpdate } from './index-update-failure-policy';
@@ -147,157 +147,96 @@ class SearchIndexService {
 
   // constructor( private httpclient: HttpClient ) {}
 
-  loadSearchIndexes(db: IDBDatabase, initialOperationId?: string): Observable<boolean> {
+  public hasStoredIndex(db: IDBDatabase): Promise<boolean> {
     console.log(`Worker: got localdir: ${this.localdir}`);
-    return new Observable<any>((observer) => {
+    return new Promise((resolve, reject) => {
       try {
         const req: IDBRequest = db.transaction('FILE_DATA', 'readonly')
           .objectStore('FILE_DATA')
           .get('/' + this.localdir + '/xapianglasswr/iamglass');
         req.onsuccess = () => {
-          // console.log(`Worker: opened ${this.localdir}`);
-          // Don't need these observer results.
-          // console.log(req);
-          if (req.result !== undefined) {
-            // console.log('Worker: Req defined, running init()');
-            this.init(initialOperationId);
-            observer.next(true);
-          } else {
-            // we shouldnt get here cos we only open index on worker if it exists in main thread
-            // console.log('Worker: Req undefined');
-            observer.next(false);
-          }
           db.close();
+          resolve(req.result !== undefined);
+        };
+        req.onerror = () => {
+          db.close();
+          reject(req.error || new Error('Unable to inspect the local search index'));
         };
       } catch (e) {
-        console.error(e);
-        console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
-        // console.log('Worker: Req failed');
-        observer.next(false);
-        // observer.next({'action': PostMessageAction.dbOpen, 'hasLocalindex': false});
+        reject(e);
       }
     });
   }
 
-  init(initialOperationId?: string) {
-    if (this.initcalled) {
-      void prepareInitialIndexOpen({
-        alreadyInitialized: true,
-        initialize: async () => undefined,
-        reload: () => this.reloadInitialIndex(initialOperationId)
+  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
+    return from(this.hasStoredIndex(db).then(async hasStoredIndex => {
+      if (!hasStoredIndex) {
+        return false;
+      }
+      await this.init();
+      this.initSubject.next(true);
+      this.initSubject.complete();
+      ctx.postMessage({
+        'action': PostMessageAction.localSearchActivated,
+        'value': this.localSearchActivated
       });
-      return;
-    }
-    this.initcalled = true;
-
-    // this needs to become a postMessage..
-    // this.downloadProgress = 0; // Set indeterminate progress bar
-
-    // its a DedicatedGlobalGorkerScope
-    // console.log(self);
-    loadXapian(self).subscribe(() => {
-      const initXapianFileSys = () => {
-        this.api =  new XapianAPI();
-        this.indexingTools = new IndexingTools(this.api);
-
-        FS.mkdir(this.localdir);
-        FS.mount(IDBFS, {}, '/' + this.localdir);
-        FS.chdir('/' + this.localdir);
-        console.log('Worker: Local dir is ' + this.localdir);
-
-        FS.syncfs(true, (err) => {
-          if (err) {
-            if (initialOperationId) {
-              ctx.postMessage({
-                action: 'recentCatchUpFailed',
-                operationId: initialOperationId,
-                phase: 'opening-worker',
-                code: 'worker-filesystem-failed',
-                message: 'Unable to open the local search index'
-              });
-            }
-            this.initSubject.error(err);
-            return;
-          }
-          console.log('Worker: File system synced - starting Xapian');
-
-          FS.mkdir(this.partitionsdir); // Partitions will sync later down if there is a main partition
-          FS.mount(IDBFS, {}, this.partitionsdir);
-
-          try {
-            console.log('Worker: Last index timestamp ', FS.stat('xapianglasswr/docdata.glass').mtime);
-
-            this.openStoredMainPartition();
-
-            const docCount: number = this.api.getXapianDocCount();
-            console.log('Worker: ' + docCount, 'docs in Xapian database');
-
-            try {
-              this.indexLastUpdateTime = parseInt(FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }), 10);
-            } catch (e) {
-              if (!this.updateIndexLastUpdateTime()) {
-                // Failed to load, do nothing here, the non-worker side
-                // will tell us to delete the index and run updates
-                return;
-              }
-            }
-
-            this.localSearchActivated = true;
-            this.indexReplacementPending = false;
-            if (!initialOperationId) {
-              ctx.postMessage({
-                'action': PostMessageAction.localSearchActivated,
-                'value': this.localSearchActivated
-              });
-            }
-
-            FS.syncfs(true, async (partitionError) => {
-              if (partitionError) {
-                if (initialOperationId) {
-                  ctx.postMessage({
-                    action: 'recentCatchUpFailed',
-                    operationId: initialOperationId,
-                    phase: 'opening-worker',
-                    code: 'worker-filesystem-failed',
-                    message: 'Unable to open the local search index'
-                  });
-                }
-                return;
-              }
-              // console.log('Worker: Loading partitions');
-              this.openStoredPartitions();
-              if (initialOperationId) {
-                ctx.postMessage({
-                  action: 'workerIndexReady',
-                  operationId: initialOperationId,
-                  baseline: this.indexLastUpdateTime
-                });
-              } else {
-                ctx.postMessage({'action': PostMessageAction.indexUpdated});
-                await this.updateIndexWithNewChanges();
-              }
-            });
-
-
-          } catch (e) {
-            console.log('Worker: No xapian db');
-            this.initSubject.next(false);
-          }
-
-          // this.downloadProgress = null; // Set indeterminate progress bar
-          this.initSubject.complete();
-        });
-      };
-
-      initXapianFileSys();
-    });
+      ctx.postMessage({'action': PostMessageAction.indexUpdated});
+      await this.updateIndexWithNewChanges();
+      return true;
+    }).catch(error => {
+      this.initSubject.error(error);
+      throw error;
+    }));
   }
 
-  private async reloadInitialIndex(initialOperationId?: string): Promise<void> {
-    if (!initialOperationId) {
-      return;
+  async init(): Promise<number> {
+    if (this.initcalled) {
+      return this.reloadInitialIndex();
     }
+    this.initcalled = true;
+    try {
+      await firstValueFrom(loadXapian(self));
+      this.api = new XapianAPI();
+      this.indexingTools = new IndexingTools(this.api);
+
+      FS.mkdir(this.localdir);
+      FS.mount(IDBFS, {}, '/' + this.localdir);
+      FS.chdir('/' + this.localdir);
+      await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
+        error ? reject(error) : resolve()
+      ));
+
+      FS.mkdir(this.partitionsdir);
+      FS.mount(IDBFS, {}, this.partitionsdir);
+      this.openStoredMainPartition();
+      this.api.getXapianDocCount();
+      try {
+        this.indexLastUpdateTime = parseInt(
+          FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }),
+          10
+        );
+      } catch (_error) {
+        if (!this.updateIndexLastUpdateTime()) {
+          throw new Error('Unable to load the local search index baseline');
+        }
+      }
+
+      await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
+        error ? reject(error) : resolve()
+      ));
+      this.openStoredPartitions(true);
+      this.localSearchActivated = true;
+      this.indexReplacementPending = false;
+      return this.indexLastUpdateTime;
+    } catch (error) {
+      this.initcalled = false;
+      this.localSearchActivated = false;
+      throw error;
+    }
+  }
+
+  private async reloadInitialIndex(): Promise<number> {
     try {
       if (this.messageProcessingInProgressSubject) {
         await firstValueFrom(this.messageProcessingInProgressSubject);
@@ -314,11 +253,7 @@ class SearchIndexService {
       );
       this.localSearchActivated = true;
       this.indexReplacementPending = false;
-      ctx.postMessage({
-        action: 'workerIndexReady',
-        operationId: initialOperationId,
-        baseline: this.indexLastUpdateTime
-      });
+      return this.indexLastUpdateTime;
     } catch (_error) {
       try {
         this.api.closeXapianDatabase();
@@ -326,13 +261,7 @@ class SearchIndexService {
         // Opening may have failed before Xapian created a database handle.
       }
       this.localSearchActivated = false;
-      ctx.postMessage({
-        action: 'recentCatchUpFailed',
-        operationId: initialOperationId,
-        phase: 'opening-worker',
-        code: 'worker-reload-failed',
-        message: 'Unable to reload the local search index'
-      });
+      throw new Error('Unable to reload the local search index');
     }
   }
 
@@ -1172,12 +1101,12 @@ const initialIndexWorkerSync = new InitialIndexWorkerSync({
   }
 });
 
-const postWorkerOpenFailure = (command: OpenIndexCommand) => ctx.postMessage({
+const postWorkerOpenFailure = (command: OpenIndexCommand, error: Error) => ctx.postMessage({
   action: 'recentCatchUpFailed',
   operationId: command.operationId,
   phase: 'opening-worker',
   code: 'worker-open-failed',
-  message: 'Unable to open the local search index'
+  message: error.message || 'Unable to open the local search index'
 });
 
 const openInitialIndex = (command: OpenIndexCommand) => {
@@ -1187,18 +1116,26 @@ const openInitialIndex = (command: OpenIndexCommand) => {
   searchIndexService.localdir = command.localdir;
   searchIndexService.partitionsdir = command.partitionsdir;
 
-  const idbrequest: IDBOpenDBRequest = self.indexedDB.open('/' + command.localdir);
-  idbrequest.onsuccess = () => {
-    searchIndexService.loadSearchIndexes(
-      idbrequest.result,
-      command.operationId
-    ).subscribe(result => {
-      if (!result) {
-        postWorkerOpenFailure(command);
-      }
-    });
-  };
-  idbrequest.onerror = () => postWorkerOpenFailure(command);
+  let database: IDBDatabase;
+  void runInitialIndexOpen({
+    lookupStoredIndex: async () => {
+      database = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = self.indexedDB.open('/' + command.localdir);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(
+          request.error || new Error('Unable to open the local search index storage')
+        );
+      });
+      return searchIndexService.hasStoredIndex(database);
+    },
+    initialize: () => searchIndexService.init(),
+    ready: baseline => ctx.postMessage({
+      action: 'workerIndexReady',
+      operationId: command.operationId,
+      baseline
+    }),
+    failed: error => postWorkerOpenFailure(command, error)
+  });
 };
 
 ctx.addEventListener('message', ({ data }) => {

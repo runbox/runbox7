@@ -30,3 +30,29 @@ export function prepareInitialIndexOpen(
     ? dependencies.reload()
     : dependencies.initialize();
 }
+
+export interface RunInitialIndexOpenDependencies {
+  lookupStoredIndex: () => Promise<boolean>;
+  initialize: () => Promise<number>;
+  ready: (baseline: number) => void;
+  failed: (error: Error) => void;
+}
+
+export async function runInitialIndexOpen(
+  dependencies: RunInitialIndexOpenDependencies
+): Promise<void> {
+  let settled = false;
+  try {
+    if (!await dependencies.lookupStoredIndex()) {
+      throw new Error('Local search index not found');
+    }
+    const baseline = await dependencies.initialize();
+    settled = true;
+    dependencies.ready(baseline);
+  } catch (error) {
+    if (!settled) {
+      settled = true;
+      dependencies.failed(error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+}

@@ -118,6 +118,7 @@ export class SearchService {
   public indexUpdatedSubject: Subject<any> = new Subject();
 
   public localSearchActivated = false;
+  private initializationReady: Promise<void> = null;
   public downloadProgress: number = null;
   partitionDownloadProgress: number = null;
 
@@ -300,7 +301,7 @@ export class SearchService {
       ).subscribe((hasLocalIndex: boolean) => {
         if (!this.isExpired) {
           if (hasLocalIndex) {
-            this.init();
+            void this.init();
             this.initSubject.subscribe((opened) => {
               if (opened) {
                 this.indexReloadedSubject.next(undefined);
@@ -353,11 +354,18 @@ export class SearchService {
     );
   }
 
-  public init() {
+  public init(): Promise<void> {
     if (this.initcalled) {
-      return;
+      return this.initializationReady;
     }
     this.initcalled = true;
+
+    let resolveInitialization: () => void;
+    let rejectInitialization: (error: unknown) => void;
+    this.initializationReady = new Promise<void>((resolve, reject) => {
+      resolveInitialization = resolve;
+      rejectInitialization = reject;
+    });
 
     this.downloadProgress = 0; // Set indeterminate progress bar
 
@@ -402,20 +410,36 @@ export class SearchService {
       });
 
     // open for reading (for canvastable comms)
-    xapianLoadedSubject.subscribe(() => {
-      const initXapianFileSys = () => {
-        this.api =  new XapianAPI();
+    xapianLoadedSubject.subscribe({
+      next: () => {
+        const initXapianFileSys = () => {
+          try {
+            this.api = new XapianAPI();
 
-        FS.mkdir(this.localdir);
-        FS.mount(IDBFS, {}, '/' + this.localdir);
-        FS.chdir('/' + this.localdir);
-        console.log('Local dir is ' + this.localdir);
+            FS.mkdir(this.localdir);
+            FS.mount(IDBFS, {}, '/' + this.localdir);
+            FS.chdir('/' + this.localdir);
+            console.log('Local dir is ' + this.localdir);
+          } catch (error) {
+            rejectInitialization(error);
+            return;
+          }
 
         FS.syncfs(true, (err) => {
+          if (err) {
+            rejectInitialization(err);
+            return;
+          }
           console.log('File system synced - starting Xapian');
 
-          FS.mkdir(this.partitionsdir); // Partitions will sync later down if there is a main partition
-          FS.mount(IDBFS, {}, this.partitionsdir);
+          try {
+            FS.mkdir(this.partitionsdir); // Partitions will sync later down if there is a main partition
+            FS.mount(IDBFS, {}, this.partitionsdir);
+            resolveInitialization();
+          } catch (error) {
+            rejectInitialization(error);
+            return;
+          }
 
           try {
             // just fyi, we don't need this for reading
@@ -461,10 +485,13 @@ export class SearchService {
           this.downloadProgress = null; // Set indeterminate progress bar
           this.initSubject.complete();
         });
-      };
+        };
 
-      initXapianFileSys();
+        initXapianFileSys();
+      },
+      error: error => rejectInitialization(error)
     });
+    return this.initializationReady;
   }
 
   private openStoredPartitions() {
@@ -642,8 +669,7 @@ export class SearchService {
     onProgress: (downloadedBytes: number) => void
   ): Promise<void> {
     await this.prepareWorkerForIndexReplacement();
-    this.init();
-    await firstValueFrom(this.initSubject);
+    await this.init();
 
     if (this.localSearchActivated) {
       this.api.closeXapianDatabase();
@@ -953,7 +979,7 @@ export class SearchService {
     this.indexWorker.postMessage({'action': PostMessageAction.stopIndexUpdates });
     this.notifyOnNewMessages = false; // we don't want notification on first message update after index load
     this.indexDownloadingInProgress = true;
-    this.init();
+    void this.init();
 
     // initSubject returns false if no db yet, but that's fine
     // we're downloading it here..
