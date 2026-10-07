@@ -141,7 +141,16 @@ describe('AppComponent initial index synchronization', () => {
     spyOn(component, 'afterUpdateIndex');
 
     component.handleInitialIndexSyncState(state('failed', {
-      error: 'Unable to synchronize the local search index'
+      error: {
+        operationId: 'sync-1',
+        phase: 'catching-up-recent',
+        page: null,
+        partition: null,
+        attempt: 1,
+        category: 'transport',
+        recoverable: true,
+        message: 'Unable to synchronize the local search index'
+      }
     }));
 
     expect(component.usewebsocketsearch).toBeTrue();
@@ -158,7 +167,16 @@ describe('AppComponent initial index synchronization', () => {
 
     component.handleInitialIndexSyncState(state('local-index-ready'));
     component.handleInitialIndexSyncState(state('failed', {
-      error: 'Unable to synchronize the local search index'
+      error: {
+        operationId: 'sync-1',
+        phase: 'downloading-history',
+        page: null,
+        partition: 1,
+        attempt: 1,
+        category: 'transport',
+        recoverable: true,
+        message: 'Unable to synchronize the local search index'
+      }
     }));
 
     expect(component.usewebsocketsearch).toBeFalse();

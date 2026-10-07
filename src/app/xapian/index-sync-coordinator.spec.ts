@@ -279,7 +279,13 @@ describe('IndexSyncCoordinator', () => {
     expect(discarded).toEqual(['discarded']);
     expect(coordinator.state.value).toEqual(jasmine.objectContaining({
       phase: 'failed',
-      error: 'Unable to synchronize the local search index'
+      error: jasmine.objectContaining({
+        operationId: 'sync-1',
+        phase: 'downloading-main',
+        category: 'corruption',
+        recoverable: false,
+        message: 'Unable to synchronize the local search index'
+      })
     }));
   });
 

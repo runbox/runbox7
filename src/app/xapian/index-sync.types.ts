@@ -32,6 +32,37 @@ export type IndexSyncPhase =
   | 'failed'
   | 'cancelled';
 
+export type IndexSyncFailureCategory =
+  | 'transport'
+  | 'initialization'
+  | 'persistence'
+  | 'validation'
+  | 'publication'
+  | 'corruption'
+  | 'rollback'
+  | 'cancellation-cleanup';
+
+export interface IndexSyncFailureDetails {
+  operationId: string;
+  phase: IndexSyncPhase;
+  page: number | null;
+  partition: number | null;
+  attempt: number;
+  category: IndexSyncFailureCategory;
+  recoverable: boolean;
+  message: string;
+}
+
+export class IndexSyncError extends Error {
+  constructor(
+    public readonly details: IndexSyncFailureDetails,
+    public readonly cause: unknown = null
+  ) {
+    super(details.message);
+    this.name = 'IndexSyncError';
+  }
+}
+
 export interface IndexSyncState {
   operationId: string;
   phase: IndexSyncPhase;
@@ -42,7 +73,7 @@ export interface IndexSyncState {
   totalPartitions: number;
   downloadedBytes: number;
   totalBytes: number;
-  error: string | null;
+  error: IndexSyncFailureDetails | null;
 }
 
 export interface NormalizedIndexPartitionFile {

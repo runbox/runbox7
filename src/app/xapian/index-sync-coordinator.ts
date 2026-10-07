@@ -20,6 +20,10 @@
 import { BehaviorSubject } from 'rxjs';
 
 import {
+  IndexSyncError,
+  IndexSyncFailureCategory,
+  IndexSyncFailureDetails,
+  IndexSyncPhase,
   IndexSyncState,
   NormalizedIndexManifest,
   NormalizedIndexPartition,
@@ -61,12 +65,6 @@ export interface IndexSyncCoordinatorDependencies {
 }
 
 const retryDelays = [1000, 2000, 4000];
-
-class IndexPublicationError extends Error {
-  constructor(message: string, public readonly originalError: unknown) {
-    super(message);
-  }
-}
 
 const initialState = (operationId: string): IndexSyncState => ({
   operationId,
@@ -188,14 +186,14 @@ export class IndexSyncCoordinator {
       }
       console.error(
         `Initial index synchronization failed during ${this.state.value.phase}`,
-        error instanceof IndexPublicationError ? error.originalError : error
+        error instanceof IndexSyncError ? error.cause || error : error
       );
       if (!this.localIndexPublished) {
         await this.discardIncompleteIndex();
       }
       this.updateState({
         phase: 'failed',
-        error: 'Unable to synchronize the local search index'
+        error: this.failureDetails(error)
       });
     }
   }
@@ -221,7 +219,9 @@ export class IndexSyncCoordinator {
         await this.dependencies.reloadPublishedLocalIndex();
       }
     } catch (error) {
-      throw new IndexPublicationError(
+      throw this.syncError(
+        'publication',
+        false,
         'Unable to publish the local search index',
         error
       );
@@ -238,7 +238,9 @@ export class IndexSyncCoordinator {
       try {
         await this.publishLocalIndex();
       } catch (error) {
-        throw new IndexPublicationError(
+        throw this.syncError(
+          'publication',
+          false,
           'Unable to publish the local search index',
           error
         );
@@ -263,9 +265,10 @@ export class IndexSyncCoordinator {
       try {
         return await operation();
       } catch (error) {
-        if (this.cancelled || error instanceof IndexPublicationError ||
-          attempt >= retryDelays.length) {
-          throw error;
+        const syncError = this.normalizeRetryError(error, attempt + 1);
+        if (this.cancelled || syncError.details.category !== 'transport' ||
+          !syncError.details.recoverable || attempt >= retryDelays.length) {
+          throw syncError;
         }
         await this.dependencies.waitBeforeRetry(retryDelays[attempt]);
       }
@@ -303,6 +306,83 @@ export class IndexSyncCoordinator {
   }
 
   private updateState(changes: Partial<IndexSyncState>): void {
-    this.state.next({ ...this.state.value, ...changes });
+    const current = this.state.value;
+    this.state.next({
+      ...current,
+      ...changes,
+      downloadedBytes: changes.downloadedBytes === undefined
+        ? current.downloadedBytes
+        : Math.max(current.downloadedBytes, changes.downloadedBytes),
+      fetchedMessages: changes.fetchedMessages === undefined
+        ? current.fetchedMessages
+        : Math.max(current.fetchedMessages, changes.fetchedMessages),
+      committedMessages: changes.committedMessages === undefined
+        ? current.committedMessages
+        : Math.max(current.committedMessages, changes.committedMessages)
+    });
+  }
+
+  private normalizeRetryError(error: unknown, attempt: number): IndexSyncError {
+    if (error instanceof IndexSyncError) {
+      return new IndexSyncError({
+        ...error.details,
+        operationId: this.state.value.operationId,
+        phase: this.state.value.phase,
+        attempt
+      }, error.cause);
+    }
+    return this.syncError(
+      this.defaultFailureCategory(this.state.value.phase),
+      false,
+      'Unable to synchronize the local search index',
+      error,
+      attempt
+    );
+  }
+
+  private failureDetails(error: unknown): IndexSyncFailureDetails {
+    if (error instanceof IndexSyncError) {
+      return {
+        ...error.details,
+        operationId: this.state.value.operationId,
+        phase: error.details.phase || this.state.value.phase,
+        message: 'Unable to synchronize the local search index'
+      };
+    }
+    return this.syncError(
+      this.defaultFailureCategory(this.state.value.phase),
+      false,
+      'Unable to synchronize the local search index',
+      error
+    ).details;
+  }
+
+  private syncError(
+    category: IndexSyncFailureCategory,
+    recoverable: boolean,
+    message: string,
+    cause: unknown,
+    attempt = 1
+  ): IndexSyncError {
+    return new IndexSyncError({
+      operationId: this.state.value.operationId,
+      phase: this.state.value.phase,
+      page: this.state.value.currentPage || null,
+      partition: this.state.value.currentPartition || null,
+      attempt,
+      category,
+      recoverable,
+      message
+    }, cause);
+  }
+
+  private defaultFailureCategory(phase: IndexSyncPhase): IndexSyncFailureCategory {
+    if (phase === 'discovering') {
+      return 'validation';
+    }
+    if (phase === 'opening-worker') {
+      return 'initialization';
+    }
+    return 'corruption';
   }
 }
