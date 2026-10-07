@@ -67,6 +67,26 @@ describe('RunboxCalendarEvent', () => {
         // test things addEvent calls:
         expect(newEvent.toIcal()).toMatch(/BEGIN:VEVENT/);
     });
+    it('should expose readable text for entity-encoded HTML descriptions', () => {
+        const ical = new ICAL.Component(['vcalendar', [], [
+            [ 'vevent', [
+                [ 'dtstart', {}, 'date', '2021-05-15' ],
+                [ 'dtend',   {}, 'date', '2021-05-16' ],
+                [ 'summary', {}, 'text', 'Meeting invitation' ],
+                [
+                    'description', {}, 'text',
+                    '&lt;p&gt;Agenda &amp;amp; notes&lt;/p&gt;&lt;br&gt;Room&nbsp;4'
+                ],
+            ] ]
+        ]]);
+        const sut = new RunboxCalendarEvent(
+          'testcal/testev', new ICAL.Event(ical.getFirstSubcomponent('vevent')),
+          ICAL.Time.fromDateString('2021-05-15'), ICAL.Time.fromDateString('2021-05-16')
+        );
+
+        expect(sut.description).toBe('&lt;p&gt;Agenda &amp;amp; notes&lt;/p&gt;&lt;br&gt;Room&nbsp;4');
+        expect(sut.displayDescription).toBe('Agenda & notes\nRoom 4');
+    });
     it('should be possible to create a new event, without times', () => {
         const newEvent = RunboxCalendarEvent.newEmpty();
         newEvent.updateEvent(
