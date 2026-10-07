@@ -96,7 +96,7 @@ export class SearchMessageDisplay extends MessageDisplay {
           cacheKey: 'subject',
           sortColumn: 1,
           getValue: (rowIndex): string => {
-            return this.searchService.getDocData(this.getRowId(rowIndex)).subject;
+            return MessageTableRowTool.formatSubject(this.searchService.getDocData(this.getRowId(rowIndex)).subject);
           },
           draggable: true,
           getContentPreviewText: (rowIndex): string => {
