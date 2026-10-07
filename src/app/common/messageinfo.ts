@@ -21,6 +21,9 @@ import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { MailAddressInfo } from './mailaddressinfo';
 
 export class MessageInfo {
+    private static ignoredSortCharacterRegex = /[\p{P}\p{S}]/u;
+    private static combiningMarkRegex = /[\u0300-\u036f]/;
+
     deletedFlag: boolean;
 
     constructor(
@@ -58,6 +61,28 @@ export class MessageInfo {
             subjectTextStart ++;
         }
         return subjectparts.slice(subjectTextStart).join(' ');
+    }
+
+    static getSortableText(text: string): string {
+        let sortText = '';
+        const normalizedText = text ? text.trim().normalize('NFD') : '';
+
+        for (const ch of normalizedText) {
+            if (MessageInfo.combiningMarkRegex.test(ch)) {
+                if (sortText.length > 0 && sortText.charAt(sortText.length - 1) !== '~') {
+                    sortText += '~';
+                }
+                continue;
+            }
+
+            if (ch !== '~' && MessageInfo.ignoredSortCharacterRegex.test(ch)) {
+                continue;
+            }
+
+            sortText += ch.toUpperCase();
+        }
+
+        return sortText.replace(/\s+/g, ' ').trim();
     }
 }
 
@@ -126,7 +151,7 @@ export class IndexingTools {
         this.indexAPI.addSortableEmailToXapianIndex(
             'Q' + msginfo.id,
             visibleFrom,
-            visibleFrom.toUpperCase(),
+            MessageInfo.getSortableText(visibleFrom),
             fromAddressInfo.address,
             recipients,
             msginfo.subject,
