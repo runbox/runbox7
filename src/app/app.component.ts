@@ -125,6 +125,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   mailViewerOnRightSide = true;
   mailViewerRightSideWidth = '40%';
+  messageViewerFullscreen = false;
   allowMailViewerOrientationChange = true;
   messageSubjectDragTipShown = false;
   showPopularRecipients = true;
@@ -967,6 +968,32 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     }
   }
 
+  public rowDoubleClicked(_rowIndex: number, columnIndex: number) {
+    const isSelect = columnIndex === 0;
+
+    if (isSelect || this.selectedFolder === this.messagelistservice.templateFolderName) {
+      return;
+    }
+
+    this.expandMessageViewer();
+  }
+
+  private expandMessageViewer(): void {
+    if (this.singlemailviewer?.adjustableHeight && this.singlemailviewer.resizer) {
+      this.singlemailviewer.resizer.resizePercentage(100);
+    } else if (this.mailViewerOnRightSide && this.singlemailviewer?.messageId) {
+      this.messageViewerFullscreen = true;
+    }
+  }
+
+  public restoreMessageListPreview(): void {
+    this.messageViewerFullscreen = false;
+
+    if (this.singlemailviewer?.adjustableHeight && this.singlemailviewer.resizer?.isFullHeight) {
+      this.singlemailviewer.resizer.resizePercentage(50);
+    }
+  }
+
   // CanvasTableSelectListener, columnWidths changed:
   saveColumnWidthsPreference(widths: any) {
     this.preferenceService.set(this.preferenceService.prefGroup, 'canvasNamedColumnWidthsBySet', widths);
@@ -1060,6 +1087,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   singleMailViewerClosed(action: string): void {
+    this.messageViewerFullscreen = false;
     this.canvastable.rows.clearOpenedRow();
     this.updateUrlFragment();
   }
@@ -1372,6 +1400,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   mailViewerOrientationChangeRequest(orientation: string) {
     const currentMessageId = this.singlemailviewer.messageId;
+    this.messageViewerFullscreen = false;
     if (orientation === 'vertical') {
       this.mailViewerOnRightSide = true;
     } else {
