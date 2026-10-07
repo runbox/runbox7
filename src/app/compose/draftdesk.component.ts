@@ -19,9 +19,11 @@
 
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { RecipientsService } from './recipients.service';
+import { ConfirmDialog } from '../dialog/dialog.module';
 
 const MAX_DRAFTS_IN_VIEW = 10;
 
@@ -34,12 +36,14 @@ export class DraftDeskComponent implements OnInit {
     public draftModelsInView: DraftFormModel[] = [];
     public hasMoreDrafts = false;
     public currentMaxDraftsInView: number = MAX_DRAFTS_IN_VIEW;
+    public isEmptyingDrafts = false;
     private hasInitialized = false;
 
     constructor(
         public rmmapi: RunboxWebmailAPI,
         public router: Router,
         private route: ActivatedRoute,
+        private dialog: MatDialog,
         public draftDeskservice: DraftDeskService) {
 
         this.draftDeskservice.draftModels.subscribe(
@@ -109,6 +113,7 @@ export class DraftDeskComponent implements OnInit {
         } else {
             this.draftModelsInView = this.draftDeskservice.draftModels.value.slice(0, this.currentMaxDraftsInView);
         }
+        this.hasMoreDrafts = this.currentMaxDraftsInView < this.draftDeskservice.draftModels.value.length;
     }
 
     draftDeleted(messageId) {
@@ -124,9 +129,46 @@ export class DraftDeskComponent implements OnInit {
         this.updateDraftsInView();
     }
 
+    get savedDraftCount(): number {
+        return this.draftDeskservice.draftModels.value.filter((draft) => !draft.isUnsaved()).length;
+    }
+
+    emptyDrafts() {
+        const savedDraftIds = this.draftDeskservice.draftModels.value
+            .filter((draft) => !draft.isUnsaved())
+            .map((draft) => draft.mid);
+
+        if (savedDraftIds.length === 0 || this.isEmptyingDrafts) {
+            return;
+        }
+
+        const confirmDialog = this.dialog.open(ConfirmDialog);
+        confirmDialog.componentInstance.title = 'Empty Drafts?';
+        confirmDialog.componentInstance.question =
+            `Delete ${savedDraftIds.length} saved draft${savedDraftIds.length === 1 ? '' : 's'}?`;
+        confirmDialog.componentInstance.noOptionTitle = 'cancel';
+        confirmDialog.componentInstance.yesOptionTitle = 'delete';
+        confirmDialog.afterClosed().subscribe((confirmed) => {
+            if (confirmed !== true) {
+                return;
+            }
+
+            this.isEmptyingDrafts = true;
+            this.draftDeskservice.deleteDrafts(savedDraftIds).subscribe({
+                next: () => {
+                    this.isEmptyingDrafts = false;
+                    this.updateDraftsInView();
+                },
+                error: (error) => {
+                    this.isEmptyingDrafts = false;
+                    console.error('Could not empty drafts', error);
+                }
+            });
+        });
+    }
+
     showMore() {
         this.currentMaxDraftsInView += MAX_DRAFTS_IN_VIEW;
         this.updateDraftsInView();
-        this.hasMoreDrafts = this.currentMaxDraftsInView < this.draftDeskservice.draftModels.value.length;
     }
 }
