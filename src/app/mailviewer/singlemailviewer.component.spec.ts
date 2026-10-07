@@ -231,6 +231,21 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('shows expanded headers in message order', fakeAsync(() => {
+      component.messageId = 22;
+      component.showAllHeaders = true;
+      fixture.detectChanges();
+      tick(1);
+      fixture.detectChanges();
+
+      const headerRows: HTMLTableRowElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll('#messageHeader table tr')
+      );
+      const headerNames = headerRows.map(row => row.cells[0].textContent.trim());
+
+      expect(headerNames.slice(0, 3)).toEqual(['from', 'date', 'subject']);
+    }));
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;

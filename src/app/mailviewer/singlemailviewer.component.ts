@@ -27,6 +27,7 @@ import {
   DoCheck
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { KeyValue } from '@angular/common';
 import DOMPurify from 'dompurify';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
@@ -119,6 +120,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   contacts: Contact[] = [];
 
   public SUPPORTS_IFRAME_SANDBOX = 'sandbox' in document.createElement('iframe');
+
+  public keepHeaderOrder(_a: KeyValue<string, unknown>, _b: KeyValue<string, unknown>): number {
+    return 0;
+  }
 
   height = 0;
   previousHeight: number;
