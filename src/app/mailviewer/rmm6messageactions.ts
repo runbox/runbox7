@@ -49,6 +49,10 @@ export class RMM6MessageActions implements MessageActions {
         this.openCompose('/mail/reply?message=' + this.mailViewerComponent.messageId);
     }
 
+    replyAndMove() {
+        this.snackBar.open('Not supported in RMM6 yet', null, {duration: 1000});
+    }
+
     replyToAll() {
         this.openCompose('/mail/replyall?message=' + this.mailViewerComponent.messageId);
     }

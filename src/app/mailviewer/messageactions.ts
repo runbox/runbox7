@@ -27,6 +27,7 @@ export interface MessageActions {
   flag();
   unflag();
   reply(useHTML?: boolean);
+  replyAndMove(useHTML?: boolean);
   replyToAll(useHTML?: boolean);
   forward(useHTML?: boolean);
   markSeen(seen_flag_value?: number);
