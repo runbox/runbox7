@@ -23,6 +23,7 @@ import {
 } from './index-sync-coordinator';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
 import {
+  IndexSyncError,
   NormalizedIndexManifest,
   NormalizedIndexPartition,
   RecentChunkCommittedEvent
@@ -137,7 +138,16 @@ describe('incremental index synchronization orchestration', () => {
     coordinator = new IndexSyncCoordinator('sync-1', dependencies({
       catchUpRecent: async () => {
         attempts++;
-        throw new Error('transport failed');
+        throw new IndexSyncError({
+          operationId: 'sync-1',
+          phase: 'catching-up-recent',
+          page: null,
+          partition: null,
+          attempt: attempts,
+          category: 'transport',
+          recoverable: true,
+          message: 'Transport failed'
+        });
       },
       waitBeforeRetry: async () => coordinator.cancel()
     }));
