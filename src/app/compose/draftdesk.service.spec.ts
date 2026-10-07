@@ -408,6 +408,19 @@ Subject: Test subject <br />
             '"Test Runbox" <to@runbox.com>',
             'Some blahblah');
         expect(draft.isUnsaved()).toBe(false);
+
+        draft = DraftFormModel.createWithRecipients(
+            -1,
+            Identity.fromObject({'email':'from@runbox.com'}),
+            {
+                to: 'to1@runbox.com,to2@runbox.com',
+                cc: 'cc@runbox.com',
+                bcc: 'bcc@runbox.com',
+            },
+            '');
+        expect(draft.to.map(r => r.address)).toEqual(['to1@runbox.com', 'to2@runbox.com']);
+        expect(draft.cc[0].address).toBe('cc@runbox.com');
+        expect(draft.bcc[0].address).toBe('bcc@runbox.com');
         done();
     });
 });

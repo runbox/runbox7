@@ -87,6 +87,18 @@ export class DraftFormModel {
         return ret;
     }
 
+    public static createWithRecipients(
+        draftId: number,
+        fromAddress: Identity,
+        recipients: { to?: string; cc?: string; bcc?: string },
+        subject: string,
+    ): DraftFormModel {
+        const ret = DraftFormModel.create(draftId, fromAddress, recipients.to, subject);
+        ret.cc = recipients.cc ? MailAddressInfo.parse(recipients.cc) : [];
+        ret.bcc = recipients.bcc ? MailAddressInfo.parse(recipients.bcc) : [];
+        return ret;
+    }
+
     public static reply(mailObj, froms: Identity[], all: boolean, useHTML: boolean): DraftFormModel {
         const ret = new DraftFormModel();
         ret.reply_to_id = mailObj.mid;
