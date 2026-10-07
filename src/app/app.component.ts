@@ -71,6 +71,7 @@ const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRi
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
 const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
 const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
+const LOCAL_STORAGE_CONTENTPREVIEWLINES = 'rmm7mailViewerContentPreviewLines';
 const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
@@ -86,6 +87,8 @@ const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectListener, DoCheck {
   showSelectOperations: boolean;
   showSelectMarkOpMenu: boolean;
+  contentPreviewLineOptions = [1, 2, 3];
+  contentPreviewLines = 1;
 
   lastSearchText = '';
   searchText = '';
@@ -299,6 +302,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
       // message list prefs
       if (this.canvastable) {
         this.canvastable.showContentTextPreview = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+        this.contentPreviewLines = this.parseContentPreviewLines(
+          prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_CONTENTPREVIEWLINES}`)
+        );
+        this.canvastable.contentTextPreviewLines = this.contentPreviewLines;
         this.canvastable.columnWidths = prefs.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
       }
       this.keepMessagePaneOpen = prefs.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_KEEP_PANE}`) === 'true';
@@ -363,6 +370,12 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.canvastable = this.canvastablecontainer.canvastable;
     if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`)) {
       this.canvastable.showContentTextPreview = this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`) === 'true';
+    }
+    if (this.preferences.has(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_CONTENTPREVIEWLINES}`)) {
+      this.contentPreviewLines = this.parseContentPreviewLines(
+        this.preferences.get(`${this.preferenceService.prefGroup}:${LOCAL_STORAGE_CONTENTPREVIEWLINES}`)
+      );
+      this.canvastable.contentTextPreviewLines = this.contentPreviewLines;
     }
     if (this.preferences.has(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`)) {
       this.canvastable.columnWidths = this.preferences.get(`${this.preferenceService.prefGroup}:canvasNamedColumnWidthsBySet`) || {};
@@ -676,6 +689,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     const setting = this.canvastable.showContentTextPreview ? 'true' : 'false';
     this.preferenceService.set(this.preferenceService.prefGroup, LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
 //    localStorage.setItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW, setting);
+  }
+
+  saveContentPreviewLinesSetting(lines: number): void {
+    this.contentPreviewLines = this.parseContentPreviewLines(lines);
+    this.canvastable.contentTextPreviewLines = this.contentPreviewLines;
+    this.preferenceService.set(
+      this.preferenceService.prefGroup,
+      LOCAL_STORAGE_CONTENTPREVIEWLINES,
+      this.contentPreviewLines.toString()
+    );
+  }
+
+  private parseContentPreviewLines(lines: unknown): number {
+    const parsedLines = Number(lines);
+    return this.contentPreviewLineOptions.includes(parsedLines) ? parsedLines : 1;
   }
 
   public trainSpam(params) {

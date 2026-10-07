@@ -204,6 +204,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public rowWrapModeDefaultSelectedColumn = 2;
 
   public _showContentTextPreview = false;
+  private _contentTextPreviewLines = 1;
 
   public hasChanges: boolean;
 
@@ -859,7 +860,19 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public set showContentTextPreview(showContentTextPreview: boolean) {
     this._showContentTextPreview = showContentTextPreview;
-    this.hasChanges = true;
+    this.updateRowMetrics();
+  }
+
+  public get contentTextPreviewLines(): number {
+    return this._contentTextPreviewLines;
+  }
+
+  public set contentTextPreviewLines(contentTextPreviewLines: number) {
+    const normalizedLines = Math.max(1, Math.min(3, Number(contentTextPreviewLines) || 1));
+    if (this._contentTextPreviewLines !== normalizedLines) {
+      this._contentTextPreviewLines = normalizedLines;
+      this.updateRowMetrics();
+    }
   }
 
   // When loading a url with a fragment containing a msg id - scroll to there
@@ -889,6 +902,14 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.horizScroll + this.canv.scrollWidth > columnsTotalWidth) {
       this.horizScroll = columnsTotalWidth - this.canv.scrollWidth;
     }
+  }
+
+  private updateRowMetrics() {
+    if (this.canv) {
+      this.maxVisibleRows = this.canv.scrollHeight / this.rowheight;
+      this.enforceScrollLimit();
+    }
+    this.hasChanges = true;
   }
 
   /**
@@ -946,15 +967,46 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   // Height of message list rows
   public get rowheight(): number {
-    return (this.rowWrapMode || this.showContentTextPreview ) ?
-      1.75 * this._rowheight : this._rowheight;
+    if (this.showContentTextPreview) {
+      return (1.75 * this._rowheight) + ((this.contentTextPreviewLines - 1) * 15);
+    }
+    return this.rowWrapMode ? 1.75 * this._rowheight : this._rowheight;
   }
 
   public set rowheight(rowheight: number) {
     if (this._rowheight !== rowheight) {
       this._rowheight = rowheight;
-      this.hasChanges = true;
+      this.updateRowMetrics();
     }
+  }
+
+  private getContentTextPreviewLines(contentPreviewText: string, maxWidth: number): string[] {
+    const normalizedText = (contentPreviewText || '').trim().replace(/\s+/g, ' ');
+    if (!normalizedText) {
+      return [];
+    }
+    if (this.contentTextPreviewLines === 1) {
+      return [normalizedText];
+    }
+
+    const lines: string[] = [];
+    let currentLine = '';
+    for (const word of normalizedText.split(' ')) {
+      if (lines.length >= this.contentTextPreviewLines) {
+        break;
+      }
+      const nextLine = currentLine ? `${currentLine} ${word}` : word;
+      if (!currentLine || this.ctx.measureText(nextLine).width <= maxWidth) {
+        currentLine = nextLine;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    if (currentLine && lines.length < this.contentTextPreviewLines) {
+      lines.push(currentLine);
+    }
+    return lines;
   }
 
   private dopaint() {
@@ -1038,6 +1090,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 //      const rowobj = this.rows[rowIndex];
 
       const halfrowheight = (this.rowheight / 2);
+      const primaryHalfRowHeight = this.showContentTextPreview ? ((1.75 * this._rowheight) / 2) : halfrowheight;
       const rowy = (rowIndex - this.topindex) * this.rowheight;
       if (this.rows.rowExists(rowIndex)) {
         // Clear row area
@@ -1110,7 +1163,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
               this.ctx.fillStyle = this.textColor;
             }
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(formattedVal + '', canvwidth - 36, rowy + halfrowheight - 15);
+            this.ctx.fillText(formattedVal + '', canvwidth - 36, rowy + primaryHalfRowHeight - 15);
 
             this.ctx.restore();
 
@@ -1134,7 +1187,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
               // Wrap rows if in row wrap mode (for e.g. mobile portrait view)
 
               // Check box
-              const texty: number = rowy + halfrowheight;
+              const texty: number = rowy + primaryHalfRowHeight;
               const textx: number = x - this.horizScroll;
 
               const width = col.width - this.colpaddingright - this.colpaddingleft;
@@ -1179,7 +1232,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
                     this.ctx.font = this.fontheight + 'px ' + this.fontFamily;
                     this.ctx.fillStyle = this.textColorLink;
                   }
-                  this.ctx.fillText(formattedVal, x, rowy + halfrowheight + 12
+                  this.ctx.fillText(formattedVal, x, rowy + primaryHalfRowHeight + 12
                         - (this.showContentTextPreview ? 12 : 0)
                       );
                   this.ctx.restore();
@@ -1189,14 +1242,14 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
                   this.ctx.save();
                   this.ctx.font = this.fontheightSmaller + 'px ' + this.fontFamily;
                   this.ctx.fillStyle = this.textColor;
-                  this.ctx.fillText(formattedVal, x, rowy + halfrowheight - 10
+                  this.ctx.fillText(formattedVal, x, rowy + primaryHalfRowHeight - 10
                     - (this.showContentTextPreview ? 8 : 0)
                     );
                   this.ctx.restore();
                 } else {
                   x = 128; // far enough to make the date above fit nicely
                   this.ctx.font = this.fontheightSmall + 'px ' + this.fontFamily;
-                  this.ctx.fillText(formattedVal, x, rowy + halfrowheight - 10
+                  this.ctx.fillText(formattedVal, x, rowy + primaryHalfRowHeight - 10
                     - (this.showContentTextPreview ? 8 : 0));
                   this.ctx.fillStyle = this.textColorLink;
                 }
@@ -1206,7 +1259,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
               // Normal no-wrap mode
 
               // Check box
-              const texty: number = rowy + halfrowheight - (this.showContentTextPreview ? 10 : 0);
+              const texty: number = rowy + primaryHalfRowHeight - (this.showContentTextPreview ? 10 : 0);
               let textx: number = x - this.horizScroll;
 
               const width = col.width - this.colpaddingright - this.colpaddingleft;
@@ -1276,9 +1329,15 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             this.ctx.save();
             this.ctx.fillStyle = this.textColor;
             this.ctx.font = this.fontheightSmaller + 'px ' + this.fontFamily;
-          const contentTextPreviewColumnPadding = this.rowWrapMode ? 2 : 10; // Increase left padding of content preview
-            this.ctx.fillText(contentPreviewText, this.columns[0]. width + contentTextPreviewColumnPadding,
-              rowy + halfrowheight + (this.rowWrapMode ? 18 : 15));
+            const contentTextPreviewColumnPadding = this.rowWrapMode ? 2 : 10; // Increase left padding of content preview
+            const contentTextPreviewX = this.columns[0].width + contentTextPreviewColumnPadding;
+            const contentTextPreviewMaxWidth =
+              Math.max(0, canvwidth - contentTextPreviewX - this.scrollbarwidth - contentTextPreviewColumnPadding);
+            const contentTextPreviewLines = this.getContentTextPreviewLines(contentPreviewText, contentTextPreviewMaxWidth);
+            contentTextPreviewLines.forEach((line, lineIndex) => {
+              this.ctx.fillText(line, contentTextPreviewX,
+                rowy + primaryHalfRowHeight + (this.rowWrapMode ? 18 : 15) + (lineIndex * 15));
+            });
             this.ctx.restore();
           }
         }

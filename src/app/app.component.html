@@ -347,6 +347,23 @@
                 Inline previews
               </mat-checkbox>
             </mat-list-item>
+            <mat-list-item *ngIf="canvastable && canvastable.showContentTextPreview"
+                           class="tableViewOptionsMenuElement contentPreviewLinesMenuItem"
+                           (click)="$event.stopPropagation()">
+              <mat-icon svgIcon="format-line-spacing"
+                        class="tableViewOptionsMenuElement"
+                        matTooltip="Inline preview lines"></mat-icon>
+              <span class="contentPreviewLinesLabel">Preview lines</span>
+              <mat-button-toggle-group
+                [ngModel]="contentPreviewLines"
+                (change)="saveContentPreviewLinesSetting($event.value)"
+                aria-label="Inline preview lines"
+                class="contentPreviewLinesToggle">
+                <mat-button-toggle *ngFor="let lineCount of contentPreviewLineOptions" [value]="lineCount">
+                  {{lineCount}}
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+            </mat-list-item>
             <!-- currently only supporting threading for local index -->
             <mat-list-item>
               <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"

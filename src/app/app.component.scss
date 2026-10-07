@@ -10,6 +10,21 @@
     vertical-align: middle !important;
 }
 
+.contentPreviewLinesMenuItem {
+    height: 44px !important;
+}
+
+.contentPreviewLinesLabel {
+    display: inline-block;
+    min-width: 88px;
+    margin-left: 4px;
+    font-size: 13px;
+}
+
+.contentPreviewLinesToggle {
+    margin-left: 8px;
+}
+
 .contextToolButtonsRegular {
     position: absolute;
     display: flex;
