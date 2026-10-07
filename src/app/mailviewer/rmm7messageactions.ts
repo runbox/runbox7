@@ -177,6 +177,7 @@ export class RMM7MessageActions implements MessageActions {
                         });
                     }
                 }
+                this.mailViewerComponent.close();
             },
             updateRemote: (msgIds: number[]) => {
                 const res = this.rmmapi.trainSpam({is_spam: params.is_spam, messages: msgIds});
@@ -191,7 +192,6 @@ export class RMM7MessageActions implements MessageActions {
                 return res;
             },
             afterwards: (result) => {
-                this.mailViewerComponent.close();
                 this.snackBar.open(
                     result['result']['feedback'], 'Dismiss', {
                         duration: 3000
