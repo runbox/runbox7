@@ -90,6 +90,8 @@ export class FolderListComponent implements OnChanges {
     dataSource: MatTreeFlatDataSource<FolderNode, FolderListEntry>;
 
     storedexpandedFolderIds: number[] = [];
+    private descendantFolderPathsByFolderPath: { [folderPath: string]: string[] } = {};
+
     constructor(
         public dialog: MatDialog,
         private hotkeysService: HotkeysService
@@ -156,6 +158,7 @@ export class FolderListComponent implements OnChanges {
 
     private updateFolderTree(folders: FolderListEntry[]) {
         const treedata: FolderNode[] = [];
+        this.descendantFolderPathsByFolderPath = this.buildDescendantFolderPathsByFolderPath(folders);
 
         let currentFolderLevel = 0;
         const parentStack: FolderNode[] = [];
@@ -189,6 +192,61 @@ export class FolderListComponent implements OnChanges {
         });
 
         this.dataSource.data = treedata;
+    }
+
+    private buildDescendantFolderPathsByFolderPath(folders: FolderListEntry[]): { [folderPath: string]: string[] } {
+        const descendantFolderPaths: { [folderPath: string]: string[] } = {};
+
+        folders.forEach((folder, index) => {
+            descendantFolderPaths[folder.folderPath] = [];
+            for (let i = index + 1; i < folders.length && folders[i].folderLevel > folder.folderLevel; i++) {
+                descendantFolderPaths[folder.folderPath].push(folders[i].folderPath);
+            }
+        });
+
+        return descendantFolderPaths;
+    }
+
+    hasDisplayedMessageCounts(node: FolderListEntry, messageCounts: FolderMessageCountMap): boolean {
+        return messageCounts[node.folderPath] !== undefined;
+    }
+
+    getDisplayedUnreadCount(node: FolderListEntry, messageCounts: FolderMessageCountMap): number {
+        return this.getDisplayedMessageCount(node, messageCounts, 'unread');
+    }
+
+    getDisplayedTotalCount(node: FolderListEntry, messageCounts: FolderMessageCountMap): number {
+        return this.getDisplayedMessageCount(node, messageCounts, 'total');
+    }
+
+    private getDisplayedMessageCount(
+        node: FolderListEntry,
+        messageCounts: FolderMessageCountMap,
+        countKind: 'unread' | 'total'
+    ): number {
+        const directCounts = messageCounts[node.folderPath];
+
+        if (!directCounts) {
+            return 0;
+        }
+
+        if (!node.isExpandable || this.treeControl.isExpanded(node)) {
+            return directCounts[countKind];
+        }
+
+        const descendantFolderPaths = this.descendantFolderPathsByFolderPath[node.folderPath] || [];
+
+        return descendantFolderPaths.reduce(
+            (displayCount, folderPath) => {
+                const childCounts = messageCounts[folderPath];
+                if (childCounts) {
+                    displayCount += childCounts[countKind];
+                }
+
+                return displayCount;
+            },
+            directCounts[countKind]
+        );
     }
 
     private _getLevel = (node: FolderListEntry) => node.folderLevel;

@@ -20,6 +20,7 @@
 import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent } from './folderlist.component';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
+import { FolderMessageCountMap } from '../rmmapi/messagelist.service';
 import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { TestBed } from '@angular/core/testing';
@@ -251,5 +252,41 @@ describe('FolderListComponent', () => {
         expect(newListOfFolders.length).toEqual(3);
         expect(newListOfFolders[2].folderName).toEqual('testtest');
         expect(newListOfFolders[2].folderLevel).toEqual(0);
+    });
+
+    it('should include hidden child folder counts when a parent is collapsed', () => {
+        const comp = new FolderListComponent(dialog, hotkeyMock);
+        const parentFolder = new FolderListEntry(1, 1, 10, 'user', 'Parent', 'Parent', 0);
+        const childFolder = new FolderListEntry(2, 2, 20, 'user', 'Child', 'Parent.Child', 1);
+        const grandchildFolder = new FolderListEntry(3, 3, 30, 'user', 'Grandchild', 'Parent.Child.Grandchild', 2);
+        const siblingFolder = new FolderListEntry(4, 4, 40, 'user', 'Sibling', 'Sibling', 0);
+        comp.folders = new BehaviorSubject([
+            parentFolder,
+            childFolder,
+            grandchildFolder,
+            siblingFolder
+        ]);
+        comp.ngOnChanges();
+
+        const messageCounts: FolderMessageCountMap = {
+            Parent: { unread: 1, total: 10 },
+            'Parent.Child': { unread: 2, total: 20 },
+            'Parent.Child.Grandchild': { unread: 3, total: 30 },
+            Sibling: { unread: 4, total: 40 },
+        };
+
+        expect(comp.getDisplayedUnreadCount(parentFolder, messageCounts)).toBe(6);
+        expect(comp.getDisplayedTotalCount(parentFolder, messageCounts)).toBe(60);
+        expect(comp.getDisplayedUnreadCount(childFolder, messageCounts)).toBe(5);
+        expect(comp.getDisplayedTotalCount(childFolder, messageCounts)).toBe(50);
+        expect(comp.getDisplayedUnreadCount(siblingFolder, messageCounts)).toBe(4);
+        expect(comp.getDisplayedTotalCount(siblingFolder, messageCounts)).toBe(40);
+
+        comp.treeControl.expand(parentFolder);
+
+        expect(comp.getDisplayedUnreadCount(parentFolder, messageCounts)).toBe(1);
+        expect(comp.getDisplayedTotalCount(parentFolder, messageCounts)).toBe(10);
+        expect(comp.getDisplayedUnreadCount(childFolder, messageCounts)).toBe(5);
+        expect(comp.getDisplayedTotalCount(childFolder, messageCounts)).toBe(50);
     });
 });
