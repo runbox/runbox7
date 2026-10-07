@@ -35,6 +35,7 @@ export interface CanvasTableColumn {
   draggable?: boolean;
   sortColumn: number;
   rowWrapModeHidden?: boolean;
+  rowWrapModeStatusIcon?: boolean;
   rowWrapModeMuted?: boolean;
   rowWrapModeChipCounter?: boolean; // E.g. for displaying number of messages in conversation in a "chip"/"badge"
   checkbox?: boolean; // checkbox for selecting rows
