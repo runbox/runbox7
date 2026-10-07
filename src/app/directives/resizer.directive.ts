@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Directive, ElementRef, OnInit, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, OnInit, Input, Renderer2, Output, EventEmitter } from '@angular/core';
 
 @Directive({
     selector: '[appResizable]' // Attribute selector
@@ -26,6 +26,7 @@ export class ResizerDirective implements OnInit {
     @Input() resizableGrabWidth = 8;
     @Input() resizableMinWidth = 10;
     @Input() position = 'start';
+    @Output() resized = new EventEmitter<number>();
 
     dragging = false;
 
@@ -41,9 +42,11 @@ export class ResizerDirective implements OnInit {
                 const newWidth = Math.max(this.resizableMinWidth,
                             ((el.nativeElement.offsetLeft + el.nativeElement.offsetWidth) - evt.clientX)) ;
                 el.nativeElement.style.width = newWidth + 'px';
+                this.resized.emit(newWidth);
             } else {
                 const newWidth = Math.max(this.resizableMinWidth, (evt.clientX - el.nativeElement.offsetLeft)) ;
                 el.nativeElement.style.width = newWidth + 'px';
+                this.resized.emit(newWidth);
             }
         };
 

@@ -167,7 +167,9 @@
             )"
     [style.width]="mailViewerRightSideWidth"
     id="rightPane"
-    appResizable>
+    appResizable
+    position="end"
+    (resized)="mailViewerRightSideResized($event)">
       <single-mail-viewer #singlemailviewer
       [messageActionsHandler]="messageActionsHandler"
       [adjustableHeight]="false"
