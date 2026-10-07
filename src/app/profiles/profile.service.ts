@@ -17,13 +17,19 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { catchError, map, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { Alias, RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 export interface FromPriority {
     from_priority: number;
     id: number;
+}
+
+export interface ProfileValues {
+    email?: string;
+    type?: string;
+    [key: string]: unknown;
 }
 
 export class Identity {
@@ -99,13 +105,49 @@ export class ProfileService {
         );
     }  
     
-    create(values): Observable<boolean> {
-      return this.rmmapi.createProfile(values).pipe(
-          map((res: boolean) => {
-              this.refresh();
-              return res;
-          })
-      );
+    private normalizeEmail(email: string): string {
+        return (email || '').trim().toLowerCase();
+    }
+
+    private aliasEmail(alias: Alias): string {
+        if (alias.email) {
+            return this.normalizeEmail(alias.email);
+        }
+        if (alias.localpart && alias.domain) {
+            return this.normalizeEmail(`${alias.localpart}@${alias.domain}`);
+        }
+        return '';
+    }
+
+    private getAliasEmails(): Observable<Set<string>> {
+        return this.rmmapi.getAliases().pipe(
+            map((aliases: Alias[]) => new Set(
+                aliases.map(alias => this.aliasEmail(alias)).filter(email => email)
+            )),
+            catchError(() => of(new Set<string>()))
+        );
+    }
+
+    private withAliasProfileType(values: ProfileValues): Observable<ProfileValues> {
+        return this.getAliasEmails().pipe(
+            take(1),
+            map((aliasEmails: Set<string>) => {
+                if (aliasEmails.has(this.normalizeEmail(values.email))) {
+                    return { ...values, type: 'aliases' };
+                }
+                return values;
+            })
+        );
+    }
+
+    create(values: ProfileValues): Observable<boolean> {
+        return this.withAliasProfileType(values).pipe(
+            switchMap(profileValues => this.rmmapi.createProfile(profileValues)),
+            map((res: boolean) => {
+                this.refresh();
+                return res;
+            })
+        );
     }
     delete(id): Observable<boolean> {
         return this.rmmapi.deleteProfile(id).pipe(
@@ -116,12 +158,13 @@ export class ProfileService {
         );
     }
 
-    update(id, values): Observable<boolean> {
-        return this.rmmapi.updateProfile(id, values).pipe(
-          map((res: boolean) => {
-              this.refresh();
-              return res;
-          })
+    update(id, values: ProfileValues): Observable<boolean> {
+        return this.withAliasProfileType(values).pipe(
+            switchMap(profileValues => this.rmmapi.updateProfile(id, profileValues)),
+            map((res: boolean) => {
+                this.refresh();
+                return res;
+            })
         );
     }
     reValidate(id) {
