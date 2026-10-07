@@ -60,6 +60,7 @@ describe('IndexWorkerClient', () => {
     const receivedActions: string[] = [];
     client.events.subscribe(event => receivedActions.push(event.action));
 
+    client.openIndex('/local', '/partitions');
     expect(client.handleMessage({
       action: 'workerIndexReady',
       operationId: 'sync-old',
@@ -72,6 +73,41 @@ describe('IndexWorkerClient', () => {
     })).toBeTrue();
 
     expect(receivedActions).toEqual(['workerIndexReady']);
+  });
+
+  it('publishes exactly one terminal event for each worker-open request', () => {
+    const receivedActions: string[] = [];
+    client.events.subscribe(event => receivedActions.push(event.action));
+    client.openIndex('/local', '/partitions');
+
+    client.handleMessage({
+      action: 'recentCatchUpFailed',
+      operationId: 'sync-1',
+      phase: 'opening-worker',
+      code: 'worker-open-failed',
+      message: 'Unable to open the local search index'
+    });
+    client.handleMessage({
+      action: 'recentCatchUpFailed',
+      operationId: 'sync-1',
+      phase: 'opening-worker',
+      code: 'worker-open-failed',
+      message: 'Unable to open the local search index'
+    });
+    client.handleMessage({
+      action: 'workerIndexReady',
+      operationId: 'sync-1',
+      baseline: 1234
+    });
+
+    client.openIndex('/local', '/partitions');
+    client.handleMessage({
+      action: 'workerIndexReady',
+      operationId: 'sync-1',
+      baseline: 1234
+    });
+
+    expect(receivedActions).toEqual(['recentCatchUpFailed', 'workerIndexReady']);
   });
 
   it('publishes replacement readiness only for the active operation', () => {

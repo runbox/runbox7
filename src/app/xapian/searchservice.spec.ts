@@ -171,6 +171,45 @@ describe('SearchService worker boundary', () => {
         await expectAsync(confirmation).toBeResolvedTo(false);
         expect(close).toHaveBeenCalledTimes(1);
     });
+
+    it('waits for fresh filesystem readiness after no-index discovery', async () => {
+        const readinessFailure = new Error('filesystem initialization failed');
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            null,
+            null,
+            null,
+            messageListService,
+            () => ({ postMessage: () => undefined } as unknown as Worker)
+        );
+        const internal = searchService as unknown as {
+            prepareWorkerForIndexReplacement: () => Promise<void>;
+            init: () => Promise<void>;
+            downloadInitialMainPartition: (
+                manifest: NormalizedIndexManifest,
+                progress: (downloadedBytes: number) => void
+            ) => Promise<void>;
+        };
+        spyOn(internal, 'prepareWorkerForIndexReplacement').and.resolveTo();
+        spyOn(internal, 'init').and.rejectWith(readinessFailure);
+        searchService.initSubject.next(false);
+        searchService.initSubject.complete();
+
+        await expectAsync(internal.downloadInitialMainPartition({
+            partitions: [],
+            totalCompressedBytes: 0,
+            totalUncompressedBytes: 0,
+            totalMessages: 0
+        }, () => undefined)).toBeRejectedWith(readinessFailure);
+    });
 });
 
 describe('SearchService', () => {
