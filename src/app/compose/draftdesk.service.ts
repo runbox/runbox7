@@ -107,10 +107,12 @@ export class DraftFormModel {
             ret.to = sender;
         }
 
+        const originalTo = DraftFormModel.addressList(mailObj.to);
+        const originalCc = DraftFormModel.addressList(mailObj.cc);
+
         // If all, also add all the other To/CC folks:
-        // Guard: sometimes mailObj.to is not an array!?
-        if (all && mailObj.to && Array.isArray(mailObj.to)) {
-            ret.to = ret.to.concat(mailObj.to
+        if (all) {
+            ret.to = ret.to.concat(originalTo
                 .filter((addr) =>
                     froms.find(fromObj => fromObj.email === addr.address) ? false : true
                        )
@@ -118,8 +120,8 @@ export class DraftFormModel {
                     return new MailAddressInfo(addr.name, addr.address);
                 })
                                   );
-            if (mailObj.cc) {
-                ret.cc = mailObj.cc
+            if (originalCc.length) {
+                ret.cc = originalCc
                     .filter((addr) => froms.find(fromObj => fromObj.email === addr.address) ? false : true)
                     .map((addr) => {
                         return new MailAddressInfo(addr.name, addr.address);
@@ -156,6 +158,12 @@ export class DraftFormModel {
             ret.useHTML = true;
         }
         return ret;
+    }
+
+    private static addressList(addresses: any): Array<{ name: string; address: string }> {
+        return Array.isArray(addresses)
+            ? addresses.filter(addr => addr && typeof addr.address === 'string')
+            : [];
     }
 
     public static trimmedPreview(preview: string): string {
@@ -219,9 +227,10 @@ ${mailObj.sanitized_html}`;
     private setFromForResponse(mailObj, froms: Identity[]): void {
         if (froms.length > 0) {
             this.from = (
-                [].concat(mailObj.to || []).concat(mailObj.cc || []).find(
-                    addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase())
-                ) || { address: froms[0].email }
+                DraftFormModel.addressList(mailObj.to)
+                    .concat(DraftFormModel.addressList(mailObj.cc))
+                    .find(addr => froms.find(fromObj => fromObj.email === addr.address.toLowerCase()))
+                || { address: froms[0].email }
             ).address.toLowerCase();
         } else {
             console.error('DraftDesk: No froms passed to setFromForResponse');
