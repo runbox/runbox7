@@ -491,6 +491,53 @@ describe('IndexSyncCoordinator', () => {
     expect(attempts).toBe(1);
   });
 
+  it('does not start another retry after cancellation during backoff', async () => {
+    let attempts = 0;
+    let coordinator: IndexSyncCoordinator;
+    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async () => {
+        attempts++;
+        throw new IndexSyncError({
+          operationId: 'sync-1',
+          phase: 'catching-up-recent',
+          page: null,
+          partition: null,
+          attempt: attempts,
+          category: 'transport',
+          recoverable: true,
+          message: 'Temporary transport failure'
+        });
+      },
+      waitBeforeRetry: async () => coordinator.cancel()
+    }));
+
+    await coordinator.start();
+
+    expect(attempts).toBe(1);
+    expect(coordinator.state.value.phase).toBe('cancelled');
+  });
+
+  it('reports cancellation cleanup failure instead of successful cancellation', async () => {
+    let coordinator: IndexSyncCoordinator;
+    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      downloadMainPartition: async () => coordinator.cancel(),
+      discardIncompleteIndex: async () => {
+        throw new Error('cleanup blocked');
+      }
+    }));
+
+    await coordinator.start();
+
+    expect(coordinator.state.value).toEqual(jasmine.objectContaining({
+      phase: 'failed',
+      error: jasmine.objectContaining({
+        category: 'cancellation-cleanup',
+        recoverable: true,
+        message: 'Unable to cancel the local search index synchronization'
+      })
+    }));
+  });
+
   it('preserves the greatest durable progress across retry attempts', async () => {
     let attempts = 0;
     const observedBytes: number[] = [];

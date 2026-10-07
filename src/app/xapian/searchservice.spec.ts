@@ -29,9 +29,11 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
 
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
-import { AsyncSubject, firstValueFrom, NEVER } from 'rxjs';
+import { AsyncSubject, firstValueFrom, NEVER, Subject } from 'rxjs';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
+import { IndexSyncOperation } from './index-sync-operation';
+import { NormalizedIndexManifest } from './index-sync.types';
 
 declare let FS;
 declare let IDBFS;
@@ -110,6 +112,64 @@ describe('SearchService worker boundary', () => {
         httpController.expectOne('/rest/v1/searchindex/partitions');
         httpController.expectNone(request =>
             request.url.startsWith('/mail/download_xapian_index'));
+    });
+
+    it('closes an open history confirmation when synchronization is cancelled', async () => {
+        const afterClosed = new Subject<boolean>();
+        const close = jasmine.createSpy('close').and.callFake(() => {
+            afterClosed.next(false);
+            afterClosed.complete();
+        });
+        const dialog = {
+            open: () => ({
+                componentInstance: {},
+                afterClosed: () => afterClosed,
+                close
+            })
+        };
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            null,
+            null,
+            dialog as never,
+            messageListService,
+            () => ({ postMessage: () => undefined } as unknown as Worker)
+        );
+        searchService.api = {
+            getXapianDocCount: () => 100
+        } as XapianAPI;
+        const manifest = {
+            partitions: [{
+                number: 1,
+                folder: 'xapianglass_1',
+                numberOfMessages: 100,
+                files: [{ filename: 'iamglass', compressedsize: 10, uncompressedsize: 100 }]
+            }],
+            totalCompressedBytes: 10,
+            totalUncompressedBytes: 100,
+            totalMessages: 100
+        } as NormalizedIndexManifest;
+        const operation = new IndexSyncOperation();
+        const confirmation = (searchService as unknown as {
+            confirmInitialHistoricalDownload: (
+                value: NormalizedIndexManifest,
+                index: number,
+                activeOperation: IndexSyncOperation
+            ) => Promise<boolean>;
+        }).confirmInitialHistoricalDownload(manifest, 0, operation);
+
+        operation.cancel();
+
+        await expectAsync(confirmation).toBeResolvedTo(false);
+        expect(close).toHaveBeenCalledTimes(1);
     });
 });
 

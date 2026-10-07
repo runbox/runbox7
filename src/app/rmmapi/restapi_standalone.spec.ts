@@ -30,6 +30,26 @@ describe('listAllMessages', () => {
       .toBeRejectedWithError(/Service Unavailable/);
   });
 
+  it('passes cancellation to an active message request', async () => {
+    const controller = new AbortController();
+    spyOn(window, 'fetch').and.callFake((_url, options) =>
+      new Promise((_resolve, reject) => {
+        options.signal.addEventListener('abort', () => {
+          reject(new DOMException('Request cancelled', 'AbortError'));
+        });
+      })
+    );
+
+    const request = listAllMessages(0, 0, 0, 1000, true, undefined, controller.signal);
+    controller.abort();
+
+    await expectAsync(request).toBeRejectedWithError(DOMException, /cancelled/i);
+    expect(window.fetch).toHaveBeenCalledWith(
+      jasmine.any(String),
+      jasmine.objectContaining({ signal: controller.signal })
+    );
+  });
+
   it('rejects a failed deleted-message response instead of losing deletions', async () => {
     spyOn(window, 'fetch').and.resolveTo(new Response('', {
       status: 503,
