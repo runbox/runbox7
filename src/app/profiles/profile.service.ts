@@ -17,13 +17,20 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 export interface FromPriority {
     from_priority: number;
     id: number;
+}
+
+export interface AliasProfileReference {
+    id?: number | string;
+    localpart?: string;
+    domain?: string;
+    email?: string;
 }
 
 export class Identity {
@@ -43,7 +50,7 @@ export class Identity {
     smtp_port: string;
     smtp_username: string;
     is_verified: boolean;
-    reference: { status: number };
+    reference: { status?: number; id?: number | string; [key: string]: unknown };
     preferred_runbox_domain: string;
     // FIXME: Legacy rubbish for send-folder-options
     folder: string;
@@ -116,6 +123,25 @@ export class ProfileService {
         );
     }
 
+    deleteAssociatedAliasIdentities(alias: AliasProfileReference): Observable<boolean[]> {
+        return this.rmmapi.getProfiles().pipe(
+          map(profiles => profiles.filter(profile => this.isProfileForAlias(profile, alias))),
+          switchMap(profiles => {
+              if (!profiles.length) {
+                  return of([]);
+              }
+              return forkJoin(profiles.map(profile => this.rmmapi.deleteProfile(profile.id)));
+          }),
+          map(results => {
+              if (results.length) {
+                  this.refresh();
+              }
+              return results;
+          }),
+          catchError(() => of([]))
+        );
+    }
+
     update(id, values): Observable<boolean> {
         return this.rmmapi.updateProfile(id, values).pipe(
           map((res: boolean) => {
@@ -137,6 +163,39 @@ export class ProfileService {
                 this.refresh();
             }
         );
+    }
+
+    private isProfileForAlias(profile: Identity, alias: AliasProfileReference): boolean {
+        if (profile.type !== 'aliases' || profile.reference_type !== 'aliases') {
+            return false;
+        }
+
+        const aliasId = this.normalizedId(alias.id);
+        const profileReferenceId = this.normalizedId(profile.reference && profile.reference.id);
+        if (aliasId !== undefined && aliasId === profileReferenceId) {
+            return true;
+        }
+
+        const aliasEmail = this.aliasEmail(alias);
+        return !!aliasEmail && profile.email && profile.email.toLowerCase() === aliasEmail;
+    }
+
+    private normalizedId(id: number | string | undefined): number | string | undefined {
+        if (id === undefined || id === null) {
+            return undefined;
+        }
+        const numberId = Number(id);
+        return Number.isNaN(numberId) ? id : numberId;
+    }
+
+    private aliasEmail(alias: AliasProfileReference): string {
+        if (alias.email) {
+            return alias.email.toLowerCase();
+        }
+        if (alias.localpart && alias.domain) {
+            return `${alias.localpart}@${alias.domain}`.toLowerCase();
+        }
+        return '';
     }
 
 }
