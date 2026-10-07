@@ -19,6 +19,8 @@
 
 import { BehaviorSubject } from 'rxjs';
 
+import { IndexSyncOperation } from './index-sync-operation';
+
 import {
   IndexSyncError,
   IndexSyncFailureCategory,
@@ -82,20 +84,20 @@ const initialState = (operationId: string): IndexSyncState => ({
 export class IndexSyncCoordinator {
   public readonly state: BehaviorSubject<IndexSyncState>;
 
-  private cancelled = false;
   private localIndexPublished = false;
   private cutoverPromise: Promise<void> = null;
 
   constructor(
     operationId: string,
-    private dependencies: IndexSyncCoordinatorDependencies
+    private dependencies: IndexSyncCoordinatorDependencies,
+    private operation = new IndexSyncOperation()
   ) {
     this.state = new BehaviorSubject(initialState(operationId));
   }
 
   public async start(): Promise<void> {
     try {
-      const manifest = await this.dependencies.discoverManifest();
+      const manifest = await this.runDependency(() => this.dependencies.discoverManifest());
       this.updateState({
         totalPartitions: manifest.partitions.length,
         totalBytes: manifest.totalCompressedBytes
@@ -105,16 +107,16 @@ export class IndexSyncCoordinator {
       }
 
       this.updateState({ phase: 'downloading-main' });
-      await this.dependencies.downloadMainPartition(
+      await this.runDependency(() => this.dependencies.downloadMainPartition(
         manifest,
         downloadedBytes => this.updateState({ downloadedBytes })
-      );
+      ));
       if (await this.finishCancellation()) {
         return;
       }
 
       this.updateState({ phase: 'opening-worker' });
-      const baseline = await this.dependencies.openWorkerIndex();
+      const baseline = await this.runDependency(() => this.dependencies.openWorkerIndex());
       if (await this.finishCancellation()) {
         return;
       }
@@ -139,7 +141,8 @@ export class IndexSyncCoordinator {
         .filter(partition => partition.number > 0)
         .sort((left, right) => left.number - right.number);
       for (const [index, partition] of historicalPartitions.entries()) {
-        if (!await this.dependencies.shouldDownloadHistoricalPartition(partition, index)) {
+        if (!await this.runDependency(() =>
+          this.dependencies.shouldDownloadHistoricalPartition(partition, index))) {
           break;
         }
         this.updateState({
@@ -177,10 +180,12 @@ export class IndexSyncCoordinator {
         committedMessages: committedBeforeReconciliation + finalResult.committedMessages
       });
 
+      this.operation.throwIfCancelled();
       this.dependencies.startPeriodicSync();
+      this.operation.throwIfCancelled();
       this.updateState({ phase: 'complete' });
     } catch (error) {
-      if (this.cancelled) {
+      if (this.operation.cancelled) {
         await this.finishCancellation();
         return;
       }
@@ -199,10 +204,10 @@ export class IndexSyncCoordinator {
   }
 
   public cancel(): void {
-    if (this.cancelled) {
+    if (this.operation.cancelled) {
       return;
     }
-    this.cancelled = true;
+    this.operation.cancel();
     this.dependencies.cancelWorkerSync();
   }
 
@@ -211,12 +216,12 @@ export class IndexSyncCoordinator {
     fetchedOffset: number,
     committedOffset: number
   ): Promise<void> {
-    if (this.cancelled) {
+    if (this.operation.cancelled) {
       return;
     }
     try {
       if (this.localIndexPublished) {
-        await this.dependencies.reloadPublishedLocalIndex();
+        await this.runDependency(() => this.dependencies.reloadPublishedLocalIndex());
       }
     } catch (error) {
       throw this.syncError(
@@ -226,7 +231,7 @@ export class IndexSyncCoordinator {
         error
       );
     }
-    if (this.cancelled) {
+    if (this.operation.cancelled) {
       return;
     }
     this.updateState({
@@ -236,7 +241,7 @@ export class IndexSyncCoordinator {
     });
     if (!this.localIndexPublished) {
       try {
-        await this.publishLocalIndex();
+          await this.publishLocalIndex();
       } catch (error) {
         throw this.syncError(
           'publication',
@@ -253,11 +258,8 @@ export class IndexSyncCoordinator {
     finalizeWatermark: boolean,
     onChunk: (event: RecentChunkCommittedEvent) => Promise<void>
   ): Promise<IndexSyncCatchUpResult> {
-    return this.withBoundedRetry(() => this.dependencies.catchUpRecent(
-      baseline,
-      finalizeWatermark,
-      onChunk
-    ));
+    return this.withBoundedRetry(() => this.runDependency(() =>
+      this.dependencies.catchUpRecent(baseline, finalizeWatermark, onChunk)));
   }
 
   private async withBoundedRetry<T>(operation: () => Promise<T>): Promise<T> {
@@ -266,19 +268,21 @@ export class IndexSyncCoordinator {
         return await operation();
       } catch (error) {
         const syncError = this.normalizeRetryError(error, attempt + 1);
-        if (this.cancelled || syncError.details.category !== 'transport' ||
+        if (this.operation.cancelled || syncError.details.category !== 'transport' ||
           !syncError.details.recoverable || attempt >= retryDelays.length) {
           throw syncError;
         }
-        await this.dependencies.waitBeforeRetry(retryDelays[attempt]);
+        await this.runDependency(() =>
+          this.dependencies.waitBeforeRetry(retryDelays[attempt]));
       }
     }
   }
 
   private async publishLocalIndex(): Promise<void> {
     if (!this.cutoverPromise) {
-      this.cutoverPromise = this.dependencies.publishLocalIndex().then(() => {
-        if (this.cancelled) {
+      this.cutoverPromise = this.runDependency(() =>
+        this.dependencies.publishLocalIndex()).then(() => {
+        if (this.operation.cancelled) {
           return;
         }
         this.localIndexPublished = true;
@@ -289,10 +293,23 @@ export class IndexSyncCoordinator {
   }
 
   private async finishCancellation(): Promise<boolean> {
-    if (!this.cancelled) {
+    if (!this.operation.cancelled) {
       return false;
     }
-    await this.discardIncompleteIndex();
+    try {
+      await this.dependencies.discardIncompleteIndex();
+    } catch (error) {
+      this.updateState({
+        phase: 'failed',
+        error: this.syncError(
+          'cancellation-cleanup',
+          true,
+          'Unable to cancel the local search index synchronization',
+          error
+        ).details
+      });
+      return true;
+    }
     this.updateState({ phase: 'cancelled' });
     return true;
   }
@@ -384,5 +401,12 @@ export class IndexSyncCoordinator {
       return 'initialization';
     }
     return 'corruption';
+  }
+
+  private async runDependency<T>(dependency: () => Promise<T>): Promise<T> {
+    this.operation.throwIfCancelled();
+    const result = await dependency();
+    this.operation.throwIfCancelled();
+    return result;
   }
 }

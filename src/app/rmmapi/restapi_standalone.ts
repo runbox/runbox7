@@ -28,7 +28,8 @@ export function listAllMessages(
   sincechangeddate = 0,
   pagesize: number = LIST_ALL_MESSAGES_CHUNK_SIZE,
   skipContent = false,
-  folder?: string)
+  folder?: string,
+  signal?: AbortSignal)
 : Promise<MessageInfo[]> {
   // TODO: Need a JSON based REST api endpoint for this
   const url = '/mail/download_xapian_index?ngsw-bypass=1' +
@@ -45,6 +46,7 @@ export function listAllMessages(
     headers: {
       'Content-Type': 'text/plain',
     },
+    signal,
   }).then((response) => {
     if (!response.ok) {
       throw new Error('Failed to fetch download_xapian_index?listallmessages ' + response.statusText);

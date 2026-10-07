@@ -1137,9 +1137,18 @@ not matching with rest api counts for current folder`);
 }
 
 const searchIndexService = new SearchIndexService();
+let initialSyncAbortController = new AbortController();
 const initialIndexWorkerSync = new InitialIndexWorkerSync({
   fetchPage: (page, baseline, pageSize) =>
-    listAllMessages(page, 0, baseline, pageSize, true),
+    listAllMessages(
+      page,
+      0,
+      baseline,
+      pageSize,
+      true,
+      undefined,
+      initialSyncAbortController.signal
+    ),
   fetchDeletedMessages: (baseline) => listDeletedMessagesSince(
     new Date(baseline - new Date().getTimezoneOffset() * 60 * 1000)
   ),
@@ -1174,6 +1183,7 @@ const postWorkerOpenFailure = (command: OpenIndexCommand) => ctx.postMessage({
 const openInitialIndex = (command: OpenIndexCommand) => {
   clearTimeout(searchIndexService.indexUpdateIntervalId);
   initialIndexWorkerSync.startOperation(command.operationId);
+  initialSyncAbortController = new AbortController();
   searchIndexService.localdir = command.localdir;
   searchIndexService.partitionsdir = command.partitionsdir;
 
@@ -1222,7 +1232,10 @@ ctx.addEventListener('message', ({ data }) => {
         command.page,
         command.batch
       ),
-      cancelInitialSync: command => initialIndexWorkerSync.cancel(command.operationId),
+      cancelInitialSync: command => {
+        initialSyncAbortController.abort();
+        initialIndexWorkerSync.cancel(command.operationId);
+      },
       startPeriodicSync: () => searchIndexService.updateIndexWithNewChanges()
     })) {
       return;

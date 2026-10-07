@@ -29,7 +29,8 @@ import {
   Observable,
   Subject,
   of,
-  from
+  from,
+  merge
 } from 'rxjs';
 import {
   mergeMap,
@@ -62,6 +63,7 @@ import { canStartInitialSync } from './initial-sync-start-policy';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
 import { closeIndexedDatabaseConnections } from './index-storage-cleanup';
 import { rehydratePublishedIndexView } from './published-index-view';
+import { IndexSyncOperation } from './index-sync-operation';
 import {
   IndexSyncCoordinator,
   IndexSyncCoordinatorDependencies
@@ -162,7 +164,7 @@ export class SearchService {
   private initialSyncCoordinator: IndexSyncCoordinator = null;
   private initialSyncOperationNumber = 0;
   private initialSyncDownloadedBytes = 0;
-  private initialSyncCancellationSubject = new Subject<void>();
+  private initialSyncOperation = new IndexSyncOperation();
   private readonly initialSyncStateSubject =
     new BehaviorSubject<IndexSyncState | null>(null);
   private readonly indexDeletionResultSubject = new Subject<string | null>();
@@ -566,7 +568,7 @@ export class SearchService {
       return this.initialSyncCoordinator.state.asObservable();
     }
     const operationId = `index-sync-${++this.initialSyncOperationNumber}`;
-    this.initialSyncCancellationSubject = new Subject<void>();
+    this.initialSyncOperation = new IndexSyncOperation();
     this.initialSyncDownloadedBytes = 0;
     this.indexDownloadingInProgress = true;
     this.stopIndexDownloadingInProgress = false;
@@ -595,18 +597,21 @@ export class SearchService {
         }
         historicalDownloadAccepted = await this.confirmInitialHistoricalDownload(
           discoveredManifest,
-          index
+          index,
+          this.initialSyncOperation
         );
         return historicalDownloadAccepted;
       },
       startPeriodicSync: () => this.indexWorkerClient.startPeriodicSync(),
       cancelWorkerSync: () => this.indexWorkerClient.cancelInitialSync(),
       discardIncompleteIndex: () => this.discardInitialLocalIndex(),
-      waitBeforeRetry: delayMilliseconds => new Promise(resolve =>
-        setTimeout(resolve, delayMilliseconds)
-      )
+      waitBeforeRetry: delayMilliseconds => this.initialSyncOperation.wait(delayMilliseconds)
     };
-    this.initialSyncCoordinator = new IndexSyncCoordinator(operationId, dependencies);
+    this.initialSyncCoordinator = new IndexSyncCoordinator(
+      operationId,
+      dependencies,
+      this.initialSyncOperation
+    );
     this.initialSyncCoordinator.state.subscribe(state => {
       this.initialSyncStateSubject.next(state);
       this.indexDownloadingInProgress = ![
@@ -618,8 +623,11 @@ export class SearchService {
   }
 
   public cancelInitialIndexSynchronization(): void {
-    this.initialSyncCancellationSubject.next();
-    this.initialSyncCoordinator?.cancel();
+    if (this.initialSyncCoordinator) {
+      this.initialSyncCoordinator.cancel();
+    } else {
+      this.initialSyncOperation.cancel();
+    }
   }
 
   private async discoverIndexManifest(): Promise<NormalizedIndexManifest> {
@@ -835,7 +843,8 @@ export class SearchService {
 
   private async confirmInitialHistoricalDownload(
     manifest: NormalizedIndexManifest,
-    historicalIndex: number
+    historicalIndex: number,
+    operation = this.initialSyncOperation
   ): Promise<boolean> {
     const historicalPartitions = manifest.partitions.filter(partition => partition.number > 0);
     const remainingPartitions = historicalPartitions.slice(historicalIndex);
@@ -857,13 +866,20 @@ export class SearchService {
         your most recent messages. To synchronize the entire index
         (another ${remainingMessages} messages),
         there's an additional download of ${remainingDownloadMB} MB.`;
-    return Boolean(await firstValueFrom(dialog.afterClosed()));
+    return firstValueFrom(merge(
+      dialog.afterClosed().pipe(map(value => Boolean(value))),
+      operation.cancelled$.pipe(
+        tap(() => dialog.close()),
+        map(() => false)
+      )
+    ).pipe(take(1)));
   }
 
   private downloadIndexFile(
     url: string,
     onProgress: (loaded: number) => void
   ): Promise<Uint8Array> {
+    this.initialSyncOperation.throwIfCancelled();
     return firstValueFrom(this.httpclient.request(
       new HttpRequest('GET', url, {
         reportProgress: true,
@@ -877,7 +893,7 @@ export class SearchService {
       }),
       filter(event => event instanceof HttpResponse),
       map(event => new Uint8Array((event as HttpResponse<ArrayBuffer>).body)),
-      takeUntil(this.initialSyncCancellationSubject)
+      takeUntil(this.initialSyncOperation.cancelled$)
     ));
   }
 
