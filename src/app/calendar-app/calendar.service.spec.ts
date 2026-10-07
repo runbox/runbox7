@@ -20,9 +20,10 @@
 import { StorageService } from '../storage.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CalendarService } from './calendar.service';
+import { RunboxCalendar } from './runbox-calendar';
 import { RunboxCalendarEvent } from './runbox-calendar-event';
 import { of } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { skip, take } from 'rxjs/operators';
 import moment from 'moment';
 import ICAL from 'ical.js';
 
@@ -224,6 +225,37 @@ END:VCALENDAR
             expect(calls.deleteCalendarEvent).toBe(1, '1 event was deleted');
             r(null);
         }));
+    });
+
+    it('should keep events from unchanged calendars when one calendar changes', async () => {
+        const initialEvents = await new Promise<RunboxCalendarEvent[]>(r => {
+            sut.eventSubject.pipe(take(1)).subscribe(events => r(events));
+        });
+        const preservedEvent = initialEvents.find(e => e.calendar === 'test') as RunboxCalendarEvent;
+
+        expect(sut.icalevents.length).toBe(2, '2 initial ical events found');
+        expect(initialEvents.length).toBe(6, '6 initial events loaded');
+        expect(preservedEvent).toBeDefined('an unchanged calendar event was loaded');
+
+        dav_events['test2/bar'] = {
+            calendar: 'test2',
+            id:       'test2/bar',
+            ical:     'BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART:20190907T100000\nDTEND:20190907T110000\nSUMMARY:Second calendar\nEND:VEVENT\nEND:VCALENDAR\n'
+        };
+
+        const changedEvents = new Promise<RunboxCalendarEvent[]>(r => {
+            sut.eventSubject.pipe(skip(1), take(1)).subscribe(events => r(events));
+        });
+        sut.calendarSubject.next([
+            new RunboxCalendar({ id: 'test',  displayname: 'Test',  syncToken: 'asdf' }),
+            new RunboxCalendar({ id: 'test2', displayname: 'Test2', syncToken: 'changed' })
+        ]);
+
+        const events = await changedEvents;
+        expect(events.length).toBe(7, 'one event was added from the changed calendar');
+        expect(events).toContain(preservedEvent, 'unchanged calendar event object was retained');
+        expect(events.some(e => e.calendar === 'test2' && e.title === 'Second calendar'))
+            .toBe(true, 'changed calendar event was loaded');
     });
 
     it('should be possible to  import an .ics file', () => {
