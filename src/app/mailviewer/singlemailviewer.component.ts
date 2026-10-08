@@ -32,6 +32,7 @@ import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatButtonToggle } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
+import { MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MessageActions } from './messageactions';
@@ -90,6 +91,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('messageContents') messageContents: ElementRef;
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
+  @ViewChild('htmlToggleGroup', { read: MatRadioGroup }) htmlToggleGroup: MatRadioGroup;
   @ViewChild('replyMessageHeader', {read: ElementRef}) replyHeaderHTML: ElementRef;
   @ViewChildren('replyMessageHeader', {read: ElementRef}) replyHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild('forwardMessageHeader', {read: ElementRef}) messageHeaderHTML: ElementRef;
@@ -354,24 +356,35 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
-  public toggleHtml(event) {
-    event.preventDefault();
-
+  // MDC radios bubble both the real and the label-generated click, firing
+  // click handlers twice; the group's change event fires once per selection
+  public htmlViewChanged(event: MatRadioChange) {
     this.savedAlways = false;
     this.savedForThisSender = false;
-    if (!this.showHTML) {
-      console.log(this.showHTMLDecision);
-      const decisionObservable = this.showHTMLDecision ?
-        of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
 
-      decisionObservable.subscribe(result => {
-        this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
-        this.showHTMLDecision = result;
-        this.showHTML = true;
-      });
-    } else {
+    if (event.value !== 'HTML') {
       this.showHTML = false;
+      return;
     }
+
+    // the dialog result only counts while we are still on the same message
+    const messageIdAtOpen = this.messageId;
+    const decision = this.showHTMLDecision
+      ? of(this.showHTMLDecision)
+      : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
+
+    decision.subscribe(result => {
+      if (!result || this.messageId !== messageIdAtOpen) {
+        // cancelling leaves the group on HTML (the click already selected
+        // it) while showHTML stays false, so resync the group explicitly
+        this.showHTML = false;
+        this.htmlToggleGroup.value = 'Plain';
+        return;
+      }
+      this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
+      this.showHTMLDecision = result;
+      this.showHTML = true;
+    });
   }
 
   public showExternalImages(event) {

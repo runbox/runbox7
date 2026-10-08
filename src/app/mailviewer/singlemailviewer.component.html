@@ -297,18 +297,18 @@
     <div class="htmlButtons" *ngIf="mailContentHTML">
 	Show:
         <mat-radio-group
+          #htmlToggleGroup
           aria-label="Toggle Plain/HTML view"
           [value]="showHTML ? 'HTML' : 'Plain'"
+          (change)="htmlViewChanged($event)"
           >
           <mat-radio-button
-            (click)="toggleHtml($event)"
             value="Plain"
             matTooltip="Toggle Plain Text version of message"
             >
             <mat-icon svgIcon="format-letter-case"></mat-icon>
           </mat-radio-button>
           <mat-radio-button
-            (click)="toggleHtml($event)"
             value="HTML"
             matTooltip="Toggle HTML version of message"
             >
