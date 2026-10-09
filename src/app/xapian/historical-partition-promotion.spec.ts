@@ -43,6 +43,9 @@ describe('promoteHistoricalPartition', () => {
     removeBackup: async () => {
       timeline.push('remove-backup');
     },
+    removePromoted: async () => {
+      timeline.push('remove-replacement');
+    },
     restoreBackup: async () => {
       timeline.push('restore-existing');
     },
@@ -112,8 +115,11 @@ describe('promoteHistoricalPartition', () => {
         }
       }))).toBeRejectedWithError(/replacement failed/);
 
+      expect(timeline).toContain('remove-replacement');
       expect(timeline).toContain('restore-existing');
-      expect(timeline.slice(-2)).toEqual(['restore-existing', 'persist']);
+      expect(timeline.slice(-3)).toEqual([
+        'remove-replacement', 'restore-existing', 'persist'
+      ]);
       expect(timeline).not.toContain('remove-backup');
     });
   });
@@ -126,12 +132,17 @@ describe('promoteHistoricalPartition', () => {
       reopenWorker: async () => {
         throw new Error('replacement failed');
       },
-      restoreBackup: async () => {
+      removePromoted: async () => {
         timeline.push('remove-replacement');
+      },
+      restoreBackup: async () => {
+        timeline.push('no-backup-to-restore');
       }
     }))).toBeRejectedWithError(/replacement failed/);
 
-    expect(timeline.slice(-2)).toEqual(['remove-replacement', 'persist']);
+    expect(timeline.slice(-3)).toEqual([
+      'remove-replacement', 'no-backup-to-restore', 'persist'
+    ]);
   });
 
   it('reports rollback failure distinctly while retaining the replacement failure as cause', async () => {
